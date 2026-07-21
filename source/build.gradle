@@ -16,8 +16,8 @@ plugins {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "UQcsse3200_game-engine"
-        property "sonar.organization", "uqcsse3200-test"
+        property "sonar.projectKey", "UQcsse3200_2026-studio-1"
+    	property "sonar.organization", "uqcsse3200"
         property "sonar.host.url", "https://sonarcloud.io"
     }
 }
