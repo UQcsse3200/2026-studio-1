@@ -10,7 +10,7 @@ assignees: ''
 # **Description**
 This should be roughly a one paragraph description of the features / ideas on which your team plans to work. It should very briefly touch on why you think it should be in the game (e.g. "Adds an extra layer of depth to game play"). It should also describe how it will appear or be used in the final product (e.g. "On starting a level, the game will generate a random, procedurally-generated map").
 
-## SubFeature/component (optional)
+## Tasks
 If the ticket contains multiple components, you should explain them in more detail here.
 
 ## **Examples (optional)**
