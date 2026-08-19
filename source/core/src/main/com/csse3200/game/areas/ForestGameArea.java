@@ -70,6 +70,19 @@ public class ForestGameArea extends GameArea {
 
     spawnTerrain();
     spawnTrees();
+
+    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
+
+//    for (int i = 0; i < maxPos.x; i++) {
+//      GridPoint2 floorPos = new GridPoint2(i, minPos.y + 5);
+//      Entity tree = ObstacleFactory.createTree();
+//      spawnEntityAt(tree, floorPos, false, false);
+//    }
+
+    Entity platform = ObstacleFactory.createWall(maxPos.x, 2f);
+    spawnEntityAt(platform, minPos.add(0, 5), false, false);
+
     player = spawnPlayer();
     spawnGhosts();
     spawnGhostKing();
