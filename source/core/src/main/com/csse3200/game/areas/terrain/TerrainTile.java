@@ -15,8 +15,10 @@ public class TerrainTile implements TiledMapTile {
   private TextureRegion textureRegion;
   private float offsetX;
   private float offsetY;
+  private final TileType tileType;
 
-  public TerrainTile(TextureRegion textureRegion) {
+  public TerrainTile(TextureRegion textureRegion, TileType tileType) {
+    this.tileType = tileType;
     this.textureRegion = textureRegion;
   }
 

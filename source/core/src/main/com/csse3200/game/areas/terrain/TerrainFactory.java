@@ -109,9 +109,9 @@ public class TerrainFactory {
   private TiledMap createForestDemoTiles(
       GridPoint2 tileSize, TextureRegion grass, TextureRegion grassTuft, TextureRegion rocks) {
     TiledMap tiledMap = new TiledMap();
-    TerrainTile grassTile = new TerrainTile(grass);
-    TerrainTile grassTuftTile = new TerrainTile(grassTuft);
-    TerrainTile rockTile = new TerrainTile(rocks);
+    TerrainTile grassTile = new TerrainTile(grass, TileType.FLOOR);
+    TerrainTile grassTuftTile = new TerrainTile(grassTuft, TileType.DECORATIVE);
+    TerrainTile rockTile = new TerrainTile(rocks, TileType.HAZARD); // TODO: Adjust the types depending on the design
     TiledMapTileLayer layer = new TiledMapTileLayer(MAP_SIZE.x, MAP_SIZE.y, tileSize.x, tileSize.y);
 
     // Create base grass
