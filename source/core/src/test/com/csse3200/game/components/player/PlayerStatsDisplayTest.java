@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 
@@ -17,13 +18,16 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 @ExtendWith(GameExtension.class)
 class PlayerStatsDisplayTest {
@@ -68,8 +72,51 @@ class PlayerStatsDisplayTest {
         display.create();
     }
 
-    @Test
-    void updatePlayerHealthUI() {
+    @Nested
+    public class HeartColourTest {
+        @Test
+        public void highHealth_showsGreenHearts() {
+            display.updatePlayerHealthUI(70); // 7 hearts -> green
+            assertFilledTexture(green);
+        }
+
+        @Test
+        public void midHealth_showsYellowHearts() {
+            display.updatePlayerHealthUI(50); // 5 hearts -> yellow
+            assertFilledTexture(yellow);
+        }
+
+        @Test
+        public void lowHealth_showsRedHearts() {
+            display.updatePlayerHealthUI(20); // 2 hearts -> red
+            assertFilledTexture(red);
+        }
+    }
+
+    @Nested
+    class HealthLabelTest {
+        @Test
+        void updatePlayerHealthUI_setsExactHealthText() {
+            display.updatePlayerHealthUI(42);
+
+            Label label = getField(display, "healthLabel");
+            assertEquals("Health = 42", label.getText().toString());
+        }
+    }
+
+    @Nested
+    class HealthOverUnderTest {
+        @Test
+        void negativeHealth_showsZeroFilledHearts() {
+            display.updatePlayerHealthUI(-10);
+            assertEquals(0, countFilledHearts());
+        }
+
+        @Test
+        void healthAboveMax_isClampedToTenHearts() {
+            display.updatePlayerHealthUI(150);
+            assertEquals(10, countFilledHearts());
+        }
     }
 
     /*
