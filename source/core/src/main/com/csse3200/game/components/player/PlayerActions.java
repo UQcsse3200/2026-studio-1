@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
-import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
 /**
@@ -21,6 +20,15 @@ public class PlayerActions extends Component {
   private boolean moving = false;
   private boolean jumping = false;
   private PlatformerComponent platformerComponent;
+
+  private boolean doubleJumpPowerup = true;
+  private int doubleJumpRemaining = 1;
+  private int maxDoubleJump = 1;
+
+  private boolean superJumpPowerup = true;
+  private final int superJumpScaler = 2;
+
+  private int baseJumpScaler = 3;
 
   @Override
   public void create() {
@@ -97,9 +105,15 @@ public class PlayerActions extends Component {
     moving = true;
   }
   void jump(Vector2 direction){
-    if(isGrounded()){
+    if(isGrounded() || (doubleJumpPowerup && doubleJumpRemaining >0)){
       this.jumpDirection.y = direction.y;
+      this.jumpDirection.y *= baseJumpScaler;
+      if (!isGrounded()) doubleJumpRemaining--;
+      if(superJumpPowerup) this.jumpDirection.y*= superJumpScaler;
       jumping = true;
+    }
+    if (doubleJumpPowerup && isGrounded()){
+      doubleJumpRemaining = maxDoubleJump;
     }
   }
 

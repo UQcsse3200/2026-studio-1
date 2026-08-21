@@ -29,7 +29,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   public boolean keyDown(int keycode) {
     switch (keycode) {
       case Keys.W:
-          jumpDirection.add(PlatformerComponent.jump());//Adds to the y vector
+          jumpDirection.add(Vector2Utils.UP);//Adds to the y vector
           triggerJumpEvent();
           jumped = true;
           return true;
