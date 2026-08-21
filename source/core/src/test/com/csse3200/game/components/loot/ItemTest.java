@@ -94,4 +94,10 @@ class ItemTest {
                 IllegalArgumentException.class,
                 () -> new Item("Test", null, 1, 10));
     }
+        @Test
+    void shouldSupportAllItemTypes() {
+        assertEquals(ItemType.CONSUMABLE, consumable.getItemType());
+        assertEquals(ItemType.WEAPON, weapon.getItemType());
+        assertEquals(ItemType.CURRENCY, currency.getItemType());
+    }
 }
