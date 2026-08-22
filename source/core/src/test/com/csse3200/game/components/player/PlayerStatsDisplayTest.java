@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -29,7 +30,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class PlayerStatsDisplayTest {
 
   private PlayerStatsDisplay display;
+
   private Texture green, yellow, red, empty;
+  private Texture greenHalf, yellowHalf, redHalf;
+
+  private Sound hitSound;
 
   @BeforeEach
   void setUp() {
@@ -38,15 +43,35 @@ class PlayerStatsDisplayTest {
     red = mock(Texture.class);
     empty = mock(Texture.class);
 
+    greenHalf = mock(Texture.class);
+    yellowHalf = mock(Texture.class);
+    redHalf = mock(Texture.class);
+
+    hitSound = mock(Sound.class);
+
     // PlayerStatsDisplay loads its heart textures by asset path on create(), so the mocked
     // ResourceService must resolve each path to the matching mock texture above.
     ResourceService resourceService = mock(ResourceService.class);
-    when(resourceService.getAsset("images/heart-green.png", Texture.class)).thenReturn(green);
-    when(resourceService.getAsset("images/heart-yellow.png", Texture.class)).thenReturn(yellow);
-    when(resourceService.getAsset("images/heart.png", Texture.class)).thenReturn(red);
-    when(resourceService.getAsset("images/heart-empty.png", Texture.class)).thenReturn(empty);
-    ServiceLocator.registerResourceService(resourceService);
 
+    when(resourceService.getAsset("images/heart-green.png", Texture.class)).thenReturn(green);
+
+    when(resourceService.getAsset("images/heart-yellow.png", Texture.class)).thenReturn(yellow);
+
+    when(resourceService.getAsset("images/heart.png", Texture.class)).thenReturn(red);
+
+    when(resourceService.getAsset("images/heart-empty.png", Texture.class)).thenReturn(empty);
+
+    when(resourceService.getAsset("images/heart-green-half.png", Texture.class))
+        .thenReturn(greenHalf);
+
+    when(resourceService.getAsset("images/heart-yellow-half.png", Texture.class))
+        .thenReturn(yellowHalf);
+
+    when(resourceService.getAsset("images/heart-red-half.png", Texture.class)).thenReturn(redHalf);
+
+    when(resourceService.getAsset("sounds/player-hit.ogg", Sound.class)).thenReturn(hitSound);
+
+    ServiceLocator.registerResourceService(resourceService);
     // UIComponent.create() (the superclass) pulls its Stage from the RenderService, so the
     // stage must be stubbed here rather than injected directly into the display afterwards.
     RenderService renderService = mock(RenderService.class);

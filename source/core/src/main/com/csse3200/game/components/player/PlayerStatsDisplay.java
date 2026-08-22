@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -28,6 +29,7 @@ public class PlayerStatsDisplay extends UIComponent {
 
   private Table table;
   private Label healthLabel;
+  private int previousHealth;
 
   private final Array<Image> heartImages = new Array<>();
 
@@ -101,6 +103,8 @@ public class PlayerStatsDisplay extends UIComponent {
     // Make sure the hearts and text match the player's current health
     int currentHealth = entity.getComponent(CombatStatsComponent.class).getHealth();
 
+    previousHealth = currentHealth;
+
     updatePlayerHealthUI(currentHealth);
   }
 
@@ -117,6 +121,16 @@ public class PlayerStatsDisplay extends UIComponent {
    * @param health player's current health
    */
   public void updatePlayerHealthUI(int health) {
+
+    // Play hit sound when the player's health decreases
+    if (health < previousHealth) {
+      Sound hitSound =
+          ServiceLocator.getResourceService().getAsset("sounds/player-hit.ogg", Sound.class);
+
+      hitSound.play();
+    }
+
+    previousHealth = health;
 
     int fullHearts = health / HEALTH_PER_HEART;
     int remainder = health % HEALTH_PER_HEART;
