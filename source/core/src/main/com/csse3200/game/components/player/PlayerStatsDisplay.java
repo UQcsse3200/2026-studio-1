@@ -54,17 +54,18 @@ public class PlayerStatsDisplay extends UIComponent {
 
     // Load the different heart textures
     greenHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-green.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/heart-green-512px.png", Texture.class);
 
     yellowHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-yellow.png", Texture.class);
+        ServiceLocator.getResourceService()
+            .getAsset("images/heart-yellow-512px.png", Texture.class);
 
     // Existing heart.png is used as the red heart
     redHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/heart-red-512px.png", Texture.class);
 
     emptyHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-empty.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/heart-empty-512px.png", Texture.class);
 
     // Create 10 heart slots.
     // They start as green because the player begins at full health.
