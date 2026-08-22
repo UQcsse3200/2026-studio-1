@@ -1,7 +1,10 @@
 package com.csse3200.game.components;
 
+import com.csse3200.game.extensions.GameExtension;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(GameExtension.class)
 public class PlatformerComponentTest {
   @Test
   public void testMaxDoubleJump() {
