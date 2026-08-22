@@ -35,10 +35,13 @@ import org.slf4j.LoggerFactory;
 public class MainGameScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(MainGameScreen.class);
   private static final String[] mainGameTextures = {
-    "images/heart-red-512px.png",
-    "images/heart-empty-512px.png",
-    "images/heart-green-512px.png",
-    "images/heart-yellow-512px.png"
+    "images/heart.png",
+    "images/heart-empty.png",
+    "images/heart-green-half.png",
+    "images/heart-yellow-half.png",
+    "images/heart-red-half.png",
+    "images/heart-green.png",
+    "images/heart-yellow.png"
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
 
