@@ -37,11 +37,11 @@ public class ObstacleFactory {
   /**
    * Creates a platform entity the player can stand on.
    *
-   * @param width  Platform width in world units
+   * @param width Platform width in world units
    * @param height Platform height in world units
    * @return Platform entity
    */
-   public static Entity createPlatform(float width, float height) {
+  public static Entity createPlatform(float width, float height) {
     Entity platform =
         new Entity()
             .addComponent(new TextureRenderComponent("images/platform.png"))
