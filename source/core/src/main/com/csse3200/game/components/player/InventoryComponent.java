@@ -7,14 +7,32 @@ import org.slf4j.LoggerFactory;
 /**
  * A component intended to be used by the player to track their inventory.
  *
- * <p>Currently only stores the gold amount but can be extended for more advanced functionality such
- * as storing items. Can also be used as a more generic component for other entities.
+ * <p>Stores gold and item slots. Can also be used as a more generic component for other entities.
  */
 public class InventoryComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(InventoryComponent.class);
+  /** Default slot capacity when {@link #InventoryComponent(int)} is used. */
+  private static final int DEFAULT_MAX_SLOTS = 5;
+
+  private final int maxSlots;
   private int gold;
 
   public InventoryComponent(int gold) {
+    this(gold, DEFAULT_MAX_SLOTS);
+  }
+
+  /**
+   * Creates an inventory with an explicit slot capacity.
+   *
+   * @param gold starting gold; values below 0 are clamped to 0
+   * @param maxSlots maximum number of item slots; must be {@code >= 1}
+   * @throws IllegalArgumentException if {@code maxSlots < 1}
+   */
+  public InventoryComponent(int gold, int maxSlots) {
+    if (maxSlots < 1) {
+      throw new IllegalArgumentException("maxSlots must be >= 1");
+    }
+    this.maxSlots = maxSlots;
     setGold(gold);
   }
 
