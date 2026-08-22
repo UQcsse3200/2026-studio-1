@@ -32,7 +32,7 @@ public class PlayerActions extends Component {
 
   @Override
   public void update() {
-    if (moving || platformerComponent.jumping) {
+    if (moving || platformerComponent.getJumpingBool()) {
       updateSpeed();
     }
   }
