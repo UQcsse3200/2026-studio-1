@@ -216,7 +216,7 @@ class InventoryComponentTest {
   @Test
   void shouldUseDefaultMaxSlotsWhenCapacityOmitted() {
     InventoryComponent inventory = new InventoryComponent(0);
-    assertEquals(20, inventory.getMaxSlots());
+    assertEquals(5, inventory.getMaxSlots());
     assertFalse(inventory.isFull());
   }
 
@@ -362,7 +362,8 @@ class InventoryComponentTest {
     assertThrows(
         UnsupportedOperationException.class,
         () -> inventory.getInventorySlots().put(2, potion(1, 10)));
-    assertThrows(UnsupportedOperationException.class, () -> inventory.getInventorySlots().remove(1));
+    assertThrows(
+        UnsupportedOperationException.class, () -> inventory.getInventorySlots().remove(1));
     assertEquals(1, inventory.getOccupiedSlots());
     assertSame(stored, inventory.getItem(1));
   }

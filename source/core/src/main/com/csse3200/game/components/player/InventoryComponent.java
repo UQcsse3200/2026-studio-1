@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InventoryComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(InventoryComponent.class);
+
   /** Default slot capacity when {@link #InventoryComponent(int)} is used. */
   private static final int DEFAULT_MAX_SLOTS = 5;
 
@@ -302,9 +303,9 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Returns whether {@code incoming} can stack onto {@code existing}. Compatibility uses name, type,
-   * and max quantity. {@link Item#equals(Object)} is identity by unique instance id and must not be
-   * used here.
+   * Returns whether {@code incoming} can stack onto {@code existing}. Compatibility uses name,
+   * type, and max quantity. {@link Item#equals(Object)} is identity by unique instance id and must
+   * not be used here.
    *
    * @param existing item already in a slot; {@code null} is not stackable
    * @param incoming item being added; {@code null} is not stackable
