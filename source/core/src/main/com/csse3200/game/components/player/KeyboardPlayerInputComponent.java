@@ -3,7 +3,6 @@ package com.csse3200.game.components.player;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
-import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
 
@@ -18,7 +17,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   public KeyboardPlayerInputComponent() {
     super(5);
   }
+
   private boolean jumped = false;
+
   /**
    * Triggers player events on specific keycodes.
    *
@@ -29,10 +30,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   public boolean keyDown(int keycode) {
     switch (keycode) {
       case Keys.W:
-          jumpDirection.add(Vector2Utils.UP);//Adds to the y vector
-          triggerJumpEvent();
-          jumped = true;
-          return true;
+        jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
+        triggerJumpEvent();
+        jumped = true;
+        return true;
 
       case Keys.A:
         walkDirection.add(Vector2Utils.LEFT);
@@ -63,7 +64,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   @Override
   public boolean keyUp(int keycode) {
     switch (keycode) {
-      //No need for a W case since gravity cancels out the jump
+      // No need for a W case since gravity cancels out the jump
       case Keys.A:
         walkDirection.sub(Vector2Utils.LEFT);
         triggerWalkEvent();
@@ -88,11 +89,11 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       entity.getEvents().trigger("walk", walkDirection);
     }
   }
-  private void triggerJumpEvent(){
-      //Player has upwards y velocity
-      entity.getEvents().trigger("jump", jumpDirection);
-      jumpDirection.y = 0;
-      jumped = false;
 
+  private void triggerJumpEvent() {
+    // Player has upwards y velocity
+    entity.getEvents().trigger("jump", jumpDirection);
+    jumpDirection.y = 0;
+    jumped = false;
   }
 }

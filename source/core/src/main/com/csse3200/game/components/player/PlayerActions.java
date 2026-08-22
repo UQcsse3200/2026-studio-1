@@ -7,6 +7,7 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
+
 /**
  * Action component for interacting with the player. Player events should be initialised in create()
  * and when triggered should call methods within this class.
@@ -43,11 +44,12 @@ public class PlayerActions extends Component {
     // impulse = (desiredVel - currentVel) * mass
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
-    //The y velocity is being killed off for some reason.
+    // The y velocity is being killed off for some reason.
 
-    //For the jump portion
+    // For the jump portion
     platformerComponent.updateJump(MAX_SPEED);
   }
+
   /**
    * Moves the player towards a given direction.
    *
