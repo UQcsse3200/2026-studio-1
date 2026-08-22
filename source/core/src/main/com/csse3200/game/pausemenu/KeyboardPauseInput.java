@@ -10,7 +10,7 @@ public class KeyboardPauseInput extends InputComponent {
     public KeyboardPauseInput(){
         super(10);
     }
-    
+
     public KeyboardPauseInput(PauseMenuComponent pauseMenu){
         this();
         this.pauseMenu = pauseMenu;
