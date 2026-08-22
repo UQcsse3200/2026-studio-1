@@ -41,11 +41,10 @@ class PlayerStatsDisplayTest {
     // PlayerStatsDisplay loads its heart textures by asset path on create(), so the mocked
     // ResourceService must resolve each path to the matching mock texture above.
     ResourceService resourceService = mock(ResourceService.class);
-    when(resourceService.getAsset("images/heart-green-512px.png", Texture.class)).thenReturn(green);
-    when(resourceService.getAsset("images/heart-yellow-512px.png", Texture.class))
-        .thenReturn(yellow);
-    when(resourceService.getAsset("images/heart-red-512px.png", Texture.class)).thenReturn(red);
-    when(resourceService.getAsset("images/heart-empty-512px.png", Texture.class)).thenReturn(empty);
+    when(resourceService.getAsset("images/heart-green.png", Texture.class)).thenReturn(green);
+    when(resourceService.getAsset("images/heart-yellow.png", Texture.class)).thenReturn(yellow);
+    when(resourceService.getAsset("images/heart.png", Texture.class)).thenReturn(red);
+    when(resourceService.getAsset("images/heart-empty.png", Texture.class)).thenReturn(empty);
     ServiceLocator.registerResourceService(resourceService);
 
     // UIComponent.create() (the superclass) pulls its Stage from the RenderService, so the
