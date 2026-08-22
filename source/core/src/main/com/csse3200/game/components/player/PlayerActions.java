@@ -4,6 +4,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -12,15 +13,18 @@ import com.csse3200.game.services.ServiceLocator;
  * and when triggered should call methods within this class.
  */
 public class PlayerActions extends Component {
-  private static final Vector2 MAX_SPEED = new Vector2(3f, 3f); // Metres per second
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
 
   private PhysicsComponent physicsComponent;
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private boolean moving = false;
 
+  private PlatformerComponent platformerComponent;
+
   @Override
   public void create() {
     physicsComponent = entity.getComponent(PhysicsComponent.class);
+    platformerComponent = entity.getComponent(PlatformerComponent.class);
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
@@ -28,7 +32,7 @@ public class PlayerActions extends Component {
 
   @Override
   public void update() {
-    if (moving) {
+    if (moving || platformerComponent.jumping) {
       updateSpeed();
     }
   }
@@ -38,8 +42,12 @@ public class PlayerActions extends Component {
     Vector2 velocity = body.getLinearVelocity();
     Vector2 desiredVelocity = walkDirection.cpy().scl(MAX_SPEED);
     // impulse = (desiredVel - currentVel) * mass
-    Vector2 impulse = desiredVelocity.sub(velocity).scl(body.getMass());
-    body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
+    Vector2 impulse = desiredVelocity.scl(body.getMass());
+    body.applyForce(impulse, body.getWorldCenter(), true);
+    // The y velocity is being killed off for some reason.
+
+    // For the jump portion
+    platformerComponent.updateJump(MAX_SPEED);
   }
 
   /**
