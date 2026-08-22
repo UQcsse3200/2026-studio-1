@@ -26,6 +26,8 @@ import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.csse3200.game.pausemenu.PauseMenuComponent;
+import com.csse3200.game.pausemenu.KeyboardPauseInput;
 
 /**
  * The game screen containing the main game.
@@ -137,7 +139,9 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new MainGameExitDisplay())
         .addComponent(new Terminal())
         .addComponent(inputComponent)
-        .addComponent(new TerminalDisplay());
+        .addComponent(new TerminalDisplay())
+        .addComponent(new PauseMenuComponent())
+        .addComponent(new KeyboardPauseInput());
 
     ServiceLocator.getEntityService().register(ui);
   }
