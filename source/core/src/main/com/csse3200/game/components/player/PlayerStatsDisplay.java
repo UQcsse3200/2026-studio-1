@@ -17,165 +17,217 @@ import com.csse3200.game.ui.UIComponent;
 /**
  * UI component for displaying the player's health as hearts.
  *
- * <p>Each heart represents 10 health points. A player with 100 health therefore has 10 hearts.
+ * <p>Each full heart represents 10 health points.
+ * A half heart represents 5 health points.
  */
 public class PlayerStatsDisplay extends UIComponent {
 
-  private static final int HEALTH_PER_HEART = 10;
-  private static final int MAX_HEARTS = 10;
-  private static final float HEART_SIZE = 30f;
+    private static final int HEALTH_PER_HEART = 10;
+    private static final int HALF_HEART_VALUE = 5;
+    private static final int MAX_HEARTS = 10;
+    private static final float HEART_SIZE = 30f;
 
-  private Table table;
-  private Label healthLabel;
+    private Table table;
+    private Label healthLabel;
 
-  private final Array<Image> heartImages = new Array<>();
+    private final Array<Image> heartImages = new Array<>();
 
-  private Texture greenHeartTexture;
-  private Texture yellowHeartTexture;
-  private Texture redHeartTexture;
-  private Texture emptyHeartTexture;
+    private Texture greenHeartTexture;
+    private Texture yellowHeartTexture;
+    private Texture redHeartTexture;
+    private Texture emptyHeartTexture;
 
-  /** Creates the health UI and listens for health changes. */
-  @Override
-  public void create() {
-    super.create();
+    private Texture greenHalfHeartTexture;
+    private Texture yellowHalfHeartTexture;
+    private Texture redHalfHeartTexture;
 
-    addActors();
+    /** Creates the health UI and listens for health changes. */
+    @Override
+    public void create() {
+        super.create();
 
-    entity.getEvents().addListener("updateHealth", this::updatePlayerHealthUI);
-  }
+        addActors();
 
-  /** Creates the heart images and positions them in the top-left corner. */
-  private void addActors() {
-    table = new Table();
-    table.top().left();
-    table.setFillParent(true);
-    table.padTop(45f).padLeft(5f);
-
-    // Load the different heart textures
-    greenHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-green.png", Texture.class);
-
-    yellowHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-yellow.png", Texture.class);
-
-    // Existing heart.png is used as the red heart
-    redHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart.png", Texture.class);
-
-    emptyHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-empty.png", Texture.class);
-
-    // Create 10 heart slots.
-    // They start as green because the player begins at full health.
-    for (int i = 0; i < MAX_HEARTS; i++) {
-      Image heart = new HealthHeartImage(greenHeartTexture);
-
-      heartImages.add(heart);
-
-      table.add(heart).size(HEART_SIZE).pad(2f);
+        entity.getEvents().addListener(
+                "updateHealth",
+                this::updatePlayerHealthUI
+        );
     }
 
-    // Move to the next row so the health number appears under the hearts
-    table.row();
+    /**
+     * Creates the heart images and positions them in the top-left corner.
+     */
+    private void addActors() {
+        table = new Table();
+        table.top().left();
+        table.setFillParent(true);
+        table.padTop(45f).padLeft(5f);
 
-    healthLabel = new Label("Health = 100", skin, "large");
+        // Full heart textures
+        greenHeartTexture =
+                ServiceLocator.getResourceService()
+                        .getAsset("images/heart-green.png", Texture.class);
 
-    table.add(healthLabel).colspan(MAX_HEARTS).padTop(5f).left();
+        yellowHeartTexture =
+                ServiceLocator.getResourceService()
+                        .getAsset("images/heart-yellow.png", Texture.class);
 
-    stage.addActor(table);
+        redHeartTexture =
+                ServiceLocator.getResourceService()
+                        .getAsset("images/heart.png", Texture.class);
 
-    // Make sure the hearts and text match the player's current health
-    int currentHealth = entity.getComponent(CombatStatsComponent.class).getHealth();
+        emptyHeartTexture =
+                ServiceLocator.getResourceService()
+                        .getAsset("images/heart-empty.png", Texture.class);
 
-    updatePlayerHealthUI(currentHealth);
-  }
+        // Half heart textures
+        greenHalfHeartTexture =
+                ServiceLocator.getResourceService()
+                        .getAsset("images/heart-green-half.png", Texture.class);
 
-  @Override
-  public void draw(SpriteBatch batch) {
-    // Drawing is handled by the stage
-  }
+        yellowHalfHeartTexture =
+                ServiceLocator.getResourceService()
+                        .getAsset("images/heart-yellow-half.png", Texture.class);
 
-  /**
-   * Updates the heart display and health number.
-   *
-   * <p>Every 10 health points represents one filled heart. Lost health is represented by empty
-   * heart outlines.
-   *
-   * @param health player's current health
-   */
-  public void updatePlayerHealthUI(int health) {
+        redHalfHeartTexture =
+                ServiceLocator.getResourceService()
+                        .getAsset("images/heart-red-half.png", Texture.class);
 
-    int visibleHearts = (int) Math.ceil((double) health / HEALTH_PER_HEART);
+        // Create 10 heart slots
+        for (int i = 0; i < MAX_HEARTS; i++) {
+            Image heart = new HealthHeartImage(greenHeartTexture);
 
-    visibleHearts = Math.max(0, Math.min(visibleHearts, MAX_HEARTS));
+            heartImages.add(heart);
 
-    Texture currentHeartTexture;
+            table.add(heart)
+                    .size(HEART_SIZE)
+                    .pad(2f);
+        }
 
-    // Choose which filled-heart image to use
-    if (visibleHearts <= 3) {
-      // 1-3 hearts = red
-      currentHeartTexture = redHeartTexture;
+        // Move to the next row so the health number appears under the hearts
+        table.row();
 
-    } else if (visibleHearts <= 6) {
-      // 4-6 hearts = yellow
-      currentHeartTexture = yellowHeartTexture;
+        healthLabel = new Label(
+                "Health = 100",
+                skin,
+                "large"
+        );
 
-    } else {
-      // 7-10 hearts = green
-      currentHeartTexture = greenHeartTexture;
-    }
+        table.add(healthLabel)
+                .colspan(MAX_HEARTS)
+                .padTop(5f)
+                .left();
 
-    // Update every heart slot
-    for (int i = 0; i < heartImages.size; i++) {
-      Image heart = heartImages.get(i);
+        stage.addActor(table);
 
-      if (i < visibleHearts) {
-        // Filled heart
-        heart.setDrawable(new TextureRegionDrawable(new TextureRegion(currentHeartTexture)));
+        // Make sure the hearts and text match the player's current health
+        int currentHealth =
+                entity.getComponent(CombatStatsComponent.class).getHealth();
 
-      } else {
-        // Empty heart outline
-        heart.setDrawable(new TextureRegionDrawable(new TextureRegion(emptyHeartTexture)));
-      }
-
-      /*
-       * The PNG already contains the desired colour,
-       * so do not tint it.
-       */
-      heart.setColor(Color.WHITE);
-    }
-
-    // Update exact health number
-    healthLabel.setText("Health = " + health);
-  }
-
-  /**
-   * Custom heart image.
-   *
-   * <p>Resets the SpriteBatch colour after drawing so that the heart rendering cannot affect other
-   * objects in the game.
-   */
-  private static class HealthHeartImage extends Image {
-
-    public HealthHeartImage(Texture texture) {
-      super(texture);
+        updatePlayerHealthUI(currentHealth);
     }
 
     @Override
-    public void draw(Batch batch, float parentAlpha) {
-      super.draw(batch, parentAlpha);
-
-      batch.setColor(Color.WHITE);
+    public void draw(SpriteBatch batch) {
+        // Drawing is handled by the stage
     }
-  }
 
-  /** Removes UI actors when this component is destroyed. */
-  @Override
-  public void dispose() {
-    super.dispose();
+    /**
+     * Updates the heart display and health number.
+     *
+     * <p>Every full heart represents 10 HP.
+     * A half heart represents 5 HP.
+     *
+     * @param health player's current health
+     */
+    public void updatePlayerHealthUI(int health) {
 
-    table.remove();
-    heartImages.clear();
-  }
+        int fullHearts = health / HEALTH_PER_HEART;
+        int remainder = health % HEALTH_PER_HEART;
+
+        boolean hasHalfHeart = remainder >= HALF_HEART_VALUE;
+
+        fullHearts = Math.max(0, Math.min(fullHearts, MAX_HEARTS));
+
+        Texture fullHeartTexture;
+        Texture halfHeartTexture;
+
+        // Choose the correct heart colour set based on current health
+        if (health <= 30) {
+            fullHeartTexture = redHeartTexture;
+            halfHeartTexture = redHalfHeartTexture;
+
+        } else if (health <= 60) {
+            fullHeartTexture = yellowHeartTexture;
+            halfHeartTexture = yellowHalfHeartTexture;
+
+        } else {
+            fullHeartTexture = greenHeartTexture;
+            halfHeartTexture = greenHalfHeartTexture;
+        }
+
+        // Update all heart slots
+        for (int i = 0; i < heartImages.size; i++) {
+            Image heart = heartImages.get(i);
+
+            if (i < fullHearts) {
+                // Full heart
+                heart.setDrawable(
+                        new TextureRegionDrawable(
+                                new TextureRegion(fullHeartTexture)
+                        )
+                );
+
+            } else if (i == fullHearts && hasHalfHeart) {
+                // Half heart
+                heart.setDrawable(
+                        new TextureRegionDrawable(
+                                new TextureRegion(halfHeartTexture)
+                        )
+                );
+
+            } else {
+                // Empty heart
+                heart.setDrawable(
+                        new TextureRegionDrawable(
+                                new TextureRegion(emptyHeartTexture)
+                        )
+                );
+            }
+
+            // Do not tint the PNGs
+            heart.setColor(Color.WHITE);
+        }
+
+        // Update exact health number
+        healthLabel.setText("Health = " + health);
+    }
+
+    /**
+     * Custom heart image.
+     *
+     * <p>Resets the SpriteBatch colour after drawing so that heart
+     * rendering cannot affect other objects in the game.
+     */
+    private static class HealthHeartImage extends Image {
+
+        public HealthHeartImage(Texture texture) {
+            super(texture);
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            super.draw(batch, parentAlpha);
+            batch.setColor(Color.WHITE);
+        }
+    }
+
+    /** Removes UI actors when this component is destroyed. */
+    @Override
+    public void dispose() {
+        super.dispose();
+
+        table.remove();
+        heartImages.clear();
+    }
 }

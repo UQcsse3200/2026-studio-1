@@ -37,6 +37,9 @@ public class MainGameScreen extends ScreenAdapter {
   private static final String[] mainGameTextures = {
     "images/heart.png",
     "images/heart-empty.png",
+    "images/heart-green-half.png",
+    "images/heart-yellow-half.png",
+    "images/heart-red-half.png",
     "images/heart-green.png",
     "images/heart-yellow.png"
   };
