@@ -15,6 +15,8 @@ import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
+import com.csse3200.game.pausemenu.KeyboardPauseInput;
+import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -26,8 +28,6 @@ import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.csse3200.game.pausemenu.PauseMenuComponent;
-import com.csse3200.game.pausemenu.KeyboardPauseInput;
 
 /**
  * The game screen containing the main game.

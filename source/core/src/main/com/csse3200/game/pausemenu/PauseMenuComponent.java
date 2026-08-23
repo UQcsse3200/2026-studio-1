@@ -5,15 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PauseMenuComponent extends Component {
-    private static final Logger logger = LoggerFactory.getLogger(PauseMenuComponent.class);
-    private boolean isPaused = false;
+  private static final Logger logger = LoggerFactory.getLogger(PauseMenuComponent.class);
+  private boolean isPaused = false;
 
-    public boolean isPaused(){
-        return isPaused;
-    }
+  public boolean isPaused() {
+    return isPaused;
+  }
 
-    public void toggleIsPaused(){
-        isPaused = !isPaused;
-        logger.info("Paused: {}", isPaused);
-    }
+  public void toggleIsPaused() {
+    isPaused = !isPaused;
+    logger.info("Paused: {}", isPaused);
+  }
 }
