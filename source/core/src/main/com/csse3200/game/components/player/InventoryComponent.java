@@ -2,6 +2,7 @@ package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,9 +157,93 @@ public class InventoryComponent extends Component {
     if (!isAddable(item)) {
       return 0;
     }
+    return addItem(item, item.getQuantity());
+  }
 
-    int remaining = stackIntoExistingSlots(item, item.getQuantity());
+  /**
+   * Adds a specific quantity using {@code item} as a stack template. This supports pickup amounts
+   * that exceed a single stack cap.
+   *
+   * @param item item template used for stack compatibility and max quantity
+   * @param quantity quantity to add
+   * @return quantity that could not be added; {@code 0} means the complete quantity was added
+   */
+  public int addItem(Item item, int quantity) {
+    if (item == null) {
+      return quantity;
+    }
+    if (quantity <= 0) {
+      return 0;
+    }
+
+    int remaining = stackIntoExistingSlots(item, quantity);
     return placeIntoEmptySlots(item, remaining);
+  }
+
+  /**
+   * Returns the total quantity of stacks matching {@code name}, {@code type}, and {@code
+   * maxQuantity} across all occupied slots.
+   *
+   * @param name item name to match; {@code null} or blank returns {@code 0}
+   * @param type item type to match
+   * @param maxQuantity stack cap to match
+   * @return summed quantity, or {@code 0} when no matching stacks exist
+   */
+  public int getTotalQuantity(String name, ItemType type, int maxQuantity) {
+    if (name == null || name.isBlank()) {
+      return 0;
+    }
+    int total = 0;
+    for (Item stored : inventorySlots.values()) {
+      if (name.equals(stored.getName())
+          && type == stored.getItemType()
+          && maxQuantity == stored.getMaxQuantity()) {
+        total += stored.getQuantity();
+      }
+    }
+    return total;
+  }
+
+  /**
+   * Returns the total quantity of stacks compatible with {@code template}.
+   *
+   * @param template item whose name, type, and max quantity are used as the match key
+   * @return summed quantity, or {@code 0} when {@code template} is {@code null}
+   */
+  public int getTotalQuantity(Item template) {
+    if (template == null) {
+      return 0;
+    }
+    return getTotalQuantity(template.getName(), template.getItemType(), template.getMaxQuantity());
+  }
+
+  /**
+   * Splits {@code splitQty} from an occupied stack into the lowest empty slot.
+   *
+   * <p>Does not compact later slots. Rejects a full-stack transfer; use {@link #removeItem(int)}
+   * instead.
+   *
+   * @param slot occupied slot index in the range 1 to {@code maxSlots}
+   * @param splitQty quantity to move into a new stack; must be {@code > 0} and {@code <} the source
+   *     quantity
+   * @return the new slot index, or {@code -1} if the split is invalid or no empty slot remains
+   */
+  public int splitStack(int slot, int splitQty) {
+    if (!isValidSlot(slot) || !containsItem(slot) || splitQty <= 0) {
+      return -1;
+    }
+    Item source = inventorySlots.get(slot);
+    int current = source.getQuantity();
+    if (splitQty >= current) {
+      return -1;
+    }
+    Integer empty = findEmptySlot();
+    if (empty == null) {
+      return -1;
+    }
+    source.setQuantity(current - splitQty);
+    inventorySlots.put(empty, createStack(source, splitQty));
+    return empty;
   }
 
   /**
@@ -240,30 +325,40 @@ public class InventoryComponent extends Component {
 
   /**
    * Places leftover quantity into empty slots in order. The incoming item occupies the first new
-   * slot; later slots receive newly created stacks.
+   * slot only when it is not already stored; otherwise every new slot receives a copied stack.
    *
    * @param item incoming item to place or copy
    * @param remaining quantity still to add
    * @return quantity that could not be placed because no empty slot remained
    */
   private int placeIntoEmptySlots(Item item, int remaining) {
-    boolean placedIncoming = false;
+    boolean useIncomingForNextSlot = !isItemAlreadyStored(item);
     while (remaining > 0) {
       Integer empty = findEmptySlot();
       if (empty == null) {
         break;
       }
       int stackSize = Math.min(remaining, item.getMaxQuantity());
-      if (!placedIncoming) {
+      if (useIncomingForNextSlot) {
         item.setQuantity(stackSize);
         inventorySlots.put(empty, item);
-        placedIncoming = true;
+        useIncomingForNextSlot = false;
       } else {
         inventorySlots.put(empty, createStack(item, stackSize));
       }
       remaining -= stackSize;
     }
     return remaining;
+  }
+
+  /**
+   * Returns whether {@code item} already occupies a slot in this inventory.
+   *
+   * @param item item reference to check
+   * @return {@code true} if the same reference is stored in any slot
+   */
+  private boolean isItemAlreadyStored(Item item) {
+    return inventorySlots.containsValue(item);
   }
 
   /**
@@ -311,7 +406,7 @@ public class InventoryComponent extends Component {
    * @param incoming item being added; {@code null} is not stackable
    * @return {@code true} if the stacks are compatible and {@code existing} is not full
    */
-  private boolean canStack(Item existing, Item incoming) {
+  public boolean canStack(Item existing, Item incoming) {
     if (existing == null || incoming == null) {
       return false;
     }
