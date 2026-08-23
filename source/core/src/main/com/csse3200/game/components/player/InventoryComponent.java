@@ -156,8 +156,26 @@ public class InventoryComponent extends Component {
     if (!isAddable(item)) {
       return 0;
     }
+    return addItem(item, item.getQuantity());
+  }
 
-    int remaining = stackIntoExistingSlots(item, item.getQuantity());
+  /**
+   * Adds a specific quantity using {@code item} as a stack template. This supports pickup amounts
+   * that exceed a single stack cap.
+   *
+   * @param item item template used for stack compatibility and max quantity
+   * @param quantity quantity to add
+   * @return quantity that could not be added; {@code 0} means the complete quantity was added
+   */
+  public int addItem(Item item, int quantity) {
+    if (item == null) {
+      return quantity;
+    }
+    if (quantity <= 0) {
+      return 0;
+    }
+
+    int remaining = stackIntoExistingSlots(item, quantity);
     return placeIntoEmptySlots(item, remaining);
   }
 
