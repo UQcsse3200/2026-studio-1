@@ -594,6 +594,68 @@ class InventoryComponentTest {
     assertEquals(0, inventory.getTotalQuantity((Item) null));
   }
 
+  @Test
+  void shouldSplitStackIntoLowestEmptySlot() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldItem = gold(9, 9);
+    inventory.addItem(goldItem);
+
+    assertEquals(2, inventory.splitStack(1, 4));
+
+    assertSame(goldItem, inventory.getItem(1));
+    assertEquals(5, inventory.getItem(1).getQuantity());
+    assertEquals(4, inventory.getItem(2).getQuantity());
+    assertNotSame(goldItem, inventory.getItem(2));
+    assertEquals(2, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldReuseLowestEmptySlotWhenSplitting() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    inventory.addItem(gold(9, 9));
+    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
+    inventory.addItem(gold(9, 9));
+    inventory.removeItem(1);
+
+    assertEquals(1, inventory.splitStack(3, 4));
+
+    assertEquals(5, inventory.getItem(3).getQuantity());
+    assertEquals(4, inventory.getItem(1).getQuantity());
+    assertTrue(inventory.containsItem(2));
+  }
+
+  @Test
+  void shouldRejectInvalidSplitRequestsWithoutMutation() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldItem = gold(9, 9);
+    inventory.addItem(goldItem);
+
+    assertEquals(-1, inventory.splitStack(0, 4));
+    assertEquals(-1, inventory.splitStack(2, 4));
+    assertEquals(-1, inventory.splitStack(1, 0));
+    assertEquals(-1, inventory.splitStack(1, -1));
+    assertEquals(-1, inventory.splitStack(1, 9));
+    assertEquals(-1, inventory.splitStack(1, 10));
+
+    assertSame(goldItem, inventory.getItem(1));
+    assertEquals(9, goldItem.getQuantity());
+    assertEquals(1, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldRejectSplitWhenInventoryIsFull() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldItem = gold(9, 9);
+    inventory.addItem(goldItem);
+    for (int slot = 2; slot <= 5; slot++) {
+      inventory.addItem(gold(9, 9));
+    }
+
+    assertEquals(-1, inventory.splitStack(1, 4));
+    assertEquals(9, goldItem.getQuantity());
+    assertTrue(inventory.isFull());
+  }
+
   private static Item potion(int quantity, int maxQuantity) {
     return new Item("Potion", ItemType.CONSUMABLE, quantity, maxQuantity);
   }

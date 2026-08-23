@@ -218,6 +218,35 @@ public class InventoryComponent extends Component {
   }
 
   /**
+   * Splits {@code splitQty} from an occupied stack into the lowest empty slot.
+   *
+   * <p>Does not compact later slots. Rejects a full-stack transfer; use {@link #removeItem(int)}
+   * instead.
+   *
+   * @param slot occupied slot index in the range 1 to {@code maxSlots}
+   * @param splitQty quantity to move into a new stack; must be {@code > 0} and {@code <} the
+   *     source quantity
+   * @return the new slot index, or {@code -1} if the split is invalid or no empty slot remains
+   */
+  public int splitStack(int slot, int splitQty) {
+    if (!isValidSlot(slot) || !containsItem(slot) || splitQty <= 0) {
+      return -1;
+    }
+    Item source = inventorySlots.get(slot);
+    int current = source.getQuantity();
+    if (splitQty >= current) {
+      return -1;
+    }
+    Integer empty = findEmptySlot();
+    if (empty == null) {
+      return -1;
+    }
+    source.setQuantity(current - splitQty);
+    inventorySlots.put(empty, createStack(source, splitQty));
+    return empty;
+  }
+
+  /**
    * Removes up to {@code amount} from a single slot. Does not compact later slots.
    *
    * @param slot slot index in the range 1 to {@code maxSlots}
