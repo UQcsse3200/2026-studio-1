@@ -17,6 +17,7 @@ import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.pausemenu.KeyboardPauseInput;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
+import com.csse3200.game.pausemenu.PauseMenuDisplay;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -26,7 +27,6 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
-import com.csse3200.game.pausemenu.PauseMenuDisplay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
