@@ -17,6 +17,7 @@ public class PlayerActions extends Component {
 
   private PhysicsComponent physicsComponent;
   private Vector2 walkDirection = Vector2.Zero.cpy();
+  private float dashspeed = 5f;
   private boolean moving = false;
 
   private PlatformerComponent platformerComponent;
@@ -28,6 +29,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
+    entity.getEvents().addListener("dash", this::dash);
   }
 
   @Override
@@ -72,5 +74,12 @@ public class PlayerActions extends Component {
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
     attackSound.play();
+  }
+
+  /** Makes the player dash */
+  void dash(Vector2 direction) {
+    Body body = physicsComponent.getBody();
+    Vector2 impulse = direction.cpy().scl(dashspeed);
+    body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 }
