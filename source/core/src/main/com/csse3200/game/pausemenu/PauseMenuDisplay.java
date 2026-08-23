@@ -38,26 +38,26 @@ public class PauseMenuDisplay extends UIComponent {
 
     // Clicking a button does the same thing as navigating to it and pressing Enter.
     resumeBtn.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                resume();
-              }
-            });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+            resume();
+          }
+        });
     restartBtn.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                restart();
-              }
-            });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+            restart();
+          }
+        });
     mainMenuBtn.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                goToMainMenu();
-              }
-            });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+            goToMainMenu();
+          }
+        });
 
     table.add(title);
     table.row();
@@ -110,7 +110,7 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void resume() {
-    pauseMenu.toggleIsPaused(); // menu is open, so this closes it
+    pauseMenu.toggleIsPaused();
   }
 
   private void restart() {
@@ -120,9 +120,7 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void goToMainMenu() {
-    // Not implemented yet - whichever component owns screen switching
-    // should listen for this event.
-    entity.getEvents().trigger("mainMenu");
+    entity.getEvents().trigger("exit");
   }
 
   @Override
