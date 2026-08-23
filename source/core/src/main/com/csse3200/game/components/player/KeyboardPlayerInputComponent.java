@@ -39,7 +39,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.L:
         if (direction.equals("Left")) {
-          dashDirection.add(Vector2Utils.LEFT);// Adds to the x vector to the left
+          dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
         } else {
           dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
         }
