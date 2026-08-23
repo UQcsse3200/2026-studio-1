@@ -368,7 +368,89 @@ class InventoryComponentTest {
     assertSame(stored, inventory.getItem(1));
   }
 
+  @Test
+  void shouldSplitSinglePickupAcrossSlotsWhenQuantityExceedsStackCap() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldTemplate = gold(1, 9);
+
+    assertEquals(0, inventory.addItem(goldTemplate, 17));
+
+    assertSame(goldTemplate, inventory.getItem(1));
+    assertEquals(9, inventory.getItem(1).getQuantity());
+    assertEquals(8, inventory.getItem(2).getQuantity());
+    assertEquals(2, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldMergeThenSplitAcrossSlotsInSinglePickup() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item existing = gold(5, 9);
+    Item goldTemplate = gold(1, 9);
+
+    inventory.addItem(existing);
+
+    assertEquals(0, inventory.addItem(goldTemplate, 17));
+
+    assertEquals(9, inventory.getItem(1).getQuantity());
+    assertEquals(9, inventory.getItem(2).getQuantity());
+    assertEquals(4, inventory.getItem(3).getQuantity());
+    assertEquals(3, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldReturnLeftoverWhenNoSlotsRemainWithQuantityOverload() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    for (int slot = 1; slot <= 5; slot++) {
+      inventory.addItem(gold(9, 9));
+    }
+
+    assertEquals(1, inventory.addItem(gold(1, 9), 1));
+    assertTrue(inventory.isFull());
+    assertEquals(5, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldReturnZeroWhenAddingNonPositiveQuantity() {
+    InventoryComponent inventory = new InventoryComponent(0, 2);
+    Item goldTemplate = gold(1, 9);
+
+    assertEquals(0, inventory.addItem(goldTemplate, 0));
+    assertEquals(0, inventory.addItem(goldTemplate, -3));
+    assertEquals(0, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldReturnFullAmountWhenAddingNullItemWithQuantityOverload() {
+    InventoryComponent inventory = new InventoryComponent(0, 2);
+
+    assertEquals(5, inventory.addItem(null, 5));
+    assertEquals(0, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldMergeIntoMultiplePartialStacksInSinglePickup() {
+    InventoryComponent inventory = new InventoryComponent(0, 4);
+    Item sword = new Item("Sword", ItemType.WEAPON, 1, 1);
+
+    inventory.addItem(gold(9, 9)); // slot 1
+    inventory.addItem(sword); // slot 2
+    inventory.addItem(gold(9, 9)); // slot 3
+
+    inventory.removeItem(1, 4); // slot 1 = 5/9
+    inventory.removeItem(3, 4); // slot 3 = 5/9
+
+    assertEquals(0, inventory.addItem(gold(1, 9), 8));
+    assertEquals(9, inventory.getItem(1).getQuantity());
+    assertSame(sword, inventory.getItem(2));
+    assertEquals(9, inventory.getItem(3).getQuantity());
+    assertFalse(inventory.containsItem(4));
+  }
+
   private static Item potion(int quantity, int maxQuantity) {
     return new Item("Potion", ItemType.CONSUMABLE, quantity, maxQuantity);
+  }
+
+  private static Item gold(int quantity, int maxQuantity) {
+    return new Item("Gold", ItemType.CURRENCY, quantity, maxQuantity);
   }
 }
