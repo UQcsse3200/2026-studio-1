@@ -446,6 +446,154 @@ class InventoryComponentTest {
     assertFalse(inventory.containsItem(4));
   }
 
+  @Test
+  void shouldMergeIntoSameReferenceStackOnSecondPickup() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldItem = gold(5, 9);
+
+    assertEquals(0, inventory.addItem(goldItem));
+    assertEquals(0, inventory.addItem(goldItem, 7));
+
+    assertSame(goldItem, inventory.getItem(1));
+    assertEquals(9, inventory.getItem(1).getQuantity());
+    assertEquals(3, inventory.getItem(2).getQuantity());
+    assertNotSame(goldItem, inventory.getItem(2));
+    assertEquals(2, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldNotStoreSameReferenceInTwoSlots() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldItem = gold(7, 9);
+
+    inventory.addItem(goldItem);
+    assertEquals(0, inventory.addItem(goldItem, 5));
+
+    assertSame(goldItem, inventory.getItem(1));
+    assertEquals(9, inventory.getItem(1).getQuantity());
+    assertEquals(3, inventory.getItem(2).getQuantity());
+    assertNotSame(goldItem, inventory.getItem(2));
+    assertEquals(2, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldMergeSameReferenceAndReturnLeftoverWhenNoEmptySlot() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldItem = gold(5, 9);
+
+    inventory.addItem(goldItem);
+    for (int slot = 2; slot <= 5; slot++) {
+      inventory.addItem(gold(9, 9));
+    }
+
+    assertEquals(6, inventory.addItem(goldItem, 10));
+
+    assertSame(goldItem, inventory.getItem(1));
+    assertEquals(9, inventory.getItem(1).getQuantity());
+    assertTrue(inventory.isFull());
+  }
+
+  @Test
+  void shouldCanStackWithCompatibleItems() {
+    Item gold1 = gold(5, 9);
+    Item gold2 = gold(3, 9);
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    assertTrue(inventory.canStack(gold1, gold2));
+  }
+
+  @Test
+  void shouldNotCanStackWhenExistingIsFull() {
+    Item goldFull = gold(9, 9);
+    Item goldNew = gold(1, 9);
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    assertFalse(inventory.canStack(goldFull, goldNew));
+  }
+
+  @Test
+  void shouldNotCanStackWithDifferentName() {
+    Item gold = gold(5, 9);
+    Item potion = new Item("Potion", ItemType.CONSUMABLE, 5, 9);
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    assertFalse(inventory.canStack(gold, potion));
+  }
+
+  @Test
+  void shouldNotCanStackWithDifferentMaxQuantity() {
+    Item gold9 = gold(5, 9);
+    Item gold10 = new Item("Gold", ItemType.CURRENCY, 5, 10);
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    assertFalse(inventory.canStack(gold9, gold10));
+  }
+
+  @Test
+  void shouldNotCanStackWhenExistingIsNull() {
+    Item gold = gold(5, 9);
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    assertFalse(inventory.canStack(null, gold));
+  }
+
+  @Test
+  void shouldNotCanStackWhenIncomingIsNull() {
+    Item gold = gold(5, 9);
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    assertFalse(inventory.canStack(gold, null));
+  }
+
+  @Test
+  void shouldReturnSingleSlotQuantityAsTotal() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    inventory.addItem(gold(5, 9));
+
+    assertEquals(5, inventory.getTotalQuantity("Gold", ItemType.CURRENCY, 9));
+    assertEquals(5, inventory.getTotalQuantity(gold(1, 9)));
+  }
+
+  @Test
+  void shouldSumQuantityAcrossCompatibleSlots() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item goldTemplate = gold(1, 9);
+
+    assertEquals(0, inventory.addItem(goldTemplate, 17));
+    assertEquals(17, inventory.getTotalQuantity("Gold", ItemType.CURRENCY, 9));
+    assertEquals(17, inventory.getTotalQuantity(goldTemplate));
+  }
+
+  @Test
+  void shouldNotSumItemsWithDifferentMaxQuantity() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    inventory.addItem(gold(5, 9));
+    inventory.addItem(new Item("Gold", ItemType.CURRENCY, 4, 10));
+
+    assertEquals(5, inventory.getTotalQuantity("Gold", ItemType.CURRENCY, 9));
+    assertEquals(4, inventory.getTotalQuantity("Gold", ItemType.CURRENCY, 10));
+  }
+
+  @Test
+  void shouldNotSumItemsWithDifferentNameOrType() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    inventory.addItem(gold(5, 9));
+    inventory.addItem(potion(3, 9));
+
+    assertEquals(5, inventory.getTotalQuantity("Gold", ItemType.CURRENCY, 9));
+    assertEquals(3, inventory.getTotalQuantity("Potion", ItemType.CONSUMABLE, 9));
+  }
+
+  @Test
+  void shouldReturnZeroTotalQuantityWhenEmptyOrInvalid() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+
+    assertEquals(0, inventory.getTotalQuantity("Gold", ItemType.CURRENCY, 9));
+    assertEquals(0, inventory.getTotalQuantity(null, ItemType.CURRENCY, 9));
+    assertEquals(0, inventory.getTotalQuantity("  ", ItemType.CURRENCY, 9));
+    assertEquals(0, inventory.getTotalQuantity((Item) null));
+  }
+
   private static Item potion(int quantity, int maxQuantity) {
     return new Item("Potion", ItemType.CONSUMABLE, quantity, maxQuantity);
   }
