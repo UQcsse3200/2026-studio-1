@@ -69,7 +69,7 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Sets the player's gold. Gold has a minimum bound of 0.
+   * Sets the players' gold. Gold has a minimum bound of 0.
    *
    * @param gold gold to set; values below 0 are clamped to 0
    */
