@@ -224,8 +224,8 @@ public class InventoryComponent extends Component {
    * instead.
    *
    * @param slot occupied slot index in the range 1 to {@code maxSlots}
-   * @param splitQty quantity to move into a new stack; must be {@code > 0} and {@code <} the
-   *     source quantity
+   * @param splitQty quantity to move into a new stack; must be {@code > 0} and {@code <} the source
+   *     quantity
    * @return the new slot index, or {@code -1} if the split is invalid or no empty slot remains
    */
   public int splitStack(int slot, int splitQty) {
