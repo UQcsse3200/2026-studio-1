@@ -49,21 +49,21 @@ public class PauseMenuDisplay extends UIComponent {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            resume();
+            entity.getEvents().trigger("resumeClicked");
           }
         });
     restartBtn.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            restart();
+            entity.getEvents().trigger("restartClicked");
           }
         });
     mainMenuBtn.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            goToMainMenu();
+            entity.getEvents().trigger("mainMenuClicked");
           }
         });
 
@@ -153,25 +153,11 @@ public class PauseMenuDisplay extends UIComponent {
     usingKeyboardNav = true;
     updateHighlight();
     switch (selectedIndex) {
-      case 0 -> resume();
-      case 1 -> restart();
-      case 2 -> goToMainMenu();
+      case 0 -> entity.getEvents().trigger("resumeClicked");
+      case 1 -> entity.getEvents().trigger("restartClicked");
+      case 2 -> entity.getEvents().trigger("mainMenuClicked");
       default -> {}
     }
-  }
-
-  private void resume() {
-    pauseMenu.toggleIsPaused();
-  }
-
-  private void restart() {
-    // Not implemented yet - whichever component owns restart logic (e.g. MainGameActions)
-    // should listen for this event.
-    entity.getEvents().trigger("restartGame");
-  }
-
-  private void goToMainMenu() {
-    entity.getEvents().trigger("exit");
   }
 
   @Override
