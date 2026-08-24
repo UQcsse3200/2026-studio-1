@@ -46,26 +46,26 @@ public class PauseMenuDisplay extends UIComponent {
 
     // Clicking a button does the same thing as navigating to it and pressing Enter.
     resumeBtn.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                entity.getEvents().trigger("resumeClicked");
-              }
-            });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+            entity.getEvents().trigger("resumeClicked");
+          }
+        });
     restartBtn.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                entity.getEvents().trigger("restartClicked");
-              }
-            });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+            entity.getEvents().trigger("restartClicked");
+          }
+        });
     mainMenuBtn.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                entity.getEvents().trigger("mainMenuClicked");
-              }
-            });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+            entity.getEvents().trigger("mainMenuClicked");
+          }
+        });
 
     table.add(title);
     table.row();
@@ -159,8 +159,6 @@ public class PauseMenuDisplay extends UIComponent {
       default -> {}
     }
   }
-
-
 
   @Override
   public void draw(SpriteBatch batch) {
