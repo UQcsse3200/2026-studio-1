@@ -2,6 +2,9 @@ package com.csse3200.game.pausemenu;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -15,6 +18,11 @@ public class PauseMenuDisplay extends UIComponent {
   private TextButton[] buttons;
   private int selectedIndex = 0;
   private boolean wasPaused = false;
+
+  // Whether keyboard nav currently owns button highlighting. True = keyboard nav controls
+  // colors; false = mouse hover controls colors. Only one of the two is ever allowed to set
+  // a button's color at a time.
+  private boolean usingKeyboardNav = true;
 
   @Override
   public void create() {
@@ -70,6 +78,39 @@ public class PauseMenuDisplay extends UIComponent {
 
     table.add(mainMenuBtn).padTop(15f);
 
+    // Moving the mouse at all hands color control over to hover: drop keyboard-nav
+    // ownership and clear every button back to the default color so no stale
+    // keyboard highlight is left behind.
+    table.addListener(
+        new InputListener() {
+          @Override
+          public boolean mouseMoved(InputEvent event, float x, float y) {
+            usingKeyboardNav = false;
+            for (TextButton button : buttons) {
+              button.setColor(Color.WHITE);
+            }
+            return false;
+          }
+        });
+
+    // Hover highlighting per-button - only takes effect once the mouse owns color control.
+    for (TextButton button : buttons) {
+      button.addListener(
+          new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+              if (!usingKeyboardNav) {
+                button.setColor(Color.YELLOW);
+              }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+              button.setColor(Color.WHITE);
+            }
+          });
+    }
+
     // Hidden until the game is actually paused.
     table.setVisible(false);
     stage.addActor(table);
@@ -83,17 +124,25 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void navigateUp() {
+    usingKeyboardNav = true;
     selectedIndex = (selectedIndex - 1 + buttons.length) % buttons.length;
     updateHighlight();
   }
 
   private void navigateDown() {
+    usingKeyboardNav = true;
     selectedIndex = (selectedIndex + 1) % buttons.length;
     updateHighlight();
   }
 
-  /** Highlights whichever button is currently selected via keyboard navigation. */
+  /**
+   * Highlights whichever button is currently selected via keyboard navigation. Only applies color
+   * when keyboard nav owns highlighting, so it can never fight with the hover listeners.
+   */
   private void updateHighlight() {
+    if (!usingKeyboardNav) {
+      return;
+    }
     for (int i = 0; i < buttons.length; i++) {
       buttons[i].setColor(i == selectedIndex ? Color.YELLOW : Color.WHITE);
     }
@@ -101,6 +150,8 @@ public class PauseMenuDisplay extends UIComponent {
 
   /** Enter/Space was pressed - trigger whatever the currently highlighted button does. */
   private void confirmSelection() {
+    usingKeyboardNav = true;
+    updateHighlight();
     switch (selectedIndex) {
       case 0 -> resume();
       case 1 -> restart();
@@ -128,9 +179,11 @@ public class PauseMenuDisplay extends UIComponent {
     boolean isPaused = pauseMenu.isPaused();
     table.setVisible(isPaused);
 
-    // Reset selection to the first button every time the menu is freshly opened.
+    // Reset selection to the first button every time the menu is freshly opened, and hand
+    // highlight ownership back to keyboard nav so the reset is actually visible.
     if (isPaused && !wasPaused) {
       selectedIndex = 0;
+      usingKeyboardNav = true;
       updateHighlight();
     }
     wasPaused = isPaused;
