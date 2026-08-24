@@ -21,6 +21,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
 
   private boolean jumped = false;
   private boolean dashed = false;
+  private boolean crouch = false;
   private String direction = "Right";
 
   /**
@@ -63,6 +64,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.SPACE:
         entity.getEvents().trigger("attack");
         return true;
+      case Keys.CONTROL_LEFT:
+        entity.getEvents().trigger("ctrl_changed",true);
+        return true;
       default:
         return false;
     }
@@ -89,6 +93,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.D:
         walkDirection.sub(Vector2Utils.RIGHT);
         triggerWalkEvent();
+        return true;
+      case Keys.CONTROL_LEFT:
+        entity.getEvents().trigger("ctrl_changed",false);
         return true;
       default:
         return false;

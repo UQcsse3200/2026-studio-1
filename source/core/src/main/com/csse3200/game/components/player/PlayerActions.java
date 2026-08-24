@@ -7,6 +7,7 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
+import com.csse3200.game.rendering.TextureRenderComponent;
 
 /**
  * Action component for interacting with the player. Player events should be initialised in create()
@@ -19,6 +20,9 @@ public class PlayerActions extends Component {
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private float dashspeed = 5f;
   private boolean moving = false;
+  private String Normal_Texture = "images/box_boy_leaf.png";
+  private String Crouch_Texture = "images/box_boy_crouch.png";
+  private TextureRenderComponent textureRenderComponent;
 
   private PlatformerComponent platformerComponent;
 
@@ -30,6 +34,8 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
     entity.getEvents().addListener("dash", this::dash);
+    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
+    entity.getEvents().addListener("ctrl_changed", this::ctrl_changed);
   }
 
   @Override
@@ -82,4 +88,14 @@ public class PlayerActions extends Component {
     Vector2 impulse = direction.cpy().scl(dashspeed);
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
+
+  private void ctrl_changed(boolean pressed) {
+    if (pressed) {
+      textureRenderComponent.setTexture(Crouch_Texture);
+    }
+    else {
+      textureRenderComponent.setTexture(Normal_Texture);
+    }
+  }
+
 }
