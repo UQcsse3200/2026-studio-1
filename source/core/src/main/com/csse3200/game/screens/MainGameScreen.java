@@ -40,6 +40,7 @@ public class MainGameScreen extends ScreenAdapter {
   private final GdxGame game;
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
+  private ForestGameArea forestGameArea;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -66,7 +67,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     logger.debug("Initialising main game screen entities");
     TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
-    ForestGameArea forestGameArea = new ForestGameArea(terrainFactory);
+    this.forestGameArea = new ForestGameArea(terrainFactory);
     forestGameArea.create();
   }
 
@@ -91,6 +92,10 @@ public class MainGameScreen extends ScreenAdapter {
   @Override
   public void resume() {
     logger.info("Game resumed");
+  }
+
+  public void resetPlayer() {
+    forestGameArea.resetPlayer();
   }
 
   @Override
@@ -133,7 +138,6 @@ public class MainGameScreen extends ScreenAdapter {
     Entity ui = new Entity();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
-        .addComponent(new MainGameActions(this.game))
         .addComponent(new Terminal())
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay())
@@ -141,6 +145,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
         .addComponent(new PauseMenuInputComponent())
+        .addComponent(new MainGameActions(this.game, this))
         .addComponent(new PauseMenuActions());
 
     ServiceLocator.getEntityService().register(ui);
