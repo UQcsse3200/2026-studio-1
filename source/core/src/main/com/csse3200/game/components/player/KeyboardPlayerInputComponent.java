@@ -13,12 +13,15 @@ import com.csse3200.game.utils.math.Vector2Utils;
 public class KeyboardPlayerInputComponent extends InputComponent {
   private final Vector2 walkDirection = Vector2.Zero.cpy();
   private final Vector2 jumpDirection = Vector2.Zero.cpy();
+  private final Vector2 dashDirection = Vector2.Zero.cpy();
 
   public KeyboardPlayerInputComponent() {
     super(5);
   }
 
   private boolean jumped = false;
+  private boolean dashed = false;
+  private String direction = "Right";
 
   /**
    * Triggers player events on specific keycodes.
@@ -34,9 +37,18 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         triggerJumpEvent();
         jumped = true;
         return true;
-
+      case Keys.L:
+        if (direction.equals("Left")) {
+          dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
+        } else {
+          dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
+        }
+        triggerDashEvent();
+        dashed = true;
+        return true;
       case Keys.A:
         walkDirection.add(Vector2Utils.LEFT);
+        direction = "Left";
         triggerWalkEvent();
         return true;
       case Keys.S:
@@ -45,6 +57,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.D:
         walkDirection.add(Vector2Utils.RIGHT);
+        direction = "Right";
         triggerWalkEvent();
         return true;
       case Keys.SPACE:
@@ -95,5 +108,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     entity.getEvents().trigger("jump", jumpDirection);
     jumpDirection.y = 0;
     jumped = false;
+  }
+
+  private void triggerDashEvent() {
+    // Player has an x velocity in the direction they last went or are going
+    entity.getEvents().trigger("dash", dashDirection);
+    dashDirection.x = 0;
+    dashed = false;
   }
 }
