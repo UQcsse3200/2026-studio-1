@@ -57,7 +57,7 @@ public class PlatformerComponent extends Component {
   */
   // To change doubleJump parameters you need to use this function
   public void setDoubleJump(boolean doubleJumpPowerup, int maxDoubleJump) {
-    if (maxDoubleJump < 0) throw new RuntimeException("maxDoubleJump should not be less than zero");
+    if (maxDoubleJump < 0) throw new IllegalArgumentException("maxDoubleJump should not be less than zero");
     this.maxDoubleJump = maxDoubleJump;
     this.doubleJumpPowerup = doubleJumpPowerup;
   }
@@ -65,7 +65,7 @@ public class PlatformerComponent extends Component {
   // To change super jump parameters you need to use this function
   public void setSuperJump(boolean superJumpPowerup, int superJumpScaler) {
     if (superJumpScaler <= 0)
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           "superJumpScaler should not be zero or less or else" + "it cancels out the jump");
     this.superJumpPowerup = superJumpPowerup;
     this.superJumpScaler = superJumpScaler;
@@ -74,7 +74,7 @@ public class PlatformerComponent extends Component {
   // To change base jump parameters you need to use this function
   public void setBaseJumpScaler(int baseJumpScaler) {
     if (baseJumpScaler <= 0)
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           "baseJumpScaler should not be zero or less since"
               + "that gets rid of jump functionality");
     this.baseJumpScaler = baseJumpScaler;
