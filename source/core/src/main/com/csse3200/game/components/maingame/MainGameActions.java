@@ -1,8 +1,8 @@
 package com.csse3200.game.components.maingame;
 
-import com.csse3200.game.screens.MainGameScreen;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.screens.MainGameScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +25,11 @@ public class MainGameActions extends Component {
     entity.getEvents().addListener("exit", this::onExit);
     entity.getEvents().addListener("restartGame", this::onRestart);
   }
+
   private void onRestart() {
     logger.info("Restarting game");
     screen.resetPlayer();
   }
-
 
   /** Swaps to the Main Menu screen. */
   private void onExit() {
