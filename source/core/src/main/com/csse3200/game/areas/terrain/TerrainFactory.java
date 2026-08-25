@@ -12,6 +12,9 @@ import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TerrainComponent.TerrainOrientation;
+import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.MapLayerData;
+import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CameraComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -22,6 +25,7 @@ public class TerrainFactory {
   private static final GridPoint2 MAP_SIZE = new GridPoint2(30, 30);
   private static final int TUFT_TILE_COUNT = 30;
   private static final int ROCK_TILE_COUNT = 30;
+  private static final int DEFAULT_TILE_PX = 16;
 
   private final OrthographicCamera camera;
   private final TerrainOrientation orientation;
@@ -83,6 +87,66 @@ public class TerrainFactory {
       default:
         return null;
     }
+  }
+
+  /**
+   * Create a terrain component from parsed, file-loaded map data. Each {@link MapLayerData} becomes
+   * a tile layer, drawn back-to-front, with tiles typed by their {@link TileType}.
+   *
+   * <p>The textures referenced by the map's legend must already be loaded into the {@link
+   * ResourceService} before calling this.
+   *
+   * @param map the parsed level map data
+   * @return a terrain component rendering the map
+   */
+  public TerrainComponent createTerrainFromMap(LevelMapData map) {
+    ResourceService resourceService = ServiceLocator.getResourceService();
+    float tileWorldSize = map.getTileSize();
+    GridPoint2 tilePixelSize = resolveTilePixelSize(map, resourceService);
+
+    TiledMap tiledMap = new TiledMap();
+    for (MapLayerData layerData : map.getLayers()) {
+      TiledMapTileLayer layer =
+          new TiledMapTileLayer(map.getWidth(), map.getHeight(), tilePixelSize.x, tilePixelSize.y);
+      for (int x = 0; x < map.getWidth(); x++) {
+        for (int y = 0; y < map.getHeight(); y++) {
+          TileDefinition def = layerData.get(x, y);
+          if (def == null || def.texture() == null) {
+            continue;
+          }
+          Texture texture = resourceService.getAsset(def.texture(), Texture.class);
+          if (texture == null) {
+            continue;
+          }
+          TerrainTile tile = new TerrainTile(new TextureRegion(texture), def.type());
+          Cell cell = new Cell();
+          cell.setTile(tile);
+          layer.setCell(x, y, cell);
+        }
+      }
+      tiledMap.getLayers().add(layer);
+    }
+
+    float tileScale = tileWorldSize / tilePixelSize.x;
+    TiledMapRenderer renderer = createRenderer(tiledMap, tileScale);
+    return new TerrainComponent(camera, tiledMap, renderer, orientation, tileWorldSize);
+  }
+
+  /**
+   * Determine the pixel size of a tile from the first legend texture, assuming a uniform tileset.
+   * Falls back to {@link #DEFAULT_TILE_PX} if the map has no textures (e.g. an empty map).
+   */
+  private GridPoint2 resolveTilePixelSize(LevelMapData map, ResourceService resourceService) {
+    for (TileDefinition def : map.getLegend().values()) {
+      if (def.texture() == null) {
+        continue;
+      }
+      Texture texture = resourceService.getAsset(def.texture(), Texture.class);
+      if (texture != null) {
+        return new GridPoint2(texture.getWidth(), texture.getHeight());
+      }
+    }
+    return new GridPoint2(DEFAULT_TILE_PX, DEFAULT_TILE_PX);
   }
 
   private TerrainComponent createForestDemoTerrain(
