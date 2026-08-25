@@ -39,4 +39,47 @@ class InventoryComponentTest {
     inventory.addGold(-20);
     assertEquals(80, inventory.getGold());
   }
+
+  @Test
+  void shouldSetGetTokens() {
+    InventoryComponent inventory = new InventoryComponent(100, 25);
+    assertEquals(25, inventory.getTokens());
+
+    inventory.setTokens(50);
+    assertEquals(50, inventory.getTokens());
+
+    inventory.setTokens(-10);
+    assertEquals(0, inventory.getTokens());
+  }
+
+  @Test
+  void shouldCheckHasTokens() {
+    InventoryComponent inventory = new InventoryComponent(100, 50);
+
+    assertTrue(inventory.hasTokens(25));
+    assertTrue(inventory.hasTokens(50));
+    assertFalse(inventory.hasTokens(75));
+  }
+
+  @Test
+  void shouldAddTokens() {
+    InventoryComponent inventory = new InventoryComponent(100, 50);
+
+    inventory.addTokens(25);
+    assertEquals(75, inventory.getTokens());
+
+    inventory.addTokens(-20);
+    assertEquals(55, inventory.getTokens());
+
+    inventory.addTokens(-100);
+    assertEquals(0, inventory.getTokens());
+  }
+
+  @Test
+  void shouldStartWithZeroTokensWhenOnlyGoldIsProvided() {
+    InventoryComponent inventory = new InventoryComponent(100);
+
+    assertEquals(100, inventory.getGold());
+    assertEquals(0, inventory.getTokens());
+  }
 }
