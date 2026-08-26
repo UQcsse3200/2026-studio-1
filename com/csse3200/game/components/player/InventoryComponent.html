@@ -95,8 +95,7 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
 <div class="block">A component intended to be used by the player to track their inventory.
 
- <p>Currently only stores the gold amount but can be extended for more advanced functionality such
- as storing items. Can also be used as a more generic component for other entities.</div>
+ <p>Stores gold and item slots. Can also be used as a more generic component for other entities.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -118,7 +117,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(int)" class="member-name-link">InventoryComponent</a><wbr>(int&nbsp;gold)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates an inventory with the default slot capacity of 5.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(int,int)" class="member-name-link">InventoryComponent</a><wbr>(int&nbsp;gold,
+ int&nbsp;maxSlots)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Creates an inventory with an explicit slot capacity.</div>
+</div>
 </div>
 </section>
 </li>
@@ -139,19 +145,96 @@ loadScripts(document, 'script');</script>
 <div class="block">Adds to the player's gold.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addItem(com.csse3200.game.components.loot.Item)" class="member-name-link">addItem</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds an item by filling compatible stacks first, then empty slots in order.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addItem(com.csse3200.game.components.loot.Item,int)" class="member-name-link">addItem</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item,
+ int&nbsp;quantity)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds a specific quantity using <code>item</code> as a stack template.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canStack(com.csse3200.game.components.loot.Item,com.csse3200.game.components.loot.Item)" class="member-name-link">canStack</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;existing,
+ <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;incoming)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether <code>incoming</code> can stack onto <code>existing</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#containsItem(int)" class="member-name-link">containsItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether the slot is valid and currently occupied.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGold()" class="member-name-link">getGold</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the player's gold.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getInventorySlots()" class="member-name-link">getInventorySlots</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns an unmodifiable view of occupied slots.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItem(int)" class="member-name-link">getItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the item in the given slot without removing it.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaxSlots()" class="member-name-link">getMaxSlots</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the constructor capacity.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOccupiedSlots()" class="member-name-link">getOccupiedSlots</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the number of occupied slots, derived from the map size.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(com.csse3200.game.components.loot.Item)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;template)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the total quantity of stacks compatible with <code>template</code>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(java.lang.String,com.csse3200.game.components.loot.ItemType,int)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ <a href="../loot/ItemType.html" title="enum class in com.csse3200.game.components.loot">ItemType</a>&nbsp;type,
+ int&nbsp;maxQuantity)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the total quantity of stacks matching <code>name</code>, <code>type</code>, and <code>
+ maxQuantity</code> across all occupied slots.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasGold(int)" class="member-name-link">hasGold</a><wbr>(int&nbsp;gold)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns if the player has a certain amount of gold.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFull()" class="member-name-link">isFull</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Sets the player's gold.</div>
+<div class="block">Returns whether every slot is occupied.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeItem(int)" class="member-name-link">removeItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes the whole stack from a slot.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeItem(int,int)" class="member-name-link">removeItem</a><wbr>(int&nbsp;slot,
+ int&nbsp;amount)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes up to <code>amount</code> from a single slot.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Sets the players' gold.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
+ int&nbsp;splitQty)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Splits <code>splitQty</code> from an occupied stack into the lowest empty slot.</div>
 </div>
 </div>
 </div>
@@ -177,6 +260,26 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(int)">
 <h3>InventoryComponent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">InventoryComponent</span><wbr><span class="parameters">(int&nbsp;gold)</span></div>
+<div class="block">Creates an inventory with the default slot capacity of 5.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>gold</code> - starting gold; values below 0 are clamped to 0</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(int,int)">
+<h3>InventoryComponent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">InventoryComponent</span><wbr><span class="parameters">(int&nbsp;gold,
+ int&nbsp;maxSlots)</span></div>
+<div class="block">Creates an inventory with an explicit slot capacity.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>gold</code> - starting gold; values below 0 are clamped to 0</dd>
+<dd><code>maxSlots</code> - maximum number of item slots; must be <code>&gt;= 1</code></dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>maxSlots &lt; 1</code></dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -194,7 +297,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the player's gold.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>entity's health</dd>
+<dd>current gold amount</dd>
 </dl>
 </section>
 </li>
@@ -215,10 +318,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="setGold(int)">
 <h3>setGold</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setGold</span><wbr><span class="parameters">(int&nbsp;gold)</span></div>
-<div class="block">Sets the player's gold. Gold has a minimum bound of 0.</div>
+<div class="block">Sets the players' gold. Gold has a minimum bound of 0.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>gold</code> - gold</dd>
+<dd><code>gold</code> - gold to set; values below 0 are clamped to 0</dd>
 </dl>
 </section>
 </li>
@@ -230,6 +333,201 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>gold</code> - gold to add</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getItem(int)">
+<h3>getItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></span>&nbsp;<span class="element-name">getItem</span><wbr><span class="parameters">(int&nbsp;slot)</span></div>
+<div class="block">Returns the item in the given slot without removing it.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - slot index in the range 1 to <code>maxSlots</code></dd>
+<dt>Returns:</dt>
+<dd>the stored item, or <code>null</code> if the slot is invalid or empty</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="containsItem(int)">
+<h3>containsItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">containsItem</span><wbr><span class="parameters">(int&nbsp;slot)</span></div>
+<div class="block">Returns whether the slot is valid and currently occupied.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - slot index in the range 1 to <code>maxSlots</code></dd>
+<dt>Returns:</dt>
+<dd><code>true</code> only if the slot is valid and a key is present</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isFull()">
+<h3>isFull</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isFull</span>()</div>
+<div class="block">Returns whether every slot is occupied.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>true</code> iff <a href="#getOccupiedSlots()"><code>getOccupiedSlots()</code></a> equals <code>maxSlots</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getOccupiedSlots()">
+<h3>getOccupiedSlots</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getOccupiedSlots</span>()</div>
+<div class="block">Returns the number of occupied slots, derived from the map size.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>occupied slot count</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getMaxSlots()">
+<h3>getMaxSlots</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getMaxSlots</span>()</div>
+<div class="block">Returns the constructor capacity.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>maximum number of item slots</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getInventorySlots()">
+<h3>getInventorySlots</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;</span>&nbsp;<span class="element-name">getInventorySlots</span>()</div>
+<div class="block">Returns an unmodifiable view of occupied slots. Callers cannot insert or remove keys through
+ this map.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>unmodifiable map of slot index to item</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addItem(com.csse3200.game.components.loot.Item)">
+<h3>addItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">addItem</span><wbr><span class="parameters">(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</span></div>
+<div class="block">Adds an item by filling compatible stacks first, then empty slots in order.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>item</code> - item to add; <code>null</code> or non-positive quantity is a no-op</dd>
+<dt>Returns:</dt>
+<dd>quantity that could not be added; <code>0</code> means the complete quantity was added</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addItem(com.csse3200.game.components.loot.Item,int)">
+<h3>addItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">addItem</span><wbr><span class="parameters">(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item,
+ int&nbsp;quantity)</span></div>
+<div class="block">Adds a specific quantity using <code>item</code> as a stack template. This supports pickup amounts
+ that exceed a single stack cap.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>item</code> - item template used for stack compatibility and max quantity</dd>
+<dd><code>quantity</code> - quantity to add</dd>
+<dt>Returns:</dt>
+<dd>quantity that could not be added; <code>0</code> means the complete quantity was added</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getTotalQuantity(java.lang.String,com.csse3200.game.components.loot.ItemType,int)">
+<h3>getTotalQuantity</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTotalQuantity</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ <a href="../loot/ItemType.html" title="enum class in com.csse3200.game.components.loot">ItemType</a>&nbsp;type,
+ int&nbsp;maxQuantity)</span></div>
+<div class="block">Returns the total quantity of stacks matching <code>name</code>, <code>type</code>, and <code>
+ maxQuantity</code> across all occupied slots.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>name</code> - item name to match; <code>null</code> or blank returns <code>0</code></dd>
+<dd><code>type</code> - item type to match</dd>
+<dd><code>maxQuantity</code> - stack cap to match</dd>
+<dt>Returns:</dt>
+<dd>summed quantity, or <code>0</code> when no matching stacks exist</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getTotalQuantity(com.csse3200.game.components.loot.Item)">
+<h3>getTotalQuantity</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTotalQuantity</span><wbr><span class="parameters">(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;template)</span></div>
+<div class="block">Returns the total quantity of stacks compatible with <code>template</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>template</code> - item whose name, type, and max quantity are used as the match key</dd>
+<dt>Returns:</dt>
+<dd>summed quantity, or <code>0</code> when <code>template</code> is <code>null</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="splitStack(int,int)">
+<h3>splitStack</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">splitStack</span><wbr><span class="parameters">(int&nbsp;slot,
+ int&nbsp;splitQty)</span></div>
+<div class="block">Splits <code>splitQty</code> from an occupied stack into the lowest empty slot.
+
+ <p>Does not compact later slots. Rejects a full-stack transfer; use <a href="#removeItem(int)"><code>removeItem(int)</code></a>
+ instead.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - occupied slot index in the range 1 to <code>maxSlots</code></dd>
+<dd><code>splitQty</code> - quantity to move into a new stack; must be <code>&gt; 0</code> and <code>&lt;</code> the source
+     quantity</dd>
+<dt>Returns:</dt>
+<dd>the new slot index, or <code>-1</code> if the split is invalid or no empty slot remains</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="removeItem(int,int)">
+<h3>removeItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">removeItem</span><wbr><span class="parameters">(int&nbsp;slot,
+ int&nbsp;amount)</span></div>
+<div class="block">Removes up to <code>amount</code> from a single slot. Does not compact later slots.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - slot index in the range 1 to <code>maxSlots</code></dd>
+<dd><code>amount</code> - quantity to remove</dd>
+<dt>Returns:</dt>
+<dd>the amount actually removed; <code>0</code> if invalid, empty, or <code>amount &lt;= 0</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="removeItem(int)">
+<h3>removeItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></span>&nbsp;<span class="element-name">removeItem</span><wbr><span class="parameters">(int&nbsp;slot)</span></div>
+<div class="block">Removes the whole stack from a slot. Does not compact later slots.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - slot index in the range 1 to <code>maxSlots</code></dd>
+<dt>Returns:</dt>
+<dd>the stored item, or <code>null</code> if the slot is invalid or empty</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="canStack(com.csse3200.game.components.loot.Item,com.csse3200.game.components.loot.Item)">
+<h3>canStack</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canStack</span><wbr><span class="parameters">(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;existing,
+ <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;incoming)</span></div>
+<div class="block">Returns whether <code>incoming</code> can stack onto <code>existing</code>. Compatibility uses name,
+ type, and max quantity. <a href="../loot/Item.html#equals(java.lang.Object)"><code>Item.equals(Object)</code></a> is identity by unique instance id and must
+ not be used here.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>existing</code> - item already in a slot; <code>null</code> is not stackable</dd>
+<dd><code>incoming</code> - item being added; <code>null</code> is not stackable</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> if the stacks are compatible and <code>existing</code> is not full</dd>
 </dl>
 </section>
 </li>
