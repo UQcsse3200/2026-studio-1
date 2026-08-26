@@ -85,7 +85,10 @@ public class ConsumableGenerator {
    * @return the scaled effect
    */
   private BuffEffect buildBuff(BuffStat stat, ConsumableConfig config, int tier) {
-    float magnitude = 1f + (config.magnitude - 1f) * tier;
+    // The part of the multiplier above 1.0 is the bonus, and the bonus grows with tier.
+    // A configured 1.5 gives 1.5 at tier 1, 2.0 at tier 2, and so on.
+    float bonus = config.magnitude - 1f;
+    float magnitude = 1f + bonus * tier;
     return new BuffEffect(stat, magnitude, config.durationSeconds);
   }
 
@@ -97,6 +100,9 @@ public class ConsumableGenerator {
    * @return the base name at tier 1, otherwise a tier-qualified name
    */
   private String buildName(String baseName, int tier) {
-    return tier == 1 ? baseName : String.format("%s (Tier %d)", baseName, tier);
+    if (tier == 1) {
+      return baseName;
+    }
+    return String.format("%s (Tier %d)", baseName, tier);
   }
 }

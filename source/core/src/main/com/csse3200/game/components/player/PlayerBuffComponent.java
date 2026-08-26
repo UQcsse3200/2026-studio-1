@@ -6,35 +6,47 @@ import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tracks temporary stat modifiers applied to an entity and reverts them automatically once their
- * duration elapses.
+ * Tracks temporary stat modifiers applied to an entity and reverts them once their duration has
+ * passed.
  *
- * <p>Expiry uses {@link GameTime} on the same schedule as {@code WaitTask}: an absolute end time is
- * computed on application and polled in {@link #update()}. No separate timer mechanism is
- * introduced.
+ * <p>Timing follows the same approach as WaitTask: an end time is worked out from {@link GameTime}
+ * when the buff starts, and update() checks whether that time has been reached.
  *
- * <p>Buff state is deliberately observable so a future buff timer UI can consume it without this
- * component knowing about the UI. Listen for {@code "buffApplied"} and {@code "buffExpired"} (each
- * carrying the {@link ActiveBuff}), or poll {@link #getActiveBuffs()}.
+ * <p>Stats are handled by remembering the entity's normal values in create(), then recalculating
+ * them as "normal value multiplied by every active buff". Applying and expiring a buff both use
+ * that one rule, so a buff never has to work out how to undo itself.
+ *
+ * <p>Buff state is readable so a buff timer UI can be added later without changing this class.
+ * Listen for the "buffApplied" and "buffExpired" events, or call {@link #getActiveBuffs()}.
  */
 public class PlayerBuffComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerBuffComponent.class);
 
   private final List<ActiveBuff> activeBuffs = new ArrayList<>();
   private GameTime timeSource;
+  private int normalBaseAttack;
   private float speedMultiplier = 1f;
+
+  /** Stores the game clock and the entity's unbuffed stats. */
+  @Override
+  public void create() {
+    timeSource = ServiceLocator.getTimeSource();
+    CombatStatsComponent stats = getCombatStats();
+    if (stats != null) {
+      normalBaseAttack = stats.getBaseAttack();
+    }
+  }
 
   /**
    * Applies a temporary stat modifier that reverts after {@code durationSeconds}.
    *
-   * <p>A non-positive duration or a magnitude of exactly 1.0 is rejected, since neither would
-   * change anything observable.
+   * <p>A buff that would change nothing is rejected, which covers a duration of zero and a
+   * magnitude of exactly 1.0.
    *
    * @param stat stat to modify
    * @param magnitude multiplier to apply, where 1.0 is no change
@@ -47,10 +59,10 @@ public class PlayerBuffComponent extends Component {
       return false;
     }
 
-    long endTime = getTimeSource().getTime() + (long) (durationSeconds * 1000);
-    int appliedDelta = applyModifier(stat, magnitude);
-    ActiveBuff buff = new ActiveBuff(stat, magnitude, durationSeconds, endTime, appliedDelta);
+    long endTime = timeSource.getTime() + (long) (durationSeconds * 1000);
+    ActiveBuff buff = new ActiveBuff(stat, magnitude, durationSeconds, endTime);
     activeBuffs.add(buff);
+    recalculateStats();
 
     logger.debug("Applied {} until {}", buff, endTime);
     if (entity != null) {
@@ -59,23 +71,32 @@ public class PlayerBuffComponent extends Component {
     return true;
   }
 
-  /** Expires any buffs whose duration has elapsed, reverting their stat changes. */
+  /** Removes any buffs whose duration has passed and puts the affected stats back. */
   @Override
   public void update() {
     if (activeBuffs.isEmpty()) {
       return;
     }
-    long now = getTimeSource().getTime();
-    Iterator<ActiveBuff> iterator = activeBuffs.iterator();
-    while (iterator.hasNext()) {
-      ActiveBuff buff = iterator.next();
-      if (now >= buff.getEndTime()) {
-        iterator.remove();
-        revertModifier(buff);
-        logger.debug("Expired {}", buff);
-        if (entity != null) {
-          entity.getEvents().trigger("buffExpired", buff);
-        }
+
+    long currentTime = timeSource.getTime();
+    List<ActiveBuff> expired = new ArrayList<>();
+    for (ActiveBuff buff : activeBuffs) {
+      if (currentTime >= buff.getEndTime()) {
+        expired.add(buff);
+      }
+    }
+
+    if (expired.isEmpty()) {
+      return;
+    }
+
+    activeBuffs.removeAll(expired);
+    recalculateStats();
+
+    for (ActiveBuff buff : expired) {
+      logger.debug("Expired {}", buff);
+      if (entity != null) {
+        entity.getEvents().trigger("buffExpired", buff);
       }
     }
   }
@@ -105,11 +126,11 @@ public class PlayerBuffComponent extends Component {
   }
 
   /**
-   * Returns the combined movement speed multiplier from all active {@link BuffStat#SPEED} buffs.
+   * Returns the combined movement speed multiplier from all active speed buffs.
    *
-   * <p>Movement speed is owned by {@code PlayerActions}, which is not modified by this component. A
-   * movement component should multiply its target speed by this value to make speed buffs take
-   * effect in game.
+   * <p>Movement speed belongs to PlayerActions, which this component does not modify. A movement
+   * component should multiply its target speed by this value for speed buffs to take effect in
+   * game.
    *
    * @return speed multiplier, where 1.0 is unbuffed
    */
@@ -118,67 +139,36 @@ public class PlayerBuffComponent extends Component {
   }
 
   /**
-   * Applies a stat modifier immediately.
+   * Sets every buffed stat back to its normal value multiplied by all active buffs on that stat.
    *
-   * @param stat stat to modify
-   * @param magnitude multiplier to apply
-   * @return the absolute change made, so it can be reverted exactly on expiry
+   * <p>Called whenever a buff starts or expires, so both cases share the same logic.
    */
-  private int applyModifier(BuffStat stat, float magnitude) {
-    if (stat == BuffStat.SPEED) {
-      speedMultiplier *= magnitude;
-      return 0;
-    }
+  private void recalculateStats() {
+    float damageMultiplier = 1f;
+    float speed = 1f;
 
-    CombatStatsComponent stats = getCombatStats();
-    if (stats == null) {
-      return 0;
-    }
-    int before = stats.getBaseAttack();
-    int after = Math.round(before * magnitude);
-    stats.setBaseAttack(after);
-    return stats.getBaseAttack() - before;
-  }
-
-  /**
-   * Reverts the stat change made by an expired buff.
-   *
-   * @param buff buff that has expired
-   */
-  private void revertModifier(ActiveBuff buff) {
-    if (buff.getStat() == BuffStat.SPEED) {
-      speedMultiplier /= buff.getMagnitude();
-      if (!hasBuff(BuffStat.SPEED)) {
-        speedMultiplier = 1f;
+    for (ActiveBuff buff : activeBuffs) {
+      if (buff.getStat() == BuffStat.DAMAGE) {
+        damageMultiplier *= buff.getMagnitude();
+      } else {
+        speed *= buff.getMagnitude();
       }
-      return;
     }
+
+    speedMultiplier = speed;
 
     CombatStatsComponent stats = getCombatStats();
     if (stats != null) {
-      stats.setBaseAttack(stats.getBaseAttack() - buff.getAppliedDelta());
+      stats.setBaseAttack(Math.round(normalBaseAttack * damageMultiplier));
     }
   }
 
   /**
-   * Returns the combat stats of the owning entity, if any.
+   * Returns the combat stats of the owning entity, if it has any.
    *
    * @return the entity's {@link CombatStatsComponent}, or {@code null} when unavailable
    */
   private CombatStatsComponent getCombatStats() {
     return entity == null ? null : entity.getComponent(CombatStatsComponent.class);
-  }
-
-  /**
-   * Resolves the game clock lazily, so this component can be constructed before the time source is
-   * registered with the {@link ServiceLocator}.
-   *
-   * @return the registered game time source
-   */
-  private GameTime getTimeSource() {
-    if (timeSource == null) {
-      timeSource = ServiceLocator.getTimeSource();
-    }
-    return timeSource;
   }
 }

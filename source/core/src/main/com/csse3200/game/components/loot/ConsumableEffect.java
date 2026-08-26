@@ -3,12 +3,11 @@ package com.csse3200.game.components.loot;
 import com.csse3200.game.entities.Entity;
 
 /**
- * The effect a consumable applies when it is used.
+ * What a consumable does when it is used.
  *
- * <p>Implementations are strategies held by a {@link ConsumableItem}, which keeps the item itself a
- * plain data class in line with the rest of the loot package.
+ * <p>Each consumable holds one of these instead of the item deciding its own behaviour with a
+ * switch, so a new kind of consumable only needs a new class implementing this interface.
  */
-@FunctionalInterface
 public interface ConsumableEffect {
   /**
    * Applies this effect to the given entity.

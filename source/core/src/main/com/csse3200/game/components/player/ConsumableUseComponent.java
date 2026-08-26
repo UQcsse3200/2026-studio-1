@@ -38,7 +38,7 @@ public class ConsumableUseComponent extends Component {
   /** Registers the {@code "useItem"} listener. */
   @Override
   public void create() {
-    entity.getEvents().addListener("useItem", (Integer slot) -> useItem(slot));
+    entity.getEvents().addListener("useItem", this::useItem);
   }
 
   /**
