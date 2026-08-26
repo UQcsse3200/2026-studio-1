@@ -35,10 +35,10 @@ public class InventoryDisplay extends UIComponent {
     // Main inventory panel.
     inventoryTable.setBackground(skin.getDrawable("window-w"));
 
-    // Header.
-    Label title = new Label("INVENTORY", skin, "title");
+//    // Header.
+//    Label title = new Label("INVENTORY", skin, "title");
 
-    inventoryTable.add(title).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
+//    inventoryTable.add(title).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
 
     inventoryTable.row();
 
