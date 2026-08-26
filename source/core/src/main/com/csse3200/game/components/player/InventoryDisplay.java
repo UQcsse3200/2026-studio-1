@@ -35,10 +35,11 @@ public class InventoryDisplay extends UIComponent {
     // Main inventory panel.
     inventoryTable.setBackground(skin.getDrawable("window-w"));
 
-//    // Header.
-//    Label title = new Label("INVENTORY", skin, "title");
+    //    // Header.
+    //    Label title = new Label("INVENTORY", skin, "title");
 
-//    inventoryTable.add(title).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
+    //
+    // inventoryTable.add(title).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
 
     inventoryTable.row();
 
@@ -110,14 +111,14 @@ public class InventoryDisplay extends UIComponent {
 
     inventoryTable.add(slot).size(SLOT_SIZE).pad(SLOT_GAP);
   }
+
   /** Positions the inventory in the centre of the screen. */
   private void positionInventory() {
     float screenWidth = stage.getViewport().getWorldWidth();
     float screenHeight = stage.getViewport().getWorldHeight();
 
     inventoryTable.setPosition(
-            (screenWidth - inventoryTable.getWidth()) / 2f,
-            (inventoryTable.getHeight()) / 4f);
+        (screenWidth - inventoryTable.getWidth()) / 2f, (inventoryTable.getHeight()) / 4f);
   }
 
   @Override
