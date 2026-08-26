@@ -7,7 +7,7 @@ import com.csse3200.game.services.ServiceLocator;
 
 /** Render a static texture. */
 public class TextureRenderComponent extends RenderComponent {
-  private Texture texture; //DELETE FINAL FOR CROUCH ABLILTY
+  private Texture texture; // DELETE FINAL FOR CROUCH ABLILTY
 
   /**
    * @param texturePath Internal path of static texture to render. Will be scaled to the entity's
@@ -30,7 +30,7 @@ public class TextureRenderComponent extends RenderComponent {
     entity.setScale(1f, (float) texture.getHeight() / texture.getWidth());
   }
 
-  public void setTexture(String texturePath){ //for crouch
+  public void setTexture(String texturePath) { // for crouch
     this.texture = ServiceLocator.getResourceService().getAsset(texturePath, Texture.class);
   }
 

@@ -57,7 +57,8 @@ public class PlatformerComponent extends Component {
   */
   // To change doubleJump parameters you need to use this function
   public void setDoubleJump(boolean doubleJumpPowerup, int maxDoubleJump) {
-    if (maxDoubleJump < 0) throw new IllegalArgumentException("maxDoubleJump should not be less than zero");
+    if (maxDoubleJump < 0)
+      throw new IllegalArgumentException("maxDoubleJump should not be less than zero");
     this.maxDoubleJump = maxDoubleJump;
     this.doubleJumpPowerup = doubleJumpPowerup;
   }

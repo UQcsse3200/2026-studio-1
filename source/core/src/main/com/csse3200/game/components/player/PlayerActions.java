@@ -6,8 +6,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
-import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.rendering.TextureRenderComponent;
+import com.csse3200.game.services.ServiceLocator;
 
 /**
  * Action component for interacting with the player. Player events should be initialised in create()
@@ -92,10 +92,8 @@ public class PlayerActions extends Component {
   private void ctrl_changed(boolean pressed) {
     if (pressed) {
       textureRenderComponent.setTexture(Crouch_Texture);
-    }
-    else {
+    } else {
       textureRenderComponent.setTexture(Normal_Texture);
     }
   }
-
 }
