@@ -20,8 +20,8 @@ public class PlayerActions extends Component {
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private float dashspeed = 5f;
   private boolean moving = false;
-  private String Normal_Texture = "images/box_boy_leaf.png";
-  private String Crouch_Texture = "images/box_boy_crouch.png";
+  private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
+  private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
   private TextureRenderComponent textureRenderComponent;
 
   private PlatformerComponent platformerComponent;
@@ -35,7 +35,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("attack", this::attack);
     entity.getEvents().addListener("dash", this::dash);
     textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
-    entity.getEvents().addListener("ctrl_changed", this::ctrl_changed);
+    entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
   }
 
   @Override
@@ -47,12 +47,10 @@ public class PlayerActions extends Component {
 
   private void updateSpeed() {
     Body body = physicsComponent.getBody();
-    Vector2 velocity = body.getLinearVelocity();
     Vector2 desiredVelocity = walkDirection.cpy().scl(MAX_SPEED);
-    // impulse = (desiredVel - currentVel) * mass
+    // impulse = desiredVel * mass
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
-    // The y velocity is being killed off for some reason.
 
     // For the jump portion
     platformerComponent.updateJump(MAX_SPEED);
@@ -89,11 +87,11 @@ public class PlayerActions extends Component {
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 
-  private void ctrl_changed(boolean pressed) {
+  private void ctrlChanged(boolean pressed) {
     if (pressed) {
-      textureRenderComponent.setTexture(Crouch_Texture);
+      textureRenderComponent.setTexture(CROUCH_TEXTURE);
     } else {
-      textureRenderComponent.setTexture(Normal_Texture);
+      textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
   }
 }
