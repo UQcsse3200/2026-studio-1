@@ -14,14 +14,14 @@ import com.csse3200.game.ui.UIComponent;
 public class PauseMenuDisplay extends UIComponent {
 
   private Table table;
+  private Table pauseOverlay;
+  private Table pausePanel;
   private PauseMenuComponent pauseMenu;
   private TextButton[] buttons;
   private int selectedIndex = 0;
   private boolean wasPaused = false;
 
-  // Whether keyboard nav currently owns button highlighting. True = keyboard nav controls
-  // colors; false = mouse hover controls colors. Only one of the two is ever allowed to set
-  // a button's color at a time.
+
   private boolean usingKeyboardNav = true;
 
   @Override
@@ -35,8 +35,21 @@ public class PauseMenuDisplay extends UIComponent {
   private void addActors() {
     table = new Table();
     table.setFillParent(true);
+    pauseOverlay = new Table();
+    pauseOverlay.setFillParent(true);
+    pauseOverlay.setBackground(
+            skin.newDrawable("white", new Color(0, 0, 0, 0.5f)));
+    pauseOverlay.setVisible(false);
+
+    stage.addActor(pauseOverlay);
+
+    pausePanel = new Table();
+    pausePanel.setBackground(
+            skin.newDrawable("white", new Color(0.05f, 0.08f, 0.05f, 0.85f)));
+    pausePanel.pad(35f);
 
     Label title = new Label("PAUSED", skin);
+    title.getStyle().fontColor = Color.WHITE;
 
     TextButton resumeBtn = new TextButton("Resume", skin);
     TextButton restartBtn = new TextButton("Restart", skin);
@@ -44,7 +57,7 @@ public class PauseMenuDisplay extends UIComponent {
 
     buttons = new TextButton[] {resumeBtn, restartBtn, mainMenuBtn};
 
-    // Clicking a button does the same thing as navigating to it and pressing Enter.
+
     resumeBtn.addListener(
         new ChangeListener() {
           @Override
@@ -67,20 +80,19 @@ public class PauseMenuDisplay extends UIComponent {
           }
         });
 
-    table.add(title);
-    table.row();
+    pausePanel.add(title);
+    pausePanel.row();
 
-    table.add(resumeBtn).padTop(20f);
-    table.row();
+    pausePanel.add(resumeBtn).padTop(20f);
+    pausePanel.row();
 
-    table.add(restartBtn).padTop(15f);
-    table.row();
+    pausePanel.add(restartBtn).padTop(15f);
+    pausePanel.row();
 
-    table.add(mainMenuBtn).padTop(15f);
+    pausePanel.add(mainMenuBtn).padTop(15f);
 
-    // Moving the mouse at all hands color control over to hover: drop keyboard-nav
-    // ownership and clear every button back to the default color so no stale
-    // keyboard highlight is left behind.
+    table.add(pausePanel).width(350f).height(350f);
+
     table.addListener(
         new InputListener() {
           @Override
@@ -93,7 +105,7 @@ public class PauseMenuDisplay extends UIComponent {
           }
         });
 
-    // Hover highlighting per-button - only takes effect once the mouse owns color control.
+
     for (TextButton button : buttons) {
       button.addListener(
           new InputListener() {
@@ -111,12 +123,12 @@ public class PauseMenuDisplay extends UIComponent {
           });
     }
 
-    // Hidden until the game is actually paused.
+
     table.setVisible(false);
     stage.addActor(table);
   }
 
-  /** Listens for the keyboard-navigation events fired by PauseMenuInputComponent. */
+
   private void registerEventListeners() {
     entity.getEvents().addListener("navigateUp", this::navigateUp);
     entity.getEvents().addListener("navigateDown", this::navigateDown);
@@ -135,10 +147,7 @@ public class PauseMenuDisplay extends UIComponent {
     updateHighlight();
   }
 
-  /**
-   * Highlights whichever button is currently selected via keyboard navigation. Only applies color
-   * when keyboard nav owns highlighting, so it can never fight with the hover listeners.
-   */
+
   private void updateHighlight() {
     if (!usingKeyboardNav) {
       return;
@@ -148,7 +157,7 @@ public class PauseMenuDisplay extends UIComponent {
     }
   }
 
-  /** Enter/Space was pressed - trigger whatever the currently highlighted button does. */
+
   private void confirmSelection() {
     usingKeyboardNav = true;
     updateHighlight();
@@ -163,10 +172,10 @@ public class PauseMenuDisplay extends UIComponent {
   @Override
   public void draw(SpriteBatch batch) {
     boolean isPaused = pauseMenu.isPaused();
+    pauseOverlay.setVisible(isPaused);
     table.setVisible(isPaused);
 
-    // Reset selection to the first button every time the menu is freshly opened, and hand
-    // highlight ownership back to keyboard nav so the reset is actually visible.
+
     if (isPaused && !wasPaused) {
       selectedIndex = 0;
       usingKeyboardNav = true;
