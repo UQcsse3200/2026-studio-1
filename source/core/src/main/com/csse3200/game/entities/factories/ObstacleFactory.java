@@ -50,6 +50,17 @@ public class ObstacleFactory {
     return wall;
   }
 
+  public static Entity createPlatform(float width, float height) {
+    Entity platform =
+            new Entity()
+                    .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+                    .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
+
+    platform.setScale(width, height);
+
+    return platform;
+  }
+
   private ObstacleFactory() {
     throw new IllegalStateException("Instantiating static util class");
   }

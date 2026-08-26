@@ -17,7 +17,8 @@ public class TerrainCollision {
   public List<Entity> createColliders() {
     List<Entity> colliders = new ArrayList<>();
 
-    TiledMapTileLayer layer = (TiledMapTileLayer) terrain.getMap().getLayers().get(0);
+    TiledMapTileLayer layer =
+            (TiledMapTileLayer) terrain.getMap().getLayers().get(0);
 
     float tileSize = terrain.getTileSize();
 
@@ -32,11 +33,15 @@ public class TerrainCollision {
         TerrainTile tile = (TerrainTile) cell.getTile();
 
         if (tile.getTileType().getCollisionType() == CollisionType.SOLID) {
-          Entity collider = ObstacleFactory.createWall(tileSize, tileSize);
+          Entity collider = ObstacleFactory.createPlatform(tileSize, tileSize);
 
           Vector2 position = terrain.tileToWorldPosition(x, y);
-          collider.setPosition(position);
 
+          // tileToWorldPosition gives the bottom-left corner.
+          // Entity position is the centre.
+          position.add(tileSize / 2f, tileSize / 2f);
+
+          collider.setPosition(position);
           colliders.add(collider);
         }
       }

@@ -123,8 +123,7 @@ public class TerrainFactory {
     TerrainTile floorTile = new TerrainTile(floor, TileType.FLOOR);
     TerrainTile grassTile = new TerrainTile(grass, TileType.DECORATIVE);
     TerrainTile grassTuftTile = new TerrainTile(grassTuft, TileType.DECORATIVE);
-    TerrainTile rockTile =
-        new TerrainTile(rocks, TileType.HAZARD); // TODO: Adjust the types depending on the design
+    TerrainTile rockTile = new TerrainTile(rocks, TileType.HAZARD);
     TiledMapTileLayer layer = new TiledMapTileLayer(MAP_SIZE.x, MAP_SIZE.y, tileSize.x, tileSize.y);
 
     // Create base grass
