@@ -193,7 +193,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#canStack(com.csse3200.game.components.loot.Item,com.csse3200.game.components.loot.Item)" class="member-name-link">canStack(Item, Item)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
-<div class="block">Returns whether <code>incoming</code> can stack onto <code>existing</code>.</div>
+<div class="block">Checks whether two items can be stacked together.</div>
 </dd>
 <dt><a href="com/csse3200/game/physics/components/PhysicsComponent.AlignX.html#CENTER" class="member-name-link">CENTER</a> - Enum constant in enum class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/PhysicsComponent.AlignX.html" title="enum class in com.csse3200.game.physics.components">PhysicsComponent.AlignX</a></dt>
 <dd>&nbsp;</dd>
@@ -329,7 +329,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/ForestGameArea.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/ForestGameArea.html" title="class in com.csse3200.game.areas">ForestGameArea</a></dt>
 <dd>
-<div class="block">Create the game area, including terrain, static entities (trees), dynamic entities (player)</div>
+<div class="block">Create the game area, including terrain, static entities (trees), dynamic entities (player).</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/GameArea.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/GameArea.html" title="class in com.csse3200.game.areas">GameArea</a></dt>
 <dd>
@@ -432,6 +432,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/entities/factories/NPCFactory.html#createGhostKing(com.csse3200.game.entities.Entity)" class="member-name-link">createGhostKing(Entity)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/NPCFactory.html" title="class in com.csse3200.game.entities.factories">NPCFactory</a></dt>
 <dd>
 <div class="block">Creates a ghost king entity.</div>
+</dd>
+<dt><a href="com/csse3200/game/entities/factories/GoldCoinFactory.html#createGoldCoin()" class="member-name-link">createGoldCoin()</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/GoldCoinFactory.html" title="class in com.csse3200.game.entities.factories">GoldCoinFactory</a></dt>
+<dd>
+<div class="block">Creates a gold coin entity with a looping spinning animation.</div>
 </dd>
 <dt><a href="com/csse3200/game/physics/PhysicsEngine.html#createJoint(com.badlogic.gdx.physics.box2d.JointDef)" class="member-name-link">createJoint(JointDef)</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsEngine.html" title="class in com.csse3200.game.physics">PhysicsEngine</a></dt>
 <dd>&nbsp;</dd>
@@ -873,7 +877,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getMaxSlots()" class="member-name-link">getMaxSlots()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
-<div class="block">Returns the constructor capacity.</div>
+<div class="block">Returns the maximum number of item slots.</div>
 </dd>
 <dt><a href="com/csse3200/game/ai/movement/MovementController.html#getMoving()" class="member-name-link">getMoving()</a> - Method in interface com.csse3200.game.ai.movement.<a href="com/csse3200/game/ai/movement/MovementController.html" title="interface in com.csse3200.game.ai.movement">MovementController</a></dt>
 <dd>&nbsp;</dd>
@@ -887,7 +891,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getOccupiedSlots()" class="member-name-link">getOccupiedSlots()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
-<div class="block">Returns the number of occupied slots, derived from the map size.</div>
+<div class="block">Returns the number of occupied slots.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainTile.html#getOffsetX()" class="member-name-link">getOffsetX()</a> - Method in class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></dt>
 <dd>&nbsp;</dd>
@@ -957,12 +961,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getTotalQuantity(com.csse3200.game.components.loot.Item)" class="member-name-link">getTotalQuantity(Item)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
-<div class="block">Returns the total quantity of stacks compatible with <code>template</code>.</div>
+<div class="block">Returns the total quantity of items compatible with <code>template</code>.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getTotalQuantity(java.lang.String,com.csse3200.game.components.loot.ItemType,int)" class="member-name-link">getTotalQuantity(String, ItemType, int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
-<div class="block">Returns the total quantity of stacks matching <code>name</code>, <code>type</code>, and <code>
- maxQuantity</code> across all occupied slots.</div>
+<div class="block">Returns the total quantity of matching items.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponItem.html#getWeaponType()" class="member-name-link">getWeaponType()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
 <dd>&nbsp;</dd>
@@ -1005,6 +1008,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/PlayerConfig.html#gold" class="member-name-link">gold</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/PlayerConfig.html" title="class in com.csse3200.game.entities.configs">PlayerConfig</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/factories/GoldCoinFactory.html" class="type-name-link" title="class in com.csse3200.game.entities.factories">GoldCoinFactory</a> - Class in <a href="com/csse3200/game/entities/factories/package-summary.html">com.csse3200.game.entities.factories</a></dt>
+<dd>
+<div class="block">Factory for creating gold coin entities.</div>
+</dd>
 <dt><a href="com/csse3200/game/utils/math/GridPoint2Utils.html" class="type-name-link" title="class in com.csse3200.game.utils.math">GridPoint2Utils</a> - Class in <a href="com/csse3200/game/utils/math/package-summary.html">com.csse3200.game.utils.math</a></dt>
 <dd>
 <div class="block">Contains additional utility constants and functions for common GridPoint2 operations.</div>
@@ -1810,7 +1817,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#setGold(int)" class="member-name-link">setGold(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
-<div class="block">Sets the players' gold.</div>
+<div class="block">Sets the player's gold.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/CombatStatsComponent.html#setHealth(int)" class="member-name-link">setHealth(int)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
 <dd>
@@ -1938,7 +1945,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#splitStack(int,int)" class="member-name-link">splitStack(int, int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
-<div class="block">Splits <code>splitQty</code> from an occupied stack into the lowest empty slot.</div>
+<div class="block">Splits part of an occupied stack into the lowest empty slot.</div>
 </dd>
 <dt><a href="com/csse3200/game/entities/configs/GhostKingConfig.html#spookyFactor" class="member-name-link">spookyFactor</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/GhostKingConfig.html" title="class in com.csse3200.game.entities.configs">GhostKingConfig</a></dt>
 <dd>&nbsp;</dd>
