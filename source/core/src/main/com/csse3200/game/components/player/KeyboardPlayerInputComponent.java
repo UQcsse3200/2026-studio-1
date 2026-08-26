@@ -65,7 +65,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         entity.getEvents().trigger("attack");
         return true;
       case Keys.CONTROL_LEFT:
-        entity.getEvents().trigger("ctrl_changed", true);
+        entity.getEvents().trigger("ctrlChanged", true);
         return true;
       default:
         return false;
@@ -95,7 +95,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         triggerWalkEvent();
         return true;
       case Keys.CONTROL_LEFT:
-        entity.getEvents().trigger("ctrl_changed", false);
+        entity.getEvents().trigger("ctrlChanged", false);
         return true;
       default:
         return false;
