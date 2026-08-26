@@ -138,6 +138,11 @@ public class ForestGameArea extends GameArea {
     }
   }
 
+  public boolean isPlayerDead() {
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    return stats != null && stats.isDead();
+  }
+
   private void spawnGhosts() {
     GridPoint2 minPos = new GridPoint2(0, 0);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
