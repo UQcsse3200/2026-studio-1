@@ -52,9 +52,9 @@ public class ObstacleFactory {
 
   public static Entity createPlatform(float width, float height) {
     Entity platform =
-            new Entity()
-                    .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-                    .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
+        new Entity()
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
 
     platform.setScale(width, height);
 

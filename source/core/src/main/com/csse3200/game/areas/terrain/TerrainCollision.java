@@ -17,8 +17,7 @@ public class TerrainCollision {
   public List<Entity> createColliders() {
     List<Entity> colliders = new ArrayList<>();
 
-    TiledMapTileLayer layer =
-            (TiledMapTileLayer) terrain.getMap().getLayers().get(0);
+    TiledMapTileLayer layer = (TiledMapTileLayer) terrain.getMap().getLayers().get(0);
 
     float tileSize = terrain.getTileSize();
 
