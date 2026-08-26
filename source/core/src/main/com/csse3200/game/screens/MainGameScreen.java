@@ -164,10 +164,10 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuComponent())
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
-            .addComponent(new PauseMenuInputComponent())
-            .addComponent(deathScreenDisplay)
-            .addComponent(new MainGameActions(this.game, this))
-            .addComponent(new PauseMenuActions());
+        .addComponent(new PauseMenuInputComponent())
+        .addComponent(deathScreenDisplay)
+        .addComponent(new MainGameActions(this.game, this))
+        .addComponent(new PauseMenuActions());
 
     ServiceLocator.getEntityService().register(ui);
   }
