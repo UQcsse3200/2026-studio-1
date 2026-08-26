@@ -35,6 +35,7 @@ class PlayerStatsDisplayTest {
   private Texture greenHalf, yellowHalf, redHalf;
 
   private Sound hitSound;
+  private Sound crownHitSound;
 
   @BeforeEach
   void setUp() {
@@ -48,6 +49,7 @@ class PlayerStatsDisplayTest {
     redHalf = mock(Texture.class);
 
     hitSound = mock(Sound.class);
+    crownHitSound = mock(Sound.class);
 
     // PlayerStatsDisplay loads its heart textures by asset path on create(), so the mocked
     // ResourceService must resolve each path to the matching mock texture above.
@@ -70,6 +72,9 @@ class PlayerStatsDisplayTest {
     when(resourceService.getAsset("images/heart-red-half.png", Texture.class)).thenReturn(redHalf);
 
     when(resourceService.getAsset("sounds/player-hit.ogg", Sound.class)).thenReturn(hitSound);
+
+    when(resourceService.getAsset("sounds/player-hit-crown.ogg", Sound.class))
+        .thenReturn(crownHitSound);
 
     ServiceLocator.registerResourceService(resourceService);
     // UIComponent.create() (the superclass) pulls its Stage from the RenderService, so the

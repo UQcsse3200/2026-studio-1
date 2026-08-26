@@ -122,8 +122,19 @@ public class PlayerStatsDisplay extends UIComponent {
    */
   public void updatePlayerHealthUI(int health) {
 
-    // Play hit sound when the player's health decreases
-    if (health < previousHealth) {
+    // Calculate how much health the player lost
+    int damageTaken = previousHealth - health;
+
+    // Play different sounds depending on the amount of damage
+    if (damageTaken == 25) {
+      // Crowned ghost hit
+      Sound crownHitSound =
+          ServiceLocator.getResourceService().getAsset("sounds/player-hit-crown.ogg", Sound.class);
+
+      crownHitSound.play();
+
+    } else if (damageTaken > 0) {
+      // Regular damage
       Sound hitSound =
           ServiceLocator.getResourceService().getAsset("sounds/player-hit.ogg", Sound.class);
 
