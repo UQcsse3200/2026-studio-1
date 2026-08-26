@@ -110,17 +110,14 @@ public class InventoryDisplay extends UIComponent {
 
     inventoryTable.add(slot).size(SLOT_SIZE).pad(SLOT_GAP);
   }
-
-  /** Positions the inventory in the top-right corner of the screen. */
+  /** Positions the inventory in the centre of the screen. */
   private void positionInventory() {
-    float margin = 24f;
-
     float screenWidth = stage.getViewport().getWorldWidth();
     float screenHeight = stage.getViewport().getWorldHeight();
 
     inventoryTable.setPosition(
-        screenWidth - inventoryTable.getWidth() - margin,
-        screenHeight - inventoryTable.getHeight() - margin);
+            (screenWidth - inventoryTable.getWidth()) / 2f,
+            (inventoryTable.getHeight()) / 4f);
   }
 
   @Override
