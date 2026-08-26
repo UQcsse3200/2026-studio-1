@@ -57,8 +57,7 @@ public class TerrainFactory {
   public TerrainComponent createTerrain(TerrainType terrainType) {
     ResourceService resourceService = ServiceLocator.getResourceService();
     TextureRegion floor =
-        new TextureRegion(
-            resourceService.getAsset("images/floor.png", Texture.class));
+        new TextureRegion(resourceService.getAsset("images/floor.png", Texture.class));
     switch (terrainType) {
       case FOREST_DEMO:
         TextureRegion orthoGrass =
@@ -162,7 +161,8 @@ public class TerrainFactory {
     }
   }
 
-  private static void fillFloor(TiledMapTileLayer layer, GridPoint2 mapSize, TerrainTile tile, int floorLevel) {
+  private static void fillFloor(
+      TiledMapTileLayer layer, GridPoint2 mapSize, TerrainTile tile, int floorLevel) {
     for (int x = 0; x < mapSize.x; x++) {
       for (int y = 0; y < floorLevel; y++) {
         Cell cell = new Cell();
