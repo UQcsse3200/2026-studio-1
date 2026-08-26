@@ -1,0 +1,19 @@
+{
+  healthPotion: {
+    name: "Health Potion",
+    healAmount: 25,
+    maxQuantity: 9
+  },
+  damageBuff: {
+    name: "Damage Potion",
+    magnitude: 1.5,
+    durationSeconds: 10.0,
+    maxQuantity: 9
+  },
+  speedBuff: {
+    name: "Speed Potion",
+    magnitude: 1.5,
+    durationSeconds: 10.0,
+    maxQuantity: 9
+  }
+}
