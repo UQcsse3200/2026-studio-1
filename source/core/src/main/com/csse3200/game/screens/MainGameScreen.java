@@ -7,6 +7,7 @@ import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.ForestGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
@@ -41,6 +42,8 @@ public class MainGameScreen extends ScreenAdapter {
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private ForestGameArea forestGameArea;
+  private DeathScreenDisplay deathScreenDisplay;
+  private boolean deathScreenShown = false;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -73,8 +76,24 @@ public class MainGameScreen extends ScreenAdapter {
 
   @Override
   public void render(float delta) {
+
+    /* If the player has died, stop updating the game world,
+    but keep rendering the game and death popup.*/
+    if (deathScreenShown) {
+      renderer.render();
+      return;
+    }
+
     physicsEngine.update();
     ServiceLocator.getEntityService().update();
+
+    if (forestGameArea.isPlayerDead()) {
+      deathScreenShown = true;
+      deathScreenDisplay.showDeathScreen();
+      renderer.render();
+      return;
+    }
+
     renderer.render();
   }
 
@@ -136,6 +155,7 @@ public class MainGameScreen extends ScreenAdapter {
         ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
+    deathScreenDisplay = new DeathScreenDisplay(this.game);
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
         .addComponent(new Terminal())
@@ -144,9 +164,10 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuComponent())
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
-        .addComponent(new PauseMenuInputComponent())
-        .addComponent(new MainGameActions(this.game, this))
-        .addComponent(new PauseMenuActions());
+            .addComponent(new PauseMenuInputComponent())
+            .addComponent(deathScreenDisplay)
+            .addComponent(new MainGameActions(this.game, this))
+            .addComponent(new PauseMenuActions());
 
     ServiceLocator.getEntityService().register(ui);
   }
