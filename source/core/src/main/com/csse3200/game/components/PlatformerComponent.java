@@ -2,7 +2,6 @@ package com.csse3200.game.components;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.physics.components.PhysicsComponent;
 
 public class PlatformerComponent extends Component {
@@ -19,7 +18,6 @@ public class PlatformerComponent extends Component {
 
   private int baseJumpScaler = 3;
 
-  PlayerActions playerActions;
   private PhysicsComponent physicsComponent;
 
   public PlatformerComponent(int baseJumpScaler) {
@@ -42,7 +40,6 @@ public class PlatformerComponent extends Component {
 
   @Override
   public void create() {
-    playerActions = entity.getComponent(PlayerActions.class);
     physicsComponent = entity.getComponent(PhysicsComponent.class);
     entity.getEvents().addListener("jump", this::jump);
   }
