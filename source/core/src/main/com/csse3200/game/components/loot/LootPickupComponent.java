@@ -19,67 +19,65 @@ import org.slf4j.LoggerFactory;
  */
 public class LootPickupComponent extends Component {
 
-    private static final Logger logger = LoggerFactory.getLogger(LootPickupComponent.class);
+  private static final Logger logger = LoggerFactory.getLogger(LootPickupComponent.class);
 
-    private final Item item;
-    private HitboxComponent hitboxComponent;
-    private boolean collected = false;
+  private final Item item;
+  private HitboxComponent hitboxComponent;
+  private boolean collected = false;
 
-    /**
-     * Creates a loot pickup component.
-     *
-     * @param item item that will be added to the player's inventory
-     */
-    public LootPickupComponent(Item item) {
-        this.item = item;
+  /**
+   * Creates a loot pickup component.
+   *
+   * @param item item that will be added to the player's inventory
+   */
+  public LootPickupComponent(Item item) {
+    this.item = item;
+  }
+
+  @Override
+  public void create() {
+    hitboxComponent = entity.getComponent(HitboxComponent.class);
+    entity.getEvents().addListener("collisionStart", this::onCollisionStart);
+  }
+
+  private void onCollisionStart(Fixture me, Fixture other) {
+    if (collected) {
+      return;
+    }
+    // Only react when this entity's hitbox is involved.
+    if (hitboxComponent == null || hitboxComponent.getFixture() != me) {
+      return;
     }
 
-    @Override
-    public void create() {
-        hitboxComponent = entity.getComponent(HitboxComponent.class);
-        entity.getEvents().addListener("collisionStart", this::onCollisionStart);
+    // Only react to collisions with the player.
+    if (!PhysicsLayer.contains(PhysicsLayer.PLAYER, other.getFilterData().categoryBits)) {
+      return;
     }
 
-    private void onCollisionStart(Fixture me, Fixture other) {
-        if (collected) {
-            return;
-        }
-        // Only react when this entity's hitbox is involved.
-        if (hitboxComponent == null || hitboxComponent.getFixture() != me) {
-            return;
-        }
-
-        // Only react to collisions with the player.
-        if (!PhysicsLayer.contains(PhysicsLayer.PLAYER, other.getFilterData().categoryBits)) {
-            return;
-        }
-
-        // Get the player entity from the collision fixture.
-        BodyUserData userData = (BodyUserData) other.getBody().getUserData();
-        if (userData == null || userData.entity == null) {
-            return;
-        }
-
-        Entity player = userData.entity;
-        InventoryComponent inventory = player.getComponent(InventoryComponent.class);
-
-        if (inventory == null || item == null) {
-            return;
-        }
-
-        // Try to add the item to the player's inventory.
-        int remaining = inventory.addItem(item);
-
-        // Only remove the loot if the entire item was added.
-        if (remaining == 0) {
-            collected = true;
-
-            logger.info(
-                    "Picked up {}. Inventory quantity: {}",
-                    item.getName(),
-                    inventory.getTotalQuantity(item));
-
-            Gdx.app.postRunnable(entity::dispose);
-        }
+    // Get the player entity from the collision fixture.
+    BodyUserData userData = (BodyUserData) other.getBody().getUserData();
+    if (userData == null || userData.entity == null) {
+      return;
     }
+
+    Entity player = userData.entity;
+    InventoryComponent inventory = player.getComponent(InventoryComponent.class);
+
+    if (inventory == null || item == null) {
+      return;
+    }
+
+    // Try to add the item to the player's inventory.
+    int remaining = inventory.addItem(item);
+
+    // Only remove the loot if the entire item was added.
+    if (remaining == 0) {
+      collected = true;
+
+      logger.info(
+          "Picked up {}. Inventory quantity: {}", item.getName(), inventory.getTotalQuantity(item));
+
+      Gdx.app.postRunnable(entity::dispose);
+    }
+  }
 }
