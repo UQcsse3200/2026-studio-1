@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.services.ServiceLocator;
 
-/** Moves an arrow projectile in a fixed direction. */
+// Moves an arrow projectile in a fixed direction.
 public class ArrowMovementComponent extends Component {
   private static final float SPEED = 8f;
   private static final float LIFETIME = 2f;

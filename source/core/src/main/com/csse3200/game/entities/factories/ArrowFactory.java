@@ -5,7 +5,7 @@ import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.rendering.TextureRenderComponent;
 
-/** Factory for creating arrow projectiles. */
+// Factory for creating arrow projectiles.
 public class ArrowFactory {
 
   public static Entity createArrow(Vector2 position, Vector2 direction) {

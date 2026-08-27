@@ -6,19 +6,25 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.rendering.RenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
-/** Renders the equipped weapon beside the player and provides a basic sword swing animation. */
+// Renders the equipped weapon beside the player and provides a basic sword swing animation.
 public class WeaponRenderComponent extends RenderComponent {
-  private static final float WEAPON_WIDTH = 0.6f;
-  private static final float WEAPON_HEIGHT = 0.6f;
+  private static final float SWORD_WIDTH = 0.3f;
+  private static final float SWORD_HEIGHT = 0.7f;
+
+  private static final float BOW_WIDTH = 0.5f;
+  private static final float BOW_HEIGHT = 0.75f;
+
   private static final float SWING_DURATION = 0.3f;
 
   private final Texture texture;
+  private final boolean isBow;
 
   private boolean swinging;
   private float swingTime;
 
   public WeaponRenderComponent(String texturePath) {
     texture = ServiceLocator.getResourceService().getAsset(texturePath, Texture.class);
+    isBow = texturePath.contains("bow");
   }
 
   @Override
@@ -28,6 +34,10 @@ public class WeaponRenderComponent extends RenderComponent {
   }
 
   private void startSwing(int damage) {
+    if (isBow) {
+      return;
+    }
+
     swinging = true;
     swingTime = 0f;
   }
@@ -54,6 +64,9 @@ public class WeaponRenderComponent extends RenderComponent {
     float weaponX = playerPosition.x + playerScale.x * 0.7f;
     float weaponY = playerPosition.y + playerScale.y * 0.35f;
 
+    float weaponWidth = isBow ? BOW_WIDTH : SWORD_WIDTH;
+    float weaponHeight = isBow ? BOW_HEIGHT : SWORD_HEIGHT;
+
     float rotation = 0f;
 
     if (swinging) {
@@ -66,10 +79,10 @@ public class WeaponRenderComponent extends RenderComponent {
         texture,
         weaponX,
         weaponY,
-        WEAPON_WIDTH / 2f,
-        WEAPON_HEIGHT / 2f,
-        WEAPON_WIDTH,
-        WEAPON_HEIGHT,
+        weaponWidth / 2f,
+        weaponHeight / 2f,
+        weaponWidth,
+        weaponHeight,
         1f,
         1f,
         rotation,

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.player.LootBobComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.GoldCoinFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
@@ -152,20 +153,22 @@ public class ForestGameArea extends GameArea {
   }
 
   private void spawnWeaponLoot() {
-    Entity bow = new Entity().addComponent(new TextureRenderComponent("images/bow.png"));
+    /** Spawn a bow and an arrow on the ground for the player to pick up. */
+    Entity bow =
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/bow.png"))
+            .addComponent(new LootBobComponent());
 
-    bow.setScale(0.8f, 0.5f);
+    bow.setScale(0.8f, 0.65f);
     spawnEntityAt(bow, new GridPoint2(12, 10), true, true);
 
-    Entity arrowOne = new Entity().addComponent(new TextureRenderComponent("images/arrow.png"));
+    Entity arrowOne =
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/arrow.png"))
+            .addComponent(new LootBobComponent());
 
-    arrowOne.setScale(0.5f, 0.2f);
+    arrowOne.setScale(0.9f, 0.45f);
     spawnEntityAt(arrowOne, new GridPoint2(13, 10), true, true);
-
-    Entity arrowTwo = new Entity().addComponent(new TextureRenderComponent("images/arrow.png"));
-
-    arrowTwo.setScale(0.5f, 0.2f);
-    spawnEntityAt(arrowTwo, new GridPoint2(13, 11), true, true);
   }
 
   private void spawnGhosts() {

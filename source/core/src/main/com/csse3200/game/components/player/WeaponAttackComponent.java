@@ -8,7 +8,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ArrowFactory;
 import com.csse3200.game.services.ServiceLocator;
 
-/** Handles player attacks based on the currently equipped weapon. */
+// Handles player attacks based on the currently equipped weapon.
 public class WeaponAttackComponent extends Component {
   private final WeaponItem weapon;
   private Vector2 attackDirection = new Vector2(1f, 0f);
