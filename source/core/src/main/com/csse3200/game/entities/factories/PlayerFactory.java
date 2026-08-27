@@ -42,7 +42,7 @@ public class PlayerFactory {
         ServiceLocator.getInputService().getInputFactory().createForPlayer();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
+    WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.BOW, 1);
 
     Entity player =
         new Entity()
@@ -57,7 +57,7 @@ public class PlayerFactory {
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent("images/sword.png"));
+            .addComponent(new WeaponRenderComponent("images/bow.png"));
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);
