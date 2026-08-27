@@ -6,7 +6,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
@@ -24,6 +27,7 @@ public class ForestGameArea extends GameArea {
   private static final int NUM_GHOSTS = 2;
   private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(10, 10);
   private static final float WALL_WIDTH = 0.1f;
+
   private static final String[] forestTextures = {
     "images/box_boy_leaf.png",
     "images/tree.png",
@@ -39,9 +43,14 @@ public class ForestGameArea extends GameArea {
     "images/iso_grass_2.png",
     "images/iso_grass_3.png"
   };
+
   private static final String[] forestTextureAtlases = {
-    "images/terrain_iso_grass.atlas", "images/ghost.atlas", "images/ghostKing.atlas"
+    "images/terrain_iso_grass.atlas",
+    "images/ghost.atlas",
+    "images/ghostKing.atlas",
+    "images/gold_coin/gold_coin.atlas"
   };
+
   private static final String[] forestSounds = {"sounds/Impact4.ogg"};
   private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
   private static final String[] forestMusic = {backgroundMusic};
@@ -61,7 +70,9 @@ public class ForestGameArea extends GameArea {
     this.terrainFactory = terrainFactory;
   }
 
-  /** Create the game area, including terrain, static entities (trees), dynamic entities (player) */
+  /**
+   * Create the game area, including terrain, static entities (trees), dynamic entities (player).
+   */
   @Override
   public void create() {
     loadAssets();
@@ -73,6 +84,10 @@ public class ForestGameArea extends GameArea {
     player = spawnPlayer();
     spawnGhosts();
     spawnGhostKing();
+
+    Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
+    Entity goldCoin = LootFactory.createLoot(goldCoinItem);
+    spawnEntityAt(goldCoin, new GridPoint2(15, 15), true, true);
 
     playMusic();
   }
@@ -96,18 +111,21 @@ public class ForestGameArea extends GameArea {
     // Left
     spawnEntityAt(
         ObstacleFactory.createWall(WALL_WIDTH, worldBounds.y), GridPoint2Utils.ZERO, false, false);
+
     // Right
     spawnEntityAt(
         ObstacleFactory.createWall(WALL_WIDTH, worldBounds.y),
         new GridPoint2(tileBounds.x, 0),
         false,
         false);
+
     // Top
     spawnEntityAt(
         ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH),
         new GridPoint2(0, tileBounds.y),
         false,
         false);
+
     // Bottom
     spawnEntityAt(
         ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH), GridPoint2Utils.ZERO, false, false);
@@ -160,6 +178,7 @@ public class ForestGameArea extends GameArea {
   private void loadAssets() {
     logger.debug("Loading assets");
     ResourceService resourceService = ServiceLocator.getResourceService();
+
     resourceService.loadTextures(forestTextures);
     resourceService.loadTextureAtlases(forestTextureAtlases);
     resourceService.loadSounds(forestSounds);
@@ -174,6 +193,7 @@ public class ForestGameArea extends GameArea {
   private void unloadAssets() {
     logger.debug("Unloading assets");
     ResourceService resourceService = ServiceLocator.getResourceService();
+
     resourceService.unloadAssets(forestTextures);
     resourceService.unloadAssets(forestTextureAtlases);
     resourceService.unloadAssets(forestSounds);
