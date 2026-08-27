@@ -50,10 +50,9 @@ public class MeleeAttackComponent extends Component {
     public MeleeAttackComponent(float range, float cooldown, float knockback) {
         // TODO: store the three parameters and initilise the cooldown timer so the
         //  entity can attack immediately.
-        this.range = range;
-        this.cooldown = cooldown;
-        this.knockback = knockback;
-        this.timeSinceLastAttack = cooldown;
+        setRange(range);
+        setKnockback(knockback);
+        setCooldown(cooldown);
     }
 
     /**
@@ -90,13 +89,15 @@ public class MeleeAttackComponent extends Component {
     }
 
     /**
-     * Updates the configured melee range.
+     * Updates the melee range.
      *
      * @param range new range value
-     *
-     * <p><b>Limitation:</b> no validation performed; negative values accepted.
+     * @throws IllegalArgumentException if {@code range} is negative
      */
     public void setRange(float range) {
+        if (range < 0) {
+            throw new IllegalArgumentException("range must not be negative");
+        }
         this.range = range;
     }
 
@@ -110,15 +111,15 @@ public class MeleeAttackComponent extends Component {
     }
 
     /**
-     * Updates the configured cooldown duration.
+     * Updates the cooldown duration.
      *
      * @param cooldown new cooldown value, in seconds
-     *
-     * <p><b>Limitation:</b> no validation performed; a value of {@code 0f} or negative
-     * would make the {@code timeSinceLastAttack < cooldown} check in
-     * {@link #attemptAttack} always evaluate false, effectively disabling cooldown.
+     * @throws IllegalArgumentException if {@code cooldown} is zero or negative
      */
     public void setCooldown(float cooldown) {
+        if (cooldown <= 0) {
+            throw new IllegalArgumentException("Cooldown duration must be greater than zero.");
+        }
         this.cooldown = cooldown;
     }
 
@@ -132,16 +133,16 @@ public class MeleeAttackComponent extends Component {
     }
 
     /**
-     * Updates the knockback magnitude applied to a target on a successful hit.
+     * Updates the knockback magnitude. A value of {@code 0f} is valid and
+     * intentionally disables knockback (see {@link #attemptAttack(Entity)}).
      *
-     * <p>A value of {@code 0f} disables knockback entirely — this is not a special
-     * case handled here, but a direct consequence of the {@code knockback > 0f} guard
-     * inside {@link #attemptAttack(Entity)}, which skips impulse application whenever
-     * the configured magnitude is zero (or negative).
-     *
-     * @param knockback new knockback magnitude; {@code 0f} disables knockback
+     * @param knockback new knockback magnitude
+     * @throws IllegalArgumentException if {@code knockback} is negative
      */
     public void setKnockback(float knockback) {
+        if (knockback < 0) {
+            throw new IllegalArgumentException("Knockback must not be negative");
+        }
         this.knockback = knockback;
     }
 
