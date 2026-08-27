@@ -113,10 +113,6 @@ public class MainGameScreen extends ScreenAdapter {
     logger.info("Game resumed");
   }
 
-  public void resetPlayer() {
-    forestGameArea.resetPlayer();
-  }
-
   @Override
   public void dispose() {
     logger.debug("Disposing main game screen");
@@ -166,7 +162,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuDisplay())
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
-        .addComponent(new MainGameActions(this.game, this))
+        .addComponent(new MainGameActions(this.game))
         .addComponent(new PauseMenuActions());
 
     ServiceLocator.getEntityService().register(ui);

@@ -21,7 +21,6 @@ public class PauseMenuDisplay extends UIComponent {
   private int selectedIndex = 0;
   private boolean wasPaused = false;
 
-
   private boolean usingKeyboardNav = true;
 
   @Override
@@ -37,15 +36,13 @@ public class PauseMenuDisplay extends UIComponent {
     table.setFillParent(true);
     pauseOverlay = new Table();
     pauseOverlay.setFillParent(true);
-    pauseOverlay.setBackground(
-            skin.newDrawable("white", new Color(0, 0, 0, 0.5f)));
+    pauseOverlay.setBackground(skin.newDrawable("white", new Color(0, 0, 0, 0.5f)));
     pauseOverlay.setVisible(false);
 
     stage.addActor(pauseOverlay);
 
     pausePanel = new Table();
-    pausePanel.setBackground(
-            skin.newDrawable("white", new Color(0.05f, 0.08f, 0.05f, 0.85f)));
+    pausePanel.setBackground(skin.newDrawable("white", new Color(0.05f, 0.08f, 0.05f, 0.85f)));
     pausePanel.pad(35f);
 
     Label title = new Label("PAUSED", skin);
@@ -56,7 +53,6 @@ public class PauseMenuDisplay extends UIComponent {
     TextButton mainMenuBtn = new TextButton("Main Menu", skin);
 
     buttons = new TextButton[] {resumeBtn, restartBtn, mainMenuBtn};
-
 
     resumeBtn.addListener(
         new ChangeListener() {
@@ -105,7 +101,6 @@ public class PauseMenuDisplay extends UIComponent {
           }
         });
 
-
     for (TextButton button : buttons) {
       button.addListener(
           new InputListener() {
@@ -123,11 +118,9 @@ public class PauseMenuDisplay extends UIComponent {
           });
     }
 
-
     table.setVisible(false);
     stage.addActor(table);
   }
-
 
   private void registerEventListeners() {
     entity.getEvents().addListener("navigateUp", this::navigateUp);
@@ -147,7 +140,6 @@ public class PauseMenuDisplay extends UIComponent {
     updateHighlight();
   }
 
-
   private void updateHighlight() {
     if (!usingKeyboardNav) {
       return;
@@ -156,7 +148,6 @@ public class PauseMenuDisplay extends UIComponent {
       buttons[i].setColor(i == selectedIndex ? Color.YELLOW : Color.WHITE);
     }
   }
-
 
   private void confirmSelection() {
     usingKeyboardNav = true;
@@ -174,7 +165,6 @@ public class PauseMenuDisplay extends UIComponent {
     boolean isPaused = pauseMenu.isPaused();
     pauseOverlay.setVisible(isPaused);
     table.setVisible(isPaused);
-
 
     if (isPaused && !wasPaused) {
       selectedIndex = 0;
