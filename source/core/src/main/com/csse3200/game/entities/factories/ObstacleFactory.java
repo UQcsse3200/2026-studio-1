@@ -35,6 +35,25 @@ public class ObstacleFactory {
   }
 
   /**
+   * Creates a platform entity the player can stand on.
+   *
+   * @param width Platform width in world units
+   * @param height Platform height in world units
+   * @return Platform entity
+   */
+  public static Entity createPlatform(float width, float height) {
+    Entity platform =
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/platform.png"))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
+
+    platform.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
+    platform.setScale(width, height);
+    return platform;
+  }
+
+  /**
    * Creates an invisible physics wall.
    *
    * @param width Wall width in world units
