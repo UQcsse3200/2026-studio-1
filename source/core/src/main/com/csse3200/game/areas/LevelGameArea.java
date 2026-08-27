@@ -2,14 +2,18 @@ package com.csse3200.game.areas;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
+import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.NPCFactory;
+import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -74,6 +78,7 @@ public class LevelGameArea extends GameArea {
 
     displayUI();
     spawnTerrain();
+    spawnCollisions();
     player = spawnPlayer();
     spawnEnemies();
   }
@@ -122,6 +127,37 @@ public class LevelGameArea extends GameArea {
   private void spawnTerrain() {
     terrain = terrainFactory.createTerrainFromMap(mapData);
     spawnEntity(new Entity().addComponent(terrain));
+  }
+
+  /**
+   * Build a static collider for every solid tile in the map's collision layer so the player and
+   * other physics bodies rest on floors and platforms instead of falling through. Reads the
+   * collision layer ({@link LevelMapData#getCollisionLayer()}), not layer 0, so the visual
+   * background layer never produces colliders.
+   */
+  private void spawnCollisions() {
+    MapLayerData collisionLayer = mapData.getCollisionLayer();
+    if (collisionLayer == null) {
+      return;
+    }
+    float tileSize = terrain.getTileSize();
+    for (int x = 0; x < collisionLayer.getWidth(); x++) {
+      for (int y = 0; y < collisionLayer.getHeight(); y++) {
+        TileDefinition def = collisionLayer.get(x, y);
+        if (def == null) {
+          continue;
+        }
+        CollisionType collision = def.type().getCollisionType();
+        if (collision != CollisionType.SOLID && collision != CollisionType.PLATFORM) {
+          continue;
+        }
+        Entity collider = ObstacleFactory.createPlatform(tileSize, tileSize);
+        // tileToWorldPosition returns the tile's bottom-left corner; entity position is its centre.
+        Vector2 position = terrain.tileToWorldPosition(x, y).add(tileSize / 2f, tileSize / 2f);
+        collider.setPosition(position);
+        spawnEntity(collider);
+      }
+    }
   }
 
   private Entity spawnPlayer() {
