@@ -1,8 +1,6 @@
 package com.csse3200.game.components;
 
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.services.GameTime;
-import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -48,7 +46,7 @@ public class MeleeAttackComponent extends Component {
      * values are accepted as-is.
      */
     public MeleeAttackComponent(float range, float cooldown, float knockback) {
-        // TODO: store the three parameters and initilise the cooldown timer so the
+        // TODO: store the three parameters and initialize the cooldown timer so the
         //  entity can attack immediately.
         setRange(range);
         setKnockback(knockback);
@@ -145,7 +143,6 @@ public class MeleeAttackComponent extends Component {
         }
         this.knockback = knockback;
     }
-
 
     /**
      * Attempts to attack the given target entity: validates cooldown and range, then
