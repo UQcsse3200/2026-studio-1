@@ -6,9 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
-import com.csse3200.game.components.player.LootBobComponent;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.player.LootBobComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
@@ -177,6 +177,11 @@ public class ForestGameArea extends GameArea {
 
     arrowOne.setScale(0.9f, 0.45f);
     spawnEntityAt(arrowOne, new GridPoint2(13, 10), true, true);
+  }
+
+  private void spawnPlatform() {
+    Entity platform = ObstacleFactory.createPlatform(PLATFORM_WIDTH, PLATFORM_HEIGHT);
+    spawnEntityAt(platform, PLATFORM_POS, true, false);
   }
 
   private void spawnGhosts() {
