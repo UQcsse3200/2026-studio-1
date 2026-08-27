@@ -25,33 +25,41 @@ public class ForestGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(ForestGameArea.class);
   private static final int NUM_TREES = 7;
   private static final int NUM_GHOSTS = 2;
-  private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(10, 10);
+
+  private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(4, 4);
+
+  private static final GridPoint2 PLATFORM_POS = new GridPoint2(15, 3);
+  private static final float PLATFORM_WIDTH = 14.5f;
+  private static final float PLATFORM_HEIGHT = 0.5f;
+
   private static final float WALL_WIDTH = 0.1f;
 
   private static final String[] forestTextures = {
-    "images/box_boy_leaf.png",
-    "images/tree.png",
-    "images/sword.png",
-    "images/bow.png",
-    "images/arrow.png",
-    "images/ghost_king.png",
-    "images/ghost_1.png",
-    "images/grass_1.png",
-    "images/grass_2.png",
-    "images/grass_3.png",
-    "images/hex_grass_1.png",
-    "images/hex_grass_2.png",
-    "images/hex_grass_3.png",
-    "images/iso_grass_1.png",
-    "images/iso_grass_2.png",
-    "images/iso_grass_3.png"
+          "images/box_boy_leaf.png",
+          "images/box_boy_crouch.png",
+          "images/tree.png",
+          "images/sword.png",
+          "images/bow.png",
+          "images/arrow.png",
+          "images/ghost_king.png",
+          "images/ghost_1.png",
+          "images/grass_1.png",
+          "images/grass_2.png",
+          "images/grass_3.png",
+          "images/hex_grass_1.png",
+          "images/hex_grass_2.png",
+          "images/hex_grass_3.png",
+          "images/iso_grass_1.png",
+          "images/iso_grass_2.png",
+          "images/iso_grass_3.png",
+          "images/platform.png"
   };
 
   private static final String[] forestTextureAtlases = {
-    "images/terrain_iso_grass.atlas",
-    "images/ghost.atlas",
-    "images/ghostKing.atlas",
-    "images/gold_coin/gold_coin.atlas"
+          "images/terrain_iso_grass.atlas",
+          "images/ghost.atlas",
+          "images/ghostKing.atlas",
+          "images/gold_coin/gold_coin.atlas"
   };
 
   private static final String[] forestSounds = {"sounds/Impact4.ogg"};
@@ -73,9 +81,7 @@ public class ForestGameArea extends GameArea {
     this.terrainFactory = terrainFactory;
   }
 
-  /**
-   * Create the game area, including terrain, static entities (trees), dynamic entities (player).
-   */
+  /** Create the game area. */
   @Override
   public void create() {
     loadAssets();
@@ -84,10 +90,13 @@ public class ForestGameArea extends GameArea {
 
     spawnTerrain();
     spawnTrees();
+    spawnPlatform();
+
     player = spawnPlayer();
+
+    spawnWeaponLoot();
     spawnGhosts();
     spawnGhostKing();
-    spawnWeaponLoot();
 
     // Spawn a gold coin at tile (12, 12).
     Entity goldCoin = GoldCoinFactory.createGoldCoin();
@@ -103,40 +112,44 @@ public class ForestGameArea extends GameArea {
   }
 
   private void spawnTerrain() {
-    // Background terrain
     terrain = terrainFactory.createTerrain(TerrainType.FOREST_DEMO);
     spawnEntity(new Entity().addComponent(terrain));
 
-    // Terrain walls
     float tileSize = terrain.getTileSize();
     GridPoint2 tileBounds = terrain.getMapBounds(0);
     Vector2 worldBounds = new Vector2(tileBounds.x * tileSize, tileBounds.y * tileSize);
 
     // Left
     spawnEntityAt(
-        ObstacleFactory.createWall(WALL_WIDTH, worldBounds.y), GridPoint2Utils.ZERO, false, false);
+            ObstacleFactory.createWall(WALL_WIDTH, worldBounds.y),
+            GridPoint2Utils.ZERO,
+            false,
+            false);
 
     // Right
     spawnEntityAt(
-        ObstacleFactory.createWall(WALL_WIDTH, worldBounds.y),
-        new GridPoint2(tileBounds.x, 0),
-        false,
-        false);
+            ObstacleFactory.createWall(WALL_WIDTH, worldBounds.y),
+            new GridPoint2(tileBounds.x, 0),
+            false,
+            false);
 
     // Top
     spawnEntityAt(
-        ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH),
-        new GridPoint2(0, tileBounds.y),
-        false,
-        false);
+            ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH),
+            new GridPoint2(0, tileBounds.y),
+            false,
+            false);
 
     // Bottom
     spawnEntityAt(
-        ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH), GridPoint2Utils.ZERO, false, false);
+            ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH),
+            GridPoint2Utils.ZERO,
+            false,
+            false);
   }
 
   private void spawnTrees() {
-    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 minPos = new GridPoint2(0, 4);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
 
     for (int i = 0; i < NUM_TREES; i++) {
@@ -146,33 +159,40 @@ public class ForestGameArea extends GameArea {
     }
   }
 
+  private void spawnPlatform() {
+    Entity platform =
+            ObstacleFactory.createPlatform(PLATFORM_WIDTH, PLATFORM_HEIGHT);
+
+    spawnEntityAt(platform, PLATFORM_POS, true, false);
+  }
+
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayer();
     spawnEntityAt(newPlayer, PLAYER_SPAWN, true, true);
     return newPlayer;
   }
 
+  /** Spawns basic weapon loot in the game world. */
   private void spawnWeaponLoot() {
-    /** Spawn a bow and an arrow on the ground for the player to pick up. */
     Entity bow =
-        new Entity()
-            .addComponent(new TextureRenderComponent("images/bow.png"))
-            .addComponent(new LootBobComponent());
+            new Entity()
+                    .addComponent(new TextureRenderComponent("images/bow.png"))
+                    .addComponent(new LootBobComponent());
 
     bow.setScale(0.8f, 0.65f);
     spawnEntityAt(bow, new GridPoint2(12, 10), true, true);
 
-    Entity arrowOne =
-        new Entity()
-            .addComponent(new TextureRenderComponent("images/arrow.png"))
-            .addComponent(new LootBobComponent());
+    Entity arrow =
+            new Entity()
+                    .addComponent(new TextureRenderComponent("images/arrow.png"))
+                    .addComponent(new LootBobComponent());
 
-    arrowOne.setScale(0.9f, 0.45f);
-    spawnEntityAt(arrowOne, new GridPoint2(13, 10), true, true);
+    arrow.setScale(0.9f, 0.45f);
+    spawnEntityAt(arrow, new GridPoint2(13, 10), true, true);
   }
 
   private void spawnGhosts() {
-    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 minPos = new GridPoint2(0, 4);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
 
     for (int i = 0; i < NUM_GHOSTS; i++) {
@@ -183,7 +203,7 @@ public class ForestGameArea extends GameArea {
   }
 
   private void spawnGhostKing() {
-    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 minPos = new GridPoint2(0, 4);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
 
     GridPoint2 randomPos = RandomUtils.random(minPos, maxPos);
@@ -192,7 +212,9 @@ public class ForestGameArea extends GameArea {
   }
 
   private void playMusic() {
-    Music music = ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class);
+    Music music =
+            ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class);
+
     music.setLooping(true);
     music.setVolume(0.3f);
     music.play();
@@ -200,7 +222,9 @@ public class ForestGameArea extends GameArea {
 
   private void loadAssets() {
     logger.debug("Loading assets");
-    ResourceService resourceService = ServiceLocator.getResourceService();
+
+    ResourceService resourceService =
+            ServiceLocator.getResourceService();
 
     resourceService.loadTextures(forestTextures);
     resourceService.loadTextureAtlases(forestTextureAtlases);
@@ -208,14 +232,15 @@ public class ForestGameArea extends GameArea {
     resourceService.loadMusic(forestMusic);
 
     while (!resourceService.loadForMillis(10)) {
-      // This could be upgraded to a loading screen
       logger.info("Loading... {}%", resourceService.getProgress());
     }
   }
 
   private void unloadAssets() {
     logger.debug("Unloading assets");
-    ResourceService resourceService = ServiceLocator.getResourceService();
+
+    ResourceService resourceService =
+            ServiceLocator.getResourceService();
 
     resourceService.unloadAssets(forestTextures);
     resourceService.unloadAssets(forestTextureAtlases);
@@ -226,7 +251,12 @@ public class ForestGameArea extends GameArea {
   @Override
   public void dispose() {
     super.dispose();
-    ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class).stop();
+
+    ServiceLocator
+            .getResourceService()
+            .getAsset(backgroundMusic, Music.class)
+            .stop();
+
     this.unloadAssets();
   }
 }
