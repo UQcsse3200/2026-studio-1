@@ -140,14 +140,19 @@ public class MeleeAttackComponent extends Component {
     this.knockback = knockback;
   }
 
-  /**
-   * Attempts to attack the given target entity: validates cooldown and range, then applies damage
-   * and knockback if both checks pass and the target has the required component(s).
-   *
-   * @param target the entity being attacked
-   *     <p><b>Limitation:</b> behaviour when {@code target} is {@code null} must be explicitly
-   *     decided — either guard against it here, or document that callers must never trigger the
-   *     event with a null target.
-   */
-  private void attemptAttack(Entity target) {}
+    /**
+     * Attempts to attack the given target entity: validates cooldown and range, then
+     * applies damage and knockback if both checks pass and the target has the required
+     * component(s).
+     *
+     * @param target the entity being attacked
+     *
+     * <p><b>Limitation:</b> behaviour when {@code target} is {@code null} must be
+     * explicitly decided — either guard against it here, or document that callers must
+     * never trigger the event with a null target.
+     */
+    private void attemptAttack(Entity target) {
+
+    }
+
 }
