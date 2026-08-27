@@ -7,8 +7,10 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.player.LootBobComponent;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.factories.GoldCoinFactory;
+import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
@@ -89,9 +91,9 @@ public class ForestGameArea extends GameArea {
     spawnGhostKing();
     spawnWeaponLoot();
 
-    // Spawn a gold coin at tile (12, 12).
-    Entity goldCoin = GoldCoinFactory.createGoldCoin();
-    spawnEntityAt(goldCoin, new GridPoint2(12, 12), true, true);
+    Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
+    Entity goldCoin = LootFactory.createLoot(goldCoinItem);
+    spawnEntityAt(goldCoin, new GridPoint2(15, 15), true, true);
 
     playMusic();
   }
