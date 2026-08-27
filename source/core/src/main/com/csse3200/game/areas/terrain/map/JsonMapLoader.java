@@ -9,6 +9,7 @@ import com.csse3200.game.areas.terrain.TileType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +150,7 @@ public class JsonMapLoader implements MapLoader {
       String texture = entry.getString("texture", null);
       TileType type;
       try {
-        type = TileType.fromString(typeStr);
+        type = TileType.valueOf(typeStr.trim().toUpperCase(Locale.ROOT));
       } catch (IllegalArgumentException e) {
         throw new MapLoadException(
             "Unknown tile type '"

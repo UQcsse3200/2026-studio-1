@@ -110,16 +110,16 @@ public class LevelMapData {
   /**
    * Convenience accessor for the collision-relevant tile type at a cell.
    *
-   * @return the {@link TileType} at {@code (x, y)} in the collision layer, or {@link
-   *     TileType#EMPTY} if the cell is empty or no collision layer exists
+   * @return the {@link TileType} at {@code (x, y)} in the collision layer, or {@code null} if the
+   *     cell is empty or no collision layer exists
    */
   public TileType getTileType(int x, int y) {
     MapLayerData layer = getCollisionLayer();
     if (layer == null) {
-      return TileType.EMPTY;
+      return null;
     }
     TileDefinition def = layer.get(x, y);
-    return def == null ? TileType.EMPTY : def.type();
+    return def == null ? null : def.type();
   }
 
   public MapSpawns getSpawns() {

@@ -26,6 +26,7 @@ public class TerrainFactory {
   private static final int TUFT_TILE_COUNT = 30;
   private static final int ROCK_TILE_COUNT = 30;
   private static final int DEFAULT_TILE_PX = 16;
+  private static final int FLOOR_LEVEL = 5;
 
   private final OrthographicCamera camera;
   private final TerrainOrientation orientation;
@@ -59,6 +60,8 @@ public class TerrainFactory {
    */
   public TerrainComponent createTerrain(TerrainType terrainType) {
     ResourceService resourceService = ServiceLocator.getResourceService();
+    TextureRegion floor =
+        new TextureRegion(resourceService.getAsset("images/floor.png", Texture.class));
     switch (terrainType) {
       case FOREST_DEMO:
         TextureRegion orthoGrass =
@@ -67,7 +70,7 @@ public class TerrainFactory {
             new TextureRegion(resourceService.getAsset("images/grass_2.png", Texture.class));
         TextureRegion orthoRocks =
             new TextureRegion(resourceService.getAsset("images/grass_3.png", Texture.class));
-        return createForestDemoTerrain(0.5f, orthoGrass, orthoTuft, orthoRocks);
+        return createForestDemoTerrain(0.5f, floor, orthoGrass, orthoTuft, orthoRocks);
       case FOREST_DEMO_ISO:
         TextureRegion isoGrass =
             new TextureRegion(resourceService.getAsset("images/iso_grass_1.png", Texture.class));
@@ -75,15 +78,15 @@ public class TerrainFactory {
             new TextureRegion(resourceService.getAsset("images/iso_grass_2.png", Texture.class));
         TextureRegion isoRocks =
             new TextureRegion(resourceService.getAsset("images/iso_grass_3.png", Texture.class));
-        return createForestDemoTerrain(1f, isoGrass, isoTuft, isoRocks);
+        return createForestDemoTerrain(1f, floor, isoGrass, isoTuft, isoRocks);
       case FOREST_DEMO_HEX:
         TextureRegion hexGrass =
-            new TextureRegion(resourceService.getAsset("images/hex_grass_1.png", Texture.class));
+            new TextureRegion(resourceService.getAsset("images/hexgrass_1.png", Texture.class));
         TextureRegion hexTuft =
             new TextureRegion(resourceService.getAsset("images/hex_grass_2.png", Texture.class));
         TextureRegion hexRocks =
             new TextureRegion(resourceService.getAsset("images/hex_grass_3.png", Texture.class));
-        return createForestDemoTerrain(1f, hexGrass, hexTuft, hexRocks);
+        return createForestDemoTerrain(1f, floor, hexGrass, hexTuft, hexRocks);
       default:
         return null;
     }
@@ -150,9 +153,13 @@ public class TerrainFactory {
   }
 
   private TerrainComponent createForestDemoTerrain(
-      float tileWorldSize, TextureRegion grass, TextureRegion grassTuft, TextureRegion rocks) {
+      float tileWorldSize,
+      TextureRegion floor,
+      TextureRegion grass,
+      TextureRegion grassTuft,
+      TextureRegion rocks) {
     GridPoint2 tilePixelSize = new GridPoint2(grass.getRegionWidth(), grass.getRegionHeight());
-    TiledMap tiledMap = createForestDemoTiles(tilePixelSize, grass, grassTuft, rocks);
+    TiledMap tiledMap = createForestDemoTiles(tilePixelSize, floor, grass, grassTuft, rocks);
     TiledMapRenderer renderer = createRenderer(tiledMap, tileWorldSize / tilePixelSize.x);
     return new TerrainComponent(camera, tiledMap, renderer, orientation, tileWorldSize);
   }
@@ -171,19 +178,25 @@ public class TerrainFactory {
   }
 
   private TiledMap createForestDemoTiles(
-      GridPoint2 tileSize, TextureRegion grass, TextureRegion grassTuft, TextureRegion rocks) {
+      GridPoint2 tileSize,
+      TextureRegion floor,
+      TextureRegion grass,
+      TextureRegion grassTuft,
+      TextureRegion rocks) {
     TiledMap tiledMap = new TiledMap();
-    TerrainTile grassTile = new TerrainTile(grass);
-    TerrainTile grassTuftTile = new TerrainTile(grassTuft);
-    TerrainTile rockTile = new TerrainTile(rocks);
+    TerrainTile floorTile = new TerrainTile(floor, TileType.FLOOR);
+    TerrainTile grassTile = new TerrainTile(grass, TileType.DECORATIVE);
+    TerrainTile grassTuftTile = new TerrainTile(grassTuft, TileType.DECORATIVE);
+    TerrainTile rockTile = new TerrainTile(rocks, TileType.HAZARD);
     TiledMapTileLayer layer = new TiledMapTileLayer(MAP_SIZE.x, MAP_SIZE.y, tileSize.x, tileSize.y);
 
     // Create base grass
     fillTiles(layer, MAP_SIZE, grassTile);
-
     // Add some grass and rocks
     fillTilesAtRandom(layer, MAP_SIZE, grassTuftTile, TUFT_TILE_COUNT);
     fillTilesAtRandom(layer, MAP_SIZE, rockTile, ROCK_TILE_COUNT);
+
+    fillFloor(layer, MAP_SIZE, floorTile, FLOOR_LEVEL);
 
     tiledMap.getLayers().add(layer);
     return tiledMap;
@@ -204,6 +217,17 @@ public class TerrainFactory {
   private static void fillTiles(TiledMapTileLayer layer, GridPoint2 mapSize, TerrainTile tile) {
     for (int x = 0; x < mapSize.x; x++) {
       for (int y = 0; y < mapSize.y; y++) {
+        Cell cell = new Cell();
+        cell.setTile(tile);
+        layer.setCell(x, y, cell);
+      }
+    }
+  }
+
+  private static void fillFloor(
+      TiledMapTileLayer layer, GridPoint2 mapSize, TerrainTile tile, int floorLevel) {
+    for (int x = 0; x < mapSize.x; x++) {
+      for (int y = 0; y < floorLevel; y++) {
         Cell cell = new Cell();
         cell.setTile(tile);
         layer.setCell(x, y, cell);

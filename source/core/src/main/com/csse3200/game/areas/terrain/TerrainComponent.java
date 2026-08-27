@@ -54,6 +54,18 @@ public class TerrainComponent extends RenderComponent {
     }
   }
 
+  public TerrainTile getTile(int x, int y) {
+    TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+
+    TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+
+    if (cell == null || cell.getTile() == null) {
+      return null;
+    }
+
+    return (TerrainTile) cell.getTile();
+  }
+
   public float getTileSize() {
     return tileSize;
   }

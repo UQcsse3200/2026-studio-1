@@ -15,35 +15,11 @@ public class TerrainTile implements TiledMapTile {
   private TextureRegion textureRegion;
   private float offsetX;
   private float offsetY;
-  private TileType tileType = TileType.EMPTY;
+  private TileType tileType;
 
-  public TerrainTile(TextureRegion textureRegion) {
-    this.textureRegion = textureRegion;
-  }
-
-  /**
-   * Create a typed terrain tile.
-   *
-   * @param textureRegion the tile's texture
-   * @param tileType the gameplay category of the tile
-   */
   public TerrainTile(TextureRegion textureRegion, TileType tileType) {
+    this.tileType = tileType;
     this.textureRegion = textureRegion;
-    this.tileType = tileType;
-  }
-
-  /**
-   * @return the gameplay category of this tile (never null; defaults to {@link TileType#EMPTY}).
-   */
-  public TileType getTileType() {
-    return tileType;
-  }
-
-  /**
-   * @param tileType the gameplay category to assign to this tile
-   */
-  public void setTileType(TileType tileType) {
-    this.tileType = tileType;
   }
 
   @Override
@@ -114,5 +90,14 @@ public class TerrainTile implements TiledMapTile {
   @Override
   public MapObjects getObjects() {
     return null;
+  }
+
+  public TileType getTileType() {
+    return tileType;
+  }
+
+  public TerrainTile setTileType(TileType tileType) {
+    this.tileType = tileType;
+    return this;
   }
 }
