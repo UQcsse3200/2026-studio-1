@@ -11,6 +11,7 @@ import com.csse3200.game.entities.factories.GoldCoinFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.utils.math.GridPoint2Utils;
@@ -31,6 +32,7 @@ public class ForestGameArea extends GameArea {
     "images/tree.png",
     "images/sword.png",
     "images/bow.png",
+    "images/arrow.png",
     "images/ghost_king.png",
     "images/ghost_1.png",
     "images/grass_1.png",
@@ -84,6 +86,7 @@ public class ForestGameArea extends GameArea {
     player = spawnPlayer();
     spawnGhosts();
     spawnGhostKing();
+    spawnWeaponLoot();
 
     // Spawn a gold coin at tile (12, 12).
     Entity goldCoin = GoldCoinFactory.createGoldCoin();
@@ -146,6 +149,23 @@ public class ForestGameArea extends GameArea {
     Entity newPlayer = PlayerFactory.createPlayer();
     spawnEntityAt(newPlayer, PLAYER_SPAWN, true, true);
     return newPlayer;
+  }
+
+  private void spawnWeaponLoot() {
+    Entity bow = new Entity().addComponent(new TextureRenderComponent("images/bow.png"));
+
+    bow.setScale(0.8f, 0.5f);
+    spawnEntityAt(bow, new GridPoint2(12, 10), true, true);
+
+    Entity arrowOne = new Entity().addComponent(new TextureRenderComponent("images/arrow.png"));
+
+    arrowOne.setScale(0.5f, 0.2f);
+    spawnEntityAt(arrowOne, new GridPoint2(13, 10), true, true);
+
+    Entity arrowTwo = new Entity().addComponent(new TextureRenderComponent("images/arrow.png"));
+
+    arrowTwo.setScale(0.5f, 0.2f);
+    spawnEntityAt(arrowTwo, new GridPoint2(13, 11), true, true);
   }
 
   private void spawnGhosts() {

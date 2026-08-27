@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.rendering.RenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
-/** Renders the equipped weapon beside the player and provides a basic swing animation. */
+/** Renders the equipped weapon beside the player and provides a basic sword swing animation. */
 public class WeaponRenderComponent extends RenderComponent {
   private static final float WEAPON_WIDTH = 0.6f;
   private static final float WEAPON_HEIGHT = 0.6f;
@@ -24,7 +24,6 @@ public class WeaponRenderComponent extends RenderComponent {
   @Override
   public void create() {
     super.create();
-
     entity.getEvents().addListener("swordAttack", this::startSwing);
   }
 
@@ -59,7 +58,8 @@ public class WeaponRenderComponent extends RenderComponent {
 
     if (swinging) {
       float progress = swingTime / SWING_DURATION;
-      rotation = 90f - (180f * progress);
+      float swingAngle = -45f + (90f * progress);
+      rotation = swingAngle;
     }
 
     batch.draw(
