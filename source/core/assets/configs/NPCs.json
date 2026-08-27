@@ -11,7 +11,7 @@
   "skeleton": {
     "health": 30,
     "baseAttack": 5,
-    "melee": { "range": 1.2, "cooldown": 1.5 }
+    "melee": { "range": 1.2, "cooldown": 1.5, "knockdown":  2.5}
   }
 }
 
