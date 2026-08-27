@@ -27,8 +27,6 @@ public class InventoryDisplay extends UIComponent {
 
   /** Creates the inventory panel. */
   private void createInventory() {
-    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
-
     inventoryTable = new Table();
     inventoryTable.top().center();
 
@@ -40,23 +38,9 @@ public class InventoryDisplay extends UIComponent {
 
     //
     // inventoryTable.add(title).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
-
-    inventoryTable.row();
-
-    // Inventory slots.
-    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
-      addSlot(inventory.getItem(slot), slot);
-
-      if (slot % COLUMNS == 0) {
-        inventoryTable.row();
-      }
-    }
-
-    inventoryTable.pack();
-
-    positionInventory();
-
     stage.addActor(inventoryTable);
+
+    refresh();
   }
 
   /**
@@ -134,5 +118,23 @@ public class InventoryDisplay extends UIComponent {
     }
 
     super.dispose();
+  }
+
+  /** Refreshes the inventory UI using the current inventory contents. */
+  public void refresh() {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    inventoryTable.clearChildren();
+
+    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
+      addSlot(inventory.getItem(slot), slot);
+
+      if (slot % COLUMNS == 0) {
+        inventoryTable.row();
+      }
+    }
+
+    inventoryTable.pack();
+    positionInventory();
   }
 }
