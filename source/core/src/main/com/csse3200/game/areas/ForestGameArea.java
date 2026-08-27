@@ -131,13 +131,6 @@ public class ForestGameArea extends GameArea {
     return newPlayer;
   }
 
-  public void resetPlayer() {
-    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
-    if (stats != null) {
-      stats.setHealth(100); // reset to full health
-    }
-  }
-
   public boolean isPlayerDead() {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
     return stats != null && stats.isDead();

@@ -2,7 +2,6 @@ package com.csse3200.game.components.maingame;
 
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.screens.MainGameScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +12,9 @@ import org.slf4j.LoggerFactory;
 public class MainGameActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(MainGameActions.class);
   private final GdxGame game;
-  private final MainGameScreen screen;
 
-  public MainGameActions(GdxGame game, MainGameScreen screen) {
+  public MainGameActions(GdxGame game) {
     this.game = game;
-    this.screen = screen;
   }
 
   @Override
@@ -28,7 +25,7 @@ public class MainGameActions extends Component {
 
   private void onRestart() {
     logger.info("Restarting game");
-    screen.resetPlayer();
+    game.setScreen(GdxGame.ScreenType.MAIN_GAME);
   }
 
   /** Swaps to the Main Menu screen. */
