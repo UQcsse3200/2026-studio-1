@@ -23,11 +23,15 @@ public class ForestGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(ForestGameArea.class);
   private static final int NUM_TREES = 7;
   private static final int NUM_GHOSTS = 2;
-  private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(10, 10);
+  private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(4, 4);
+  private static final GridPoint2 PLATFORM_POS = new GridPoint2(15, 3);
+  private static final float PLATFORM_WIDTH = 14.5f;
+  private static final float PLATFORM_HEIGHT = 0.5f;
   private static final float WALL_WIDTH = 0.1f;
 
   private static final String[] forestTextures = {
     "images/box_boy_leaf.png",
+    "images/box_boy_crouch.png",
     "images/tree.png",
     "images/ghost_king.png",
     "images/ghost_1.png",
@@ -39,7 +43,8 @@ public class ForestGameArea extends GameArea {
     "images/hex_grass_3.png",
     "images/iso_grass_1.png",
     "images/iso_grass_2.png",
-    "images/iso_grass_3.png"
+    "images/iso_grass_3.png",
+    "images/platform.png"
   };
 
   private static final String[] forestTextureAtlases = {
@@ -79,6 +84,7 @@ public class ForestGameArea extends GameArea {
 
     spawnTerrain();
     spawnTrees();
+    spawnPlatform();
     player = spawnPlayer();
     spawnGhosts();
     spawnGhostKing();
@@ -130,7 +136,7 @@ public class ForestGameArea extends GameArea {
   }
 
   private void spawnTrees() {
-    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 minPos = new GridPoint2(0, 4);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
 
     for (int i = 0; i < NUM_TREES; i++) {
@@ -146,8 +152,13 @@ public class ForestGameArea extends GameArea {
     return newPlayer;
   }
 
+  private void spawnPlatform() {
+    Entity platform = ObstacleFactory.createPlatform(PLATFORM_WIDTH, PLATFORM_HEIGHT);
+    spawnEntityAt(platform, PLATFORM_POS, true, false);
+  }
+
   private void spawnGhosts() {
-    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 minPos = new GridPoint2(0, 4);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
 
     for (int i = 0; i < NUM_GHOSTS; i++) {
@@ -158,7 +169,7 @@ public class ForestGameArea extends GameArea {
   }
 
   private void spawnGhostKing() {
-    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 minPos = new GridPoint2(0, 4);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
 
     GridPoint2 randomPos = RandomUtils.random(minPos, maxPos);
