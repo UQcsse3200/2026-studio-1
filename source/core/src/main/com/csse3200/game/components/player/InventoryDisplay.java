@@ -15,6 +15,7 @@ public class InventoryDisplay extends UIComponent {
   private static final float SLOT_GAP = 4f;
   private static final float PANEL_PADDING = 10f;
   private static final float RIGHT_MARGIN = 16f;
+  private static final String LABEL_STYLE = "small";
 
   private static final Color EMPTY_TEXT_COLOR = new Color(1f, 1f, 1f, 0.55f);
   private static final Color FILLED_TEXT_COLOR = Color.WHITE;
@@ -27,7 +28,6 @@ public class InventoryDisplay extends UIComponent {
   public void create() {
     super.create();
 
-    // Listen for changes to the inventory.
     entity.getEvents().addListener("inventoryChanged", this::refreshInventory);
 
     createInventory();
@@ -39,29 +39,18 @@ public class InventoryDisplay extends UIComponent {
 
     inventoryTable = new Table();
 
-    // Main inventory panel.
     inventoryTable.top().center();
     inventoryTable.pad(PANEL_PADDING);
     inventoryTable.setBackground(skin.getDrawable("window-w"));
 
-    // =========================
-    // Gold
-    // =========================
-
-    goldLabel = new Label("Gold: " + inventory.getGold(), skin, "small");
+    goldLabel = new Label("Gold: " + inventory.getGold(), skin, LABEL_STYLE);
 
     inventoryTable.add(goldLabel).left().growX().padBottom(6f);
 
     inventoryTable.row();
 
-    // =========================
-    // Inventory slots
-    // =========================
-
     for (int slotNumber = 1; slotNumber <= inventory.getMaxSlots(); slotNumber++) {
-
       addSlot(inventory.getItem(slotNumber), slotNumber);
-
       inventoryTable.row();
     }
 
@@ -84,50 +73,25 @@ public class InventoryDisplay extends UIComponent {
     slot.setBackground(skin.getDrawable("button-c"));
     slot.pad(4f, 8f, 4f, 8f);
 
-    // =========================
-    // Slot number
-    // =========================
-
-    Label slotNumberLabel = new Label(slotNumber + ".", skin, "small");
+    Label slotNumberLabel = new Label(slotNumber + ".", skin, LABEL_STYLE);
     slotNumberLabel.setColor(EMPTY_TEXT_COLOR);
 
-    // =========================
-    // Item name
-    // =========================
-
     boolean isEmpty = item == null;
-
     String itemName = isEmpty ? "Empty" : item.getName();
 
-    Label itemLabel = new Label(itemName, skin, "small");
+    Label itemLabel = new Label(itemName, skin, LABEL_STYLE);
     itemLabel.setEllipsis(true);
     itemLabel.setColor(isEmpty ? EMPTY_TEXT_COLOR : FILLED_TEXT_COLOR);
 
-    // =========================
-    // Quantity
-    // =========================
-
     String quantity = isEmpty ? "" : "x" + item.getQuantity();
 
-    Label quantityLabel = new Label(quantity, skin, "small");
+    Label quantityLabel = new Label(quantity, skin, LABEL_STYLE);
     quantityLabel.setColor(FILLED_TEXT_COLOR);
 
-    /*
-     * ┌────────────────────┐
-     * │ 1.  Gold Coin  x10 │
-     * └────────────────────┘
-     */
-
-    // Left: slot number.
     slot.add(slotNumberLabel).left().padRight(6f).width(14f);
-
-    // Centre: item name, fills remaining space, truncates instead of wrapping.
     slot.add(itemLabel).left().expandX().fillX();
-
-    // Right: quantity.
     slot.add(quantityLabel).right().padLeft(6f);
 
-    // Add slot to inventory panel.
     inventoryTable.add(slot).size(SLOT_WIDTH, SLOT_HEIGHT).pad(SLOT_GAP);
   }
 
@@ -150,11 +114,9 @@ public class InventoryDisplay extends UIComponent {
   /** Positions the inventory on the right side of the screen. */
   private void positionInventory() {
     float screenWidth = stage.getViewport().getWorldWidth();
-
     float screenHeight = stage.getViewport().getWorldHeight();
 
     float x = screenWidth - inventoryTable.getWidth() - RIGHT_MARGIN;
-
     float y = (screenHeight - inventoryTable.getHeight()) / 2f;
 
     inventoryTable.setPosition(x, y);
