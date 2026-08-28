@@ -10,7 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -654,6 +656,98 @@ class InventoryComponentTest {
     assertEquals(-1, inventory.splitStack(1, 4));
     assertEquals(9, goldItem.getQuantity());
     assertTrue(inventory.isFull());
+  }
+
+  @Test
+  void shouldFireInventoryChangedOnSuccessfulAddItem() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 2, events);
+
+    assertEquals(0, inventory.addItem(potion(1, 10)));
+    assertEquals(1, events.get());
+  }
+
+  @Test
+  void shouldNotFireInventoryChangedWhenAddItemStoresNothing() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 1, events);
+    inventory.addItem(potion(10, 10));
+    events.set(0);
+
+    assertEquals(3, inventory.addItem(potion(3, 10)));
+    assertEquals(0, events.get());
+  }
+
+  @Test
+  void shouldFireInventoryChangedOnSuccessfulRemoveItem() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 2, events);
+    inventory.addItem(potion(5, 10));
+    events.set(0);
+
+    assertEquals(3, inventory.removeItem(1, 3));
+    assertEquals(1, events.get());
+
+    events.set(0);
+    Item removed = inventory.removeItem(1);
+    assertEquals("Potion", removed.getName());
+    assertEquals(1, events.get());
+  }
+
+  @Test
+  void shouldNotFireInventoryChangedOnFailedRemoveItem() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 2, events);
+    events.set(0);
+
+    assertEquals(0, inventory.removeItem(1, 1));
+    assertNull(inventory.removeItem(1));
+    assertEquals(0, events.get());
+  }
+
+  @Test
+  void shouldFireInventoryChangedOnSuccessfulSplitStack() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 5, events);
+    inventory.addItem(gold(9, 9));
+    events.set(0);
+
+    assertEquals(2, inventory.splitStack(1, 4));
+    assertEquals(1, events.get());
+  }
+
+  @Test
+  void shouldNotFireInventoryChangedOnFailedSplitStack() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 5, events);
+    inventory.addItem(gold(9, 9));
+    events.set(0);
+
+    assertEquals(-1, inventory.splitStack(1, 9));
+    assertEquals(0, events.get());
+  }
+
+  @Test
+  void shouldFireInventoryChangedOnGoldChange() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(10, 2, events);
+    events.set(0);
+
+    inventory.addGold(5);
+    assertEquals(1, events.get());
+    assertEquals(15, inventory.getGold());
+
+    events.set(0);
+    inventory.setGold(15);
+    assertEquals(0, events.get());
+  }
+
+  private static InventoryComponent attachedInventory(
+      int gold, int maxSlots, AtomicInteger eventCount) {
+    InventoryComponent inventory = new InventoryComponent(gold, maxSlots);
+    Entity entity = new Entity().addComponent(inventory);
+    entity.getEvents().addListener("inventoryChanged", () -> eventCount.incrementAndGet());
+    return inventory;
   }
 
   private static Item potion(int quantity, int maxQuantity) {

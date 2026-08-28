@@ -67,6 +67,18 @@ public class LootPickupComponent extends Component {
       return;
     }
 
+    if (item.getItemType() == ItemType.CURRENCY) {
+      int amount = item.getQuantity();
+      if (amount <= 0) {
+        return;
+      }
+      inventory.addGold(amount);
+      collected = true;
+      logger.info("Picked up {}. Gold: {}", item.getName(), inventory.getGold());
+      Gdx.app.postRunnable(entity::dispose);
+      return;
+    }
+
     // Try to add the item to the player's inventory.
     int remaining = inventory.addItem(item);
 
