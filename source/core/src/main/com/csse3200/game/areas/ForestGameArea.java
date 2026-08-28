@@ -8,12 +8,20 @@ import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.LootPickupComponent;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.LootBobComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
+import com.csse3200.game.physics.PhysicsLayer;
+import com.csse3200.game.physics.components.ColliderComponent;
+import com.csse3200.game.physics.components.HitboxComponent;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -21,14 +29,6 @@ import com.csse3200.game.utils.math.GridPoint2Utils;
 import com.csse3200.game.utils.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.csse3200.game.components.loot.LootPickupComponent;
-import com.csse3200.game.components.loot.WeaponGenerator;
-import com.csse3200.game.components.loot.WeaponItem;
-import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.physics.PhysicsLayer;
-import com.csse3200.game.physics.components.ColliderComponent;
-import com.csse3200.game.physics.components.HitboxComponent;
-import com.csse3200.game.physics.components.PhysicsComponent;
 
 /** Forest area for the demo game with trees, a player, and some enemies. */
 public class ForestGameArea extends GameArea {
@@ -181,21 +181,21 @@ public class ForestGameArea extends GameArea {
     WeaponItem bowItem = weaponGenerator.generateWeapon(WeaponType.BOW, 1);
 
     Entity bow =
-            new Entity()
-                    .addComponent(new TextureRenderComponent("images/bow.png"))
-                    .addComponent(new PhysicsComponent())
-                    .addComponent(new ColliderComponent())
-                    .addComponent(new HitboxComponent().setLayer(PhysicsLayer.ITEM))
-                    .addComponent(new LootPickupComponent(bowItem))
-                    .addComponent(new LootBobComponent());
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/bow.png"))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.ITEM))
+            .addComponent(new LootPickupComponent(bowItem))
+            .addComponent(new LootBobComponent());
 
     bow.setScale(0.8f, 0.65f);
     spawnEntityAt(bow, new GridPoint2(12, 10), true, true);
 
     Entity arrow =
-            new Entity()
-                    .addComponent(new TextureRenderComponent("images/arrow.png"))
-                    .addComponent(new LootBobComponent());
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/arrow.png"))
+            .addComponent(new LootBobComponent());
 
     arrow.setScale(0.9f, 0.45f);
     spawnEntityAt(arrow, new GridPoint2(13, 10), true, true);
