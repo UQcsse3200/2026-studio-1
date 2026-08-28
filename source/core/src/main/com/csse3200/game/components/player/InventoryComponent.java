@@ -64,18 +64,23 @@ public class InventoryComponent extends Component {
    * @param gold required amount of gold
    * @return player has greater than or equal to the required amount of gold
    */
-  public Boolean hasGold(int gold) {
+  public boolean hasGold(int gold) {
     return this.gold >= gold;
   }
 
   /**
-   * Sets the players' gold. Gold has a minimum bound of 0.
+   * Sets the player's gold. Gold has a minimum bound of 0.
    *
    * @param gold gold to set; values below 0 are clamped to 0
    */
   public void setGold(int gold) {
-    this.gold = Math.max(gold, 0);
+    int next = Math.max(gold, 0);
+    if (next == this.gold) {
+      return;
+    }
+    this.gold = next;
     logger.debug("Setting gold to {}", this.gold);
+    notifyInventoryChanged();
   }
 
   /**
@@ -120,7 +125,7 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Returns the number of occupied slots, derived from the map size.
+   * Returns the number of occupied slots.
    *
    * @return occupied slot count
    */
@@ -129,7 +134,7 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Returns the constructor capacity.
+   * Returns the maximum number of item slots.
    *
    * @return maximum number of item slots
    */
@@ -138,8 +143,7 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Returns an unmodifiable view of occupied slots. Callers cannot insert or remove keys through
-   * this map.
+   * Returns an unmodifiable view of occupied slots.
    *
    * @return unmodifiable map of slot index to item
    */
@@ -150,8 +154,8 @@ public class InventoryComponent extends Component {
   /**
    * Adds an item by filling compatible stacks first, then empty slots in order.
    *
-   * @param item item to add; {@code null} or non-positive quantity is a no-op
-   * @return quantity that could not be added; {@code 0} means the complete quantity was added
+   * @param item item to add
+   * @return quantity that could not be added
    */
   public int addItem(Item item) {
     if (!isAddable(item)) {
@@ -161,12 +165,11 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Adds a specific quantity using {@code item} as a stack template. This supports pickup amounts
-   * that exceed a single stack cap.
+   * Adds a specific quantity using {@code item} as a stack template.
    *
-   * @param item item template used for stack compatibility and max quantity
+   * @param item item template used for stack compatibility
    * @param quantity quantity to add
-   * @return quantity that could not be added; {@code 0} means the complete quantity was added
+   * @return quantity that could not be added
    */
   public int addItem(Item item, int quantity) {
     if (item == null) {
@@ -176,24 +179,30 @@ public class InventoryComponent extends Component {
       return 0;
     }
 
+    int requested = quantity;
     int remaining = stackIntoExistingSlots(item, quantity);
-    return placeIntoEmptySlots(item, remaining);
+    remaining = placeIntoEmptySlots(item, remaining);
+    if (remaining < requested) {
+      notifyInventoryChanged();
+    }
+    return remaining;
   }
 
   /**
-   * Returns the total quantity of stacks matching {@code name}, {@code type}, and {@code
-   * maxQuantity} across all occupied slots.
+   * Returns the total quantity of matching items.
    *
-   * @param name item name to match; {@code null} or blank returns {@code 0}
+   * @param name item name to match
    * @param type item type to match
    * @param maxQuantity stack cap to match
-   * @return summed quantity, or {@code 0} when no matching stacks exist
+   * @return summed quantity
    */
   public int getTotalQuantity(String name, ItemType type, int maxQuantity) {
     if (name == null || name.isBlank()) {
       return 0;
     }
+
     int total = 0;
+
     for (Item stored : inventorySlots.values()) {
       if (name.equals(stored.getName())
           && type == stored.getItemType()
@@ -201,122 +210,153 @@ public class InventoryComponent extends Component {
         total += stored.getQuantity();
       }
     }
+
     return total;
   }
 
   /**
-   * Returns the total quantity of stacks compatible with {@code template}.
+   * Returns the total quantity of items compatible with {@code template}.
    *
-   * @param template item whose name, type, and max quantity are used as the match key
-   * @return summed quantity, or {@code 0} when {@code template} is {@code null}
+   * @param template item whose properties are used as the match key
+   * @return summed quantity
    */
   public int getTotalQuantity(Item template) {
     if (template == null) {
       return 0;
     }
+
     return getTotalQuantity(template.getName(), template.getItemType(), template.getMaxQuantity());
   }
 
   /**
-   * Splits {@code splitQty} from an occupied stack into the lowest empty slot.
+   * Splits part of an occupied stack into the lowest empty slot.
    *
-   * <p>Does not compact later slots. Rejects a full-stack transfer; use {@link #removeItem(int)}
-   * instead.
-   *
-   * @param slot occupied slot index in the range 1 to {@code maxSlots}
-   * @param splitQty quantity to move into a new stack; must be {@code > 0} and {@code <} the source
-   *     quantity
-   * @return the new slot index, or {@code -1} if the split is invalid or no empty slot remains
+   * @param slot source slot
+   * @param splitQty quantity to move
+   * @return the new slot index, or {@code -1} if the split is invalid
    */
   public int splitStack(int slot, int splitQty) {
     if (!isValidSlot(slot) || !containsItem(slot) || splitQty <= 0) {
       return -1;
     }
+
     Item source = inventorySlots.get(slot);
     int current = source.getQuantity();
+
     if (splitQty >= current) {
       return -1;
     }
+
     Integer empty = findEmptySlot();
+
     if (empty == null) {
       return -1;
     }
+
     source.setQuantity(current - splitQty);
     inventorySlots.put(empty, createStack(source, splitQty));
+    notifyInventoryChanged();
+
     return empty;
   }
 
   /**
-   * Removes up to {@code amount} from a single slot. Does not compact later slots.
+   * Removes up to {@code amount} from a single slot.
    *
-   * @param slot slot index in the range 1 to {@code maxSlots}
+   * @param slot slot containing the item
    * @param amount quantity to remove
-   * @return the amount actually removed; {@code 0} if invalid, empty, or {@code amount <= 0}
+   * @return amount actually removed
    */
   public int removeItem(int slot, int amount) {
     if (!isValidSlot(slot) || amount <= 0 || !inventorySlots.containsKey(slot)) {
       return 0;
     }
+
     Item existing = inventorySlots.get(slot);
     int current = existing.getQuantity();
     int removed = Math.min(amount, current);
+
     existing.setQuantity(current - removed);
+
     if (existing.getQuantity() == 0) {
       inventorySlots.remove(slot);
     }
+
+    if (removed > 0) {
+      notifyInventoryChanged();
+    }
+
     return removed;
   }
 
   /**
-   * Removes the whole stack from a slot. Does not compact later slots.
+   * Removes the whole stack from a slot.
    *
-   * @param slot slot index in the range 1 to {@code maxSlots}
-   * @return the stored item, or {@code null} if the slot is invalid or empty
+   * @param slot slot containing the item
+   * @return removed item, or {@code null} if the slot is invalid or empty
    */
   public Item removeItem(int slot) {
     if (!isValidSlot(slot)) {
       return null;
     }
-    return inventorySlots.remove(slot);
+
+    Item removed = inventorySlots.remove(slot);
+    if (removed != null) {
+      notifyInventoryChanged();
+    }
+    return removed;
   }
 
   /**
-   * Returns whether {@code item} can be added to this inventory.
+   * Notifies listeners that inventory contents or gold changed.
    *
-   * @param item candidate item, which may be {@code null}
-   * @return {@code true} if the item is non-null and has a positive quantity
+   * <p>No-ops when this component is not attached to an entity (common in unit tests).
+   */
+  private void notifyInventoryChanged() {
+    if (entity != null) {
+      entity.getEvents().trigger("inventoryChanged");
+    }
+  }
+
+  /**
+   * Checks whether an item can be added.
+   *
+   * @param item candidate item
+   * @return {@code true} if the item is non-null and has positive quantity
    */
   private boolean isAddable(Item item) {
     return item != null && item.getQuantity() > 0;
   }
 
   /**
-   * Adds as much of {@code remaining} as possible into compatible existing stacks.
+   * Adds as much as possible into compatible existing stacks.
    *
-   * @param item incoming item used for stack compatibility
+   * @param item incoming item
    * @param remaining quantity still to add
-   * @return quantity that could not be stacked into existing slots
+   * @return quantity that could not be stacked
    */
   private int stackIntoExistingSlots(Item item, int remaining) {
     for (int slot = 1; slot <= maxSlots && remaining > 0; slot++) {
       Item existing = inventorySlots.get(slot);
+
       if (!canStack(existing, item)) {
         continue;
       }
+
       int addedQuantity = calculateAddableQuantity(existing, remaining);
       existing.addQuantity(addedQuantity);
       remaining -= addedQuantity;
     }
+
     return remaining;
   }
 
   /**
-   * Calculates how much of {@code remaining} can fit into {@code existing} without exceeding its
-   * maximum quantity. Does not modify either item.
+   * Calculates how much quantity can fit into an existing stack.
    *
-   * @param existing occupied stack to measure
+   * @param existing existing item stack
    * @param remaining quantity still to add
-   * @return {@code min(remaining, available space)}
+   * @return quantity that can be added
    */
   private int calculateAddableQuantity(Item existing, int remaining) {
     int availableSpace = existing.getMaxQuantity() - existing.getQuantity();
@@ -324,21 +364,24 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Places leftover quantity into empty slots in order. The incoming item occupies the first new
-   * slot only when it is not already stored; otherwise every new slot receives a copied stack.
+   * Places remaining quantity into empty slots.
    *
-   * @param item incoming item to place or copy
+   * @param item incoming item
    * @param remaining quantity still to add
-   * @return quantity that could not be placed because no empty slot remained
+   * @return quantity that could not be placed
    */
   private int placeIntoEmptySlots(Item item, int remaining) {
     boolean useIncomingForNextSlot = !isItemAlreadyStored(item);
+
     while (remaining > 0) {
       Integer empty = findEmptySlot();
+
       if (empty == null) {
         break;
       }
+
       int stackSize = Math.min(remaining, item.getMaxQuantity());
+
       if (useIncomingForNextSlot) {
         item.setQuantity(stackSize);
         inventorySlots.put(empty, item);
@@ -346,27 +389,29 @@ public class InventoryComponent extends Component {
       } else {
         inventorySlots.put(empty, createStack(item, stackSize));
       }
+
       remaining -= stackSize;
     }
+
     return remaining;
   }
 
   /**
-   * Returns whether {@code item} already occupies a slot in this inventory.
+   * Checks whether the item is already stored in the inventory.
    *
    * @param item item reference to check
-   * @return {@code true} if the same reference is stored in any slot
+   * @return {@code true} if the same item instance is stored
    */
   private boolean isItemAlreadyStored(Item item) {
     return inventorySlots.containsValue(item);
   }
 
   /**
-   * Creates a new item with the same name, type, and maximum quantity as {@code template}.
+   * Creates a new stack from an existing item.
    *
-   * @param template item whose identity fields are copied
+   * @param template item used as the template
    * @param quantity quantity for the new stack
-   * @return a new {@link Item} instance
+   * @return new item stack
    */
   private Item createStack(Item template, int quantity) {
     return new Item(
@@ -374,19 +419,19 @@ public class InventoryComponent extends Component {
   }
 
   /**
-   * Returns whether {@code slot} is within the inventory range.
+   * Checks whether a slot number is valid.
    *
-   * @param slot slot index to check
-   * @return {@code true} if {@code slot} is between 1 and {@code maxSlots} inclusive
+   * @param slot slot index
+   * @return {@code true} if the slot is valid
    */
   private boolean isValidSlot(int slot) {
     return slot >= 1 && slot <= maxSlots;
   }
 
   /**
-   * Finds the lowest-numbered unoccupied slot.
+   * Finds the lowest-numbered empty slot.
    *
-   * @return the empty slot index, or {@code null} if the inventory is full
+   * @return empty slot index, or {@code null} if inventory is full
    */
   private Integer findEmptySlot() {
     for (int slot = 1; slot <= maxSlots; slot++) {
@@ -394,25 +439,26 @@ public class InventoryComponent extends Component {
         return slot;
       }
     }
+
     return null;
   }
 
   /**
-   * Returns whether {@code incoming} can stack onto {@code existing}. Compatibility uses name,
-   * type, and max quantity. {@link Item#equals(Object)} is identity by unique instance id and must
-   * not be used here.
+   * Checks whether two items can be stacked together.
    *
-   * @param existing item already in a slot; {@code null} is not stackable
-   * @param incoming item being added; {@code null} is not stackable
-   * @return {@code true} if the stacks are compatible and {@code existing} is not full
+   * @param existing item already in the inventory
+   * @param incoming item being added
+   * @return {@code true} if the items are compatible and the existing stack is not full
    */
   public boolean canStack(Item existing, Item incoming) {
     if (existing == null || incoming == null) {
       return false;
     }
+
     if (existing.isStackFull()) {
       return false;
     }
+
     return existing.getName().equals(incoming.getName())
         && existing.getItemType() == incoming.getItemType()
         && existing.getMaxQuantity() == incoming.getMaxQuantity();
