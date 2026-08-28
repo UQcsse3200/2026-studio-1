@@ -8,6 +8,9 @@ import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.LootBobComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -161,22 +164,16 @@ public class ForestGameArea extends GameArea {
   }
 
   private void spawnWeaponLoot() {
-    /** Spawn a bow and an arrow on the ground for the player to pick up. */
-    Entity bow =
-        new Entity()
-            .addComponent(new TextureRenderComponent("images/bow.png"))
-            .addComponent(new LootBobComponent());
+    /** Spawn a bow and sword on the ground for the player to pick up. */
+    WeaponGenerator generator = new WeaponGenerator();
 
-    bow.setScale(0.8f, 0.65f);
+    WeaponItem bowItem = generator.generateWeapon(WeaponType.BOW, 1);
+    Entity bow = LootFactory.createLoot(bowItem);
     spawnEntityAt(bow, new GridPoint2(12, 10), true, true);
 
-    Entity arrowOne =
-        new Entity()
-            .addComponent(new TextureRenderComponent("images/arrow.png"))
-            .addComponent(new LootBobComponent());
-
-    arrowOne.setScale(0.9f, 0.45f);
-    spawnEntityAt(arrowOne, new GridPoint2(13, 10), true, true);
+    WeaponItem swordItem = generator.generateWeapon(WeaponType.SWORD, 1);
+    Entity sword = LootFactory.createLoot(swordItem);
+    spawnEntityAt(sword, new GridPoint2(13, 10), true, true);
   }
 
   private void spawnPlatform() {
