@@ -58,7 +58,6 @@ public class PlayerFactory {
             .addComponent(inputComponent)
             .addComponent(new PlatformerComponent(3))
             .addComponent(new PlayerStatsDisplay())
-            .addComponent(new PlayerStatsDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
