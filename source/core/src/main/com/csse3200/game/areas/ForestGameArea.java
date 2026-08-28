@@ -6,15 +6,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
-import com.csse3200.game.components.loot.Item;
-import com.csse3200.game.components.loot.ItemType;
-import com.csse3200.game.components.player.LootBobComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.factories.LootFactory;
+import com.csse3200.game.entities.factories.GoldCoinFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
-import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.utils.math.GridPoint2Utils;
@@ -37,9 +33,6 @@ public class ForestGameArea extends GameArea {
     "images/box_boy_leaf.png",
     "images/box_boy_crouch.png",
     "images/tree.png",
-    "images/sword.png",
-    "images/bow.png",
-    "images/arrow.png",
     "images/ghost_king.png",
     "images/ghost_1.png",
     "images/grass_1.png",
@@ -95,11 +88,10 @@ public class ForestGameArea extends GameArea {
     player = spawnPlayer();
     spawnGhosts();
     spawnGhostKing();
-    spawnWeaponLoot();
 
-    Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
-    Entity goldCoin = LootFactory.createLoot(goldCoinItem);
-    spawnEntityAt(goldCoin, new GridPoint2(15, 15), true, true);
+    // Spawn a gold coin at tile (12, 12).
+    Entity goldCoin = GoldCoinFactory.createGoldCoin();
+    spawnEntityAt(goldCoin, new GridPoint2(12, 12), true, true);
 
     playMusic();
   }
@@ -158,25 +150,6 @@ public class ForestGameArea extends GameArea {
     Entity newPlayer = PlayerFactory.createPlayer();
     spawnEntityAt(newPlayer, PLAYER_SPAWN, true, true);
     return newPlayer;
-  }
-
-  private void spawnWeaponLoot() {
-    /** Spawn a bow and an arrow on the ground for the player to pick up. */
-    Entity bow =
-        new Entity()
-            .addComponent(new TextureRenderComponent("images/bow.png"))
-            .addComponent(new LootBobComponent());
-
-    bow.setScale(0.8f, 0.65f);
-    spawnEntityAt(bow, new GridPoint2(12, 10), true, true);
-
-    Entity arrowOne =
-        new Entity()
-            .addComponent(new TextureRenderComponent("images/arrow.png"))
-            .addComponent(new LootBobComponent());
-
-    arrowOne.setScale(0.9f, 0.45f);
-    spawnEntityAt(arrowOne, new GridPoint2(13, 10), true, true);
   }
 
   private void spawnPlatform() {

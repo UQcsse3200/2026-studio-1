@@ -74,13 +74,8 @@ public class InventoryComponent extends Component {
    * @param gold gold to set; values below 0 are clamped to 0
    */
   public void setGold(int gold) {
-    int next = Math.max(gold, 0);
-    if (next == this.gold) {
-      return;
-    }
-    this.gold = next;
+    this.gold = Math.max(gold, 0);
     logger.debug("Setting gold to {}", this.gold);
-    notifyInventoryChanged();
   }
 
   /**
@@ -179,13 +174,8 @@ public class InventoryComponent extends Component {
       return 0;
     }
 
-    int requested = quantity;
     int remaining = stackIntoExistingSlots(item, quantity);
-    remaining = placeIntoEmptySlots(item, remaining);
-    if (remaining < requested) {
-      notifyInventoryChanged();
-    }
-    return remaining;
+    return placeIntoEmptySlots(item, remaining);
   }
 
   /**
@@ -255,7 +245,6 @@ public class InventoryComponent extends Component {
 
     source.setQuantity(current - splitQty);
     inventorySlots.put(empty, createStack(source, splitQty));
-    notifyInventoryChanged();
 
     return empty;
   }
@@ -282,10 +271,6 @@ public class InventoryComponent extends Component {
       inventorySlots.remove(slot);
     }
 
-    if (removed > 0) {
-      notifyInventoryChanged();
-    }
-
     return removed;
   }
 
@@ -300,22 +285,7 @@ public class InventoryComponent extends Component {
       return null;
     }
 
-    Item removed = inventorySlots.remove(slot);
-    if (removed != null) {
-      notifyInventoryChanged();
-    }
-    return removed;
-  }
-
-  /**
-   * Notifies listeners that inventory contents or gold changed.
-   *
-   * <p>No-ops when this component is not attached to an entity (common in unit tests).
-   */
-  private void notifyInventoryChanged() {
-    if (entity != null) {
-      entity.getEvents().trigger("inventoryChanged");
-    }
+    return inventorySlots.remove(slot);
   }
 
   /**
