@@ -39,9 +39,9 @@ public class LootFactory {
       loot.addComponent(new TextureRenderComponent(texturePath));
     } else {
       AnimationRenderComponent animator =
-              new AnimationRenderComponent(
-                      ServiceLocator.getResourceService()
-                              .getAsset("images/gold_coin/gold_coin.atlas", TextureAtlas.class));
+          new AnimationRenderComponent(
+              ServiceLocator.getResourceService()
+                  .getAsset("images/gold_coin/gold_coin.atlas", TextureAtlas.class));
 
       animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
       animator.startAnimation("gold_coin");
@@ -50,9 +50,9 @@ public class LootFactory {
     }
 
     loot.addComponent(new PhysicsComponent())
-            .addComponent(new ColliderComponent())
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.ITEM))
-            .addComponent(new LootPickupComponent(item));
+        .addComponent(new ColliderComponent())
+        .addComponent(new HitboxComponent().setLayer(PhysicsLayer.ITEM))
+        .addComponent(new LootPickupComponent(item));
 
     return loot;
   }
