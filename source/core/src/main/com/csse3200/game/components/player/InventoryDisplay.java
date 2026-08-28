@@ -17,12 +17,14 @@ public class InventoryDisplay extends UIComponent {
   private static final float HEADER_PADDING = 8f;
 
   private Table inventoryTable;
+  private Label goldLabel;
 
   /** Creates the inventory UI and adds it to the stage. */
   @Override
   public void create() {
     super.create();
     createInventory();
+    entity.getEvents().addListener("inventoryChanged", this::refresh);
   }
 
   /** Creates the inventory panel. */
@@ -35,7 +37,7 @@ public class InventoryDisplay extends UIComponent {
 
     //    // Header.
     //    Label title = new Label("INVENTORY", skin, "title");
-
+    goldLabel = new Label("Gold: 0", skin, "small");
     //
     // inventoryTable.add(title).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
     stage.addActor(inventoryTable);
@@ -116,6 +118,7 @@ public class InventoryDisplay extends UIComponent {
       inventoryTable.remove();
       inventoryTable = null;
     }
+    goldLabel = null;
 
     super.dispose();
   }
@@ -125,6 +128,10 @@ public class InventoryDisplay extends UIComponent {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
     inventoryTable.clearChildren();
+
+    goldLabel.setText(String.format("Gold: %d", inventory.getGold()));
+    inventoryTable.add(goldLabel).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
+    inventoryTable.row();
 
     for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
       addSlot(inventory.getItem(slot), slot);
