@@ -22,7 +22,15 @@ public class PlayerActions extends Component {
   private boolean moving = false;
   private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
   private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
+  private final String WALKING_SE = "sounds/walking1.mp3";
+  private final String JUMP_SE = "sounds/jump.mp3";
+  private final String DASH_SE = "sounds/dash.mp3";
+  private final String SNEAK_SE = "";
   private TextureRenderComponent textureRenderComponent;
+  //Movement booleans
+  private boolean dashing = false;
+  private boolean sneaking = false;
+  //jumping is covered by platformerComponent.getJumpingBool()
 
   private PlatformerComponent platformerComponent;
 
@@ -37,11 +45,34 @@ public class PlayerActions extends Component {
     textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
     entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
   }
-
   @Override
   public void update() {
+    if(moving || platformerComponent.getJumpingBool() || dashing || sneaking) playMovementSound();
     if (moving || platformerComponent.getJumpingBool()) {
       updateSpeed();
+    }
+  }
+  public void playMovementSound(){
+    if (dashing){
+      Sound dashSound =
+              ServiceLocator.getResourceService().getAsset("sounds/dash.mp3", Sound.class);
+      dashSound.play();
+      dashing = false;
+    }else if(platformerComponent.getJumpingBool()){
+      Sound jumpSound =
+              ServiceLocator.getResourceService().getAsset("sounds/jump.mp3", Sound.class);
+      jumpSound.play();
+    }else if(moving){
+      if(sneaking){
+        Sound sneakSound =
+                ServiceLocator.getResourceService().getAsset("sounds/walking1.mp3", Sound.class);
+        //sneakSound.play();
+      }else{
+        Sound walkSound =
+                ServiceLocator.getResourceService().getAsset("sounds/walking1.mp3", Sound.class);
+        //walkSound.play();
+      }
+
     }
   }
 
@@ -85,6 +116,7 @@ public class PlayerActions extends Component {
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(dashspeed);
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
+    dashing = true;
   }
 
   private void ctrlChanged(boolean pressed) {
@@ -93,5 +125,6 @@ public class PlayerActions extends Component {
     } else {
       textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
+    sneaking = true;
   }
 }
