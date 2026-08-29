@@ -2,6 +2,7 @@ package com.csse3200.game.entities.factories;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.LootPickupComponent;
 import com.csse3200.game.components.loot.WeaponItem;
@@ -12,6 +13,7 @@ import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
+import com.csse3200.game.rendering.BobbingTextureRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -37,6 +39,9 @@ public class LootFactory {
       }
 
       loot.addComponent(new TextureRenderComponent(texturePath));
+    } else if (item instanceof ConsumableItem consumableItem) {
+      // Consumables carry their own sprite, and bob gently so they read as collectable.
+      loot.addComponent(new BobbingTextureRenderComponent(consumableItem.getTexturePath()));
     } else {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(
