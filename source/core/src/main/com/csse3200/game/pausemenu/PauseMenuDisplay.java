@@ -23,10 +23,10 @@ public class PauseMenuDisplay extends UIComponent {
   private Table pauseOverlay;
   private Table pausePanel;
   private PauseMenuComponent pauseMenu;
-  private TextButton[] buttons;
-  private Slider musicSlider;
+  TextButton[] buttons;
+  Slider musicSlider;
   private Label musicLabel;
-  private int selectedIndex = 0;
+  int selectedIndex = 0;
   private boolean wasPaused = false;
 
   private boolean usingKeyboardNav = true;
@@ -166,14 +166,14 @@ public class PauseMenuDisplay extends UIComponent {
     entity.getEvents().addListener("confirmSelection", this::confirmSelection);
   }
 
-  private void navigateUp() {
+  void navigateUp() {
     usingKeyboardNav = true;
     int itemCount = buttons.length + 1;
     selectedIndex = (selectedIndex - 1 + itemCount) % itemCount;
     updateHighlight();
   }
 
-  private void navigateDown() {
+  void navigateDown() {
     usingKeyboardNav = true;
     int itemCount = buttons.length + 1;
     selectedIndex = (selectedIndex + 1) % itemCount;
@@ -181,7 +181,7 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   /** Left/Right only affect the music slider, and only while it's the selected item. */
-  private void navigateLeft() {
+  void navigateLeft() {
     if (selectedIndex != buttons.length) {
       return;
     }
@@ -189,7 +189,7 @@ public class PauseMenuDisplay extends UIComponent {
     musicSlider.setValue(newValue);
   }
 
-  private void navigateRight() {
+  void navigateRight() {
     if (selectedIndex != buttons.length) {
       return;
     }
@@ -197,7 +197,7 @@ public class PauseMenuDisplay extends UIComponent {
     musicSlider.setValue(newValue);
   }
 
-  private void updateHighlight() {
+  void updateHighlight() {
     if (!usingKeyboardNav) {
       return;
     }
