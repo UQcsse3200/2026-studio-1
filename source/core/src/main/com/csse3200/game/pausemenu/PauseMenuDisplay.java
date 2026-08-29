@@ -1,18 +1,23 @@
 package com.csse3200.game.pausemenu;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
 public class PauseMenuDisplay extends UIComponent {
 
+  private static float Music_vol = 0.5f;
   private Table table;
   private Table pauseOverlay;
   private Table pausePanel;
@@ -86,6 +91,9 @@ public class PauseMenuDisplay extends UIComponent {
     pausePanel.row();
 
     pausePanel.add(mainMenuBtn).padTop(15f);
+    pausePanel.row();
+
+    pausePanel.add(MusicSlider()).padTop(25f);
 
     table.add(pausePanel).width(350f).height(350f);
 
@@ -120,6 +128,30 @@ public class PauseMenuDisplay extends UIComponent {
 
     table.setVisible(false);
     stage.addActor(table);
+  }
+
+  private Table MusicSlider() {
+    Label musicLabel = new Label("Music Volume", skin);
+    Slider musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
+    musicSlider.setValue(Music_vol);
+    Label musicValueLabel = new Label(String.format("%.2f", Music_vol), skin);
+    musicSlider.addListener(
+        (Event event) -> {
+          Music_vol = musicSlider.getValue();
+          musicValueLabel.setText(String.format("%.0f%%", Music_vol * 100));
+          Music music =
+              ServiceLocator.getResourceService()
+                  .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
+          if (music != null) {
+            music.setVolume(Music_vol);
+          }
+          return true;
+        });
+    Table row = new Table();
+    row.add(musicLabel).padRight(10f);
+    row.add(musicSlider).width(200f);
+    row.add(musicValueLabel).padLeft(10f);
+    return row;
   }
 
   private void registerEventListeners() {
