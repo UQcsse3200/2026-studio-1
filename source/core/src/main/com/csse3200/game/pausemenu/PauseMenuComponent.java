@@ -19,10 +19,12 @@ public class PauseMenuComponent extends Component {
     isPaused = !isPaused;
     logger.info("Paused: {}", isPaused);
     Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
-    if (isPaused) {
-      music.pause();
-    } else {
-      music.play();
+    if (music != null) {
+      if (isPaused) {
+        music.pause();
+      } else {
+        music.play();
+      }
     }
   }
 }

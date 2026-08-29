@@ -44,6 +44,7 @@ public class MainGameScreen extends ScreenAdapter {
   private ForestGameArea forestGameArea;
   private DeathScreenDisplay deathScreenDisplay;
   private boolean deathScreenShown = false;
+  private PauseMenuComponent pauseMenu;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -84,9 +85,10 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
-    physicsEngine.update();
-    ServiceLocator.getEntityService().update();
-
+    if (pauseMenu == null || !pauseMenu.isPaused()) {
+      physicsEngine.update();
+      ServiceLocator.getEntityService().update();
+    }
     if (forestGameArea.isPlayerDead()) {
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
@@ -152,18 +154,20 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity ui = new Entity();
     deathScreenDisplay = new DeathScreenDisplay(this.game);
+    PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
         .addComponent(new Terminal())
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay())
-        .addComponent(new PauseMenuComponent())
+        .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new MainGameActions(this.game))
         .addComponent(new PauseMenuActions());
+    this.pauseMenu = pauseMenuComponent;
 
     ServiceLocator.getEntityService().register(ui);
   }
