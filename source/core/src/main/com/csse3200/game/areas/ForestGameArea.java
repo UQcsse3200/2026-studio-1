@@ -6,6 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableItem;
+import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
@@ -31,6 +34,9 @@ public class ForestGameArea extends GameArea {
 
   private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(4, 4);
 
+  private static final int LOOT_ROW = 10;
+  private static final int CONSUMABLE_FIRST_COLUMN = 14;
+
   private static final GridPoint2 PLATFORM_POS = new GridPoint2(15, 3);
   private static final float PLATFORM_WIDTH = 14.5f;
   private static final float PLATFORM_HEIGHT = 0.5f;
@@ -55,7 +61,10 @@ public class ForestGameArea extends GameArea {
     "images/iso_grass_1.png",
     "images/iso_grass_2.png",
     "images/iso_grass_3.png",
-    "images/platform.png"
+    "images/platform.png",
+    "images/Health.png",
+    "images/Poison.png",
+    "images/Strength.png"
   };
 
   private static final String[] forestTextureAtlases = {
@@ -100,6 +109,7 @@ public class ForestGameArea extends GameArea {
     spawnWeaponLoot();
     spawnGhosts();
     spawnGhostKing();
+    spawnConsumables();
 
     Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
     Entity goldCoin = LootFactory.createLoot(goldCoinItem);
@@ -200,6 +210,24 @@ public class ForestGameArea extends GameArea {
     GridPoint2 randomPos = RandomUtils.random(minPos, maxPos);
     Entity ghostKing = NPCFactory.createGhostKing(player);
     spawnEntityAt(ghostKing, randomPos, true, true);
+  }
+
+  /**
+   * Spawns one of each consumable near the player so dropped items are visible in game.
+   *
+   * <p>Placement is fixed for now. Loot generation deciding where and when items drop is tracked
+   * separately, and this method is the hook that work should replace.
+   */
+  private void spawnConsumables() {
+    ConsumableGenerator generator = new ConsumableGenerator();
+    int column = CONSUMABLE_FIRST_COLUMN;
+
+    for (ConsumableType type : ConsumableType.values()) {
+      ConsumableItem item = generator.generateConsumable(type, 1);
+      Entity loot = LootFactory.createLoot(item);
+      spawnEntityAt(loot, new GridPoint2(column, LOOT_ROW), true, true);
+      column++;
+    }
   }
 
   private void playMusic() {
