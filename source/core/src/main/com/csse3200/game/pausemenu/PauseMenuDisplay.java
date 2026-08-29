@@ -18,11 +18,14 @@ import com.csse3200.game.ui.UIComponent;
 public class PauseMenuDisplay extends UIComponent {
 
   private static float Music_vol = 0.5f;
+  private static final float MUSIC_STEP = 0.05f;
   private Table table;
   private Table pauseOverlay;
   private Table pausePanel;
   private PauseMenuComponent pauseMenu;
   private TextButton[] buttons;
+  private Slider musicSlider;
+  private Label musicLabel;
   private int selectedIndex = 0;
   private boolean wasPaused = false;
 
@@ -105,6 +108,7 @@ public class PauseMenuDisplay extends UIComponent {
             for (TextButton button : buttons) {
               button.setColor(Color.WHITE);
             }
+            musicLabel.setColor(Color.WHITE);
             return false;
           }
         });
@@ -131,8 +135,8 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private Table MusicSlider() {
-    Label musicLabel = new Label("Music Volume", skin);
-    Slider musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
+    musicLabel = new Label("Music Volume", skin);
+    musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
     musicSlider.setValue(Music_vol);
     Label musicValueLabel = new Label(String.format("%.2f", Music_vol), skin);
     musicSlider.addListener(
@@ -157,19 +161,40 @@ public class PauseMenuDisplay extends UIComponent {
   private void registerEventListeners() {
     entity.getEvents().addListener("navigateUp", this::navigateUp);
     entity.getEvents().addListener("navigateDown", this::navigateDown);
+    entity.getEvents().addListener("navigateLeft", this::navigateLeft);
+    entity.getEvents().addListener("navigateRight", this::navigateRight);
     entity.getEvents().addListener("confirmSelection", this::confirmSelection);
   }
 
   private void navigateUp() {
     usingKeyboardNav = true;
-    selectedIndex = (selectedIndex - 1 + buttons.length) % buttons.length;
+    int itemCount = buttons.length + 1;
+    selectedIndex = (selectedIndex - 1 + itemCount) % itemCount;
     updateHighlight();
   }
 
   private void navigateDown() {
     usingKeyboardNav = true;
-    selectedIndex = (selectedIndex + 1) % buttons.length;
+    int itemCount = buttons.length + 1;
+    selectedIndex = (selectedIndex + 1) % itemCount;
     updateHighlight();
+  }
+
+  /** Left/Right only affect the music slider, and only while it's the selected item. */
+  private void navigateLeft() {
+    if (selectedIndex != buttons.length) {
+      return;
+    }
+    float newValue = Math.max(0f, musicSlider.getValue() - MUSIC_STEP);
+    musicSlider.setValue(newValue);
+  }
+
+  private void navigateRight() {
+    if (selectedIndex != buttons.length) {
+      return;
+    }
+    float newValue = Math.min(1f, musicSlider.getValue() + MUSIC_STEP);
+    musicSlider.setValue(newValue);
   }
 
   private void updateHighlight() {
@@ -179,6 +204,7 @@ public class PauseMenuDisplay extends UIComponent {
     for (int i = 0; i < buttons.length; i++) {
       buttons[i].setColor(i == selectedIndex ? Color.YELLOW : Color.WHITE);
     }
+    musicLabel.setColor(selectedIndex == buttons.length ? Color.YELLOW : Color.WHITE);
   }
 
   private void confirmSelection() {

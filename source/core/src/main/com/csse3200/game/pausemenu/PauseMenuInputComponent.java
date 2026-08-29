@@ -37,6 +37,16 @@ public class PauseMenuInputComponent extends InputComponent {
       return true;
     }
 
+    if (keycode == Input.Keys.LEFT) {
+      entity.getEvents().trigger("navigateLeft");
+      return true;
+    }
+
+    if (keycode == Input.Keys.RIGHT) {
+      entity.getEvents().trigger("navigateRight");
+      return true;
+    }
+
     if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE) {
       entity.getEvents().trigger("confirmSelection");
       return true;
