@@ -85,7 +85,10 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
-    if (pauseMenu == null || !pauseMenu.isPaused()) {
+    if (pauseMenu == null
+        || !pauseMenu
+            .isPaused()) { // Only updates the game physics (movement and all) when game is not
+      // pauesd
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
     }
