@@ -50,17 +50,6 @@ public class ObstacleFactory {
     return wall;
   }
 
-  public static Entity createPlatform(float width, float height) {
-    Entity platform =
-        new Entity()
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
-
-    platform.setScale(width, height);
-
-    return platform;
-  }
-
   /**
    * Creates a solid terrain tile collider.
    *
@@ -82,23 +71,23 @@ public class ObstacleFactory {
   }
 
   /**
-   * Creates a platform terrain tile collider.
+   * Creates a thin static collider used as the walking surface of a terrain tile.
    *
-   * @param width width of the platform in world units
-   * @param height height of the platform in world units
-   * @return static platform collider entity
+   * @param width width of the tile
+   * @param height height of the collision surface
+   * @return static floor collider
    */
-  public static Entity createPlatformTile(float width, float height) {
-    Entity platform =
+  public static Entity createFloorTile(float width, float height) {
+    Entity floor =
         new Entity()
             .addComponent(new PhysicsComponent())
             .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
 
-    platform.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
+    floor.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
 
-    platform.setScale(width, height);
+    floor.setScale(width, height);
 
-    return platform;
+    return floor;
   }
 
   /**
@@ -114,13 +103,10 @@ public class ObstacleFactory {
   public static Entity createHazardTile(float width, float height) {
     Entity hazard =
         new Entity()
-            .addComponent(new PhysicsComponent())
-            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE).setSensor(true));
-
-    hazard.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.HAZARD).setSensor(true));
 
     hazard.setScale(width, height);
-
     return hazard;
   }
 

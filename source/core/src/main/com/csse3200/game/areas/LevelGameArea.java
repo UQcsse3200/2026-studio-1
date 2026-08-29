@@ -2,6 +2,7 @@ package com.csse3200.game.areas;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
@@ -10,11 +11,16 @@ import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
+import com.csse3200.game.events.listeners.EventListener2;
+import com.csse3200.game.physics.BodyUserData;
+import com.csse3200.game.physics.PhysicsLayer;
+import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.Set;
@@ -32,6 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
+  private static final float COLLIDER_HEIGHT = 0.2f;
 
   /** Entity textures needed by the player and demo enemies. */
   private static final String[] entityTextures = {
@@ -159,17 +166,21 @@ public class LevelGameArea extends GameArea {
     }
   }
 
+  /**
+   * Spawns the collision type at the x y coordinates from the relevant ObstacleFactory method
+   *
+   * @param collisionType the type of collision to spawn
+   * @param x the x coordinate of the collision
+   * @param y the y coordinate of the collision
+   * @param tileSize the width/height of the tile
+   */
   private void spawnCollisionTile(CollisionType collisionType, int x, int y, float tileSize) {
 
     Entity collider;
 
     switch (collisionType) {
-      case SOLID:
-        collider = ObstacleFactory.createSolidTile(tileSize, tileSize);
-        break;
-
-      case PLATFORM:
-        collider = ObstacleFactory.createPlatformTile(tileSize, tileSize);
+      case SOLID, PLATFORM:
+        collider = ObstacleFactory.createFloorTile(tileSize, COLLIDER_HEIGHT);
         break;
 
       case HAZARD:
@@ -189,40 +200,44 @@ public class LevelGameArea extends GameArea {
     spawnEntity(collider);
   }
 
-  /*
-  private void spawnCollisions() {
-    MapLayerData collisionLayer = mapData.getCollisionLayer();
-    if (collisionLayer == null) {
-      return;
-    }
-    float tileSize = terrain.getTileSize();
-    for (int x = 0; x < collisionLayer.getWidth(); x++) {
-      for (int y = 0; y < collisionLayer.getHeight(); y++) {
-        TileDefinition def = collisionLayer.get(x, y);
-        if (def == null) {
-          continue;
-        }
-        CollisionType collision = def.type().getCollisionType();
-        if (collision != CollisionType.SOLID && collision != CollisionType.PLATFORM) {
-          continue;
-        }
-        Entity collider = ObstacleFactory.createPlatform(tileSize, tileSize);
-        // tileToWorldPosition returns the tile's bottom-left corner; entity position is its centre.
-        Vector2 position = terrain.tileToWorldPosition(x, y).add(tileSize / 2f, tileSize / 2f);
-        collider.setPosition(position);
-        spawnEntity(collider);
-      }
-    }
-  }
-  */
-
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayer();
+
+    newPlayer
+        .getEvents()
+        .addListener(
+            "collisionStart",
+            (EventListener2<Fixture, Fixture>)
+                (fixtureA, fixtureB) -> {
+                  Entity entityA = ((BodyUserData) fixtureA.getBody().getUserData()).entity;
+                  Entity entityB = ((BodyUserData) fixtureB.getBody().getUserData()).entity;
+
+                  Entity other;
+
+                  if (entityA == newPlayer) {
+                    other = entityB;
+                  } else {
+                    other = entityA;
+                  }
+
+                  ColliderComponent collider = other.getComponent(ColliderComponent.class);
+
+                  if (collider != null && collider.getLayer() == PhysicsLayer.HAZARD) {
+                    CombatStatsComponent stats = newPlayer.getComponent(CombatStatsComponent.class);
+
+                    stats.addHealth(-10);
+
+                    logger.info("Player hit hazard! Health: {}", stats.getHealth());
+                  }
+                });
+
     GridPoint2 spawn = mapData.getSpawns().getPlayer();
+
     if (spawn == null) {
       logger.warn("Map '{}' has no player spawn; defaulting to (0, 0)", mapData.getName());
       spawn = new GridPoint2(0, 0);
     }
+
     spawnEntityAt(newPlayer, spawn, true, true);
     return newPlayer;
   }
