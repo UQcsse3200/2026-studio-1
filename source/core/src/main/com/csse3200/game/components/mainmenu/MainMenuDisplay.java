@@ -20,8 +20,8 @@ public class MainMenuDisplay extends UIComponent {
   private static final Logger logger = LoggerFactory.getLogger(MainMenuDisplay.class);
   private static final float Z_INDEX = 2f;
   private Table table;
-  private TextButton[] buttons;
-  private int selectedIndex = 0;
+  TextButton[] buttons;
+  int selectedIndex = 0;
 
   // Whether keyboard nav currently owns button highlighting. True = keyboard nav controls
   // colors; false = mouse hover controls colors. Only one of the two is ever allowed to set
@@ -142,13 +142,13 @@ public class MainMenuDisplay extends UIComponent {
     entity.getEvents().addListener("confirmSelection", this::confirmSelection);
   }
 
-  private void navigateUp() {
+  void navigateUp() {
     usingKeyboardNav = true;
     selectedIndex = (selectedIndex - 1 + buttons.length) % buttons.length;
     updateHighlight();
   }
 
-  private void navigateDown() {
+  void navigateDown() {
     usingKeyboardNav = true;
     selectedIndex = (selectedIndex + 1) % buttons.length;
     updateHighlight();
@@ -158,7 +158,7 @@ public class MainMenuDisplay extends UIComponent {
    * Highlights whichever button is currently selected via keyboard navigation. Only applies color
    * when keyboard nav owns highlighting, so it can never fight with the hover listeners.
    */
-  private void updateHighlight() {
+  void updateHighlight() {
     if (!usingKeyboardNav) {
       return;
     }
