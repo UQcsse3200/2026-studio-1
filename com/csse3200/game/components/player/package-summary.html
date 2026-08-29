@@ -83,29 +83,47 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="caption"><span>Classes</span></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button></div>
+<div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ArrowMovementComponent.html" title="class in com.csse3200.game.components.player">ArrowMovementComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ActiveBuff.html" title="class in com.csse3200.game.components.player">ActiveBuff</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">A stat modifier that is currently applied to an entity and will revert once its duration elapses.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ArrowMovementComponent.html" title="class in com.csse3200.game.components.player">ArrowMovementComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="BuffStat.html" title="enum class in com.csse3200.game.components.player">BuffStat</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">
+<div class="block">The player stats that a temporary buff can modify.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ConsumableUseComponent.html" title="class in com.csse3200.game.components.player">ConsumableUseComponent</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Registers the use handler for consumable items on the owning entity.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">A component intended to be used by the player to track their inventory.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">A HUD-style UI component for displaying the player's inventory.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="KeyboardPlayerInputComponent.html" title="class in com.csse3200.game.components.player">KeyboardPlayerInputComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="KeyboardPlayerInputComponent.html" title="class in com.csse3200.game.components.player">KeyboardPlayerInputComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Input handler for the player for keyboard and touch (mouse) input.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="LootBobComponent.html" title="class in com.csse3200.game.components.player">LootBobComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="LootBobComponent.html" title="class in com.csse3200.game.components.player">LootBobComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Action component for interacting with the player.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PlayerBuffComponent.html" title="class in com.csse3200.game.components.player">PlayerBuffComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Tracks temporary stat modifiers applied to an entity and reverts them once their duration has
+ passed.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="PlayerStatsDisplay.html" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
@@ -123,6 +141,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
+</div>
 </div>
 </div>
 </li>
