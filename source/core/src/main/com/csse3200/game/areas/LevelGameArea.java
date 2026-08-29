@@ -137,6 +137,61 @@ public class LevelGameArea extends GameArea {
    */
   private void spawnCollisions() {
     MapLayerData collisionLayer = mapData.getCollisionLayer();
+
+    if (collisionLayer == null) {
+      return;
+    }
+
+    float tileSize = terrain.getTileSize();
+
+    for (int x = 0; x < collisionLayer.getWidth(); x++) {
+      for (int y = 0; y < collisionLayer.getHeight(); y++) {
+        TileDefinition def = collisionLayer.get(x, y);
+
+        if (def == null) {
+          continue;
+        }
+
+        CollisionType collisionType = def.type().getCollisionType();
+
+        spawnCollisionTile(collisionType, x, y, tileSize);
+      }
+    }
+  }
+
+  private void spawnCollisionTile(CollisionType collisionType, int x, int y, float tileSize) {
+
+    Entity collider;
+
+    switch (collisionType) {
+      case SOLID:
+        collider = ObstacleFactory.createSolidTile(tileSize, tileSize);
+        break;
+
+      case PLATFORM:
+        collider = ObstacleFactory.createPlatformTile(tileSize, tileSize);
+        break;
+
+      case HAZARD:
+        collider = ObstacleFactory.createHazardTile(tileSize, tileSize);
+        break;
+
+      case NONE:
+      default:
+        return;
+    }
+
+    // tileToWorldPosition gives the bottom-left corner of the tile.
+    // Entity positions represent the centre of the entity.
+    Vector2 position = terrain.tileToWorldPosition(x, y).add(tileSize / 2f, tileSize / 2f);
+
+    collider.setPosition(position);
+    spawnEntity(collider);
+  }
+
+  /*
+  private void spawnCollisions() {
+    MapLayerData collisionLayer = mapData.getCollisionLayer();
     if (collisionLayer == null) {
       return;
     }
@@ -159,6 +214,7 @@ public class LevelGameArea extends GameArea {
       }
     }
   }
+  */
 
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayer();
