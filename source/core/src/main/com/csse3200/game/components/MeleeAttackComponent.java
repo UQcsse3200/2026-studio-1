@@ -54,6 +54,7 @@ public class MeleeAttackComponent extends Component {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
+    this.timeSinceLastAttack = cooldown;
   }
 
   /**
@@ -180,7 +181,7 @@ public class MeleeAttackComponent extends Component {
 
       // handle whether target has a combat stats component
       CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
-      if (!targetStats.enabled) {
+      if (targetStats == null) {
         return;
       }
 
