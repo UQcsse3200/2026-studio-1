@@ -6,7 +6,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableItem;
+import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.ItemFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
@@ -23,6 +27,7 @@ public class ForestGameArea extends GameArea {
   private static final int NUM_TREES = 7;
   private static final int NUM_GHOSTS = 2;
   private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(10, 10);
+  private static final int CONSUMABLE_SPAWN_GAP = 2;
   private static final float WALL_WIDTH = 0.1f;
   private static final String[] forestTextures = {
     "images/box_boy_leaf.png",
@@ -37,7 +42,10 @@ public class ForestGameArea extends GameArea {
     "images/hex_grass_3.png",
     "images/iso_grass_1.png",
     "images/iso_grass_2.png",
-    "images/iso_grass_3.png"
+    "images/iso_grass_3.png",
+    "images/Health.png",
+    "images/Poison.png",
+    "images/Strength.png"
   };
   private static final String[] forestTextureAtlases = {
     "images/terrain_iso_grass.atlas", "images/ghost.atlas", "images/ghostKing.atlas"
@@ -73,6 +81,7 @@ public class ForestGameArea extends GameArea {
     player = spawnPlayer();
     spawnGhosts();
     spawnGhostKing();
+    spawnConsumables();
 
     playMusic();
   }
@@ -148,6 +157,24 @@ public class ForestGameArea extends GameArea {
     GridPoint2 randomPos = RandomUtils.random(minPos, maxPos);
     Entity ghostKing = NPCFactory.createGhostKing(player);
     spawnEntityAt(ghostKing, randomPos, true, true);
+  }
+
+  /**
+   * Spawns one of each consumable near the player so dropped items are visible in game.
+   *
+   * <p>Placement is fixed for now. Loot generation deciding where and when items drop is tracked
+   * separately, and this method is the hook that work should replace.
+   */
+  private void spawnConsumables() {
+    ConsumableGenerator generator = new ConsumableGenerator();
+    int column = PLAYER_SPAWN.x - CONSUMABLE_SPAWN_GAP;
+
+    for (ConsumableType type : ConsumableType.values()) {
+      ConsumableItem item = generator.generateConsumable(type, 1);
+      GridPoint2 position = new GridPoint2(column, PLAYER_SPAWN.y + CONSUMABLE_SPAWN_GAP);
+      spawnEntityAt(ItemFactory.createConsumable(item), position, true, true);
+      column += CONSUMABLE_SPAWN_GAP;
+    }
   }
 
   private void playMusic() {
