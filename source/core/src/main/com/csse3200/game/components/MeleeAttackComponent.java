@@ -1,8 +1,13 @@
 package com.csse3200.game.components;
 
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.joints.DistanceJoint;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
+
+import static java.awt.geom.Point2D.distance;
 
 /**
  * Deals melee damage and knockback to a target entity when triggered, provided the target is within
@@ -147,12 +152,51 @@ public class MeleeAttackComponent extends Component {
      *
      * @param target the entity being attacked
      *
+     * Expected effect: may reduce target's health and/or apply an impulse to
+     *               target's physics body.
+     *
      * <p><b>Limitation:</b> behaviour when {@code target} is {@code null} must be
      * explicitly decided — either guard against it here, or document that callers must
      * never trigger the event with a null target.
      */
     private void attemptAttack(Entity target) {
+      // guarding against a malformed trigger i.e. considering when target is null
+      if (target == null) {
+        return;
+      }
 
+      // cooldown check
+      if (this.timeSinceLastAttack < this.getCooldown()) {
+        return;
+      }
+      // range check
+      float distance = (float) distance(entity.getPosition().x, entity.getPosition().y,
+              target.getPosition().x, target.getPosition().y
+      );
+
+      if (distance > this.getRange()) {
+        return;
+      }
+
+      // handle whether target has a combat stats component
+      CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+      if (!targetStats.enabled) {
+        return;
+      }
+
+      // apply damage
+      targetStats.hit(combatStats);
+
+      // reset cooldown, since an attack just succeeded
+      this.timeSinceLastAttack = 0;
+
+      // check whether knockback = 0 --> knockback is disabled
+      PhysicsComponent targetPhysics = target.getComponent(PhysicsComponent.class);
+      if (targetPhysics != null && this.getKnockback() > 0) {
+        Body targetBody = targetPhysics.getBody();
+        Vector2 direction = target.getCenterPosition().sub(entity.getCenterPosition());
+        Vector2 impulse = direction.setLength(this.getKnockback());
+        targetBody.applyLinearImpulse(impulse, targetBody.getWorldCenter(), true);      }
     }
 
 }
