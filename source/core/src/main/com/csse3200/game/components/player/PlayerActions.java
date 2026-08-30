@@ -19,11 +19,14 @@ public class PlayerActions extends Component {
   private PhysicsComponent physicsComponent;
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private float dashspeed = 5f;
+  private float slidespeed = 3f;
   private boolean moving = false;
+  private boolean sliding = false;
   private boolean walkSoundPlaying = false;
   private boolean sneakSoundPlaying = false;
   private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
   private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
+  private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
@@ -48,6 +51,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
     entity.getEvents().addListener("dash", this::dash);
+    entity.getEvents().addListener("slide",this::slide);
     textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
     entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
   }
@@ -145,5 +149,22 @@ public class PlayerActions extends Component {
       textureRenderComponent.setTexture(NORMAL_TEXTURE);
       sneaking = false;
     }
+  }
+
+  private void slide(boolean pressed){
+    if (pressed) {
+      textureRenderComponent.setTexture(SLIDE_TEXTURE);
+      slidingAction(walkDirection.cpy());
+    } else {
+      sliding = false;
+      textureRenderComponent.setTexture(NORMAL_TEXTURE);
+    }
+  }
+
+  private void slidingAction(Vector2 direction){
+    sliding = true;
+    Body body = physicsComponent.getBody();
+    Vector2 impulse = direction.cpy().scl(slidespeed);
+    body.applyLinearImpulse(impulse, body.getWorldCenter(),true);
   }
 }
