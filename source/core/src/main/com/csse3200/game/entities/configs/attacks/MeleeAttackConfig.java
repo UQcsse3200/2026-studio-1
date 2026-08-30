@@ -5,7 +5,7 @@ package com.csse3200.game.entities.configs.attacks;
  * attacks.
  */
 public class MeleeAttackConfig {
-  public float range;
-  public float cooldown;
-  public float knockdown;
+  public float range = 2;
+  public float cooldown = 3;
+  public float knockback = 0;
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.MeleeAttackComponent;
 import com.csse3200.game.components.TouchAttackComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.tasks.ChaseTask;
@@ -109,6 +110,9 @@ public class NPCFactory {
 
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range, config.melee.cooldown, config.melee.knockback))
         .addComponent(animator)
         .addComponent(new GhostAnimationController());
 
