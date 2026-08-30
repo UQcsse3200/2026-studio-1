@@ -301,7 +301,6 @@ public class MeleeAttackComponentTest {
     assertDoesNotThrow(() -> attacker.getEvents().trigger("meleeAttack", null));
   }
 
-
   /* the following tests the cooldown element of the attemptAttack */
   @Test
   void ShouldNotAttackDuringCooldown() {
@@ -539,8 +538,10 @@ public class MeleeAttackComponentTest {
         targetLinearVelocityAfterAttack,
         "Expected no change in velocity from knockback as it is disabled"
             + "thus expecting velocity before attack: "
-            + targetLinearVelocityBeforeAttack + "to equal velocity after attack: "
-            + targetLinearVelocityAfterAttack + "but got "
+            + targetLinearVelocityBeforeAttack
+            + "to equal velocity after attack: "
+            + targetLinearVelocityAfterAttack
+            + "but got "
             + (targetLinearVelocityBeforeAttack == targetLinearVelocityAfterAttack));
   }
 
@@ -573,14 +574,14 @@ public class MeleeAttackComponentTest {
    * Builds a fully created Entity representing an attack, with a {@link MeleeAttackComponent} and
    * the components it depends on, ready for use in a test.
    *
-   * @param knockback - passed directly into {@link MeleeAttackComponent}'s constructor
-   *                  - the amount of force the target will experience from the attack
+   * @param knockback - passed directly into {@link MeleeAttackComponent}'s constructor - the amount
+   *     of force the target will experience from the attack
    * @param range - the distance between the target and the attacker that allows the attacker to use
-   *     the component to attack the target i.e. within 1.5 m of the target, the attacker can use the
-   *     melee component
+   *     the component to attack the target i.e. within 1.5 m of the target, the attacker can use
+   *     the melee component
    * @param cooldown - the duration of time the entity must wait before attacking the target again
-   * @return - an entity that uses the {@link MeleeAttackComponent} to attack another entity
-   * with the {@link CombatStatsComponent} and {@link PhysicsComponent} added as well.
+   * @return - an entity that uses the {@link MeleeAttackComponent} to attack another entity with
+   *     the {@link CombatStatsComponent} and {@link PhysicsComponent} added as well.
    *     <p><bold>Design Decision:</bold> given that for this test, it is only testing the melee
    *     component which doesn't use the physics layer checks, the target layer is not included as
    *     an input.
@@ -600,7 +601,7 @@ public class MeleeAttackComponentTest {
    * the components it depends on, ready for use in a test.
    *
    * @return a target entity that has the {@link CombatStatsComponent} and {@link PhysicsComponent}
-   * attached.
+   *     attached.
    */
   Entity createTarget() {
     Entity target =
