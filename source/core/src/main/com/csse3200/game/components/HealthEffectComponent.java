@@ -10,7 +10,7 @@ public class HealthEffectComponent extends Component {
   /**
    * Create a component which changes health over time.
    *
-   * @param time total number of ticks the effect lasts. A duration of 1 applies the effect
+   * @param time total number of ticks the effect lasts. A duration of 0 applies the effect
    *     instantly on the next update.
    * @param healthChange total amount of health to change over the effect's duration (positive =
    *     regeneration, negative = poison)

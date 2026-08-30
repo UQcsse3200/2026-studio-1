@@ -186,7 +186,7 @@ public class MeleeAttackComponent extends Component {
     // apply damage
     targetStats.hit(combatStats);
 
-    // annouce a successful hit - useful for triggering special effects
+    // announce a successful hit - useful for triggering special effects
     entity.getEvents().trigger("meleeAttackHit", target);
     // reset cooldown, since an attack just succeeded
     this.timeSinceLastAttack = 0;
