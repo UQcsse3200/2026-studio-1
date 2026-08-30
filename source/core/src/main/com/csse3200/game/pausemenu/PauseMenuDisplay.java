@@ -17,7 +17,7 @@ import com.csse3200.game.ui.UIComponent;
 
 public class PauseMenuDisplay extends UIComponent {
 
-  private float Music_vol = 0.5f;
+  private float musicVol = 0.5f;
   private static final float MUSIC_STEP = 0.05f;
   private Table table;
   private Table pauseOverlay;
@@ -136,17 +136,17 @@ public class PauseMenuDisplay extends UIComponent {
   private Table createMusicSlider() {
     musicLabel = new Label("Music Volume", skin);
     musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
-    musicSlider.setValue(Music_vol);
-    Label musicValueLabel = new Label(String.format("%.2f", Music_vol), skin);
+    musicSlider.setValue(musicVol);
+    Label musicValueLabel = new Label(String.format("%.2f", musicVol), skin);
     musicSlider.addListener(
         (Event event) -> {
-          Music_vol = musicSlider.getValue();
-          musicValueLabel.setText(String.format("%.0f%%", Music_vol * 100));
+          musicVol = musicSlider.getValue();
+          musicValueLabel.setText(String.format("%.0f%%", musicVol * 100));
           Music music =
               ServiceLocator.getResourceService()
                   .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
           if (music != null) {
-            music.setVolume(Music_vol);
+            music.setVolume(musicVol);
           }
           return true;
         });
