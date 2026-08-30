@@ -17,11 +17,10 @@ import com.csse3200.game.ui.UIComponent;
 
 public class PauseMenuDisplay extends UIComponent {
 
-  private static float Music_vol = 0.5f;
+  private float Music_vol = 0.5f;
   private static final float MUSIC_STEP = 0.05f;
   private Table table;
   private Table pauseOverlay;
-  private Table pausePanel;
   private PauseMenuComponent pauseMenu;
   TextButton[] buttons;
   Slider musicSlider;
@@ -49,7 +48,7 @@ public class PauseMenuDisplay extends UIComponent {
 
     stage.addActor(pauseOverlay);
 
-    pausePanel = new Table();
+    Table pausePanel = new Table();
     pausePanel.setBackground(skin.newDrawable("white", new Color(0.05f, 0.08f, 0.05f, 0.85f)));
     pausePanel.pad(35f);
 
@@ -96,7 +95,7 @@ public class PauseMenuDisplay extends UIComponent {
     pausePanel.add(mainMenuBtn).padTop(15f);
     pausePanel.row();
 
-    pausePanel.add(MusicSlider()).padTop(25f);
+    pausePanel.add(createMusicSlider()).padTop(25f);
 
     table.add(pausePanel).width(350f).height(350f);
 
@@ -134,7 +133,7 @@ public class PauseMenuDisplay extends UIComponent {
     stage.addActor(table);
   }
 
-  private Table MusicSlider() {
+  private Table createMusicSlider() {
     musicLabel = new Label("Music Volume", skin);
     musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
     musicSlider.setValue(Music_vol);
