@@ -89,7 +89,7 @@ public class NPCFactory {
     ghostKing.getComponent(AnimationRenderComponent.class).scaleEntity();
     return ghostKing;
   }
-  
+
   /**
    * Creates a skeleton entity.
    *
@@ -99,19 +99,19 @@ public class NPCFactory {
   public static Entity createSkeleton(Entity target) {
     Entity skeleton = createBaseNPC(target);
     SkeletonConfig config = configs.skeleton;
-    
+
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
                 .getAsset("images/ghostKing.atlas", TextureAtlas.class));
     animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
-    
+
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(animator)
         .addComponent(new GhostAnimationController());
-    
+
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
     return skeleton;
   }
