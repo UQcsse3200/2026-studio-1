@@ -19,7 +19,7 @@ import com.csse3200.game.services.ServiceLocator;
 
 /** Factory for creating loot entities that can be picked up by the player. */
 public class LootFactory {
-  private static final long DROPPER_PICKUP_DELAY_MILLIS = 750L;
+  private static final long DROPPER_PICKUP_DELAY_MILLIS = 450L;
 
   /**
    * Creates a loot entity containing the given item.
