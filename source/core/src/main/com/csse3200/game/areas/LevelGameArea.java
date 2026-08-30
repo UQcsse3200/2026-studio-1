@@ -42,8 +42,10 @@ public class LevelGameArea extends GameArea {
 
   /** Entity textures needed by the player and demo enemies. */
   private static final String[] entityTextures = {
-    "images/box_boy_leaf.png", "images/ghost_king.png", "images/ghost_1.png"
+    "images/box_boy_leaf.png", "images/ghost_king.png", "images/ghost_1.png", "images/sword.png"
   };
+
+  private static final String[] entitySounds = {"sounds/Impact4.ogg"};
 
   private static final String[] entityAtlases = {"images/ghost.atlas", "images/ghostKing.atlas"};
 
@@ -275,6 +277,7 @@ public class LevelGameArea extends GameArea {
     resourceService.loadTextures(tileTextures.toArray(new String[0]));
     resourceService.loadTextures(entityTextures);
     resourceService.loadTextureAtlases(entityAtlases);
+    resourceService.loadSounds(entitySounds);
 
     while (!resourceService.loadForMillis(10)) {
       logger.info("Loading... {}%", resourceService.getProgress());
