@@ -49,11 +49,16 @@ public class PauseMenuDisplay extends UIComponent {
     stage.addActor(pauseOverlay);
 
     Table pausePanel = new Table();
-    pausePanel.setBackground(skin.newDrawable("white", new Color(0.05f, 0.08f, 0.05f, 0.85f)));
-    pausePanel.pad(35f);
+
+    pausePanel.setBackground(skin.newDrawable("white", new Color(0.03f, 0.06f, 0.04f, 0.95f)));
+
+    pausePanel.pad(40f);
 
     Label title = new Label("PAUSED", skin);
     title.getStyle().fontColor = Color.WHITE;
+
+    pausePanel.add(title).padBottom(25f);
+    pausePanel.row();
 
     TextButton resumeBtn = new TextButton("Resume", skin);
     TextButton restartBtn = new TextButton("Restart", skin);
@@ -83,21 +88,18 @@ public class PauseMenuDisplay extends UIComponent {
           }
         });
 
-    pausePanel.add(title);
+    pausePanel.add(resumeBtn).width(220f).height(45f).padTop(10f);
     pausePanel.row();
 
-    pausePanel.add(resumeBtn).padTop(20f);
+    pausePanel.add(restartBtn).width(220f).height(45f).padTop(12f);
     pausePanel.row();
 
-    pausePanel.add(restartBtn).padTop(15f);
+    pausePanel.add(mainMenuBtn).width(220f).height(45f).padTop(12f);
     pausePanel.row();
 
-    pausePanel.add(mainMenuBtn).padTop(15f);
-    pausePanel.row();
+    pausePanel.add(createMusicSlider()).padTop(30f);
 
-    pausePanel.add(createMusicSlider()).padTop(25f);
-
-    table.add(pausePanel).width(350f).height(350f);
+    table.add(pausePanel).width(420f).height(420f);
 
     table.addListener(
         new InputListener() {
