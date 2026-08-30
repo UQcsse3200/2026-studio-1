@@ -109,6 +109,8 @@ public class NPCFactory {
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.4f);
+    // Let gravity pull the NPC down instead of the wander/chase AI flying it directly toward
+    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
     return npc;
   }
 
