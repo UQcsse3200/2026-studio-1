@@ -214,7 +214,9 @@ public class PauseMenuDisplay extends UIComponent {
       case 0 -> entity.getEvents().trigger("resumeClicked");
       case 1 -> entity.getEvents().trigger("restartClicked");
       case 2 -> entity.getEvents().trigger("mainMenuClicked");
-      default -> {}
+      default -> {
+        // No action needed for invalid selection index
+      }
     }
   }
 
