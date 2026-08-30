@@ -1,4 +1,8 @@
 package com.csse3200.game.entities.configs;
 
-/** Defines the properties stored in skeleton config files to be loaded by the NPC Factory. */
-public class SkeletonConfig extends BaseEntityConfig {}
+import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
+
+/** Configuration for a skeleton basic enemy. */
+public class SkeletonConfig extends BaseEntityConfig {
+  public MeleeAttackConfig melee;
+}
