@@ -67,7 +67,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
         return true;
-      case Keys.SHIFT_LEFT: //for slide
+      case Keys.SHIFT_LEFT: // for slide
         entity.getEvents().trigger("slide", true);
         return true;
       default:
@@ -100,7 +100,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", false);
         return true;
-      case Keys.SHIFT_LEFT: //for slide
+      case Keys.SHIFT_LEFT: // for slide
         entity.getEvents().trigger("slide", false);
         return true;
       default:

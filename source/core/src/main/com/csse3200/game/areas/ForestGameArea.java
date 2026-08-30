@@ -18,9 +18,6 @@ import com.csse3200.game.utils.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FilenameFilter;
-
 /** Forest area for the demo game with trees, a player, and some enemies. */
 public class ForestGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(ForestGameArea.class);
@@ -58,7 +55,14 @@ public class ForestGameArea extends GameArea {
     "images/gold_coin/gold_coin.atlas"
   };
 
-  private static final String[] forestSounds = {"sounds/Impact4.ogg", "sounds/walking1.mp3", "sounds/jump.mp3", "sounds/dash.mp3", "sounds/sneaking1.mp3"};
+  private static final String[] forestSounds = {
+    "sounds/Impact4.ogg",
+    "sounds/walking1.mp3",
+    "sounds/jump.mp3",
+    "sounds/dash.mp3",
+    "sounds/sneaking1.mp3",
+    "sounds/slide.mp3"
+  };
   private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
   private static final String[] forestMusic = {backgroundMusic};
 

@@ -22,8 +22,11 @@ public class PlayerActions extends Component {
   private float slidespeed = 3f;
   private boolean moving = false;
   private boolean sliding = false;
+  private boolean dashing = false;
+  private boolean sneaking = false;
   private boolean walkSoundPlaying = false;
   private boolean sneakSoundPlaying = false;
+  private boolean slideSoundPlaying = false;
   private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
   private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
   private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
@@ -31,15 +34,13 @@ public class PlayerActions extends Component {
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
   private final String SNEAK_SE = "sounds/sneaking1.mp3";
+  private final String SLIDE_SE = "sounds/slide.mp3";
   private TextureRenderComponent textureRenderComponent;
-  //Movement booleans
-  private boolean dashing = false;
-  private boolean sneaking = false;
-  //jumping is covered by platformerComponent.getJumpingBool()
-  Sound walkSound =
-          ServiceLocator.getResourceService().getAsset(WALKING_SE, Sound.class);
-  Sound sneakSound =
-          ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
+  // jumping is covered by platformerComponent.getJumpingBool()
+  private final Sound walkSound =
+      ServiceLocator.getResourceService().getAsset(WALKING_SE, Sound.class);
+  private final Sound sneakSound =
+      ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
 
   private PlatformerComponent platformerComponent;
 
@@ -51,10 +52,11 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
     entity.getEvents().addListener("dash", this::dash);
-    entity.getEvents().addListener("slide",this::slide);
+    entity.getEvents().addListener("slide", this::slide);
     textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
     entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
   }
+
   @Override
   public void update() {
     playMovementSound();
@@ -62,39 +64,46 @@ public class PlayerActions extends Component {
       updateSpeed();
     }
   }
-  public void playMovementSound(){
-    if (dashing){
-      Sound dashSound =
-              ServiceLocator.getResourceService().getAsset(DASH_SE, Sound.class);
+
+  public void playMovementSound() {
+    if (dashing) {
+      Sound dashSound = ServiceLocator.getResourceService().getAsset(DASH_SE, Sound.class);
       dashSound.play();
       dashing = false;
-    }else if(platformerComponent.getJumpingBool()){
-      Sound jumpSound =
-              ServiceLocator.getResourceService().getAsset(JUMP_SE, Sound.class);
+    } else if (platformerComponent.getJumpingBool()) {
+      Sound jumpSound = ServiceLocator.getResourceService().getAsset(JUMP_SE, Sound.class);
       jumpSound.play();
-    }else if(moving && platformerComponent.isGrounded()){
-      if(sneaking){
-        if(!sneakSoundPlaying){
+    } else if (sliding) {
+      Sound slideSound = ServiceLocator.getResourceService().getAsset(SLIDE_SE, Sound.class);
+      if (!slideSoundPlaying) {
+        slideSound.play();
+        slideSoundPlaying = true;
+      }
+    } else if (moving && platformerComponent.isGrounded()) {
+      if (sneaking) {
+        if (!sneakSoundPlaying) {
           sneakSound.loop();
           sneakSoundPlaying = true;
         }
         walkSound.stop();
         walkSoundPlaying = false;
-      }else{
-        if(!walkSoundPlaying){
+      } else {
+        if (!walkSoundPlaying) {
           walkSound.loop();
           walkSoundPlaying = true;
         }
         sneakSound.stop();
         sneakSoundPlaying = false;
       }
-
     }
-    if(!moving){
+    if (!moving) {
       walkSound.stop();
       sneakSound.stop();
       walkSoundPlaying = false;
       sneakSoundPlaying = false;
+    }
+    if (!sliding) {
+      slideSoundPlaying = false;
     }
   }
 
@@ -151,7 +160,7 @@ public class PlayerActions extends Component {
     }
   }
 
-  private void slide(boolean pressed){
+  private void slide(boolean pressed) {
     if (pressed) {
       textureRenderComponent.setTexture(SLIDE_TEXTURE);
       slidingAction(walkDirection.cpy());
@@ -161,10 +170,42 @@ public class PlayerActions extends Component {
     }
   }
 
-  private void slidingAction(Vector2 direction){
+  private void slidingAction(Vector2 direction) {
     sliding = true;
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(slidespeed);
-    body.applyLinearImpulse(impulse, body.getWorldCenter(),true);
+    body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
+  }
+
+  public String getNORMAL_TEXTURE() {
+    return NORMAL_TEXTURE;
+  }
+
+  public String getCROUCH_TEXTURE() {
+    return CROUCH_TEXTURE;
+  }
+
+  public String getSLIDE_TEXTURE() {
+    return SLIDE_TEXTURE;
+  }
+
+  public String getWALKING_SE() {
+    return WALKING_SE;
+  }
+
+  public String getJUMP_SE() {
+    return JUMP_SE;
+  }
+
+  public String getDASH_SE() {
+    return DASH_SE;
+  }
+
+  public String getSNEAK_SE() {
+    return SNEAK_SE;
+  }
+
+  public String getSLIDE_SE() {
+    return SLIDE_SE;
   }
 }
