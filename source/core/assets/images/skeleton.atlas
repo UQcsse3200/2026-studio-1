@@ -4,6 +4,9 @@ repeat:none
 idlel
 index:1
 bounds:2,172,32,32
+default
+index:1
+bounds:2,172,32,32
 idlel
 index:3
 bounds:2,104,32,32
