@@ -2,7 +2,6 @@ package com.csse3200.game.pausemenu;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,8 +29,9 @@ class PauseMenuInputComponentTest {
     // toggleIsPaused() pauses/resumes background music via the resource service - stub it
     // out so tests don't need a real Music asset.
     ResourceService resourceService = mock(ResourceService.class);
-    when(resourceService.getAsset(eq(PauseMenuComponent.BACKGROUND_MUSIC), eq(Music.class)))
-        .thenReturn(mock(Music.class));
+    Music mockMusic = mock(Music.class);
+    when(resourceService.getAsset((PauseMenuComponent.BACKGROUND_MUSIC), (Music.class)))
+        .thenReturn(mockMusic);
     ServiceLocator.registerResourceService(resourceService);
 
     pauseMenu = new PauseMenuComponent();

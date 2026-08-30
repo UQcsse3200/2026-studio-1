@@ -1,7 +1,6 @@
 package com.csse3200.game.components.mainmenu;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +26,9 @@ class MainMenuDisplayTest {
     ServiceLocator.registerRenderService(renderService);
 
     ResourceService resourceService = mock(ResourceService.class);
-    when(resourceService.getAsset(eq("images/box_boy_title.png"), eq(Texture.class)))
-        .thenReturn(mock(Texture.class));
+    Texture mockTexture = mock(Texture.class);
+    when(resourceService.getAsset(("images/box_boy_title.png"), (Texture.class)))
+        .thenReturn(mockTexture);
     ServiceLocator.registerResourceService(resourceService);
 
     display = new MainMenuDisplay();

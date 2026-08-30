@@ -176,7 +176,9 @@ public class MainMenuDisplay extends UIComponent {
       case 1 -> entity.getEvents().trigger("load");
       case 2 -> entity.getEvents().trigger("settings");
       case 3 -> entity.getEvents().trigger("exit");
-      default -> {}
+      default -> {
+        // No action needed for invalid selection index
+      }
     }
   }
 

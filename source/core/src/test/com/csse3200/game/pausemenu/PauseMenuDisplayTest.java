@@ -24,9 +24,9 @@ class PauseMenuDisplayTest {
     renderService.setStage(mock(Stage.class));
     ServiceLocator.registerRenderService(renderService);
 
-    // MusicSlider()'s ChangeListener (fired by setValue() in navigateLeft/navigateRight)
-    // reads the resource service for the background music asset - a plain mock returning
-    // null for getAsset() satisfies its "if (music != null)" guard, no real asset needed.
+    // MusicSlider's ChangeListener, fired by setValue() in navigateLeft/navigateRight, reads
+    // the resource service for the background music asset. A plain mock returning null is
+    // fine here, since the listener already guards against a missing music asset.
     ServiceLocator.registerResourceService(mock(ResourceService.class));
 
     display = new PauseMenuDisplay();
