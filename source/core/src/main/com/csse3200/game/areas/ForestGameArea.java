@@ -71,6 +71,7 @@ public class ForestGameArea extends GameArea {
     "images/terrain_iso_grass.atlas",
     "images/ghost.atlas",
     "images/ghostKing.atlas",
+    "images/skeleton.atlas",
     "images/gold_coin/gold_coin.atlas"
   };
 
@@ -181,7 +182,7 @@ public class ForestGameArea extends GameArea {
 
   /** Spawns basic weapon loot in the game world. */
   private void spawnWeaponLoot() {
-    /** Spawn a bow and sword on the ground for the player to pick up. */
+    /* Spawn a bow and sword on the ground for the player to pick up. */
     WeaponGenerator generator = new WeaponGenerator();
 
     WeaponItem bowItem = generator.generateWeapon(WeaponType.BOW, 1);
