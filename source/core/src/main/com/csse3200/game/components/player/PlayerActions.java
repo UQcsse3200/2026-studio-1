@@ -176,36 +176,4 @@ public class PlayerActions extends Component {
     Vector2 impulse = direction.cpy().scl(slidespeed);
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
-
-  public String getNORMAL_TEXTURE() {
-    return NORMAL_TEXTURE;
-  }
-
-  public String getCROUCH_TEXTURE() {
-    return CROUCH_TEXTURE;
-  }
-
-  public String getSLIDE_TEXTURE() {
-    return SLIDE_TEXTURE;
-  }
-
-  public String getWALKING_SE() {
-    return WALKING_SE;
-  }
-
-  public String getJUMP_SE() {
-    return JUMP_SE;
-  }
-
-  public String getDASH_SE() {
-    return DASH_SE;
-  }
-
-  public String getSNEAK_SE() {
-    return SNEAK_SE;
-  }
-
-  public String getSLIDE_SE() {
-    return SLIDE_SE;
-  }
 }
