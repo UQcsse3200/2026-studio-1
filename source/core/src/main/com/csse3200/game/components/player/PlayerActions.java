@@ -20,17 +20,23 @@ public class PlayerActions extends Component {
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private float dashspeed = 5f;
   private boolean moving = false;
+  private boolean walkSoundPlaying = false;
+  private boolean sneakSoundPlaying = false;
   private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
   private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
-  private final String SNEAK_SE = "";
+  private final String SNEAK_SE = "sounds/sneaking1.mp3";
   private TextureRenderComponent textureRenderComponent;
   //Movement booleans
   private boolean dashing = false;
   private boolean sneaking = false;
   //jumping is covered by platformerComponent.getJumpingBool()
+  Sound walkSound =
+          ServiceLocator.getResourceService().getAsset(WALKING_SE, Sound.class);
+  Sound sneakSound =
+          ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
 
   private PlatformerComponent platformerComponent;
 
@@ -47,7 +53,7 @@ public class PlayerActions extends Component {
   }
   @Override
   public void update() {
-    if(moving || platformerComponent.getJumpingBool() || dashing || sneaking) playMovementSound();
+    playMovementSound();
     if (moving || platformerComponent.getJumpingBool()) {
       updateSpeed();
     }
@@ -55,24 +61,36 @@ public class PlayerActions extends Component {
   public void playMovementSound(){
     if (dashing){
       Sound dashSound =
-              ServiceLocator.getResourceService().getAsset("sounds/dash.mp3", Sound.class);
+              ServiceLocator.getResourceService().getAsset(DASH_SE, Sound.class);
       dashSound.play();
       dashing = false;
     }else if(platformerComponent.getJumpingBool()){
       Sound jumpSound =
-              ServiceLocator.getResourceService().getAsset("sounds/jump.mp3", Sound.class);
+              ServiceLocator.getResourceService().getAsset(JUMP_SE, Sound.class);
       jumpSound.play();
-    }else if(moving){
+    }else if(moving && platformerComponent.isGrounded()){
       if(sneaking){
-        Sound sneakSound =
-                ServiceLocator.getResourceService().getAsset("sounds/walking1.mp3", Sound.class);
-        //sneakSound.play();
+        if(!sneakSoundPlaying){
+          sneakSound.loop();
+          sneakSoundPlaying = true;
+        }
+        walkSound.stop();
+        walkSoundPlaying = false;
       }else{
-        Sound walkSound =
-                ServiceLocator.getResourceService().getAsset("sounds/walking1.mp3", Sound.class);
-        //walkSound.play();
+        if(!walkSoundPlaying){
+          walkSound.loop();
+          walkSoundPlaying = true;
+        }
+        sneakSound.stop();
+        sneakSoundPlaying = false;
       }
 
+    }
+    if(!moving){
+      walkSound.stop();
+      sneakSound.stop();
+      walkSoundPlaying = false;
+      sneakSoundPlaying = false;
     }
   }
 
@@ -122,9 +140,10 @@ public class PlayerActions extends Component {
   private void ctrlChanged(boolean pressed) {
     if (pressed) {
       textureRenderComponent.setTexture(CROUCH_TEXTURE);
+      sneaking = true;
     } else {
       textureRenderComponent.setTexture(NORMAL_TEXTURE);
+      sneaking = false;
     }
-    sneaking = true;
   }
 }
