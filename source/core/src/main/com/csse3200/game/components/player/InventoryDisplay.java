@@ -16,6 +16,7 @@ public class InventoryDisplay extends UIComponent {
   private static final float PANEL_PADDING = 10f;
   private static final float RIGHT_MARGIN = 16f;
   private static final String LABEL_STYLE = "small";
+  private static final String SLOT_BACKGROUND = "button-c";
 
   private static final Color EMPTY_TEXT_COLOR = new Color(1f, 1f, 1f, 0.55f);
   private static final Color FILLED_TEXT_COLOR = Color.WHITE;
@@ -76,12 +77,10 @@ public class InventoryDisplay extends UIComponent {
 
     boolean isActive = inventory.getActiveSlot() == slotNumber;
 
-    slot.setBackground(skin.getDrawable("button-c"));
-
     if (isActive) {
-      slot.setBackground(skin.newDrawable("button-c", ACTIVE_SLOT_COLOR));
+      slot.setBackground(skin.newDrawable(SLOT_BACKGROUND, ACTIVE_SLOT_COLOR));
     } else {
-      slot.setBackground(skin.getDrawable("button-c"));
+      slot.setBackground(skin.getDrawable(SLOT_BACKGROUND));
     }
 
     slot.pad(4f, 8f, 4f, 8f);
