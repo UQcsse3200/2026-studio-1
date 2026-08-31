@@ -9,6 +9,8 @@ import com.csse3200.game.components.MeleeAttackComponent;
 import com.csse3200.game.components.TouchAttackComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.tasks.ChaseTask;
+import com.csse3200.game.components.tasks.MeleeAttackTask;
+import com.csse3200.game.components.tasks.PlatformWanderTask;
 import com.csse3200.game.components.tasks.WanderTask;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
@@ -98,7 +100,7 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createSkeleton(Entity target) {
-    Entity skeleton = createBaseNPC(target);
+    Entity skeleton = createBasePlatformerNPC(target);
     SkeletonConfig config = configs.skeleton;
 
     AnimationRenderComponent animator =
@@ -140,6 +142,32 @@ public class NPCFactory {
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.4f);
+    return npc;
+  }
+
+  /**
+   * <p>Creates a generic NPC that falls with gravity to be used as a base entity by more specific
+   * Platformer NPC creation methods.</p>
+   *
+   * <p>Structure inspired by createBaseNPC function, but removes touch damage in favour of using
+   * melee attacks</p>
+   *
+   * @return entity
+   */
+  private static Entity createBasePlatformerNPC(Entity target) {
+    AITaskComponent aiComponent =
+        new AITaskComponent()
+            .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f))
+            .addTask(new MeleeAttackTask(target, 15, 1f));
+    Entity npc =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(aiComponent);
+
+    PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     return npc;
   }
 
