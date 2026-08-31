@@ -15,6 +15,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private final Vector2 jumpDirection = Vector2.Zero.cpy();
   private final Vector2 dashDirection = Vector2.Zero.cpy();
 
+  // Current held state of the movement keys. Recomputing walkDirection from these each event keeps
+  // it in sync (idempotent), avoiding the drift that an incremental add/sub accumulator suffers when
+  // a key event is missed or repeated.
+  private boolean leftHeld = false;
+  private boolean rightHeld = false;
+  private boolean downHeld = false;
+
   public KeyboardPlayerInputComponent() {
     super(5);
   }
@@ -48,18 +55,18 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         dashed = true;
         return true;
       case Keys.A:
-        walkDirection.add(Vector2Utils.LEFT);
+        leftHeld = true;
         direction = "Left";
-        triggerWalkEvent();
+        updateWalkDirection();
         return true;
       case Keys.S:
-        walkDirection.add(Vector2Utils.DOWN);
-        triggerWalkEvent();
+        downHeld = true;
+        updateWalkDirection();
         return true;
       case Keys.D:
-        walkDirection.add(Vector2Utils.RIGHT);
+        rightHeld = true;
         direction = "Right";
-        triggerWalkEvent();
+        updateWalkDirection();
         return true;
       case Keys.SPACE:
         entity.getEvents().trigger("attack");
@@ -83,16 +90,16 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     switch (keycode) {
       // No need for a W case since gravity cancels out the jump
       case Keys.A:
-        walkDirection.sub(Vector2Utils.LEFT);
-        triggerWalkEvent();
+        leftHeld = false;
+        updateWalkDirection();
         return true;
       case Keys.S:
-        walkDirection.sub(Vector2Utils.DOWN);
-        triggerWalkEvent();
+        downHeld = false;
+        updateWalkDirection();
         return true;
       case Keys.D:
-        walkDirection.sub(Vector2Utils.RIGHT);
-        triggerWalkEvent();
+        rightHeld = false;
+        updateWalkDirection();
         return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", false);
@@ -100,6 +107,21 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       default:
         return false;
     }
+  }
+
+  /** Rebuild the walk direction from the currently held keys and trigger the walk/stop event. */
+  private void updateWalkDirection() {
+    walkDirection.setZero();
+    if (rightHeld) {
+      walkDirection.add(Vector2Utils.RIGHT);
+    }
+    if (leftHeld) {
+      walkDirection.add(Vector2Utils.LEFT);
+    }
+    if (downHeld) {
+      walkDirection.add(Vector2Utils.DOWN);
+    }
+    triggerWalkEvent();
   }
 
   private void triggerWalkEvent() {
