@@ -101,7 +101,10 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createSkeleton(Entity target) {
-    Entity skeleton = createBasePlatformerNPC(target);
+    float scale = 1.5f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity skeleton =
+        createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     SkeletonConfig config = configs.skeleton;
 
     AnimationRenderComponent animator =
@@ -122,7 +125,8 @@ public class NPCFactory {
         .addComponent(new SkeletonAnimationController());
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
-    skeleton.setScale(1.5f, 1.5f);
+    skeleton.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(skeleton, collisionScale.x, collisionScale.y);
     return skeleton;
   }
 
@@ -158,10 +162,11 @@ public class NPCFactory {
    *
    * @return entity
    */
-  private static Entity createBasePlatformerNPC(Entity target) {
+  private static Entity createBasePlatformerNPC(Entity target, final float floorCollisionScale) {
     AITaskComponent aiComponent =
         new AITaskComponent()
-            .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f))
+            .addTask(new PlatformWanderTask(
+                new Vector2(2f, 2f), 2f, floorCollisionScale))
             .addTask(new MeleeAttackTask(target, 15, 1f));
     Entity npc =
         new Entity()

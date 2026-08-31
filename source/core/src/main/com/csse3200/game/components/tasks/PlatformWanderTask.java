@@ -12,17 +12,21 @@ import com.csse3200.game.services.ServiceLocator;
 public class PlatformWanderTask extends WanderTask {
   private final PhysicsEngine physics;
   private final DebugRenderer debugRenderer;
+  private final float rayCastPositionScale;
   private final RaycastHit leftFloorHit = new RaycastHit();
   private final RaycastHit rightFloorHit = new RaycastHit();
   /**
    * @param wanderRange Distance in X and Y the entity can move from its position when start() is
    *                    called.
    * @param waitTime    How long in seconds to wait between wandering.
+   * @param rayCastPositionScale From 0f to 0.5f, with 0 being at the very edge of the entity box
+   *                             and 0.5f being in the very centre.
    */
-  public PlatformWanderTask(Vector2 wanderRange, float waitTime) {
+  public PlatformWanderTask(Vector2 wanderRange, float waitTime, float rayCastPositionScale) {
     super(wanderRange, waitTime);
     physics = ServiceLocator.getPhysicsService().getPhysics();
     debugRenderer = ServiceLocator.getRenderService().getDebug();
+    this.rayCastPositionScale = rayCastPositionScale;
   }
 
   @Override
@@ -57,8 +61,8 @@ public class PlatformWanderTask extends WanderTask {
   @Override
   public void update() {
 
-    boolean leftGrounded = getGroundRaycast(0, leftFloorHit);
-    boolean rightGrounded = getGroundRaycast(1, rightFloorHit);
+    boolean leftGrounded = getGroundRaycast(0 + rayCastPositionScale, leftFloorHit);
+    boolean rightGrounded = getGroundRaycast(1 - rayCastPositionScale, rightFloorHit);
 
     if (!leftGrounded && !rightGrounded) {
       updateStartPos();

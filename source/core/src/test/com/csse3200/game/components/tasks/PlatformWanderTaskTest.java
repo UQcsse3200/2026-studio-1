@@ -45,7 +45,7 @@ class PlatformWanderTaskTest {
 
   @Test
   void shouldTriggerEvent() {
-    PlatformWanderTask wanderTask = new PlatformWanderTask(Vector2Utils.ONE, 1f);
+    PlatformWanderTask wanderTask = new PlatformWanderTask(Vector2Utils.ONE, 1f, 0f);
 
     AITaskComponent aiTaskComponent = new AITaskComponent().addTask(wanderTask);
     Entity entity =
@@ -66,7 +66,7 @@ class PlatformWanderTaskTest {
 
   @Test
   void shouldFallWithNoPlatform() {
-    PlatformWanderTask wanderTask = new PlatformWanderTask(Vector2Utils.ONE, 0.01f);
+    PlatformWanderTask wanderTask = new PlatformWanderTask(Vector2Utils.ONE, 0.01f, 0f);
     Entity dummy = createEntity(wanderTask);
     Vector2 initialPosition = new Vector2(1f, 1.2f);
     dummy.setPosition(initialPosition);
