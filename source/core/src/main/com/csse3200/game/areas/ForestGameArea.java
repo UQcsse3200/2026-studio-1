@@ -212,11 +212,11 @@ public class ForestGameArea extends GameArea {
     Entity ghostKing = NPCFactory.createGhostKing(player);
     spawnEntityAt(ghostKing, randomPos, true, true);
   }
-  
+
   private void spawnSkeleton() {
     GridPoint2 minPos = new GridPoint2(0, 0);
     GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
-    
+
     GridPoint2 randomPos = RandomUtils.random(minPos, maxPos);
     Entity skeleton = NPCFactory.createSkeleton(player);
     spawnEntityAt(skeleton, randomPos, true, true);
