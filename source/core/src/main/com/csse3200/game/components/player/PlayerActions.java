@@ -69,7 +69,12 @@ public class PlayerActions extends Component {
   /** Stops the player from walking. */
   void stopWalking() {
     this.walkDirection = Vector2.Zero.cpy();
-    updateSpeed();
+    // Instantly cancel horizontal momentum so releasing a key stops the player immediately.
+    // This disables counter-strafing (the release-slide). Vertical velocity is preserved so
+    // gravity and jumping are unaffected.
+    Body body = physicsComponent.getBody();
+    Vector2 velocity = body.getLinearVelocity();
+    body.setLinearVelocity(0f, velocity.y);
     moving = false;
   }
 
