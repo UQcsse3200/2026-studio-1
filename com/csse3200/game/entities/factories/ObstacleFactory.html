@@ -109,20 +109,38 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createFloorTile(float,float)" class="member-name-link">createFloorTile</a><wbr>(float&nbsp;width,
+ float&nbsp;height)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a thin static collider used as the walking surface of a terrain tile.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createHazardTile(float,float)" class="member-name-link">createHazardTile</a><wbr>(float&nbsp;width,
+ float&nbsp;height)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a hazard terrain tile collider.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createPlatform(float,float)" class="member-name-link">createPlatform</a><wbr>(float&nbsp;width,
  float&nbsp;height)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a platform entity the player can stand on.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createTree()" class="member-name-link">createTree</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createSolidTile(float,float)" class="member-name-link">createSolidTile</a><wbr>(float&nbsp;width,
+ float&nbsp;height)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates a tree entity.</div>
+<div class="block">Creates a solid terrain tile collider.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createWall(float,float)" class="member-name-link">createWall</a><wbr>(float&nbsp;width,
- float&nbsp;height)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createTree()" class="member-name-link">createTree</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a tree entity.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createWall(float,float)" class="member-name-link">createWall</a><wbr>(float&nbsp;width,
+ float&nbsp;height)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates an invisible physics wall.</div>
 </div>
 </div>
@@ -180,6 +198,54 @@ loadScripts(document, 'script');</script>
 <dd><code>height</code> - Wall height in world units</dd>
 <dt>Returns:</dt>
 <dd>Wall entity of given width and height</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createSolidTile(float,float)">
+<h3>createSolidTile</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createSolidTile</span><wbr><span class="parameters">(float&nbsp;width,
+ float&nbsp;height)</span></div>
+<div class="block">Creates a solid terrain tile collider.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>width</code> - width of the tile in world units</dd>
+<dd><code>height</code> - height of the tile in world units</dd>
+<dt>Returns:</dt>
+<dd>static solid collider entity</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createFloorTile(float,float)">
+<h3>createFloorTile</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createFloorTile</span><wbr><span class="parameters">(float&nbsp;width,
+ float&nbsp;height)</span></div>
+<div class="block">Creates a thin static collider used as the walking surface of a terrain tile.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>width</code> - width of the tile</dd>
+<dd><code>height</code> - height of the collision surface</dd>
+<dt>Returns:</dt>
+<dd>static floor collider</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createHazardTile(float,float)">
+<h3>createHazardTile</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createHazardTile</span><wbr><span class="parameters">(float&nbsp;width,
+ float&nbsp;height)</span></div>
+<div class="block">Creates a hazard terrain tile collider.
+
+ <p>The hazard is a sensor, meaning it detects contact with the player without physically
+ preventing the player from moving through it.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>width</code> - width of the hazard in world units</dd>
+<dd><code>height</code> - height of the hazard in world units</dd>
+<dt>Returns:</dt>
+<dd>static hazard sensor entity</dd>
 </dl>
 </section>
 </li>

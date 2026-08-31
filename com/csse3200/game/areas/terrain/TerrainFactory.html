@@ -148,6 +148,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Create a terrain of the given type, using the orientation of the factory.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TerrainComponent.html" title="class in com.csse3200.game.areas.terrain">TerrainComponent</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createTerrainFromMap(com.csse3200.game.areas.terrain.map.LevelMapData)" class="member-name-link">createTerrainFromMap</a><wbr>(<a href="map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a>&nbsp;map)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Create a terrain component from parsed, file-loaded map data.</div>
+</div>
 </div>
 </div>
 </div>
@@ -208,6 +213,22 @@ loadScripts(document, 'script');</script>
 <dd><code>terrainType</code> - Terrain to create</dd>
 <dt>Returns:</dt>
 <dd>Terrain component which renders the terrain</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createTerrainFromMap(com.csse3200.game.areas.terrain.map.LevelMapData)">
+<h3>createTerrainFromMap</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TerrainComponent.html" title="class in com.csse3200.game.areas.terrain">TerrainComponent</a></span>&nbsp;<span class="element-name">createTerrainFromMap</span><wbr><span class="parameters">(<a href="map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a>&nbsp;map)</span></div>
+<div class="block">Create a terrain component from parsed, file-loaded map data. Each <a href="map/MapLayerData.html" title="class in com.csse3200.game.areas.terrain.map"><code>MapLayerData</code></a> becomes
+ a tile layer, drawn back-to-front, with tiles typed by their <a href="TileType.html" title="enum class in com.csse3200.game.areas.terrain"><code>TileType</code></a>.
+
+ <p>The textures referenced by the map's legend must already be loaded into the <a href="../../services/ResourceService.html" title="class in com.csse3200.game.services"><code>ResourceService</code></a> before calling this.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>map</code> - the parsed level map data</dd>
+<dt>Returns:</dt>
+<dd>a terrain component rendering the map</dd>
 </dl>
 </section>
 </li>
