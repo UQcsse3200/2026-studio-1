@@ -69,6 +69,66 @@ public class ObstacleFactory {
     return wall;
   }
 
+  /**
+   * Creates a solid terrain tile collider.
+   *
+   * @param width width of the tile in world units
+   * @param height height of the tile in world units
+   * @return static solid collider entity
+   */
+  public static Entity createSolidTile(float width, float height) {
+    Entity tile =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
+
+    tile.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
+
+    tile.setScale(width, height);
+
+    return tile;
+  }
+
+  /**
+   * Creates a thin static collider used as the walking surface of a terrain tile.
+   *
+   * @param width width of the tile
+   * @param height height of the collision surface
+   * @return static floor collider
+   */
+  public static Entity createFloorTile(float width, float height) {
+    Entity floor =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
+
+    floor.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
+
+    floor.setScale(width, height);
+
+    return floor;
+  }
+
+  /**
+   * Creates a hazard terrain tile collider.
+   *
+   * <p>The hazard is a sensor, meaning it detects contact with the player without physically
+   * preventing the player from moving through it.
+   *
+   * @param width width of the hazard in world units
+   * @param height height of the hazard in world units
+   * @return static hazard sensor entity
+   */
+  public static Entity createHazardTile(float width, float height) {
+    Entity hazard =
+        new Entity()
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.HAZARD).setSensor(true));
+
+    hazard.setScale(width, height);
+    return hazard;
+  }
+
   private ObstacleFactory() {
     throw new IllegalStateException("Instantiating static util class");
   }
