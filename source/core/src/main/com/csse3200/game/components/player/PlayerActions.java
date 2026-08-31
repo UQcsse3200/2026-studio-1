@@ -8,6 +8,8 @@ import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Action component for interacting with the player. Player events should be initialised in create()
@@ -25,6 +27,11 @@ public class PlayerActions extends Component {
   private TextureRenderComponent textureRenderComponent;
 
   private PlatformerComponent platformerComponent;
+
+  // Active speed modifiers, keyed by whichever effect/component owns them.
+  // Effective multiplier is the product of all active values.
+  // 1 = normal, 0 = paused, <1 = slowed, >1 = sped up
+  private final Map<Object, Float> speedModifiers = new HashMap<>();
 
   @Override
   public void create() {
@@ -47,13 +54,45 @@ public class PlayerActions extends Component {
 
   private void updateSpeed() {
     Body body = physicsComponent.getBody();
-    Vector2 desiredVelocity = walkDirection.cpy().scl(MAX_SPEED);
+    Vector2 desiredVelocity = walkDirection.cpy().scl(MAX_SPEED).scl(getEffectiveSpeedMultiplier());
     // impulse = desiredVel * mass
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
 
     // For the jump portion
     platformerComponent.updateJump(MAX_SPEED);
+  }
+
+  /**
+   * Adds or updates a speed modifier owned by the given key. The effective speed multiplier is the
+   * product of all currently active modifiers.
+   *
+   * @param key identifies the owner of this modifier (e.g. the effect component itself), so it can
+   *     be removed later without affecting other active effects.
+   * @param multiplier the modifier's contribution (1 = no change, 0 = pause, 0.5 = half speed).
+   */
+  public void addSpeedModifier(Object key, float multiplier) {
+    speedModifiers.put(key, multiplier);
+  }
+
+  /**
+   * Removes a previously-added speed modifier.
+   *
+   * @param key the same key passed to {@link #addSpeedModifier(Object, float)}.
+   */
+  public void removeSpeedModifier(Object key) {
+    speedModifiers.remove(key);
+  }
+
+  /**
+   * Returns the combined effect of all active speed modifiers (their product). 1 if none active.
+   */
+  public float getEffectiveSpeedMultiplier() {
+    float result = 1f;
+    for (float value : speedModifiers.values()) {
+      result *= value;
+    }
+    return result;
   }
 
   /**

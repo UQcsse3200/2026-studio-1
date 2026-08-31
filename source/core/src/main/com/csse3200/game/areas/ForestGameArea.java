@@ -109,6 +109,7 @@ public class ForestGameArea extends GameArea {
     spawnWeaponLoot();
     spawnGhosts();
     spawnGhostKing();
+    spawnSkeleton();
     spawnConsumables();
 
     Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
@@ -210,6 +211,15 @@ public class ForestGameArea extends GameArea {
     GridPoint2 randomPos = RandomUtils.random(minPos, maxPos);
     Entity ghostKing = NPCFactory.createGhostKing(player);
     spawnEntityAt(ghostKing, randomPos, true, true);
+  }
+  
+  private void spawnSkeleton() {
+    GridPoint2 minPos = new GridPoint2(0, 0);
+    GridPoint2 maxPos = terrain.getMapBounds(0).sub(2, 2);
+    
+    GridPoint2 randomPos = RandomUtils.random(minPos, maxPos);
+    Entity skeleton = NPCFactory.createSkeleton(player);
+    spawnEntityAt(skeleton, randomPos, true, true);
   }
 
   /**

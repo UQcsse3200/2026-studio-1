@@ -7,6 +7,15 @@
     "health": 100,
     "baseAttack": 25,
     "spookyFactor": 7
+  },
+  "skeleton": {
+    "health": 30,
+    "baseAttack": 5,
+    "melee": {
+      "range": 2,
+      "cooldown": 3,
+      "knockback": 0
+    }
   }
 }
 
