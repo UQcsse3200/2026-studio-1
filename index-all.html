@@ -474,6 +474,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates the inventory UI and adds it to the stage.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
+<dd>
+<div class="block">Registers the temporary <code>Q</code>-drop event handler.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/LootBobComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LootBobComponent.html" title="class in com.csse3200.game.components.player">LootBobComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerActions.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></dt>
@@ -538,6 +542,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/factories/RenderFactory.html#createCamera()" class="member-name-link">createCamera()</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/RenderFactory.html" title="class in com.csse3200.game.entities.factories">RenderFactory</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/factories/LootFactory.html#createDroppedLoot(com.csse3200.game.components.loot.Item,com.csse3200.game.entities.Entity)" class="member-name-link">createDroppedLoot(Item, Entity)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/LootFactory.html" title="class in com.csse3200.game.entities.factories">LootFactory</a></dt>
+<dd>
+<div class="block">Creates loot dropped by an entity, briefly preventing that entity from picking it straight back
+ up.</div>
+</dd>
 <dt><a href="com/csse3200/game/input/InputFactory.html#createForPlayer()" class="member-name-link">createForPlayer()</a> - Method in class com.csse3200.game.input.<a href="com/csse3200/game/input/InputFactory.html" title="class in com.csse3200.game.input">InputFactory</a></dt>
 <dd>
 <div class="block">Creates an input handler for the player</div>
@@ -769,6 +778,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/rendering/DebugRenderer.html#drawRectangle(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,com.badlogic.gdx.graphics.Color,float)" class="member-name-link">drawRectangle(Vector2, Vector2, Color, float)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/DebugRenderer.html" title="class in com.csse3200.game.rendering">DebugRenderer</a></dt>
 <dd>
 <div class="block">Draw a rectangle</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropFirstStack()" class="member-name-link">dropFirstStack()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
+<dd>
+<div class="block">Drops the whole stack from the lowest-numbered occupied inventory slot.</div>
 </dd>
 <dt><a href="com/csse3200/game/entities/configs/ConsumableConfig.html#durationSeconds" class="member-name-link">durationSeconds</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/ConsumableConfig.html" title="class in com.csse3200.game.entities.configs">ConsumableConfig</a></dt>
 <dd>
@@ -1431,6 +1444,14 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/PhysicsLayer.html#ITEM" class="member-name-link">ITEM</a> - Static variable in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsLayer.html" title="class in com.csse3200.game.physics">PhysicsLayer</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/ItemDropComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">ItemDropComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
+<dd>
+<div class="block">Handles dropping inventory items from the owning entity into the game world.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#%3Cinit%3E()" class="member-name-link">ItemDropComponent()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
+<dd>
+<div class="block">Creates a drop handler that spawns loot through the global entity service.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/loot/ItemType.html" class="type-name-link" title="enum class in com.csse3200.game.components.loot">ItemType</a> - Enum Class in <a href="com/csse3200/game/components/loot/package-summary.html">com.csse3200.game.components.loot</a></dt>
 <dd>
 <div class="block">this is the different types of items that can exist in the game.enum is used to create
@@ -1604,6 +1625,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/loot/LootPickupComponent.html#%3Cinit%3E(com.csse3200.game.components.loot.Item)" class="member-name-link">LootPickupComponent(Item)</a> - Constructor for class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/LootPickupComponent.html" title="class in com.csse3200.game.components.loot">LootPickupComponent</a></dt>
 <dd>
 <div class="block">Creates a loot pickup component.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/loot/LootPickupComponent.html#%3Cinit%3E(com.csse3200.game.components.loot.Item,com.csse3200.game.entities.Entity,long)" class="member-name-link">LootPickupComponent(Item, Entity, long)</a> - Constructor for class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/LootPickupComponent.html" title="class in com.csse3200.game.components.loot">LootPickupComponent</a></dt>
+<dd>
+<div class="block">Creates loot with a temporary pickup block for the entity that dropped it.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:M">M</h2>

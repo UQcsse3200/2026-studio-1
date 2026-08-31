@@ -107,8 +107,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createLoot(com.csse3200.game.components.loot.Item)" class="member-name-link">createLoot</a><wbr>(<a href="../../components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createDroppedLoot(com.csse3200.game.components.loot.Item,com.csse3200.game.entities.Entity)" class="member-name-link">createDroppedLoot</a><wbr>(<a href="../../components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item,
+ <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates loot dropped by an entity, briefly preventing that entity from picking it straight back
+ up.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createLoot(com.csse3200.game.components.loot.Item)" class="member-name-link">createLoot</a><wbr>(<a href="../../components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a loot entity containing the given item.</div>
 </div>
 </div>
@@ -138,6 +145,22 @@ loadScripts(document, 'script');</script>
 <dd><code>item</code> - item represented by this loot entity</dd>
 <dt>Returns:</dt>
 <dd>loot entity</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createDroppedLoot(com.csse3200.game.components.loot.Item,com.csse3200.game.entities.Entity)">
+<h3>createDroppedLoot</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createDroppedLoot</span><wbr><span class="parameters">(<a href="../../components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item,
+ <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</span></div>
+<div class="block">Creates loot dropped by an entity, briefly preventing that entity from picking it straight back
+ up.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>item</code> - item represented by this loot entity</dd>
+<dd><code>owner</code> - entity that dropped the item</dd>
+<dt>Returns:</dt>
+<dd>dropped loot entity</dd>
 </dl>
 </section>
 </li>
