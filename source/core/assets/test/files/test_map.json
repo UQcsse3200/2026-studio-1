@@ -1,0 +1,17 @@
+{
+  "name": "Test Map",
+  "tileSize": 0.5,
+  "legend": {
+    "#": { "type": "WALL", "texture": "images/wall_px.png" },
+    ".": { "type": "DECORATIVE", "texture": "images/bg_decor_px.png" }
+  },
+  "layers": {
+    "background": ["..", ".."],
+    "terrain": ["##", "# "]
+  },
+  "spawns": {
+    "player": { "x": 0, "y": 0 },
+    "enemies": [ { "type": "ghost", "x": 1, "y": 0 } ],
+    "loot": [ { "x": 1, "y": 1 } ]
+  }
+}
