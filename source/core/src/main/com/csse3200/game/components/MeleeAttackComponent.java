@@ -46,8 +46,6 @@ public class MeleeAttackComponent extends Component {
    *     results in no knockback
    */
   public MeleeAttackComponent(float range, float cooldown, float knockback) {
-    // TODO: store the three parameters and initialize the cooldown timer so the
-    //  entity can attack immediately.
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
@@ -143,6 +141,14 @@ public class MeleeAttackComponent extends Component {
     this.knockback = knockback;
   }
 
+  public float getCooldownTimer() {
+    return this.timeSinceLastAttack;
+  }
+
+  public boolean canAttack() {
+    return timeSinceLastAttack >= cooldown;
+  }
+
   /**
    * Attempts to attack the given target entity: validates cooldown and range, then applies damage
    * and knockback if both checks pass and the target has the required component(s).
@@ -159,7 +165,6 @@ public class MeleeAttackComponent extends Component {
     if (target == null) {
       return;
     }
-
     // cooldown check
     if (this.timeSinceLastAttack < this.getCooldown()) {
       return;
@@ -176,21 +181,17 @@ public class MeleeAttackComponent extends Component {
     if (distance > this.getRange()) {
       return;
     }
-
     // handle whether target has a combat stats component
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
     if (targetStats == null) {
       return;
     }
-
     // apply damage
     targetStats.hit(combatStats);
-
     // announce a successful hit - useful for triggering special effects
     entity.getEvents().trigger("meleeAttackHit", target);
     // reset cooldown, since an attack just succeeded
     this.timeSinceLastAttack = 0;
-
     // check whether knockback = 0 --> knockback is disabled
     PhysicsComponent targetPhysics = target.getComponent(PhysicsComponent.class);
     if (targetPhysics != null && this.getKnockback() > 0) {
