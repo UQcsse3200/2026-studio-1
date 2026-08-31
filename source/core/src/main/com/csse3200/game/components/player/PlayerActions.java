@@ -14,15 +14,14 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
-
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Action component for interacting with the player.
  *
- * <p>Handles player movement and attacks, and prevents further player actions
- * after the death event is triggered.
+ * <p>Handles player movement and attacks, and prevents further player actions after the death event
+ * is triggered.
  */
 public class PlayerActions extends Component {
   private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
@@ -120,7 +119,7 @@ public class PlayerActions extends Component {
     }
 
     Sound attackSound =
-            ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
+        ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
     attackSound.play();
 
     // Existing melee combat from main

@@ -18,68 +18,59 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
 class DeathStateComponentTest {
-    private GameTime gameTime;
+  private GameTime gameTime;
 
-    @BeforeEach
-    void setUp() {
-        gameTime = mock(GameTime.class);
-        ServiceLocator.registerTimeSource(gameTime);
-    }
+  @BeforeEach
+  void setUp() {
+    gameTime = mock(GameTime.class);
+    ServiceLocator.registerTimeSource(gameTime);
+  }
 
-    @Test
-    void shouldNotDieAboveZeroHealth() {
-        CombatStatsComponent combatStats = new CombatStatsComponent(100, 10);
-        DeathStateComponent deathState = new DeathStateComponent();
+  @Test
+  void shouldNotDieAboveZeroHealth() {
+    CombatStatsComponent combatStats = new CombatStatsComponent(100, 10);
+    DeathStateComponent deathState = new DeathStateComponent();
 
-        Entity player =
-                new Entity()
-                        .addComponent(combatStats)
-                        .addComponent(deathState);
+    Entity player = new Entity().addComponent(combatStats).addComponent(deathState);
 
-        player.create();
+    player.create();
 
-        combatStats.setHealth(50);
+    combatStats.setHealth(50);
 
-        assertFalse(deathState.isDead());
-        verify(gameTime, never()).setTimeScale(0f);
-    }
+    assertFalse(deathState.isDead());
+    verify(gameTime, never()).setTimeScale(0f);
+  }
 
-    @Test
-    void shouldDieAtZeroHealth() {
-        CombatStatsComponent combatStats = new CombatStatsComponent(100, 10);
-        DeathStateComponent deathState = new DeathStateComponent();
+  @Test
+  void shouldDieAtZeroHealth() {
+    CombatStatsComponent combatStats = new CombatStatsComponent(100, 10);
+    DeathStateComponent deathState = new DeathStateComponent();
 
-        Entity player =
-                new Entity()
-                        .addComponent(combatStats)
-                        .addComponent(deathState);
+    Entity player = new Entity().addComponent(combatStats).addComponent(deathState);
 
-        player.create();
+    player.create();
 
-        combatStats.setHealth(0);
+    combatStats.setHealth(0);
 
-        assertTrue(deathState.isDead());
-        verify(gameTime).setTimeScale(0f);
-    }
+    assertTrue(deathState.isDead());
+    verify(gameTime).setTimeScale(0f);
+  }
 
-    @Test
-    void shouldOnlyTriggerDeathOnce() {
-        CombatStatsComponent combatStats = new CombatStatsComponent(100, 10);
-        DeathStateComponent deathState = new DeathStateComponent();
+  @Test
+  void shouldOnlyTriggerDeathOnce() {
+    CombatStatsComponent combatStats = new CombatStatsComponent(100, 10);
+    DeathStateComponent deathState = new DeathStateComponent();
 
-        Entity player =
-                new Entity()
-                        .addComponent(combatStats)
-                        .addComponent(deathState);
+    Entity player = new Entity().addComponent(combatStats).addComponent(deathState);
 
-        player.create();
+    player.create();
 
-        combatStats.setHealth(0);
-        combatStats.setHealth(0);
-        combatStats.addHealth(-10);
+    combatStats.setHealth(0);
+    combatStats.setHealth(0);
+    combatStats.addHealth(-10);
 
-        assertTrue(deathState.isDead());
+    assertTrue(deathState.isDead());
 
-        verify(gameTime, times(1)).setTimeScale(0f);
-    }
+    verify(gameTime, times(1)).setTimeScale(0f);
+  }
 }
