@@ -20,6 +20,7 @@ com.csse3200.game.events
 com.csse3200.game.events.listeners
 com.csse3200.game.files
 com.csse3200.game.input
+com.csse3200.game.pausemenu
 com.csse3200.game.physics
 com.csse3200.game.physics.components
 com.csse3200.game.physics.raycast
