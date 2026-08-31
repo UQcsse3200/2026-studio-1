@@ -18,8 +18,11 @@ public class PlayerActions extends Component {
 
   private PhysicsComponent physicsComponent;
   private Vector2 walkDirection = Vector2.Zero.cpy();
+  private Vector2 Speed = MAX_SPEED.cpy();
+  private float CrouchSpeedRate = 0.2f; //Crouchspeed = MAX_SPEED * Crouchspeedrate
   private float dashspeed = 5f;
   private float slidespeed = 3f;
+  private boolean crouching = false;
   private boolean moving = false;
   private boolean sliding = false;
   private boolean dashing = false;
@@ -109,7 +112,13 @@ public class PlayerActions extends Component {
 
   private void updateSpeed() {
     Body body = physicsComponent.getBody();
-    Vector2 desiredVelocity = walkDirection.cpy().scl(MAX_SPEED);
+    if(crouching==true){
+      Speed.x = MAX_SPEED.cpy().x * CrouchSpeedRate;
+    }
+      else{
+        Speed = MAX_SPEED.cpy();
+    }
+    Vector2 desiredVelocity = walkDirection.cpy().scl(Speed);
     // impulse = desiredVel * mass
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
@@ -150,13 +159,17 @@ public class PlayerActions extends Component {
     dashing = true;
   }
 
-  private void ctrlChanged(boolean pressed) {
+  private void ctrlChanged(boolean pressed) { //it is for crouch
     if (pressed) {
       textureRenderComponent.setTexture(CROUCH_TEXTURE);
       sneaking = true;
+      crouching = true;
+      updateSpeed();
     } else {
       textureRenderComponent.setTexture(NORMAL_TEXTURE);
       sneaking = false;
+      crouching = false;
+      updateSpeed();
     }
   }
 
