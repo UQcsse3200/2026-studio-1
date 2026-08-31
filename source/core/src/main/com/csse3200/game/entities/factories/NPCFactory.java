@@ -120,6 +120,7 @@ public class NPCFactory {
         .addComponent(new SkeletonAnimationController());
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
+    skeleton.setScale(1.5f, 1.5f);
     return skeleton;
   }
 
