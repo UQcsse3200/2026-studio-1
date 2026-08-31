@@ -1,5 +1,6 @@
 package com.csse3200.game.areas;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -13,7 +14,14 @@ import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableType;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
@@ -23,6 +31,8 @@ import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +50,28 @@ public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
 
-  /** Entity textures needed by the player and demo enemies. */
+  /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/box_boy_leaf.png", "images/ghost_king.png", "images/ghost_1.png", "images/sword.png"
+    "images/box_boy_leaf.png",
+    "images/box_boy_crouch.png",
+    "images/ghost_king.png",
+    "images/ghost_1.png",
+    "images/sword.png",
+    "images/bow.png",
+    "images/arrow.png",
+    "images/Health.png",
+    "images/Poison.png",
+    "images/Strength.png"
   };
 
   private static final String[] entitySounds = {"sounds/Impact4.ogg"};
 
-  private static final String[] entityAtlases = {"images/ghost.atlas", "images/ghostKing.atlas"};
+  private static final String[] entityAtlases = {
+    "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas"
+  };
+
+  private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
+  private static final String[] entityMusic = {backgroundMusic};
 
   private final TerrainFactory terrainFactory;
   private final MapLoader mapLoader;
@@ -90,6 +114,8 @@ public class LevelGameArea extends GameArea {
     spawnCollisions();
     player = spawnPlayer();
     spawnEnemies();
+    spawnLoot();
+    playMusic();
   }
 
   /**
@@ -104,6 +130,17 @@ public class LevelGameArea extends GameArea {
    */
   public Entity getPlayer() {
     return player;
+  }
+
+  /**
+   * @return true if the player has been spawned and its combat stats report it as dead
+   */
+  public boolean isPlayerDead() {
+    if (player == null) {
+      return false;
+    }
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    return stats != null && stats.isDead();
   }
 
   /**
@@ -269,6 +306,57 @@ public class LevelGameArea extends GameArea {
     }
   }
 
+  /**
+   * Spawns pickup loot (weapons, consumables, and a gold coin) so the loot/inventory features work
+   * in this level, mirroring what {@code ForestGameArea} spawns. Items are laid out in a row
+   * anchored to the map's first loot spawn point (falling back to just right of the player), so
+   * they land on the loaded map regardless of its size.
+   */
+  private void spawnLoot() {
+    List<Entity> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.BOW, 1)));
+    items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.SWORD, 1)));
+
+    ConsumableGenerator consumableGenerator = new ConsumableGenerator();
+    for (ConsumableType type : ConsumableType.values()) {
+      items.add(LootFactory.createLoot(consumableGenerator.generateConsumable(type, 1)));
+    }
+
+    items.add(LootFactory.createLoot(new Item("Gold Coin", ItemType.CURRENCY, 1, 99)));
+
+    GridPoint2 start = lootRowStart();
+    int maxX = Math.max(0, mapData.getWidth() - 2);
+    int x = start.x;
+    for (Entity item : items) {
+      spawnEntityAt(item, new GridPoint2(Math.min(x, maxX), start.y), true, true);
+      x++;
+    }
+  }
+
+  /**
+   * @return the tile position to begin laying out loot: the first map loot spawn, else near the
+   *     player.
+   */
+  private GridPoint2 lootRowStart() {
+    if (!mapData.getSpawns().getLoot().isEmpty()) {
+      return mapData.getSpawns().getLoot().get(0).getPosition();
+    }
+    GridPoint2 playerSpawn = mapData.getSpawns().getPlayer();
+    if (playerSpawn != null) {
+      return new GridPoint2(playerSpawn.x + 2, playerSpawn.y);
+    }
+    return new GridPoint2(1, 1);
+  }
+
+  private void playMusic() {
+    Music music = ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class);
+    music.setLooping(true);
+    music.setVolume(0.3f);
+    music.play();
+  }
+
   private void loadAssets() {
     logger.debug("Loading level assets");
     ResourceService resourceService = ServiceLocator.getResourceService();
@@ -278,6 +366,7 @@ public class LevelGameArea extends GameArea {
     resourceService.loadTextures(entityTextures);
     resourceService.loadTextureAtlases(entityAtlases);
     resourceService.loadSounds(entitySounds);
+    resourceService.loadMusic(entityMusic);
 
     while (!resourceService.loadForMillis(10)) {
       logger.info("Loading... {}%", resourceService.getProgress());
@@ -292,11 +381,14 @@ public class LevelGameArea extends GameArea {
     }
     resourceService.unloadAssets(entityTextures);
     resourceService.unloadAssets(entityAtlases);
+    resourceService.unloadAssets(entitySounds);
+    resourceService.unloadAssets(entityMusic);
   }
 
   @Override
   public void dispose() {
     super.dispose();
+    ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class).stop();
     unloadAssets();
   }
 }

@@ -15,13 +15,6 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private final Vector2 jumpDirection = Vector2.Zero.cpy();
   private final Vector2 dashDirection = Vector2.Zero.cpy();
 
-  // Current held state of the movement keys. Recomputing walkDirection from these each event keeps
-  // it in sync (idempotent), avoiding the drift that an incremental add/sub accumulator suffers when
-  // a key event is missed or repeated.
-  private boolean leftHeld = false;
-  private boolean rightHeld = false;
-  private boolean downHeld = false;
-
   public KeyboardPlayerInputComponent() {
     super(5);
   }
@@ -55,28 +48,63 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         dashed = true;
         return true;
       case Keys.A:
-        leftHeld = true;
+        walkDirection.add(Vector2Utils.LEFT);
         direction = "Left";
-        updateWalkDirection();
+        triggerWalkEvent();
         return true;
       case Keys.S:
-        downHeld = true;
-        updateWalkDirection();
+        walkDirection.add(Vector2Utils.DOWN);
+        triggerWalkEvent();
         return true;
       case Keys.D:
-        rightHeld = true;
+        walkDirection.add(Vector2Utils.RIGHT);
         direction = "Right";
-        updateWalkDirection();
+        triggerWalkEvent();
         return true;
       case Keys.SPACE:
         entity.getEvents().trigger("attack");
         return true;
+      case Keys.Q:
+        entity.getEvents().trigger("dropItem");
+        return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
+        return true;
+      case Keys.NUM_1:
+        handleInventorySlot(1);
+        return true;
+      case Keys.NUM_2:
+        handleInventorySlot(2);
+        return true;
+      case Keys.NUM_3:
+        handleInventorySlot(3);
+        return true;
+      case Keys.NUM_4:
+        handleInventorySlot(4);
+        return true;
+      case Keys.NUM_5:
+        handleInventorySlot(5);
         return true;
       default:
         return false;
     }
+  }
+
+  /**
+   * Selects an inventory slot and attempts to use the item in that slot.
+   *
+   * @param slot inventory slot to select
+   */
+  private void handleInventorySlot(int slot) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null) {
+      return;
+    }
+
+    inventory.setActiveSlot(slot);
+
+    entity.getEvents().trigger("useItem", slot);
   }
 
   /**
@@ -90,16 +118,16 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     switch (keycode) {
       // No need for a W case since gravity cancels out the jump
       case Keys.A:
-        leftHeld = false;
-        updateWalkDirection();
+        walkDirection.sub(Vector2Utils.LEFT);
+        triggerWalkEvent();
         return true;
       case Keys.S:
-        downHeld = false;
-        updateWalkDirection();
+        walkDirection.sub(Vector2Utils.DOWN);
+        triggerWalkEvent();
         return true;
       case Keys.D:
-        rightHeld = false;
-        updateWalkDirection();
+        walkDirection.sub(Vector2Utils.RIGHT);
+        triggerWalkEvent();
         return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", false);
@@ -107,21 +135,6 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       default:
         return false;
     }
-  }
-
-  /** Rebuild the walk direction from the currently held keys and trigger the walk/stop event. */
-  private void updateWalkDirection() {
-    walkDirection.setZero();
-    if (rightHeld) {
-      walkDirection.add(Vector2Utils.RIGHT);
-    }
-    if (leftHeld) {
-      walkDirection.add(Vector2Utils.LEFT);
-    }
-    if (downHeld) {
-      walkDirection.add(Vector2Utils.DOWN);
-    }
-    triggerWalkEvent();
   }
 
   private void triggerWalkEvent() {
