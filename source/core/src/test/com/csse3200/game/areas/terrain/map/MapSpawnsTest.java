@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.math.GridPoint2;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class MapSpawnsTest {
@@ -35,7 +36,9 @@ class MapSpawnsTest {
   void enemyAndLootListsAreUnmodifiable() {
     MapSpawns spawns = new MapSpawns();
     SpawnPoint sp = new SpawnPoint("ghost", 0, 0);
-    assertThrows(UnsupportedOperationException.class, () -> spawns.getEnemies().add(sp));
-    assertThrows(UnsupportedOperationException.class, () -> spawns.getLoot().add(sp));
+    List<SpawnPoint> enemies = spawns.getEnemies();
+    List<SpawnPoint> loot = spawns.getLoot();
+    assertThrows(UnsupportedOperationException.class, () -> enemies.add(sp));
+    assertThrows(UnsupportedOperationException.class, () -> loot.add(sp));
   }
 }

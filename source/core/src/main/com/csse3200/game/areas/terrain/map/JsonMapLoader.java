@@ -181,9 +181,9 @@ public class JsonMapLoader implements MapLoader {
         TileDefinition def = legend.get(String.valueOf(ch));
         if (def == null) {
           logger.warn("Unknown map symbol '{}' in layer '{}' - treated as empty", ch, name);
-          continue;
+        } else {
+          layer.set(c, y, def);
         }
-        layer.set(c, y, def);
       }
     }
     return layer;

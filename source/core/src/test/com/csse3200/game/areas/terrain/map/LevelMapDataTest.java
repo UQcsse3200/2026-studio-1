@@ -51,8 +51,11 @@ class LevelMapDataTest {
   @Test
   void legendAndLayersAreUnmodifiable() {
     LevelMapData map = build(new ArrayList<>(List.of(layer("terrain"))));
-    assertThrows(UnsupportedOperationException.class, () -> map.getLegend().put("!", WALL));
-    assertThrows(UnsupportedOperationException.class, () -> map.getLayers().add(layer("extra")));
+    Map<String, TileDefinition> legend = map.getLegend();
+    List<MapLayerData> layers = map.getLayers();
+    MapLayerData extra = layer("extra");
+    assertThrows(UnsupportedOperationException.class, () -> legend.put("!", WALL));
+    assertThrows(UnsupportedOperationException.class, () -> layers.add(extra));
   }
 
   @Test
