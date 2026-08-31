@@ -10,8 +10,10 @@ import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
 /**
- * Action component for interacting with the player. Player events should be initialised in create()
- * and when triggered should call methods within this class.
+ * Action component for interacting with the player.
+ *
+ * <p>Handles player movement and attacks, and prevents further player actions
+ * after the death event is triggered.
  */
 public class PlayerActions extends Component {
   private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
@@ -20,6 +22,8 @@ public class PlayerActions extends Component {
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private float dashspeed = 5f;
   private boolean moving = false;
+  private boolean dead = false;
+
   private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
   private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
   private TextureRenderComponent textureRenderComponent;
@@ -30,17 +34,23 @@ public class PlayerActions extends Component {
   public void create() {
     physicsComponent = entity.getComponent(PhysicsComponent.class);
     platformerComponent = entity.getComponent(PlatformerComponent.class);
+
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
+
+    // Newer team features
     entity.getEvents().addListener("dash", this::dash);
     textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
     entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
+
+    // Death state
+    entity.getEvents().addListener("death", this::onDeath);
   }
 
   @Override
   public void update() {
-    if (moving || platformerComponent.getJumpingBool()) {
+    if (!dead && (moving || platformerComponent.getJumpingBool())) {
       updateSpeed();
     }
   }
@@ -48,6 +58,7 @@ public class PlayerActions extends Component {
   private void updateSpeed() {
     Body body = physicsComponent.getBody();
     Vector2 desiredVelocity = walkDirection.cpy().scl(MAX_SPEED);
+
     // impulse = desiredVel * mass
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
@@ -62,6 +73,10 @@ public class PlayerActions extends Component {
    * @param direction direction to move in
    */
   void walk(Vector2 direction) {
+    if (dead) {
+      return;
+    }
+
     this.walkDirection = direction;
     moving = true;
   }
@@ -75,25 +90,47 @@ public class PlayerActions extends Component {
 
   /** Makes the player attack. */
   void attack() {
+    if (dead) {
+      return;
+    }
+
     Sound attackSound =
-        ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
+            ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
     attackSound.play();
 
     entity.getEvents().trigger("weaponAttack");
   }
 
-  /** Makes the player dash */
+  /** Makes the player dash. */
   void dash(Vector2 direction) {
+    if (dead) {
+      return;
+    }
+
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(dashspeed);
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 
   private void ctrlChanged(boolean pressed) {
+    if (dead) {
+      return;
+    }
+
     if (pressed) {
       textureRenderComponent.setTexture(CROUCH_TEXTURE);
     } else {
       textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
+  }
+
+  /** Stops all player actions when the player dies. */
+  private void onDeath() {
+    dead = true;
+    moving = false;
+    walkDirection = Vector2.Zero.cpy();
+
+    Body body = physicsComponent.getBody();
+    body.setLinearVelocity(Vector2.Zero);
   }
 }

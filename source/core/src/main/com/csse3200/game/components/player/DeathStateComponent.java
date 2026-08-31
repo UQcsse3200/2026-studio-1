@@ -2,6 +2,7 @@ package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.services.ServiceLocator;
 
 /**
  * Handles the player's death state.
@@ -32,7 +33,10 @@ public class DeathStateComponent extends Component {
     private void checkDeath(int health) {
         if (health <= 0 && !dead) {
             dead = true;
+
             entity.getEvents().trigger("death");
+
+            ServiceLocator.getTimeSource().setTimeScale(0f);
         }
     }
 
