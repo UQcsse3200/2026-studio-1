@@ -7,14 +7,15 @@ import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.ForestGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
-import com.csse3200.game.components.maingame.MainGameExitDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
+import com.csse3200.game.pausemenu.*;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -40,6 +41,10 @@ public class MainGameScreen extends ScreenAdapter {
   private final GdxGame game;
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
+  private ForestGameArea forestGameArea;
+  private DeathScreenDisplay deathScreenDisplay;
+  private boolean deathScreenShown = false;
+  private PauseMenuComponent pauseMenu;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -66,14 +71,34 @@ public class MainGameScreen extends ScreenAdapter {
 
     logger.debug("Initialising main game screen entities");
     TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
-    ForestGameArea forestGameArea = new ForestGameArea(terrainFactory);
+    this.forestGameArea = new ForestGameArea(terrainFactory);
     forestGameArea.create();
   }
 
   @Override
   public void render(float delta) {
-    physicsEngine.update();
-    ServiceLocator.getEntityService().update();
+
+    /* If the player has died, stop updating the game world,
+    but keep rendering the game and death popup.*/
+    if (deathScreenShown) {
+      renderer.render();
+      return;
+    }
+
+    if (pauseMenu == null
+        || !pauseMenu
+            .isPaused()) { // Only updates the game physics (movement and all) when game is not
+      // pauesd
+      physicsEngine.update();
+      ServiceLocator.getEntityService().update();
+    }
+    if (forestGameArea.isPlayerDead()) {
+      deathScreenShown = true;
+      deathScreenDisplay.showDeathScreen();
+      renderer.render();
+      return;
+    }
+
     renderer.render();
   }
 
@@ -131,13 +156,21 @@ public class MainGameScreen extends ScreenAdapter {
         ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
+    deathScreenDisplay = new DeathScreenDisplay(this.game);
+    PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
-        .addComponent(new MainGameActions(this.game))
-        .addComponent(new MainGameExitDisplay())
         .addComponent(new Terminal())
         .addComponent(inputComponent)
-        .addComponent(new TerminalDisplay());
+        .addComponent(new TerminalDisplay())
+        .addComponent(pauseMenuComponent)
+        .addComponent(new KeyboardPauseInput())
+        .addComponent(new PauseMenuDisplay())
+        .addComponent(new PauseMenuInputComponent())
+        .addComponent(deathScreenDisplay)
+        .addComponent(new MainGameActions(this.game))
+        .addComponent(new PauseMenuActions());
+    this.pauseMenu = pauseMenuComponent;
 
     ServiceLocator.getEntityService().register(ui);
   }
