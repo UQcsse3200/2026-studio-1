@@ -8,6 +8,8 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
+import com.csse3200.game.services.GameTime;
+import com.csse3200.game.services.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,11 @@ public class LootPickupComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(LootPickupComponent.class);
 
   private final Item item;
+  private final Entity pickupBlockedPlayer;
+  private final long pickupDelayMillis;
   private HitboxComponent hitboxComponent;
+  private GameTime timeSource;
+  private long pickupBlockedUntil;
   private boolean collected = false;
 
   /**
@@ -31,12 +37,29 @@ public class LootPickupComponent extends Component {
    * @param item item that will be added to the player's inventory
    */
   public LootPickupComponent(Item item) {
+    this(item, null, 0L);
+  }
+
+  /**
+   * Creates loot with a temporary pickup block for the entity that dropped it.
+   *
+   * @param item item that will be added to the player's inventory
+   * @param pickupBlockedPlayer player temporarily prevented from collecting the item
+   * @param pickupDelayMillis duration of the pickup block in milliseconds
+   */
+  public LootPickupComponent(Item item, Entity pickupBlockedPlayer, long pickupDelayMillis) {
     this.item = item;
+    this.pickupBlockedPlayer = pickupBlockedPlayer;
+    this.pickupDelayMillis = Math.max(0L, pickupDelayMillis);
   }
 
   @Override
   public void create() {
     hitboxComponent = entity.getComponent(HitboxComponent.class);
+    timeSource = ServiceLocator.getTimeSource();
+    if (pickupBlockedPlayer != null && timeSource != null) {
+      pickupBlockedUntil = timeSource.getTime() + pickupDelayMillis;
+    }
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
   }
 
@@ -61,6 +84,10 @@ public class LootPickupComponent extends Component {
     }
 
     Entity player = userData.entity;
+    if (isPickupBlockedFor(player)) {
+      return;
+    }
+
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
 
     if (inventory == null || item == null) {
@@ -90,6 +117,16 @@ public class LootPickupComponent extends Component {
           "Picked up {}. Inventory quantity: {}", item.getName(), inventory.getTotalQuantity(item));
 
       Gdx.app.postRunnable(entity::dispose);
+    } else {
+      // Keep only the quantity that did not fit in the world entity. Without this, leaving and
+      // re-entering the pickup would add the already-collected portion again.
+      item.setQuantity(remaining);
     }
+  }
+
+  private boolean isPickupBlockedFor(Entity player) {
+    return player == pickupBlockedPlayer
+        && timeSource != null
+        && timeSource.getTime() < pickupBlockedUntil;
   }
 }

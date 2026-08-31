@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -178,6 +179,11 @@ public class ForestGameArea extends GameArea {
     Entity newPlayer = PlayerFactory.createPlayer();
     spawnEntityAt(newPlayer, PLAYER_SPAWN, true, true);
     return newPlayer;
+  }
+
+  public boolean isPlayerDead() {
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    return stats != null && stats.isDead();
   }
 
   /** Spawns basic weapon loot in the game world. */
