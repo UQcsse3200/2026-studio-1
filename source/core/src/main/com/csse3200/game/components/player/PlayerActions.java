@@ -1,6 +1,7 @@
 package com.csse3200.game.components.player;
 
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
@@ -15,6 +16,7 @@ import com.csse3200.game.services.ServiceLocator;
  */
 public class PlayerActions extends Component {
   private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
+  private static final float SlideMaxTime = 0.5f; //slide will finifh in 0.5 second
 
   private PhysicsComponent physicsComponent;
   private Vector2 walkDirection = Vector2.Zero.cpy();
@@ -22,6 +24,7 @@ public class PlayerActions extends Component {
   private float CrouchSpeedRate = 0.2f; //Crouchspeed = MAX_SPEED * Crouchspeedrate
   private float dashspeed = 5f;
   private float slidespeed = 3f;
+  private float SlideTimer = 0f;//slide will finifh in 0.5 second
   private boolean crouching = false;
   private boolean moving = false;
   private boolean sliding = false;
@@ -66,6 +69,7 @@ public class PlayerActions extends Component {
     if (moving || platformerComponent.getJumpingBool()) {
       updateSpeed();
     }
+    timerforslide();
   }
 
   public void playMovementSound() {
@@ -175,8 +179,11 @@ public class PlayerActions extends Component {
 
   private void slide(boolean pressed) {
     if (pressed) {
+      sliding = true;
+      SlideTimer = 0;
       textureRenderComponent.setTexture(SLIDE_TEXTURE);
       slidingAction(walkDirection.cpy());
+
     } else {
       sliding = false;
       textureRenderComponent.setTexture(NORMAL_TEXTURE);
@@ -184,9 +191,19 @@ public class PlayerActions extends Component {
   }
 
   private void slidingAction(Vector2 direction) {
-    sliding = true;
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(slidespeed);
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
+  }
+
+  private void timerforslide(){
+    if(sliding!=true)
+      return;
+
+    SlideTimer += Gdx.graphics.getDeltaTime();
+    if(SlideTimer >= SlideMaxTime){//finish slide
+      sliding = false;
+      textureRenderComponent.setTexture(NORMAL_TEXTURE);
+    }
   }
 }
