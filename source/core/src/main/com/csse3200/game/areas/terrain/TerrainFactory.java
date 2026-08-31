@@ -118,12 +118,13 @@ public class TerrainFactory {
             continue;
           }
           Texture texture = resourceService.getAsset(def.texture(), Texture.class);
-          if (texture != null) {
-            TerrainTile tile = new TerrainTile(new TextureRegion(texture), def.type());
-            Cell cell = new Cell();
-            cell.setTile(tile);
-            layer.setCell(x, y, cell);
+          if (texture == null) {
+            continue;
           }
+          TerrainTile tile = new TerrainTile(new TextureRegion(texture), def.type());
+          Cell cell = new Cell();
+          cell.setTile(tile);
+          layer.setCell(x, y, cell);
         }
       }
       tiledMap.getLayers().add(layer);

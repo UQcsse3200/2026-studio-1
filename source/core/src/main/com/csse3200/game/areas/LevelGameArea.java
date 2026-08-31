@@ -70,8 +70,8 @@ public class LevelGameArea extends GameArea {
     "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas"
   };
 
-  private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
-  private static final String[] ENTITY_MUSIC = {BACKGROUND_MUSIC};
+  private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
+  private static final String[] entityMusic = {backgroundMusic};
 
   private final TerrainFactory terrainFactory;
   private final MapLoader mapLoader;
@@ -231,13 +231,9 @@ public class LevelGameArea extends GameArea {
         return;
     }
 
-    // tileToWorldPosition gives the bottom-left corner of the tile (null for unsupported
-    // orientations). Entity positions represent the centre of the entity.
-    Vector2 position = terrain.tileToWorldPosition(x, y);
-    if (position == null) {
-      return;
-    }
-    position.add(tileSize / 2f, tileSize / 2f);
+    // tileToWorldPosition gives the bottom-left corner of the tile.
+    // Entity positions represent the centre of the entity.
+    Vector2 position = terrain.tileToWorldPosition(x, y).add(tileSize / 2f, tileSize / 2f);
 
     collider.setPosition(position);
     spawnEntity(collider);
@@ -301,7 +297,8 @@ public class LevelGameArea extends GameArea {
     switch (type.toLowerCase()) {
       case "ghost":
         return NPCFactory.createGhost(player);
-      case "ghostking", "ghost_king":
+      case "ghostking":
+      case "ghost_king":
         return NPCFactory.createGhostKing(player);
       default:
         logger.warn("Unknown enemy spawn type '{}' - skipped", type);
@@ -354,7 +351,7 @@ public class LevelGameArea extends GameArea {
   }
 
   private void playMusic() {
-    Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
+    Music music = ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class);
     music.setLooping(true);
     music.setVolume(0.3f);
     music.play();
@@ -369,7 +366,7 @@ public class LevelGameArea extends GameArea {
     resourceService.loadTextures(entityTextures);
     resourceService.loadTextureAtlases(entityAtlases);
     resourceService.loadSounds(entitySounds);
-    resourceService.loadMusic(ENTITY_MUSIC);
+    resourceService.loadMusic(entityMusic);
 
     while (!resourceService.loadForMillis(10)) {
       logger.info("Loading... {}%", resourceService.getProgress());
@@ -385,13 +382,13 @@ public class LevelGameArea extends GameArea {
     resourceService.unloadAssets(entityTextures);
     resourceService.unloadAssets(entityAtlases);
     resourceService.unloadAssets(entitySounds);
-    resourceService.unloadAssets(ENTITY_MUSIC);
+    resourceService.unloadAssets(entityMusic);
   }
 
   @Override
   public void dispose() {
     super.dispose();
-    ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class).stop();
+    ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class).stop();
     unloadAssets();
   }
 }
