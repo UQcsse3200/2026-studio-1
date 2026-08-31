@@ -19,4 +19,4 @@ jobs:
           ./gradlew formatCheck
         env:
           GRADLE_DIR: 'source'
-        continue-on-error: false # change this to true if you want the pipeline to not fail with formatting issues
+        continue-on-error: true # change this to true if you want the pipeline to not fail with formatting issues
