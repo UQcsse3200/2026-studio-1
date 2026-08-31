@@ -23,6 +23,7 @@ public class InventoryComponent extends Component {
   private final Map<Integer, Item> inventorySlots;
   private final int maxSlots;
   private int gold;
+  private int activeSlot = 1;
 
   /**
    * Creates an inventory with the default slot capacity of {@value #DEFAULT_MAX_SLOTS}.
@@ -462,5 +463,47 @@ public class InventoryComponent extends Component {
     return existing.getName().equals(incoming.getName())
         && existing.getItemType() == incoming.getItemType()
         && existing.getMaxQuantity() == incoming.getMaxQuantity();
+  }
+
+  /**
+   * Returns the currently selected inventory slot.
+   *
+   * @return active slot index
+   */
+  public int getActiveSlot() {
+    return activeSlot;
+  }
+
+  /**
+   * Selects an inventory slot as the active slot.
+   *
+   * @param slot slot index
+   * @return true if the slot was valid and selected
+   */
+  public boolean setActiveSlot(int slot) {
+    if (!isValidSlot(slot)) {
+      return false;
+    }
+
+    if (activeSlot == slot) {
+      return true;
+    }
+
+    activeSlot = slot;
+
+    if (entity != null) {
+      entity.getEvents().trigger("activeSlotChanged", activeSlot);
+    }
+
+    return true;
+  }
+
+  /**
+   * Returns the item in the currently active slot.
+   *
+   * @return active item, or null if the slot is empty
+   */
+  public Item getActiveItem() {
+    return getItem(activeSlot);
   }
 }

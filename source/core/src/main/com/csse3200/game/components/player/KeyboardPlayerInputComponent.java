@@ -70,9 +70,41 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
         return true;
+      case Keys.NUM_1:
+        handleInventorySlot(1);
+        return true;
+      case Keys.NUM_2:
+        handleInventorySlot(2);
+        return true;
+      case Keys.NUM_3:
+        handleInventorySlot(3);
+        return true;
+      case Keys.NUM_4:
+        handleInventorySlot(4);
+        return true;
+      case Keys.NUM_5:
+        handleInventorySlot(5);
+        return true;
       default:
         return false;
     }
+  }
+
+  /**
+   * Selects an inventory slot and attempts to use the item in that slot.
+   *
+   * @param slot inventory slot to select
+   */
+  private void handleInventorySlot(int slot) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null) {
+      return;
+    }
+
+    inventory.setActiveSlot(slot);
+
+    entity.getEvents().trigger("useItem", slot);
   }
 
   /**
