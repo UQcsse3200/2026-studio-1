@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -22,7 +23,8 @@ import java.util.Set;
  * and when triggered should call methods within this class.
  */
 public class PlayerActions extends Component {
-  private static final Vector2 MAX_SPEED = new Vector2(3f, 3f); // Metres per second
+  // Thank you Lachlan, you beautiful, beautiful man
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
 
   private PhysicsComponent physicsComponent;
   private CombatStatsComponent combatStats;
@@ -55,7 +57,7 @@ public class PlayerActions extends Component {
 
   @Override
   public void update() {
-    if (moving) {
+    if (moving || platformerComponent.getJumpingBool()) {
       updateSpeed();
     }
   }
