@@ -486,6 +486,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Registers the <code>"useItem"</code> listener.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/DeathStateComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathStateComponent.html" title="class in com.csse3200.game.components.player">DeathStateComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
 <dd>
 <div class="block">Creates the inventory UI and adds it to the stage.</div>
@@ -504,7 +506,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/PlayerStatsDisplay.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></dt>
 <dd>
-<div class="block">Creates reusable ui styles and adds actors to the stage.</div>
+<div class="block">Creates the health UI and listens for health changes.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/WeaponAttackComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player">WeaponAttackComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -678,6 +680,12 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html#%3Cinit%3E(com.csse3200.game.GdxGame)" class="member-name-link">DeathScreenDisplay(GdxGame)</a> - Constructor for class com.csse3200.game.components.maingame.<a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html" title="class in com.csse3200.game.components.maingame">DeathScreenDisplay</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/DeathStateComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">DeathStateComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
+<dd>
+<div class="block">Handles the player's death state.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/DeathStateComponent.html#%3Cinit%3E()" class="member-name-link">DeathStateComponent()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathStateComponent.html" title="class in com.csse3200.game.components.player">DeathStateComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ui/terminal/commands/DebugCommand.html" class="type-name-link" title="class in com.csse3200.game.ui.terminal.commands">DebugCommand</a> - Class in <a href="com/csse3200/game/ui/terminal/commands/package-summary.html">com.csse3200.game.ui.terminal.commands</a></dt>
 <dd>
 <div class="block">A command for toggling debug mode on and off.</div>
@@ -742,7 +750,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerStatsDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Removes UI actors when this component is destroyed.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponDisplay.html" title="class in com.csse3200.game.components.player">WeaponDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html" title="class in com.csse3200.game.components.settingsmenu">SettingsMenuDisplay</a></dt>
@@ -1573,6 +1583,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns true if the entity's has 0 health, otherwise false.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/DeathStateComponent.html#isDead()" class="member-name-link">isDead()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathStateComponent.html" title="class in com.csse3200.game.components.player">DeathStateComponent</a></dt>
+<dd>
+<div class="block">Returns whether the player has entered the death state.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/Item.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></dt>
@@ -2133,7 +2147,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
 <dd>
-<div class="block">A ui component for displaying player stats, e.g.</div>
+<div class="block">UI component for displaying the player's health as hearts.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/PlayerStatsDisplay.html#%3Cinit%3E()" class="member-name-link">PlayerStatsDisplay()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></dt>
 <dd>&nbsp;</dd>
@@ -2965,7 +2979,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerStatsDisplay.html#updatePlayerHealthUI(int)" class="member-name-link">updatePlayerHealthUI(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></dt>
 <dd>
-<div class="block">Updates the player's health on the ui.</div>
+<div class="block">Updates the heart display and health number.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/loot/ConsumableItem.html#use(com.csse3200.game.entities.Entity)" class="member-name-link">use(Entity)</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ConsumableItem.html" title="class in com.csse3200.game.components.loot">ConsumableItem</a></dt>
 <dd>

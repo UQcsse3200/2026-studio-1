@@ -93,8 +93,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PlayerActions</span>
 <span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
-<div class="block">Action component for interacting with the player. Player events should be initialised in create()
- and when triggered should call methods within this class.</div>
+<div class="block">Action component for interacting with the player.
+
+ <p>Handles player movement and attacks, and prevents further player actions
+ after the death event is triggered.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
