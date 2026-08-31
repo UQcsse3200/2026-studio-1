@@ -8,6 +8,7 @@ import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.InventoryDisplay;
+import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
@@ -57,6 +58,7 @@ public class PlayerFactory {
             .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
             .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new InventoryComponent(stats.gold))
+            .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
             .addComponent(new PlatformerComponent(3))
             .addComponent(new PlayerStatsDisplay())

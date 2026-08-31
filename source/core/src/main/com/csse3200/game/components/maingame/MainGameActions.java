@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MainGameActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(MainGameActions.class);
-  private GdxGame game;
+  private final GdxGame game;
 
   public MainGameActions(GdxGame game) {
     this.game = game;
@@ -20,6 +20,12 @@ public class MainGameActions extends Component {
   @Override
   public void create() {
     entity.getEvents().addListener("exit", this::onExit);
+    entity.getEvents().addListener("restartGame", this::onRestart);
+  }
+
+  private void onRestart() {
+    logger.info("Restarting game");
+    game.setScreen(GdxGame.ScreenType.MAIN_GAME);
   }
 
   /** Swaps to the Main Menu screen. */
