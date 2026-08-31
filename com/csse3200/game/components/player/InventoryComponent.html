@@ -166,6 +166,16 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether the slot is valid and currently occupied.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActiveItem()" class="member-name-link">getActiveItem</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the item in the currently active slot.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActiveSlot()" class="member-name-link">getActiveSlot</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the currently selected inventory slot.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGold()" class="member-name-link">getGold</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -224,15 +234,20 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Removes up to <code>amount</code> from a single slot.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setActiveSlot(int)" class="member-name-link">setActiveSlot</a><wbr>(int&nbsp;slot)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Selects an inventory slot as the active slot.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets the player's gold.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
  int&nbsp;splitQty)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Splits part of an occupied stack into the lowest empty slot.</div>
 </div>
 </div>
@@ -518,6 +533,41 @@ loadScripts(document, 'script');</script>
 <dd><code>incoming</code> - item being added</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> if the items are compatible and the existing stack is not full</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getActiveSlot()">
+<h3>getActiveSlot</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getActiveSlot</span>()</div>
+<div class="block">Returns the currently selected inventory slot.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>active slot index</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setActiveSlot(int)">
+<h3>setActiveSlot</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">setActiveSlot</span><wbr><span class="parameters">(int&nbsp;slot)</span></div>
+<div class="block">Selects an inventory slot as the active slot.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - slot index</dd>
+<dt>Returns:</dt>
+<dd>true if the slot was valid and selected</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getActiveItem()">
+<h3>getActiveItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></span>&nbsp;<span class="element-name">getActiveItem</span>()</div>
+<div class="block">Returns the item in the currently active slot.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>active item, or null if the slot is empty</dd>
 </dl>
 </section>
 </li>
