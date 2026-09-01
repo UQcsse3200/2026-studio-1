@@ -142,13 +142,14 @@ public class NPCFactory {
   public static Entity createRangedSkeleton(Entity target) {
     float scale = 1.5f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
-    Entity rangedSkeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    Entity rangedSkeleton = createBasePlatformerNPC(
+      target,(scale * collisionScale.x) / 2);
     RangedSkeletonConfig config = configs.rangedSkeleton;
 
     AnimationRenderComponent animator =
-            new AnimationRenderComponent(
-                    ServiceLocator.getResourceService()
-                            .getAsset("images/skeleton.atlas", TextureAtlas.class));
+        new AnimationRenderComponent(
+            ServiceLocator.getResourceService()
+              .getAsset("images/skeleton.atlas", TextureAtlas.class));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -169,9 +170,9 @@ public class NPCFactory {
     rangedSkeleton
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 15, config.ranged.range));
+
     rangedSkeleton.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(rangedSkeleton, collisionScale.x, collisionScale.y);
-
     return rangedSkeleton;
   }
 
