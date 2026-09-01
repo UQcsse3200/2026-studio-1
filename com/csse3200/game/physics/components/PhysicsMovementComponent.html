@@ -146,6 +146,14 @@ implements <a href="../../ai/movement/MovementController.html" title="interface 
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.badlogic.gdx.math.Vector2</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTarget()" class="member-name-link">getTarget</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isGroundedMovement()" class="member-name-link">isGroundedMovement</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGroundedMovement(boolean)" class="member-name-link">setGroundedMovement</a><wbr>(boolean&nbsp;groundedMovement)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Restrict this movement controller to horizontal movement only, leaving vertical motion (e.g.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMoving(boolean)" class="member-name-link">setMoving</a><wbr>(boolean&nbsp;movementEnabled)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -269,6 +277,29 @@ implements <a href="../../ai/movement/MovementController.html" title="interface 
 <dd><code><a href="../../ai/movement/MovementController.html#setTarget(com.badlogic.gdx.math.Vector2)">setTarget</a></code>&nbsp;in interface&nbsp;<code><a href="../../ai/movement/MovementController.html" title="interface in com.csse3200.game.ai.movement">MovementController</a></code></dd>
 <dt>Parameters:</dt>
 <dd><code>target</code> - target position</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setGroundedMovement(boolean)">
+<h3>setGroundedMovement</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setGroundedMovement</span><wbr><span class="parameters">(boolean&nbsp;groundedMovement)</span></div>
+<div class="block">Restrict this movement controller to horizontal movement only, leaving vertical motion (e.g.
+ falling under gravity) entirely to the physics engine. Useful for grounded entities that should
+ be pulled down by gravity instead of being steered directly toward a target's height.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>groundedMovement</code> - true to ignore the vertical component of the movement direction</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isGroundedMovement()">
+<h3>isGroundedMovement</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isGroundedMovement</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true if this controller is currently restricted to horizontal-only movement</dd>
 </dl>
 </section>
 </li>
