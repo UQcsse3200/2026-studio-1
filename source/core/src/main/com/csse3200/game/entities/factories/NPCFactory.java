@@ -140,15 +140,20 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createRangedSkeleton(Entity target) {
-    Entity rangedSkeleton = createBaseNPC(target);
+    float scale = 1.5f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity rangedSkeleton = createBasePlatformerNPC(
+      target,(scale * collisionScale.x) / 2);
     RangedSkeletonConfig config = configs.rangedSkeleton;
 
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
-                .getAsset("images/ghostKing.atlas", TextureAtlas.class));
-    animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
+              .getAsset("images/skeleton.atlas", TextureAtlas.class));
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
     rangedSkeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
@@ -156,7 +161,7 @@ public class NPCFactory {
             new RangedAttackComponent(
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
         .addComponent(animator)
-        .addComponent(new GhostAnimationController());
+        .addComponent(new SkeletonAnimationController());
 
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 
@@ -166,6 +171,8 @@ public class NPCFactory {
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 15, config.ranged.range));
 
+    rangedSkeleton.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(rangedSkeleton, collisionScale.x, collisionScale.y);
     return rangedSkeleton;
   }
 
