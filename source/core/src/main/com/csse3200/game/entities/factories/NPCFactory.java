@@ -6,14 +6,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.MeleeAttackComponent;
+import com.csse3200.game.components.RangedAttackComponent;
 import com.csse3200.game.components.TouchAttackComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.tasks.ChaseTask;
+import com.csse3200.game.components.tasks.RangedAttackTask;
 import com.csse3200.game.components.tasks.WanderTask;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.GhostKingConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
+import com.csse3200.game.entities.configs.RangedSkeletonConfig;
 import com.csse3200.game.entities.configs.SkeletonConfig;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -118,6 +121,43 @@ public class NPCFactory {
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
     return skeleton;
+  }
+
+  /**
+   * Creates a ranged skeleton entity (e.g. an archer-type enemy) that attacks from a distance
+   * instead of approaching all the way up to its target.
+   *
+   * @param target entity to chase
+   * @return entity
+   */
+  public static Entity createRangedSkeleton(Entity target) {
+    Entity rangedSkeleton = createBaseNPC(target);
+    RangedSkeletonConfig config = configs.rangedSkeleton;
+
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(
+            ServiceLocator.getResourceService()
+                .getAsset("images/ghostKing.atlas", TextureAtlas.class));
+    animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
+
+    rangedSkeleton
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+        .addComponent(animator)
+        .addComponent(new GhostAnimationController());
+
+    rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    rangedSkeleton
+        .getComponent(AITaskComponent.class)
+        .addTask(new RangedAttackTask(target, 15, config.ranged.range));
+
+    return rangedSkeleton;
   }
 
   /**

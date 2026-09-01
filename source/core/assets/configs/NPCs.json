@@ -16,6 +16,15 @@
       "cooldown": 3,
       "knockback": 0
     }
+  },
+  "rangedSkeleton": {
+    "health": 20,
+    "baseAttack": 5,
+    "ranged": {
+      "range": 8,
+      "cooldown": 4,
+      "knockback": 0
+    }
   }
 }
 
