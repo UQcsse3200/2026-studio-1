@@ -23,6 +23,7 @@ public class InventoryComponent extends Component {
   private final Map<Integer, Item> inventorySlots;
   private final int maxSlots;
   private int gold;
+  private int activeSlot = 1;
 
   /**
    * Creates an inventory with the default slot capacity of {@value #DEFAULT_MAX_SLOTS}.
@@ -74,8 +75,13 @@ public class InventoryComponent extends Component {
    * @param gold gold to set; values below 0 are clamped to 0
    */
   public void setGold(int gold) {
-    this.gold = Math.max(gold, 0);
+    int next = Math.max(gold, 0);
+    if (next == this.gold) {
+      return;
+    }
+    this.gold = next;
     logger.debug("Setting gold to {}", this.gold);
+    notifyInventoryChanged();
   }
 
   /**
@@ -174,8 +180,13 @@ public class InventoryComponent extends Component {
       return 0;
     }
 
+    int requested = quantity;
     int remaining = stackIntoExistingSlots(item, quantity);
-    return placeIntoEmptySlots(item, remaining);
+    remaining = placeIntoEmptySlots(item, remaining);
+    if (remaining < requested) {
+      notifyInventoryChanged();
+    }
+    return remaining;
   }
 
   /**
@@ -245,6 +256,7 @@ public class InventoryComponent extends Component {
 
     source.setQuantity(current - splitQty);
     inventorySlots.put(empty, createStack(source, splitQty));
+    notifyInventoryChanged();
 
     return empty;
   }
@@ -271,6 +283,10 @@ public class InventoryComponent extends Component {
       inventorySlots.remove(slot);
     }
 
+    if (removed > 0) {
+      notifyInventoryChanged();
+    }
+
     return removed;
   }
 
@@ -285,7 +301,22 @@ public class InventoryComponent extends Component {
       return null;
     }
 
-    return inventorySlots.remove(slot);
+    Item removed = inventorySlots.remove(slot);
+    if (removed != null) {
+      notifyInventoryChanged();
+    }
+    return removed;
+  }
+
+  /**
+   * Notifies listeners that inventory contents or gold changed.
+   *
+   * <p>No-ops when this component is not attached to an entity (common in unit tests).
+   */
+  private void notifyInventoryChanged() {
+    if (entity != null) {
+      entity.getEvents().trigger("inventoryChanged");
+    }
   }
 
   /**
@@ -432,5 +463,47 @@ public class InventoryComponent extends Component {
     return existing.getName().equals(incoming.getName())
         && existing.getItemType() == incoming.getItemType()
         && existing.getMaxQuantity() == incoming.getMaxQuantity();
+  }
+
+  /**
+   * Returns the currently selected inventory slot.
+   *
+   * @return active slot index
+   */
+  public int getActiveSlot() {
+    return activeSlot;
+  }
+
+  /**
+   * Selects an inventory slot as the active slot.
+   *
+   * @param slot slot index
+   * @return true if the slot was valid and selected
+   */
+  public boolean setActiveSlot(int slot) {
+    if (!isValidSlot(slot)) {
+      return false;
+    }
+
+    if (activeSlot == slot) {
+      return true;
+    }
+
+    activeSlot = slot;
+
+    if (entity != null) {
+      entity.getEvents().trigger("activeSlotChanged", activeSlot);
+    }
+
+    return true;
+  }
+
+  /**
+   * Returns the item in the currently active slot.
+   *
+   * @return active item, or null if the slot is empty
+   */
+  public Item getActiveItem() {
+    return getItem(activeSlot);
   }
 }

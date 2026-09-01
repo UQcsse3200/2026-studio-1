@@ -15,8 +15,10 @@ public class TerrainTile implements TiledMapTile {
   private TextureRegion textureRegion;
   private float offsetX;
   private float offsetY;
+  private TileType tileType;
 
-  public TerrainTile(TextureRegion textureRegion) {
+  public TerrainTile(TextureRegion textureRegion, TileType tileType) {
+    this.tileType = tileType;
     this.textureRegion = textureRegion;
   }
 
@@ -88,5 +90,14 @@ public class TerrainTile implements TiledMapTile {
   @Override
   public MapObjects getObjects() {
     return null;
+  }
+
+  public TileType getTileType() {
+    return tileType;
+  }
+
+  public TerrainTile setTileType(TileType tileType) {
+    this.tileType = tileType;
+    return this;
   }
 }

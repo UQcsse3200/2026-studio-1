@@ -5,9 +5,18 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableItem;
+import com.csse3200.game.components.loot.ConsumableType;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.factories.GoldCoinFactory;
+import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
@@ -23,10 +32,16 @@ public class ForestGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(ForestGameArea.class);
   private static final int NUM_TREES = 7;
   private static final int NUM_GHOSTS = 2;
+
   private static final GridPoint2 PLAYER_SPAWN = new GridPoint2(4, 4);
+
+  private static final int LOOT_ROW = 10;
+  private static final int CONSUMABLE_FIRST_COLUMN = 14;
+
   private static final GridPoint2 PLATFORM_POS = new GridPoint2(15, 3);
   private static final float PLATFORM_WIDTH = 14.5f;
   private static final float PLATFORM_HEIGHT = 0.5f;
+
   private static final float WALL_WIDTH = 0.1f;
 
   private static final String[] forestTextures = {
@@ -34,6 +49,9 @@ public class ForestGameArea extends GameArea {
     "images/box_boy_crouch.png",
     "images/box_boy_slide.png",
     "images/tree.png",
+    "images/sword.png",
+    "images/bow.png",
+    "images/arrow.png",
     "images/ghost_king.png",
     "images/ghost_1.png",
     "images/grass_1.png",
@@ -45,7 +63,10 @@ public class ForestGameArea extends GameArea {
     "images/iso_grass_1.png",
     "images/iso_grass_2.png",
     "images/iso_grass_3.png",
-    "images/platform.png"
+    "images/platform.png",
+    "images/Health.png",
+    "images/Poison.png",
+    "images/Strength.png"
   };
 
   private static final String[] forestTextureAtlases = {
@@ -61,7 +82,9 @@ public class ForestGameArea extends GameArea {
     "sounds/jump.mp3",
     "sounds/dash.mp3",
     "sounds/sneaking1.mp3",
-    "sounds/slide.mp3"
+    "sounds/slide.mp3",
+    "sounds/player-hit.ogg",
+    "sounds/player-hit-crown.ogg"
   };
   private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
   private static final String[] forestMusic = {backgroundMusic};
@@ -81,9 +104,7 @@ public class ForestGameArea extends GameArea {
     this.terrainFactory = terrainFactory;
   }
 
-  /**
-   * Create the game area, including terrain, static entities (trees), dynamic entities (player).
-   */
+  /** Create the game area. */
   @Override
   public void create() {
     loadAssets();
@@ -93,13 +114,17 @@ public class ForestGameArea extends GameArea {
     spawnTerrain();
     spawnTrees();
     spawnPlatform();
+
     player = spawnPlayer();
+
+    spawnWeaponLoot();
     spawnGhosts();
     spawnGhostKing();
+    spawnConsumables();
 
-    // Spawn a gold coin at tile (12, 12).
-    Entity goldCoin = GoldCoinFactory.createGoldCoin();
-    spawnEntityAt(goldCoin, new GridPoint2(12, 12), true, true);
+    Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
+    Entity goldCoin = LootFactory.createLoot(goldCoinItem);
+    spawnEntityAt(goldCoin, new GridPoint2(15, 15), true, true);
 
     playMusic();
   }
@@ -111,11 +136,9 @@ public class ForestGameArea extends GameArea {
   }
 
   private void spawnTerrain() {
-    // Background terrain
     terrain = terrainFactory.createTerrain(TerrainType.FOREST_DEMO);
     spawnEntity(new Entity().addComponent(terrain));
 
-    // Terrain walls
     float tileSize = terrain.getTileSize();
     GridPoint2 tileBounds = terrain.getMapBounds(0);
     Vector2 worldBounds = new Vector2(tileBounds.x * tileSize, tileBounds.y * tileSize);
@@ -154,15 +177,35 @@ public class ForestGameArea extends GameArea {
     }
   }
 
+  private void spawnPlatform() {
+    Entity platform = ObstacleFactory.createPlatform(PLATFORM_WIDTH, PLATFORM_HEIGHT);
+
+    spawnEntityAt(platform, PLATFORM_POS, true, false);
+  }
+
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayer();
     spawnEntityAt(newPlayer, PLAYER_SPAWN, true, true);
     return newPlayer;
   }
 
-  private void spawnPlatform() {
-    Entity platform = ObstacleFactory.createPlatform(PLATFORM_WIDTH, PLATFORM_HEIGHT);
-    spawnEntityAt(platform, PLATFORM_POS, true, false);
+  public boolean isPlayerDead() {
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    return stats != null && stats.isDead();
+  }
+
+  /** Spawns basic weapon loot in the game world. */
+  private void spawnWeaponLoot() {
+    /** Spawn a bow and sword on the ground for the player to pick up. */
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem bowItem = generator.generateWeapon(WeaponType.BOW, 1);
+    Entity bow = LootFactory.createLoot(bowItem);
+    spawnEntityAt(bow, new GridPoint2(12, 10), true, true);
+
+    WeaponItem swordItem = generator.generateWeapon(WeaponType.SWORD, 1);
+    Entity sword = LootFactory.createLoot(swordItem);
+    spawnEntityAt(sword, new GridPoint2(13, 10), true, true);
   }
 
   private void spawnGhosts() {
@@ -185,8 +228,27 @@ public class ForestGameArea extends GameArea {
     spawnEntityAt(ghostKing, randomPos, true, true);
   }
 
+  /**
+   * Spawns one of each consumable near the player so dropped items are visible in game.
+   *
+   * <p>Placement is fixed for now. Loot generation deciding where and when items drop is tracked
+   * separately, and this method is the hook that work should replace.
+   */
+  private void spawnConsumables() {
+    ConsumableGenerator generator = new ConsumableGenerator();
+    int column = CONSUMABLE_FIRST_COLUMN;
+
+    for (ConsumableType type : ConsumableType.values()) {
+      ConsumableItem item = generator.generateConsumable(type, 1);
+      Entity loot = LootFactory.createLoot(item);
+      spawnEntityAt(loot, new GridPoint2(column, LOOT_ROW), true, true);
+      column++;
+    }
+  }
+
   private void playMusic() {
     Music music = ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class);
+
     music.setLooping(true);
     music.setVolume(0.3f);
     music.play();
@@ -194,6 +256,7 @@ public class ForestGameArea extends GameArea {
 
   private void loadAssets() {
     logger.debug("Loading assets");
+
     ResourceService resourceService = ServiceLocator.getResourceService();
 
     resourceService.loadTextures(forestTextures);
@@ -202,13 +265,13 @@ public class ForestGameArea extends GameArea {
     resourceService.loadMusic(forestMusic);
 
     while (!resourceService.loadForMillis(10)) {
-      // This could be upgraded to a loading screen
       logger.info("Loading... {}%", resourceService.getProgress());
     }
   }
 
   private void unloadAssets() {
     logger.debug("Unloading assets");
+
     ResourceService resourceService = ServiceLocator.getResourceService();
 
     resourceService.unloadAssets(forestTextures);
@@ -220,7 +283,9 @@ public class ForestGameArea extends GameArea {
   @Override
   public void dispose() {
     super.dispose();
+
     ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class).stop();
+
     this.unloadAssets();
   }
 }

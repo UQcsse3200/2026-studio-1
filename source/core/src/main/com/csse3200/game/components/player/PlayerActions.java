@@ -4,21 +4,35 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
+import com.csse3200.game.entities.Entity;
+import com.csse3200.game.physics.BodyUserData;
+import com.csse3200.game.physics.PhysicsLayer;
+import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Action component for interacting with the player. Player events should be initialised in create()
- * and when triggered should call methods within this class.
+ * Action component for interacting with the player.
+ *
+ * <p>Handles player movement and attacks, and prevents further player actions after the death event
+ * is triggered.
  */
 public class PlayerActions extends Component {
   private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
 
   private PhysicsComponent physicsComponent;
+  private CombatStatsComponent combatStats;
+  private HitboxComponent hitboxComponent;
+  private PlatformerComponent platformerComponent;
+
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
   private float CrouchSpeedRate = 0.2f; // Crouchspeed = MAX_SPEED * Crouchspeedrate
@@ -33,6 +47,10 @@ public class PlayerActions extends Component {
   private boolean walkSoundPlaying = false;
   private boolean sneakSoundPlaying = false;
   private boolean slideSoundPlaying = false;
+
+  // Death State
+  private boolean dead = false;
+
   private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
   private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
   private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
@@ -45,23 +63,37 @@ public class PlayerActions extends Component {
   // jumping is covered by platformerComponent.getJumpingBool()
   private PlatformerComponent platformerComponent;
 
+  private final Set<Entity> enemiesInRange = new HashSet<>();
+
   @Override
   public void create() {
     physicsComponent = entity.getComponent(PhysicsComponent.class);
+    combatStats = entity.getComponent(CombatStatsComponent.class);
+    hitboxComponent = entity.getComponent(HitboxComponent.class);
     platformerComponent = entity.getComponent(PlatformerComponent.class);
+    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
+
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
+
+    // Existing movement features
     entity.getEvents().addListener("dash", this::dash);
     entity.getEvents().addListener("slide", this::slide);
     textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
     entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
+
+    // Existing combat features from main
+    entity.getEvents().addListener("collisionStart", this::onCollisionStart);
+    entity.getEvents().addListener("collisionEnd", this::onCollisionEnd);
+
+    // Death State
+    entity.getEvents().addListener("death", this::onDeath);
   }
 
   @Override
   public void update() {
-    playMovementSound();
-    if (moving || platformerComponent.getJumpingBool()) {
+    if (!dead && (moving || platformerComponent.getJumpingBool())) {
       updateSpeed();
     }
     timerforslide();
@@ -123,7 +155,7 @@ public class PlayerActions extends Component {
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
 
-    // For the jump portion
+    // Existing jump functionality
     platformerComponent.updateJump(MAX_SPEED);
   }
 
@@ -133,6 +165,10 @@ public class PlayerActions extends Component {
    * @param direction direction to move in
    */
   void walk(Vector2 direction) {
+    if (dead) {
+      return;
+    }
+
     this.walkDirection = direction;
     moving = true;
   }
@@ -140,26 +176,53 @@ public class PlayerActions extends Component {
   /** Stops the player from walking. */
   void stopWalking() {
     this.walkDirection = Vector2.Zero.cpy();
-    updateSpeed();
+
+    if (!dead) {
+      updateSpeed();
+    }
+
     moving = false;
   }
 
   /** Makes the player attack. */
   void attack() {
+    if (dead) {
+      return;
+    }
+
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
     attackSound.play();
+
+    // Existing melee combat from main
+    for (Entity enemy : enemiesInRange) {
+      CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
+      if (enemyStats != null) {
+        enemyStats.hit(combatStats);
+      }
+    }
+
+    // Existing weapon functionality
+    entity.getEvents().trigger("weaponAttack");
   }
 
-  /** Makes the player dash */
+  /** Makes the player dash. */
   void dash(Vector2 direction) {
+    if (dead) {
+      return;
+    }
+
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(dashspeed);
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
     dashing = true;
   }
 
-  private void ctrlChanged(boolean pressed) { // it is for crouch
+  private void ctrlChanged(boolean pressed) {
+    if (dead) {
+      return;
+    }
+
     if (pressed) {
       textureRenderComponent.setTexture(CROUCH_TEXTURE);
       sneaking = true;
@@ -200,5 +263,45 @@ public class PlayerActions extends Component {
       sliding = false;
       textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
+  }
+
+  private void onCollisionStart(Fixture me, Fixture other) {
+    if (hitboxComponent.getFixture() != me) {
+      return;
+    }
+
+    if (!PhysicsLayer.contains(PhysicsLayer.NPC, other.getFilterData().categoryBits)) {
+      return;
+    }
+
+    BodyUserData userData = (BodyUserData) other.getBody().getUserData();
+    if (userData != null && userData.entity != null) {
+      enemiesInRange.add(userData.entity);
+    }
+  }
+
+  private void onCollisionEnd(Fixture me, Fixture other) {
+    if (hitboxComponent.getFixture() != me) {
+      return;
+    }
+
+    if (!PhysicsLayer.contains(PhysicsLayer.NPC, other.getFilterData().categoryBits)) {
+      return;
+    }
+
+    BodyUserData userData = (BodyUserData) other.getBody().getUserData();
+    if (userData != null && userData.entity != null) {
+      enemiesInRange.remove(userData.entity);
+    }
+  }
+
+  /** Stops all player actions when the player dies. */
+  private void onDeath() {
+    dead = true;
+    moving = false;
+    walkDirection = Vector2.Zero.cpy();
+
+    Body body = physicsComponent.getBody();
+    body.setLinearVelocity(Vector2.Zero);
   }
 }

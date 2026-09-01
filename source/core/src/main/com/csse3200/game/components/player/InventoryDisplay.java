@@ -1,46 +1,67 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.ui.UIComponent;
 
-/** A modern HUD-style UI component for displaying the player's inventory. */
+/** A HUD-style UI component for displaying the player's inventory. */
 public class InventoryDisplay extends UIComponent {
-  private static final int COLUMNS = 5;
 
-  private static final float SLOT_SIZE = 92f;
-  private static final float SLOT_GAP = 6f;
+  private static final float SLOT_WIDTH = 130f;
+  private static final float SLOT_HEIGHT = 36f;
+  private static final float SLOT_GAP = 4f;
+  private static final float PANEL_PADDING = 10f;
+  private static final float RIGHT_MARGIN = 16f;
+  private static final String LABEL_STYLE = "small";
+  private static final String SLOT_BACKGROUND = "button-c";
 
-  private static final float PANEL_PADDING = 16f;
-  private static final float HEADER_PADDING = 8f;
+  private static final Color EMPTY_TEXT_COLOR = new Color(1f, 1f, 1f, 0.55f);
+  private static final Color FILLED_TEXT_COLOR = Color.WHITE;
+  private static final Color ACTIVE_SLOT_COLOR = new Color(1f, 0.8f, 0.3f, 1f);
 
   private Table inventoryTable;
+  private Label goldLabel;
 
   /** Creates the inventory UI and adds it to the stage. */
   @Override
   public void create() {
     super.create();
+
+    entity.getEvents().addListener("inventoryChanged", this::refreshInventory);
+    entity.getEvents().addListener("activeSlotChanged", this::refreshActiveSlot);
+
     createInventory();
   }
 
   /** Creates the inventory panel. */
   private void createInventory() {
-    inventoryTable = new Table();
-    inventoryTable.top().center();
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
-    // Main inventory panel.
+    inventoryTable = new Table();
+
+    inventoryTable.top().center();
+    inventoryTable.pad(PANEL_PADDING);
     inventoryTable.setBackground(skin.getDrawable("window-w"));
 
-    //    // Header.
-    //    Label title = new Label("INVENTORY", skin, "title");
+    goldLabel = new Label("Gold: " + inventory.getGold(), skin, LABEL_STYLE);
 
-    //
-    // inventoryTable.add(title).colspan(COLUMNS).padTop(PANEL_PADDING).padBottom(HEADER_PADDING);
+    inventoryTable.add(goldLabel).left().growX().padBottom(6f);
+
+    inventoryTable.row();
+
+    for (int slotNumber = 1; slotNumber <= inventory.getMaxSlots(); slotNumber++) {
+      addSlot(inventory.getItem(slotNumber), slotNumber);
+      inventoryTable.row();
+    }
+
+    inventoryTable.pack();
+
+    positionInventory();
+
     stage.addActor(inventoryTable);
-
-    refresh();
   }
 
   /**
@@ -52,57 +73,65 @@ public class InventoryDisplay extends UIComponent {
   private void addSlot(Item item, int slotNumber) {
     Table slot = new Table();
 
-    // Slot background.
-    slot.setBackground(skin.getDrawable("button-c"));
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
-    /*
-     * Slot number.
-     *
-     * Example:
-     *
-     * ┌──────────┐
-     * │ 1        │
-     * │          │
-     * │   Empty  │
-     * │       x1 │
-     * └──────────┘
-     */
-    Label slotNumberLabel = new Label(String.valueOf(slotNumber), skin, "small");
+    boolean isActive = inventory.getActiveSlot() == slotNumber;
 
-    String itemName = item == null ? "EMPTY" : item.getName();
-    Label itemLabel = new Label(itemName, skin, "small");
+    if (isActive) {
+      slot.setBackground(skin.newDrawable(SLOT_BACKGROUND, ACTIVE_SLOT_COLOR));
+    } else {
+      slot.setBackground(skin.getDrawable(SLOT_BACKGROUND));
+    }
 
-    String quantity = item == null ? "" : "x" + item.getQuantity();
-    Label quantityLabel = new Label(quantity, skin, "small");
+    slot.pad(4f, 8f, 4f, 8f);
 
-    // Top-left: slot number.
-    slot.add(slotNumberLabel).top().left().padTop(6f).padLeft(7f);
+    Label slotNumberLabel = new Label(slotNumber + ".", skin, LABEL_STYLE);
+    slotNumberLabel.setColor(EMPTY_TEXT_COLOR);
 
-    // Make the remaining width available.
-    slot.add().expandX();
+    boolean isEmpty = item == null;
+    String itemName = isEmpty ? "Empty" : item.getName();
 
-    slot.row();
+    Label itemLabel = new Label(itemName, skin, LABEL_STYLE);
+    itemLabel.setEllipsis(true);
+    itemLabel.setColor(isEmpty ? EMPTY_TEXT_COLOR : FILLED_TEXT_COLOR);
 
-    // Center: item placeholder.
-    slot.add(itemLabel).colspan(2).center().expand().pad(4f);
+    String quantity = isEmpty ? "" : "x" + item.getQuantity();
 
-    slot.row();
+    Label quantityLabel = new Label(quantity, skin, LABEL_STYLE);
+    quantityLabel.setColor(FILLED_TEXT_COLOR);
 
-    // Bottom-right: quantity.
-    slot.add().expandX();
+    slot.add(slotNumberLabel).left().padRight(6f).width(14f);
+    slot.add(itemLabel).left().expandX().fillX();
+    slot.add(quantityLabel).right().padLeft(6f);
 
-    slot.add(quantityLabel).bottom().right().padBottom(6f).padRight(7f);
-
-    inventoryTable.add(slot).size(SLOT_SIZE).pad(SLOT_GAP);
+    inventoryTable.add(slot).size(SLOT_WIDTH, SLOT_HEIGHT).pad(SLOT_GAP);
   }
 
-  /** Positions the inventory in the centre of the screen. */
+  /**
+   * Refreshes the inventory UI when the inventory changes.
+   *
+   * <p>This updates both gold and item quantities.
+   */
+  private void refreshInventory() {
+    if (inventoryTable != null) {
+      inventoryTable.remove();
+      inventoryTable = null;
+    }
+
+    goldLabel = null;
+
+    createInventory();
+  }
+
+  /** Positions the inventory on the right side of the screen. */
   private void positionInventory() {
     float screenWidth = stage.getViewport().getWorldWidth();
     float screenHeight = stage.getViewport().getWorldHeight();
 
-    inventoryTable.setPosition(
-        (screenWidth - inventoryTable.getWidth()) / 2f, (inventoryTable.getHeight()) / 4f);
+    float x = screenWidth - inventoryTable.getWidth() - RIGHT_MARGIN;
+    float y = (screenHeight - inventoryTable.getHeight()) / 2f;
+
+    inventoryTable.setPosition(x, y);
   }
 
   @Override
@@ -117,24 +146,12 @@ public class InventoryDisplay extends UIComponent {
       inventoryTable = null;
     }
 
+    goldLabel = null;
+
     super.dispose();
   }
 
-  /** Refreshes the inventory UI using the current inventory contents. */
-  public void refresh() {
-    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
-
-    inventoryTable.clearChildren();
-
-    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
-      addSlot(inventory.getItem(slot), slot);
-
-      if (slot % COLUMNS == 0) {
-        inventoryTable.row();
-      }
-    }
-
-    inventoryTable.pack();
-    positionInventory();
+  private void refreshActiveSlot(int activeSlot) {
+    refreshInventory();
   }
 }
