@@ -32,7 +32,6 @@ public class PlayerActions extends Component {
   private PhysicsComponent physicsComponent;
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
-  private PlatformerComponent platformerComponent;
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private float dashspeed = 5f;
