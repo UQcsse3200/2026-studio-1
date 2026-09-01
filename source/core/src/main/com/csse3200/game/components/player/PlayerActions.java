@@ -91,6 +91,7 @@ public class PlayerActions extends Component {
 
   @Override
   public void update() {
+    playMovementSound();
     if (!dead && (moving || platformerComponent.getJumpingBool())) {
       updateSpeed();
     }
