@@ -51,8 +51,6 @@ public class PlayerActions extends Component {
   // Effective multiplier is the product of all active values.
   // 1 = normal, 0 = paused, <1 = slowed, >1 = sped up
   private final Map<Object, Float> speedModifiers = new HashMap<>();
-  // jumping is covered by platformerComponent.getJumpingBool()
-  private PlatformerComponent platformerComponent;
 
   @Override
   public void create() {
