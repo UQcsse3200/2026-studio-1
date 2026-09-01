@@ -1,10 +1,11 @@
 package com.csse3200.game.screens;
 
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
-import com.csse3200.game.areas.ForestGameArea;
+import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
@@ -35,13 +36,21 @@ import org.slf4j.LoggerFactory;
  */
 public class MainGameScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(MainGameScreen.class);
-  private static final String[] mainGameTextures = {"images/heart.png"};
+  private static final String[] mainGameTextures = {
+    "images/heart.png",
+    "images/heart-empty.png",
+    "images/heart-green-half.png",
+    "images/heart-yellow-half.png",
+    "images/heart-red-half.png",
+    "images/heart-green.png",
+    "images/heart-yellow.png"
+  };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
 
   private final GdxGame game;
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
-  private ForestGameArea forestGameArea;
+  private LevelGameArea levelGameArea;
   private DeathScreenDisplay deathScreenDisplay;
   private boolean deathScreenShown = false;
   private PauseMenuComponent pauseMenu;
@@ -71,8 +80,28 @@ public class MainGameScreen extends ScreenAdapter {
 
     logger.debug("Initialising main game screen entities");
     TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
-    this.forestGameArea = new ForestGameArea(terrainFactory);
-    forestGameArea.create();
+    this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
+    levelGameArea.create();
+
+    fitCameraToMap(levelGameArea);
+  }
+
+  /**
+   * Centre the camera on the loaded map and zoom so the map fills the window. Uses the smaller of
+   * the two axis zoom factors so the map covers the whole viewport (no empty background), cropping
+   * a small strip on the longer axis. Swap {@code Math.min} for {@code Math.max} to fit the whole
+   * map inside instead (letterboxed).
+   *
+   * @param area the level area whose map the camera should frame
+   */
+  private void fitCameraToMap(LevelGameArea area) {
+    OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
+    renderer.getCamera().getEntity().setPosition(area.getMapCenter());
+
+    float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
+    float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
+    cam.zoom = Math.min(zoomForWidth, zoomForHeight);
+    cam.update();
   }
 
   @Override
@@ -92,7 +121,7 @@ public class MainGameScreen extends ScreenAdapter {
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
     }
-    if (forestGameArea.isPlayerDead()) {
+    if (levelGameArea.isPlayerDead()) {
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
       renderer.render();
