@@ -158,7 +158,7 @@ public class PlayerActions extends Component {
     } else {
       Speed = MAX_SPEED.cpy();
     }
-    Vector2 desiredVelocity = walkDirection.cpy().scl(speed).scl(getEffectiveSpeedMultiplier());
+    Vector2 desiredVelocity = walkDirection.cpy().scl(Speed).scl(getEffectiveSpeedMultiplier());
     // impulse = desiredVel * mass
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
