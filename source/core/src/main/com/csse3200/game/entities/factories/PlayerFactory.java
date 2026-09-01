@@ -5,8 +5,11 @@ import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.ConsumableUseComponent;
+import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.InventoryDisplay;
+import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
@@ -54,7 +57,14 @@ public class PlayerFactory {
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
             .addComponent(new PlayerActions())
             .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
+
+            // Death State
+            .addComponent(new DeathStateComponent())
+
+            // Existing main/team features
+            .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new InventoryComponent(stats.gold))
+            .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
             .addComponent(new PlatformerComponent(3))
             .addComponent(new PlayerStatsDisplay())

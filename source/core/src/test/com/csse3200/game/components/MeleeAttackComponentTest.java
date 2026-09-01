@@ -485,7 +485,7 @@ public class MeleeAttackComponentTest {
   }
 
   /* The following tests the knockback element of the attemptAttack function */
-
+  @Test
   void ShouldApplyKnockbackWhenPositiveAndTargetHasPhysicsComponent() {
     Entity attacker = createAttacker(3, 1, 3);
     Entity target = createTarget();
@@ -566,6 +566,106 @@ public class MeleeAttackComponentTest {
             + healthBefore
             + " to "
             + healthAfter);
+  }
+
+  /* the following test the canAttack() function logic */
+  @Test
+  void canAttack_immediatelyAfterAttack_returnsFalse() {
+    Entity attacker = createAttacker(2, 2, 0);
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+
+    attacker.getEvents().trigger("meleeAttack", target);
+
+    assertFalse(
+        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
+        "Expected canAttack() to be false immediately after a successful attack.");
+  }
+
+  @Test
+  void canAttack_beforeCooldownElapsed_returnsFalse() {
+    Entity attacker = createAttacker(2, 2, 0);
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+
+    attacker.getEvents().trigger("meleeAttack", target);
+    // advance time to just before the 2-second cooldown completes (99 * 20ms = 1.98s)
+    for (int i = 0; i < 99; i++) {
+      attacker.update();
+    }
+
+    assertFalse(
+        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
+        "Expected canAttack() to still be false with cooldown partially elapsed.");
+  }
+
+  @Test
+  void canAttack_atOrJustPastCooldownBoundary_returnsTrue() {
+    Entity attacker = createAttacker(2, 2, 0);
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+
+    attacker.getEvents().trigger("meleeAttack", target);
+    // advance time to just past the 2-second cooldown (101 * 20ms = 2.02s) — avoids
+    // asserting exact float-accumulation equality at the boundary itself, which is
+    // unreliable since deltaTime (0.02f) doesn't sum to a bit-exact 2.0f over 100 additions
+    for (int i = 0; i < 101; i++) {
+      attacker.update();
+    }
+
+    assertTrue(
+        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
+        "Expected canAttack() to be true once the cooldown timer has reached or passed the configured duration.");
+  }
+
+  @Test
+  void canAttack_consistentWithAttemptAttackBehaviour() {
+    Entity attacker = createAttacker(2, 2, 0);
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+
+    attacker.getEvents().trigger("meleeAttack", target);
+    for (int i = 0; i < 101; i++) {
+      attacker.update();
+    }
+    assertTrue(
+        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
+        "Expected canAttack() to report true before the second attack is attempted.");
+
+    float healthBeforeSecondAttack = targetStats.getHealth();
+    attacker.getEvents().trigger("meleeAttack", target);
+    float healthAfterSecondAttack = targetStats.getHealth();
+
+    assertTrue(
+        healthAfterSecondAttack < healthBeforeSecondAttack,
+        "Expected the second attack to actually land (consistent with canAttack() reporting true beforehand), "
+            + "reducing health from "
+            + healthBeforeSecondAttack
+            + " to below that value, but got "
+            + healthAfterSecondAttack);
+  }
+
+  @Test
+  void canAttack_afterCooldownElapsed_returnsTrue() {
+    Entity attacker = createAttacker(2, 2, 0);
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+
+    attacker.getEvents().trigger("meleeAttack", target);
+    // advance time well past the 2-second cooldown
+    for (int i = 0; i < 150; i++) {
+      attacker.update();
+    }
+
+    assertTrue(
+        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
+        "Expected canAttack() to be true once the cooldown duration has been exceeded.");
   }
 
   /* ---------- Helpers ---------- */

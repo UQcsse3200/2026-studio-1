@@ -1,20 +1,22 @@
 package com.csse3200.game.screens;
 
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
-import com.csse3200.game.areas.ForestGameArea;
+import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
-import com.csse3200.game.components.maingame.MainGameExitDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
+import com.csse3200.game.pausemenu.*;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -34,12 +36,24 @@ import org.slf4j.LoggerFactory;
  */
 public class MainGameScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(MainGameScreen.class);
-  private static final String[] mainGameTextures = {"images/heart.png"};
+  private static final String[] mainGameTextures = {
+    "images/heart.png",
+    "images/heart-empty.png",
+    "images/heart-green-half.png",
+    "images/heart-yellow-half.png",
+    "images/heart-red-half.png",
+    "images/heart-green.png",
+    "images/heart-yellow.png"
+  };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
 
   private final GdxGame game;
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
+  private LevelGameArea levelGameArea;
+  private DeathScreenDisplay deathScreenDisplay;
+  private boolean deathScreenShown = false;
+  private PauseMenuComponent pauseMenu;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -66,14 +80,54 @@ public class MainGameScreen extends ScreenAdapter {
 
     logger.debug("Initialising main game screen entities");
     TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
-    ForestGameArea forestGameArea = new ForestGameArea(terrainFactory);
-    forestGameArea.create();
+    this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
+    levelGameArea.create();
+
+    fitCameraToMap(levelGameArea);
+  }
+
+  /**
+   * Centre the camera on the loaded map and zoom so the map fills the window. Uses the smaller of
+   * the two axis zoom factors so the map covers the whole viewport (no empty background), cropping
+   * a small strip on the longer axis. Swap {@code Math.min} for {@code Math.max} to fit the whole
+   * map inside instead (letterboxed).
+   *
+   * @param area the level area whose map the camera should frame
+   */
+  private void fitCameraToMap(LevelGameArea area) {
+    OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
+    renderer.getCamera().getEntity().setPosition(area.getMapCenter());
+
+    float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
+    float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
+    cam.zoom = Math.min(zoomForWidth, zoomForHeight);
+    cam.update();
   }
 
   @Override
   public void render(float delta) {
-    physicsEngine.update();
-    ServiceLocator.getEntityService().update();
+
+    /* If the player has died, stop updating the game world,
+    but keep rendering the game and death popup.*/
+    if (deathScreenShown) {
+      renderer.render();
+      return;
+    }
+
+    if (pauseMenu == null
+        || !pauseMenu
+            .isPaused()) { // Only updates the game physics (movement and all) when game is not
+      // pauesd
+      physicsEngine.update();
+      ServiceLocator.getEntityService().update();
+    }
+    if (levelGameArea.isPlayerDead()) {
+      deathScreenShown = true;
+      deathScreenDisplay.showDeathScreen();
+      renderer.render();
+      return;
+    }
+
     renderer.render();
   }
 
@@ -131,13 +185,21 @@ public class MainGameScreen extends ScreenAdapter {
         ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
+    deathScreenDisplay = new DeathScreenDisplay(this.game);
+    PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
-        .addComponent(new MainGameActions(this.game))
-        .addComponent(new MainGameExitDisplay())
         .addComponent(new Terminal())
         .addComponent(inputComponent)
-        .addComponent(new TerminalDisplay());
+        .addComponent(new TerminalDisplay())
+        .addComponent(pauseMenuComponent)
+        .addComponent(new KeyboardPauseInput())
+        .addComponent(new PauseMenuDisplay())
+        .addComponent(new PauseMenuInputComponent())
+        .addComponent(deathScreenDisplay)
+        .addComponent(new MainGameActions(this.game))
+        .addComponent(new PauseMenuActions());
+    this.pauseMenu = pauseMenuComponent;
 
     ServiceLocator.getEntityService().register(ui);
   }

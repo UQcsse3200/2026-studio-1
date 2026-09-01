@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -71,10 +72,14 @@ public class ForestGameArea extends GameArea {
     "images/terrain_iso_grass.atlas",
     "images/ghost.atlas",
     "images/ghostKing.atlas",
+    "images/skeleton.atlas",
     "images/gold_coin/gold_coin.atlas"
   };
 
-  private static final String[] forestSounds = {"sounds/Impact4.ogg"};
+  private static final String[] forestSounds = {
+    "sounds/Impact4.ogg", "sounds/player-hit.ogg", "sounds/player-hit-crown.ogg"
+  };
+
   private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
   private static final String[] forestMusic = {backgroundMusic};
 
@@ -180,9 +185,14 @@ public class ForestGameArea extends GameArea {
     return newPlayer;
   }
 
+  public boolean isPlayerDead() {
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    return stats != null && stats.isDead();
+  }
+
   /** Spawns basic weapon loot in the game world. */
   private void spawnWeaponLoot() {
-    /** Spawn a bow and sword on the ground for the player to pick up. */
+    /* Spawn a bow and sword on the ground for the player to pick up. */
     WeaponGenerator generator = new WeaponGenerator();
 
     WeaponItem bowItem = generator.generateWeapon(WeaponType.BOW, 1);

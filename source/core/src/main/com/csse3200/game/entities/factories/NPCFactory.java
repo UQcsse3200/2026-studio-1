@@ -9,8 +9,11 @@ import com.csse3200.game.components.MeleeAttackComponent;
 import com.csse3200.game.components.RangedAttackComponent;
 import com.csse3200.game.components.TouchAttackComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
+import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.tasks.ChaseTask;
 import com.csse3200.game.components.tasks.RangedAttackTask;
+import com.csse3200.game.components.tasks.MeleeAttackTask;
+import com.csse3200.game.components.tasks.PlatformWanderTask;
 import com.csse3200.game.components.tasks.WanderTask;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
@@ -101,15 +104,20 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createSkeleton(Entity target) {
-    Entity skeleton = createBaseNPC(target);
+    float scale = 1.5f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity skeleton =
+        createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     SkeletonConfig config = configs.skeleton;
 
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
-                .getAsset("images/ghostKing.atlas", TextureAtlas.class));
-    animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
+                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
@@ -117,9 +125,11 @@ public class NPCFactory {
             new MeleeAttackComponent(
                 config.melee.range, config.melee.cooldown, config.melee.knockback))
         .addComponent(animator)
-        .addComponent(new GhostAnimationController());
+        .addComponent(new SkeletonAnimationController());
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
+    skeleton.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(skeleton, collisionScale.x, collisionScale.y);
     return skeleton;
   }
 
@@ -182,6 +192,33 @@ public class NPCFactory {
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.4f);
     // Let gravity pull the NPC down instead of the wander/chase AI flying it directly toward
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
+    return npc;
+  }
+
+  /**
+   * <p>Creates a generic NPC that falls with gravity to be used as a base entity by more specific
+   * Platformer NPC creation methods.</p>
+   *
+   * <p>Structure inspired by createBaseNPC function, but removes touch damage in favour of using
+   * melee attacks</p>
+   *
+   * @return entity
+   */
+  private static Entity createBasePlatformerNPC(Entity target, final float floorCollisionScale) {
+    AITaskComponent aiComponent =
+        new AITaskComponent()
+            .addTask(new PlatformWanderTask(
+                new Vector2(2f, 2f), 2f, floorCollisionScale))
+            .addTask(new MeleeAttackTask(target, 15, 1f));
+    Entity npc =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(aiComponent);
+
+    PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     return npc;
   }
 

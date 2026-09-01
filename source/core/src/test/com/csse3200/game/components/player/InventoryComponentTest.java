@@ -757,4 +757,39 @@ class InventoryComponentTest {
   private static Item gold(int quantity, int maxQuantity) {
     return new Item("Gold", ItemType.CURRENCY, quantity, maxQuantity);
   }
+
+  @Test
+  void shouldDefaultToFirstActiveSlot() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+
+    assertEquals(1, inventory.getActiveSlot());
+  }
+
+  @Test
+  void shouldChangeActiveSlot() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+
+    assertTrue(inventory.setActiveSlot(3));
+    assertEquals(3, inventory.getActiveSlot());
+  }
+
+  @Test
+  void shouldRejectInvalidActiveSlot() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+
+    assertFalse(inventory.setActiveSlot(0));
+    assertFalse(inventory.setActiveSlot(6));
+
+    assertEquals(1, inventory.getActiveSlot());
+  }
+
+  @Test
+  void shouldReturnActiveItem() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+
+    Item item = new Item("Test Item", ItemType.CONSUMABLE, 1, 5);
+    inventory.addItem(item);
+
+    assertEquals(item, inventory.getActiveItem());
+  }
 }

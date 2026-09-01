@@ -16,9 +16,11 @@ public class InventoryDisplay extends UIComponent {
   private static final float PANEL_PADDING = 10f;
   private static final float RIGHT_MARGIN = 16f;
   private static final String LABEL_STYLE = "small";
+  private static final String SLOT_BACKGROUND = "button-c";
 
   private static final Color EMPTY_TEXT_COLOR = new Color(1f, 1f, 1f, 0.55f);
   private static final Color FILLED_TEXT_COLOR = Color.WHITE;
+  private static final Color ACTIVE_SLOT_COLOR = new Color(1f, 0.8f, 0.3f, 1f);
 
   private Table inventoryTable;
   private Label goldLabel;
@@ -29,6 +31,7 @@ public class InventoryDisplay extends UIComponent {
     super.create();
 
     entity.getEvents().addListener("inventoryChanged", this::refreshInventory);
+    entity.getEvents().addListener("activeSlotChanged", this::refreshActiveSlot);
 
     createInventory();
   }
@@ -70,7 +73,16 @@ public class InventoryDisplay extends UIComponent {
   private void addSlot(Item item, int slotNumber) {
     Table slot = new Table();
 
-    slot.setBackground(skin.getDrawable("button-c"));
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    boolean isActive = inventory.getActiveSlot() == slotNumber;
+
+    if (isActive) {
+      slot.setBackground(skin.newDrawable(SLOT_BACKGROUND, ACTIVE_SLOT_COLOR));
+    } else {
+      slot.setBackground(skin.getDrawable(SLOT_BACKGROUND));
+    }
+
     slot.pad(4f, 8f, 4f, 8f);
 
     Label slotNumberLabel = new Label(slotNumber + ".", skin, LABEL_STYLE);
@@ -137,5 +149,9 @@ public class InventoryDisplay extends UIComponent {
     goldLabel = null;
 
     super.dispose();
+  }
+
+  private void refreshActiveSlot(int activeSlot) {
+    refreshInventory();
   }
 }
