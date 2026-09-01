@@ -54,6 +54,7 @@ public class LevelGameArea extends GameArea {
   private static final String[] entityTextures = {
     "images/box_boy_leaf.png",
     "images/box_boy_crouch.png",
+    "images/box_boy_slide.png",
     "images/ghost_king.png",
     "images/ghost_1.png",
     "images/sword.png",
@@ -64,7 +65,16 @@ public class LevelGameArea extends GameArea {
     "images/Strength.png"
   };
 
-  private static final String[] entitySounds = {"sounds/Impact4.ogg", "sounds/player-hit.ogg"};
+  private static final String[] entitySounds = {
+    "sounds/Impact4.ogg",
+    "sounds/player-hit.ogg",
+    "sounds/player-hit-crown.ogg",
+    "sounds/walking1.mp3",
+    "sounds/jump.mp3",
+    "sounds/dash.mp3",
+    "sounds/sneaking1.mp3",
+    "sounds/slide.mp3"
+  };
 
   private static final String[] entityAtlases = {
     "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas"

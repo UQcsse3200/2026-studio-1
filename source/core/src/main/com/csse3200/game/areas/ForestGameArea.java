@@ -47,6 +47,7 @@ public class ForestGameArea extends GameArea {
   private static final String[] forestTextures = {
     "images/box_boy_leaf.png",
     "images/box_boy_crouch.png",
+    "images/box_boy_slide.png",
     "images/tree.png",
     "images/sword.png",
     "images/bow.png",
@@ -77,9 +78,15 @@ public class ForestGameArea extends GameArea {
   };
 
   private static final String[] forestSounds = {
-    "sounds/Impact4.ogg", "sounds/player-hit.ogg", "sounds/player-hit-crown.ogg"
+    "sounds/Impact4.ogg",
+    "sounds/walking1.mp3",
+    "sounds/jump.mp3",
+    "sounds/dash.mp3",
+    "sounds/sneaking1.mp3",
+    "sounds/slide.mp3",
+    "sounds/player-hit.ogg",
+    "sounds/player-hit-crown.ogg"
   };
-
   private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
   private static final String[] forestMusic = {backgroundMusic};
 
