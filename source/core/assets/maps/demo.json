@@ -76,17 +76,17 @@
     },
     "enemies": [
       {
-        "type": "ghost",
+        "type": "skeleton",
         "x": 34,
         "y": 2
       },
       {
-        "type": "ghost",
+        "type": "skeleton",
         "x": 24,
         "y": 15
       },
       {
-        "type": "ghostKing",
+        "type": "rangedskeleton",
         "x": 15,
         "y": 18
       }

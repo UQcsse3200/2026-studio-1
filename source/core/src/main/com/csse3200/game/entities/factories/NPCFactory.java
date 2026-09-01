@@ -140,7 +140,9 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createRangedSkeleton(Entity target) {
-    Entity rangedSkeleton = createBaseNPC(target);
+    float scale = 1.5f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity rangedSkeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     RangedSkeletonConfig config = configs.rangedSkeleton;
 
     AnimationRenderComponent animator =
