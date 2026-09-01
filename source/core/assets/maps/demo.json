@@ -86,7 +86,7 @@
         "y": 15
       },
       {
-        "type": "rangedskeleton",
+        "type": "ranged-skeleton",
         "x": 15,
         "y": 18
       }

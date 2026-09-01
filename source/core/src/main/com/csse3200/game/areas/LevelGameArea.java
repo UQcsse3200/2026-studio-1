@@ -77,7 +77,10 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas", "images/skeleton.atlas"
+    "images/ghost.atlas",
+    "images/ghostKing.atlas",
+    "images/gold_coin/gold_coin.atlas",
+    "images/skeleton.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
@@ -308,16 +311,16 @@ public class LevelGameArea extends GameArea {
     if (type == null) {
       return null;
     }
-      return switch (type.toLowerCase()) {
-          case "ghost" -> NPCFactory.createGhost(player);
-          case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
-          case "skeleton" -> NPCFactory.createSkeleton(player);
-          case "rangedskeleton", "ranged_skeleton" -> NPCFactory.createRangedSkeleton(player);
-          default -> {
-              logger.warn("Unknown enemy spawn type '{}' - skipped", type);
-              yield null;
-          }
-      };
+    return switch (type.toLowerCase()) {
+      case "ghost" -> NPCFactory.createGhost(player);
+      case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
+      case "skeleton" -> NPCFactory.createSkeleton(player);
+      case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
+      default -> {
+        logger.warn("Unknown enemy spawn type '{}' - skipped", type);
+        yield null;
+      }
+    };
   }
 
   /**
