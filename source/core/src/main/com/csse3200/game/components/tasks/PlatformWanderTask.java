@@ -15,12 +15,13 @@ public class PlatformWanderTask extends WanderTask {
   private final float rayCastPositionScale;
   private final RaycastHit leftFloorHit = new RaycastHit();
   private final RaycastHit rightFloorHit = new RaycastHit();
+
   /**
    * @param wanderRange Distance in X and Y the entity can move from its position when start() is
-   *                    called.
-   * @param waitTime    How long in seconds to wait between wandering.
+   *     called.
+   * @param waitTime How long in seconds to wait between wandering.
    * @param rayCastPositionScale From 0f to 0.5f, with 0 being at the very edge of the entity box
-   *                             and 0.5f being in the very centre.
+   *     and 0.5f being in the very centre.
    */
   public PlatformWanderTask(Vector2 wanderRange, float waitTime, float rayCastPositionScale) {
     super(wanderRange, waitTime);
@@ -40,17 +41,17 @@ public class PlatformWanderTask extends WanderTask {
    * Raycasts towards the ground to find if owner is grounded.
    *
    * @param position float from 0 to 1 which is the ratio from leftmost to rightmost on the owner
-   * @param hit      the RaycastHit object to store the raycast results
+   * @param hit the RaycastHit object to store the raycast results
    * @return true if raycast collides with the ground or another collision on PhysicsLayer.OBSTACLE
    */
   private boolean getGroundRaycast(float position, RaycastHit hit) {
-    Vector2 ownerPosition = owner.getEntity().getPosition()
-        .add(owner.getEntity().getScale().x * position, 0);
+    Vector2 ownerPosition =
+        owner.getEntity().getPosition().add(owner.getEntity().getScale().x * position, 0);
     // Makes a raycast of length 0.15f
     Vector2 groundCheckPosition = new Vector2(ownerPosition.x, ownerPosition.y - 0.15f);
     boolean grounded =
         physics.raycast(ownerPosition, groundCheckPosition, PhysicsLayer.OBSTACLE, hit);
-    if (grounded){
+    if (grounded) {
       debugRenderer.drawLine(ownerPosition, hit.point);
     } else {
       debugRenderer.drawLine(ownerPosition, groundCheckPosition);
@@ -78,8 +79,7 @@ public class PlatformWanderTask extends WanderTask {
     }
     currentTask.update();
 
-    debugRenderer
-        .drawRectangle(startPos, new Vector2(0.05f, 0.05f), Color.MAGENTA, 1f);
+    debugRenderer.drawRectangle(startPos, new Vector2(0.05f, 0.05f), Color.MAGENTA, 1f);
   }
 
   @Override
@@ -93,9 +93,7 @@ public class PlatformWanderTask extends WanderTask {
     return new Vector2(randomXPosInRange, startPos.y);
   }
 
-  /**
-   * Changes startPos to current owner position for owner being on new platform.
-   */
+  /** Changes startPos to current owner position for owner being on new platform. */
   private void updateStartPos() {
     if (leftFloorHit.point != null) {
       this.startPos = new Vector2(owner.getEntity().getPosition().x, leftFloorHit.point.y);

@@ -1,5 +1,8 @@
 package com.csse3200.game.components.tasks;
 
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.*;
+
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.entities.Entity;
@@ -19,9 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(GameExtension.class)
 @ExtendWith(MockitoExtension.class)
@@ -83,9 +83,7 @@ class PlatformWanderTaskTest {
   }
 
   Entity createEntity(PlatformWanderTask platformWanderTask) {
-    AITaskComponent aiTaskComponent =
-        new AITaskComponent()
-            .addTask(platformWanderTask);
+    AITaskComponent aiTaskComponent = new AITaskComponent().addTask(platformWanderTask);
     Entity dummy =
         new Entity()
             .addComponent(new PhysicsComponent())

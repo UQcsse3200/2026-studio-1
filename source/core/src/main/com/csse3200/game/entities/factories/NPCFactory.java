@@ -11,9 +11,9 @@ import com.csse3200.game.components.TouchAttackComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.tasks.ChaseTask;
-import com.csse3200.game.components.tasks.RangedAttackTask;
 import com.csse3200.game.components.tasks.MeleeAttackTask;
 import com.csse3200.game.components.tasks.PlatformWanderTask;
+import com.csse3200.game.components.tasks.RangedAttackTask;
 import com.csse3200.game.components.tasks.WanderTask;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
@@ -106,8 +106,7 @@ public class NPCFactory {
   public static Entity createSkeleton(Entity target) {
     float scale = 1.5f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
-    Entity skeleton =
-        createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    Entity skeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     SkeletonConfig config = configs.skeleton;
 
     AnimationRenderComponent animator =
@@ -196,19 +195,18 @@ public class NPCFactory {
   }
 
   /**
-   * <p>Creates a generic NPC that falls with gravity to be used as a base entity by more specific
-   * Platformer NPC creation methods.</p>
+   * Creates a generic NPC that falls with gravity to be used as a base entity by more specific
+   * Platformer NPC creation methods.
    *
    * <p>Structure inspired by createBaseNPC function, but removes touch damage in favour of using
-   * melee attacks</p>
+   * melee attacks
    *
    * @return entity
    */
   private static Entity createBasePlatformerNPC(Entity target, final float floorCollisionScale) {
     AITaskComponent aiComponent =
         new AITaskComponent()
-            .addTask(new PlatformWanderTask(
-                new Vector2(2f, 2f), 2f, floorCollisionScale))
+            .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale))
             .addTask(new MeleeAttackTask(target, 15, 1f));
     Entity npc =
         new Entity()
