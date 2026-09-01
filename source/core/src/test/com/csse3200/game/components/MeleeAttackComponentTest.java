@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
-public class MeleeAttackComponentTest {
+class MeleeAttackComponentTest {
 
   @BeforeEach
-  public void beforeEach() {
+  void beforeEach() {
     ServiceLocator.registerPhysicsService(new PhysicsService());
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(20f / 1000);
@@ -277,7 +277,6 @@ public class MeleeAttackComponentTest {
     targetHealth = targetCombat.getHealth();
     // the values should be the same despite being called as cooldown should still be running
     attacker.getEvents().trigger("meleeAttack", target);
-    // assertTrue(targetHealth > targetCombat.getHealth());
     assertEquals(8, targetCombat.getHealth());
     // second attack is blocked due to cooldown so targetHealth remains the same.
     // cycle through 2 seconds with mock game time set in beforeEach class.
@@ -339,8 +338,7 @@ public class MeleeAttackComponentTest {
     for (int i = 0; i < 101; i++) {
       attacker.update();
     }
-    // trigger second attacker CombatStatsComponent targetStats =
-    // target.getComponent(CombatStatsComponent.class);
+    // trigger second attacker
     attacker.getEvents().trigger("meleeAttack", target);
     float targetHealthAfterAttack2 = targetStats.getHealth();
 

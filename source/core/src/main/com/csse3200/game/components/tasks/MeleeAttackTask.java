@@ -90,15 +90,6 @@ public class MeleeAttackTask extends DefaultTask implements PriorityTask {
   }
 
   /**
-   * Called when this task is deactivated, either because a higher-priority task has taken over or
-   * the task has otherwise ended.
-   */
-  @Override
-  public void stop() {
-    super.stop();
-  }
-
-  /**
    * Determines this task's current priority for AITaskComponent's task-selection logic.
    *
    * @return an active or inactive priority value depending on current task status.

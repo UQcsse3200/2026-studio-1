@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
-public class MeleeAttackTaskTest {
+class MeleeAttackTaskTest {
 
   @BeforeEach
-  public void beforeEach() {
+  void beforeEach() {
     ServiceLocator.registerPhysicsService(new PhysicsService());
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(20f / 1000);

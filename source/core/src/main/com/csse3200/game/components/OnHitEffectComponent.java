@@ -1,7 +1,6 @@
 package com.csse3200.game.components;
 
 import com.csse3200.game.entities.Entity;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
