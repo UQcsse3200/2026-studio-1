@@ -69,7 +69,7 @@ public class MeleeAttackTask extends DefaultTask implements PriorityTask {
    * all are satisfied, triggers the {@code "meleeAttack"} event on the owning entity with {@code
    * target} as the event payload.
    *
-   * <p>Does not call {@link MeleeAttackComponent# attemptAttack} directly — this preserves the
+   * <p>Does not call MeleeAttackComponent.attemptAttack directly — this preserves the
    * decoupling between task (decision) and component (execution).
    */
   @Override
