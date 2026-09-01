@@ -17,6 +17,7 @@ class OnHitEffectComponentTest {
   private static final String MELEE_EVENT_NAME = "meleeAttackHit";
   private static final String RANGED_EVENT_NAME = "rangedAttackHit";
   private static final List<String> MELEE_ONLY = List.of(MELEE_EVENT_NAME);
+  private static final List<String> RANGED_ONLY = List.of(RANGED_EVENT_NAME);
   private static final float TRIGGER_CHANCE = 0.3f;
   private static final int STARTING_HEALTH = 100;
 
@@ -414,6 +415,55 @@ class OnHitEffectComponentTest {
         healthBefore - 10,
         target.getComponent(CombatStatsComponent.class).getHealth(),
         "Expected only instanceA's forced-success effect (-10) to apply, not instanceB's failed one (-5).");
+  }
+
+  /* the following tests when the ranged attack is the only component added */
+  @Test
+  void shouldRespondWhenConfiguredEventFiresRangedOnly() {
+    Random random = mock(Random.class);
+    // forces success
+    when(random.nextFloat()).thenReturn(0.1f);
+    Entity attacker = new Entity()
+        .addComponent(new OnHitEffectComponent(RANGED_ONLY, TRIGGER_CHANCE,
+            0, -10, random)
+    );
+    attacker.create();
+    Entity target = createTarget();
+    int healthBefore = target.getComponent(CombatStatsComponent.class).getHealth();
+
+    attacker.getEvents().trigger(RANGED_EVENT_NAME, target);
+
+    int healthAfter = target.getComponent(CombatStatsComponent.class).getHealth();
+
+    assertEquals(healthBefore - 10, healthAfter,
+        "Expected a ranged only configured component " +
+            "to respond to its own configured ranged event."
+    );
+  }
+
+  @Test
+      void ShouldNotRespondToRangedEventWhenOnlyMeleeConfigured() {
+    Random random = mock(Random.class);
+    // force success
+    when(random.nextFloat()).thenReturn(0.1f);
+    // create attacker and target entities
+    Entity attacker = new Entity()
+        .addComponent(new OnHitEffectComponent(MELEE_ONLY, TRIGGER_CHANCE,
+            0, -10, random)
+        );
+    attacker.create();
+    Entity target = createTarget();
+
+    int healthBefore = target.getComponent(CombatStatsComponent.class).getHealth();
+
+    attacker.getEvents().trigger(RANGED_EVENT_NAME, target);
+
+    int healthAfter = target.getComponent(CombatStatsComponent.class).getHealth();
+
+    assertEquals(healthBefore, healthAfter,
+        "Expected a melee only configured component to ignore a ranged event, " +
+            "but health changed from: " + healthBefore + healthAfter
+    );
   }
 
   /* ---------- Helpers ---------- */
