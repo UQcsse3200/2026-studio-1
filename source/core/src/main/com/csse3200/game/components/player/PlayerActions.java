@@ -60,8 +60,6 @@ public class PlayerActions extends Component {
   private final String SNEAK_SE = "sounds/sneaking1.mp3";
   private final String SLIDE_SE = "sounds/slide.mp3";
   private TextureRenderComponent textureRenderComponent;
-  // jumping is covered by platformerComponent.getJumpingBool()
-  private PlatformerComponent platformerComponent;
 
   private final Set<Entity> enemiesInRange = new HashSet<>();
 
@@ -303,5 +301,9 @@ public class PlayerActions extends Component {
 
     Body body = physicsComponent.getBody();
     body.setLinearVelocity(Vector2.Zero);
+  }
+
+  public boolean getDashing() {
+    return dashing;
   }
 }
