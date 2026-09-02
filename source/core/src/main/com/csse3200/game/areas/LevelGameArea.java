@@ -49,6 +49,9 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+  private long lastHazardDamageTime = 0;
+  private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
+  private static final int HAZARD_DAMAGE = 10;
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
@@ -189,8 +192,8 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Spawns the collisions and collision types based on the map json file. Updated to spawn platforms and rows as
-   * a singular layer, rather than individual tiles.
+   * Spawns the collisions and collision types based on the map json file. Updated to spawn
+   * platforms and rows as a singular layer, rather than individual tiles.
    */
   private void spawnCollisions() {
     MapLayerData collisionLayer = mapData.getCollisionLayer();
@@ -216,8 +219,7 @@ public class LevelGameArea extends GameArea {
         CollisionType collisionType = def.type().getCollisionType();
 
         // Only merge solid/platform tiles.
-        if (collisionType != CollisionType.SOLID
-                && collisionType != CollisionType.PLATFORM) {
+        if (collisionType != CollisionType.SOLID && collisionType != CollisionType.PLATFORM) {
           x++;
           continue;
         }
@@ -228,8 +230,7 @@ public class LevelGameArea extends GameArea {
         while (x + 1 < collisionLayer.getWidth()) {
           TileDefinition next = collisionLayer.get(x + 1, y);
 
-          if (next == null
-                  || next.type().getCollisionType() != collisionType) {
+          if (next == null || next.type().getCollisionType() != collisionType) {
             break;
           }
 
@@ -238,12 +239,7 @@ public class LevelGameArea extends GameArea {
 
         int tileCount = x - startX + 1;
 
-        spawnCollisionRow(
-                collisionType,
-                startX,
-                y,
-                tileCount,
-                tileSize);
+        spawnCollisionRow(collisionType, startX, y, tileCount, tileSize);
 
         x++;
       }
@@ -255,25 +251,22 @@ public class LevelGameArea extends GameArea {
 
   /**
    * Spawns a hazard tile collision layer which will deal damage to the player.
+   *
    * @param collisionLayer the collisionLayer to add the hazard to
    * @param tileSize the size of each tile
    */
-  private void spawnHazardCollisions(
-          MapLayerData collisionLayer,
-          float tileSize) {
+  private void spawnHazardCollisions(MapLayerData collisionLayer, float tileSize) {
 
     for (int x = 0; x < collisionLayer.getWidth(); x++) {
       for (int y = 0; y < collisionLayer.getHeight(); y++) {
 
         TileDefinition def = collisionLayer.get(x, y);
 
-        if (def == null
-                || def.type().getCollisionType() != CollisionType.HAZARD) {
+        if (def == null || def.type().getCollisionType() != CollisionType.HAZARD) {
           continue;
         }
 
-        Entity collider =
-                ObstacleFactory.createHazardTile(tileSize, tileSize);
+        Entity collider = ObstacleFactory.createHazardTile(tileSize, tileSize);
 
         Vector2 position = terrain.tileToWorldPosition(x, y);
 
@@ -290,7 +283,9 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Spawns a wide row of a collision layer. Used for spawning in platforms and ground collision layers.
+   * Spawns a wide row of a collision layer. Used for spawning in platforms and ground collision
+   * layers.
+   *
    * @param collisionType: the type of collision (hazard, solit etc).
    * @param startX: that starting x position of the row.
    * @param y: what y the row should be on
@@ -298,11 +293,7 @@ public class LevelGameArea extends GameArea {
    * @param tileSize: how big each tile is
    */
   private void spawnCollisionRow(
-          CollisionType collisionType,
-          int startX,
-          int y,
-          int tileCount,
-          float tileSize) {
+      CollisionType collisionType, int startX, int y, int tileCount, float tileSize) {
 
     float width = tileCount * tileSize;
 
@@ -342,6 +333,7 @@ public class LevelGameArea extends GameArea {
             (EventListener2<Fixture, Fixture>)
                 (fixtureA, fixtureB) -> {
                   Entity entityA = ((BodyUserData) fixtureA.getBody().getUserData()).entity;
+
                   Entity entityB = ((BodyUserData) fixtureB.getBody().getUserData()).entity;
 
                   Entity other;
@@ -355,11 +347,20 @@ public class LevelGameArea extends GameArea {
                   ColliderComponent collider = other.getComponent(ColliderComponent.class);
 
                   if (collider != null && collider.getLayer() == PhysicsLayer.HAZARD) {
-                    CombatStatsComponent stats = newPlayer.getComponent(CombatStatsComponent.class);
 
-                    stats.addHealth(-10);
+                    long currentTime = System.currentTimeMillis();
 
-                    logger.info("Player hit hazard! Health: {}", stats.getHealth());
+                    if (currentTime - lastHazardDamageTime >= HAZARD_DAMAGE_COOLDOWN_MS) {
+
+                      CombatStatsComponent stats =
+                          newPlayer.getComponent(CombatStatsComponent.class);
+
+                      stats.addHealth(-(int) HAZARD_DAMAGE);
+
+                      lastHazardDamageTime = currentTime;
+
+                      logger.info("Player hit hazard! Health: {}", stats.getHealth());
+                    }
                   }
                 });
 
