@@ -189,10 +189,8 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Build a static collider for every solid tile in the map's collision layer so the player and
-   * other physics bodies rest on floors and platforms instead of falling through. Reads the
-   * collision layer ({@link LevelMapData#getCollisionLayer()}), not layer 0, so the visual
-   * background layer never produces colliders.
+   * Spawns the collisions and collision types based on the map json file. Updated to spawn platforms and rows as
+   * a singular layer, rather than individual tiles.
    */
   private void spawnCollisions() {
     MapLayerData collisionLayer = mapData.getCollisionLayer();
@@ -203,54 +201,132 @@ public class LevelGameArea extends GameArea {
 
     float tileSize = terrain.getTileSize();
 
-    for (int x = 0; x < collisionLayer.getWidth(); x++) {
-      for (int y = 0; y < collisionLayer.getHeight(); y++) {
+    for (int y = 0; y < collisionLayer.getHeight(); y++) {
+      int x = 0;
+
+      // iterate x and accumulate collision tiles
+      while (x < collisionLayer.getWidth()) {
         TileDefinition def = collisionLayer.get(x, y);
 
         if (def == null) {
+          x++;
           continue;
         }
 
         CollisionType collisionType = def.type().getCollisionType();
 
-        spawnCollisionTile(collisionType, x, y, tileSize);
+        // Only merge solid/platform tiles.
+        if (collisionType != CollisionType.SOLID
+                && collisionType != CollisionType.PLATFORM) {
+          x++;
+          continue;
+        }
+
+        // Find consecutive tiles of the same collision type.
+        int startX = x;
+
+        while (x + 1 < collisionLayer.getWidth()) {
+          TileDefinition next = collisionLayer.get(x + 1, y);
+
+          if (next == null
+                  || next.type().getCollisionType() != collisionType) {
+            break;
+          }
+
+          x++;
+        }
+
+        int tileCount = x - startX + 1;
+
+        spawnCollisionRow(
+                collisionType,
+                startX,
+                y,
+                tileCount,
+                tileSize);
+
+        x++;
+      }
+    }
+
+    // Hazards remain individual
+    spawnHazardCollisions(collisionLayer, tileSize);
+  }
+
+  /**
+   * Spawns a hazard tile collision layer which will deal damage to the player.
+   * @param collisionLayer the collisionLayer to add the hazard to
+   * @param tileSize the size of each tile
+   */
+  private void spawnHazardCollisions(
+          MapLayerData collisionLayer,
+          float tileSize) {
+
+    for (int x = 0; x < collisionLayer.getWidth(); x++) {
+      for (int y = 0; y < collisionLayer.getHeight(); y++) {
+
+        TileDefinition def = collisionLayer.get(x, y);
+
+        if (def == null
+                || def.type().getCollisionType() != CollisionType.HAZARD) {
+          continue;
+        }
+
+        Entity collider =
+                ObstacleFactory.createHazardTile(tileSize, tileSize);
+
+        Vector2 position = terrain.tileToWorldPosition(x, y);
+
+        if (position == null) {
+          continue;
+        }
+
+        position.add(tileSize / 2f, tileSize / 2f);
+
+        collider.setPosition(position);
+        spawnEntity(collider);
       }
     }
   }
 
   /**
-   * Spawns the collision type at the x y coordinates from the relevant ObstacleFactory method
-   *
-   * @param collisionType the type of collision to spawn
-   * @param x the x coordinate of the collision
-   * @param y the y coordinate of the collision
-   * @param tileSize the width/height of the tile
+   * Spawns a wide row of a collision layer. Used for spawning in platforms and ground collision layers.
+   * @param collisionType: the type of collision (hazard, solit etc).
+   * @param startX: that starting x position of the row.
+   * @param y: what y the row should be on
+   * @param tileCount: how wide/how many tiles it should be
+   * @param tileSize: how big each tile is
    */
-  private void spawnCollisionTile(CollisionType collisionType, int x, int y, float tileSize) {
+  private void spawnCollisionRow(
+          CollisionType collisionType,
+          int startX,
+          int y,
+          int tileCount,
+          float tileSize) {
+
+    float width = tileCount * tileSize;
 
     Entity collider;
 
     switch (collisionType) {
-      case SOLID, PLATFORM:
-        collider = ObstacleFactory.createFloorTile(tileSize, COLLIDER_HEIGHT);
+      case SOLID:
+      case PLATFORM:
+        collider = ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
         break;
 
-      case HAZARD:
-        collider = ObstacleFactory.createHazardTile(tileSize, tileSize);
-        break;
-
-      case NONE:
       default:
         return;
     }
 
-    // tileToWorldPosition gives the bottom-left corner of the tile (null for unsupported
-    // orientations). Entity positions represent the centre of the entity.
-    Vector2 position = terrain.tileToWorldPosition(x, y);
+    Vector2 position = terrain.tileToWorldPosition(startX, y);
+
     if (position == null) {
       return;
     }
-    position.add(tileSize / 2f, tileSize / 2f);
+
+    // tileToWorldPosition gives the centre of the first tile.
+    // Shift from that centre to the centre of the whole merged platform.
+    position.add(0, tileSize / 2f);
 
     collider.setPosition(position);
     spawnEntity(collider);
