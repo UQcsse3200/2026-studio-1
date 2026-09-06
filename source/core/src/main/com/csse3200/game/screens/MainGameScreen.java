@@ -90,20 +90,21 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /**
-   * Centre the camera on the loaded map and zoom so the map fills the window. Uses the smaller of
-   * the two axis zoom factors so the map covers the whole viewport (no empty background), cropping
-   * a small strip on the longer axis. Swap {@code Math.min} for {@code Math.max} to fit the whole
-   * map inside instead (letterboxed).
+   * Zoom the camera so the map fills the window and align it with the bottom of the map. Uses the
+   * smaller of the two axis zoom factors so the map covers the whole viewport. Tall maps are
+   * therefore cropped at the top while their starting area remains visible.
    *
    * @param area the level area whose map the camera should frame
    */
   private void fitCameraToMap(LevelGameArea area) {
     OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
-    renderer.getCamera().getEntity().setPosition(area.getMapCenter());
-
     float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
     float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
     cam.zoom = Math.min(zoomForWidth, zoomForHeight);
+
+    float visibleWorldHeight = cam.viewportHeight * cam.zoom;
+    Vector2 bottomViewCenter = new Vector2(area.getMapWorldWidth() / 2f, visibleWorldHeight / 2f);
+    renderer.getCamera().getEntity().setPosition(bottomViewCenter);
     cam.update();
   }
 

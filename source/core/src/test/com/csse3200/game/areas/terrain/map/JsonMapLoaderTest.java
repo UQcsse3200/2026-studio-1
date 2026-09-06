@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.extensions.GameExtension;
 import org.junit.jupiter.api.Test;
@@ -291,8 +292,14 @@ class JsonMapLoaderTest {
     LevelMapData roomOne = loader.load("maps/demo.json");
     LevelMapData roomTwo = loader.load("maps/room2.json");
 
+    assertEquals("Underworld Dungeon", roomOne.getName());
+    assertEquals(40, roomOne.getWidth());
+    assertEquals(66, roomOne.getHeight());
+    assertEquals(new GridPoint2(3, 2), roomOne.getSpawns().getPlayer());
+    assertEquals(TileType.WALL, roomOne.getTileType(3, 0));
     assertEquals(1, roomOne.getTransitions().size());
     assertEquals("maps/room2.json", roomOne.getTransitions().getFirst().getDestinationMap());
+    assertEquals(new GridPoint2(19, 62), roomOne.getTransitions().getFirst().getPosition());
     assertEquals("Underworld (Temporary)", roomTwo.getName());
     assertEquals(40, roomTwo.getWidth());
     assertEquals(22, roomTwo.getHeight());
