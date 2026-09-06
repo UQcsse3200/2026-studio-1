@@ -48,7 +48,11 @@ public class EntityService {
 
   /** Dispose all entities. */
   public void dispose() {
-    for (Entity entity : entities) {
+    // Entity.dispose() unregisters itself. Iterate over a snapshot so removals cannot skip every
+    // second entity or invalidate the active iterator during a screen change.
+    Array<Entity> entitiesToDispose = new Array<>(entities);
+    entities.clear();
+    for (Entity entity : entitiesToDispose) {
       entity.dispose();
     }
   }

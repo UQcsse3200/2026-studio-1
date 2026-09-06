@@ -162,6 +162,55 @@ class JsonMapLoaderTest {
   }
 
   @Test
+  void parsesRoomTransitions() {
+    String json =
+        """
+        {
+          "legend": {},
+          "layers": { "terrain": ["    ", "    "] },
+          "transitions": [
+            {
+              "id": "to-underworld",
+              "x": 2,
+              "y": 1,
+              "width": 2,
+              "height": 3,
+              "texture": "door.png",
+              "destinationMap": "maps/room2.json",
+              "destinationSpawn": { "x": 4, "y": 5 }
+            }
+          ]
+        }
+        """;
+
+    LevelMapData map = loader.parse(json);
+    RoomTransition transition = map.getTransitions().getFirst();
+
+    assertEquals("to-underworld", transition.getId());
+    assertEquals(new com.badlogic.gdx.math.GridPoint2(2, 1), transition.getPosition());
+    assertEquals(2, transition.getWidth());
+    assertEquals(3, transition.getHeight());
+    assertEquals("door.png", transition.getTexture());
+    assertEquals("maps/room2.json", transition.getDestinationMap());
+    assertEquals(new com.badlogic.gdx.math.GridPoint2(4, 5), transition.getDestinationSpawn());
+    assertTrue(map.getTexturePaths().contains("door.png"));
+  }
+
+  @Test
+  void rejectsTransitionWithoutDestinationMap() {
+    String json =
+        """
+        {
+          "legend": {},
+          "layers": { "terrain": [" "] },
+          "transitions": [ { "x": 0, "y": 0 } ]
+        }
+        """;
+
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
+  }
+
+  @Test
   void allowsOutOfBoundsSpawnsWithoutThrowing() {
     String json =
         """
@@ -235,6 +284,18 @@ class JsonMapLoaderTest {
     assertEquals(TileType.WALL, map.getTileType(0, 0));
     assertEquals(2, map.getTexturePaths().size());
     assertEquals("ghost", map.getSpawns().getEnemies().get(0).getType());
+  }
+
+  @Test
+  void loadsRoomOneDoorwayAndTemporaryRoomTwo() {
+    LevelMapData roomOne = loader.load("maps/demo.json");
+    LevelMapData roomTwo = loader.load("maps/room2.json");
+
+    assertEquals(1, roomOne.getTransitions().size());
+    assertEquals("maps/room2.json", roomOne.getTransitions().getFirst().getDestinationMap());
+    assertEquals("Underworld (Temporary)", roomTwo.getName());
+    assertEquals(40, roomTwo.getWidth());
+    assertEquals(22, roomTwo.getHeight());
   }
 
   @Test

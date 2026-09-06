@@ -30,6 +30,7 @@ public class LevelMapData {
   private final Map<String, TileDefinition> legend;
   private final List<MapLayerData> layers;
   private final MapSpawns spawns;
+  private final List<RoomTransition> transitions;
 
   public LevelMapData(
       String name,
@@ -39,6 +40,18 @@ public class LevelMapData {
       Map<String, TileDefinition> legend,
       List<MapLayerData> layers,
       MapSpawns spawns) {
+    this(name, tileSize, width, height, legend, layers, spawns, Collections.emptyList());
+  }
+
+  public LevelMapData(
+      String name,
+      float tileSize,
+      int width,
+      int height,
+      Map<String, TileDefinition> legend,
+      List<MapLayerData> layers,
+      MapSpawns spawns,
+      List<RoomTransition> transitions) {
     this.name = name;
     this.tileSize = tileSize;
     this.width = width;
@@ -46,6 +59,7 @@ public class LevelMapData {
     this.legend = legend;
     this.layers = layers;
     this.spawns = spawns;
+    this.transitions = transitions;
   }
 
   public String getName() {
@@ -127,6 +141,13 @@ public class LevelMapData {
   }
 
   /**
+   * @return doorways defined by this map (unmodifiable)
+   */
+  public List<RoomTransition> getTransitions() {
+    return Collections.unmodifiableList(transitions);
+  }
+
+  /**
    * All distinct, non-null texture paths referenced by the legend. Used by a game area to know
    * which textures to load before building the terrain.
    *
@@ -137,6 +158,11 @@ public class LevelMapData {
     for (TileDefinition def : legend.values()) {
       if (def.texture() != null) {
         paths.add(def.texture());
+      }
+    }
+    for (RoomTransition transition : transitions) {
+      if (transition.getTexture() != null) {
+        paths.add(transition.getTexture());
       }
     }
     return paths;

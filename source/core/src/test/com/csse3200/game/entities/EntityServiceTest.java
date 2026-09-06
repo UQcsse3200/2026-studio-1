@@ -1,11 +1,13 @@
 package com.csse3200.game.entities;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.csse3200.game.extensions.GameExtension;
+import com.csse3200.game.services.ServiceLocator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -48,5 +50,24 @@ class EntityServiceTest {
     entityService.register(entity);
     entityService.dispose();
     verify(entity).dispose();
+  }
+
+  @Test
+  void shouldDisposeEveryEntityWhenDisposalUnregistersEntities() {
+    EntityService entityService = new EntityService();
+    ServiceLocator.registerEntityService(entityService);
+    Entity first = spy(Entity.class);
+    Entity second = spy(Entity.class);
+    Entity third = spy(Entity.class);
+    entityService.register(first);
+    entityService.register(second);
+    entityService.register(third);
+
+    entityService.dispose();
+
+    verify(first).dispose();
+    verify(second).dispose();
+    verify(third).dispose();
+    assertDoesNotThrow(entityService::dispose);
   }
 }

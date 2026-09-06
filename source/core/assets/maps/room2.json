@@ -1,5 +1,5 @@
 {
-  "name": "Platformer Demo",
+  "name": "Underworld (Temporary)",
   "tileSize": 0.5,
   "legend": {
     "#": {
@@ -8,7 +8,7 @@
     },
     ".": {
       "type": "DECORATIVE",
-      "texture": "images/bg_decor_px.png"
+      "texture": "images/hazard_px.png"
     },
     "=": {
       "type": "PLATFORM",
@@ -50,71 +50,42 @@
       "#                                      #",
       "#                                      #",
       "#                                      #",
+      "#                         ========     #",
       "#                                      #",
       "#                                      #",
-      "#         =========                    #",
+      "#              ========                #",
+      "#                                      #",
+      "#                                      #",
+      "#     ========                         #",
+      "#                                      #",
+      "#                                      #",
+      "#                         =======      #",
       "#                                      #",
       "#                                      #",
       "#                                      #",
-      "#                   ===========        #",
       "#                                      #",
       "#                                      #",
-      "#                                      #",
-      "#  ==========                          #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                        ^^^^          #",
+      "#               ^^^^^^^                #",
       "########################################"
     ]
   },
   "spawns": {
     "player": {
-      "x": 6,
-      "y": 12
+      "x": 2,
+      "y": 2
     },
     "enemies": [
       {
-        "type": "skeleton",
-        "x": 34,
-        "y": 2
+        "type": "ghost",
+        "x": 29,
+        "y": 7
       },
       {
         "type": "skeleton",
-        "x": 24,
-        "y": 15
-      },
-      {
-        "type": "ranged-skeleton",
-        "x": 15,
-        "y": 18
-      }
-    ],
-    "loot": [
-      {
         "x": 18,
         "y": 2
-      },
-      {
-        "x": 25,
-        "y": 11
       }
-    ]
-  },
-  "transitions": [
-    {
-      "id": "room-1-to-room-2",
-      "x": 37,
-      "y": 1,
-      "width": 2,
-      "height": 3,
-      "texture": "images/wall_px_2.png",
-      "destinationMap": "maps/room2.json",
-      "destinationSpawn": {
-        "x": 2,
-        "y": 2
-      }
-    }
-  ]
+    ],
+    "loot": []
+  }
 }

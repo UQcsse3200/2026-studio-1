@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.factories;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -17,7 +18,9 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
+import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsService;
+import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.rendering.BobbingTextureRenderComponent;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.TextureRenderComponent;
@@ -75,15 +78,27 @@ class LootFactoryTest {
     assertNotNull(loot.getComponent(LootPickupComponent.class));
   }
 
-  /** Adding the consumable branch must not change how weapons are built. */
+  /** Weapons use the same visible pickup motion as consumables. */
   @Test
-  void shouldStillRenderWeaponsWithAStaticSprite() {
+  void shouldRenderWeaponsWithABobbingSprite() {
     WeaponItem weapon = new WeaponGenerator().generateWeapon(WeaponType.SWORD, 1);
 
     Entity loot = LootFactory.createLoot(weapon);
 
-    assertNotNull(loot.getComponent(TextureRenderComponent.class));
-    assertNull(loot.getComponent(BobbingTextureRenderComponent.class));
+    assertNotNull(loot.getComponent(BobbingTextureRenderComponent.class));
+    assertNull(loot.getComponent(TextureRenderComponent.class));
     assertNotNull(loot.getComponent(LootPickupComponent.class));
+  }
+
+  @Test
+  void shouldCollideWithTerrainWithoutBlockingPlayerOrOtherLoot() {
+    WeaponItem weapon = new WeaponGenerator().generateWeapon(WeaponType.SWORD, 1);
+
+    Entity loot = LootFactory.createLoot(weapon);
+    ColliderComponent solidCollider = loot.getComponent(ColliderComponent.class);
+
+    assertNotNull(solidCollider);
+    assertEquals(PhysicsLayer.ITEM, solidCollider.getLayer());
+    assertEquals(PhysicsLayer.OBSTACLE, solidCollider.getMask());
   }
 }

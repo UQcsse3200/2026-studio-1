@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
+import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
@@ -46,6 +47,7 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-yellow.png"
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
+  private static final String FIRST_ROOM_MAP = "maps/demo.json";
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -54,6 +56,7 @@ public class MainGameScreen extends ScreenAdapter {
   private DeathScreenDisplay deathScreenDisplay;
   private boolean deathScreenShown = false;
   private PauseMenuComponent pauseMenu;
+  private final TerrainFactory terrainFactory;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -79,8 +82,8 @@ public class MainGameScreen extends ScreenAdapter {
     createUI();
 
     logger.debug("Initialising main game screen entities");
-    TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
-    this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
+    terrainFactory = new TerrainFactory(renderer.getCamera());
+    this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
 
     fitCameraToMap(levelGameArea);
@@ -128,7 +131,34 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
+    RoomTransition transition = levelGameArea.consumePendingTransition();
+    if (transition != null) {
+      transitionTo(transition);
+    }
+
     renderer.render();
+  }
+
+  private void transitionTo(RoomTransition transition) {
+    logger.info(
+        "Entering '{}' through transition '{}'",
+        transition.getDestinationMap(),
+        transition.getId());
+
+    LevelGameArea previousArea = levelGameArea;
+    Entity player = previousArea.releasePlayer();
+    LevelGameArea nextArea =
+        new LevelGameArea(
+            terrainFactory,
+            transition.getDestinationMap(),
+            player,
+            transition.getDestinationSpawn());
+    nextArea.create();
+
+    previousArea.dispose();
+    nextArea.resumeMusic();
+    levelGameArea = nextArea;
+    fitCameraToMap(nextArea);
   }
 
   @Override
@@ -151,10 +181,13 @@ public class MainGameScreen extends ScreenAdapter {
   public void dispose() {
     logger.debug("Disposing main game screen");
 
-    renderer.dispose();
-    unloadAssets();
-
+    // Dispose components while their services and physics world are still alive. The entity
+    // service owns all active room and UI entities at screen shutdown; the resource service then
+    // releases every loaded asset once. Calling LevelGameArea.dispose()/unloadAssets() here as
+    // well would perform a second, overlapping cleanup pass.
     ServiceLocator.getEntityService().dispose();
+    physicsEngine.dispose();
+    renderer.dispose();
     ServiceLocator.getRenderService().dispose();
     ServiceLocator.getResourceService().dispose();
 
@@ -166,12 +199,6 @@ public class MainGameScreen extends ScreenAdapter {
     ResourceService resourceService = ServiceLocator.getResourceService();
     resourceService.loadTextures(mainGameTextures);
     ServiceLocator.getResourceService().loadAll();
-  }
-
-  private void unloadAssets() {
-    logger.debug("Unloading assets");
-    ResourceService resourceService = ServiceLocator.getResourceService();
-    resourceService.unloadAssets(mainGameTextures);
   }
 
   /**

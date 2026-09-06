@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GdxGame extends Game {
   private static final Logger logger = LoggerFactory.getLogger(GdxGame.class);
+  private boolean screenChangePending;
 
   @Override
   public void create() {
@@ -51,6 +52,25 @@ public class GdxGame extends Game {
       currentScreen.dispose();
     }
     setScreen(newScreen(screenType));
+  }
+
+  /**
+   * Requests a screen replacement after the current frame's UI callbacks finish. Scene2D invokes
+   * button listeners while its stage is updating, so disposing that stage synchronously from a
+   * listener can crash the game.
+   *
+   * @param screenType screen to create on the next application cycle
+   */
+  public void setScreenDeferred(ScreenType screenType) {
+    if (screenChangePending) {
+      return;
+    }
+    screenChangePending = true;
+    Gdx.app.postRunnable(
+        () -> {
+          screenChangePending = false;
+          setScreen(screenType);
+        });
   }
 
   @Override

@@ -17,6 +17,7 @@ class WeaponGeneratorTest {
     assertEquals(ItemType.WEAPON, weapon.getItemType());
     assertEquals(WeaponType.SWORD, weapon.getWeaponType());
     assertEquals(10, weapon.getDamage());
+    assertEquals(5, weapon.getMaxQuantity());
   }
 
   @Test
@@ -28,6 +29,7 @@ class WeaponGeneratorTest {
     assertEquals("Basic Bow", weapon.getName());
     assertEquals(WeaponType.BOW, weapon.getWeaponType());
     assertEquals(7, weapon.getDamage());
+    assertEquals(5, weapon.getMaxQuantity());
   }
 
   @Test

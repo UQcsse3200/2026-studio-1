@@ -134,9 +134,11 @@ public class JsonMapLoader implements MapLoader {
     }
 
     MapSpawns spawns = parseSpawns(root.get("spawns"));
+    List<RoomTransition> transitions = parseTransitions(root.get("transitions"), name);
     validateSpawns(spawns, width, height, name);
+    validateTransitions(transitions, width, height, name);
 
-    return new LevelMapData(name, tileSize, width, height, legend, layers, spawns);
+    return new LevelMapData(name, tileSize, width, height, legend, layers, spawns, transitions);
   }
 
   private Map<String, TileDefinition> parseLegend(JsonValue legendJson, String mapName) {
@@ -218,6 +220,45 @@ public class JsonMapLoader implements MapLoader {
     return spawns;
   }
 
+  private List<RoomTransition> parseTransitions(JsonValue transitionsJson, String mapName) {
+    List<RoomTransition> transitions = new ArrayList<>();
+    if (transitionsJson == null) {
+      return transitions;
+    }
+    if (!transitionsJson.isArray()) {
+      throw new MapLoadException("Map '" + mapName + "' 'transitions' must be an array");
+    }
+
+    int index = 0;
+    for (JsonValue doorway = transitionsJson.child; doorway != null; doorway = doorway.next) {
+      String destinationMap = doorway.getString("destinationMap", null);
+      if (destinationMap == null || destinationMap.isBlank()) {
+        throw new MapLoadException(
+            "Transition " + index + " in map '" + mapName + "' has no destinationMap");
+      }
+
+      JsonValue destinationSpawnJson = doorway.get("destinationSpawn");
+      GridPoint2 destinationSpawn = null;
+      if (destinationSpawnJson != null) {
+        destinationSpawn =
+            new GridPoint2(
+                destinationSpawnJson.getInt("x", 0), destinationSpawnJson.getInt("y", 0));
+      }
+
+      transitions.add(
+          new RoomTransition(
+              doorway.getString("id", "transition-" + index),
+              new GridPoint2(doorway.getInt("x", 0), doorway.getInt("y", 0)),
+              Math.max(1, doorway.getInt("width", 1)),
+              Math.max(1, doorway.getInt("height", 1)),
+              doorway.getString("texture", null),
+              destinationMap,
+              destinationSpawn));
+      index++;
+    }
+    return transitions;
+  }
+
   /** Warn (but don't fail) on spawns that fall outside the map bounds. */
   private void validateSpawns(MapSpawns spawns, int width, int height, String mapName) {
     if (width == 0 || height == 0) {
@@ -235,6 +276,17 @@ public class JsonMapLoader implements MapLoader {
     for (SpawnPoint sp : spawns.getLoot()) {
       if (outOfBounds(sp.getX(), sp.getY(), width, height)) {
         logger.warn("Loot spawn {} is out of bounds in map '{}'", sp, mapName);
+      }
+    }
+  }
+
+  /** Warn (but don't fail) when a doorway is outside the source map. */
+  private void validateTransitions(
+      List<RoomTransition> transitions, int width, int height, String mapName) {
+    for (RoomTransition transition : transitions) {
+      GridPoint2 position = transition.getPosition();
+      if (outOfBounds(position.x, position.y, width, height)) {
+        logger.warn("Transition '{}' is out of bounds in map '{}'", transition.getId(), mapName);
       }
     }
   }
