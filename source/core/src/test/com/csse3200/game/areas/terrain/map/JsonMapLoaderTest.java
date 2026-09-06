@@ -297,6 +297,10 @@ class JsonMapLoaderTest {
     assertEquals(66, roomOne.getHeight());
     assertEquals(new GridPoint2(3, 2), roomOne.getSpawns().getPlayer());
     assertEquals(TileType.WALL, roomOne.getTileType(3, 0));
+    assertEquals(TileType.HAZARD, roomOne.getTileType(14, 1));
+    assertEquals(TileType.HAZARD, roomOne.getTileType(16, 58));
+    assertEquals(TileType.PLATFORM, roomOne.getTileType(12, 33));
+    assertEquals(12, roomOne.getSpawns().getEnemies().get(1).getX());
     assertEquals(1, roomOne.getTransitions().size());
     assertEquals("maps/room2.json", roomOne.getTransitions().getFirst().getDestinationMap());
     assertEquals(new GridPoint2(19, 62), roomOne.getTransitions().getFirst().getPosition());
