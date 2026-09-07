@@ -54,6 +54,7 @@ public class LevelGameArea extends GameArea {
   private static final String[] entityTextures = {
     "images/box_boy_leaf.png",
     "images/box_boy_crouch.png",
+    "images/box_boy_slide.png",
     "images/ghost_king.png",
     "images/ghost_1.png",
     "images/sword.png",
@@ -64,10 +65,22 @@ public class LevelGameArea extends GameArea {
     "images/Strength.png"
   };
 
-  private static final String[] entitySounds = {"sounds/Impact4.ogg", "sounds/player-hit.ogg"};
+  private static final String[] entitySounds = {
+    "sounds/Impact4.ogg",
+    "sounds/player-hit.ogg",
+    "sounds/player-hit-crown.ogg",
+    "sounds/walking1.mp3",
+    "sounds/jump.mp3",
+    "sounds/dash.mp3",
+    "sounds/sneaking1.mp3",
+    "sounds/slide.mp3"
+  };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas"
+    "images/ghost.atlas",
+    "images/ghostKing.atlas",
+    "images/gold_coin/gold_coin.atlas",
+    "images/skeleton.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
@@ -298,15 +311,16 @@ public class LevelGameArea extends GameArea {
     if (type == null) {
       return null;
     }
-    switch (type.toLowerCase()) {
-      case "ghost":
-        return NPCFactory.createGhost(player);
-      case "ghostking", "ghost_king":
-        return NPCFactory.createGhostKing(player);
-      default:
+    return switch (type.toLowerCase()) {
+      case "ghost" -> NPCFactory.createGhost(player);
+      case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
+      case "skeleton" -> NPCFactory.createSkeleton(player);
+      case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
+      default -> {
         logger.warn("Unknown enemy spawn type '{}' - skipped", type);
-        return null;
-    }
+        yield null;
+      }
+    };
   }
 
   /**
@@ -344,7 +358,7 @@ public class LevelGameArea extends GameArea {
    */
   private GridPoint2 lootRowStart() {
     if (!mapData.getSpawns().getLoot().isEmpty()) {
-      return mapData.getSpawns().getLoot().get(0).getPosition();
+      return mapData.getSpawns().getLoot().getFirst().getPosition();
     }
     GridPoint2 playerSpawn = mapData.getSpawns().getPlayer();
     if (playerSpawn != null) {
