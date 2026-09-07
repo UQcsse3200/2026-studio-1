@@ -18,6 +18,8 @@ import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.LootPlacement;
+import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
@@ -49,6 +51,12 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+
+  /**
+   * Seed for loot rolls. Fixing it keeps a level's loot the same from run to run, so a bug found
+   * while playing can be reproduced.
+   */
+  private static final long LOOT_SEED = 2026L;
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
@@ -326,12 +334,33 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Spawns pickup loot (weapons, consumables, and a gold coin) so the loot/inventory features work
-   * in this level, mirroring what {@code ForestGameArea} spawns. Items are laid out in a row
-   * anchored to the map's first loot spawn point (falling back to just right of the player), so
-   * they land on the loaded map regardless of its size.
+   * Spawns pickup loot across the map.
+   *
+   * <p>Every loot spawn point the map declares gets one item rolled from the weighted loot table,
+   * so loot lands on reachable ground and higher tiers stay rare. A map with no declared loot
+   * spawns falls back to a starter row beside the player.
    */
   private void spawnLoot() {
+    List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();
+    if (!lootSpawns.isEmpty()) {
+      LootTable table = LootTable.createDefault(LOOT_SEED);
+      for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, lootSpawns)) {
+        spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
+      }
+      logger.debug("Spawned {} pieces of loot from the loot table", lootSpawns.size());
+      return;
+    }
+
+    spawnStarterLootRow();
+  }
+
+  /**
+   * Lays one of everything out in a row next to the player.
+   *
+   * <p>Used for maps that declare no loot spawn points, so the loot and inventory features are
+   * still reachable while a map is being built.
+   */
+  private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
