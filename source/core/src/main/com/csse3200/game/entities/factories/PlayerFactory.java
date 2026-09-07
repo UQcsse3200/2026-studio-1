@@ -1,20 +1,13 @@
 package com.csse3200.game.entities.factories;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.components.player.ConsumableUseComponent;
-import com.csse3200.game.components.player.DeathStateComponent;
-import com.csse3200.game.components.player.InventoryComponent;
-import com.csse3200.game.components.player.InventoryDisplay;
-import com.csse3200.game.components.player.ItemDropComponent;
-import com.csse3200.game.components.player.PlayerActions;
-import com.csse3200.game.components.player.PlayerStatsDisplay;
-import com.csse3200.game.components.player.WeaponAttackComponent;
-import com.csse3200.game.components.player.WeaponDisplay;
-import com.csse3200.game.components.player.WeaponRenderComponent;
+import com.csse3200.game.components.player.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.PlayerConfig;
 import com.csse3200.game.files.FileLoader;
@@ -24,6 +17,7 @@ import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -50,16 +44,16 @@ public class PlayerFactory {
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
 
     Entity player =
-        new Entity()
-            .addComponent(new TextureRenderComponent("images/box_boy_leaf.png"))
-            .addComponent(new PhysicsComponent())
-            .addComponent(new ColliderComponent())
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
-            .addComponent(new PlayerActions())
-            .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
+            new Entity()
+                    .addComponent(new TextureRenderComponent("images/knight_default.png"))
+                    .addComponent(new PhysicsComponent())
+                    .addComponent(new ColliderComponent())
+                    .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
+                    .addComponent(new PlayerActions())
+                    .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
 
-            // Death State
-            .addComponent(new DeathStateComponent())
+                    // Death State
+                    .addComponent(new DeathStateComponent())
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
@@ -72,6 +66,21 @@ public class PlayerFactory {
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
             .addComponent(new WeaponRenderComponent("images/sword.png"));
+    AnimationRenderComponent animator =
+            new AnimationRenderComponent(
+                    ServiceLocator.getResourceService()
+                            .getAsset("images/knight.atlas", TextureAtlas.class));
+    animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Attacks", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("crouchidle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("Roll", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Slide", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Run", 0.1f, Animation.PlayMode.LOOP);
+    player.addComponent(animator).addComponent(new PlayerAnimationController());
+
+    player.getComponent(AnimationRenderComponent.class).scaleEntity();
+
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);

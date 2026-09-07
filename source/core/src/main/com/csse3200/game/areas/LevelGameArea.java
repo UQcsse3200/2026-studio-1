@@ -52,7 +52,7 @@ public class LevelGameArea extends GameArea {
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/box_boy_leaf.png",
+    "images/knight_default.png",
     "images/box_boy_crouch.png",
     "images/box_boy_slide.png",
     "images/ghost_king.png",
@@ -77,7 +77,7 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas"
+    "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas", "images/knight.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
