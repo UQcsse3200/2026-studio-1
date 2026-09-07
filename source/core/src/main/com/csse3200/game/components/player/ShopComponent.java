@@ -347,8 +347,8 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Catalog data for a shop product. Nested on the player's shop component; not a {@link
-   * Component} and not a wallet.
+   * Catalog data for a shop product. Nested on the player's shop component; not a {@link Component}
+   * and not a wallet.
    *
    * @param <T> product type stored in this listing
    */
