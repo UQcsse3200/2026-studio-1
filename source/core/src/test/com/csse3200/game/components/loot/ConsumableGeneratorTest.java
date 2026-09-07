@@ -35,6 +35,16 @@ class ConsumableGeneratorTest {
     configs.speedBuff.durationSeconds = 10f;
     configs.speedBuff.maxQuantity = 9;
 
+    configs.regeneration.name = "Regeneration Potion";
+    configs.regeneration.healAmount = 5;
+    configs.regeneration.durationSeconds = 5f;
+    configs.regeneration.maxQuantity = 9;
+
+    configs.resistance.name = "Resistance Potion";
+    configs.resistance.magnitude = 0.8f;
+    configs.resistance.durationSeconds = 10f;
+    configs.resistance.maxQuantity = 9;
+
     generator = new ConsumableGenerator(configs);
   }
 
@@ -132,5 +142,53 @@ class ConsumableGeneratorTest {
         (BuffEffect) fromFile.generateConsumable(ConsumableType.DAMAGE_BUFF, 1).getEffect();
     assertTrue(damage.getMagnitude() > 1f);
     assertTrue(damage.getDurationSeconds() > 0f);
+  }
+
+  /** Acceptance criterion: regeneration heals per tick, and a higher tier heals faster. */
+  @Test
+  void shouldScaleRegenerationHealPerTickWithTier() {
+    RegenerationEffect tier1 =
+        (RegenerationEffect)
+            generator.generateConsumable(ConsumableType.REGENERATION, 1).getEffect();
+    RegenerationEffect tier3 =
+        (RegenerationEffect)
+            generator.generateConsumable(ConsumableType.REGENERATION, 3).getEffect();
+
+    assertEquals(5, tier1.getHealPerTick());
+    assertEquals(15, tier3.getHealPerTick());
+    assertEquals(5f, tier1.getDurationSeconds());
+  }
+
+  /** Acceptance criterion: resistance reduces incoming damage, and a higher tier reduces more. */
+  @Test
+  void shouldMakeResistanceStrongerAtHigherTiers() {
+    BuffEffect tier1 =
+        (BuffEffect) generator.generateConsumable(ConsumableType.RESISTANCE, 1).getEffect();
+    BuffEffect tier2 =
+        (BuffEffect) generator.generateConsumable(ConsumableType.RESISTANCE, 2).getEffect();
+
+    assertEquals(BuffStat.RESISTANCE, tier1.getStat());
+    assertEquals(0.8f, tier1.getMagnitude(), 0.0001f);
+    assertEquals(0.6f, tier2.getMagnitude(), 0.0001f);
+  }
+
+  /** A high enough tier must not make the player immune, or drive the multiplier negative. */
+  @Test
+  void shouldClampResistanceAboveZero() {
+    BuffEffect tier9 =
+        (BuffEffect) generator.generateConsumable(ConsumableType.RESISTANCE, 9).getEffect();
+
+    assertTrue(tier9.getMagnitude() > 0f);
+    assertTrue(tier9.getMagnitude() < 0.5f);
+  }
+
+  /** Every consumable type must be generatable, so a new type cannot be half-added. */
+  @Test
+  void shouldGenerateEveryConsumableType() {
+    for (ConsumableType type : ConsumableType.values()) {
+      ConsumableItem item = generator.generateConsumable(type, 1);
+      assertNotNull(item.getEffect());
+      assertNotNull(item.getTexturePath());
+    }
   }
 }

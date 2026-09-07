@@ -12,6 +12,8 @@ public class ConsumableConfigs {
   public ConsumableConfig healthPotion = new ConsumableConfig();
   public ConsumableConfig damageBuff = new ConsumableConfig();
   public ConsumableConfig speedBuff = new ConsumableConfig();
+  public ConsumableConfig regeneration = new ConsumableConfig();
+  public ConsumableConfig resistance = new ConsumableConfig();
 
   /**
    * Returns the config backing the given consumable type.
@@ -31,6 +33,10 @@ public class ConsumableConfigs {
         return damageBuff;
       case SPEED_BUFF:
         return speedBuff;
+      case REGENERATION:
+        return regeneration;
+      case RESISTANCE:
+        return resistance;
       default:
         throw new IllegalArgumentException("No config for consumable type " + type);
     }
