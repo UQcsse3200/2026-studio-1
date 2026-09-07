@@ -5,8 +5,9 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +18,15 @@ import org.slf4j.LoggerFactory;
  * <p>Timing follows the same approach as WaitTask: an end time is worked out from {@link GameTime}
  * when the buff starts, and update() checks whether that time has been reached.
  *
- * <p>Stats are handled by remembering the entity's normal values in create(), then recalculating
- * them as "normal value multiplied by every active buff". Applying and expiring a buff both use
- * that one rule, so a buff never has to work out how to undo itself.
+ * <p><b>Stacking rule:</b> at most one buff is active per stat. Drinking a stronger potion replaces
+ * the weaker buff, drinking the same potion again refreshes its timer, and drinking a weaker potion
+ * while a stronger buff is active is rejected so the item is not wasted. Buffs on different stats
+ * are independent and apply together. Multiplying two potions of the same stat together produced
+ * speeds and damage the game was never balanced for, so that behaviour was deliberately removed.
+ *
+ * <p>Stats are handled by recalculating them as "unbuffed value multiplied by the active buff on
+ * that stat". Applying and expiring a buff both use that one rule, so a buff never has to work out
+ * how to undo itself.
  *
  * <p>Buff state is readable so a buff timer UI can be added later without changing this class.
  * Listen for the "buffApplied" and "buffExpired" events, or call {@link #getActiveBuffs()}.
@@ -27,26 +34,23 @@ import org.slf4j.LoggerFactory;
 public class PlayerBuffComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerBuffComponent.class);
 
-  private final List<ActiveBuff> activeBuffs = new ArrayList<>();
+  private final Map<BuffStat, ActiveBuff> activeBuffs = new EnumMap<>(BuffStat.class);
   private GameTime timeSource;
-  private int normalBaseAttack;
-  private float speedMultiplier = 1f;
+  private int unbuffedBaseAttack;
 
   /** Stores the game clock and the entity's unbuffed stats. */
   @Override
   public void create() {
     timeSource = ServiceLocator.getTimeSource();
-    CombatStatsComponent stats = getCombatStats();
-    if (stats != null) {
-      normalBaseAttack = stats.getBaseAttack();
-    }
+    rememberUnbuffedBaseAttack();
   }
 
   /**
    * Applies a temporary stat modifier that reverts after {@code durationSeconds}.
    *
    * <p>A buff that would change nothing is rejected, which covers a duration of zero and a
-   * magnitude of exactly 1.0.
+   * magnitude of exactly 1.0. A buff weaker than the one already running on that stat is also
+   * rejected, so {@code ConsumableUseComponent} leaves the potion in the inventory.
    *
    * @param stat stat to modify
    * @param magnitude multiplier to apply, where 1.0 is no change
@@ -59,9 +63,21 @@ public class PlayerBuffComponent extends Component {
       return false;
     }
 
+    ActiveBuff current = activeBuffs.get(stat);
+    if (current != null && magnitude < current.getMagnitude()) {
+      logger.debug("Rejecting {} buff of {}, a stronger one is active", stat, magnitude);
+      return false;
+    }
+
+    // Read the unbuffed value now rather than in create(), so a base attack changed elsewhere
+    // (a level up, a different weapon) is not overwritten when this buff expires.
+    if (stat == BuffStat.DAMAGE && current == null) {
+      rememberUnbuffedBaseAttack();
+    }
+
     long endTime = timeSource.getTime() + (long) (durationSeconds * 1000);
     ActiveBuff buff = new ActiveBuff(stat, magnitude, durationSeconds, endTime);
-    activeBuffs.add(buff);
+    activeBuffs.put(stat, buff);
     recalculateStats();
 
     logger.debug("Applied {} until {}", buff, endTime);
@@ -80,7 +96,7 @@ public class PlayerBuffComponent extends Component {
 
     long currentTime = timeSource.getTime();
     List<ActiveBuff> expired = new ArrayList<>();
-    for (ActiveBuff buff : activeBuffs) {
+    for (ActiveBuff buff : activeBuffs.values()) {
       if (currentTime >= buff.getEndTime()) {
         expired.add(buff);
       }
@@ -90,7 +106,9 @@ public class PlayerBuffComponent extends Component {
       return;
     }
 
-    activeBuffs.removeAll(expired);
+    for (ActiveBuff buff : expired) {
+      activeBuffs.remove(buff.getStat());
+    }
     recalculateStats();
 
     for (ActiveBuff buff : expired) {
@@ -104,29 +122,24 @@ public class PlayerBuffComponent extends Component {
   /**
    * Returns the buffs currently applied to this entity, for display or inspection.
    *
-   * @return unmodifiable view of the active buffs
+   * @return unmodifiable snapshot of the active buffs, at most one per stat
    */
   public List<ActiveBuff> getActiveBuffs() {
-    return Collections.unmodifiableList(activeBuffs);
+    return List.copyOf(activeBuffs.values());
   }
 
   /**
    * Returns whether a buff on the given stat is currently active.
    *
    * @param stat stat to check
-   * @return {@code true} if at least one active buff modifies {@code stat}
+   * @return {@code true} if an active buff modifies {@code stat}
    */
   public boolean hasBuff(BuffStat stat) {
-    for (ActiveBuff buff : activeBuffs) {
-      if (buff.getStat() == stat) {
-        return true;
-      }
-    }
-    return false;
+    return activeBuffs.containsKey(stat);
   }
 
   /**
-   * Returns the combined movement speed multiplier from all active speed buffs.
+   * Returns the movement speed multiplier from the active speed buff.
    *
    * <p>Movement speed belongs to PlayerActions, which this component does not modify. A movement
    * component should multiply its target speed by this value for speed buffs to take effect in
@@ -135,31 +148,55 @@ public class PlayerBuffComponent extends Component {
    * @return speed multiplier, where 1.0 is unbuffed
    */
   public float getSpeedMultiplier() {
-    return speedMultiplier;
+    return multiplierFor(BuffStat.SPEED);
   }
 
   /**
-   * Sets every buffed stat back to its normal value multiplied by all active buffs on that stat.
+   * Returns the damage multiplier from the active damage buff.
+   *
+   * <p>This is the value the weapon damage pipeline should multiply {@code weapon.getDamage()} by.
+   * Reading it here keeps the Strength potion working once melee damage comes from the weapon
+   * rather than from {@code CombatStatsComponent.baseAttack}.
+   *
+   * @return damage multiplier, where 1.0 is unbuffed
+   */
+  public float getDamageMultiplier() {
+    return multiplierFor(BuffStat.DAMAGE);
+  }
+
+  /**
+   * Returns the active multiplier for a stat.
+   *
+   * @param stat stat to look up
+   * @return the active buff's magnitude, or 1.0 when that stat is unbuffed
+   */
+  private float multiplierFor(BuffStat stat) {
+    ActiveBuff buff = activeBuffs.get(stat);
+    return buff == null ? 1f : buff.getMagnitude();
+  }
+
+  /**
+   * Sets every buffed stat back to its unbuffed value multiplied by the active buff on that stat.
    *
    * <p>Called whenever a buff starts or expires, so both cases share the same logic.
+   *
+   * <p>The write to {@code CombatStatsComponent} is a temporary bridge: melee damage still comes
+   * from {@code baseAttack} today, so without it the Strength potion would do nothing in the
+   * current build. Once weapon damage is routed through {@code weapon.getDamage()}, that pipeline
+   * should read {@link #getDamageMultiplier()} and this write can be deleted.
    */
   private void recalculateStats() {
-    float damageMultiplier = 1f;
-    float speed = 1f;
-
-    for (ActiveBuff buff : activeBuffs) {
-      if (buff.getStat() == BuffStat.DAMAGE) {
-        damageMultiplier *= buff.getMagnitude();
-      } else {
-        speed *= buff.getMagnitude();
-      }
-    }
-
-    speedMultiplier = speed;
-
     CombatStatsComponent stats = getCombatStats();
     if (stats != null) {
-      stats.setBaseAttack(Math.round(normalBaseAttack * damageMultiplier));
+      stats.setBaseAttack(Math.round(unbuffedBaseAttack * getDamageMultiplier()));
+    }
+  }
+
+  /** Records the entity's current base attack as the value to return to when buffs expire. */
+  private void rememberUnbuffedBaseAttack() {
+    CombatStatsComponent stats = getCombatStats();
+    if (stats != null) {
+      unbuffedBaseAttack = stats.getBaseAttack();
     }
   }
 

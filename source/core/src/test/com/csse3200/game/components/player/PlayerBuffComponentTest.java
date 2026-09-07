@@ -136,18 +136,78 @@ class PlayerBuffComponentTest {
     assertEquals(10, stats.getBaseAttack());
   }
 
+  /**
+   * Stacking rule: only one buff per stat is ever active. Drinking a stronger potion replaces the
+   * weaker one rather than multiplying with it, so two speed potions cannot compound into a speed
+   * the game was never balanced for.
+   */
   @Test
-  void shouldStackThenFullyRevertSpeedBuffs() {
+  void shouldKeepOnlyTheStrongestBuffForAStat() {
+    buffs.applyBuff(BuffStat.SPEED, 1.5f, 5f);
     buffs.applyBuff(BuffStat.SPEED, 2f, 5f);
+
+    assertEquals(1, buffs.getActiveBuffs().size());
+    assertEquals(2f, buffs.getSpeedMultiplier());
+  }
+
+  /** Stacking rule: re-drinking a potion restarts its timer instead of adding a second buff. */
+  @Test
+  void shouldRefreshDurationWhenTheSameBuffIsReapplied() {
+    buffs.applyBuff(BuffStat.SPEED, 2f, 5f);
+
+    when(time.getTime()).thenReturn(3000L);
+    buffs.applyBuff(BuffStat.SPEED, 2f, 5f);
+    assertEquals(1, buffs.getActiveBuffs().size());
+
+    // Under the old rule the first buff expired here; the refresh now runs it to 8000.
+    when(time.getTime()).thenReturn(5000L);
+    player.update();
+    assertTrue(buffs.hasBuff(BuffStat.SPEED));
+    assertEquals(1, buffs.getActiveBuffs().size());
+
+    when(time.getTime()).thenReturn(8000L);
+    player.update();
+    assertFalse(buffs.hasBuff(BuffStat.SPEED));
+    assertEquals(1f, buffs.getSpeedMultiplier());
+  }
+
+  /**
+   * A weaker potion drunk while a stronger buff is active is rejected, so {@code
+   * ConsumableUseComponent} leaves it in the inventory rather than wasting it.
+   */
+  @Test
+  void shouldRejectAWeakerBuffWhileAStrongerOneIsActive() {
     buffs.applyBuff(BuffStat.SPEED, 2f, 10f);
-    assertEquals(4f, buffs.getSpeedMultiplier());
+
+    assertFalse(buffs.applyBuff(BuffStat.SPEED, 1.5f, 10f));
+    assertEquals(2f, buffs.getSpeedMultiplier());
+    assertEquals(1, buffs.getActiveBuffs().size());
+  }
+
+  /**
+   * The unbuffed base attack is read when a damage buff starts, not once in create(), so a base
+   * attack changed elsewhere (a level up, a new weapon) is not clobbered when the buff expires.
+   */
+  @Test
+  void shouldUseTheCurrentBaseAttackWhenABuffStarts() {
+    stats.setBaseAttack(20);
+
+    buffs.applyBuff(BuffStat.DAMAGE, 2f, 5f);
+    assertEquals(40, stats.getBaseAttack());
 
     when(time.getTime()).thenReturn(5000L);
     player.update();
-    assertEquals(2f, buffs.getSpeedMultiplier());
+    assertEquals(20, stats.getBaseAttack());
+  }
 
-    when(time.getTime()).thenReturn(10000L);
-    player.update();
-    assertEquals(1f, buffs.getSpeedMultiplier());
+  /** Buffs on different stats are independent and still apply together. */
+  @Test
+  void shouldKeepBuffsOnDifferentStatsSeparate() {
+    buffs.applyBuff(BuffStat.SPEED, 2f, 5f);
+    buffs.applyBuff(BuffStat.DAMAGE, 2f, 5f);
+
+    assertEquals(2, buffs.getActiveBuffs().size());
+    assertEquals(2f, buffs.getSpeedMultiplier());
+    assertEquals(2f, buffs.getDamageMultiplier());
   }
 }
