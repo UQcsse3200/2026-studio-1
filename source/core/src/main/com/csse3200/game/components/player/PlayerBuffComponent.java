@@ -64,7 +64,7 @@ public class PlayerBuffComponent extends Component {
     }
 
     ActiveBuff current = activeBuffs.get(stat);
-    if (current != null && magnitude < current.getMagnitude()) {
+    if (isWeakerThan(stat, magnitude, current)) {
       logger.debug("Rejecting {} buff of {}, a stronger one is active", stat, magnitude);
       return false;
     }
@@ -162,6 +162,39 @@ public class PlayerBuffComponent extends Component {
    */
   public float getDamageMultiplier() {
     return multiplierFor(BuffStat.DAMAGE);
+  }
+
+  /**
+   * Returns the multiplier applied to incoming damage.
+   *
+   * <p>This is where Resistance meets the damage pipeline: whatever applies damage to the player
+   * should multiply it by this value. Karan's shield cancels damage at the same point, so a blocked
+   * hit stays blocked and an unblocked hit is still reduced.
+   *
+   * @return incoming damage multiplier, where 1.0 is unreduced
+   */
+  public float getIncomingDamageMultiplier() {
+    return multiplierFor(BuffStat.RESISTANCE);
+  }
+
+  /**
+   * Returns whether a candidate buff is weaker than the one already running on that stat.
+   *
+   * <p>A bigger multiplier is stronger for an increase such as damage, and a smaller one is
+   * stronger for a reduction such as resistance, so the comparison flips per stat.
+   *
+   * @param stat stat being buffed
+   * @param magnitude magnitude of the candidate buff
+   * @param current the active buff on that stat, or {@code null} when there is none
+   * @return {@code true} if the candidate should be rejected
+   */
+  private boolean isWeakerThan(BuffStat stat, float magnitude, ActiveBuff current) {
+    if (current == null) {
+      return false;
+    }
+    return stat.isStrongerWhenLower()
+        ? magnitude > current.getMagnitude()
+        : magnitude < current.getMagnitude();
   }
 
   /**

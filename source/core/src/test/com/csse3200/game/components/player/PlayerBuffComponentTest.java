@@ -200,6 +200,36 @@ class PlayerBuffComponentTest {
     assertEquals(20, stats.getBaseAttack());
   }
 
+  /** Acceptance criterion: Resistance reduces incoming damage and stops doing so on expiry. */
+  @Test
+  void shouldReduceIncomingDamageWhileResistanceIsActive() {
+    assertEquals(1f, buffs.getIncomingDamageMultiplier());
+
+    assertTrue(buffs.applyBuff(BuffStat.RESISTANCE, 0.5f, 5f));
+    assertEquals(0.5f, buffs.getIncomingDamageMultiplier());
+
+    when(time.getTime()).thenReturn(5000L);
+    player.update();
+    assertEquals(1f, buffs.getIncomingDamageMultiplier());
+    assertFalse(buffs.hasBuff(BuffStat.RESISTANCE));
+  }
+
+  /**
+   * For resistance a lower multiplier is the stronger potion, so "strongest wins" has to compare
+   * the other way around for it.
+   */
+  @Test
+  void shouldTreatLowerResistanceAsTheStrongerPotion() {
+    assertTrue(buffs.applyBuff(BuffStat.RESISTANCE, 0.8f, 5f));
+
+    assertTrue(buffs.applyBuff(BuffStat.RESISTANCE, 0.5f, 5f));
+    assertEquals(0.5f, buffs.getIncomingDamageMultiplier());
+
+    assertFalse(buffs.applyBuff(BuffStat.RESISTANCE, 0.8f, 5f));
+    assertEquals(0.5f, buffs.getIncomingDamageMultiplier());
+    assertEquals(1, buffs.getActiveBuffs().size());
+  }
+
   /** Buffs on different stats are independent and still apply together. */
   @Test
   void shouldKeepBuffsOnDifferentStatsSeparate() {
