@@ -227,12 +227,12 @@ public class NPCFactory {
     return npc;
   }
 
-  public static Entity createSimpleNPC(){
+  public static Entity createSimpleNPC() {
     Entity npc =
-            new Entity()
-                    .addComponent(new TextureRenderComponent("images/NPC.png"))
-                    .addComponent(new PhysicsComponent())
-                    .addComponent(new ColliderComponent());
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/NPC.png"))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent());
 
     return npc;
   }
