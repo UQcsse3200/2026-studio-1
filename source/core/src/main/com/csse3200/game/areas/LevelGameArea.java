@@ -50,6 +50,7 @@ public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
   private static final GridPoint2 Simple_NPC = new GridPoint2(5, 5);
+
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
     "images/NPC.png",
@@ -412,10 +413,8 @@ public class LevelGameArea extends GameArea {
     unloadAssets();
   }
 
-
-  private void spawnsimplenpc(){
+  private void spawnsimplenpc() {
     Entity SimpleNPC = NPCFactory.createSimpleNPC();
     spawnEntityAt(SimpleNPC, Simple_NPC, true, true);
   }
-
 }

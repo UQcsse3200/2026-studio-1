@@ -313,9 +313,8 @@ public class ForestGameArea extends GameArea {
     this.unloadAssets();
   }
 
-  private void spawnsimplenpc(){
+  private void spawnsimplenpc() {
     Entity SimpleNPC = NPCFactory.createSimpleNPC();
     spawnEntityAt(SimpleNPC, Simple_NPC, true, true);
   }
-
 }
