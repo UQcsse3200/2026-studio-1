@@ -173,6 +173,7 @@ public class ForestGameArea extends GameArea {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
     return stats != null && stats.isDead();
   }
+
   /** Spawns basic weapon loot in the game world. */
   private void spawnWeaponLoot() {
     /** Spawn a bow and sword on the ground for the player to pick up. */
