@@ -17,6 +17,8 @@ import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.pausemenu.*;
+import com.csse3200.game.perks.UpgradesDisplay;
+import com.csse3200.game.perks.UpgradesMenuComponent;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -26,6 +28,7 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,9 +190,11 @@ public class MainGameScreen extends ScreenAdapter {
     Entity ui = new Entity();
     deathScreenDisplay = new DeathScreenDisplay(this.game);
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
+    Terminal terminal = new Terminal();
+    UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
-        .addComponent(new Terminal())
+        .addComponent(terminal)
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
@@ -198,8 +203,11 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new MainGameActions(this.game))
-        .addComponent(new PauseMenuActions());
+        .addComponent(new PauseMenuActions())
+        .addComponent(upgradesMenuComponent)
+        .addComponent(new UpgradesDisplay());
     this.pauseMenu = pauseMenuComponent;
+    terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
 
     ServiceLocator.getEntityService().register(ui);
   }
