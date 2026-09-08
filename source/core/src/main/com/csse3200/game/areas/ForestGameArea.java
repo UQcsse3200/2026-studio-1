@@ -39,12 +39,14 @@ public class ForestGameArea extends GameArea {
   private static final int CONSUMABLE_FIRST_COLUMN = 14;
 
   private static final GridPoint2 PLATFORM_POS = new GridPoint2(15, 3);
+  private static final GridPoint2 Simple_NPC = new GridPoint2(5, 5);
   private static final float PLATFORM_WIDTH = 14.5f;
   private static final float PLATFORM_HEIGHT = 0.5f;
 
   private static final float WALL_WIDTH = 0.1f;
 
   private static final String[] forestTextures = {
+    "images/NPC.png",
     "images/box_boy_leaf.png",
     "images/box_boy_crouch.png",
     "images/box_boy_slide.png",
@@ -124,6 +126,7 @@ public class ForestGameArea extends GameArea {
     spawnSkeleton();
     spawnRangedSkeleton();
     spawnConsumables();
+    spawnsimplenpc();
 
     Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
     Entity goldCoin = LootFactory.createLoot(goldCoinItem);
@@ -309,4 +312,10 @@ public class ForestGameArea extends GameArea {
 
     this.unloadAssets();
   }
+
+  private void spawnsimplenpc(){
+    Entity SimpleNPC = NPCFactory.createSimpleNPC();
+    spawnEntityAt(SimpleNPC, Simple_NPC, true, true);
+  }
+
 }

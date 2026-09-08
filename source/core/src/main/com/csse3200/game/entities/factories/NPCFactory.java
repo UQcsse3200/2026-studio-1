@@ -29,6 +29,7 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
 /**
@@ -223,6 +224,16 @@ public class NPCFactory {
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    return npc;
+  }
+
+  public static Entity createSimpleNPC(){
+    Entity npc =
+            new Entity()
+                    .addComponent(new TextureRenderComponent("images/NPC.png"))
+                    .addComponent(new PhysicsComponent())
+                    .addComponent(new ColliderComponent());
+
     return npc;
   }
 
