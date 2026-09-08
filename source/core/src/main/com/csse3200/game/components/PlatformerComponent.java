@@ -4,14 +4,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsLayer;
-import com.csse3200.game.physics.components.ColliderComponent;
-import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.raycast.RaycastHit;
 import com.csse3200.game.rendering.DebugRenderer;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.utils.math.Vector2Utils;
-
 import java.util.Objects;
 
 public class PlatformerComponent extends Component {
@@ -135,57 +132,55 @@ public class PlatformerComponent extends Component {
     // You could alternatively implement a raycast to determine ifGrounded
     return (body.getLinearVelocity().y == 0);
   }
-  //Will return LEFT if can wall jump from the left, return RIGHT if can wall
+
+  // Will return LEFT if can wall jump from the left, return RIGHT if can wall
   // jump from the right. Will return NONE if can not wall jump
-  public String canWallJump(){
+  public String canWallJump() {
     RaycastHit leftHit = new RaycastHit();
     RaycastHit rightHit = new RaycastHit();
-    int rightOffset = 4;//The rightHit raycast isn't able to hit the left part of the wall
-    //as well as the right part of the wall, so we give a boost to the distanceThreshold
-    float distanceThreshold = 0.5f;//The wall jump applies if the collider is X units away
+    int rightOffset = 3; // The rightHit raycast isn't able to hit the left part of the wall
+    // as well as the right part of the wall, so we give a boost to the distanceThreshold
+    float distanceThreshold = 0.5f; // The wall jump applies if the collider is X units away
     Vector2 from = entity.getPosition();
-    from.y-=0;//Offset needed to stop the raycast hitting the floor
     float left = -1;
     float right = -1;
     physics.raycast(from, Vector2Utils.LEFT, PhysicsLayer.OBSTACLE, leftHit);
-    if(leftHit.point!=null) {
+    if (leftHit.point != null) {
       left = Math.abs(from.x - leftHit.point.x);
     }
     physics.raycast(from, Vector2Utils.RIGHT, PhysicsLayer.OBSTACLE, rightHit);
-    if(rightHit.point!= null) {
+    if (rightHit.point != null) {
       right = Math.abs(from.x - rightHit.point.x);
     }
-    //If left and right equal minus 1 then no raycast has hit
-    if(left != -1 || right != -1) {
-          if (left <= distanceThreshold) {
-            return "LEFT";
-          }
-        if (right <= distanceThreshold*rightOffset) {
-          return "RIGHT";
-        }
+    if (left <= distanceThreshold && leftHit.point != null) {
+      return "LEFT";
     }
-    return "NONE";//If neither then return NONE
+    if (right <= distanceThreshold * rightOffset && rightHit.point != null) {
+      return "RIGHT";
+    }
+    return "NONE"; // If neither then return NONE
   }
 
   private void jump(Vector2 direction) {
-    //Wall jump takes priority over a normal jump (given the player is not grounded),
-    //you cannot normal jump and wall jump at the same time. Wall jump doesn't
-    //replenish double jumps
+    // Wall jump takes priority over a normal jump (given the player is not grounded),
+    // you cannot normal jump and wall jump at the same time. Wall jump doesn't
+    // replenish double jumps
     this.jumpDirection.y = direction.y;
 
-    //Wall jump code
-    if((Objects.equals(canWallJump(), "RIGHT")||Objects.equals(canWallJump(), "LEFT"))&&!isGrounded()){
-      if(Objects.equals(canWallJump(), "RIGHT")){
+    // Wall jump code
+    if ((Objects.equals(canWallJump(), "RIGHT") || Objects.equals(canWallJump(), "LEFT"))
+        && !isGrounded()) {
+      if (Objects.equals(canWallJump(), "RIGHT")) {
         this.jumpDirection.x = -1;
-      }else if (Objects.equals(canWallJump(), "LEFT")){
+      } else if (Objects.equals(canWallJump(), "LEFT")) {
         this.jumpDirection.x = 1;
       }
       this.jumpDirection.x *= direction.y;
-      //Making sure that we are jumping off the wall with equal x and y forces
+      // Making sure that we are jumping off the wall with equal x and y forces
       this.jumpDirection.scl(baseJumpScaler);
       if (superJumpPowerup) this.jumpDirection.scl(superJumpScaler);
       jumping = true;
-    }//Normal jump code
+    } // Normal jump code
     else if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
       this.jumpDirection.y *= baseJumpScaler;
       if (!isGrounded()) doubleJumpRemaining--;
