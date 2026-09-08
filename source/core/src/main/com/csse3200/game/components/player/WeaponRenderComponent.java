@@ -16,9 +16,15 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private static final float SWING_DURATION = 0.3f;
 
+  private static final float RIGHT_HAND_OFFSET_X = 0.75f;
+  private static final float LEFT_HAND_OFFSET_X = 0.15f;
+  private static final float HAND_OFFSET_Y = 0.35f;
+
   private final Texture texture;
   private final boolean isBow;
+  private final Vector2 handAnchor = new Vector2();
 
+  private boolean facingRight = true;
   private boolean swinging;
   private float swingTime;
 
@@ -31,6 +37,7 @@ public class WeaponRenderComponent extends RenderComponent {
   public void create() {
     super.create();
     entity.getEvents().addListener("swordAttack", this::startSwing);
+    entity.getEvents().addListener("walk", this::updateFacing);
   }
 
   private void startSwing(int damage) {
@@ -40,6 +47,16 @@ public class WeaponRenderComponent extends RenderComponent {
 
     swinging = true;
     swingTime = 0f;
+  }
+
+  private void updateFacing(Vector2 direction) {
+    if (direction == null || direction.isZero()) {
+      return;
+    }
+
+    if (direction.x != 0) {
+      facingRight = direction.x > 0;
+    }
   }
 
   @Override
@@ -61,11 +78,17 @@ public class WeaponRenderComponent extends RenderComponent {
     Vector2 playerPosition = entity.getPosition();
     Vector2 playerScale = entity.getScale();
 
-    float weaponX = playerPosition.x + playerScale.x * 0.7f;
-    float weaponY = playerPosition.y + playerScale.y * 0.35f;
+    float handOffsetX = facingRight ? RIGHT_HAND_OFFSET_X : LEFT_HAND_OFFSET_X;
+
+    handAnchor.set(
+            playerPosition.x + playerScale.x * handOffsetX,
+            playerPosition.y + playerScale.y * HAND_OFFSET_Y);
 
     float weaponWidth = isBow ? BOW_WIDTH : SWORD_WIDTH;
     float weaponHeight = isBow ? BOW_HEIGHT : SWORD_HEIGHT;
+
+    float weaponX = handAnchor.x - weaponWidth / 2f;
+    float weaponY = handAnchor.y - weaponHeight / 2f;
 
     float rotation = 0f;
 
@@ -90,7 +113,20 @@ public class WeaponRenderComponent extends RenderComponent {
         0,
         texture.getWidth(),
         texture.getHeight(),
-        false,
+        !facingRight,
         false);
+  }
+
+  public Vector2 getHandAnchor() {
+    return handAnchor.cpy();
+  }
+
+  public boolean isFacingRight() {
+    return facingRight;
+  }
+
+  @Override
+  public float getZIndex() {
+    return -entity.getPosition().y + 0.01f;
   }
 }
