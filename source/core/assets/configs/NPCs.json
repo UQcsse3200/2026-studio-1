@@ -21,10 +21,10 @@
     "health": 20,
     "baseAttack": 5,
     "ranged": {
-      "range": 8,
+      "range": 5,
       "cooldown": 4,
-      "knockback": 0
+      "knockback": 0,
+      "projectileSpeed": 8
     }
   }
 }
-
