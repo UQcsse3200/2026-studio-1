@@ -140,6 +140,8 @@ public class PlatformerComponent extends Component {
   public String canWallJump(){
     RaycastHit leftHit = new RaycastHit();
     RaycastHit rightHit = new RaycastHit();
+    int rightOffset = 4;//The rightHit raycast isn't able to hit the left part of the wall
+    //as well as the right part of the wall, so we give a boost to the distanceThreshold
     float distanceThreshold = 0.5f;//The wall jump applies if the collider is X units away
     Vector2 from = entity.getPosition();
     from.y-=0;//Offset needed to stop the raycast hitting the floor
@@ -158,7 +160,7 @@ public class PlatformerComponent extends Component {
           if (left <= distanceThreshold) {
             return "LEFT";
           }
-        if (right <= distanceThreshold*4) {
+        if (right <= distanceThreshold*rightOffset) {
           return "RIGHT";
         }
     }
@@ -175,10 +177,8 @@ public class PlatformerComponent extends Component {
     if((Objects.equals(canWallJump(), "RIGHT")||Objects.equals(canWallJump(), "LEFT"))&&!isGrounded()){
       if(Objects.equals(canWallJump(), "RIGHT")){
         this.jumpDirection.x = -1;
-        System.out.println("RIGHT ACTIVATED");
       }else if (Objects.equals(canWallJump(), "LEFT")){
         this.jumpDirection.x = 1;
-        System.out.println("LEFT ACTIVATED");
       }
       this.jumpDirection.x *= direction.y;
       //Making sure that we are jumping off the wall with equal x and y forces
