@@ -10,6 +10,7 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
+import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -26,6 +27,7 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.WinCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,7 @@ public class MainGameScreen extends ScreenAdapter {
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
   private DeathScreenDisplay deathScreenDisplay;
+  private WinScreenDisplay winScreenDisplay;
   private boolean deathScreenShown = false;
   private PauseMenuComponent pauseMenu;
 
@@ -186,10 +189,14 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity ui = new Entity();
     deathScreenDisplay = new DeathScreenDisplay(this.game);
+    winScreenDisplay = new WinScreenDisplay(this.game);
+
+    Terminal terminal = new Terminal();
+    terminal.addCommand("win", new WinCommand(winScreenDisplay));
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
-        .addComponent(new Terminal())
+        .addComponent(terminal)
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
@@ -197,6 +204,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuDisplay())
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
+        .addComponent(winScreenDisplay)
         .addComponent(new MainGameActions(this.game))
         .addComponent(new PauseMenuActions());
     this.pauseMenu = pauseMenuComponent;
