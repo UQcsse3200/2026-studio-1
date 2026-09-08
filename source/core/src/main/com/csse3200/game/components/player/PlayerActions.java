@@ -230,16 +230,20 @@ public class PlayerActions extends Component {
       return;
     }
 
-    Sound attackSound =
-        ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
-    attackSound.play();
-
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
       CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
+        
+        Sound attackSound =
+            ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
+        attackSound.play();
       }
+      
+        if (enemyStats.isDead()) {
+          enemy.dispose();
+        }
     }
 
     // Existing weapon functionality
