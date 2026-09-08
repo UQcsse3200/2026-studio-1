@@ -107,6 +107,11 @@ public class ItemDropComponent extends Component {
     }
     
     int numGold = inventory.getGold();
+    if (numGold <= 0) {
+      logger.debug("Cannot drop gold, entity has no gold");
+      return false;
+    }
+    
     Item gold = new Item("Gold", ItemType.CURRENCY, numGold, 99);
     Entity loot = lootFactory.apply(gold, entity);
     if (loot == null) {
