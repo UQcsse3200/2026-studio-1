@@ -33,7 +33,6 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,18 +113,18 @@ public class NPCFactory {
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity skeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     SkeletonConfig config = configs.skeleton;
-    
+
     // Create loot on drop
     int numGold = 3;
     InventoryComponent inventory = new InventoryComponent(numGold);
     List<Item> items = new ArrayList<>();
-    
+
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
     for (Item item : items) {
       inventory.addItem(item);
     }
-    
+
     // Configure animation component
 
     AnimationRenderComponent animator =
@@ -136,7 +135,7 @@ public class NPCFactory {
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
-    
+
     // Add necessary components to the entity
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
@@ -166,12 +165,12 @@ public class NPCFactory {
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity rangedSkeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     RangedSkeletonConfig config = configs.rangedSkeleton;
-    
+
     // Create loot on drop
     int numGold = 3;
     InventoryComponent inventory = new InventoryComponent(numGold);
     List<Item> items = new ArrayList<>();
-    
+
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
     for (Item item : items) {

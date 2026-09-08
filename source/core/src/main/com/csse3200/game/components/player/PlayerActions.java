@@ -15,13 +15,12 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Action component for interacting with the player.
@@ -238,11 +237,11 @@ public class PlayerActions extends Component {
       CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
-        
+
         Sound attackSound =
             ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
         attackSound.play();
-        
+
         // Check for death
         if (enemyStats.isDead()) {
           // Drop loot
@@ -252,13 +251,13 @@ public class PlayerActions extends Component {
           if (dropper != null) {
             // Drop gold
             dropper.dropGold();
-            
+
             // Drop weapons and consumables
             while (dropper.dropFirstStack()) {
               logger.info("Enemy {} dropped item", enemy);
             }
           }
-          
+
           // Remove enemy
           enemy.dispose();
         }
