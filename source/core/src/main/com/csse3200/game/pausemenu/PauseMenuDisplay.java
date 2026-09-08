@@ -1,24 +1,31 @@
 package com.csse3200.game.pausemenu;
 
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
 public class PauseMenuDisplay extends UIComponent {
 
+  private float musicVol = 0.5f;
+  private static final float MUSIC_STEP = 0.05f;
   private Table table;
   private Table pauseOverlay;
-  private Table pausePanel;
   private PauseMenuComponent pauseMenu;
-  private TextButton[] buttons;
-  private int selectedIndex = 0;
+  TextButton[] buttons;
+  Slider musicSlider;
+  private Label musicLabel;
+  int selectedIndex = 0;
   private boolean wasPaused = false;
 
   private boolean usingKeyboardNav = true;
@@ -41,12 +48,17 @@ public class PauseMenuDisplay extends UIComponent {
 
     stage.addActor(pauseOverlay);
 
-    pausePanel = new Table();
-    pausePanel.setBackground(skin.newDrawable("white", new Color(0.05f, 0.08f, 0.05f, 0.85f)));
-    pausePanel.pad(35f);
+    Table pausePanel = new Table();
+
+    pausePanel.setBackground(skin.newDrawable("white", new Color(0.03f, 0.06f, 0.04f, 0.95f)));
+
+    pausePanel.pad(40f);
 
     Label title = new Label("PAUSED", skin);
     title.getStyle().fontColor = Color.WHITE;
+
+    pausePanel.add(title).padBottom(25f);
+    pausePanel.row();
 
     TextButton resumeBtn = new TextButton("Resume", skin);
     TextButton restartBtn = new TextButton("Restart", skin);
@@ -76,18 +88,18 @@ public class PauseMenuDisplay extends UIComponent {
           }
         });
 
-    pausePanel.add(title);
+    pausePanel.add(resumeBtn).width(220f).height(45f).padTop(10f);
     pausePanel.row();
 
-    pausePanel.add(resumeBtn).padTop(20f);
+    pausePanel.add(restartBtn).width(220f).height(45f).padTop(12f);
     pausePanel.row();
 
-    pausePanel.add(restartBtn).padTop(15f);
+    pausePanel.add(mainMenuBtn).width(220f).height(45f).padTop(12f);
     pausePanel.row();
 
-    pausePanel.add(mainMenuBtn).padTop(15f);
+    pausePanel.add(createMusicSlider()).padTop(30f);
 
-    table.add(pausePanel).width(350f).height(350f);
+    table.add(pausePanel).width(420f).height(420f);
 
     table.addListener(
         new InputListener() {
@@ -97,6 +109,7 @@ public class PauseMenuDisplay extends UIComponent {
             for (TextButton button : buttons) {
               button.setColor(Color.WHITE);
             }
+            musicLabel.setColor(Color.WHITE);
             return false;
           }
         });
@@ -122,31 +135,77 @@ public class PauseMenuDisplay extends UIComponent {
     stage.addActor(table);
   }
 
+  private Table createMusicSlider() {
+    musicLabel = new Label("Music Volume", skin);
+    musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
+    musicSlider.setValue(musicVol);
+    Label musicValueLabel = new Label(String.format("%.2f", musicVol), skin);
+    musicSlider.addListener(
+        (Event event) -> {
+          musicVol = musicSlider.getValue();
+          musicValueLabel.setText(String.format("%.0f%%", musicVol * 100));
+          Music music =
+              ServiceLocator.getResourceService()
+                  .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
+          if (music != null) {
+            music.setVolume(musicVol);
+          }
+          return true;
+        });
+    Table row = new Table();
+    row.add(musicLabel).padRight(10f);
+    row.add(musicSlider).width(200f);
+    row.add(musicValueLabel).padLeft(10f);
+    return row;
+  }
+
   private void registerEventListeners() {
     entity.getEvents().addListener("navigateUp", this::navigateUp);
     entity.getEvents().addListener("navigateDown", this::navigateDown);
+    entity.getEvents().addListener("navigateLeft", this::navigateLeft);
+    entity.getEvents().addListener("navigateRight", this::navigateRight);
     entity.getEvents().addListener("confirmSelection", this::confirmSelection);
   }
 
-  private void navigateUp() {
+  void navigateUp() {
     usingKeyboardNav = true;
-    selectedIndex = (selectedIndex - 1 + buttons.length) % buttons.length;
+    int itemCount = buttons.length + 1;
+    selectedIndex = (selectedIndex - 1 + itemCount) % itemCount;
     updateHighlight();
   }
 
-  private void navigateDown() {
+  void navigateDown() {
     usingKeyboardNav = true;
-    selectedIndex = (selectedIndex + 1) % buttons.length;
+    int itemCount = buttons.length + 1;
+    selectedIndex = (selectedIndex + 1) % itemCount;
     updateHighlight();
   }
 
-  private void updateHighlight() {
+  /** Left/Right only affect the music slider, and only while it's the selected item. */
+  void navigateLeft() {
+    if (selectedIndex != buttons.length) {
+      return;
+    }
+    float newValue = Math.max(0f, musicSlider.getValue() - MUSIC_STEP);
+    musicSlider.setValue(newValue);
+  }
+
+  void navigateRight() {
+    if (selectedIndex != buttons.length) {
+      return;
+    }
+    float newValue = Math.min(1f, musicSlider.getValue() + MUSIC_STEP);
+    musicSlider.setValue(newValue);
+  }
+
+  void updateHighlight() {
     if (!usingKeyboardNav) {
       return;
     }
     for (int i = 0; i < buttons.length; i++) {
       buttons[i].setColor(i == selectedIndex ? Color.YELLOW : Color.WHITE);
     }
+    musicLabel.setColor(selectedIndex == buttons.length ? Color.YELLOW : Color.WHITE);
   }
 
   private void confirmSelection() {
@@ -156,7 +215,9 @@ public class PauseMenuDisplay extends UIComponent {
       case 0 -> entity.getEvents().trigger("resumeClicked");
       case 1 -> entity.getEvents().trigger("restartClicked");
       case 2 -> entity.getEvents().trigger("mainMenuClicked");
-      default -> {}
+      default -> {
+        // No action needed for invalid selection index
+      }
     }
   }
 

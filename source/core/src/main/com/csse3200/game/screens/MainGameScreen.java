@@ -47,6 +47,7 @@ public class MainGameScreen extends ScreenAdapter {
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
   private boolean deathScreenShown = false;
+  private PauseMenuComponent pauseMenu;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -87,9 +88,13 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
-    physicsEngine.update();
-    ServiceLocator.getEntityService().update();
-
+    if (pauseMenu == null
+        || !pauseMenu
+            .isPaused()) { // Only updates the game physics (movement and all) when game is not
+      // pauesd
+      physicsEngine.update();
+      ServiceLocator.getEntityService().update();
+    }
     if (forestGameArea.isPlayerDead()) {
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
@@ -159,12 +164,13 @@ public class MainGameScreen extends ScreenAdapter {
 
     Terminal terminal = new Terminal();
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
+    PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
         .addComponent(terminal)
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay())
-        .addComponent(new PauseMenuComponent())
+        .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
         .addComponent(new PauseMenuInputComponent())
@@ -172,6 +178,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(winScreenDisplay)
         .addComponent(new MainGameActions(this.game))
         .addComponent(new PauseMenuActions());
+    this.pauseMenu = pauseMenuComponent;
 
     ServiceLocator.getEntityService().register(ui);
   }
