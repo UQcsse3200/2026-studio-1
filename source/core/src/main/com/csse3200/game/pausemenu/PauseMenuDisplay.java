@@ -1,5 +1,7 @@
 package com.csse3200.game.pausemenu;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,8 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
@@ -22,8 +22,9 @@ public class PauseMenuDisplay extends UIComponent {
   private float defmusicVol = 0.8f;
   private static final String PREFS_NAME = "pause_menu_settings";
   private static final String MUSIC_VOLUME_KEY = "musicVolume";
-  private final Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
-  private float musicVol = prefs.getFloat(MUSIC_VOLUME_KEY, defmusicVol);
+  private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
+  private float musicVol =
+      (prefs != null) ? prefs.getFloat(MUSIC_VOLUME_KEY, defmusicVol) : defmusicVol;
   private static final float MUSIC_STEP = 0.05f;
   private Table table;
   private Table pauseOverlay;
@@ -147,19 +148,21 @@ public class PauseMenuDisplay extends UIComponent {
     musicSlider.setValue(musicVol);
     Label musicValueLabel = new Label(String.format("%.0f%%", musicVol * 100), skin);
     musicSlider.addListener(
-      (Event event) -> {
-        musicVol = musicSlider.getValue();
-        musicValueLabel.setText(String.format("%.0f%%", musicVol * 100));
-        Music music =
-            ServiceLocator.getResourceService()
-                .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
-        if (music != null) {
-          music.setVolume(musicVol);
-        }
-        prefs.putFloat(MUSIC_VOLUME_KEY, musicVol);
-        prefs.flush();
-        return true;
-      });
+        (Event event) -> {
+          musicVol = musicSlider.getValue();
+          musicValueLabel.setText(String.format("%.0f%%", musicVol * 100));
+          Music music =
+              ServiceLocator.getResourceService()
+                  .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
+          if (music != null) {
+            music.setVolume(musicVol);
+          }
+          if (prefs != null) {
+            prefs.putFloat(MUSIC_VOLUME_KEY, musicVol);
+            prefs.flush();
+          }
+          return true;
+        });
     Table row = new Table();
     row.add(musicLabel).padRight(10f);
     row.add(musicSlider).width(200f);
