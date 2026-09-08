@@ -28,6 +28,24 @@ public class KeyboardPauseInput extends InputComponent {
       pauseMenu.toggleIsPaused();
       return true;
     }
+    if (pauseMenu.isPaused()) {
+      switch (keycode) {
+        case Input.Keys.UP:
+        case Input.Keys.DOWN:
+        case Input.Keys.LEFT:
+        case Input.Keys.RIGHT:
+        case Input.Keys.ENTER:
+        case Input.Keys.SPACE:
+          return false;
+        default:
+          return true;
+      }
+    }
     return false;
+  }
+
+  @Override
+  public boolean keyUp(int keycode) {
+    return pauseMenu.isPaused();
   }
 }
