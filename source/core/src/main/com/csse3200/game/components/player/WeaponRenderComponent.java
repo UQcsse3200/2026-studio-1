@@ -81,8 +81,8 @@ public class WeaponRenderComponent extends RenderComponent {
     float handOffsetX = facingRight ? RIGHT_HAND_OFFSET_X : LEFT_HAND_OFFSET_X;
 
     handAnchor.set(
-            playerPosition.x + playerScale.x * handOffsetX,
-            playerPosition.y + playerScale.y * HAND_OFFSET_Y);
+        playerPosition.x + playerScale.x * handOffsetX,
+        playerPosition.y + playerScale.y * HAND_OFFSET_Y);
 
     float weaponWidth = isBow ? BOW_WIDTH : SWORD_WIDTH;
     float weaponHeight = isBow ? BOW_HEIGHT : SWORD_HEIGHT;
