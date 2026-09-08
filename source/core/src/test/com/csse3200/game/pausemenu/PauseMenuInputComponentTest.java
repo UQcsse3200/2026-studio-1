@@ -10,6 +10,7 @@ import com.badlogic.gdx.audio.Music;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.input.InputService;
+import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ class PauseMenuInputComponentTest {
   @BeforeEach
   void beforeEach() {
     ServiceLocator.registerInputService(new InputService());
+    ServiceLocator.registerTimeSource(new GameTime());
 
     // toggleIsPaused() pauses/resumes background music via the resource service - stub it
     // out so tests don't need a real Music asset.
