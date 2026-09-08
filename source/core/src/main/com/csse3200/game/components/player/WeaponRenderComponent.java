@@ -3,6 +3,9 @@ package com.csse3200.game.components.player;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.rendering.RenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -20,24 +23,46 @@ public class WeaponRenderComponent extends RenderComponent {
   private static final float LEFT_HAND_OFFSET_X = 0.15f;
   private static final float HAND_OFFSET_Y = 0.35f;
 
-  private final Texture texture;
-  private final boolean isBow;
+  private Texture texture;
+  private boolean isBow;
   private final Vector2 handAnchor = new Vector2();
 
   private boolean facingRight = true;
   private boolean swinging;
   private float swingTime;
 
-  public WeaponRenderComponent(String texturePath) {
-    texture = ServiceLocator.getResourceService().getAsset(texturePath, Texture.class);
-    isBow = texturePath.contains("bow");
+  public WeaponRenderComponent() {
+    texture = null;
+    isBow = false;
   }
 
   @Override
   public void create() {
     super.create();
+
     entity.getEvents().addListener("swordAttack", this::startSwing);
     entity.getEvents().addListener("walk", this::updateFacing);
+    entity.getEvents().addListener("activeSlotChanged", this::updateWeapon);
+
+    updateWeapon(entity.getComponent(InventoryComponent.class).getActiveSlot());
+  }
+
+  private void updateWeapon(int activeSlot) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    Item item = inventory.getItem(activeSlot);
+
+    if (!(item instanceof WeaponItem weaponItem)) {
+      texture = null;
+      return;
+    }
+
+    if (weaponItem.getWeaponType() == WeaponType.BOW) {
+      texture = ServiceLocator.getResourceService().getAsset("images/bow.png", Texture.class);
+      isBow = true;
+    } else {
+      texture = ServiceLocator.getResourceService().getAsset("images/sword.png", Texture.class);
+      isBow = false;
+    }
   }
 
   private void startSwing(int damage) {
@@ -75,6 +100,10 @@ public class WeaponRenderComponent extends RenderComponent {
 
   @Override
   protected void draw(SpriteBatch batch) {
+    if (texture == null) {
+      return;
+    }
+
     Vector2 playerPosition = entity.getPosition();
     Vector2 playerScale = entity.getScale();
 

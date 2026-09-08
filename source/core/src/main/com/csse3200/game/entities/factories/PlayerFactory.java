@@ -49,6 +49,9 @@ public class PlayerFactory {
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
 
+    InventoryComponent inventory = new InventoryComponent(stats.gold);
+    inventory.addItem(startingWeapon);
+
     Entity player =
         new Entity()
             .addComponent(new TextureRenderComponent("images/box_boy_leaf.png"))
@@ -63,7 +66,7 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
-            .addComponent(new InventoryComponent(stats.gold))
+            .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
             .addComponent(new PlatformerComponent(3))
@@ -71,7 +74,7 @@ public class PlayerFactory {
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent("images/sword.png"));
+            .addComponent(new WeaponRenderComponent());
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);
