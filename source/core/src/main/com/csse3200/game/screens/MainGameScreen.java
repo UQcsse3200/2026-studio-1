@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
+// import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
@@ -46,6 +47,7 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-yellow.png"
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
+  private static final String FIRST_ROOM_MAP = "maps/demo.json";
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -54,6 +56,7 @@ public class MainGameScreen extends ScreenAdapter {
   private DeathScreenDisplay deathScreenDisplay;
   private boolean deathScreenShown = false;
   private PauseMenuComponent pauseMenu;
+  private final TerrainFactory terrainFactory;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -79,29 +82,64 @@ public class MainGameScreen extends ScreenAdapter {
     createUI();
 
     logger.debug("Initialising main game screen entities");
-    TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
-    this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
+    terrainFactory = new TerrainFactory(renderer.getCamera());
+    this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
 
     fitCameraToMap(levelGameArea);
   }
 
   /**
-   * Centre the camera on the loaded map and zoom so the map fills the window. Uses the smaller of
-   * the two axis zoom factors so the map covers the whole viewport (no empty background), cropping
-   * a small strip on the longer axis. Swap {@code Math.min} for {@code Math.max} to fit the whole
-   * map inside instead (letterboxed).
+   * Zoom the camera so the map fills the window. Uses the smaller of the two axis zoom factors so
+   * the map always covers the whole viewport (axes where the map is bigger than the viewport are
+   * left free for {@link #followPlayer()} to scroll along).
    *
    * @param area the level area whose map the camera should frame
    */
   private void fitCameraToMap(LevelGameArea area) {
     OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
-    renderer.getCamera().getEntity().setPosition(area.getMapCenter());
-
     float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
     float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
     cam.zoom = Math.min(zoomForWidth, zoomForHeight);
     cam.update();
+
+    followPlayer();
+  }
+
+  /**
+   * Moves the camera to track the player, clamping so the view never scrolls past the map's edges
+   * (left, right, top or bottom). If the map is smaller than the current viewport along an axis,
+   * the camera is centred on that axis instead of following.
+   */
+  private void followPlayer() {
+    Entity player = levelGameArea.getPlayer();
+    if (player == null) {
+      return;
+    }
+
+    OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
+    float halfViewWidth = (cam.viewportWidth * cam.zoom) / 2f;
+    float halfViewHeight = (cam.viewportHeight * cam.zoom) / 2f;
+
+    float mapWidth = levelGameArea.getMapWorldWidth();
+    float mapHeight = levelGameArea.getMapWorldHeight();
+
+    Vector2 playerPosition = player.getPosition();
+    float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
+    float y = clampToMap(playerPosition.y, halfViewHeight, mapHeight);
+
+    renderer.getCamera().getEntity().setPosition(x, y);
+  }
+
+  /**
+   * Clamps a camera coordinate so the visible view stays within [0, mapSize] along one axis. When
+   * the view is wider than the map itself, the map is centred instead.
+   */
+  private static float clampToMap(float value, float halfViewSize, float mapSize) {
+    if (halfViewSize * 2f >= mapSize) {
+      return mapSize / 2f;
+    }
+    return Math.max(halfViewSize, Math.min(value, mapSize - halfViewSize));
   }
 
   @Override
@@ -128,6 +166,14 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
+    /*
+    RoomTransition transition = levelGameArea.consumePendingTransition();
+    if (transition != null) {
+      transitionTo(transition);
+    }
+    */
+
+    followPlayer();
     renderer.render();
   }
 
@@ -151,10 +197,13 @@ public class MainGameScreen extends ScreenAdapter {
   public void dispose() {
     logger.debug("Disposing main game screen");
 
-    renderer.dispose();
-    unloadAssets();
-
+    // Dispose components while their services and physics world are still alive. The entity
+    // service owns all active room and UI entities at screen shutdown; the resource service then
+    // releases every loaded asset once. Calling LevelGameArea.dispose()/unloadAssets() here as
+    // well would perform a second, overlapping cleanup pass.
     ServiceLocator.getEntityService().dispose();
+    physicsEngine.dispose();
+    renderer.dispose();
     ServiceLocator.getRenderService().dispose();
     ServiceLocator.getResourceService().dispose();
 
@@ -166,12 +215,6 @@ public class MainGameScreen extends ScreenAdapter {
     ResourceService resourceService = ServiceLocator.getResourceService();
     resourceService.loadTextures(mainGameTextures);
     ServiceLocator.getResourceService().loadAll();
-  }
-
-  private void unloadAssets() {
-    logger.debug("Unloading assets");
-    ResourceService resourceService = ServiceLocator.getResourceService();
-    resourceService.unloadAssets(mainGameTextures);
   }
 
   /**
