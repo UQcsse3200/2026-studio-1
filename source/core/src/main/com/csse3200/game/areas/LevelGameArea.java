@@ -246,10 +246,7 @@ public class LevelGameArea extends GameArea {
     spawnEntity(new Entity().addComponent(terrain));
   }
 
-  /**
-   * Spawns the collisions and collision types based on the map json file. Updated to spawn
-   * platforms and rows as a singular layer, rather than individual tiles.
-   */
+  /** Spawns collision bodies from the map's collision layer. */
   private void spawnCollisions() {
     MapLayerData collisionLayer = mapData.getCollisionLayer();
 
@@ -259,49 +256,111 @@ public class LevelGameArea extends GameArea {
 
     float tileSize = terrain.getTileSize();
 
+    // Merge solid tiles both horizontally and vertically. A straight wall must be one continuous
+    // Box2D fixture; stacked row fixtures create internal edges that can catch the player.
+    for (SolidRectangle rectangle : findSolidRectangles(collisionLayer)) {
+      spawnSolidRectangle(rectangle, tileSize);
+    }
+
+    spawnPlatformCollisions(collisionLayer, tileSize);
+
+    // Hazards remain individual.
+    spawnHazardCollisions(collisionLayer, tileSize);
+  }
+
+  private void spawnPlatformCollisions(MapLayerData collisionLayer, float tileSize) {
     for (int y = 0; y < collisionLayer.getHeight(); y++) {
       int x = 0;
 
-      // iterate x and accumulate collision tiles
       while (x < collisionLayer.getWidth()) {
         TileDefinition def = collisionLayer.get(x, y);
 
-        if (def == null) {
+        if (def == null || def.type().getCollisionType() != CollisionType.PLATFORM) {
           x++;
           continue;
         }
 
-        CollisionType collisionType = def.type().getCollisionType();
-
-        // Only merge solid/platform tiles.
-        if (collisionType != CollisionType.SOLID && collisionType != CollisionType.PLATFORM) {
-          x++;
-          continue;
-        }
-
-        // Find consecutive tiles of the same collision type.
         int startX = x;
-
         while (x + 1 < collisionLayer.getWidth()) {
           TileDefinition next = collisionLayer.get(x + 1, y);
 
-          if (next == null || next.type().getCollisionType() != collisionType) {
+          if (next == null || next.type().getCollisionType() != CollisionType.PLATFORM) {
             break;
           }
-
           x++;
         }
 
-        int tileCount = x - startX + 1;
-
-        spawnCollisionRow(collisionType, startX, y, tileCount, tileSize);
-
+        spawnPlatformRow(startX, y, x - startX + 1, tileSize);
         x++;
       }
     }
+  }
 
-    // Hazards remain individual
-    spawnHazardCollisions(collisionLayer, tileSize);
+  static List<SolidRectangle> findSolidRectangles(MapLayerData collisionLayer) {
+    int layerWidth = collisionLayer.getWidth();
+    int layerHeight = collisionLayer.getHeight();
+    boolean[][] visited = new boolean[layerWidth][layerHeight];
+    List<SolidRectangle> rectangles = new ArrayList<>();
+
+    for (int y = 0; y < layerHeight; y++) {
+      for (int x = 0; x < layerWidth; x++) {
+        if (visited[x][y] || !isSolidTile(collisionLayer, x, y)) {
+          continue;
+        }
+
+        int rectangleWidth = 1;
+        while (x + rectangleWidth < layerWidth
+            && !visited[x + rectangleWidth][y]
+            && isSolidTile(collisionLayer, x + rectangleWidth, y)) {
+          rectangleWidth++;
+        }
+
+        int rectangleHeight = 1;
+        while (y + rectangleHeight < layerHeight
+            && canExtendSolidRectangle(
+                collisionLayer, visited, x, y + rectangleHeight, rectangleWidth)) {
+          rectangleHeight++;
+        }
+
+        for (int tileX = x; tileX < x + rectangleWidth; tileX++) {
+          for (int tileY = y; tileY < y + rectangleHeight; tileY++) {
+            visited[tileX][tileY] = true;
+          }
+        }
+        rectangles.add(new SolidRectangle(x, y, rectangleWidth, rectangleHeight));
+      }
+    }
+
+    return rectangles;
+  }
+
+  private static boolean canExtendSolidRectangle(
+      MapLayerData collisionLayer, boolean[][] visited, int startX, int y, int rectangleWidth) {
+    for (int x = startX; x < startX + rectangleWidth; x++) {
+      if (visited[x][y] || !isSolidTile(collisionLayer, x, y)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean isSolidTile(MapLayerData collisionLayer, int x, int y) {
+    TileDefinition definition = collisionLayer.get(x, y);
+    return definition != null && definition.type().getCollisionType() == CollisionType.SOLID;
+  }
+
+  private void spawnSolidRectangle(SolidRectangle rectangle, float tileSize) {
+    Entity collider =
+        ObstacleFactory.createSolidTile(
+            rectangle.width() * tileSize, rectangle.height() * tileSize);
+    Vector2 position = terrain.tileToWorldPosition(rectangle.x(), rectangle.y());
+
+    if (position == null) {
+      return;
+    }
+
+    collider.setPosition(position);
+    spawnEntity(collider);
   }
 
   /**
@@ -337,38 +396,9 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  /**
-   * Spawns a wide row of a collision layer. Used for spawning in platforms and ground collision
-   * layers.
-   *
-   * @param collisionType: the type of collision (hazard, solit etc).
-   * @param startX: that starting x position of the row.
-   * @param y: what y the row should be on
-   * @param tileCount: how wide/how many tiles it should be
-   * @param tileSize: how big each tile is
-   */
-  private void spawnCollisionRow(
-      CollisionType collisionType, int startX, int y, int tileCount, float tileSize) {
-
+  private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize) {
     float width = tileCount * tileSize;
-    Entity collider;
-    float colliderHeight;
-
-    switch (collisionType) {
-      case SOLID:
-        // Solid wall/floor tiles occupy the full tile. A thin surface can be crossed during the
-        // longer frame in which a room is loaded, causing every dynamic entity to fall away.
-        colliderHeight = tileSize;
-        collider = ObstacleFactory.createSolidTile(width, colliderHeight);
-        break;
-      case PLATFORM:
-        colliderHeight = COLLIDER_HEIGHT;
-        collider = ObstacleFactory.createFloorTile(width, colliderHeight);
-        break;
-
-      default:
-        return;
-    }
+    Entity collider = ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
 
     Vector2 position = terrain.tileToWorldPosition(startX, y);
 
@@ -376,15 +406,15 @@ public class LevelGameArea extends GameArea {
       return;
     }
 
-    // tileToWorldPosition is the tile's bottom-left corner. Platforms only need a thin collider at
-    // the tile's top; solid rows keep the unmodified bottom-left position and full tile height.
-    if (collisionType == CollisionType.PLATFORM) {
-      position.y += tileSize - colliderHeight;
-    }
+    // tileToWorldPosition is the tile's bottom-left corner; platforms use a thin collider at the
+    // tile's top.
+    position.y += tileSize - COLLIDER_HEIGHT;
 
     collider.setPosition(position);
     spawnEntity(collider);
   }
+
+  static record SolidRectangle(int x, int y, int width, int height) {}
 
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayer(mapData);
