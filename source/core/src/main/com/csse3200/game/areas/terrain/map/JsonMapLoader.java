@@ -100,6 +100,9 @@ public class JsonMapLoader implements MapLoader {
     float tileSize = root.getFloat("tileSize", DEFAULT_TILE_SIZE);
     Map<String, TileDefinition> legend = parseLegend(root.get("legend"), name);
 
+    // parse entity legend
+    Map<String, JsonValue> entityLegend = parseEntityLegend(root.get("entityLegend"));
+
     JsonValue layersJson = root.get("layers");
     if (layersJson == null) {
       throw new MapLoadException("Map '" + name + "' has no 'layers' section");
@@ -129,11 +132,23 @@ public class JsonMapLoader implements MapLoader {
 
     // Second pass: build the typed tile grids, flipping rows so y=0 is the bottom.
     List<MapLayerData> layers = new ArrayList<>();
+
+    String[] entityRows = null;
+
     for (int i = 0; i < layerNames.size(); i++) {
-      layers.add(buildLayer(layerNames.get(i), layerRows.get(i), legend, width, height));
+
+      String layerName = layerNames.get(i);
+
+      if (layerName.equals("entities")) {
+        entityRows = layerRows.get(i);
+        continue;
+      }
+
+      layers.add(buildLayer(layerName, layerRows.get(i), legend, width, height));
     }
 
-    MapSpawns spawns = parseSpawns(root.get("spawns"));
+    MapSpawns spawns = parseSpawns(root.get("spawns"), entityRows, entityLegend, width, height);
+
     validateSpawns(spawns, width, height, name);
 
     return new LevelMapData(name, tileSize, width, height, legend, layers, spawns);
@@ -167,6 +182,77 @@ public class JsonMapLoader implements MapLoader {
     return legend;
   }
 
+  private Map<String, JsonValue> parseEntityLegend(JsonValue entityLegendJson) {
+    Map<String, JsonValue> entityLegend = new HashMap<>();
+
+    if (entityLegendJson == null) {
+      return entityLegend;
+    }
+
+    for (JsonValue entry = entityLegendJson.child; entry != null; entry = entry.next) {
+
+      entityLegend.put(entry.name, entry);
+    }
+
+    return entityLegend;
+  }
+
+  private void parseEntityLayer(
+      String[] rows, Map<String, JsonValue> entityLegend, MapSpawns spawns, int width, int height) {
+
+    for (int r = 0; r < rows.length; r++) {
+
+      String row = rows[r];
+
+      // Same coordinate conversion used by buildLayer().
+      int y = height - 1 - r;
+
+      for (int x = 0; x < row.length(); x++) {
+
+        char ch = row.charAt(x);
+
+        if (ch == EMPTY_CELL) {
+          continue;
+        }
+
+        String symbol = String.valueOf(ch);
+        JsonValue definition = entityLegend.get(symbol);
+
+        if (definition == null) {
+          logger.warn("Unknown entity symbol '{}' in entities layer - ignored", ch);
+          continue;
+        }
+
+        String type = definition.getString("type", "").trim().toUpperCase(Locale.ROOT);
+
+        switch (type) {
+          case "PLAYER":
+            if (spawns.getPlayer() != null) {
+              logger.warn("Multiple player spawn points found; replacing previous player spawn");
+            }
+
+            spawns.setPlayer(new GridPoint2(x, y));
+            break;
+
+          case "ENEMY":
+            String enemyType = definition.getString("enemyType", null);
+
+            spawns.addEnemy(new SpawnPoint(enemyType, x, y));
+            break;
+
+          case "LOOT":
+            String lootType = definition.getString("lootType", null);
+
+            spawns.addLoot(new SpawnPoint(lootType, x, y));
+            break;
+
+          default:
+            logger.warn("Unknown entity type '{}' for symbol '{}'", type, symbol);
+        }
+      }
+    }
+  }
+
   private MapLayerData buildLayer(
       String name, String[] rows, Map<String, TileDefinition> legend, int width, int height) {
     MapLayerData layer = new MapLayerData(name, width, height);
@@ -189,32 +275,49 @@ public class JsonMapLoader implements MapLoader {
     return layer;
   }
 
-  private MapSpawns parseSpawns(JsonValue spawnsJson) {
+  private MapSpawns parseSpawns(
+      JsonValue spawnsJson,
+      String[] entityRows,
+      Map<String, JsonValue> entityLegend,
+      int width,
+      int height) {
+
     MapSpawns spawns = new MapSpawns();
-    if (spawnsJson == null) {
-      return spawns;
-    }
 
-    JsonValue player = spawnsJson.get("player");
-    if (player != null) {
-      spawns.setPlayer(new GridPoint2(player.getInt("x", 0), player.getInt("y", 0)));
-    }
+    // Existing coordinate-based spawns are still supported.
+    if (spawnsJson != null) {
+      JsonValue player = spawnsJson.get("player");
 
-    JsonValue enemies = spawnsJson.get("enemies");
-    if (enemies != null) {
-      for (JsonValue e = enemies.child; e != null; e = e.next) {
-        spawns.addEnemy(
-            new SpawnPoint(e.getString("type", null), e.getInt("x", 0), e.getInt("y", 0)));
+      if (player != null) {
+        spawns.setPlayer(new GridPoint2(player.getInt("x", 0), player.getInt("y", 0)));
+      }
+
+      JsonValue enemies = spawnsJson.get("enemies");
+
+      if (enemies != null) {
+        for (JsonValue e = enemies.child; e != null; e = e.next) {
+
+          spawns.addEnemy(
+              new SpawnPoint(e.getString("type", null), e.getInt("x", 0), e.getInt("y", 0)));
+        }
+      }
+
+      JsonValue loot = spawnsJson.get("loot");
+
+      if (loot != null) {
+        for (JsonValue l = loot.child; l != null; l = l.next) {
+
+          spawns.addLoot(
+              new SpawnPoint(l.getString("type", null), l.getInt("x", 0), l.getInt("y", 0)));
+        }
       }
     }
 
-    JsonValue loot = spawnsJson.get("loot");
-    if (loot != null) {
-      for (JsonValue l = loot.child; l != null; l = l.next) {
-        spawns.addLoot(
-            new SpawnPoint(l.getString("type", null), l.getInt("x", 0), l.getInt("y", 0)));
-      }
+    // New symbol-based spawns.
+    if (entityRows != null) {
+      parseEntityLayer(entityRows, entityLegend, spawns, width, height);
     }
+
     return spawns;
   }
 
