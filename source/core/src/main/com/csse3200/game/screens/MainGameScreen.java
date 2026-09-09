@@ -50,6 +50,8 @@ public class MainGameScreen extends ScreenAdapter {
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1.json";
+  private static final float GAMEPLAY_ZOOM = 0.95f;
+  private static final float SUB_LEVEL_BOUNDARY = 17.5f;
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -96,17 +98,19 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /**
-   * Zoom the camera so the map fills the window. Uses the smaller of the two axis zoom factors so
-   * the map always covers the whole viewport (axes where the map is bigger than the viewport are
-   * left free for {@link #followPlayer()} to scroll along).
+   * Set an approachable gameplay view that is close enough to read platforms and hazards without
+   * hiding the neighbouring routes that guide exploration. Small maps still use the smaller
+   * whole-map zoom when necessary.
    *
    * @param area the level area whose map the camera should frame
    */
   private void fitCameraToMap(LevelGameArea area) {
     OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
-    float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
-    float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
-    cam.zoom = Math.min(zoomForWidth, zoomForHeight);
+    float zoomForWholeMap =
+        Math.min(
+            area.getMapWorldWidth() / cam.viewportWidth,
+            area.getMapWorldHeight() / cam.viewportHeight);
+    cam.zoom = Math.min(GAMEPLAY_ZOOM, zoomForWholeMap);
     cam.update();
 
     followPlayer();
@@ -129,9 +133,10 @@ public class MainGameScreen extends ScreenAdapter {
 
     float mapWidth = levelGameArea.getMapWorldWidth();
     Vector2 playerPosition = player.getPosition();
-    boolean inNether = playerPosition.y >= 17.5f;
-    float subLevelBottom = inNether ? 18f : 0f;
-    float subLevelHeight = inNether ? 14f : 17f;
+    boolean inNether = player.getCenterPosition().y >= SUB_LEVEL_BOUNDARY;
+    float subLevelBottom = inNether ? SUB_LEVEL_BOUNDARY : 0f;
+    float subLevelHeight =
+        inNether ? levelGameArea.getMapWorldHeight() - SUB_LEVEL_BOUNDARY : SUB_LEVEL_BOUNDARY;
 
     float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
     float y = clampToRange(playerPosition.y, halfViewHeight, subLevelBottom, subLevelHeight);
