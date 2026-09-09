@@ -17,17 +17,17 @@ import java.util.Map;
  */
 public class ShopComponent extends Component {
   private final Map<Integer, ShopListing<Item>> itemCatalog;
-  private final Map<Integer, ShopListing<Perk>> perkCatalog;
+  private final Map<Integer, ShopListing<Upgrade>> upgradeCatalog;
   private final Map<Integer, ShopListing<Pet>> petCatalog;
-  private final List<Perk> purchasedPerks;
+  private final List<Upgrade> purchasedUpgrades;
   private final List<Pet> purchasedPets;
 
-  /** Creates a shop with empty item, perk, and pet catalogs. */
+  /** Creates a shop with empty item, Upgrade, and pet catalogs. */
   public ShopComponent() {
     this.itemCatalog = new HashMap<>();
-    this.perkCatalog = new HashMap<>();
+    this.upgradeCatalog = new HashMap<>();
     this.petCatalog = new HashMap<>();
-    this.purchasedPerks = new ArrayList<>();
+    this.purchasedUpgrades = new ArrayList<>();
     this.purchasedPets = new ArrayList<>();
   }
 
@@ -54,14 +54,14 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Sets or clears a perk catalog listing.
+   * Sets or clears an Upgrade catalog listing.
    *
    * @param slot catalog slot; must be {@code >= 1}
    * @param listing listing to store, or {@code null} to clear the slot
    * @return {@code true} if the slot was valid and updated
    */
-  public boolean setPerkListing(int slot, ShopListing<Perk> listing) {
-    return setListing(perkCatalog, slot, listing);
+  public boolean setUpgradeListing(int slot, ShopListing<Upgrade> listing) {
+    return setListing(upgradeCatalog, slot, listing);
   }
 
   /**
@@ -86,13 +86,13 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Returns the perk listing in a catalog slot.
+   * Returns the Upgrade listing in a catalog slot.
    *
    * @param slot catalog slot
    * @return the listing, or {@code null} if the slot is invalid or empty
    */
-  public ShopListing<Perk> getPerkListing(int slot) {
-    return getListing(perkCatalog, slot);
+  public ShopListing<Upgrade> getUpgradeListing(int slot) {
+    return getListing(upgradeCatalog, slot);
   }
 
   /**
@@ -115,12 +115,12 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Returns an unmodifiable view of occupied perk catalog slots.
+   * Returns an unmodifiable view of occupied Upgrade catalog slots.
    *
    * @return unmodifiable map of slot index to listing
    */
-  public Map<Integer, ShopListing<Perk>> getPerkCatalog() {
-    return Collections.unmodifiableMap(perkCatalog);
+  public Map<Integer, ShopListing<Upgrade>> getUpgradeCatalog() {
+    return Collections.unmodifiableMap(upgradeCatalog);
   }
 
   /**
@@ -194,18 +194,18 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Buys the perk in a catalog slot using gold only. Does not use item slots.
+   * Buys the Upgrade in a catalog slot using gold only. Does not use item slots.
    *
-   * @param catalogSlot perk catalog slot
+   * @param catalogSlot Upgrade catalog slot
    * @return {@code true} if gold was deducted and the purchase was recorded
    */
-  public boolean buyPerk(int catalogSlot) {
+  public boolean buyUpgrade(int catalogSlot) {
     InventoryComponent inventory = getInventory();
     if (inventory == null) {
       return false;
     }
 
-    ShopListing<Perk> listing = getPerkListing(catalogSlot);
+    ShopListing<Upgrade> listing = getUpgradeListing(catalogSlot);
     if (listing == null) {
       return false;
     }
@@ -215,9 +215,9 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
-    purchasedPerks.add(listing.getProduct());
+    purchasedUpgrades.add(listing.getProduct());
     if (entity != null) {
-      entity.getEvents().trigger("perkPurchased");
+      entity.getEvents().trigger("UpgradePurchased");
     }
     return true;
   }
@@ -252,12 +252,12 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Returns an unmodifiable view of purchased perks.
+   * Returns an unmodifiable view of purchased Upgrades.
    *
-   * @return purchased perks in purchase order
+   * @return purchased Upgrades in purchase order
    */
-  public List<Perk> getPurchasedPerks() {
-    return Collections.unmodifiableList(purchasedPerks);
+  public List<Upgrade> getPurchasedUpgrades() {
+    return Collections.unmodifiableList(purchasedUpgrades);
   }
 
   /**
@@ -396,7 +396,7 @@ public class ShopComponent extends Component {
     }
 
     /**
-     * Returns the sell price in gold. Unused for perk and pet listings.
+     * Returns the sell price in gold. Unused for Upgrade and pet listings.
      *
      * @return sell price
      */
@@ -405,25 +405,25 @@ public class ShopComponent extends Component {
     }
   }
 
-  /** Minimal perk product stub until the perks team provides a type. */
-  public static class Perk {
+  /** Minimal Upgrade product stub until the Upgrades team provides a type. */
+  public static class Upgrade {
     private final String name;
 
     /**
-     * Creates a perk stub.
+     * Creates a Upgrade stub.
      *
-     * @param name perk name; must not be null or blank
+     * @param name Upgrade name; must not be null or blank
      * @throws IllegalArgumentException if {@code name} is null or blank
      */
-    public Perk(String name) {
+    public Upgrade(String name) {
       if (name == null || name.isBlank()) {
-        throw new IllegalArgumentException("Perk name must not be null or blank.");
+        throw new IllegalArgumentException("Upgrade name must not be null or blank.");
       }
       this.name = name;
     }
 
     /**
-     * Returns the perk name.
+     * Returns the Upgrade name.
      *
      * @return name
      */

@@ -81,20 +81,20 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
     shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
-    shop.setPerkListing(1, perkListing("Speed Boost", 15));
+    shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
     shop.setPetListing(1, petListing("Wolf", 20));
 
     assertFalse(shop.buyItem(0));
     assertFalse(shop.buyItem(-1));
     assertFalse(shop.buyItem(99));
-    assertFalse(shop.buyPerk(0));
-    assertFalse(shop.buyPerk(99));
+    assertFalse(shop.buyUpgrade(0));
+    assertFalse(shop.buyUpgrade(99));
     assertFalse(shop.buyPet(0));
     assertFalse(shop.buyPet(99));
 
     assertEquals(100, inventory.getGold());
     assertEquals(0, inventory.getOccupiedSlots());
-    assertTrue(shop.getPurchasedPerks().isEmpty());
+    assertTrue(shop.getPurchasedUpgrades().isEmpty());
     assertTrue(shop.getPurchasedPets().isEmpty());
   }
 
@@ -147,21 +147,21 @@ class ShopComponentTest {
   }
 
   @Test
-  void shouldBuyPerkSuccessWithoutUsingItemSlots() {
+  void shouldBuyUpgradeSuccessWithoutUsingItemSlots() {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
     inventory.addItem(potion(1, 10));
     int occupied = inventory.getOccupiedSlots();
-    shop.setPerkListing(1, perkListing("Speed Boost", 15));
+    shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
 
-    assertTrue(shop.buyPerk(1));
+    assertTrue(shop.buyUpgrade(1));
 
     assertEquals(85, inventory.getGold());
     assertEquals(occupied, inventory.getOccupiedSlots());
-    assertEquals(1, shop.getPurchasedPerks().size());
-    assertEquals("Speed Boost", shop.getPurchasedPerks().get(0).getName());
-    assertNotNull(shop.getPerkListing(1));
+    assertEquals(1, shop.getPurchasedUpgrades().size());
+    assertEquals("Speed Boost", shop.getPurchasedUpgrades().get(0).getName());
+    assertNotNull(shop.getUpgradeListing(1));
   }
 
   @Test
@@ -183,18 +183,18 @@ class ShopComponentTest {
   }
 
   @Test
-  void shouldRejectPerkAndPetWhenNotEnoughGold() {
+  void shouldRejectUpgradeAndPetWhenNotEnoughGold() {
     InventoryComponent inventory = new InventoryComponent(10);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
-    shop.setPerkListing(1, perkListing("Speed Boost", 15));
+    shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
     shop.setPetListing(1, petListing("Wolf", 20));
 
-    assertFalse(shop.buyPerk(1));
+    assertFalse(shop.buyUpgrade(1));
     assertFalse(shop.buyPet(1));
 
     assertEquals(10, inventory.getGold());
-    assertTrue(shop.getPurchasedPerks().isEmpty());
+    assertTrue(shop.getPurchasedUpgrades().isEmpty());
     assertTrue(shop.getPurchasedPets().isEmpty());
   }
 
@@ -202,14 +202,14 @@ class ShopComponentTest {
   void shouldRejectBuyAndSellWhenShopHasNoEntity() {
     ShopComponent shop = new ShopComponent();
     shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
-    shop.setPerkListing(1, perkListing("Speed Boost", 15));
+    shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
     shop.setPetListing(1, petListing("Wolf", 20));
 
     assertFalse(shop.buyItem(1));
     assertFalse(shop.sellItem(1));
-    assertFalse(shop.buyPerk(1));
+    assertFalse(shop.buyUpgrade(1));
     assertFalse(shop.buyPet(1));
-    assertTrue(shop.getPurchasedPerks().isEmpty());
+    assertTrue(shop.getPurchasedUpgrades().isEmpty());
     assertTrue(shop.getPurchasedPets().isEmpty());
   }
 
@@ -227,30 +227,31 @@ class ShopComponentTest {
   void shouldReturnUnmodifiableCatalogs() {
     ShopComponent shop = new ShopComponent();
     ShopComponent.ShopListing<Item> potionListing = itemListing(potion(1, 10), 10, 5);
-    ShopComponent.ShopListing<ShopComponent.Perk> perkListing = perkListing("Speed Boost", 15);
+    ShopComponent.ShopListing<ShopComponent.Upgrade> UpgradeListing =
+        UpgradeListing("Speed Boost", 15);
     ShopComponent.ShopListing<ShopComponent.Pet> petListing = petListing("Wolf", 20);
     shop.setItemListing(1, potionListing);
-    shop.setPerkListing(1, perkListing);
+    shop.setUpgradeListing(1, UpgradeListing);
     shop.setPetListing(1, petListing);
 
     ShopComponent.ShopListing<Item> extraItem = itemListing(potion(1, 10), 1, 1);
-    ShopComponent.ShopListing<ShopComponent.Perk> extraPerk = perkListing("Shield", 5);
+    ShopComponent.ShopListing<ShopComponent.Upgrade> extraUpgrade = UpgradeListing("Shield", 5);
     ShopComponent.ShopListing<ShopComponent.Pet> extraPet = petListing("Cat", 5);
 
     assertThrows(
         UnsupportedOperationException.class, () -> shop.getItemCatalog().put(2, extraItem));
     assertThrows(UnsupportedOperationException.class, () -> shop.getItemCatalog().remove(1));
     assertThrows(
-        UnsupportedOperationException.class, () -> shop.getPerkCatalog().put(2, extraPerk));
-    assertThrows(UnsupportedOperationException.class, () -> shop.getPerkCatalog().remove(1));
+        UnsupportedOperationException.class, () -> shop.getUpgradeCatalog().put(2, extraUpgrade));
+    assertThrows(UnsupportedOperationException.class, () -> shop.getUpgradeCatalog().remove(1));
     assertThrows(UnsupportedOperationException.class, () -> shop.getPetCatalog().put(2, extraPet));
     assertThrows(UnsupportedOperationException.class, () -> shop.getPetCatalog().remove(1));
 
     assertEquals(1, shop.getItemCatalog().size());
-    assertEquals(1, shop.getPerkCatalog().size());
+    assertEquals(1, shop.getUpgradeCatalog().size());
     assertEquals(1, shop.getPetCatalog().size());
     assertSame(potionListing, shop.getItemListing(1));
-    assertSame(perkListing, shop.getPerkListing(1));
+    assertSame(UpgradeListing, shop.getUpgradeListing(1));
     assertSame(petListing, shop.getPetListing(1));
   }
 
@@ -275,9 +276,9 @@ class ShopComponentTest {
     return new ShopComponent.ShopListing<>(product, buyPrice, sellPrice);
   }
 
-  private static ShopComponent.ShopListing<ShopComponent.Perk> perkListing(
+  private static ShopComponent.ShopListing<ShopComponent.Upgrade> UpgradeListing(
       String name, int buyPrice) {
-    return new ShopComponent.ShopListing<>(new ShopComponent.Perk(name), buyPrice, 0);
+    return new ShopComponent.ShopListing<>(new ShopComponent.Upgrade(name), buyPrice, 0);
   }
 
   private static ShopComponent.ShopListing<ShopComponent.Pet> petListing(
