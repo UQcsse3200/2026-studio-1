@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;

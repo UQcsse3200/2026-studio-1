@@ -2,6 +2,7 @@ package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.services.ServiceLocator;
@@ -90,6 +91,48 @@ public class ItemDropComponent extends Component {
 
     logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
     entity.getEvents().trigger("itemDropped", removed, loot);
+    return true;
+  }
+
+  /**
+   * Drops all gold in entities inventory.
+   *
+   * @return {@code true} if gold was dropped, false otherwise
+   */
+  public boolean dropGold() {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory == null) {
+      logger.debug("Cannot drop gold, entity has no inventory");
+      return false;
+    }
+
+    int numGold = inventory.getGold();
+    if (numGold <= 0) {
+      logger.debug("Cannot drop gold, entity has no gold");
+      return false;
+    }
+
+    Item gold = new Item("Gold", ItemType.CURRENCY, numGold, 99);
+    Entity loot = lootFactory.apply(gold, entity);
+    if (loot == null) {
+      logger.warn("Loot factory returned null for item {}", gold.getName());
+      return false;
+    }
+
+    inventory.addGold(-numGold);
+
+    float dropX = entity.getPosition().x + entity.getScale().x + HORIZONTAL_DROP_GAP;
+    loot.setPosition(dropX, entity.getPosition().y);
+
+    try {
+      lootSpawner.accept(loot);
+    } catch (RuntimeException exception) {
+      inventory.addGold(numGold);
+      throw exception;
+    }
+
+    logger.info("Dropped {} gold", numGold);
+    entity.getEvents().trigger("goldDropped", numGold, loot);
     return true;
   }
 

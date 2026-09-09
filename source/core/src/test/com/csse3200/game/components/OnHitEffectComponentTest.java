@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.attacks.OnHitEffectComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.List;
@@ -423,10 +425,9 @@ class OnHitEffectComponentTest {
     Random random = mock(Random.class);
     // forces success
     when(random.nextFloat()).thenReturn(0.1f);
-    Entity attacker = new Entity()
-        .addComponent(new OnHitEffectComponent(RANGED_ONLY, TRIGGER_CHANCE,
-            0, -10, random)
-    );
+    Entity attacker =
+        new Entity()
+            .addComponent(new OnHitEffectComponent(RANGED_ONLY, TRIGGER_CHANCE, 0, -10, random));
     attacker.create();
     Entity target = createTarget();
     int healthBefore = target.getComponent(CombatStatsComponent.class).getHealth();
@@ -435,22 +436,22 @@ class OnHitEffectComponentTest {
 
     int healthAfter = target.getComponent(CombatStatsComponent.class).getHealth();
 
-    assertEquals(healthBefore - 10, healthAfter,
-        "Expected a ranged only configured component " +
-            "to respond to its own configured ranged event."
-    );
+    assertEquals(
+        healthBefore - 10,
+        healthAfter,
+        "Expected a ranged only configured component "
+            + "to respond to its own configured ranged event.");
   }
 
   @Test
-      void ShouldNotRespondToRangedEventWhenOnlyMeleeConfigured() {
+  void ShouldNotRespondToRangedEventWhenOnlyMeleeConfigured() {
     Random random = mock(Random.class);
     // force success
     when(random.nextFloat()).thenReturn(0.1f);
     // create attacker and target entities
-    Entity attacker = new Entity()
-        .addComponent(new OnHitEffectComponent(MELEE_ONLY, TRIGGER_CHANCE,
-            0, -10, random)
-        );
+    Entity attacker =
+        new Entity()
+            .addComponent(new OnHitEffectComponent(MELEE_ONLY, TRIGGER_CHANCE, 0, -10, random));
     attacker.create();
     Entity target = createTarget();
 
@@ -460,10 +461,13 @@ class OnHitEffectComponentTest {
 
     int healthAfter = target.getComponent(CombatStatsComponent.class).getHealth();
 
-    assertEquals(healthBefore, healthAfter,
-        "Expected a melee only configured component to ignore a ranged event, " +
-            "but health changed from: " + healthBefore + healthAfter
-    );
+    assertEquals(
+        healthBefore,
+        healthAfter,
+        "Expected a melee only configured component to ignore a ranged event, "
+            + "but health changed from: "
+            + healthBefore
+            + healthAfter);
   }
 
   /* ---------- Helpers ---------- */
