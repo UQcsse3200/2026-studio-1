@@ -251,12 +251,7 @@ public class LevelGameArea extends GameArea {
         int tileCount = x - startX + 1;
 
         if (tileCount >= 2) {
-          spawnCollisionRow(
-                  collisionType,
-                  startX,
-                  y,
-                  tileCount,
-                  tileSize);
+          spawnCollisionRow(collisionType, startX, y, tileCount, tileSize);
 
           // Mark these tiles as consumed.
           for (int i = startX; i <= x; i++) {
