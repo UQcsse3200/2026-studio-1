@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+  private static final float COLLIDER_WIDTH = 0.4f;
   private long lastHazardDamageTime = 0;
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
   private static final int HAZARD_DAMAGE = 10;
@@ -192,8 +193,8 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Spawns the collisions and collision types based on the map json file. Updated to spawn
-   * platforms and rows as a singular layer, rather than individual tiles.
+   * Spawns the collisions and collision types based on the map json file. Adjacent solid/platform
+   * tiles are merged into larger collision entities.
    */
   private void spawnCollisions() {
     MapLayerData collisionLayer = mapData.getCollisionLayer();
@@ -204,14 +205,22 @@ public class LevelGameArea extends GameArea {
 
     float tileSize = terrain.getTileSize();
 
-    for (int y = 0; y < collisionLayer.getHeight(); y++) {
+    int width = collisionLayer.getWidth();
+    int height = collisionLayer.getHeight();
+
+    // Keeps track of tiles that have already been included in a collider.
+    boolean[][] consumed = new boolean[width][height];
+
+    /*
+     * First pass: merge horizontal runs.
+     */
+    for (int y = 0; y < height; y++) {
       int x = 0;
 
-      // iterate x and accumulate collision tiles
-      while (x < collisionLayer.getWidth()) {
+      while (x < width) {
         TileDefinition def = collisionLayer.get(x, y);
 
-        if (def == null) {
+        if (def == null || consumed[x][y]) {
           x++;
           continue;
         }
@@ -224,13 +233,15 @@ public class LevelGameArea extends GameArea {
           continue;
         }
 
-        // Find consecutive tiles of the same collision type.
         int startX = x;
 
-        while (x + 1 < collisionLayer.getWidth()) {
+        // Find consecutive tiles of the same type.
+        while (x + 1 < width) {
           TileDefinition next = collisionLayer.get(x + 1, y);
 
-          if (next == null || next.type().getCollisionType() != collisionType) {
+          if (next == null
+              || consumed[x + 1][y]
+              || next.type().getCollisionType() != collisionType) {
             break;
           }
 
@@ -239,13 +250,75 @@ public class LevelGameArea extends GameArea {
 
         int tileCount = x - startX + 1;
 
-        spawnCollisionRow(collisionType, startX, y, tileCount, tileSize);
+        if (tileCount >= 2) {
+          spawnCollisionRow(
+                  collisionType,
+                  startX,
+                  y,
+                  tileCount,
+                  tileSize);
+
+          // Mark these tiles as consumed.
+          for (int i = startX; i <= x; i++) {
+            consumed[i][y] = true;
+          }
+        }
 
         x++;
       }
     }
 
-    // Hazards remain individual
+    /*
+     * Second pass: merge vertical runs.
+     */
+    for (int x = 0; x < width; x++) {
+      int y = 0;
+
+      while (y < height) {
+        TileDefinition def = collisionLayer.get(x, y);
+
+        if (def == null || consumed[x][y]) {
+          y++;
+          continue;
+        }
+
+        CollisionType collisionType = def.type().getCollisionType();
+
+        // Only merge solid/platform tiles.
+        if (collisionType != CollisionType.SOLID && collisionType != CollisionType.PLATFORM) {
+          y++;
+          continue;
+        }
+
+        int startY = y;
+
+        // Find consecutive tiles of the same type vertically.
+        while (y + 1 < height) {
+          TileDefinition next = collisionLayer.get(x, y + 1);
+
+          if (next == null
+              || consumed[x][y + 1]
+              || next.type().getCollisionType() != collisionType) {
+            break;
+          }
+
+          y++;
+        }
+
+        int tileCount = y - startY + 1;
+
+        spawnCollisionColumn(x, startY, tileCount, tileSize);
+
+        // Mark these tiles as consumed.
+        for (int i = startY; i <= y; i++) {
+          consumed[x][i] = true;
+        }
+
+        y++;
+      }
+    }
+
+    // Hazards remain individual.
     spawnHazardCollisions(collisionLayer, tileSize);
   }
 
@@ -274,7 +347,7 @@ public class LevelGameArea extends GameArea {
           continue;
         }
 
-        position.add(tileSize / 2f, tileSize / 2f);
+        position.add(0, tileSize / 2f);
 
         collider.setPosition(position);
         spawnEntity(collider);
@@ -318,6 +391,25 @@ public class LevelGameArea extends GameArea {
     // tileToWorldPosition gives the centre of the first tile.
     // Shift from that centre to the centre of the whole merged platform.
     position.add(0, tileSize / 2f);
+
+    collider.setPosition(position);
+    spawnEntity(collider);
+  }
+
+  private void spawnCollisionColumn(int x, int startY, int tileCount, float tileSize) {
+
+    float height = tileCount * tileSize;
+
+    Entity collider = ObstacleFactory.createFloorTile(COLLIDER_WIDTH, height);
+
+    Vector2 position = terrain.tileToWorldPosition(x, startY);
+
+    if (position == null) {
+      return;
+    }
+
+    // Align the thin vertical collider with the centre of the wall tile.
+    position.add(0, 0);
 
     collider.setPosition(position);
     spawnEntity(collider);
