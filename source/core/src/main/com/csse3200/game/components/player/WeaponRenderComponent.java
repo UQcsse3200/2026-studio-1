@@ -7,6 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.DaggerFactory;
 import com.csse3200.game.rendering.RenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -17,6 +19,9 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private static final float BOW_WIDTH = 0.5f;
   private static final float BOW_HEIGHT = 0.75f;
+
+  private static final float DAGGER_WIDTH = 0.25f;
+  private static final float DAGGER_HEIGHT = 0.5f;
 
   private static final float SWING_DURATION = 0.3f;
 
@@ -40,6 +45,10 @@ public class WeaponRenderComponent extends RenderComponent {
   private boolean swinging;
   private float swingTime;
   private float walkAnimationTime;
+
+  private boolean daggerThrown;
+  private float daggerThrowTime;
+  private static final float DAGGER_THROW_DURATION = 1.5f;
 
   private boolean drawingBow;
   private float bowDrawTime;
@@ -77,6 +86,9 @@ public class WeaponRenderComponent extends RenderComponent {
     if (weaponItem.getWeaponType() == WeaponType.BOW) {
       texture = ServiceLocator.getResourceService().getAsset("images/bow.png", Texture.class);
       isBow = true;
+    } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
+      texture = ServiceLocator.getResourceService().getAsset("images/dagger.png", Texture.class);
+      isBow = false;
     } else {
       texture = ServiceLocator.getResourceService().getAsset("images/sword.png", Texture.class);
       isBow = false;
@@ -103,7 +115,36 @@ public class WeaponRenderComponent extends RenderComponent {
     if (weaponItem.getWeaponType() == WeaponType.BOW) {
       drawingBow = true;
       bowDrawTime = 0f;
+    } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
+      if (weaponItem.getQuantity() <= 0) {
+        return;
+      }
+
+      daggerThrown = true;
+      daggerThrowTime = 0f;
+      throwDagger();
+
+      inventory.removeItem(inventory.getActiveSlot(), 1);
+
+      if (inventory.getActiveItem() == null) {
+        texture = null;
+      }
     }
+  }
+
+  private void throwDagger() {
+    Vector2 playerPosition = entity.getPosition();
+    Vector2 playerScale = entity.getScale();
+
+    float handOffsetX = facingRight ? RIGHT_HAND_OFFSET_X : LEFT_HAND_OFFSET_X;
+
+    handAnchor.set(
+        playerPosition.x + playerScale.x * handOffsetX,
+        playerPosition.y + playerScale.y * HAND_OFFSET_Y);
+
+    Entity dagger = DaggerFactory.createDagger(handAnchor, aimDirection);
+
+    ServiceLocator.getEntityService().register(dagger);
   }
 
   private void updateFacing(Vector2 direction) {
@@ -150,11 +191,20 @@ public class WeaponRenderComponent extends RenderComponent {
         bowDrawTime = 0f;
       }
     }
+
+    if (daggerThrown) {
+      daggerThrowTime += deltaTime;
+
+      if (daggerThrowTime >= DAGGER_THROW_DURATION) {
+        daggerThrown = false;
+        daggerThrowTime = 0f;
+      }
+    }
   }
 
   @Override
   protected void draw(SpriteBatch batch) {
-    if (texture == null) {
+    if (texture == null || daggerThrown) {
       return;
     }
 
@@ -167,8 +217,14 @@ public class WeaponRenderComponent extends RenderComponent {
         playerPosition.x + playerScale.x * handOffsetX,
         playerPosition.y + playerScale.y * HAND_OFFSET_Y);
 
-    float weaponWidth = isBow ? BOW_WIDTH : SWORD_WIDTH;
-    float weaponHeight = isBow ? BOW_HEIGHT : SWORD_HEIGHT;
+    Item activeItem = entity.getComponent(InventoryComponent.class).getActiveItem();
+
+    boolean isDagger =
+        activeItem instanceof WeaponItem
+            && ((WeaponItem) activeItem).getWeaponType() == WeaponType.DAGGER;
+
+    float weaponWidth = isBow ? BOW_WIDTH : (isDagger ? DAGGER_WIDTH : SWORD_WIDTH);
+    float weaponHeight = isBow ? BOW_HEIGHT : (isDagger ? DAGGER_HEIGHT : SWORD_HEIGHT);
 
     float weaponX = handAnchor.x - weaponWidth / 2f;
     float weaponY = handAnchor.y - weaponHeight / 2f;
@@ -225,6 +281,10 @@ public class WeaponRenderComponent extends RenderComponent {
 
   public boolean isFacingRight() {
     return facingRight;
+  }
+
+  public Vector2 getAimDirection() {
+    return aimDirection.cpy();
   }
 
   @Override

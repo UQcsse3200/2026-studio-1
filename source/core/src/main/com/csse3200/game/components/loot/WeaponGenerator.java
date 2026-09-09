@@ -20,6 +20,9 @@ public class WeaponGenerator {
       case BOW:
         return new WeaponItem("Basic Bow", WeaponType.BOW, 7 * tier, 1, 10);
 
+      case DAGGER:
+        return new WeaponItem("Basic Dagger", WeaponType.DAGGER, 8 * tier, 1, 20);
+
       default:
         throw new IllegalArgumentException("Unsupported weapon type.");
     }

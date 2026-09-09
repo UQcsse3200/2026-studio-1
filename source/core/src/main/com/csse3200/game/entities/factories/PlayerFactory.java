@@ -47,10 +47,15 @@ public class PlayerFactory {
         ServiceLocator.getInputService().getInputFactory().createForPlayer();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
+
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
+
+    WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
+    startingDagger.setQuantity(20);
 
     InventoryComponent inventory = new InventoryComponent(stats.gold);
     inventory.addItem(startingWeapon);
+    inventory.addItem(startingDagger);
 
     Entity player =
         new Entity()
