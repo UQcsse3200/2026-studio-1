@@ -236,25 +236,25 @@ public class PauseMenuDisplay extends UIComponent {
   @Override
   public void draw(SpriteBatch batch) {
     if (!musicVolumeApplied) {
-    Music music =
-        ServiceLocator.getResourceService()
-            .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
-    if (music != null) {
-      music.setVolume(musicVol);
-      musicVolumeApplied = true;
+      Music music =
+          ServiceLocator.getResourceService()
+              .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
+      if (music != null) {
+        music.setVolume(musicVol);
+        musicVolumeApplied = true;
+      }
     }
-  }
 
-  boolean isPaused = pauseMenu.isPaused();
-  pauseOverlay.setVisible(isPaused);
-  table.setVisible(isPaused);
+    boolean isPaused = pauseMenu.isPaused();
+    pauseOverlay.setVisible(isPaused);
+    table.setVisible(isPaused);
 
-  if (isPaused && !wasPaused) {
-    selectedIndex = 0;
-    usingKeyboardNav = true;
-    updateHighlight();
-  }
-  wasPaused = isPaused;
+    if (isPaused && !wasPaused) {
+      selectedIndex = 0;
+      usingKeyboardNav = true;
+      updateHighlight();
+    }
+    wasPaused = isPaused;
   }
 
   @Override
