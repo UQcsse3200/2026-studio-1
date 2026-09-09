@@ -3,7 +3,7 @@ package com.csse3200.game.components;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.csse3200.game.components.attacks.SpeedEffectComponent;
+import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;

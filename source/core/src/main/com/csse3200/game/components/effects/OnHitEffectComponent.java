@@ -1,6 +1,7 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.effects;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -1,6 +1,7 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.effects;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
 
 public class HealthEffectComponent extends Component {
   private int timeRemaining;
