@@ -41,9 +41,10 @@ public class AnimationRenderComponent extends RenderComponent {
   private Animation<TextureRegion> currentAnimation;
   private String currentAnimationName;
   private float animationPlayTime;
-  
+
   /**
    * Create the component for a given texture atlas.
+   *
    * @param atlas libGDX-supported texture atlas containing desired animations
    */
   public AnimationRenderComponent(TextureAtlas atlas) {
@@ -51,26 +52,26 @@ public class AnimationRenderComponent extends RenderComponent {
     this.animations = new HashMap<>(4);
     timeSource = ServiceLocator.getTimeSource();
   }
-  
+
   /**
    * Register an animation from the texture atlas. Will play once when called with startAnimation()
-   * @param name          Name of the animation. Must match the name of this animation inside the
-   *                      texture atlas.
-   * @param frameDuration How long, in seconds, to show each frame of the animation for when
-   *                      playing
+   *
+   * @param name Name of the animation. Must match the name of this animation inside the texture
+   *     atlas.
+   * @param frameDuration How long, in seconds, to show each frame of the animation for when playing
    * @return true if added successfully, false otherwise
    */
   public boolean addAnimation(String name, float frameDuration) {
     return addAnimation(name, frameDuration, PlayMode.NORMAL);
   }
-  
+
   /**
    * Register an animation from the texture atlas.
-   * @param name          Name of the animation. Must match the name of this animation inside the
-   *                      texture atlas.
-   * @param frameDuration How long, in seconds, to show each frame of the animation for when
-   *                      playing
-   * @param playMode      How the animation should be played (e.g. looping, backwards)
+   *
+   * @param name Name of the animation. Must match the name of this animation inside the texture
+   *     atlas.
+   * @param frameDuration How long, in seconds, to show each frame of the animation for when playing
+   * @param playMode How the animation should be played (e.g. looping, backwards)
    * @return true if added successfully, false otherwise
    */
   public boolean addAnimation(String name, float frameDuration, PlayMode playMode) {
@@ -84,23 +85,22 @@ public class AnimationRenderComponent extends RenderComponent {
           name);
       return false;
     }
-    
+
     Animation<TextureRegion> animation = new Animation<>(frameDuration, regions, playMode);
     animations.put(name, animation);
     logger.debug("Adding animation {}", name);
     return true;
   }
-  
-  /**
-   * Scale the entity to a width of 1 and a height matching the texture's ratio
-   */
+
+  /** Scale the entity to a width of 1 and a height matching the texture's ratio */
   public void scaleEntity() {
     TextureRegion defaultTexture = this.atlas.findRegion("default");
     entity.setScale(1f, (float) defaultTexture.getRegionHeight() / defaultTexture.getRegionWidth());
   }
-  
+
   /**
    * Remove an animation from this animator. This is not required before disposing.
+   *
    * @param name Name of the previously added animation.
    * @return true if removed, false if animation was not found.
    */
@@ -108,18 +108,20 @@ public class AnimationRenderComponent extends RenderComponent {
     logger.debug("Removing animation {}", name);
     return animations.remove(name) != null;
   }
-  
+
   /**
    * Whether the animator has added the given animation.
+   *
    * @param name Name of the added animation.
    * @return true if added, false otherwise.
    */
   public boolean hasAnimation(String name) {
     return animations.containsKey(name);
   }
-  
+
   /**
    * Start playback of an animation. The animation must have been added using addAnimation().
+   *
    * @param name Name of the animation to play.
    */
   public void startAnimation(String name) {
@@ -130,45 +132,48 @@ public class AnimationRenderComponent extends RenderComponent {
           name);
       return;
     }
-    
+
     currentAnimation = animation;
     currentAnimationName = name;
     animationPlayTime = 0f;
     logger.debug("Starting animation {}", name);
   }
-  
+
   /**
    * Stop the currently running animation. Does nothing if no animation is playing.
+   *
    * @return true if animation was stopped, false if no animation is playing.
    */
   public boolean stopAnimation() {
     if (currentAnimation == null) {
       return false;
     }
-    
+
     logger.debug("Stopping animation {}", currentAnimationName);
     currentAnimation = null;
     currentAnimationName = null;
     animationPlayTime = 0f;
     return true;
   }
-  
+
   /**
    * Get the name of the animation currently being played.
+   *
    * @return current animation name, or null if not playing.
    */
   public String getCurrentAnimation() {
     return currentAnimationName;
   }
-  
+
   /**
    * Has the playing animation finished? This will always be false for looping animations.
+   *
    * @return true if animation was playing and has now finished, false otherwise.
    */
   public boolean isFinished() {
     return currentAnimation != null && currentAnimation.isAnimationFinished(animationPlayTime);
   }
-  
+
   @Override
   protected void draw(SpriteBatch batch) {
     if (currentAnimation == null) {
