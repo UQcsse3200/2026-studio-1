@@ -16,9 +16,9 @@ import com.csse3200.game.ui.UIComponent;
 
 /** Large arrival title over a dimmed, soft-focus-style view of the current sub-level. */
 public class SubLevelTitleDisplay extends UIComponent {
-  private static final float FADE_IN_SECONDS = 0.35f;
-  private static final float HOLD_SECONDS = 2.3f;
-  private static final float FADE_OUT_SECONDS = 0.75f;
+  private static final float FADE_IN_SECONDS = 0.2f;
+  private static final float HOLD_SECONDS = 1.15f;
+  private static final float FADE_OUT_SECONDS = 0.45f;
   private static final float DISPLAY_SECONDS = FADE_IN_SECONDS + HOLD_SECONDS + FADE_OUT_SECONDS;
   private static final float BACKGROUND_ALPHA = 0.68f;
   private static final float BLUR_ALPHA = 0.8f;

@@ -328,6 +328,27 @@ class JsonMapLoaderTest {
   }
 
   @Test
+  void loadsGreekLevelOneDesignMap() {
+    LevelMapData levelOne = loader.load("maps/level1-greek.json");
+
+    assertEquals(56, levelOne.getWidth());
+    assertEquals(64, levelOne.getHeight());
+    assertEquals(new GridPoint2(3, 3), levelOne.getSpawns().getPlayer());
+    assertEquals(4, levelOne.getSpawns().getEnemies().size());
+    assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
+    // Transparent ladders and ledges must render over a background rather than the clear colour.
+    assertNotNull(levelOne.getLayer("background"));
+    assertEquals(TileType.DECORATIVE, levelOne.getLayer("background").get(26, 33).type());
+    // The Nether endpoint keeps the ladder passage open beside its solid marble landing.
+    assertEquals(TileType.LADDER, levelOne.getTileType(26, 33));
+    assertEquals(TileType.PLATFORM, levelOne.getTileType(27, 33));
+    assertEquals(TileType.PLATFORM, levelOne.getTileType(26, 22));
+    assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
+    assertEquals(1, levelOne.getTransitions().size());
+    assertEquals("maps/room2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+  }
+
+  @Test
   void throwsWhenFileMissing() {
     assertThrows(MapLoadException.class, () -> loader.load("maps/does_not_exist.json"));
   }

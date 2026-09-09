@@ -86,9 +86,20 @@ public class PlayerFactory {
       player.addComponent(new SubLevelTravelComponent());
     }
 
-    PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
-    player.getComponent(ColliderComponent.class).setDensity(1.5f);
+    // The map uses 0.5 world units per tile. Keep the player just over one tile wide and under
+    // two tiles tall so doorway and ladder clearances match the authored layout.
     player.getComponent(TextureRenderComponent.class).scaleEntity();
+    // The box-boy sprite has a much denser silhouette than the skeleton atlas, so use a slightly
+    // smaller rendered body to make both characters occupy the same visual footprint.
+    player.setScale(0.75f, 0.75f);
+    PhysicsUtils.setScaledCollider(player, 0.5f, 0.28f);
+    player
+        .getComponent(HitboxComponent.class)
+        .setAsBoxAligned(
+            new com.badlogic.gdx.math.Vector2(0.5f, 0.8f),
+            PhysicsComponent.AlignX.CENTER,
+            PhysicsComponent.AlignY.BOTTOM);
+    player.getComponent(ColliderComponent.class).setDensity(1.5f);
 
     return player;
   }

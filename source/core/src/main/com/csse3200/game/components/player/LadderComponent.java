@@ -61,7 +61,18 @@ public class LadderComponent extends Component {
     float tileSize = mapData.getTileSize();
     int x = (int) Math.floor(centre.x / tileSize);
     int y = (int) Math.floor(centre.y / tileSize);
-    return isLadder(x, y) || isLadder(x, y - 1) || isLadder(x, y + 1);
+
+    // The player is narrower than a tile but does not need to be perfectly centred on the ladder.
+    // Check the neighbouring column and two cells vertically so the climb can start at either
+    // landing without the adjacent wall collider winning the contact race.
+    for (int column = x - 1; column <= x + 1; column++) {
+      for (int row = y - 2; row <= y + 2; row++) {
+        if (isLadder(column, row)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private boolean isLadder(int x, int y) {

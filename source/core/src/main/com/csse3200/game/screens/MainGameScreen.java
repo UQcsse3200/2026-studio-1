@@ -13,6 +13,7 @@ import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -49,9 +50,11 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-yellow.png"
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
-  private static final String FIRST_ROOM_MAP = "maps/level1.json";
+  private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
   private static final float GAMEPLAY_ZOOM = 0.95f;
-  private static final float SUB_LEVEL_BOUNDARY = 17.5f;
+
+  /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
+  private static final float SUB_LEVEL_BOUNDARY = 16f;
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -59,6 +62,7 @@ public class MainGameScreen extends ScreenAdapter {
   private LevelGameArea levelGameArea;
   private DeathScreenDisplay deathScreenDisplay;
   private boolean deathScreenShown = false;
+  private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
 
@@ -134,6 +138,13 @@ public class MainGameScreen extends ScreenAdapter {
     float mapWidth = levelGameArea.getMapWorldWidth();
     Vector2 playerPosition = player.getPosition();
     boolean inNether = player.getCenterPosition().y >= SUB_LEVEL_BOUNDARY;
+    SubLevelTravelComponent travel = player.getComponent(SubLevelTravelComponent.class);
+    if (playerInNether != null
+        && playerInNether != inNether
+        && (travel == null || !travel.isControlLocked())) {
+      player.getEvents().trigger("subLevelEntered", inNether ? "NETHER" : "DUNGEON");
+    }
+    playerInNether = inNether;
     float subLevelBottom = inNether ? SUB_LEVEL_BOUNDARY : 0f;
     float subLevelHeight =
         inNether ? levelGameArea.getMapWorldHeight() - SUB_LEVEL_BOUNDARY : SUB_LEVEL_BOUNDARY;
@@ -214,6 +225,7 @@ public class MainGameScreen extends ScreenAdapter {
     previousArea.dispose();
     nextArea.resumeMusic();
     levelGameArea = nextArea;
+    playerInNether = null;
     fitCameraToMap(nextArea);
   }
 

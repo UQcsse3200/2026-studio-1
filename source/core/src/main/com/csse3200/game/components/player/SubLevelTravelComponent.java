@@ -6,8 +6,10 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 
 /** Runs the locked, automatic lift sequence between the dungeon and Nether sub-levels. */
 public class SubLevelTravelComponent extends Component {
-  private static final Vector2 DUNGEON_DOOR = new Vector2(11.75f, 12.25f);
-  private static final Vector2 NETHER_DOOR = new Vector2(11.75f, 19.25f);
+  // Central lift endpoints in level1-greek.json.
+  private static final Vector2 DUNGEON_DOOR = new Vector2(13.25f, 11.9f);
+  // Arrive inside the hollow checkpoint cell, with feet just above the solid landing below.
+  private static final Vector2 NETHER_DOOR = new Vector2(13.25f, 17.4f);
   private static final float TILE_SIZE = 0.5f;
   private static final float TRAVEL_DURATION = 1.4f;
 

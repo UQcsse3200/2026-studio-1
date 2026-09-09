@@ -1,0 +1,562 @@
+{
+  "name": "Level 1 - Out of the Underworld",
+  "tileSize": 0.5,
+  "legend": {
+    "b": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/bg-catacomb-512px.png"
+    },
+    "v": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/bg-cavern-512px.png"
+    },
+    "u": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/bg-tunnel-512px.png"
+    },
+    "#": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/cavern-rock-512px.png"
+    },
+    "V": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/cavern-rock-veined-512px.png"
+    },
+    "^": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/cavern-ceiling-512px.png"
+    },
+    "_": {
+      "type": "FLOOR",
+      "texture": "images/lvl1-tiles/cavern-floor-ash-512px.png"
+    },
+    "%": {
+      "type": "FLOOR",
+      "texture": "images/lvl1-tiles/cavern-floor-sulfur-512px.png"
+    },
+    "-": {
+      "type": "PLATFORM",
+      "texture": "images/lvl1-tiles/ledge-basalt-512px.png"
+    },
+    "=": {
+      "type": "PLATFORM",
+      "texture": "images/lvl1-tiles/ledge-bone-512px.png"
+    },
+    "~": {
+      "type": "HAZARD",
+      "texture": "images/lvl1-tiles/river-phlegethon-512px.png"
+    },
+    "S": {
+      "type": "HAZARD",
+      "texture": "images/lvl1-tiles/river-styx-512px.png"
+    },
+    "e": {
+      "type": "HAZARD",
+      "texture": "images/lvl1-tiles/hazard-embers-512px.png"
+    },
+    "W": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/wall-limestone-512px.png"
+    },
+    "w": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/wall-limestone-cracked-512px.png"
+    },
+    ")": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/enemy-keres-512px.png"
+    },
+    "m": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/wall-limestone-mossy-512px.png"
+    },
+    "F": {
+      "type": "FLOOR",
+      "texture": "images/lvl1-tiles/floor-limestone-512px.png"
+    },
+    "M": {
+      "type": "FLOOR",
+      "texture": "images/lvl1-tiles/floor-marble-512px.png"
+    },
+    "P": {
+      "type": "PLATFORM",
+      "texture": "images/lvl1-tiles/platform-marble-512px.png"
+    },
+    "p": {
+      "type": "PLATFORM",
+      "texture": "images/lvl1-tiles/platform-wood-512px.png"
+    },
+    "D": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/frieze-meander-512px.png"
+    },
+    "X": {
+      "type": "HAZARD",
+      "texture": "images/lvl1-tiles/hazard-spikes-bronze-512px.png"
+    },
+    "L": {
+      "type": "HAZARD",
+      "texture": "images/lvl1-tiles/hazard-firepit-512px.png"
+    },
+    "O": {
+      "type": "HAZARD",
+      "texture": "images/lvl1-tiles/hazard-pit-512px.png"
+    },
+    "l": {
+      "type": "LADDER",
+      "texture": "images/lvl1-tiles/ladder-wood-512px.png"
+    },
+    "r": {
+      "type": "LADDER",
+      "texture": "images/lvl1-tiles/ladder-bronze-512px.png"
+    },
+    "i": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/lift-cable-512px.png"
+    },
+    "C": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/crust-seam-512px.png"
+    },
+    "T": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/tunnel-wall-512px.png"
+    },
+    "t": {
+      "type": "FLOOR",
+      "texture": "images/lvl1-tiles/tunnel-floor-512px.png"
+    },
+    "s": {
+      "type": "PLATFORM",
+      "texture": "images/lvl1-tiles/tunnel-step-512px.png"
+    },
+    "G": {
+      "type": "WALL",
+      "texture": "images/lvl1-tiles/gate-bronze-512px.png"
+    },
+    "@": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/hero-hoplite-512px.png"
+    },
+    "!": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-stele-512px.png"
+    },
+    "J": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/hero-fallen-512px.png"
+    },
+    "Y": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-xiphos-512px.png"
+    },
+    "A": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-oil-lamp-512px.png"
+    },
+    "Q": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-amphora-512px.png"
+    },
+    "U": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-urn-512px.png"
+    },
+    "K": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/hazard-swinging-blade-512px.png"
+    },
+    "E": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/enemy-skeleton-hoplite-512px.png"
+    },
+    "R": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-column-doric-512px.png"
+    },
+    "B": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-bone-pile-512px.png"
+    },
+    "o": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-obol-512px.png"
+    },
+    "c": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-chest-512px.png"
+    },
+    "d": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-phial-red-512px.png"
+    },
+    "q": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-gorgoneion-512px.png"
+    },
+    "+": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-tripod-512px.png"
+    },
+    "k": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/hazard-flame-jet-512px.png"
+    },
+    ":": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-chain-bronze-512px.png"
+    },
+    "z": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-pouch-512px.png"
+    },
+    "N": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-olive-vine-512px.png"
+    },
+    "a": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-phial-olive-512px.png"
+    },
+    "$": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-key-bronze-512px.png"
+    },
+    "&": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-bolt-512px.png"
+    },
+    "H": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-hoplon-512px.png"
+    },
+    "y": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-phial-blue-512px.png"
+    },
+    "?": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-ember-vent-512px.png"
+    },
+    "h": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-stalagmite-512px.png"
+    },
+    "j": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-stalactite-512px.png"
+    },
+    "Z": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/enemy-shade-512px.png"
+    },
+    ";": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/decor-column-broken-512px.png"
+    },
+    "(": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/enemy-cerberus-512px.png"
+    },
+    "n": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/item-laurel-512px.png"
+    },
+    "g": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/gate-exit-512px.png"
+    },
+    "[": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/lift-car-512px.png"
+    },
+    "]": {
+      "type": "DECORATIVE",
+      "texture": "images/lvl1-tiles/lift-winch-512px.png"
+    }
+  },
+  "layers": {
+    "background": [
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    ],
+    "terrain": [
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+      "TTTuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuTT",
+      "TTTsttttttttttttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuTT",
+      "TTTTTTTTTTTTTTTTstttttttttttuuuuuuuuuuuuuuuuuuuuuuuuuuTT",
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTTstttttttttttuuuuuuuuuuuuruTT",
+      "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTttttttttttttruTT",
+      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^rv^^",
+      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^rv^^",
+      "vvv^^vv^vv^^vvv^^^^vvvvvvv^^vvvvvvvvvvvvvvvvvvvvvvvvrvvv",
+      "#####vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvV#",
+      "####vvvvvvvvvvvvvvvvvvvvvvvvvvvv--------------------rv##",
+      "####vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrv##",
+      "###V#~~vvvvvvvvvvvvv==========vvvvvvvvvvvvvvvvvvvvvvrv##",
+      "##V#v~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvV#",
+      "#####~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrv##",
+      "#V###~~v----------vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvV#",
+      "#V##v~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrv##",
+      "#####~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvV#",
+      "####v~~vvvvvvvvvvvvv==========vvvvvvvvvvvvvvvvvvvvvvrv##",
+      "V###v~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvV#",
+      "###vv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrv##",
+      "##vvv~~vvvvvvvvvvvvvvvvvvvvvvvvv----------vvvvvvvvvvrvv#",
+      "##vvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvv#",
+      "##vvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvv#",
+      "V#vvv~~vvvvvvvvvvvvv==========vvvvvvvvvvvvvvvvvvvvvvrvv#",
+      "#vvvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
+      "#Vvvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvv#",
+      "#vvvv~~v----------vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
+      "#vvvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
+      "#vv~~~~~~evvvvvvvvvvvvvvvvvivvvvvvvvvvvvvvvvvvvvvvvvrvvV",
+      "##____________SSSSSSSSSSSSrPSSSSS___%%%%%%%%%%%_______##",
+      "#vvvvvvvvvvvvvvvvvvvvvvvvvrivvvvvvvvvvvvvvvvvvvvvvvvvvVV",
+      "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWrimWWWWWWWWWmWWWWWWWWWWWWWWwWW",
+      "WWWWWWWWWWWWWmWWWWWWWWWWwWriWWWmWWWWWWWWWWWWWWWWWWmWWmWW",
+      "WWbbbbbbbbbbbbbbbbWWDDDDDDriDDDbbbbWWbbbbbbbbWWbbbbbbbWW",
+      "WWbbbbbbbbbbbbbbbbWWbbbbbbribbbbbbbWWbbbbbbbbWWbbbbbbbmW",
+      "WWbbbbPPPPPbbbbbbbWWbbppppribbbbbbbWWbbPPPPPbWWbbbbbbbWW",
+      "WWbbbbbbbbbbbbbbbbbbbbbbbbribbbbbbbbbbbbbbbbbbbbbbbbbbWW",
+      "WWbbbbbbbbbbbbbbbbbbbbbbbbribblbbbbbbbbbbbbbbbbbbbbbbbmW",
+      "WWFFFFFFFFFFFFFFFFFFMMMMMMPPMMlbFFFFFFFFFFFFFFFFXXXXFFWw",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWGbWwWWwWWWmWWWWWWWWWWmWWWW",
+      "WWWWWWWWWWWwwWWWWWWWWWWWWWWmWWGbWWWWWwWwWmWWWWWWWWWwWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWGbWWWWwWWWwWmWmwWWwWWWWWWW",
+      "WWWWWWWWWWWWWWWwwWWWWWWWWWWWWWGbWWWWWWWWWWWWWwWWWWWWWWWW",
+      "WWbbbbbbbbbbbWWbbbbbbbbbWWbbbblbbbbbbWWbbbbbbbbbbbbbbbWW",
+      "WWbbbbbbbbbbbWWbbbbbbbbbWWbbbblbbbbbbWWbbbbbbbbbbbbbbbWW",
+      "WWbPPPPPbbbbbWWbpppppbbbWWbbbblbbPPPPPWbbbbbbbbbPPPPPbWW",
+      "WWbbbbbbbbbbbbbbbbbbbbbbbbbbbblbbbbbbbbbbbbbbbbbbbbbbbWW",
+      "WWbbbblbbbbbbbbbbbbbbbbbbbbbbblbbbbbbbbbbbbbbblbbbbbbbWW",
+      "WWFFFFlbOOOOFFFFFFFFFFFFFFFFLLLLFFFFFFFFFFFFFFlbFFFFFFWW",
+      "WWWWWWlbWWWWWmWWWmWWmWWWWWWWWWWWWWWWWWWWWWWWWWlbwWWwWWWW",
+      "WWWWWWlbWWWWWWWwWWWWWWWWWWWWWWwmWWWWWwWWWWWWWWlbWWWWWwWW",
+      "WWmWWWlbWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWlbWWWWWWWW",
+      "WWWWWWlbWWWWWWWWmWWWWWWWWWWWWWWWWWWWWWWWwWWWWWlbWWwWWWWW",
+      "WwbDDDlbDDDDDDDbWWbbbbbbbbWWbbbbbbbbbbWWbbbbbblbbbbbbbmW",
+      "WWbbbblbbbbbbbbbWWbbbbbbbbWWbbbbbbbbbbWWbbbbbblbbbbbbbWW",
+      "WWbbPPlbPbbbbbbbWWbpppppbbWWbbbbbbbbbbWWbPPPPPlbbbbbbbwW",
+      "wWbbbblbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbblbbbbbbbWW",
+      "WmbbbblbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbblbbbbbbbWW",
+      "WwFFFFFFFFFFFFFFFFFXXXXFFFFFMMMXXXXMMMFFMMMMMMMMMMMMMFWW",
+      "WWWWWWWWWWWWWWWwWWWWWWWWWWWWWWwWWWWWWWWWWWWWWWWWWWWwWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWwWWWWwWWWWWWmWWwWWWWWWWWWWWWWWW"
+    ],
+    "foreground": [
+      "                                                        ",
+      "    g                 A                                 ",
+      "                                  A                     ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                    j            B  j       + j         ",
+      "                                       &                ",
+      "                          ;                             ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "           n                                            ",
+      "                                                        ",
+      "                      h                                 ",
+      "                         )                              ",
+      "                                                        ",
+      "                                 ;                      ",
+      "                                   (                    ",
+      "                                                        ",
+      "                                                        ",
+      "                     Z                                  ",
+      "                                                        ",
+      "            h  B                                        ",
+      "                                                        ",
+      "     ?                                                  ",
+      "                                                        ",
+      "                          ]                             ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "  A   H                y               o                ",
+      "                                                        ",
+      "            R                   +        R              ",
+      "                     E                                  ",
+      "                          [                             ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "               N           :                            ",
+      "   $             a               z               q      ",
+      "                                  k                     ",
+      "     R                                      +           ",
+      "                    E                                   ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                     K                                  ",
+      "  A Y              o                      d         A   ",
+      "                                                        ",
+      "      ! U   Q               R       B                   ",
+      "   @      J            E                 E      c       ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        "
+    ]
+  },
+  "spawns": {
+    "player": {
+      "x": 3,
+      "y": 3
+    },
+    "enemies": [
+      {
+        "type": "skeleton",
+        "x": 23,
+        "y": 3
+      },
+      {
+        "type": "skeleton",
+        "x": 41,
+        "y": 3
+      },
+      {
+        "type": "skeleton",
+        "x": 20,
+        "y": 13
+      },
+      {
+        "type": "skeleton",
+        "x": 21,
+        "y": 23
+      }
+    ],
+    "loot": []
+  },
+  "subLevels": [
+    {
+      "id": "dungeon",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 56,
+        "height": 16
+      },
+      "door": {
+        "x": 26,
+        "y": 22
+      },
+      "destination": "nether",
+      "destinationSpawn": {
+        "x": 26,
+        "y": 33
+      },
+      "title": "DUNGEON"
+    },
+    {
+      "id": "nether",
+      "bounds": {
+        "x": 0,
+        "y": 16,
+        "width": 56,
+        "height": 16
+      },
+      "door": {
+        "x": 26,
+        "y": 33
+      },
+      "destination": "dungeon",
+      "destinationSpawn": {
+        "x": 26,
+        "y": 22
+      },
+      "title": "NETHER"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "nether-gate-to-room2",
+      "x": 4,
+      "y": 62,
+      "width": 1,
+      "height": 1,
+      "texture": "images/lvl1-tiles/gate-exit-512px.png",
+      "destinationMap": "maps/room2.json",
+      "destinationSpawn": {
+        "x": 2,
+        "y": 2
+      }
+    }
+  ]
+}
