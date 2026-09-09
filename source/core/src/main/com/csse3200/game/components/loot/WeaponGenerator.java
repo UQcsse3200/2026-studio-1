@@ -23,7 +23,7 @@ public class WeaponGenerator {
       case DAGGER:
         return new WeaponItem("Basic Dagger", WeaponType.DAGGER, 3 * tier, 1, 1);
 
-        default:
+      default:
         throw new IllegalArgumentException("Unsupported weapon type.");
     }
   }
