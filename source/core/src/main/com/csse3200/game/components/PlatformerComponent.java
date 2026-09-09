@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsLayer;
+import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.raycast.RaycastHit;
 import com.csse3200.game.rendering.DebugRenderer;
@@ -27,6 +28,7 @@ public class PlatformerComponent extends Component {
 
   private PhysicsComponent physicsComponent;
   private PhysicsEngine physics;
+  ColliderComponent collider;
   DebugRenderer debug = new DebugRenderer();
 
   public PlatformerComponent(int baseJumpScaler) {
@@ -52,6 +54,7 @@ public class PlatformerComponent extends Component {
     physicsComponent = entity.getComponent(PhysicsComponent.class);
     physics = ServiceLocator.getPhysicsService().getPhysics();
     entity.getEvents().addListener("jump", this::jump);
+    collider = entity.getComponent(ColliderComponent.class);
   }
 
   /*
@@ -140,23 +143,42 @@ public class PlatformerComponent extends Component {
     RaycastHit rightHit = new RaycastHit();
     int rightOffset = 3; // The rightHit raycast isn't able to hit the left part of the wall
     // as well as the right part of the wall, so we give a boost to the distanceThreshold
-    float distanceThreshold = 0.5f; // The wall jump applies if the collider is X units away
+    float distanceThreshold = 15f; // The wall jump applies if the collider is X units away
     Vector2 from = entity.getPosition();
-    float left = -1;
-    float right = -1;
-    physics.raycast(from, Vector2Utils.LEFT, PhysicsLayer.OBSTACLE, leftHit);
+    from.y+=5;
+    Vector2 fromRight = from;
+    fromRight.x+=5;
+    Vector2 fromLeft = from;//It's already on the left
+
+    Vector2 vectorToRight = new Vector2(fromRight.x + (distanceThreshold), fromRight.y);
+    Vector2 vectorToLeft = new Vector2(fromLeft.x-distanceThreshold, fromLeft.y);
+    float left = 100000;
+    float right = 100000;
+    physics.raycast(fromLeft, vectorToLeft, PhysicsLayer.OBSTACLE, leftHit);
     if (leftHit.point != null) {
       left = Math.abs(from.x - leftHit.point.x);
+      System.out.println(left + "LEFT" + leftHit.point.x);
+    }else{
+      System.out.println("LEFT DOESNT HIT");
     }
-    physics.raycast(from, Vector2Utils.RIGHT, PhysicsLayer.OBSTACLE, rightHit);
+    physics.raycast(fromRight, vectorToRight, PhysicsLayer.OBSTACLE, rightHit);
+    debug.drawLine(from, rightHit.point);
     if (rightHit.point != null) {
       right = Math.abs(from.x - rightHit.point.x);
+      System.out.println(right + "R" + rightHit.point.x);
+    }else{
+      System.out.println("RIGHT DOESNT HIT");
     }
-    if (left <= distanceThreshold && leftHit.point != null) {
-      return "LEFT";
-    }
-    if (right <= distanceThreshold * rightOffset && rightHit.point != null) {
-      return "RIGHT";
+
+
+    if(left<right) {
+      if (left <= distanceThreshold && leftHit.point != null) {
+        return "LEFT";
+      }
+    } else {
+      if (right <= distanceThreshold && rightHit.point != null) {
+        return "RIGHT";
+      }
     }
     return "NONE"; // If neither then return NONE
   }
