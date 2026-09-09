@@ -5,38 +5,61 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
 public class PauseMenuDisplay extends UIComponent {
 
-  private float defmusicVol = 0.8f;
-  private boolean musicVolumeApplied = false;
+  private enum MenuState {
+    MAIN,
+    SETTINGS,
+    AUDIO
+  }
+
+  private static final Color OVERLAY_COLOR = new Color(0f, 0f, 0f, 0.45f);
+  private static final Color PANEL_COLOR = new Color(0.03f, 0.06f, 0.04f, 0.95f);
+  private static final Color SELECTED_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
+  private static final Color SELECTED_TEXT = Color.CYAN;
+  private static final Color UNSELECTED_TEXT = Color.WHITE;
+  private static final float INACTIVE_PANEL_ALPHA = 0.55f;
+  private static final float PANEL_GAP = 25f;
+  private static final float MUSIC_STEP = 0.05f;
+
   private static final String PREFS_NAME = "pause_menu_settings";
   private static final String MUSIC_VOLUME_KEY = "musicVolume";
+  private static final float DEFAULT_MUSIC_VOL = 0.8f;
+
+  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Main Menu", "Settings"};
+  private static final String[] SETTINGS_ITEMS = {"Audio", "Back"};
+  private static final String[] AUDIO_ITEMS = {"Music Volume", "Back"};
+
   private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
   private float musicVol =
-      (prefs != null) ? prefs.getFloat(MUSIC_VOLUME_KEY, defmusicVol) : defmusicVol;
-  private static final float MUSIC_STEP = 0.05f;
-  private Table table;
-  private Table pauseOverlay;
-  private PauseMenuComponent pauseMenu;
-  TextButton[] buttons;
-  Slider musicSlider;
-  private Label musicLabel;
-  int selectedIndex = 0;
-  private boolean wasPaused = false;
+      (prefs != null) ? prefs.getFloat(MUSIC_VOLUME_KEY, DEFAULT_MUSIC_VOL) : DEFAULT_MUSIC_VOL;
+  private boolean musicVolumeApplied = false;
 
-  private boolean usingKeyboardNav = true;
+  private Table pauseOverlay;
+  private Table root;
+  private Table mainPanel;
+  private Table settingsPanel;
+  private Table audioPanel;
+
+  private Label[] mainLabels;
+  private Label[] settingsLabels;
+  private Label[] audioLabels;
+  private Slider musicSlider;
+  private Label musicValueLabel;
+
+  private PauseMenuComponent pauseMenu;
+  private MenuState state = MenuState.MAIN;
+  private int mainIndex = 0;
+  private int settingsIndex = 0;
+  private int audioIndex = 0;
+  private boolean wasPaused = false;
 
   @Override
   public void create() {
@@ -47,128 +70,102 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
-    table = new Table();
-    table.setFillParent(true);
     pauseOverlay = new Table();
     pauseOverlay.setFillParent(true);
-    pauseOverlay.setBackground(skin.newDrawable("white", new Color(0, 0, 0, 0.5f)));
+    pauseOverlay.setBackground(skin.newDrawable("white", OVERLAY_COLOR));
     pauseOverlay.setVisible(false);
-
     stage.addActor(pauseOverlay);
 
-    Table pausePanel = new Table();
+    mainLabels = new Label[MAIN_ITEMS.length];
+    mainPanel = buildPanel(MAIN_ITEMS, mainLabels);
 
-    pausePanel.setBackground(skin.newDrawable("white", new Color(0.03f, 0.06f, 0.04f, 0.95f)));
+    settingsLabels = new Label[SETTINGS_ITEMS.length];
+    settingsPanel = buildPanel(SETTINGS_ITEMS, settingsLabels);
 
-    pausePanel.pad(40f);
+    audioLabels = new Label[AUDIO_ITEMS.length];
+    audioPanel = buildAudioPanel();
 
-    Label title = new Label("PAUSED", skin);
-    title.getStyle().fontColor = Color.WHITE;
-
-    pausePanel.add(title).padBottom(25f);
-    pausePanel.row();
-
-    TextButton resumeBtn = new TextButton("Resume", skin);
-    TextButton restartBtn = new TextButton("Restart", skin);
-    TextButton mainMenuBtn = new TextButton("Main Menu", skin);
-
-    buttons = new TextButton[] {resumeBtn, restartBtn, mainMenuBtn};
-
-    resumeBtn.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            entity.getEvents().trigger("resumeClicked");
-          }
-        });
-    restartBtn.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            entity.getEvents().trigger("restartClicked");
-          }
-        });
-    mainMenuBtn.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-            entity.getEvents().trigger("mainMenuClicked");
-          }
-        });
-
-    pausePanel.add(resumeBtn).width(220f).height(45f).padTop(10f);
-    pausePanel.row();
-
-    pausePanel.add(restartBtn).width(220f).height(45f).padTop(12f);
-    pausePanel.row();
-
-    pausePanel.add(mainMenuBtn).width(220f).height(45f).padTop(12f);
-    pausePanel.row();
-
-    pausePanel.add(createMusicSlider()).padTop(30f);
-
-    table.add(pausePanel).width(420f).height(420f);
-
-    table.addListener(
-        new InputListener() {
-          @Override
-          public boolean mouseMoved(InputEvent event, float x, float y) {
-            usingKeyboardNav = false;
-            for (TextButton button : buttons) {
-              button.setColor(Color.WHITE);
-            }
-            musicLabel.setColor(Color.WHITE);
-            return false;
-          }
-        });
-
-    for (TextButton button : buttons) {
-      button.addListener(
-          new InputListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-              if (!usingKeyboardNav) {
-                button.setColor(Color.YELLOW);
-              }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-              button.setColor(Color.WHITE);
-            }
-          });
-    }
-
-    table.setVisible(false);
-    stage.addActor(table);
+    root = new Table();
+    root.setFillParent(true);
+    root.left();
+    root.padLeft(60f);
+    root.add(mainPanel).top();
+    root.add(settingsPanel).top().padLeft(PANEL_GAP);
+    root.add(audioPanel).top().padLeft(PANEL_GAP);
+    root.setVisible(false);
+    stage.addActor(root);
   }
 
-  private Table createMusicSlider() {
-    musicLabel = new Label("Music Volume", skin);
+  private Label createLabel(String text) {
+    Label label = new Label(text, skin);
+    Label.LabelStyle style = new Label.LabelStyle(label.getStyle());
+    style.fontColor = UNSELECTED_TEXT;
+    label.setStyle(style);
+    return label;
+  }
+
+  private Table buildPanel(String[] items, Label[] labelsOut) {
+    Table panel = new Table();
+    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    panel.pad(20f, 30f, 20f, 30f);
+    panel.left();
+    for (int i = 0; i < items.length; i++) {
+      Label label = createLabel(items[i]);
+      labelsOut[i] = label;
+      Table row = new Table();
+      row.add(label).pad(6f, 15f, 6f, 15f).left();
+      panel.add(row).left().padBottom(4f).fillX();
+      panel.row();
+    }
+    return panel;
+  }
+
+  private Table buildAudioPanel() {
+    Table panel = new Table();
+    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    panel.pad(20f, 30f, 20f, 30f);
+    panel.left();
+
+    Label musicLabel = createLabel(AUDIO_ITEMS[0]);
+    audioLabels[0] = musicLabel;
     musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
     musicSlider.setValue(musicVol);
-    Label musicValueLabel = new Label(String.format("%.0f%%", musicVol * 100), skin);
+    musicValueLabel = createLabel(String.format("%.0f%%", musicVol * 100));
     musicSlider.addListener(
         (Event event) -> {
           musicVol = musicSlider.getValue();
           musicValueLabel.setText(String.format("%.0f%%", musicVol * 100));
-          Music music =
-              ServiceLocator.getResourceService()
-                  .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
-          if (music != null) {
-            music.setVolume(musicVol);
-          }
+          applyMusicVolume();
           if (prefs != null) {
             prefs.putFloat(MUSIC_VOLUME_KEY, musicVol);
             prefs.flush();
           }
           return true;
         });
-    Table row = new Table();
-    row.add(musicLabel).padRight(10f);
-    row.add(musicSlider).width(200f);
-    row.add(musicValueLabel).padLeft(10f);
-    return row;
+    Table sliderRow = new Table();
+    sliderRow.add(musicLabel).padRight(15f);
+    sliderRow.add(musicSlider).width(160f).padRight(10f);
+    sliderRow.add(musicValueLabel);
+    panel.add(sliderRow).pad(6f, 15f, 6f, 15f).left();
+    panel.row();
+
+    Label backLabel = createLabel(AUDIO_ITEMS[1]);
+    audioLabels[1] = backLabel;
+    Table backRow = new Table();
+    backRow.add(backLabel).pad(6f, 15f, 6f, 15f).left();
+    panel.add(backRow).left().padBottom(4f).fillX();
+
+    return panel;
+  }
+
+  private void applyMusicVolume() {
+    Music music =
+        ServiceLocator.getResourceService()
+            .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
+    if (music != null) {
+      music.setVolume(musicVol);
+      musicVolumeApplied = true;
+    }
   }
 
   private void registerEventListeners() {
@@ -179,87 +176,150 @@ public class PauseMenuDisplay extends UIComponent {
     entity.getEvents().addListener("confirmSelection", this::confirmSelection);
   }
 
-  void navigateUp() {
-    usingKeyboardNav = true;
-    int itemCount = buttons.length + 1;
-    selectedIndex = (selectedIndex - 1 + itemCount) % itemCount;
-    updateHighlight();
+  private void navigateUp() {
+    int count = currentItemCount();
+    setCurrentIndex((currentIndex() - 1 + count) % count);
   }
 
-  void navigateDown() {
-    usingKeyboardNav = true;
-    int itemCount = buttons.length + 1;
-    selectedIndex = (selectedIndex + 1) % itemCount;
-    updateHighlight();
+  private void navigateDown() {
+    int count = currentItemCount();
+    setCurrentIndex((currentIndex() + 1) % count);
   }
 
-  /** Left/Right only affect the music slider, and only while it's the selected item. */
-  void navigateLeft() {
-    if (selectedIndex != buttons.length) {
+  private void navigateLeft() {
+    if (state != MenuState.AUDIO || audioIndex != 0) {
       return;
     }
-    float newValue = Math.max(0f, musicSlider.getValue() - MUSIC_STEP);
-    musicSlider.setValue(newValue);
+    musicSlider.setValue(Math.max(0f, musicSlider.getValue() - MUSIC_STEP));
   }
 
-  void navigateRight() {
-    if (selectedIndex != buttons.length) {
+  private void navigateRight() {
+    if (state != MenuState.AUDIO || audioIndex != 0) {
       return;
     }
-    float newValue = Math.min(1f, musicSlider.getValue() + MUSIC_STEP);
-    musicSlider.setValue(newValue);
+    musicSlider.setValue(Math.min(1f, musicSlider.getValue() + MUSIC_STEP));
   }
 
-  void updateHighlight() {
-    if (!usingKeyboardNav) {
-      return;
+  private int currentItemCount() {
+    return switch (state) {
+      case MAIN -> MAIN_ITEMS.length;
+      case SETTINGS -> SETTINGS_ITEMS.length;
+      case AUDIO -> AUDIO_ITEMS.length;
+    };
+  }
+
+  private int currentIndex() {
+    return switch (state) {
+      case MAIN -> mainIndex;
+      case SETTINGS -> settingsIndex;
+      case AUDIO -> audioIndex;
+    };
+  }
+
+  private void setCurrentIndex(int index) {
+    switch (state) {
+      case MAIN -> mainIndex = index;
+      case SETTINGS -> settingsIndex = index;
+      case AUDIO -> audioIndex = index;
     }
-    for (int i = 0; i < buttons.length; i++) {
-      buttons[i].setColor(i == selectedIndex ? Color.YELLOW : Color.WHITE);
-    }
-    musicLabel.setColor(selectedIndex == buttons.length ? Color.YELLOW : Color.WHITE);
+    refreshHighlights();
   }
 
   private void confirmSelection() {
-    usingKeyboardNav = true;
-    updateHighlight();
-    switch (selectedIndex) {
+    switch (state) {
+      case MAIN -> confirmMain();
+      case SETTINGS -> confirmSettings();
+      case AUDIO -> confirmAudio();
+    }
+  }
+
+  private void confirmMain() {
+    switch (mainIndex) {
       case 0 -> entity.getEvents().trigger("resumeClicked");
       case 1 -> entity.getEvents().trigger("restartClicked");
       case 2 -> entity.getEvents().trigger("mainMenuClicked");
-      default -> {
-        // No action needed for invalid selection index
+      case 3 -> {
+        state = MenuState.SETTINGS;
+        settingsIndex = 0;
+        refreshPanels();
       }
+      default -> {}
+    }
+  }
+
+  private void confirmSettings() {
+    switch (settingsIndex) {
+      case 0 -> {
+        state = MenuState.AUDIO;
+        audioIndex = 0;
+        refreshPanels();
+      }
+      case 1 -> {
+        state = MenuState.MAIN;
+        refreshPanels();
+      }
+      default -> {}
+    }
+  }
+
+  private void confirmAudio() {
+    if (audioIndex == 1) {
+      state = MenuState.SETTINGS;
+      refreshPanels();
+    }
+  }
+
+  /** Shows/hides and dims panels to reflect the current drill-down depth. */
+  private void refreshPanels() {
+    settingsPanel.setVisible(state != MenuState.MAIN);
+    audioPanel.setVisible(state == MenuState.AUDIO);
+
+    mainPanel.getColor().a = (state == MenuState.MAIN) ? 1f : INACTIVE_PANEL_ALPHA;
+    settingsPanel.getColor().a = (state == MenuState.SETTINGS) ? 1f : INACTIVE_PANEL_ALPHA;
+    audioPanel.getColor().a = (state == MenuState.AUDIO) ? 1f : INACTIVE_PANEL_ALPHA;
+
+    refreshHighlights();
+  }
+
+  /** Re-applies the selected/unselected look to every visible panel's rows. */
+  private void refreshHighlights() {
+    highlightPanel(mainLabels, mainIndex, state == MenuState.MAIN);
+    highlightPanel(settingsLabels, settingsIndex, state == MenuState.SETTINGS);
+    highlightPanel(audioLabels, audioIndex, state == MenuState.AUDIO);
+  }
+
+  private void highlightPanel(Label[] labels, int selectedIndex, boolean isActivePanel) {
+    for (int i = 0; i < labels.length; i++) {
+      boolean selected = isActivePanel && i == selectedIndex;
+      labels[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
+      Table row = (Table) labels[i].getParent();
+      row.setBackground(selected ? skin.newDrawable("white", SELECTED_BG) : null);
     }
   }
 
   @Override
   public void draw(SpriteBatch batch) {
     if (!musicVolumeApplied) {
-      Music music =
-          ServiceLocator.getResourceService()
-              .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
-      if (music != null) {
-        music.setVolume(musicVol);
-        musicVolumeApplied = true;
-      }
+      applyMusicVolume();
     }
 
     boolean isPaused = pauseMenu.isPaused();
     pauseOverlay.setVisible(isPaused);
-    table.setVisible(isPaused);
+    root.setVisible(isPaused);
 
     if (isPaused && !wasPaused) {
-      selectedIndex = 0;
-      usingKeyboardNav = true;
-      updateHighlight();
+      state = MenuState.MAIN;
+      mainIndex = 0;
+      settingsIndex = 0;
+      audioIndex = 0;
+      refreshPanels();
     }
     wasPaused = isPaused;
   }
 
   @Override
   public void dispose() {
-    table.clear();
+    root.clear();
     super.dispose();
   }
 }
