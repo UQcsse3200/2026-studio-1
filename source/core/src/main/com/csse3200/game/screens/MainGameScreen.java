@@ -90,9 +90,9 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /**
-   * Zoom the camera so the map fills the window and align it with the bottom of the map. Uses the
+   * Zoom the camera so the map fills the window and align it with the top of the map. Uses the
    * smaller of the two axis zoom factors so the map covers the whole viewport. Tall maps are
-   * therefore cropped at the top while their starting area remains visible.
+   * therefore cropped at the bottom while their final area remains visible.
    *
    * @param area the level area whose map the camera should frame
    */
@@ -103,8 +103,10 @@ public class MainGameScreen extends ScreenAdapter {
     cam.zoom = Math.min(zoomForWidth, zoomForHeight);
 
     float visibleWorldHeight = cam.viewportHeight * cam.zoom;
-    Vector2 bottomViewCenter = new Vector2(area.getMapWorldWidth() / 2f, visibleWorldHeight / 2f);
-    renderer.getCamera().getEntity().setPosition(bottomViewCenter);
+    Vector2 topViewCenter =
+        new Vector2(
+            area.getMapWorldWidth() / 2f, area.getMapWorldHeight() - visibleWorldHeight / 2f);
+    renderer.getCamera().getEntity().setPosition(topViewCenter);
     cam.update();
   }
 
