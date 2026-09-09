@@ -259,6 +259,7 @@ public class NPCFactory {
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
     return npc;
   }
 
