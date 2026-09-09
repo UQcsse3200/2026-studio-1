@@ -295,7 +295,7 @@ class JsonMapLoaderTest {
     assertEquals("Underworld Dungeon", roomOne.getName());
     assertEquals(40, roomOne.getWidth());
     assertEquals(66, roomOne.getHeight());
-    assertEquals(new GridPoint2(3, 2), roomOne.getSpawns().getPlayer());
+    assertEquals(new GridPoint2(8, 63), roomOne.getSpawns().getPlayer());
     assertEquals(TileType.WALL, roomOne.getTileType(3, 0));
     assertEquals(TileType.PLATFORM, roomOne.getTileType(20, 15));
     assertEquals(TileType.PLATFORM, roomOne.getTileType(35, 5));

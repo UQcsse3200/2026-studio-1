@@ -90,9 +90,9 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /**
-   * Zoom the camera so the map fills the window and align it with the top of the map. Uses the
-   * smaller of the two axis zoom factors so the map covers the whole viewport. Tall maps are
-   * therefore cropped at the bottom while their final area remains visible.
+   * Zoom the camera so the map fills the window. Uses the smaller of the two axis zoom factors so
+   * the map always covers the whole viewport (axes where the map is bigger than the viewport are
+   * left free for {@link #followPlayer()} to scroll along).
    *
    * @param area the level area whose map the camera should frame
    */
@@ -101,13 +101,45 @@ public class MainGameScreen extends ScreenAdapter {
     float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
     float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
     cam.zoom = Math.min(zoomForWidth, zoomForHeight);
-
-    float visibleWorldHeight = cam.viewportHeight * cam.zoom;
-    Vector2 topViewCenter =
-        new Vector2(
-            area.getMapWorldWidth() / 2f, area.getMapWorldHeight() - visibleWorldHeight / 2f);
-    renderer.getCamera().getEntity().setPosition(topViewCenter);
     cam.update();
+
+    followPlayer();
+  }
+
+  /**
+   * Moves the camera to track the player, clamping so the view never scrolls past the map's edges
+   * (left, right, top or bottom). If the map is smaller than the current viewport along an axis,
+   * the camera is centred on that axis instead of following.
+   */
+  private void followPlayer() {
+    Entity player = levelGameArea.getPlayer();
+    if (player == null) {
+      return;
+    }
+
+    OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
+    float halfViewWidth = (cam.viewportWidth * cam.zoom) / 2f;
+    float halfViewHeight = (cam.viewportHeight * cam.zoom) / 2f;
+
+    float mapWidth = levelGameArea.getMapWorldWidth();
+    float mapHeight = levelGameArea.getMapWorldHeight();
+
+    Vector2 playerPosition = player.getPosition();
+    float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
+    float y = clampToMap(playerPosition.y, halfViewHeight, mapHeight);
+
+    renderer.getCamera().getEntity().setPosition(x, y);
+  }
+
+  /**
+   * Clamps a camera coordinate so the visible view stays within [0, mapSize] along one axis. When
+   * the view is wider than the map itself, the map is centred instead.
+   */
+  private static float clampToMap(float value, float halfViewSize, float mapSize) {
+    if (halfViewSize * 2f >= mapSize) {
+      return mapSize / 2f;
+    }
+    return Math.max(halfViewSize, Math.min(value, mapSize - halfViewSize));
   }
 
   @Override
@@ -139,6 +171,7 @@ public class MainGameScreen extends ScreenAdapter {
       transitionTo(transition);
     }
 
+    followPlayer();
     renderer.render();
   }
 
