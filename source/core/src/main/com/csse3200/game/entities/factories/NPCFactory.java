@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
-import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.MeleeAttackComponent;
-import com.csse3200.game.components.RangedAttackComponent;
-import com.csse3200.game.components.TouchAttackComponent;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
@@ -259,6 +259,7 @@ public class NPCFactory {
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
     return npc;
   }
 
