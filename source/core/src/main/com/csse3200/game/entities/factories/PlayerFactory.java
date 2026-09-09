@@ -14,6 +14,7 @@ import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -73,7 +74,7 @@ public class PlayerFactory {
             .addComponent(new InventoryComponent(stats.gold))
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
-            .addComponent(new PlatformerComponent(3))
+            .addComponent(new PlatformerComponent(5, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
@@ -82,6 +83,7 @@ public class PlayerFactory {
 
     if (mapData != null) {
       player.addComponent(new LadderComponent(mapData));
+      player.addComponent(new SubLevelTravelComponent());
     }
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);

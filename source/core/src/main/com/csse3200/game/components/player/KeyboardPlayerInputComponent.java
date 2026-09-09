@@ -32,7 +32,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyDown(int keycode) {
+    SubLevelTravelComponent travel = entity.getComponent(SubLevelTravelComponent.class);
+    if (travel != null && travel.isControlLocked()) {
+      return true;
+    }
     switch (keycode) {
+      case Keys.E:
+        return travel != null && travel.beginTravel();
       case Keys.W:
         LadderComponent ladderUp = entity.getComponent(LadderComponent.class);
         if (ladderUp != null && ladderUp.beginClimb(1f)) {

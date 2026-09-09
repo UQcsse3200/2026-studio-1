@@ -321,7 +321,7 @@ class JsonMapLoaderTest {
     assertEquals(4, levelOne.getSpawns().getEnemies().size());
     assertTrue(levelOne.getSpawns().getLoot().isEmpty());
     assertEquals(TileType.LADDER, levelOne.getTileType(7, 7));
-    assertEquals(TileType.LADDER, levelOne.getTileType(23, 37));
+    assertEquals(TileType.PLATFORM, levelOne.getTileType(23, 37));
   }
 
   @Test

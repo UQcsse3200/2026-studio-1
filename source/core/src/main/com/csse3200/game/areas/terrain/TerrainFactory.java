@@ -139,16 +139,20 @@ public class TerrainFactory {
    * Falls back to {@link #DEFAULT_TILE_PX} if the map has no textures (e.g. an empty map).
    */
   private GridPoint2 resolveTilePixelSize(LevelMapData map, ResourceService resourceService) {
+    GridPoint2 smallest = null;
     for (TileDefinition def : map.getLegend().values()) {
       if (def.texture() == null) {
         continue;
       }
       Texture texture = resourceService.getAsset(def.texture(), Texture.class);
       if (texture != null) {
-        return new GridPoint2(texture.getWidth(), texture.getHeight());
+        GridPoint2 candidate = new GridPoint2(texture.getWidth(), texture.getHeight());
+        if (smallest == null || candidate.x * candidate.y < smallest.x * smallest.y) {
+          smallest = candidate;
+        }
       }
     }
-    return new GridPoint2(DEFAULT_TILE_PX, DEFAULT_TILE_PX);
+    return smallest == null ? new GridPoint2(DEFAULT_TILE_PX, DEFAULT_TILE_PX) : smallest;
   }
 
   private TerrainComponent createForestDemoTerrain(

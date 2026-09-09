@@ -1,5 +1,6 @@
 package com.csse3200.game.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
@@ -9,6 +10,7 @@ import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.entities.Entity;
@@ -61,6 +63,8 @@ public class MainGameScreen extends ScreenAdapter {
   public MainGameScreen(GdxGame game) {
     this.game = game;
 
+    Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
+
     logger.debug("Initialising main game screen services");
     ServiceLocator.registerTimeSource(new GameTime());
 
@@ -85,6 +89,8 @@ public class MainGameScreen extends ScreenAdapter {
     terrainFactory = new TerrainFactory(renderer.getCamera());
     this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
+    ServiceLocator.getEntityService()
+        .register(new Entity().addComponent(new SubLevelTitleDisplay(levelGameArea.getPlayer())));
 
     fitCameraToMap(levelGameArea);
   }
@@ -122,11 +128,13 @@ public class MainGameScreen extends ScreenAdapter {
     float halfViewHeight = (cam.viewportHeight * cam.zoom) / 2f;
 
     float mapWidth = levelGameArea.getMapWorldWidth();
-    float mapHeight = levelGameArea.getMapWorldHeight();
-
     Vector2 playerPosition = player.getPosition();
+    boolean inNether = playerPosition.y >= 17.5f;
+    float subLevelBottom = inNether ? 18f : 0f;
+    float subLevelHeight = inNether ? 14f : 17f;
+
     float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
-    float y = clampToMap(playerPosition.y, halfViewHeight, mapHeight);
+    float y = clampToRange(playerPosition.y, halfViewHeight, subLevelBottom, subLevelHeight);
 
     renderer.getCamera().getEntity().setPosition(x, y);
   }
@@ -140,6 +148,13 @@ public class MainGameScreen extends ScreenAdapter {
       return mapSize / 2f;
     }
     return Math.max(halfViewSize, Math.min(value, mapSize - halfViewSize));
+  }
+
+  private static float clampToRange(float value, float halfViewSize, float bottom, float height) {
+    if (halfViewSize * 2f >= height) {
+      return bottom + height / 2f;
+    }
+    return Math.max(bottom + halfViewSize, Math.min(value, bottom + height - halfViewSize));
   }
 
   @Override
