@@ -59,7 +59,7 @@ public class OnHitEffectComponent extends Component {
    *
    * @param random the random source to use for the trigger roll.
    */
-  OnHitEffectComponent(
+  public OnHitEffectComponent(
       List<String> hitEventNames,
       float triggerChance,
       int effectDuration,
