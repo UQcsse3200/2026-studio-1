@@ -387,7 +387,7 @@ public class LevelGameArea extends GameArea {
   }
 
   private Entity spawnPlayer() {
-    Entity newPlayer = PlayerFactory.createPlayer();
+    Entity newPlayer = PlayerFactory.createPlayer(mapData);
 
     addHazardCollisionListener(newPlayer);
     positionAndSpawnPlayer(newPlayer, mapData.getSpawns().getPlayer());

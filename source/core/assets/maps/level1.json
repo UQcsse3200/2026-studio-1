@@ -1,0 +1,355 @@
+{
+  "name": "Level 1 - Up From the Tombs",
+  "tileSize": 0.5,
+  "legend": {
+    "#": {
+      "type": "WALL",
+      "texture": "images/nether/nether-wall-hellbrick-256px.png"
+    },
+    "H": {
+      "type": "WALL",
+      "texture": "images/nether/nether-wall-cracked-256px.png"
+    },
+    "O": {
+      "type": "WALL",
+      "texture": "images/nether/nether-wall-obsidian-256px.png"
+    },
+    "_": {
+      "type": "FLOOR",
+      "texture": "images/nether/nether-floor-ash-256px.png"
+    },
+    "B": {
+      "type": "FLOOR",
+      "texture": "images/nether/nether-floor-brimstone-256px.png"
+    },
+    "-": {
+      "type": "PLATFORM",
+      "texture": "images/nether/nether-platform-obsidian-256px.png"
+    },
+    "=": {
+      "type": "PLATFORM",
+      "texture": "images/nether/nether-platform-bone-256px.png"
+    },
+    "~": {
+      "type": "HAZARD",
+      "texture": "images/nether/nether-hazard-magma-256px.png"
+    },
+    "c": {
+      "type": "HAZARD",
+      "texture": "images/nether/nether-hazard-coals-256px.png"
+    },
+    "v": {
+      "type": "DECORATIVE",
+      "texture": "images/nether/nether-void-256px.png"
+    },
+    "X": {
+      "type": "WALL",
+      "texture": "images/nether/crust-nether-dungeon-256px.png"
+    },
+    "W": {
+      "type": "WALL",
+      "texture": "images/dungeon/wall-brick-256px.png"
+    },
+    "w": {
+      "type": "WALL",
+      "texture": "images/dungeon/wall-cracked-256px.png"
+    },
+    "F": {
+      "type": "FLOOR",
+      "texture": "images/dungeon/floor-stone-256px.png"
+    },
+    "M": {
+      "type": "FLOOR",
+      "texture": "images/dungeon/floor-marble-256px.png"
+    },
+    "P": {
+      "type": "PLATFORM",
+      "texture": "images/dungeon/platform-marble-256px.png"
+    },
+    "p": {
+      "type": "PLATFORM",
+      "texture": "images/dungeon/platform-wood-256px.png"
+    },
+    "L": {
+      "type": "HAZARD",
+      "texture": "images/dungeon/hazard-lava-256px.png"
+    },
+    "S": {
+      "type": "HAZARD",
+      "texture": "images/dungeon/hazard-spikes-256px.png"
+    },
+    "V": {
+      "type": "HAZARD",
+      "texture": "images/dungeon/hazard-pit-256px.png"
+    },
+    "D": {
+      "type": "DECORATIVE",
+      "texture": "images/dungeon/decor-meander-256px.png"
+    },
+    "l": {
+      "type": "LADDER",
+      "texture": "images/dungeon/ladder-wood-256px.png"
+    },
+    "r": {
+      "type": "LADDER",
+      "texture": "images/nether/ladder-iron-256px.png"
+    },
+    "t": {
+      "type": "DECORATIVE",
+      "texture": "images/dungeon/decor-torch-256px.png"
+    },
+    "a": {
+      "type": "DECORATIVE",
+      "texture": "images/dungeon/decor-amphora-256px.png"
+    },
+    "b": {
+      "type": "DECORATIVE",
+      "texture": "images/dungeon/decor-brazier-256px.png"
+    },
+    "s": {
+      "type": "DECORATIVE",
+      "texture": "images/dungeon/decor-skull-256px.png"
+    },
+    "k": {
+      "type": "DECORATIVE",
+      "texture": "images/dungeon/item-chest-256px.png"
+    },
+    "i": {
+      "type": "DECORATIVE",
+      "texture": "images/nether/lift-cable-256px.png"
+    },
+    "I": {
+      "type": "DECORATIVE",
+      "texture": "images/nether/lift-shaft-256px.png"
+    }
+  },
+  "layers": {
+    "background": [
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+    ],
+    "terrain": [
+      "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+      "OOOOOOOOOOOOOOOOOO                            OO",
+      "OOOOOOOOOOOOOOOOOO                            OO",
+      "OOOOOOOOOOOOOOOOOO                            OO",
+      "OOOOOOOOOOOOOOOOOO                            OO",
+      "OOOOOOOOOOOOOOOOOO                      r     OO",
+      "OOOOOOOOOOOOOOOOOO_____________________ r ____OO",
+      "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO r OOOOOO",
+      "OOO                  OOOOOO             r     OO",
+      "OOO                  OOOOOO             r     OO",
+      "OOO                  OOOOOO                   OO",
+      "OOO                  OOOOOO                   OO",
+      "OOO                  OOOOOO                   OO",
+      "OOO                  OOOOOO                   OO",
+      "OOO                  OOOOOO                   OO",
+      "OOO         r        OOOOOO         r         OO",
+      "OOOBBBBBBBB r BBBBBBBOOOOOOB~~BBBBB r BBBBBBBBOO",
+      "OOOOOOOOOOO r OOOOOOOOOOOOOOOOOOOOO r OOOOOOOOOO",
+      "OO          r                       r         OO",
+      "OO          r                       r         OO",
+      "OO                                            OO",
+      "OO                                            OO",
+      "OO                                            OO",
+      "OO                                            OO",
+      "OO                                            OO",
+      "OO                     r                      OO",
+      "OO                     r                      OO",
+      "OO___ccc______________ r _______~~~___________OO",
+      "OXXXXXXXXXXXXXXXXXXXXX r XXXXXXXXXXXXXXXXXXXXXXO",
+      "OXXXXXXXXXXXXXXXXXXXXX r XXXXXXXXXXXXXXXXXXXXXXO",
+      "WWWWWWWWWWWWWWWWWW     r                      WW",
+      "WWWWWWWWWWWWWWWWWW                            WW",
+      "WWWWWWWWWWWWWWWWWW                            WW",
+      "WWWWWWWWWWWWWWWWWW                            WW",
+      "WWWWWWWWWWWWWWWWWW                            WW",
+      "WWWWWWWWWWWWWWWWWW                            WW",
+      "WWWWWWWWWWWWWWWWWW                            WW",
+      "WWWWWWWWWWWWWWWWWW                            WW",
+      "WWWWWWWWWWWWWWWWWW    l                       WW",
+      "WWWWWWWWWWWWWWWWWWMMM l MMMMMMMFFFFFFFFFFFFFFFWW",
+      "WWWWWWWWWWWWWWWWWWWWW l WWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWW l WWWWWWWWWWWWWWWWWWWWWWWW",
+      "WW                    l                       WW",
+      "WW                    l                       WW",
+      "WW                    l                       WW",
+      "WW                    l                       WW",
+      "WW                    l                       WW",
+      "WW                    l                       WW",
+      "WW                    l                       WW",
+      "WW                    l                 l     WW",
+      "WW     l              l                 l     WW",
+      "WWFFFF l FFFFFFFFFVVF l FMMMMLLLMMMMMMM l MMMMWW",
+      "WWWWWW l WWWWWWWWWWWW l WWWWWWWWWWWWWWW l WWWWWW",
+      "WWWWWW l WWWWWWWWWWWW l WWW             l     WW",
+      "WW     l              l WWW             l     WW",
+      "WW     l              l WWW                   WW",
+      "WW     l              l WWW                   WW",
+      "WW     l              l WWW                   WW",
+      "WW     l              l                       WW",
+      "WW     l                                      WW",
+      "WW     l                                      WW",
+      "WW     l                                      WW",
+      "WWFFFFFFFFFFFFFFSSFFFFFFFFFFFFFFFFFFFFFFFFFFFFWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    "foreground": [
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                  t       i     ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                          i     ",
+      "         i                     b                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "      i       b      i     b            i       ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                         t          s           ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                         k      ",
+      "                                                ",
+      "      t         s                   b           ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                  k               c     k       ",
+      "    t    a                                      ",
+      "                                                ",
+      "                                                "
+    ]
+  },
+  "spawns": {
+    "player": {
+      "x": 4,
+      "y": 2
+    },
+    "enemies": [
+      {
+        "type": "skeleton",
+        "x": 18,
+        "y": 2
+      },
+      {
+        "type": "skeleton",
+        "x": 13,
+        "y": 16
+      },
+      {
+        "type": "skeleton",
+        "x": 35,
+        "y": 16
+      },
+      {
+        "type": "skeleton",
+        "x": 38,
+        "y": 27
+      }
+    ],
+    "loot": []
+  }
+}

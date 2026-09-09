@@ -34,6 +34,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   public boolean keyDown(int keycode) {
     switch (keycode) {
       case Keys.W:
+        LadderComponent ladderUp = entity.getComponent(LadderComponent.class);
+        if (ladderUp != null && ladderUp.beginClimb(1f)) {
+          return true;
+        }
         jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
         triggerJumpEvent();
         jumped = true;
@@ -53,6 +57,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         triggerWalkEvent();
         return true;
       case Keys.S:
+        LadderComponent ladderDown = entity.getComponent(LadderComponent.class);
+        if (ladderDown != null && ladderDown.beginClimb(-1f)) {
+          return true;
+        }
         walkDirection.add(Vector2Utils.DOWN);
         triggerWalkEvent();
         return true;
@@ -119,12 +127,15 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   @Override
   public boolean keyUp(int keycode) {
     switch (keycode) {
-      // No need for a W case since gravity cancels out the jump
+      case Keys.W:
+        stopClimbing();
+        return true;
       case Keys.A:
         walkDirection.sub(Vector2Utils.LEFT);
         triggerWalkEvent();
         return true;
       case Keys.S:
+        stopClimbing();
         walkDirection.sub(Vector2Utils.DOWN);
         triggerWalkEvent();
         return true;
@@ -140,6 +151,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       default:
         return false;
+    }
+  }
+
+  private void stopClimbing() {
+    LadderComponent ladder = entity.getComponent(LadderComponent.class);
+    if (ladder != null) {
+      ladder.stopClimbing();
     }
   }
 

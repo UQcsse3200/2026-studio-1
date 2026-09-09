@@ -312,6 +312,19 @@ class JsonMapLoaderTest {
   }
 
   @Test
+  void loadsLevelOneMap() {
+    LevelMapData levelOne = loader.load("maps/level1.json");
+
+    assertEquals(48, levelOne.getWidth());
+    assertEquals(64, levelOne.getHeight());
+    assertEquals(new GridPoint2(4, 2), levelOne.getSpawns().getPlayer());
+    assertEquals(4, levelOne.getSpawns().getEnemies().size());
+    assertTrue(levelOne.getSpawns().getLoot().isEmpty());
+    assertEquals(TileType.LADDER, levelOne.getTileType(7, 7));
+    assertEquals(TileType.LADDER, levelOne.getTileType(23, 37));
+  }
+
+  @Test
   void throwsWhenFileMissing() {
     assertThrows(MapLoadException.class, () -> loader.load("maps/does_not_exist.json"));
   }

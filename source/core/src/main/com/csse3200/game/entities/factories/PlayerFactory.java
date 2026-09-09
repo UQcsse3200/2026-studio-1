@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.factories;
 
+import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
@@ -10,6 +11,7 @@ import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
+import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
@@ -43,6 +45,11 @@ public class PlayerFactory {
    * @return entity
    */
   public static Entity createPlayer() {
+    return createPlayer(null);
+  }
+
+  /** Create a player, optionally enabling ladder traversal for a tile map. */
+  public static Entity createPlayer(LevelMapData mapData) {
     InputComponent inputComponent =
         ServiceLocator.getInputService().getInputFactory().createForPlayer();
 
@@ -72,6 +79,10 @@ public class PlayerFactory {
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
             .addComponent(new WeaponRenderComponent("images/sword.png"));
+
+    if (mapData != null) {
+      player.addComponent(new LadderComponent(mapData));
+    }
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);

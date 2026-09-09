@@ -47,7 +47,7 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-yellow.png"
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
-  private static final String FIRST_ROOM_MAP = "maps/demo.json";
+  private static final String FIRST_ROOM_MAP = "maps/level1.json";
 
   private final GdxGame game;
   private final Renderer renderer;

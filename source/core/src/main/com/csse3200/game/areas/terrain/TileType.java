@@ -5,6 +5,7 @@ public enum TileType {
   WALL(CollisionType.SOLID),
   PLATFORM(CollisionType.PLATFORM),
   HAZARD(CollisionType.HAZARD),
+  LADDER(CollisionType.NONE),
   DECORATIVE(CollisionType.NONE);
 
   private final CollisionType collisionType;

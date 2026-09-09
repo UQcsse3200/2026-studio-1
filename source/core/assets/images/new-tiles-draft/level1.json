@@ -1,0 +1,446 @@
+{
+  "id": "level-1",
+  "name": "Level 1 — The Descent",
+  "cell": 8,
+  "width": 48,
+  "height": 64,
+  "subLevels": [
+    {
+      "id": "nether",
+      "name": "Nether",
+      "rows": [
+        0,
+        27
+      ],
+      "gravity": 0.9,
+      "ambient": "#2b2333"
+    },
+    {
+      "id": "crust",
+      "name": "Crust seam",
+      "rows": [
+        28,
+        29
+      ],
+      "solid": true
+    },
+    {
+      "id": "dungeon",
+      "name": "Dungeon",
+      "rows": [
+        30,
+        63
+      ],
+      "gravity": 1,
+      "ambient": "#1f1a28"
+    }
+  ],
+  "connections": [
+    {
+      "type": "lift",
+      "x": [
+        23,
+        24
+      ],
+      "from": {
+        "subLevel": "dungeon",
+        "y": 61
+      },
+      "to": {
+        "subLevel": "nether",
+        "y": 26
+      },
+      "car": "lift-car",
+      "winch": "lift-winch",
+      "shaft": "lift-shaft",
+      "cable": "lift-cable"
+    },
+    {
+      "type": "ladder",
+      "x": [
+        45,
+        45
+      ],
+      "from": {
+        "subLevel": "dungeon",
+        "y": 61
+      },
+      "to": {
+        "subLevel": "dungeon",
+        "y": 32
+      },
+      "tile": "decor-ladder"
+    }
+  ],
+  "legend": {
+    " ": null,
+    "#": "nether-wall-hellbrick",
+    "H": "nether-wall-cracked",
+    "O": "nether-wall-obsidian",
+    "_": "nether-floor-ash",
+    "B": "nether-floor-brimstone",
+    "-": "nether-platform-obsidian",
+    "=": "nether-platform-bone",
+    "~": "nether-hazard-magma",
+    "c": "nether-hazard-coals",
+    "v": "nether-void",
+    "X": "crust-nether-dungeon",
+    "W": "wall-brick",
+    "w": "wall-cracked",
+    "F": "floor-stone",
+    "M": "floor-marble",
+    "P": "platform-marble",
+    "p": "platform-wood",
+    "L": "hazard-lava",
+    "S": "hazard-spikes",
+    "V": "hazard-pit",
+    "D": "decor-meander",
+    "I": "lift-shaft",
+    "i": "lift-cable",
+    "l": "ladder-wood"
+  },
+  "tiles": [
+    "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "################################################",
+    "OO                     ii                     OO",
+    "OO                     ii                     OO",
+    "OO                  ---ii----                 OO",
+    "OH                     ii                     HO",
+    "OO                     ii            -------  OO",
+    "OO                     ii                     OO",
+    "OO            =======  ii                     OO",
+    "OO                     ii --------            OO",
+    "OH  ------             ii                     HO",
+    "OO                     ii                     OO",
+    "OO                     ii                     OO",
+    "OO                     ii        --------     OO",
+    "OO                     ii                     OO",
+    "OH                  ---ii---                  HO",
+    "OO    =======          ii                     OO",
+    "OO                     ii                     OO",
+    "OO                     ii                     OO",
+    "OO                     ii             ======= OO",
+    "OH              -------ii                     HO",
+    "OO                     ii                     OO",
+    "OO  --------           ii  --------           OO",
+    "OO                     ii                     OO",
+    "OO                     ii                     OO",
+    "OH ccc                 ii                cccc HO",
+    "OO____~~~~~~~~___BBBBB_II_____~~~~~~~~~~______OO",
+    "OO____~~~~~~~~___BBBBB_II_____~~~~~~~~~~______OO",
+    "XXXXXXXXXXXXXXXXXXXXXXXIIXXXXXXXXXXXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXXXXXXXXXXXIIXXXXXXXXXXXXXXXXXXXXXXX",
+    "WWWWWWWWWWWWWWWWWWWWWWWIIWWWWWWWWWWWWWWWWWWWWWWW",
+    "WWDDDDDDDDDDDDDDDDDDDDDIIDDDDDDDDDDDDDDDDDDDDDWW",
+    "WW                     II                    lWW",
+    "WW                     II                    lWW",
+    "WW                     II         PPPPPPPP   lWW",
+    "Ww                     II                    lwW",
+    "WW                     IIpppppp              lWW",
+    "WW                     II                    lWW",
+    "WW            PPPPPPP  II                    lWW",
+    "WW                     II                    lWW",
+    "WW                     II                    lWW",
+    "WW  PPPPPPP            II                    lWW",
+    "Ww                     II             PPPPPPPlwW",
+    "WW                     II                    lWW",
+    "WW                     II                    lWW",
+    "WW                     II   PPPPPPPP         lWW",
+    "WW                     II                    lWW",
+    "WW                pppppII                    lWW",
+    "WW                     II                    lWW",
+    "Ww    PPPPPPPP         II                    lwW",
+    "WW                     II                    lWW",
+    "WW                     II                    lWW",
+    "WW                     II                    lWW",
+    "WW                     II          PPPPPPPP  lWW",
+    "WW             PPPPPP  II                    lWW",
+    "WW                     II                    lWW",
+    "Ww                     IIppppppp             lwW",
+    "WW  PPPPPPPP           II                    lWW",
+    "WW                     II                    lWW",
+    "WW                     II                    lWW",
+    "WW                     II                    lWW",
+    "WWMMMMMMMM   SSS       II                SSS lWW",
+    "FFMMMMMMMMFFFFFFFFFFVVVVFFFFLLLLLLLLLLFFFFFFFFFF",
+    "FFFFFFFFFFFFFFFFFFFFVVVVFFFFLLLLLLLLLLFFFFFFFFFF"
+  ],
+  "objects": [
+    {
+      "id": "nether-gate",
+      "x": 22,
+      "y": 1,
+      "tag": "exit to Level 2"
+    },
+    {
+      "id": "lift-winch",
+      "x": 22,
+      "y": 23,
+      "tag": "lift machinery, nether side"
+    },
+    {
+      "id": "nether-decor-pillar",
+      "x": 14,
+      "y": 24
+    },
+    {
+      "id": "nether-decor-pillar",
+      "x": 34,
+      "y": 24
+    },
+    {
+      "id": "nether-decor-brazier",
+      "x": 4,
+      "y": 20
+    },
+    {
+      "id": "nether-decor-brazier",
+      "x": 42,
+      "y": 17
+    },
+    {
+      "id": "nether-decor-stalagmite",
+      "x": 9,
+      "y": 2
+    },
+    {
+      "id": "nether-decor-stalagmite",
+      "x": 30,
+      "y": 2
+    },
+    {
+      "id": "nether-decor-vent",
+      "x": 19,
+      "y": 24
+    },
+    {
+      "id": "nether-decor-vent",
+      "x": 36,
+      "y": 11
+    },
+    {
+      "id": "nether-decor-bones",
+      "x": 7,
+      "y": 14
+    },
+    {
+      "id": "nether-decor-bones",
+      "x": 27,
+      "y": 20
+    },
+    {
+      "id": "nether-decor-cage",
+      "x": 25,
+      "y": 13
+    },
+    {
+      "id": "nether-decor-cage",
+      "x": 40,
+      "y": 4
+    },
+    {
+      "id": "enemy-imp",
+      "x": 17,
+      "y": 6,
+      "tag": "patrols bone ledge"
+    },
+    {
+      "id": "enemy-imp",
+      "x": 34,
+      "y": 11
+    },
+    {
+      "id": "enemy-hellhound",
+      "x": 29,
+      "y": 20,
+      "tag": "charges on sight"
+    },
+    {
+      "id": "enemy-shade",
+      "x": 6,
+      "y": 8,
+      "tag": "drifts, ignores terrain"
+    },
+    {
+      "id": "enemy-shade",
+      "x": 41,
+      "y": 17
+    },
+    {
+      "id": "item-bolt",
+      "x": 21,
+      "y": 2,
+      "tag": "level objective"
+    },
+    {
+      "id": "item-chest",
+      "x": 5,
+      "y": 8
+    },
+    {
+      "id": "item-potion-red",
+      "x": 22,
+      "y": 13
+    },
+    {
+      "id": "item-coin",
+      "x": 18,
+      "y": 6
+    },
+    {
+      "id": "item-coin",
+      "x": 38,
+      "y": 4
+    },
+    {
+      "id": "hero",
+      "x": 3,
+      "y": 60,
+      "tag": "spawn / revive point"
+    },
+    {
+      "id": "item-tombstone",
+      "x": 7,
+      "y": 60,
+      "tag": "previous hero — holds their loot"
+    },
+    {
+      "id": "hero-dead",
+      "x": 16,
+      "y": 52,
+      "tag": "older corpse, partial loot"
+    },
+    {
+      "id": "lift-car",
+      "x": 22,
+      "y": 59,
+      "tag": "lift, rests at dungeon floor"
+    },
+    {
+      "id": "dungeon-gate",
+      "x": 44,
+      "y": 59,
+      "tag": "locked, needs item-key"
+    },
+    {
+      "id": "decor-torch",
+      "x": 4,
+      "y": 53
+    },
+    {
+      "id": "decor-torch",
+      "x": 19,
+      "y": 44
+    },
+    {
+      "id": "decor-torch",
+      "x": 39,
+      "y": 38
+    },
+    {
+      "id": "decor-column",
+      "x": 11,
+      "y": 59
+    },
+    {
+      "id": "decor-column",
+      "x": 33,
+      "y": 32
+    },
+    {
+      "id": "decor-amphora",
+      "x": 9,
+      "y": 55
+    },
+    {
+      "id": "decor-amphora",
+      "x": 29,
+      "y": 43
+    },
+    {
+      "id": "decor-skull",
+      "x": 26,
+      "y": 54
+    },
+    {
+      "id": "decor-chain",
+      "x": 34,
+      "y": 32
+    },
+    {
+      "id": "decor-vines",
+      "x": 2,
+      "y": 39
+    },
+    {
+      "id": "decor-vines",
+      "x": 44,
+      "y": 44
+    },
+    {
+      "id": "item-key",
+      "x": 9,
+      "y": 47
+    },
+    {
+      "id": "item-chest",
+      "x": 39,
+      "y": 51
+    },
+    {
+      "id": "item-sword",
+      "x": 16,
+      "y": 36
+    },
+    {
+      "id": "item-shield",
+      "x": 29,
+      "y": 34
+    },
+    {
+      "id": "item-bag",
+      "x": 22,
+      "y": 45
+    },
+    {
+      "id": "item-coin",
+      "x": 6,
+      "y": 55
+    },
+    {
+      "id": "item-coin",
+      "x": 36,
+      "y": 51
+    },
+    {
+      "id": "item-potion-green",
+      "x": 19,
+      "y": 52
+    },
+    {
+      "id": "item-potion-blue",
+      "x": 41,
+      "y": 40
+    },
+    {
+      "id": "enemy-skeleton",
+      "x": 8,
+      "y": 55
+    },
+    {
+      "id": "enemy-skeleton",
+      "x": 27,
+      "y": 54
+    },
+    {
+      "id": "enemy-skeleton",
+      "x": 36,
+      "y": 32
+    },
+    {
+      "id": "enemy-skeleton",
+      "x": 13,
+      "y": 47
+    }
+  ]
+}
