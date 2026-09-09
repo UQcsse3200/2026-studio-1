@@ -3,7 +3,7 @@ package com.csse3200.game.components.tasks;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.ai.tasks.DefaultTask;
 import com.csse3200.game.ai.tasks.PriorityTask;
-import com.csse3200.game.components.RangedAttackComponent;
+import com.csse3200.game.components.attacks.RangedAttackComponent;
 import com.csse3200.game.entities.Entity;
 
 /**

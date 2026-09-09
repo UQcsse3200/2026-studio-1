@@ -40,12 +40,22 @@ class InventoryComponentTest {
   @Test
   void shouldAddGold() {
     InventoryComponent inventory = new InventoryComponent(100);
-    inventory.addGold(-500);
-    assertEquals(0, inventory.getGold());
+    inventory.addGold(20);
+    assertEquals(120, inventory.getGold());
+  }
 
-    inventory.addGold(100);
+  @Test
+  void shouldRemoveGold() {
+    InventoryComponent inventory = new InventoryComponent(100);
     inventory.addGold(-20);
     assertEquals(80, inventory.getGold());
+  }
+
+  @Test
+  void shouldNotRemoveTooMuchGold() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    assertFalse(inventory.addGold(-500));
+    assertEquals(100, inventory.getGold());
   }
 
   @Test

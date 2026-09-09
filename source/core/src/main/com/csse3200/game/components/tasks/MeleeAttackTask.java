@@ -2,8 +2,8 @@ package com.csse3200.game.components.tasks;
 
 import com.csse3200.game.ai.tasks.DefaultTask;
 import com.csse3200.game.ai.tasks.PriorityTask;
-import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.MeleeAttackComponent;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.entities.Entity;
 
 /**
@@ -69,8 +69,8 @@ public class MeleeAttackTask extends DefaultTask implements PriorityTask {
    * all are satisfied, triggers the {@code "meleeAttack"} event on the owning entity with {@code
    * target} as the event payload.
    *
-   * <p>Does not call MeleeAttackComponent.attemptAttack directly — this preserves the
-   * decoupling between task (decision) and component (execution).
+   * <p>Does not call MeleeAttackComponent.attemptAttack directly — this preserves the decoupling
+   * between task (decision) and component (execution).
    */
   @Override
   public void update() {
