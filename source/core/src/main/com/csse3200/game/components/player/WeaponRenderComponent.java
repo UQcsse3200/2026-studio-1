@@ -19,6 +19,10 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private static final float SWING_DURATION = 0.3f;
 
+  private static final float WALK_BOB_SPEED = 10f;
+  private static final float WALK_BOB_AMOUNT = 0.025f;
+  private static final float WALK_SWAY_AMOUNT = 5f;
+
   private static final float RIGHT_HAND_OFFSET_X = 0.75f;
   private static final float LEFT_HAND_OFFSET_X = 0.15f;
   private static final float HAND_OFFSET_Y = 0.35f;
@@ -30,6 +34,8 @@ public class WeaponRenderComponent extends RenderComponent {
   private boolean facingRight = true;
   private boolean swinging;
   private float swingTime;
+  private float walkAnimationTime;
+  private final Vector2 previousPosition = new Vector2();
 
   public WeaponRenderComponent() {
     texture = null;
@@ -39,6 +45,8 @@ public class WeaponRenderComponent extends RenderComponent {
   @Override
   public void create() {
     super.create();
+
+    previousPosition.set(entity.getPosition());
 
     entity.getEvents().addListener("swordAttack", this::startSwing);
     entity.getEvents().addListener("walk", this::updateFacing);
@@ -86,11 +94,24 @@ public class WeaponRenderComponent extends RenderComponent {
 
   @Override
   public void update() {
+    float deltaTime = ServiceLocator.getTimeSource().getDeltaTime();
+
+    Vector2 currentPosition = entity.getPosition();
+    boolean moving = !currentPosition.epsilonEquals(previousPosition, 0.001f);
+
+    if (moving && !isBow) {
+      walkAnimationTime += deltaTime * WALK_BOB_SPEED;
+    } else if (!moving) {
+      walkAnimationTime = 0f;
+    }
+
+    previousPosition.set(currentPosition);
+
     if (!swinging) {
       return;
     }
 
-    swingTime += ServiceLocator.getTimeSource().getDeltaTime();
+    swingTime += deltaTime;
 
     if (swingTime >= SWING_DURATION) {
       swinging = false;
@@ -120,6 +141,14 @@ public class WeaponRenderComponent extends RenderComponent {
     float weaponY = handAnchor.y - weaponHeight / 2f;
 
     float rotation = 0f;
+
+    if (!isBow) {
+      float bobOffset = (float) Math.sin(walkAnimationTime) * WALK_BOB_AMOUNT;
+      float sway = (float) Math.sin(walkAnimationTime) * WALK_SWAY_AMOUNT;
+
+      weaponY += bobOffset;
+      rotation += sway;
+    }
 
     if (swinging) {
       float progress = swingTime / SWING_DURATION;
