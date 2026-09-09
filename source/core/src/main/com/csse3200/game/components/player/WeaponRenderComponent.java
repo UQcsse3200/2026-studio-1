@@ -2,6 +2,7 @@ package com.csse3200.game.components.player;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.WeaponItem;
@@ -23,6 +24,9 @@ public class WeaponRenderComponent extends RenderComponent {
   private static final float WALK_BOB_AMOUNT = 0.025f;
   private static final float WALK_SWAY_AMOUNT = 5f;
 
+  private static final float BOW_DRAW_DURATION = 0.3f;
+  private static final float BOW_DRAW_DISTANCE = 0.12f;
+
   private static final float RIGHT_HAND_OFFSET_X = 0.75f;
   private static final float LEFT_HAND_OFFSET_X = 0.15f;
   private static final float HAND_OFFSET_Y = 0.35f;
@@ -30,11 +34,16 @@ public class WeaponRenderComponent extends RenderComponent {
   private Texture texture;
   private boolean isBow;
   private final Vector2 handAnchor = new Vector2();
+  private final Vector2 aimDirection = new Vector2(1f, 0f);
 
   private boolean facingRight = true;
   private boolean swinging;
   private float swingTime;
   private float walkAnimationTime;
+
+  private boolean drawingBow;
+  private float bowDrawTime;
+
   private final Vector2 previousPosition = new Vector2();
 
   public WeaponRenderComponent() {
@@ -49,6 +58,7 @@ public class WeaponRenderComponent extends RenderComponent {
     previousPosition.set(entity.getPosition());
 
     entity.getEvents().addListener("swordAttack", this::startSwing);
+    entity.getEvents().addListener("weaponAttack", this::handleWeaponAttack);
     entity.getEvents().addListener("walk", this::updateFacing);
     entity.getEvents().addListener("activeSlotChanged", this::updateWeapon);
 
@@ -82,10 +92,26 @@ public class WeaponRenderComponent extends RenderComponent {
     swingTime = 0f;
   }
 
+  private void handleWeaponAttack() {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    Item item = inventory.getActiveItem();
+
+    if (!(item instanceof WeaponItem weaponItem)) {
+      return;
+    }
+
+    if (weaponItem.getWeaponType() == WeaponType.BOW) {
+      drawingBow = true;
+      bowDrawTime = 0f;
+    }
+  }
+
   private void updateFacing(Vector2 direction) {
     if (direction == null || direction.isZero()) {
       return;
     }
+
+    aimDirection.set(direction).nor();
 
     if (direction.x != 0) {
       facingRight = direction.x > 0;
@@ -107,15 +133,22 @@ public class WeaponRenderComponent extends RenderComponent {
 
     previousPosition.set(currentPosition);
 
-    if (!swinging) {
-      return;
+    if (swinging) {
+      swingTime += deltaTime;
+
+      if (swingTime >= SWING_DURATION) {
+        swinging = false;
+        swingTime = 0f;
+      }
     }
 
-    swingTime += deltaTime;
+    if (drawingBow) {
+      bowDrawTime += deltaTime;
 
-    if (swingTime >= SWING_DURATION) {
-      swinging = false;
-      swingTime = 0f;
+      if (bowDrawTime >= BOW_DRAW_DURATION) {
+        drawingBow = false;
+        bowDrawTime = 0f;
+      }
     }
   }
 
@@ -140,9 +173,20 @@ public class WeaponRenderComponent extends RenderComponent {
     float weaponX = handAnchor.x - weaponWidth / 2f;
     float weaponY = handAnchor.y - weaponHeight / 2f;
 
+    if (isBow && drawingBow) {
+      float progress = bowDrawTime / BOW_DRAW_DURATION;
+
+      float pullProgress = progress < 0.5f ? progress * 2f : (1f - progress) * 2f;
+
+      weaponX -= aimDirection.x * BOW_DRAW_DISTANCE * pullProgress;
+      weaponY -= aimDirection.y * BOW_DRAW_DISTANCE * pullProgress;
+    }
+
     float rotation = 0f;
 
-    if (!isBow) {
+    if (isBow) {
+      rotation = MathUtils.atan2(aimDirection.y, aimDirection.x) * MathUtils.radiansToDegrees - 90f;
+    } else {
       float bobOffset = (float) Math.sin(walkAnimationTime) * WALK_BOB_AMOUNT;
       float sway = (float) Math.sin(walkAnimationTime) * WALK_SWAY_AMOUNT;
 
@@ -171,7 +215,7 @@ public class WeaponRenderComponent extends RenderComponent {
         0,
         texture.getWidth(),
         texture.getHeight(),
-        !facingRight,
+        !facingRight && !isBow,
         false);
   }
 
