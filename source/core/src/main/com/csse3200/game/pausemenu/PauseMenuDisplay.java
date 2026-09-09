@@ -20,6 +20,7 @@ import com.csse3200.game.ui.UIComponent;
 public class PauseMenuDisplay extends UIComponent {
 
   private float defmusicVol = 0.8f;
+  private boolean musicVolumeApplied = false;
   private static final String PREFS_NAME = "pause_menu_settings";
   private static final String MUSIC_VOLUME_KEY = "musicVolume";
   private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
@@ -234,16 +235,26 @@ public class PauseMenuDisplay extends UIComponent {
 
   @Override
   public void draw(SpriteBatch batch) {
-    boolean isPaused = pauseMenu.isPaused();
-    pauseOverlay.setVisible(isPaused);
-    table.setVisible(isPaused);
-
-    if (isPaused && !wasPaused) {
-      selectedIndex = 0;
-      usingKeyboardNav = true;
-      updateHighlight();
+    if (!musicVolumeApplied) {
+    Music music =
+        ServiceLocator.getResourceService()
+            .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
+    if (music != null) {
+      music.setVolume(musicVol);
+      musicVolumeApplied = true;
     }
-    wasPaused = isPaused;
+  }
+
+  boolean isPaused = pauseMenu.isPaused();
+  pauseOverlay.setVisible(isPaused);
+  table.setVisible(isPaused);
+
+  if (isPaused && !wasPaused) {
+    selectedIndex = 0;
+    usingKeyboardNav = true;
+    updateHighlight();
+  }
+  wasPaused = isPaused;
   }
 
   @Override
