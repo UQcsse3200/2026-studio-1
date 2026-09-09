@@ -247,7 +247,6 @@ public class PlayerActions extends Component {
           // Drop loot
           Logger logger = LoggerFactory.getLogger(ItemDropComponent.class);
           ItemDropComponent dropper = enemy.getComponent(ItemDropComponent.class);
-          InventoryComponent enemyInventory = enemy.getComponent(InventoryComponent.class);
           if (dropper != null) {
             // Drop gold
             dropper.dropGold();
