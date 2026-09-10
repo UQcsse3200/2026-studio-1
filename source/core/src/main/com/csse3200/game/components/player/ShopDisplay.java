@@ -23,8 +23,8 @@ import java.util.function.IntConsumer;
  * Displays the player's shop interface using a dark, MOBA-style layout (inspired by games such as
  * Arena of Valor / League of Legends).
  *
- * <p>The shop is opened via a persistent shop icon/button. Once opened it provides three
- * categories:
+ * <p>The shop is opened via a persistent shop icon/button (disabled while the game is paused via
+ * {@link PauseMenuComponent}). Once opened it provides three categories:
  *
  * <ul>
  *   <li>Items — has BUY and SELL sub-tabs. BUY shows the shop's item catalog; SELL shows the
@@ -34,10 +34,11 @@ import java.util.function.IntConsumer;
  *   <li>Pets
  * </ul>
  *
- * <p>Each grid always displays {@value #ITEM_SLOT_COUNT} slots. Cards are color-coded by rarity
- * (derived from price, see {@link #getRarityForPrice(int)}). Clicking a card selects it and shows
- * its details in a shared bottom panel with a single action button (BUY or SELL depending on
- * context), rather than each card carrying its own button.
+ * <p>Each grid always displays {@value #ITEM_SLOT_COUNT} slots. Cards carry a thin top accent strip
+ * color-coded by rarity (derived from price, see {@link #getRarityForPrice(int)}), matching the
+ * icon and the detail panel's side accent bar. Clicking a card selects it and shows its details in
+ * a shared bottom panel with a single action button (BUY or SELL depending on context), rather than
+ * each card carrying its own button.
  */
 public class ShopDisplay extends UIComponent {
 
@@ -65,25 +66,39 @@ public class ShopDisplay extends UIComponent {
   private static final float ICON_SIZE = 48f;
   private static final float ICON_MARGIN = 10f;
 
+  private static final float ACCENT_STRIP_HEIGHT = 3f;
+  private static final float TAB_UNDERLINE_HEIGHT = 3f;
+
   // --- Dark / MOBA-style palette -------------------------------------------------------------
-  private static final Color PANEL_TINT = new Color(0.08f, 0.09f, 0.12f, 1f);
+  private static final Color PANEL_TINT = new Color(0.07f, 0.08f, 0.11f, 1f);
   private static final Color CARD_TINT = new Color(0.12f, 0.13f, 0.18f, 1f);
   private static final Color CARD_TINT_SELECTED = new Color(0.20f, 0.21f, 0.27f, 1f);
   private static final Color EMPTY_CARD_TINT = new Color(0.09f, 0.10f, 0.13f, 1f);
   private static final Color TAB_TINT_ACTIVE = new Color(0.22f, 0.24f, 0.30f, 1f);
   private static final Color TAB_TINT_INACTIVE = new Color(0.13f, 0.14f, 0.18f, 1f);
+  private static final Color TAB_UNDERLINE_INACTIVE = new Color(0f, 0f, 0f, 0f);
 
   private static final Color TEXT_PRIMARY = new Color(0.91f, 0.91f, 0.93f, 1f);
   private static final Color TEXT_MUTED = new Color(0.42f, 0.45f, 0.52f, 1f);
   private static final Color GOLD_COLOR = new Color(0.91f, 0.77f, 0.42f, 1f);
   private static final Color TAB_TEXT_ACTIVE = new Color(0.91f, 0.77f, 0.42f, 1f);
 
+  private static final Color GOLD_PILL_TINT = new Color(0.22f, 0.18f, 0.09f, 1f);
+  private static final Color DIVIDER_TINT = new Color(0.91f, 0.77f, 0.42f, 0.30f);
+  private static final Color EMPTY_STRIP_TINT = new Color(0.42f, 0.45f, 0.52f, 0.25f);
+
+  // Single BUY/SELL toggle button colors for the Items tab.
+  private static final Color BUY_MODE_TINT = new Color(0.20f, 0.22f, 0.28f, 1f);
+  private static final Color SELL_MODE_TINT = new Color(0.32f, 0.15f, 0.15f, 1f);
+  private static final Color BUY_MODE_TEXT = new Color(0.91f, 0.77f, 0.42f, 1f);
+  private static final Color SELL_MODE_TEXT = new Color(0.87f, 0.40f, 0.40f, 1f);
+
   private static final Color RARITY_COMMON = new Color(0.42f, 0.45f, 0.52f, 1f);
   private static final Color RARITY_RARE = new Color(0.24f, 0.55f, 0.85f, 1f);
   private static final Color RARITY_EPIC = new Color(0.64f, 0.35f, 0.85f, 1f);
   private static final Color RARITY_LEGENDARY = new Color(0.91f, 0.77f, 0.42f, 1f);
 
-  /** Rarity tier used purely for card/icon coloring. */
+  /** Rarity tier used purely for card/icon/accent coloring. */
   private enum Rarity {
     COMMON(RARITY_COMMON),
     RARE(RARITY_RARE),
@@ -110,7 +125,14 @@ public class ShopDisplay extends UIComponent {
   private Label goldLabel;
   private TextButton shopIconButton;
 
+  // Plain Labels in this skin default to black fontColor, which makes setColor(...) tinting
+  // always render black (anyColor * black = black). We build our own LabelStyle with a WHITE
+  // base fontColor instead, so every setColor(...) call below multiplies correctly and shows
+  // the intended color.
+  private Label.LabelStyle whiteLabelStyle;
+
   private final Map<ShopTab, TextButton> tabButtons = new EnumMap<>(ShopTab.class);
+  private final Map<ShopTab, Image> tabUnderlines = new EnumMap<>(ShopTab.class);
 
   private ShopTab currentTab = ShopTab.ITEMS;
 
@@ -203,7 +225,11 @@ public class ShopDisplay extends UIComponent {
     shopTable.pad(PANEL_PADDING);
     shopTable.setSize(SHOP_WIDTH, SHOP_HEIGHT);
 
+    whiteLabelStyle = new Label.LabelStyle(skin.get(LABEL_STYLE, Label.LabelStyle.class));
+    whiteLabelStyle.fontColor = Color.WHITE;
+
     createHeader();
+    addDivider();
     createTabs();
 
     contentTable = new Table();
@@ -224,15 +250,21 @@ public class ShopDisplay extends UIComponent {
     shopTable.setVisible(false);
   }
 
-  /** Creates the shop title, gold display and close button. */
+  /** Creates the shop title, a gold "pill" display and close button. */
   private void createHeader() {
     Table headerTable = new Table();
 
-    Label titleLabel = new Label("SHOP", skin, LABEL_STYLE);
+    Label titleLabel = new Label("SHOP", whiteLabelStyle);
     titleLabel.setColor(TEXT_PRIMARY);
 
-    goldLabel = new Label(getGoldText(), skin, LABEL_STYLE);
+    Table goldPill = new Table();
+    goldPill.setBackground(skin.getDrawable(BUTTON_BACKGROUND));
+    goldPill.setColor(GOLD_PILL_TINT);
+    goldPill.pad(4f, 10f, 4f, 10f);
+
+    goldLabel = new Label(getGoldText(), whiteLabelStyle);
     goldLabel.setColor(GOLD_COLOR);
+    goldPill.add(goldLabel);
 
     TextButton closeButton = new TextButton("X", skin);
 
@@ -245,10 +277,20 @@ public class ShopDisplay extends UIComponent {
         });
 
     headerTable.add(titleLabel).left().expandX();
-    headerTable.add(goldLabel).center().padRight(12f);
+    headerTable.add(goldPill).center().padRight(12f);
     headerTable.add(closeButton).size(40f, 32f).right();
 
     shopTable.add(headerTable).growX().height(40f).top();
+
+    shopTable.row();
+  }
+
+  /** Adds a thin gold divider line separating the header from the tab bar. */
+  private void addDivider() {
+    Image divider = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    divider.setColor(DIVIDER_TINT);
+
+    shopTable.add(divider).growX().height(2f).padTop(4f).padBottom(8f);
 
     shopTable.row();
   }
@@ -261,7 +303,7 @@ public class ShopDisplay extends UIComponent {
     addTabButton(tabTable, "UPGRADES", ShopTab.UPGRADES);
     addTabButton(tabTable, "PETS", ShopTab.PETS);
 
-    shopTable.add(tabTable).growX().height(45f).padBottom(8f);
+    shopTable.add(tabTable).growX().height(48f).padBottom(8f);
 
     shopTable.row();
 
@@ -269,7 +311,7 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Adds one tab button to the tab bar.
+   * Adds one tab button (with an underline indicator beneath it) to the tab bar.
    *
    * @param tabTable table containing the tab buttons
    * @param text button text
@@ -293,19 +335,34 @@ public class ShopDisplay extends UIComponent {
           }
         });
 
-    tabButtons.put(tab, button);
+    Image underline = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    underline.setColor(TAB_UNDERLINE_INACTIVE);
 
-    tabTable.add(button).width(180f).height(36f).padRight(6f);
+    Table tabWrap = new Table();
+    tabWrap.add(button).width(180f).height(36f);
+    tabWrap.row();
+    tabWrap.add(underline).growX().height(TAB_UNDERLINE_HEIGHT).padTop(3f);
+
+    tabButtons.put(tab, button);
+    tabUnderlines.put(tab, underline);
+
+    tabTable.add(tabWrap).padRight(6f);
   }
 
-  /** Highlights the currently active tab and dims the others. */
+  /** Highlights the currently active tab (background, text and underline) and dims the others. */
   private void updateTabHighlights() {
     for (Map.Entry<ShopTab, TextButton> entry : tabButtons.entrySet()) {
+      ShopTab tab = entry.getKey();
       TextButton button = entry.getValue();
-      boolean active = entry.getKey() == currentTab;
+      boolean active = tab == currentTab;
 
       button.setColor(active ? TAB_TINT_ACTIVE : TAB_TINT_INACTIVE);
       button.getLabel().setColor(active ? TAB_TEXT_ACTIVE : TEXT_MUTED);
+
+      Image underline = tabUnderlines.get(tab);
+      if (underline != null) {
+        underline.setColor(active ? TAB_TEXT_ACTIVE : TAB_UNDERLINE_INACTIVE);
+      }
     }
   }
 
@@ -350,7 +407,7 @@ public class ShopDisplay extends UIComponent {
     }
   }
 
-  /** Creates the BUY/SELL sub-tab row shown above the Items grid. */
+  /** Creates the BUY/SELL sub-tab row shown above the Items grid, two buttons side by side. */
   private void createItemSubTabs() {
     Table subTabRow = new Table();
 
@@ -375,26 +432,26 @@ public class ShopDisplay extends UIComponent {
           }
         });
 
-    subTabRow.add(buySubButton).width(90f).height(30f).padRight(6f);
-    subTabRow.add(sellSubButton).width(90f).height(30f);
+    subTabRow.add(buySubButton).width(90f).height(32f).padRight(6f);
+    subTabRow.add(sellSubButton).width(90f).height(32f);
 
-    contentTable.add(subTabRow).left().padBottom(6f);
+    contentTable.add(subTabRow).left().padBottom(8f);
     contentTable.row();
 
     updateItemSubTabHighlights();
   }
 
-  /** Highlights the active BUY/SELL sub-tab. */
+  /** Highlights whichever of BUY/SELL is currently active and dims the other. */
   private void updateItemSubTabHighlights() {
     if (buySubButton == null || sellSubButton == null) {
       return;
     }
 
-    buySubButton.setColor(!sellMode ? TAB_TINT_ACTIVE : TAB_TINT_INACTIVE);
-    buySubButton.getLabel().setColor(!sellMode ? TAB_TEXT_ACTIVE : TEXT_MUTED);
+    buySubButton.setColor(!sellMode ? BUY_MODE_TINT : TAB_TINT_INACTIVE);
+    buySubButton.getLabel().setColor(Color.WHITE);
 
-    sellSubButton.setColor(sellMode ? TAB_TINT_ACTIVE : TAB_TINT_INACTIVE);
-    sellSubButton.getLabel().setColor(sellMode ? TAB_TEXT_ACTIVE : TEXT_MUTED);
+    sellSubButton.setColor(sellMode ? SELL_MODE_TINT : TAB_TINT_INACTIVE);
+    sellSubButton.getLabel().setColor(Color.WHITE);
   }
 
   /** Creates the Items (BUY) grid. Always shows {@value #ITEM_SLOT_COUNT} slots. */
@@ -452,17 +509,19 @@ public class ShopDisplay extends UIComponent {
       int sellPrice = getSellPriceFor(shop, item);
       Rarity rarity = getRarityForPrice(sellPrice);
 
+      addAccentStrip(card, rarity.color);
+
       card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
       card.row();
 
-      Label nameLabel = new Label(name, skin, LABEL_STYLE);
-      nameLabel.setColor(TEXT_PRIMARY);
+      Label nameLabel = new Label(name, whiteLabelStyle);
+      nameLabel.setColor(Color.WHITE);
       nameLabel.setAlignment(Align.center);
       card.add(nameLabel).growX().center();
 
       card.row();
 
-      Label priceLabel = new Label("Gold: " + sellPrice, skin, LABEL_STYLE);
+      Label priceLabel = new Label("Gold: " + sellPrice, whiteLabelStyle);
       priceLabel.setColor(GOLD_COLOR);
       card.add(priceLabel).padTop(2f).center();
 
@@ -527,7 +586,7 @@ public class ShopDisplay extends UIComponent {
    * @param catalog the catalog of listings for this tab, keyed by slot number
    * @param nameExtractor function that extracts a display name from a product
    * @param buyAction action invoked with the slot number when the detail panel's BUY is clicked
-   * @param <T> product type sold in this tab (Item, Perk, Pet, ...)
+   * @param <T> product type sold in this tab (Item, Upgrade, Pet, ...)
    */
   private <T> void createCatalogTab(
       Map<Integer, ShopComponent.ShopListing<T>> catalog,
@@ -576,17 +635,19 @@ public class ShopDisplay extends UIComponent {
       int price = listing.getBuyPrice();
       Rarity rarity = getRarityForPrice(price);
 
+      addAccentStrip(card, rarity.color);
+
       card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
       card.row();
 
-      Label nameLabel = new Label(name, skin, LABEL_STYLE);
-      nameLabel.setColor(TEXT_PRIMARY);
+      Label nameLabel = new Label(name, whiteLabelStyle);
+      nameLabel.setColor(Color.WHITE);
       nameLabel.setAlignment(Align.center);
       card.add(nameLabel).growX().center();
 
       card.row();
 
-      Label priceLabel = new Label("Gold: " + price, skin, LABEL_STYLE);
+      Label priceLabel = new Label("Gold: " + price, whiteLabelStyle);
       priceLabel.setColor(GOLD_COLOR);
       card.add(priceLabel).padTop(2f).center();
 
@@ -600,6 +661,21 @@ public class ShopDisplay extends UIComponent {
     }
 
     addCardToContent(card);
+  }
+
+  /**
+   * Adds a thin rarity-colored accent strip as the first row of a card, giving each card a visible
+   * top "border" that hints at its rarity before the player even reads the price.
+   *
+   * @param card card to add the strip to
+   * @param color strip color
+   */
+  private void addAccentStrip(Table card, Color color) {
+    Image strip = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    strip.setColor(color);
+
+    card.add(strip).growX().height(ACCENT_STRIP_HEIGHT).padBottom(6f);
+    card.row();
   }
 
   /**
@@ -619,7 +695,7 @@ public class ShopDisplay extends UIComponent {
 
     String initial = (name == null || name.isEmpty()) ? "?" : name.substring(0, 1).toUpperCase();
 
-    Label iconLabel = new Label(initial, skin, LABEL_STYLE);
+    Label iconLabel = new Label(initial, whiteLabelStyle);
     iconLabel.setColor(Color.WHITE);
     iconLabel.setAlignment(Align.center);
 
@@ -635,7 +711,7 @@ public class ShopDisplay extends UIComponent {
    * product.getRarity()} if/when that exists.
    *
    * @param price buy or sell price of the listing
-   * @return rarity tier used for card/icon coloring
+   * @return rarity tier used for card/icon/accent coloring
    */
   private Rarity getRarityForPrice(int price) {
     if (price >= 2000) {
@@ -666,7 +742,8 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Renders an empty/locked slot.
+   * Renders an empty/locked slot, including a faint strip so its layout still lines up with filled
+   * cards.
    *
    * @param card shop card
    * @param slot slot number
@@ -674,7 +751,9 @@ public class ShopDisplay extends UIComponent {
   private void addEmptyCardContent(Table card, int slot) {
     card.setColor(EMPTY_CARD_TINT);
 
-    Label slotLabel = new Label("Empty", skin, LABEL_STYLE);
+    addAccentStrip(card, EMPTY_STRIP_TINT);
+
+    Label slotLabel = new Label("Empty", whiteLabelStyle);
     slotLabel.setColor(TEXT_MUTED);
 
     card.add(slotLabel).center().expand();
@@ -703,7 +782,7 @@ public class ShopDisplay extends UIComponent {
     detailPanel.pad(10f);
 
     detailIconBg = new Image(skin.getDrawable(BUTTON_BACKGROUND));
-    detailIconLabel = new Label("", skin, LABEL_STYLE);
+    detailIconLabel = new Label("", whiteLabelStyle);
     detailIconLabel.setColor(Color.WHITE);
     detailIconLabel.setAlignment(Align.center);
 
@@ -711,10 +790,10 @@ public class ShopDisplay extends UIComponent {
     detailIconStack.add(detailIconBg);
     detailIconStack.add(detailIconLabel);
 
-    detailNameLabel = new Label("Select an item to view details", skin, LABEL_STYLE);
+    detailNameLabel = new Label("Select an item to view details", whiteLabelStyle);
     detailNameLabel.setColor(TEXT_MUTED);
 
-    detailPriceLabel = new Label("", skin, LABEL_STYLE);
+    detailPriceLabel = new Label("", whiteLabelStyle);
     detailPriceLabel.setColor(GOLD_COLOR);
 
     detailActionButton = new TextButton("BUY", skin);
@@ -810,7 +889,7 @@ public class ShopDisplay extends UIComponent {
   private void buyItem(int catalogSlot) {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null) {
+    if (shop == null || isGamePaused()) {
       return;
     }
 
@@ -826,7 +905,7 @@ public class ShopDisplay extends UIComponent {
   private void sellItemAt(int playerSlot) {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null) {
+    if (shop == null || isGamePaused()) {
       return;
     }
 
@@ -842,7 +921,7 @@ public class ShopDisplay extends UIComponent {
   private void buyUpgrade(int catalogSlot) {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null) {
+    if (shop == null || isGamePaused()) {
       return;
     }
 
@@ -858,7 +937,7 @@ public class ShopDisplay extends UIComponent {
   private void buyPet(int catalogSlot) {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null) {
+    if (shop == null || isGamePaused()) {
       return;
     }
 
@@ -938,6 +1017,17 @@ public class ShopDisplay extends UIComponent {
     shopTable.setPosition(x, y);
   }
 
+  /**
+   * Runs every frame. If the shop is open and the game becomes paused (regardless of how the pause
+   * was triggered), the shop is force-closed so it can't be used while paused.
+   */
+  @Override
+  public void update() {
+    if (shopTable != null && shopTable.isVisible() && isGamePaused()) {
+      closeShop();
+    }
+  }
+
   @Override
   public void draw(SpriteBatch batch) {
     // Scene2D stage handles the shop rendering.
@@ -965,6 +1055,11 @@ public class ShopDisplay extends UIComponent {
     super.dispose();
   }
 
+  /**
+   * Checks whether the game is currently paused via the sibling {@link PauseMenuComponent}.
+   *
+   * @return {@code true} if a pause menu component is present and reports paused
+   */
   private boolean isGamePaused() {
     PauseMenuComponent pauseComponent = entity.getComponent(PauseMenuComponent.class);
 
