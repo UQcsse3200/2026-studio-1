@@ -77,6 +77,39 @@ class ShopComponentTest {
   }
 
   @Test
+  void shouldBuyStackableItemWhenOccupiedInventoryStillHasStackSpace() {
+    InventoryComponent inventory = new InventoryComponent(100, 1);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+
+    inventory.addItem(potion(5, 10));
+    shop.setItemListing(1, itemListing(potion(3, 10), 10, 5));
+
+    assertTrue(inventory.isFull());
+    assertTrue(shop.buyItem(1));
+
+    assertEquals(90, inventory.getGold());
+    assertEquals(8, inventory.getItem(1).getQuantity());
+    assertEquals(1, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldRejectBuyWhenPurchaseWouldLeaveLeftoverWithoutChargingGold() {
+    InventoryComponent inventory = new InventoryComponent(100, 1);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+
+    inventory.addItem(potion(10, 10));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+
+    assertFalse(shop.buyItem(1));
+
+    assertEquals(100, inventory.getGold());
+    assertEquals(10, inventory.getItem(1).getQuantity());
+    assertEquals(1, inventory.getOccupiedSlots());
+  }
+
+  @Test
   void shouldRejectBuyOnInvalidCatalogSlot() {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
@@ -536,7 +569,7 @@ class ShopComponentTest {
     entity.addComponent(inventory);
     entity.addComponent(shop);
 
-    inventory.addItem(potion(1, 5));
+    inventory.addItem(potion(5, 5));
 
     shop.setItemListing(1, new ShopComponent.ShopListing<>(potion(1, 5), 30, 15));
 
@@ -638,7 +671,7 @@ class ShopComponentTest {
 
     AtomicInteger eventCount = new AtomicInteger();
 
-    entity.getEvents().addListener("UpgradePurchased", eventCount::incrementAndGet);
+    entity.getEvents().addListener("upgradesPurchased", eventCount::incrementAndGet);
 
     shop.setUpgradeListing(
         1, new ShopComponent.ShopListing<>(new ShopComponent.Upgrade("Health Upgrade"), 40, 0));

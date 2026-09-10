@@ -135,8 +135,12 @@ public class ShopComponent extends Component {
   /**
    * Buys the item in a catalog slot using the sibling inventory wallet and slots.
    *
+   * <p>Gold is deducted only after the copied item fits in full ({@link
+   * InventoryComponent#canFullyAdd(Item)}). Occupied inventories can still succeed when the product
+   * stacks into an existing slot.
+   *
    * @param catalogSlot item catalog slot
-   * @return {@code true} if gold was deducted and a copy of the item was added
+   * @return {@code true} if gold was deducted and a copy of the item was added with no leftover
    */
   public boolean buyItem(int catalogSlot) {
     InventoryComponent inventory = getInventory();
@@ -149,16 +153,17 @@ public class ShopComponent extends Component {
       return false;
     }
 
-    if (inventory.isFull()) {
+    Item copy = copyItem(listing.getProduct());
+    if (!inventory.hasGold(listing.getBuyPrice()) || !inventory.canFullyAdd(copy)) {
       return false;
     }
 
-    if (!inventory.hasGold(listing.getBuyPrice())) {
+    int leftover = inventory.addItem(copy);
+    if (leftover != 0) {
       return false;
     }
 
     inventory.addGold(-listing.getBuyPrice());
-    inventory.addItem(copyItem(listing.getProduct()));
     return true;
   }
 
