@@ -398,6 +398,14 @@ class ShopComponentTest {
     return new ShopComponent.ShopListing<>(new ShopComponent.Pet(name), buyPrice, 0);
   }
 
+  private static void fillCatalogs(ShopComponent shop) {
+    for (int slot = 1; slot <= ShopComponent.MAX_CATALOG_SLOTS; slot++) {
+      assertTrue(shop.setItemListing(slot, itemListing(potion(1, 5), 20, 10)));
+      assertTrue(shop.setUpgradeListing(slot, UpgradeListing("Upgrade " + slot, 5)));
+      assertTrue(shop.setPetListing(slot, petListing("Pet " + slot, 5)));
+    }
+  }
+
   @Test
   void shouldCreateShopListing() {
     Item item = potion(1, 5);
@@ -536,6 +544,75 @@ class ShopComponentTest {
 
     assertFalse(shop.setPetListing(0, listing));
     assertFalse(shop.setPetListing(-1, listing));
+  }
+
+  @Test
+  void shouldAcceptLastCatalogSlot() {
+    ShopComponent shop = new ShopComponent();
+    int last = ShopComponent.MAX_CATALOG_SLOTS;
+
+    assertTrue(shop.setItemListing(last, itemListing(potion(1, 5), 20, 10)));
+    assertTrue(shop.setUpgradeListing(last, UpgradeListing("Speed Boost", 15)));
+    assertTrue(shop.setPetListing(last, petListing("Wolf", 20)));
+
+    assertNotNull(shop.getItemListing(last));
+    assertNotNull(shop.getUpgradeListing(last));
+    assertNotNull(shop.getPetListing(last));
+  }
+
+  @Test
+  void shouldRejectCatalogSlotAboveMax() {
+    ShopComponent shop = new ShopComponent();
+    int tooHigh = ShopComponent.MAX_CATALOG_SLOTS + 1;
+
+    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20, 10)));
+    assertFalse(shop.setUpgradeListing(tooHigh, UpgradeListing("Speed Boost", 15)));
+    assertFalse(shop.setPetListing(tooHigh, petListing("Wolf", 20)));
+    assertFalse(shop.setItemListing(tooHigh, null));
+
+    assertNull(shop.getItemListing(tooHigh));
+    assertNull(shop.getUpgradeListing(tooHigh));
+    assertNull(shop.getPetListing(tooHigh));
+    assertTrue(shop.getItemCatalog().isEmpty());
+    assertTrue(shop.getUpgradeCatalog().isEmpty());
+    assertTrue(shop.getPetCatalog().isEmpty());
+  }
+
+  @Test
+  void shouldReplaceListingWhenCatalogIsFull() {
+    ShopComponent shop = new ShopComponent();
+    fillCatalogs(shop);
+
+    ShopComponent.ShopListing<Item> itemReplacement = itemListing(potion(2, 5), 30, 15);
+    ShopComponent.ShopListing<ShopComponent.Upgrade> upgradeReplacement =
+        UpgradeListing("Shield", 25);
+    ShopComponent.ShopListing<ShopComponent.Pet> petReplacement = petListing("Cat", 40);
+
+    assertTrue(shop.setItemListing(1, itemReplacement));
+    assertTrue(shop.setUpgradeListing(1, upgradeReplacement));
+    assertTrue(shop.setPetListing(1, petReplacement));
+
+    assertSame(itemReplacement, shop.getItemListing(1));
+    assertSame(upgradeReplacement, shop.getUpgradeListing(1));
+    assertSame(petReplacement, shop.getPetListing(1));
+    assertEquals(ShopComponent.MAX_CATALOG_SLOTS, shop.getItemCatalog().size());
+    assertEquals(ShopComponent.MAX_CATALOG_SLOTS, shop.getUpgradeCatalog().size());
+    assertEquals(ShopComponent.MAX_CATALOG_SLOTS, shop.getPetCatalog().size());
+  }
+
+  @Test
+  void shouldRejectNewListingWhenCatalogIsFull() {
+    ShopComponent shop = new ShopComponent();
+    fillCatalogs(shop);
+
+    int tooHigh = ShopComponent.MAX_CATALOG_SLOTS + 1;
+    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20, 10)));
+    assertFalse(shop.setUpgradeListing(tooHigh, UpgradeListing("Shield", 25)));
+    assertFalse(shop.setPetListing(tooHigh, petListing("Cat", 40)));
+
+    assertEquals(ShopComponent.MAX_CATALOG_SLOTS, shop.getItemCatalog().size());
+    assertEquals(ShopComponent.MAX_CATALOG_SLOTS, shop.getUpgradeCatalog().size());
+    assertEquals(ShopComponent.MAX_CATALOG_SLOTS, shop.getPetCatalog().size());
   }
 
   @Test

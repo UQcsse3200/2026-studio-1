@@ -16,6 +16,9 @@ import java.util.Map;
  * the same entity.
  */
 public class ShopComponent extends Component {
+  /** Maximum occupied listings per catalog; matches the shop UI grid size. */
+  public static final int MAX_CATALOG_SLOTS = 10;
+
   private final Map<Integer, ShopListing<Item>> itemCatalog;
   private final Map<Integer, ShopListing<Upgrade>> upgradeCatalog;
   private final Map<Integer, ShopListing<Pet>> petCatalog;
@@ -34,29 +37,21 @@ public class ShopComponent extends Component {
   /**
    * Sets or clears an item catalog listing.
    *
-   * @param slot catalog slot; must be {@code >= 1}
+   * @param slot catalog slot; must be {@code 1}..{@link #MAX_CATALOG_SLOTS}
    * @param listing listing to store, or {@code null} to clear the slot
    * @return {@code true} if the slot was valid and updated
    */
   public boolean setItemListing(int slot, ShopListing<Item> listing) {
-    if (slot < 1) {
+    if (listing != null && listing.getProduct().getItemType() == ItemType.CURRENCY) {
       return false;
     }
-    if (listing == null) {
-      itemCatalog.remove(slot);
-      return true;
-    }
-    if (listing.getProduct().getItemType() == ItemType.CURRENCY) {
-      return false;
-    }
-    itemCatalog.put(slot, listing);
-    return true;
+    return setListing(itemCatalog, slot, listing);
   }
 
   /**
    * Sets or clears an Upgrade catalog listing.
    *
-   * @param slot catalog slot; must be {@code >= 1}
+   * @param slot catalog slot; must be {@code 1}..{@link #MAX_CATALOG_SLOTS}
    * @param listing listing to store, or {@code null} to clear the slot
    * @return {@code true} if the slot was valid and updated
    */
@@ -67,7 +62,7 @@ public class ShopComponent extends Component {
   /**
    * Sets or clears a pet catalog listing.
    *
-   * @param slot catalog slot; must be {@code >= 1}
+   * @param slot catalog slot; must be {@code 1}..{@link #MAX_CATALOG_SLOTS}
    * @param listing listing to store, or {@code null} to clear the slot
    * @return {@code true} if the slot was valid and updated
    */
@@ -317,6 +312,9 @@ public class ShopComponent extends Component {
   /**
    * Sets or clears a listing in a catalog map.
    *
+   * <p>Rejects slots outside {@code 1}..{@link #MAX_CATALOG_SLOTS}. A new occupied slot is rejected
+   * when the catalog is already full; replacing an existing slot is allowed.
+   *
    * @param catalog catalog to update
    * @param slot catalog slot
    * @param listing listing to store, or {@code null} to clear
@@ -325,12 +323,15 @@ public class ShopComponent extends Component {
    */
   private <T> boolean setListing(
       Map<Integer, ShopListing<T>> catalog, int slot, ShopListing<T> listing) {
-    if (slot < 1) {
+    if (!isCatalogSlot(slot)) {
       return false;
     }
     if (listing == null) {
       catalog.remove(slot);
       return true;
+    }
+    if (!catalog.containsKey(slot) && catalog.size() >= MAX_CATALOG_SLOTS) {
+      return false;
     }
     catalog.put(slot, listing);
     return true;
@@ -345,10 +346,20 @@ public class ShopComponent extends Component {
    * @return listing, or {@code null} if the slot is invalid or empty
    */
   private <T> ShopListing<T> getListing(Map<Integer, ShopListing<T>> catalog, int slot) {
-    if (slot < 1) {
+    if (!isCatalogSlot(slot)) {
       return null;
     }
     return catalog.get(slot);
+  }
+
+  /**
+   * Returns whether {@code slot} is a valid catalog index.
+   *
+   * @param slot catalog slot
+   * @return {@code true} if the slot is {@code 1}..{@link #MAX_CATALOG_SLOTS}
+   */
+  private static boolean isCatalogSlot(int slot) {
+    return slot >= 1 && slot <= MAX_CATALOG_SLOTS;
   }
 
   /**
