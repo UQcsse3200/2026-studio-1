@@ -133,6 +133,38 @@ class ShopComponentTest {
   }
 
   @Test
+  void shouldNotBuyMissingItemListing() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+
+    assertFalse(shop.buyItem(1));
+    assertFalse(shop.buyUpgrade(1));
+    assertFalse(shop.buyPet(1));
+
+    assertEquals(100, inventory.getGold());
+    assertEquals(0, inventory.getOccupiedSlots());
+    assertTrue(shop.getPurchasedUpgrades().isEmpty());
+    assertTrue(shop.getPurchasedPets().isEmpty());
+  }
+
+  @Test
+  void shouldRejectBuyAndSellWhenShopHasNoInventory() {
+    ShopComponent shop = new ShopComponent();
+    new Entity().addComponent(shop);
+    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
+    shop.setPetListing(1, petListing("Wolf", 20));
+
+    assertFalse(shop.buyItem(1));
+    assertFalse(shop.sellItem(1));
+    assertFalse(shop.buyUpgrade(1));
+    assertFalse(shop.buyPet(1));
+    assertTrue(shop.getPurchasedUpgrades().isEmpty());
+    assertTrue(shop.getPurchasedPets().isEmpty());
+  }
+
+  @Test
   void shouldSellItemSuccessClearsSlotAndRefundsGold() {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
@@ -187,14 +219,15 @@ class ShopComponentTest {
     attach(inventory, shop);
     inventory.addItem(potion(1, 10));
     int occupied = inventory.getOccupiedSlots();
-    shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
+    ShopComponent.ShopListing<ShopComponent.Upgrade> listing = UpgradeListing("Speed Boost", 15);
+    shop.setUpgradeListing(1, listing);
 
     assertTrue(shop.buyUpgrade(1));
 
     assertEquals(85, inventory.getGold());
     assertEquals(occupied, inventory.getOccupiedSlots());
     assertEquals(1, shop.getPurchasedUpgrades().size());
-    assertEquals("Speed Boost", shop.getPurchasedUpgrades().get(0).getName());
+    assertSame(listing.getProduct(), shop.getPurchasedUpgrades().get(0));
     assertNotNull(shop.getUpgradeListing(1));
   }
 
@@ -205,14 +238,15 @@ class ShopComponentTest {
     attach(inventory, shop);
     inventory.addItem(potion(1, 10));
     int occupied = inventory.getOccupiedSlots();
-    shop.setPetListing(1, petListing("Wolf", 20));
+    ShopComponent.ShopListing<ShopComponent.Pet> listing = petListing("Wolf", 20);
+    shop.setPetListing(1, listing);
 
     assertTrue(shop.buyPet(1));
 
     assertEquals(80, inventory.getGold());
     assertEquals(occupied, inventory.getOccupiedSlots());
     assertEquals(1, shop.getPurchasedPets().size());
-    assertEquals("Wolf", shop.getPurchasedPets().get(0).getName());
+    assertSame(listing.getProduct(), shop.getPurchasedPets().get(0));
     assertNotNull(shop.getPetListing(1));
   }
 
@@ -230,6 +264,32 @@ class ShopComponentTest {
     assertEquals(10, inventory.getGold());
     assertTrue(shop.getPurchasedUpgrades().isEmpty());
     assertTrue(shop.getPurchasedPets().isEmpty());
+  }
+
+  @Test
+  void shouldTriggerUpgradePurchasedEvent() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    AtomicInteger eventCount = new AtomicInteger();
+    entity.getEvents().addListener("upgradesPurchased", eventCount::incrementAndGet);
+    shop.setUpgradeListing(1, UpgradeListing("Health Upgrade", 40));
+
+    assertTrue(shop.buyUpgrade(1));
+    assertEquals(1, eventCount.get());
+  }
+
+  @Test
+  void shouldTriggerPetPurchasedEvent() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    AtomicInteger eventCount = new AtomicInteger();
+    entity.getEvents().addListener("petPurchased", eventCount::incrementAndGet);
+    shop.setPetListing(1, petListing("Dog", 50));
+
+    assertTrue(shop.buyPet(1));
+    assertEquals(1, eventCount.get());
   }
 
   @Test
@@ -287,6 +347,24 @@ class ShopComponentTest {
     assertSame(potionListing, shop.getItemListing(1));
     assertSame(UpgradeListing, shop.getUpgradeListing(1));
     assertSame(petListing, shop.getPetListing(1));
+  }
+
+  @Test
+  void shouldReturnUnmodifiablePurchasedUpgradeList() {
+    ShopComponent shop = new ShopComponent();
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> shop.getPurchasedUpgrades().add(new ShopComponent.Upgrade("Health Upgrade")));
+  }
+
+  @Test
+  void shouldReturnUnmodifiablePurchasedPetList() {
+    ShopComponent shop = new ShopComponent();
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> shop.getPurchasedPets().add(new ShopComponent.Pet("Dog")));
   }
 
   private static void attach(InventoryComponent inventory, ShopComponent shop) {
@@ -407,17 +485,6 @@ class ShopComponentTest {
   }
 
   @Test
-  void shouldReturnUnmodifiableItemCatalog() {
-    ShopComponent shop = new ShopComponent();
-
-    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(potion(1, 5), 20, 10);
-
-    shop.setItemListing(1, listing);
-
-    assertThrows(UnsupportedOperationException.class, () -> shop.getItemCatalog().put(2, listing));
-  }
-
-  @Test
   void shouldSetGetAndClearUpgradeListing() {
     ShopComponent shop = new ShopComponent();
     ShopComponent.Upgrade upgrade = new ShopComponent.Upgrade("Health Upgrade");
@@ -445,18 +512,6 @@ class ShopComponentTest {
   }
 
   @Test
-  void shouldReturnUnmodifiableUpgradeCatalog() {
-    ShopComponent shop = new ShopComponent();
-    ShopComponent.ShopListing<ShopComponent.Upgrade> listing =
-        new ShopComponent.ShopListing<>(new ShopComponent.Upgrade("Health Upgrade"), 50, 0);
-
-    shop.setUpgradeListing(1, listing);
-
-    assertThrows(
-        UnsupportedOperationException.class, () -> shop.getUpgradeCatalog().put(2, listing));
-  }
-
-  @Test
   void shouldSetGetAndClearPetListing() {
     ShopComponent shop = new ShopComponent();
     ShopComponent.Pet pet = new ShopComponent.Pet("Dog");
@@ -481,281 +536,6 @@ class ShopComponentTest {
 
     assertFalse(shop.setPetListing(0, listing));
     assertFalse(shop.setPetListing(-1, listing));
-  }
-
-  @Test
-  void shouldReturnUnmodifiablePetCatalog() {
-    ShopComponent shop = new ShopComponent();
-    ShopComponent.ShopListing<ShopComponent.Pet> listing =
-        new ShopComponent.ShopListing<>(new ShopComponent.Pet("Dog"), 100, 0);
-
-    shop.setPetListing(1, listing);
-
-    assertThrows(UnsupportedOperationException.class, () -> shop.getPetCatalog().put(2, listing));
-  }
-
-  @Test
-  void shouldBuyItem() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    Item potion = potion(1, 5);
-
-    shop.setItemListing(1, new ShopComponent.ShopListing<>(potion, 30, 15));
-
-    assertTrue(shop.buyItem(1));
-
-    assertEquals(70, inventory.getGold());
-    assertNotNull(inventory.getItem(1));
-    assertEquals("Potion", inventory.getItem(1).getName());
-
-    // Shop should give the player a copy, not the catalog object.
-    assertNotSame(potion, inventory.getItem(1));
-  }
-
-  @Test
-  void shouldNotBuyItemWithoutInventory() {
-    ShopComponent shop = new ShopComponent();
-
-    shop.setItemListing(1, new ShopComponent.ShopListing<>(potion(1, 5), 30, 15));
-
-    assertFalse(shop.buyItem(1));
-  }
-
-  @Test
-  void shouldNotBuyMissingItemListing() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    assertFalse(shop.buyItem(1));
-    assertEquals(100, inventory.getGold());
-  }
-
-  @Test
-  void shouldNotBuyItemWithoutEnoughGold() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(20, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    shop.setItemListing(1, new ShopComponent.ShopListing<>(potion(1, 5), 30, 15));
-
-    assertFalse(shop.buyItem(1));
-
-    assertEquals(20, inventory.getGold());
-    assertNull(inventory.getItem(0));
-  }
-
-  @Test
-  void shouldNotBuyItemWhenInventoryIsFull() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 1);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    inventory.addItem(potion(5, 5));
-
-    shop.setItemListing(1, new ShopComponent.ShopListing<>(potion(1, 5), 30, 15));
-
-    assertFalse(shop.buyItem(1));
-    assertEquals(100, inventory.getGold());
-  }
-
-  @Test
-  void shouldSellItem() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    Item potion = potion(1, 5);
-
-    inventory.addItem(potion);
-
-    shop.setItemListing(1, new ShopComponent.ShopListing<>(potion(1, 5), 30, 15));
-
-    assertTrue(shop.sellItem(1));
-
-    assertEquals(115, inventory.getGold());
-    assertNull(inventory.getItem(1));
-  }
-
-  @Test
-  void shouldNotSellWithoutInventory() {
-    ShopComponent shop = new ShopComponent();
-
-    assertFalse(shop.sellItem(0));
-  }
-
-  @Test
-  void shouldNotSellEmptyPlayerSlot() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    assertFalse(shop.sellItem(0));
-    assertEquals(100, inventory.getGold());
-  }
-
-  @Test
-  void shouldNotSellItemNotInShopCatalog() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    inventory.addItem(potion(1, 5));
-
-    assertFalse(shop.sellItem(1));
-
-    assertEquals(100, inventory.getGold());
-    assertNotNull(inventory.getItem(1));
-  }
-
-  @Test
-  void shouldBuyUpgrade() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    ShopComponent.Upgrade upgrade = new ShopComponent.Upgrade("Health Upgrade");
-
-    shop.setUpgradeListing(1, new ShopComponent.ShopListing<>(upgrade, 40, 0));
-
-    assertTrue(shop.buyUpgrade(1));
-
-    assertEquals(60, inventory.getGold());
-    assertEquals(1, shop.getPurchasedUpgrades().size());
-    assertSame(upgrade, shop.getPurchasedUpgrades().get(0));
-  }
-
-  @Test
-  void shouldTriggerUpgradePurchasedEvent() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    AtomicInteger eventCount = new AtomicInteger();
-
-    entity.getEvents().addListener("upgradesPurchased", eventCount::incrementAndGet);
-
-    shop.setUpgradeListing(
-        1, new ShopComponent.ShopListing<>(new ShopComponent.Upgrade("Health Upgrade"), 40, 0));
-
-    assertTrue(shop.buyUpgrade(1));
-    assertEquals(1, eventCount.get());
-  }
-
-  @Test
-  void shouldNotBuyUpgradeWithoutEnoughGold() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(20, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    shop.setUpgradeListing(
-        1, new ShopComponent.ShopListing<>(new ShopComponent.Upgrade("Health Upgrade"), 40, 0));
-
-    assertFalse(shop.buyUpgrade(1));
-
-    assertEquals(20, inventory.getGold());
-    assertTrue(shop.getPurchasedUpgrades().isEmpty());
-  }
-
-  @Test
-  void shouldBuyPet() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    ShopComponent.Pet pet = new ShopComponent.Pet("Dog");
-
-    shop.setPetListing(1, new ShopComponent.ShopListing<>(pet, 50, 0));
-
-    assertTrue(shop.buyPet(1));
-
-    assertEquals(50, inventory.getGold());
-    assertEquals(1, shop.getPurchasedPets().size());
-    assertSame(pet, shop.getPurchasedPets().get(0));
-  }
-
-  @Test
-  void shouldTriggerPetPurchasedEvent() {
-    Entity entity = new Entity();
-
-    InventoryComponent inventory = new InventoryComponent(100, 5);
-    ShopComponent shop = new ShopComponent();
-
-    entity.addComponent(inventory);
-    entity.addComponent(shop);
-
-    AtomicInteger eventCount = new AtomicInteger();
-
-    entity.getEvents().addListener("petPurchased", eventCount::incrementAndGet);
-
-    shop.setPetListing(1, new ShopComponent.ShopListing<>(new ShopComponent.Pet("Dog"), 50, 0));
-
-    assertTrue(shop.buyPet(1));
-    assertEquals(1, eventCount.get());
-  }
-
-  @Test
-  void shouldReturnUnmodifiablePurchasedUpgradeList() {
-    ShopComponent shop = new ShopComponent();
-
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> shop.getPurchasedUpgrades().add(new ShopComponent.Upgrade("Health Upgrade")));
-  }
-
-  @Test
-  void shouldReturnUnmodifiablePurchasedPetList() {
-    ShopComponent shop = new ShopComponent();
-
-    assertThrows(
-        UnsupportedOperationException.class,
-        () -> shop.getPurchasedPets().add(new ShopComponent.Pet("Dog")));
   }
 
   @Test
