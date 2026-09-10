@@ -15,10 +15,11 @@ import java.util.Map;
  * <p>Does not store gold or player items. Payments use the sibling {@link InventoryComponent} on
  * the same entity.
  *
- * <p>Item purchases deduct gold only when the copied product fits in full. Selling removes the
- * entire inventory stack and refunds the catalog sell price; the shop listing stays (infinite
- * stock). Item buy/sell refresh the UI via {@code inventoryChanged}. Upgrade and pet purchases
- * trigger {@code upgradesPurchased} and {@code petPurchased}.
+ * <p>Item purchases deduct gold only when the copied product fits in full. A successful item buy
+ * consumes that item listing (one-use offer) and triggers {@code shopChanged}. Selling uses the
+ * player inventory; a matching BUY listing is only used for price and is not consumed. Upgrade and
+ * pet purchases trigger {@code upgradePurchased} and {@code petPurchased} and leave those listings
+ * in place.
  */
 public class ShopComponent extends Component {
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
@@ -155,7 +156,8 @@ public class ShopComponent extends Component {
    * stacks into an existing slot.
    *
    * @param catalogSlot item catalog slot
-   * @return {@code true} if gold was deducted and a copy of the item was added with no leftover
+   * @return {@code true} if gold was deducted, a copy of the item was added with no leftover, and
+   *     the selected listing was removed
    */
   public boolean buyItem(int catalogSlot) {
     InventoryComponent inventory = getInventory();
@@ -179,13 +181,38 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
+    itemCatalog.remove(catalogSlot);
+    notifyShopChanged();
     return true;
   }
 
   /**
-   * Sells the entire stack in a player inventory slot and refunds the matching catalog sell price.
+   * Returns the gold refund for selling {@code item}.
    *
-   * <p>The shop listing is not removed.
+   * <p>If a BUY listing still matches by name and {@link ItemType}, that listing's sell price is
+   * used. Otherwise a default based on quantity is used. A live listing is not required.
+   *
+   * @param item inventory item to price; {@code null} returns {@code 0}
+   * @return sell refund in gold
+   */
+  public int getSellPrice(Item item) {
+    if (item == null) {
+      return 0;
+    }
+    Integer matchSlot = findMatchingItemSlot(item);
+    if (matchSlot != null) {
+      ShopListing<Item> listing = getItemListing(matchSlot);
+      if (listing != null) {
+        return listing.getSellPrice();
+      }
+    }
+    return defaultSellPrice(item);
+  }
+
+  /**
+   * Sells the entire stack in a player inventory slot and refunds {@link #getSellPrice(Item)}.
+   *
+   * <p>Does not require a matching BUY listing and does not change BUY stock.
    *
    * @param playerSlot inventory slot on the sibling {@link InventoryComponent}
    * @return {@code true} if the item was removed and gold was added
@@ -201,24 +228,22 @@ public class ShopComponent extends Component {
       return false;
     }
 
-    ShopListing<Item> matchingListing = findItemListing(item);
-    if (matchingListing == null) {
-      return false;
-    }
+    int refund = getSellPrice(item);
 
     Item removed = inventory.removeItem(playerSlot);
     if (removed == null) {
       return false;
     }
 
-    inventory.addGold(matchingListing.getSellPrice());
+    inventory.addGold(refund);
     return true;
   }
 
   /**
    * Buys the Upgrade in a catalog slot using gold only. Does not use item slots.
    *
-   * <p>On success, records the purchase and triggers {@code upgradesPurchased}.
+   * <p>On success, records the purchase and triggers {@code upgradePurchased}. The catalog listing
+   * stays.
    *
    * @param catalogSlot Upgrade catalog slot
    * @return {@code true} if gold was deducted and the purchase was recorded
@@ -241,7 +266,7 @@ public class ShopComponent extends Component {
     inventory.addGold(-listing.getBuyPrice());
     purchasedUpgrades.add(listing.getProduct());
     if (entity != null) {
-      entity.getEvents().trigger("upgradesPurchased");
+      entity.getEvents().trigger("upgradePurchased");
     }
     return true;
   }
@@ -309,19 +334,42 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Finds an item catalog listing whose product matches {@code item} by name and type.
+   * Finds the lowest-numbered item catalog slot whose product matches {@code item} by name and
+   * type. Used only as an optional sell-price lookup; selling does not require a match.
    *
    * @param item player item to match
-   * @return matching listing, or {@code null} if none
+   * @return matching catalog slot, or {@code null} if none
    */
-  private ShopListing<Item> findItemListing(Item item) {
-    for (ShopListing<Item> listing : itemCatalog.values()) {
-      Item product = listing.getProduct();
-      if (product.getName().equals(item.getName()) && product.getItemType() == item.getItemType()) {
-        return listing;
+  private Integer findMatchingItemSlot(Item item) {
+    Integer matchSlot = null;
+    for (Map.Entry<Integer, ShopListing<Item>> entry : itemCatalog.entrySet()) {
+      Item product = entry.getValue().getProduct();
+      if (!product.getName().equals(item.getName())
+          || product.getItemType() != item.getItemType()) {
+        continue;
+      }
+      if (matchSlot == null || entry.getKey() < matchSlot) {
+        matchSlot = entry.getKey();
       }
     }
-    return null;
+    return matchSlot;
+  }
+
+  /**
+   * Default refund when no BUY listing matches {@code item}.
+   *
+   * @param item inventory item
+   * @return at least {@code 1} gold, using the stack quantity
+   */
+  private static int defaultSellPrice(Item item) {
+    return Math.max(1, item.getQuantity());
+  }
+
+  /** Triggers {@code shopChanged} when this component is attached to an entity. */
+  private void notifyShopChanged() {
+    if (entity != null) {
+      entity.getEvents().trigger("shopChanged");
+    }
   }
 
   /**
@@ -354,13 +402,20 @@ public class ShopComponent extends Component {
       return false;
     }
     if (listing == null) {
+      if (!catalog.containsKey(slot)) {
+        return true;
+      }
       catalog.remove(slot);
+      notifyShopChanged();
       return true;
     }
     if (!catalog.containsKey(slot) && catalog.size() >= MAX_CATALOG_SLOTS) {
       return false;
     }
-    catalog.put(slot, listing);
+    ShopListing<T> previous = catalog.put(slot, listing);
+    if (previous != listing) {
+      notifyShopChanged();
+    }
     return true;
   }
 

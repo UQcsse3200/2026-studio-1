@@ -37,7 +37,7 @@ class ShopComponentTest {
     assertEquals("Potion", bought.getName());
     assertEquals(ItemType.CONSUMABLE, bought.getItemType());
     assertEquals(1, bought.getQuantity());
-    assertSame(catalogPotion, shop.getItemListing(1).getProduct());
+    assertNull(shop.getItemListing(1));
   }
 
   @Test
@@ -70,10 +70,13 @@ class ShopComponentTest {
     assertEquals(5, inventory.getOccupiedSlots());
 
     assertTrue(shop.sellItem(1));
+    assertNotNull(shop.getItemListing(2));
+    assertNotNull(shop.getItemListing(1));
     assertFalse(inventory.isFull());
     assertTrue(shop.buyItem(1));
     assertEquals(98, inventory.getGold());
     assertEquals("Potion", inventory.getItem(1).getName());
+    assertNull(shop.getItemListing(1));
   }
 
   @Test
@@ -91,6 +94,7 @@ class ShopComponentTest {
     assertEquals(90, inventory.getGold());
     assertEquals(8, inventory.getItem(1).getQuantity());
     assertEquals(1, inventory.getOccupiedSlots());
+    assertNull(shop.getItemListing(1));
   }
 
   @Test
@@ -107,6 +111,7 @@ class ShopComponentTest {
     assertEquals(100, inventory.getGold());
     assertEquals(10, inventory.getItem(1).getQuantity());
     assertEquals(1, inventory.getOccupiedSlots());
+    assertNotNull(shop.getItemListing(1));
   }
 
   @Test
@@ -218,7 +223,7 @@ class ShopComponentTest {
   }
 
   @Test
-  void shouldRejectSellWhenItemNotInCatalog() {
+  void shouldSellItemWithoutMatchingBuyListing() {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
@@ -227,10 +232,19 @@ class ShopComponentTest {
     inventory.addItem(relic);
     shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
 
-    assertFalse(shop.sellItem(1));
+    assertEquals(1, shop.getSellPrice(relic));
+    assertTrue(shop.sellItem(1));
 
-    assertSame(relic, inventory.getItem(1));
-    assertEquals(100, inventory.getGold());
+    assertNull(inventory.getItem(1));
+    assertEquals(101, inventory.getGold());
+    assertNotNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldReturnZeroSellPriceForNullItem() {
+    ShopComponent shop = new ShopComponent();
+
+    assertEquals(0, shop.getSellPrice(null));
   }
 
   @Test
@@ -293,7 +307,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
     AtomicInteger eventCount = new AtomicInteger();
-    entity.getEvents().addListener("upgradesPurchased", eventCount::incrementAndGet);
+    entity.getEvents().addListener("upgradePurchased", eventCount::incrementAndGet);
     shop.setUpgradeListing(1, UpgradeListing("Health Upgrade", 40));
 
     assertTrue(shop.buyUpgrade(1));
@@ -666,5 +680,193 @@ class ShopComponentTest {
     ShopComponent.Pet pet = new ShopComponent.Pet("Dog");
 
     assertEquals("Dog", pet.getName());
+  }
+
+  @Test
+  void shouldNotChangeItemCatalogWhenInventoryIsLooted() {
+    InventoryComponent inventory = new InventoryComponent(50);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    ShopComponent.ShopListing<Item> listing = itemListing(potion(1, 10), 10, 5);
+    shop.setItemListing(1, listing);
+
+    AtomicInteger inventoryEvents = new AtomicInteger();
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("inventoryChanged", inventoryEvents::incrementAndGet);
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    inventory.addItem(new Item("Loot Potion", ItemType.CONSUMABLE, 1, 9));
+    inventory.addGold(7);
+
+    assertSame(listing, shop.getItemListing(1));
+    assertEquals(1, shop.getItemCatalog().size());
+    assertEquals(2, inventoryEvents.get());
+    assertEquals(0, shopEvents.get());
+  }
+
+  @Test
+  void shouldEmitInventoryAndShopEventsOnSuccessfulBuy() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+
+    AtomicInteger inventoryEvents = new AtomicInteger();
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("inventoryChanged", inventoryEvents::incrementAndGet);
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    assertTrue(shop.buyItem(1));
+    assertEquals(2, inventoryEvents.get());
+    assertEquals(1, shopEvents.get());
+    assertNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldEmitInventoryAndShopEventsOnSuccessfulSell() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
+    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 8));
+
+    AtomicInteger inventoryEvents = new AtomicInteger();
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("inventoryChanged", inventoryEvents::incrementAndGet);
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    assertTrue(shop.sellItem(1));
+    assertEquals(2, inventoryEvents.get());
+    assertEquals(0, shopEvents.get());
+    assertNotNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldNotEmitShopChangedWhenSellingWithoutCatalogMutation() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    Item relic = new Item("Mystery Relic", ItemType.WEAPON, 1, 1);
+    inventory.addItem(relic);
+    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    assertTrue(shop.sellItem(1));
+    assertEquals(0, shopEvents.get());
+    assertNull(inventory.getItem(1));
+    assertEquals(101, inventory.getGold());
+    assertNotNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldNotEmitShopChangedWhenBuyIsRejected() {
+    InventoryComponent inventory = new InventoryComponent(5);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    assertFalse(shop.buyItem(1));
+    assertEquals(0, shopEvents.get());
+    assertNotNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldKeepBuyListingsWhenSellingMatchingItems() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+
+    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
+    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
+    shop.setItemListing(3, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 7));
+    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 4));
+
+    assertTrue(shop.sellItem(1));
+    assertNotNull(shop.getItemListing(1));
+    assertNotNull(shop.getItemListing(3));
+    assertEquals(104, inventory.getGold());
+
+    assertTrue(shop.sellItem(2));
+    assertNotNull(shop.getItemListing(1));
+    assertNotNull(shop.getItemListing(3));
+    assertEquals(108, inventory.getGold());
+  }
+
+  @Test
+  void shouldSellAtDefaultPriceAfterBuyConsumesListing() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+
+    assertTrue(shop.buyItem(1));
+    assertNull(shop.getItemListing(1));
+    assertEquals(90, inventory.getGold());
+
+    assertEquals(1, shop.getSellPrice(inventory.getItem(1)));
+    assertTrue(shop.sellItem(1));
+    assertNull(inventory.getItem(1));
+    assertEquals(91, inventory.getGold());
+    assertNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldNotifyShopChangedOnGenuineSetterAddReplaceAndRemove() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    ShopComponent.ShopListing<Item> first = itemListing(potion(1, 5), 20, 10);
+    assertTrue(shop.setItemListing(1, first));
+    assertEquals(1, shopEvents.get());
+
+    ShopComponent.ShopListing<Item> second = itemListing(potion(1, 5), 30, 15);
+    assertTrue(shop.setItemListing(1, second));
+    assertEquals(2, shopEvents.get());
+
+    assertTrue(shop.setItemListing(1, second));
+    assertEquals(2, shopEvents.get());
+
+    assertTrue(shop.setItemListing(1, null));
+    assertEquals(3, shopEvents.get());
+
+    assertTrue(shop.setItemListing(1, null));
+    assertEquals(3, shopEvents.get());
+  }
+
+  @Test
+  void shouldNotNotifyShopChangedOnInvalidSetterOperations() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    Item coins = new Item("Coins", ItemType.CURRENCY, 10, 100);
+    assertFalse(shop.setItemListing(1, itemListing(coins, 1, 1)));
+    assertFalse(shop.setItemListing(0, itemListing(potion(1, 5), 20, 10)));
+    assertFalse(
+        shop.setItemListing(
+            ShopComponent.MAX_CATALOG_SLOTS + 1, itemListing(potion(1, 5), 20, 10)));
+    assertTrue(shop.setItemListing(2, null));
+    assertEquals(0, shopEvents.get());
+
+    fillCatalogs(shop);
+    int afterFill = shopEvents.get();
+    int tooHigh = ShopComponent.MAX_CATALOG_SLOTS + 1;
+    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20, 10)));
+    assertEquals(afterFill, shopEvents.get());
+  }
+
+  @Test
+  void shouldNotNotifyWhenSeedingUnattachedShop() {
+    ShopComponent shop = new ShopComponent();
+    assertSame(shop, shop.seedDefaultCatalog());
+    assertNotNull(shop.getItemListing(1));
   }
 }
