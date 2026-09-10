@@ -9,8 +9,10 @@ import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
+import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.components.maingame.WinScreenDisplay;
+import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -204,7 +206,9 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuDisplay())
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
+        .addComponent(new DeathScreenInputComponent())
         .addComponent(winScreenDisplay)
+        .addComponent(new WinScreenInputComponent())
         .addComponent(new MainGameActions(this.game))
         .addComponent(new PauseMenuActions());
     this.pauseMenu = pauseMenuComponent;
