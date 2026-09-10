@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import com.csse3200.game.pausemenu.AudioSettings;
 
 /**
  * Action component for interacting with the player.
@@ -112,28 +113,28 @@ public class PlayerActions extends Component {
     Sound sneakSound = ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
     if (dashing) {
       Sound dashSound = ServiceLocator.getResourceService().getAsset(DASH_SE, Sound.class);
-      dashSound.play();
+      dashSound.play(AudioSettings.getEffectiveEffectsVolume());
       dashing = false;
     } else if (platformerComponent.getJumpingBool()) {
       Sound jumpSound = ServiceLocator.getResourceService().getAsset(JUMP_SE, Sound.class);
-      jumpSound.play();
+      jumpSound.play(AudioSettings.getEffectiveEffectsVolume());
     } else if (sliding) {
       Sound slideSound = ServiceLocator.getResourceService().getAsset(SLIDE_SE, Sound.class);
       if (!slideSoundPlaying) {
-        slideSound.play();
+        slideSound.play(AudioSettings.getEffectiveEffectsVolume());
         slideSoundPlaying = true;
       }
     } else if (moving && platformerComponent.isGrounded()) {
       if (sneaking) {
         if (!sneakSoundPlaying) {
-          sneakSound.loop();
+          sneakSound.loop(AudioSettings.getEffectiveEffectsVolume());
           sneakSoundPlaying = true;
         }
         walkSound.stop();
         walkSoundPlaying = false;
       } else {
         if (!walkSoundPlaying) {
-          walkSound.loop();
+          walkSound.loop(AudioSettings.getEffectiveEffectsVolume());
           walkSoundPlaying = true;
         }
         sneakSound.stop();
@@ -232,7 +233,7 @@ public class PlayerActions extends Component {
 
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
-    attackSound.play();
+    attackSound.play(AudioSettings.getEffectiveEffectsVolume());
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {

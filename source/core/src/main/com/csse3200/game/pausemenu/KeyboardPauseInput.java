@@ -25,9 +25,13 @@ public class KeyboardPauseInput extends InputComponent {
   @Override
   public boolean keyDown(int keycode) {
     if (keycode == TOGGLE_PAUSE_KEY) {
-      pauseMenu.toggleIsPaused();
+      if (!pauseMenu.isPaused()) {
+        pauseMenu.toggleIsPaused();
+      } else {
+        entity.getEvents().trigger("escapePressed");
+      }
       return true;
-    }
+  }
     if (pauseMenu.isPaused()) {
       switch (keycode) {
         case Input.Keys.UP:
@@ -46,6 +50,19 @@ public class KeyboardPauseInput extends InputComponent {
 
   @Override
   public boolean keyUp(int keycode) {
-    return pauseMenu.isPaused();
+    if (pauseMenu.isPaused()) {
+      switch (keycode) {
+        case Input.Keys.UP:
+        case Input.Keys.DOWN:
+        case Input.Keys.LEFT:
+        case Input.Keys.RIGHT:
+        case Input.Keys.ENTER:
+        case Input.Keys.SPACE:
+          return false;
+        default:
+          return true;
+      }
+    }
+    return false;
   }
 }

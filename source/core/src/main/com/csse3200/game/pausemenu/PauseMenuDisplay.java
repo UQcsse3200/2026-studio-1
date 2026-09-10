@@ -5,7 +5,10 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -27,19 +30,40 @@ public class PauseMenuDisplay extends UIComponent {
   private static final Color UNSELECTED_TEXT = Color.WHITE;
   private static final float INACTIVE_PANEL_ALPHA = 0.55f;
   private static final float PANEL_GAP = 25f;
-  private static final float MUSIC_STEP = 0.05f;
+  private static final float VOLUME_STEP = 0.05f;
+
+  private static final long HOLD_INITIAL_DELAY_MS = 400;
+  private static final long HOLD_REPEAT_INTERVAL_MS = 80;
+
+  private boolean leftHeld = false;
+  private boolean rightHeld = false;
+  private long leftHoldStart = 0;
+  private long leftLastRepeat = 0;
+  private long rightHoldStart = 0;
+  private long rightLastRepeat = 0;
 
   private static final String PREFS_NAME = "pause_menu_settings";
+  private static final String MASTER_VOLUME_KEY = "masterVolume";
   private static final String MUSIC_VOLUME_KEY = "musicVolume";
+  private static final String EFFECTS_VOLUME_KEY = "effectsVolume";
+  private static final float DEFAULT_MASTER_VOL = 1f;
   private static final float DEFAULT_MUSIC_VOL = 0.8f;
+  private static final float DEFAULT_EFFECTS_VOL = 1f;
 
-  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Main Menu", "Settings"};
+  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu"};
   private static final String[] SETTINGS_ITEMS = {"Audio", "Back"};
-  private static final String[] AUDIO_ITEMS = {"Music Volume", "Back"};
+  private static final String[] AUDIO_ITEMS = {"Master Volume", "Music Volume", "Effects Volume", "Back"};
+  private static final int AUDIO_BACK_INDEX = 3;
 
   private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
+  private float masterVol =
+      (prefs != null) ? prefs.getFloat(MASTER_VOLUME_KEY, DEFAULT_MASTER_VOL) : DEFAULT_MASTER_VOL;
   private float musicVol =
       (prefs != null) ? prefs.getFloat(MUSIC_VOLUME_KEY, DEFAULT_MUSIC_VOL) : DEFAULT_MUSIC_VOL;
+  private float effectsVol =
+      (prefs != null)
+          ? prefs.getFloat(EFFECTS_VOLUME_KEY, DEFAULT_EFFECTS_VOL)
+          : DEFAULT_EFFECTS_VOL;
   private boolean musicVolumeApplied = false;
 
   private Table pauseOverlay;
@@ -51,8 +75,12 @@ public class PauseMenuDisplay extends UIComponent {
   private Label[] mainLabels;
   private Label[] settingsLabels;
   private Label[] audioLabels;
+  private Slider masterSlider;
   private Slider musicSlider;
+  private Slider effectsSlider;
+  private Label masterValueLabel;
   private Label musicValueLabel;
+  private Label effectsValueLabel;
 
   private PauseMenuComponent pauseMenu;
   private MenuState state = MenuState.MAIN;
@@ -65,6 +93,8 @@ public class PauseMenuDisplay extends UIComponent {
   public void create() {
     super.create();
     pauseMenu = entity.getComponent(PauseMenuComponent.class);
+    AudioSettings.setMasterVolume(masterVol);
+    AudioSettings.setEffectsVolume(effectsVol);
     addActors();
     registerEventListeners();
   }
@@ -109,15 +139,47 @@ public class PauseMenuDisplay extends UIComponent {
     panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
     panel.pad(20f, 30f, 20f, 30f);
     panel.left();
+    MenuState ownerState = panelStateFor(items);
     for (int i = 0; i < items.length; i++) {
       Label label = createLabel(items[i]);
       labelsOut[i] = label;
       Table row = new Table();
       row.add(label).pad(6f, 15f, 6f, 15f).left();
+      addRowInteraction(row, ownerState, i, true);
       panel.add(row).left().padBottom(4f).fillX();
       panel.row();
     }
     return panel;
+  }
+
+  private MenuState panelStateFor(String[] items) {
+    if (items == MAIN_ITEMS) {
+      return MenuState.MAIN;
+    }
+    return MenuState.SETTINGS;
+  }
+
+  private void addRowInteraction(Table row, MenuState ownerState, int rowIndex, boolean clickConfirms) {
+    row.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            if (state != ownerState) {
+              return;
+            }
+            setCurrentIndex(rowIndex);
+          }
+
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            if (state != ownerState || !clickConfirms) {
+              return false;
+            }
+            setCurrentIndex(rowIndex);
+            confirmSelection();
+            return true;
+          }
+        });
   }
 
   private Table buildAudioPanel() {
@@ -126,36 +188,89 @@ public class PauseMenuDisplay extends UIComponent {
     panel.pad(20f, 30f, 20f, 30f);
     panel.left();
 
-    Label musicLabel = createLabel(AUDIO_ITEMS[0]);
-    audioLabels[0] = musicLabel;
-    musicSlider = new Slider(0f, 1f, 0.01f, false, skin);
-    musicSlider.setValue(musicVol);
-    musicValueLabel = createLabel(String.format("%.0f%%", musicVol * 100));
-    musicSlider.addListener(
-        (Event event) -> {
-          musicVol = musicSlider.getValue();
-          musicValueLabel.setText(String.format("%.0f%%", musicVol * 100));
-          applyMusicVolume();
-          if (prefs != null) {
-            prefs.putFloat(MUSIC_VOLUME_KEY, musicVol);
-            prefs.flush();
-          }
-          return true;
-        });
-    Table sliderRow = new Table();
-    sliderRow.add(musicLabel).padRight(15f);
-    sliderRow.add(musicSlider).width(160f).padRight(10f);
-    sliderRow.add(musicValueLabel);
-    panel.add(sliderRow).pad(6f, 15f, 6f, 15f).left();
-    panel.row();
+    masterValueLabel = createLabel("");
+    masterSlider = buildSlider(masterVol, masterValueLabel, this::onMasterChanged);
+    audioLabels[0] = addSliderRow(panel, AUDIO_ITEMS[0], masterSlider, masterValueLabel, 0);
 
-    Label backLabel = createLabel(AUDIO_ITEMS[1]);
-    audioLabels[1] = backLabel;
+    musicValueLabel = createLabel("");
+    musicSlider = buildSlider(musicVol, musicValueLabel, this::onMusicChanged);
+    audioLabels[1] = addSliderRow(panel, AUDIO_ITEMS[1], musicSlider, musicValueLabel, 1);
+
+    effectsValueLabel = createLabel("");
+    effectsSlider = buildSlider(effectsVol, effectsValueLabel, this::onEffectsChanged);
+    audioLabels[2] = addSliderRow(panel, AUDIO_ITEMS[2], effectsSlider, effectsValueLabel, 2);
+
+    Label backLabel = createLabel(AUDIO_ITEMS[AUDIO_BACK_INDEX]);
+    audioLabels[AUDIO_BACK_INDEX] = backLabel;
     Table backRow = new Table();
     backRow.add(backLabel).pad(6f, 15f, 6f, 15f).left();
+    addRowInteraction(backRow, MenuState.AUDIO, AUDIO_BACK_INDEX, true);
     panel.add(backRow).left().padBottom(4f).fillX();
 
+    updateVolumeLabel(masterValueLabel, masterVol);
+    updateVolumeLabel(musicValueLabel, musicVol);
+    updateVolumeLabel(effectsValueLabel, effectsVol);
+
     return panel;
+  }
+
+  private Slider buildSlider(float initialValue, Label valueLabel, java.util.function.Consumer<Float> onChange) {
+    Slider slider = new Slider(0f, 1f, 0.01f, false, skin);
+    slider.setValue(initialValue);
+    slider.addListener(
+        (Event event) -> {
+          float value = slider.getValue();
+          updateVolumeLabel(valueLabel, value);
+          onChange.accept(value);
+          return true;
+        });
+    return slider;
+  }
+
+  private Label addSliderRow(
+      Table panel, String labelText, Slider slider, Label valueLabel, int rowIndex) {
+    Label rowLabel = createLabel(labelText);
+    Table row = new Table();
+    row.add(rowLabel).width(150f).padRight(15f);
+    row.add(slider).width(160f).padRight(10f);
+    row.add(valueLabel);
+    addRowInteraction(row, MenuState.AUDIO, rowIndex, false);
+    panel.add(row).pad(6f, 15f, 6f, 15f).left();
+    panel.row();
+    return rowLabel;
+  }
+
+  private void updateVolumeLabel(Label label, float value) {
+    label.setText(String.format("%.0f%%", value * 100));
+  }
+
+  private void onMasterChanged(float value) {
+    masterVol = value;
+    AudioSettings.setMasterVolume(masterVol);
+    applyMusicVolume();
+    savePrefs();
+  }
+
+  private void onMusicChanged(float value) {
+    musicVol = value;
+    applyMusicVolume();
+    savePrefs();
+  }
+
+  private void onEffectsChanged(float value) {
+    effectsVol = value;
+    AudioSettings.setEffectsVolume(effectsVol);
+    savePrefs();
+  }
+
+  private void savePrefs() {
+    if (prefs == null) {
+      return;
+    }
+    prefs.putFloat(MASTER_VOLUME_KEY, masterVol);
+    prefs.putFloat(MUSIC_VOLUME_KEY, musicVol);
+    prefs.putFloat(EFFECTS_VOLUME_KEY, effectsVol);
+    prefs.flush();
   }
 
   private void applyMusicVolume() {
@@ -163,7 +278,7 @@ public class PauseMenuDisplay extends UIComponent {
         ServiceLocator.getResourceService()
             .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
     if (music != null) {
-      music.setVolume(musicVol);
+      music.setVolume(musicVol * masterVol);
       musicVolumeApplied = true;
     }
   }
@@ -174,6 +289,11 @@ public class PauseMenuDisplay extends UIComponent {
     entity.getEvents().addListener("navigateLeft", this::navigateLeft);
     entity.getEvents().addListener("navigateRight", this::navigateRight);
     entity.getEvents().addListener("confirmSelection", this::confirmSelection);
+    entity.getEvents().addListener("escapePressed", this::handleEscape);
+    entity.getEvents().addListener("leftPressed", this::onLeftPressed);
+    entity.getEvents().addListener("leftReleased", this::onLeftReleased);
+    entity.getEvents().addListener("rightPressed", this::onRightPressed);
+    entity.getEvents().addListener("rightReleased", this::onRightReleased);
   }
 
   private void navigateUp() {
@@ -185,19 +305,51 @@ public class PauseMenuDisplay extends UIComponent {
     int count = currentItemCount();
     setCurrentIndex((currentIndex() + 1) % count);
   }
+    private void onLeftPressed() {
+    if (!leftHeld) {
+      leftHeld = true;
+      leftHoldStart = ServiceLocator.getTimeSource().getTime();
+    }
+  }
+
+  private void onLeftReleased() {
+    leftHeld = false;
+  }
+
+  private void onRightPressed() {
+    if (!rightHeld) {
+      rightHeld = true;
+      rightHoldStart = ServiceLocator.getTimeSource().getTime();
+      }
+    }
+
+  private void onRightReleased() {
+    rightHeld = false;
+  }
 
   private void navigateLeft() {
-    if (state != MenuState.AUDIO || audioIndex != 0) {
-      return;
-    }
-    musicSlider.setValue(Math.max(0f, musicSlider.getValue() - MUSIC_STEP));
+    adjustCurrentSlider(-VOLUME_STEP);
   }
 
   private void navigateRight() {
-    if (state != MenuState.AUDIO || audioIndex != 0) {
+    adjustCurrentSlider(VOLUME_STEP);
+  }
+
+  /** Left/Right only do anything in the AUDIO panel, and only on a slider row (not Back). */
+  private void adjustCurrentSlider(float delta) {
+    if (state != MenuState.AUDIO) {
       return;
     }
-    musicSlider.setValue(Math.min(1f, musicSlider.getValue() + MUSIC_STEP));
+    Slider slider =
+        switch (audioIndex) {
+          case 0 -> masterSlider;
+          case 1 -> musicSlider;
+          case 2 -> effectsSlider;
+          default -> null;
+        };
+    if (slider != null) {
+      slider.setValue(Math.max(0f, Math.min(1f, slider.getValue() + delta)));
+    }
   }
 
   private int currentItemCount() {
@@ -237,12 +389,12 @@ public class PauseMenuDisplay extends UIComponent {
     switch (mainIndex) {
       case 0 -> entity.getEvents().trigger("resumeClicked");
       case 1 -> entity.getEvents().trigger("restartClicked");
-      case 2 -> entity.getEvents().trigger("mainMenuClicked");
-      case 3 -> {
+      case 2 -> {
         state = MenuState.SETTINGS;
         settingsIndex = 0;
         refreshPanels();
       }
+      case 3 -> entity.getEvents().trigger("mainMenuClicked");
       default -> {}
     }
   }
@@ -263,13 +415,25 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void confirmAudio() {
-    if (audioIndex == 1) {
+    if (audioIndex == AUDIO_BACK_INDEX) {
       state = MenuState.SETTINGS;
       refreshPanels();
     }
   }
+  private void handleEscape() {
+    switch (state) {
+      case MAIN -> entity.getEvents().trigger("resumeClicked");
+      case SETTINGS -> {
+        state = MenuState.MAIN;
+        refreshPanels();
+      }
+      case AUDIO -> {
+        state = MenuState.SETTINGS;
+        refreshPanels();
+        }
+      }
+    }
 
-  /** Shows/hides and dims panels to reflect the current drill-down depth. */
   private void refreshPanels() {
     settingsPanel.setVisible(state != MenuState.MAIN);
     audioPanel.setVisible(state == MenuState.AUDIO);
@@ -281,7 +445,6 @@ public class PauseMenuDisplay extends UIComponent {
     refreshHighlights();
   }
 
-  /** Re-applies the selected/unselected look to every visible panel's rows. */
   private void refreshHighlights() {
     highlightPanel(mainLabels, mainIndex, state == MenuState.MAIN);
     highlightPanel(settingsLabels, settingsIndex, state == MenuState.SETTINGS);
@@ -299,11 +462,28 @@ public class PauseMenuDisplay extends UIComponent {
 
   @Override
   public void draw(SpriteBatch batch) {
+    long now = ServiceLocator.getTimeSource().getTime();
+    if (leftHeld
+      && now - leftHoldStart >= HOLD_INITIAL_DELAY_MS
+      && now - leftLastRepeat >= HOLD_REPEAT_INTERVAL_MS) {
+        adjustCurrentSlider(-VOLUME_STEP);
+        leftLastRepeat = now;
+      }
+    if (rightHeld
+      && now - rightHoldStart >= HOLD_INITIAL_DELAY_MS
+      && now - rightLastRepeat >= HOLD_REPEAT_INTERVAL_MS) {
+        adjustCurrentSlider(VOLUME_STEP);
+        rightLastRepeat = now;
+      }
     if (!musicVolumeApplied) {
       applyMusicVolume();
     }
 
     boolean isPaused = pauseMenu.isPaused();
+    if (!isPaused) {
+      leftHeld = false;
+      rightHeld = false;
+    }
     pauseOverlay.setVisible(isPaused);
     root.setVisible(isPaused);
 
