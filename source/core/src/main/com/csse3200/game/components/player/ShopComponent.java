@@ -217,7 +217,7 @@ public class ShopComponent extends Component {
     inventory.addGold(-listing.getBuyPrice());
     purchasedUpgrades.add(listing.getProduct());
     if (entity != null) {
-      entity.getEvents().trigger("UpgradePurchased");
+      entity.getEvents().trigger("upgradesPurchased");
     }
     return true;
   }
