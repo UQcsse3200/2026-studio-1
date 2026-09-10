@@ -14,6 +14,11 @@ import java.util.Map;
  *
  * <p>Does not store gold or player items. Payments use the sibling {@link InventoryComponent} on
  * the same entity.
+ *
+ * <p>Item purchases deduct gold only when the copied product fits in full. Selling removes the
+ * entire inventory stack and refunds the catalog sell price; the shop listing stays (infinite
+ * stock). Item buy/sell refresh the UI via {@code inventoryChanged}. Upgrade and pet purchases
+ * trigger {@code upgradesPurchased} and {@code petPurchased}.
  */
 public class ShopComponent extends Component {
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
@@ -32,6 +37,21 @@ public class ShopComponent extends Component {
     this.petCatalog = new HashMap<>();
     this.purchasedUpgrades = new ArrayList<>();
     this.purchasedPets = new ArrayList<>();
+  }
+
+  /**
+   * Fills placeholder listings so the in-game shop is not empty.
+   *
+   * <p>Prices are small for playtest. Listings in these slots are replaced if already occupied.
+   *
+   * @return this shop, for chaining from {@code PlayerFactory}
+   */
+  public ShopComponent seedDefaultCatalog() {
+    setItemListing(1, new ShopListing<>(new Item("Potion", ItemType.CONSUMABLE, 1, 9), 10, 5));
+    setItemListing(2, new ShopListing<>(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 8));
+    setUpgradeListing(1, new ShopListing<>(new Upgrade("Health Upgrade"), 15, 0));
+    setPetListing(1, new ShopListing<>(new Pet("Wolf"), 20, 0));
+    return this;
   }
 
   /**
@@ -163,7 +183,9 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Sells the item in a player inventory slot and refunds the matching catalog sell price.
+   * Sells the entire stack in a player inventory slot and refunds the matching catalog sell price.
+   *
+   * <p>The shop listing is not removed.
    *
    * @param playerSlot inventory slot on the sibling {@link InventoryComponent}
    * @return {@code true} if the item was removed and gold was added
@@ -196,6 +218,8 @@ public class ShopComponent extends Component {
   /**
    * Buys the Upgrade in a catalog slot using gold only. Does not use item slots.
    *
+   * <p>On success, records the purchase and triggers {@code upgradesPurchased}.
+   *
    * @param catalogSlot Upgrade catalog slot
    * @return {@code true} if gold was deducted and the purchase was recorded
    */
@@ -224,6 +248,9 @@ public class ShopComponent extends Component {
 
   /**
    * Buys the pet in a catalog slot using gold only. Does not use item slots.
+   *
+   * <p>On success, records the purchase and triggers {@code petPurchased}. Does not spawn a pet
+   * entity.
    *
    * @param catalogSlot pet catalog slot
    * @return {@code true} if gold was deducted and the purchase was recorded

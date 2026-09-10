@@ -53,9 +53,8 @@ public class ShopDisplay extends UIComponent {
 
   private static final int ITEM_COLUMNS = 3;
 
-  // Also used as the assumed player inventory size when listing items to sell. If your
-  // InventoryComponent exposes its own capacity (e.g. getCapacity()/getSize()), swap the loop in
-  // createSellGrid() to use that instead.
+  // Shop catalog grid size (10 cards per tab). createSellGrid() currently reuses this as the
+  // player inventory size; InventoryComponent default capacity is 5 (getMaxSlots()).
   private static final int ITEM_SLOT_COUNT = 10;
 
   private static final String LABEL_STYLE = "small";

@@ -165,6 +165,27 @@ class ShopComponentTest {
   }
 
   @Test
+  void shouldSeedDefaultCatalogPlaceholders() {
+    ShopComponent shop = new ShopComponent();
+
+    assertSame(shop, shop.seedDefaultCatalog());
+
+    assertEquals("Potion", shop.getItemListing(1).getProduct().getName());
+    assertEquals(ItemType.CONSUMABLE, shop.getItemListing(1).getProduct().getItemType());
+    assertEquals(10, shop.getItemListing(1).getBuyPrice());
+    assertEquals(5, shop.getItemListing(1).getSellPrice());
+    assertEquals("Sword", shop.getItemListing(2).getProduct().getName());
+    assertEquals(ItemType.WEAPON, shop.getItemListing(2).getProduct().getItemType());
+    assertEquals("Health Upgrade", shop.getUpgradeListing(1).getProduct().getName());
+    assertEquals(15, shop.getUpgradeListing(1).getBuyPrice());
+    assertEquals("Wolf", shop.getPetListing(1).getProduct().getName());
+    assertEquals(20, shop.getPetListing(1).getBuyPrice());
+    assertEquals(2, shop.getItemCatalog().size());
+    assertEquals(1, shop.getUpgradeCatalog().size());
+    assertEquals(1, shop.getPetCatalog().size());
+  }
+
+  @Test
   void shouldSellItemSuccessClearsSlotAndRefundsGold() {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
