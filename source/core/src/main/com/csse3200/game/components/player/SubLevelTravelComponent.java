@@ -29,16 +29,28 @@ public class SubLevelTravelComponent extends Component {
     if (travelling) {
       return true;
     }
-    Vector2 position = entity.getCenterPosition();
-    if (position.dst(DUNGEON_DOOR) < TILE_SIZE * 2f) {
+    if (canTravelToNether()) {
       startTravel(NETHER_DOOR);
       return true;
     }
-    if (position.dst(NETHER_DOOR) < TILE_SIZE * 2f) {
+    if (canTravelToDungeon()) {
       startTravel(DUNGEON_DOOR);
       return true;
     }
     return false;
+  }
+
+  /**
+   * Whether the player is close enough to the dungeon lift to travel to the Nether.
+   *
+   * @return true when the Nether interaction prompt and {@code E} action should be available
+   */
+  public boolean canTravelToNether() {
+    return !travelling && isNear(DUNGEON_DOOR);
+  }
+
+  private boolean canTravelToDungeon() {
+    return !travelling && isNear(NETHER_DOOR);
   }
 
   public boolean isControlLocked() {
@@ -72,5 +84,9 @@ public class SubLevelTravelComponent extends Component {
     travelling = true;
     physics.getBody().setGravityScale(0f);
     physics.getBody().setLinearVelocity(0f, 0f);
+  }
+
+  private boolean isNear(Vector2 door) {
+    return entity.getCenterPosition().dst(door) < TILE_SIZE * 2f;
   }
 }

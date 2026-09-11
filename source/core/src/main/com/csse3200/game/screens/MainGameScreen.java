@@ -11,6 +11,7 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
+import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
@@ -65,6 +66,7 @@ public class MainGameScreen extends ScreenAdapter {
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
+  private Entity subLevelTravelPromptEntity;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
@@ -97,6 +99,7 @@ public class MainGameScreen extends ScreenAdapter {
     levelGameArea.create();
     ServiceLocator.getEntityService()
         .register(new Entity().addComponent(new SubLevelTitleDisplay(levelGameArea.getPlayer())));
+    createSubLevelTravelPrompt(levelGameArea.getPlayer());
 
     fitCameraToMap(levelGameArea);
   }
@@ -213,6 +216,7 @@ public class MainGameScreen extends ScreenAdapter {
         transition.getId());
 
     LevelGameArea previousArea = levelGameArea;
+    removeSubLevelTravelPrompt();
     Entity player = previousArea.releasePlayer();
     LevelGameArea nextArea =
         new LevelGameArea(
@@ -226,7 +230,25 @@ public class MainGameScreen extends ScreenAdapter {
     nextArea.resumeMusic();
     levelGameArea = nextArea;
     playerInNether = null;
+    if (FIRST_ROOM_MAP.equals(transition.getDestinationMap())) {
+      createSubLevelTravelPrompt(player);
+    }
     fitCameraToMap(nextArea);
+  }
+
+  private void createSubLevelTravelPrompt(Entity player) {
+    subLevelTravelPromptEntity =
+        new Entity()
+            .addComponent(
+                new SubLevelTravelPromptDisplay(player, renderer.getCamera().getCamera()));
+    ServiceLocator.getEntityService().register(subLevelTravelPromptEntity);
+  }
+
+  private void removeSubLevelTravelPrompt() {
+    if (subLevelTravelPromptEntity != null) {
+      subLevelTravelPromptEntity.dispose();
+      subLevelTravelPromptEntity = null;
+    }
   }
 
   @Override
