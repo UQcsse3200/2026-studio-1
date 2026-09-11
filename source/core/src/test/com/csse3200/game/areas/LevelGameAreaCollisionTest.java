@@ -52,6 +52,19 @@ class LevelGameAreaCollisionTest {
   }
 
   @Test
+  void keepsAContinuousFloorWholeAboveIrregularSupports() {
+    MapLayerData collisionLayer = new MapLayerData("collision", 8, 3);
+    fill(collisionLayer, 0, 0, 8, 1, WALL);
+    fill(collisionLayer, 0, 1, 2, 1, WALL);
+    fill(collisionLayer, 4, 1, 2, 1, WALL);
+    fill(collisionLayer, 0, 2, 8, 1, WALL);
+
+    List<SolidRectangle> rectangles = LevelGameArea.findSolidRectangles(collisionLayer);
+
+    assertTrue(rectangles.contains(new SolidRectangle(0, 2, 8, 1)));
+  }
+
+  @Test
   void leavesPlatformsForOneWayPlatformCollisionGeneration() {
     MapLayerData collisionLayer = new MapLayerData("collision", 3, 1);
     fill(collisionLayer, 0, 0, 3, 1, PLATFORM);

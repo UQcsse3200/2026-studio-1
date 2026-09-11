@@ -37,7 +37,9 @@ import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -297,51 +299,55 @@ public class LevelGameArea extends GameArea {
   }
 
   static List<SolidRectangle> findSolidRectangles(MapLayerData collisionLayer) {
-    int layerWidth = collisionLayer.getWidth();
-    int layerHeight = collisionLayer.getHeight();
-    boolean[][] visited = new boolean[layerWidth][layerHeight];
     List<SolidRectangle> rectangles = new ArrayList<>();
+    Map<SolidRun, SolidRectangle> activeRectangles = new LinkedHashMap<>();
 
-    for (int y = 0; y < layerHeight; y++) {
-      for (int x = 0; x < layerWidth; x++) {
-        if (visited[x][y] || !isSolidTile(collisionLayer, x, y)) {
-          continue;
-        }
+    for (int y = 0; y < collisionLayer.getHeight(); y++) {
+      Map<SolidRun, SolidRectangle> nextActiveRectangles = new LinkedHashMap<>();
 
-        int rectangleWidth = 1;
-        while (x + rectangleWidth < layerWidth
-            && !visited[x + rectangleWidth][y]
-            && isSolidTile(collisionLayer, x + rectangleWidth, y)) {
-          rectangleWidth++;
+      for (SolidRun run : findSolidRuns(collisionLayer, y)) {
+        SolidRectangle previousRectangle = activeRectangles.remove(run);
+        if (previousRectangle == null) {
+          nextActiveRectangles.put(run, new SolidRectangle(run.x(), y, run.width(), 1));
+        } else {
+          nextActiveRectangles.put(
+              run,
+              new SolidRectangle(
+                  previousRectangle.x(),
+                  previousRectangle.y(),
+                  previousRectangle.width(),
+                  previousRectangle.height() + 1));
         }
-
-        int rectangleHeight = 1;
-        while (y + rectangleHeight < layerHeight
-            && canExtendSolidRectangle(
-                collisionLayer, visited, x, y + rectangleHeight, rectangleWidth)) {
-          rectangleHeight++;
-        }
-
-        for (int tileX = x; tileX < x + rectangleWidth; tileX++) {
-          for (int tileY = y; tileY < y + rectangleHeight; tileY++) {
-            visited[tileX][tileY] = true;
-          }
-        }
-        rectangles.add(new SolidRectangle(x, y, rectangleWidth, rectangleHeight));
       }
+
+      // Runs which did not continue into this row are now complete.
+      rectangles.addAll(activeRectangles.values());
+      activeRectangles = nextActiveRectangles;
     }
 
+    rectangles.addAll(activeRectangles.values());
     return rectangles;
   }
 
-  private static boolean canExtendSolidRectangle(
-      MapLayerData collisionLayer, boolean[][] visited, int startX, int y, int rectangleWidth) {
-    for (int x = startX; x < startX + rectangleWidth; x++) {
-      if (visited[x][y] || !isSolidTile(collisionLayer, x, y)) {
-        return false;
+  private static List<SolidRun> findSolidRuns(MapLayerData collisionLayer, int y) {
+    List<SolidRun> runs = new ArrayList<>();
+    int x = 0;
+
+    while (x < collisionLayer.getWidth()) {
+      if (!isSolidTile(collisionLayer, x, y)) {
+        x++;
+        continue;
       }
+
+      int startX = x;
+      while (x + 1 < collisionLayer.getWidth() && isSolidTile(collisionLayer, x + 1, y)) {
+        x++;
+      }
+      runs.add(new SolidRun(startX, x - startX + 1));
+      x++;
     }
-    return true;
+
+    return runs;
   }
 
   private static boolean isSolidTile(MapLayerData collisionLayer, int x, int y) {
@@ -415,6 +421,8 @@ public class LevelGameArea extends GameArea {
   }
 
   static record SolidRectangle(int x, int y, int width, int height) {}
+
+  private record SolidRun(int x, int width) {}
 
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayer(mapData);
