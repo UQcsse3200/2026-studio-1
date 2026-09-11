@@ -148,6 +148,7 @@ public class ShopDisplay extends UIComponent {
   private Label detailNameLabel;
   private Label detailPriceLabel;
   private TextButton detailActionButton;
+  private static final int SELL_SLOT_COUNT = 5;
 
   @Override
   public void create() {
@@ -478,7 +479,7 @@ public class ShopDisplay extends UIComponent {
 
     int displayedSlots = 0;
 
-    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
+    for (int slot = 1; slot <= SELL_SLOT_COUNT; slot++) {
       Item item = inventory.getItem(slot);
 
       addSellCard(shop, item, slot);
