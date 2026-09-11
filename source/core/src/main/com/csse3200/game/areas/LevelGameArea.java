@@ -20,11 +20,11 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
-import com.csse3200.game.entities.factories.PetFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
@@ -297,6 +297,9 @@ public class LevelGameArea extends GameArea {
     }
 
     spawnEntityAt(newPlayer, spawn, true, true);
+
+    newPlayer.getComponent(PetManagerComponent.class).activatePet();
+
     return newPlayer;
   }
 

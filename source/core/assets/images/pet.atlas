@@ -10,21 +10,21 @@ default
   orig: 32, 32
   offset: 0, 0
   index: 0
-idle
+idle_right
   rotate: false
   xy: 0, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 0
-idle
+idle_right
   rotate: false
   xy: 32, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 1
-idle
+idle_right
   rotate: false
   xy: 64, 0
   size: 32, 32

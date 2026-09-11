@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.components.pet.PetComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.physics.PhysicsUtils;
+import com.csse3200.game.physics.components.ColliderComponent;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -28,12 +31,21 @@ public class PetFactory {
         new AnimationRenderComponent(
             ServiceLocator.getResourceService().getAsset(PET_ATLAS, TextureAtlas.class));
 
-    animator.addAnimation("idle", 0.15f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idle_right", 0.15f, Animation.PlayMode.LOOP);
 
-    Entity pet = new Entity().addComponent(new PetComponent(owner)).addComponent(animator);
+    Entity pet =
+        new Entity()
+            .addComponent(new PetComponent(owner))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(animator);
 
     pet.getComponent(AnimationRenderComponent.class).scaleEntity();
-    animator.startAnimation("idle");
+
+    PhysicsUtils.setScaledCollider(pet, 0.6f, 0.3f);
+    pet.getComponent(ColliderComponent.class).setDensity(1.5f);
+
+    animator.startAnimation("idle_right");
 
     return pet;
   }
