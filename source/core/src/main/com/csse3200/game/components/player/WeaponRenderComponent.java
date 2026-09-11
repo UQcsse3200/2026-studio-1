@@ -36,6 +36,8 @@ public class WeaponRenderComponent extends RenderComponent {
   private static final float LEFT_HAND_OFFSET_X = 0.15f;
   private static final float HAND_OFFSET_Y = 0.35f;
 
+  private static final float DAGGER_THROW_DURATION = 1.5f;
+
   private Texture texture;
   private boolean isBow;
   private final Vector2 handAnchor = new Vector2();
@@ -48,7 +50,6 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private boolean daggerThrown;
   private float daggerThrowTime;
-  private static final float DAGGER_THROW_DURATION = 1.5f;
 
   private boolean drawingBow;
   private float bowDrawTime;
@@ -136,7 +137,7 @@ public class WeaponRenderComponent extends RenderComponent {
     Vector2 playerPosition = entity.getPosition();
     Vector2 playerScale = entity.getScale();
 
-    float handOffsetX = facingRight ? RIGHT_HAND_OFFSET_X : LEFT_HAND_OFFSET_X;
+    float handOffsetX = getHandOffsetX();
 
     handAnchor.set(
         playerPosition.x + playerScale.x * handOffsetX,
@@ -208,52 +209,35 @@ public class WeaponRenderComponent extends RenderComponent {
       return;
     }
 
-    Vector2 playerPosition = entity.getPosition();
-    Vector2 playerScale = entity.getScale();
-
-    float handOffsetX = facingRight ? RIGHT_HAND_OFFSET_X : LEFT_HAND_OFFSET_X;
-
-    handAnchor.set(
-        playerPosition.x + playerScale.x * handOffsetX,
-        playerPosition.y + playerScale.y * HAND_OFFSET_Y);
+    updateHandAnchor();
 
     Item activeItem = entity.getComponent(InventoryComponent.class).getActiveItem();
+    boolean isDagger = isDaggerWeapon(activeItem);
 
-    boolean isDagger =
-        activeItem instanceof WeaponItem
-            && ((WeaponItem) activeItem).getWeaponType() == WeaponType.DAGGER;
-
-    float weaponWidth = isBow ? BOW_WIDTH : (isDagger ? DAGGER_WIDTH : SWORD_WIDTH);
-    float weaponHeight = isBow ? BOW_HEIGHT : (isDagger ? DAGGER_HEIGHT : SWORD_HEIGHT);
+    float weaponWidth = getWeaponWidth(isDagger);
+    float weaponHeight = getWeaponHeight(isDagger);
 
     float weaponX = handAnchor.x - weaponWidth / 2f;
     float weaponY = handAnchor.y - weaponHeight / 2f;
 
     if (isBow && drawingBow) {
       float progress = bowDrawTime / BOW_DRAW_DURATION;
-
-      float pullProgress = progress < 0.5f ? progress * 2f : (1f - progress) * 2f;
+      float pullProgress = getBowPullProgress(progress);
 
       weaponX -= aimDirection.x * BOW_DRAW_DISTANCE * pullProgress;
       weaponY -= aimDirection.y * BOW_DRAW_DISTANCE * pullProgress;
     }
 
-    float rotation = 0f;
+    float rotation = getWeaponRotation();
 
-    if (isBow) {
-      rotation = MathUtils.atan2(aimDirection.y, aimDirection.x) * MathUtils.radiansToDegrees - 90f;
-    } else {
+    if (!isBow) {
       float bobOffset = (float) Math.sin(walkAnimationTime) * WALK_BOB_AMOUNT;
-      float sway = (float) Math.sin(walkAnimationTime) * WALK_SWAY_AMOUNT;
-
       weaponY += bobOffset;
-      rotation += sway;
     }
 
     if (swinging) {
       float progress = swingTime / SWING_DURATION;
-      float swingAngle = -45f + (90f * progress);
-      rotation = swingAngle;
+      rotation = -45f + (90f * progress);
     }
 
     batch.draw(
@@ -273,6 +257,73 @@ public class WeaponRenderComponent extends RenderComponent {
         texture.getHeight(),
         !facingRight && !isBow,
         false);
+  }
+
+  private void updateHandAnchor() {
+    Vector2 playerPosition = entity.getPosition();
+    Vector2 playerScale = entity.getScale();
+
+    float handOffsetX = getHandOffsetX();
+
+    handAnchor.set(
+        playerPosition.x + playerScale.x * handOffsetX,
+        playerPosition.y + playerScale.y * HAND_OFFSET_Y);
+  }
+
+  private float getHandOffsetX() {
+    if (facingRight) {
+      return RIGHT_HAND_OFFSET_X;
+    }
+
+    return LEFT_HAND_OFFSET_X;
+  }
+
+  private boolean isDaggerWeapon(Item activeItem) {
+    if (activeItem instanceof WeaponItem weaponItem) {
+      return weaponItem.getWeaponType() == WeaponType.DAGGER;
+    }
+
+    return false;
+  }
+
+  private float getWeaponWidth(boolean isDagger) {
+    if (isBow) {
+      return BOW_WIDTH;
+    }
+
+    if (isDagger) {
+      return DAGGER_WIDTH;
+    }
+
+    return SWORD_WIDTH;
+  }
+
+  private float getWeaponHeight(boolean isDagger) {
+    if (isBow) {
+      return BOW_HEIGHT;
+    }
+
+    if (isDagger) {
+      return DAGGER_HEIGHT;
+    }
+
+    return SWORD_HEIGHT;
+  }
+
+  private float getBowPullProgress(float progress) {
+    if (progress < 0.5f) {
+      return progress * 2f;
+    }
+
+    return (1f - progress) * 2f;
+  }
+
+  private float getWeaponRotation() {
+    if (isBow) {
+      return MathUtils.atan2(aimDirection.y, aimDirection.x) * MathUtils.radiansToDegrees - 90f;
+    }
+
+    return (float) Math.sin(walkAnimationTime) * WALK_SWAY_AMOUNT;
   }
 
   public Vector2 getHandAnchor() {
