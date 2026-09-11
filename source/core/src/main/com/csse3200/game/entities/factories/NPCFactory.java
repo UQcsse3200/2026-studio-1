@@ -192,7 +192,10 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new RangedAttackComponent(
-                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                config.ranged.projectileSpeed))
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 
