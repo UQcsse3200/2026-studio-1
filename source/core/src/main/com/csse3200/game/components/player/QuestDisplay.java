@@ -24,11 +24,11 @@ public class QuestDisplay extends UIComponent {
     rootTable = new Table();
     rootTable.setFillParent(true);
     rootTable.top().right();
-    rootTable.padTop(45f).padRight(20f);
+    rootTable.padTop(75f).padRight(20f);
 
     questTable = new Table();
     questTable.setBackground(skin.getDrawable("window-w"));
-    questTable.pad(12f);
+    questTable.pad(14f);
 
     Label title = new Label("QUEST", skin, "large");
     questTable.add(title).left().padBottom(8f).row();
@@ -39,7 +39,7 @@ public class QuestDisplay extends UIComponent {
     Label questTwo = new Label("Collect the potions", skin);
     questTable.add(questTwo).left().padTop(5f).row();
 
-    rootTable.add(questTable).width(250f);
+    rootTable.add(questTable).width(400f);
 
     stage.addActor(rootTable);
   }
