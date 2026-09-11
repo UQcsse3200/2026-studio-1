@@ -23,7 +23,6 @@ public class PauseMenuDisplay extends UIComponent {
     AUDIO
   }
 
-  private static final Color OVERLAY_COLOR = new Color(0f, 0f, 0f, 0.45f);
   private static final Color PANEL_COLOR = new Color(0.03f, 0.06f, 0.04f, 0.95f);
   private static final Color SELECTED_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
   private static final Color SELECTED_TEXT = Color.CYAN;
@@ -43,16 +42,16 @@ public class PauseMenuDisplay extends UIComponent {
   private long rightLastRepeat = 0;
 
   private static final String PREFS_NAME = "pause_menu_settings";
-  private static final String MASTER_VOLUME_KEY = "masterVolume";
-  private static final String MUSIC_VOLUME_KEY = "musicVolume";
-  private static final String EFFECTS_VOLUME_KEY = "effectsVolume";
+  private static final String MASTER_VOLUME_KEY = "master";
+  private static final String MUSIC_VOLUME_KEY = "music";
+  private static final String EFFECTS_VOLUME_KEY = "effects";
   private static final float DEFAULT_MASTER_VOL = 1f;
   private static final float DEFAULT_MUSIC_VOL = 0.8f;
   private static final float DEFAULT_EFFECTS_VOL = 1f;
 
   private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu"};
   private static final String[] SETTINGS_ITEMS = {"Audio", "Back"};
-  private static final String[] AUDIO_ITEMS = {"Master Volume", "Music Volume", "Effects Volume", "Back"};
+  private static final String[] AUDIO_ITEMS = {"Master ", "Music ", "Effects ", "Back"};
   private static final int AUDIO_BACK_INDEX = 3;
 
   private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
@@ -66,7 +65,6 @@ public class PauseMenuDisplay extends UIComponent {
           : DEFAULT_EFFECTS_VOL;
   private boolean musicVolumeApplied = false;
 
-  private Table pauseOverlay;
   private Table root;
   private Table mainPanel;
   private Table settingsPanel;
@@ -100,11 +98,7 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
-    pauseOverlay = new Table();
-    pauseOverlay.setFillParent(true);
-    pauseOverlay.setBackground(skin.newDrawable("white", OVERLAY_COLOR));
-    pauseOverlay.setVisible(false);
-    stage.addActor(pauseOverlay);
+    
 
     mainLabels = new Label[MAIN_ITEMS.length];
     mainPanel = buildPanel(MAIN_ITEMS, mainLabels);
@@ -149,6 +143,7 @@ public class PauseMenuDisplay extends UIComponent {
       panel.add(row).left().padBottom(4f).fillX();
       panel.row();
     }
+    applyUniformRowWidths(panel);
     return panel;
   }
 
@@ -210,7 +205,7 @@ public class PauseMenuDisplay extends UIComponent {
     updateVolumeLabel(masterValueLabel, masterVol);
     updateVolumeLabel(musicValueLabel, musicVol);
     updateVolumeLabel(effectsValueLabel, effectsVol);
-
+    applyUniformRowWidths(panel);
     return panel;
   }
 
@@ -456,7 +451,7 @@ public class PauseMenuDisplay extends UIComponent {
       boolean selected = isActivePanel && i == selectedIndex;
       labels[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
       Table row = (Table) labels[i].getParent();
-      row.setBackground(selected ? skin.newDrawable("white", SELECTED_BG) : null);
+      row.setBackground(selected ? skin.newDrawable("button", SELECTED_BG) : null);
     }
   }
 
@@ -484,7 +479,6 @@ public class PauseMenuDisplay extends UIComponent {
       leftHeld = false;
       rightHeld = false;
     }
-    pauseOverlay.setVisible(isPaused);
     root.setVisible(isPaused);
 
     if (isPaused && !wasPaused) {
@@ -496,6 +490,19 @@ public class PauseMenuDisplay extends UIComponent {
     }
     wasPaused = isPaused;
   }
+  private void applyUniformRowWidths(Table panel) {
+  float maxWidth = 0f;
+  for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
+    Table row = (Table) cell.getActor();
+    if (row != null) {
+      maxWidth = Math.max(maxWidth, row.getPrefWidth());
+}
+  }
+  for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
+    cell.width(maxWidth);
+  }
+  panel.invalidateHierarchy();
+}
 
   @Override
   public void dispose() {
