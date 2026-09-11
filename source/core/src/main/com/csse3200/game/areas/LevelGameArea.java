@@ -24,6 +24,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
+import com.csse3200.game.entities.factories.PetFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
@@ -80,7 +81,8 @@ public class LevelGameArea extends GameArea {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
     "images/gold_coin/gold_coin.atlas",
-    "images/skeleton.atlas"
+    "images/skeleton.atlas",
+    "images/pet.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";

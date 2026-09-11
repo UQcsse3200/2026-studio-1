@@ -19,6 +19,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
+import com.csse3200.game.entities.factories.PetFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -74,7 +75,8 @@ public class ForestGameArea extends GameArea {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
     "images/skeleton.atlas",
-    "images/gold_coin/gold_coin.atlas"
+    "images/gold_coin/gold_coin.atlas",
+    "images/pet.atlas"
   };
 
   private static final String[] forestSounds = {
