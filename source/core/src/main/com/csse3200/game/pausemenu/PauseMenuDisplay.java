@@ -98,7 +98,6 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
-    
 
     mainLabels = new Label[MAIN_ITEMS.length];
     mainPanel = buildPanel(MAIN_ITEMS, mainLabels);
@@ -154,7 +153,8 @@ public class PauseMenuDisplay extends UIComponent {
     return MenuState.SETTINGS;
   }
 
-  private void addRowInteraction(Table row, MenuState ownerState, int rowIndex, boolean clickConfirms) {
+  private void addRowInteraction(
+      Table row, MenuState ownerState, int rowIndex, boolean clickConfirms) {
     row.addListener(
         new InputListener() {
           @Override
@@ -209,7 +209,8 @@ public class PauseMenuDisplay extends UIComponent {
     return panel;
   }
 
-  private Slider buildSlider(float initialValue, Label valueLabel, java.util.function.Consumer<Float> onChange) {
+  private Slider buildSlider(
+      float initialValue, Label valueLabel, java.util.function.Consumer<Float> onChange) {
     Slider slider = new Slider(0f, 1f, 0.01f, false, skin);
     slider.setValue(initialValue);
     slider.addListener(
@@ -300,7 +301,8 @@ public class PauseMenuDisplay extends UIComponent {
     int count = currentItemCount();
     setCurrentIndex((currentIndex() + 1) % count);
   }
-    private void onLeftPressed() {
+
+  private void onLeftPressed() {
     if (!leftHeld) {
       leftHeld = true;
       leftHoldStart = ServiceLocator.getTimeSource().getTime();
@@ -315,8 +317,8 @@ public class PauseMenuDisplay extends UIComponent {
     if (!rightHeld) {
       rightHeld = true;
       rightHoldStart = ServiceLocator.getTimeSource().getTime();
-      }
     }
+  }
 
   private void onRightReleased() {
     rightHeld = false;
@@ -415,6 +417,7 @@ public class PauseMenuDisplay extends UIComponent {
       refreshPanels();
     }
   }
+
   private void handleEscape() {
     switch (state) {
       case MAIN -> entity.getEvents().trigger("resumeClicked");
@@ -425,9 +428,9 @@ public class PauseMenuDisplay extends UIComponent {
       case AUDIO -> {
         state = MenuState.SETTINGS;
         refreshPanels();
-        }
       }
     }
+  }
 
   private void refreshPanels() {
     settingsPanel.setVisible(state != MenuState.MAIN);
@@ -459,17 +462,17 @@ public class PauseMenuDisplay extends UIComponent {
   public void draw(SpriteBatch batch) {
     long now = ServiceLocator.getTimeSource().getTime();
     if (leftHeld
-      && now - leftHoldStart >= HOLD_INITIAL_DELAY_MS
-      && now - leftLastRepeat >= HOLD_REPEAT_INTERVAL_MS) {
-        adjustCurrentSlider(-VOLUME_STEP);
-        leftLastRepeat = now;
-      }
+        && now - leftHoldStart >= HOLD_INITIAL_DELAY_MS
+        && now - leftLastRepeat >= HOLD_REPEAT_INTERVAL_MS) {
+      adjustCurrentSlider(-VOLUME_STEP);
+      leftLastRepeat = now;
+    }
     if (rightHeld
-      && now - rightHoldStart >= HOLD_INITIAL_DELAY_MS
-      && now - rightLastRepeat >= HOLD_REPEAT_INTERVAL_MS) {
-        adjustCurrentSlider(VOLUME_STEP);
-        rightLastRepeat = now;
-      }
+        && now - rightHoldStart >= HOLD_INITIAL_DELAY_MS
+        && now - rightLastRepeat >= HOLD_REPEAT_INTERVAL_MS) {
+      adjustCurrentSlider(VOLUME_STEP);
+      rightLastRepeat = now;
+    }
     if (!musicVolumeApplied) {
       applyMusicVolume();
     }
@@ -490,19 +493,20 @@ public class PauseMenuDisplay extends UIComponent {
     }
     wasPaused = isPaused;
   }
+
   private void applyUniformRowWidths(Table panel) {
-  float maxWidth = 0f;
-  for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
-    Table row = (Table) cell.getActor();
-    if (row != null) {
-      maxWidth = Math.max(maxWidth, row.getPrefWidth());
-}
+    float maxWidth = 0f;
+    for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
+      Table row = (Table) cell.getActor();
+      if (row != null) {
+        maxWidth = Math.max(maxWidth, row.getPrefWidth());
+      }
+    }
+    for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
+      cell.width(maxWidth);
+    }
+    panel.invalidateHierarchy();
   }
-  for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
-    cell.width(maxWidth);
-  }
-  panel.invalidateHierarchy();
-}
 
   @Override
   public void dispose() {

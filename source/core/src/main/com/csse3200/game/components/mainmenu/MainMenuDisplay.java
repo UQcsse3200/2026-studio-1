@@ -61,7 +61,8 @@ public class MainMenuDisplay extends UIComponent {
       addRowInteraction(row, i);
       panel.add(row).left().padBottom(4f).fillX();
       panel.row();
-    };
+    }
+    ;
 
     Table root = new Table();
     root.setFillParent(true);
@@ -72,6 +73,7 @@ public class MainMenuDisplay extends UIComponent {
 
     updateHighlight();
   }
+
   private Label createLabel(String text) {
     Label label = new Label(text, skin);
     Label.LabelStyle style = new Label.LabelStyle(label.getStyle());
@@ -130,14 +132,12 @@ public class MainMenuDisplay extends UIComponent {
       case 1 -> entity.getEvents().trigger("load");
       case 2 -> entity.getEvents().trigger("settings");
       case 3 -> entity.getEvents().trigger("exit");
-      default -> {
-      }
+      default -> {}
     }
   }
 
   @Override
-  public void draw(SpriteBatch batch) {
-  }
+  public void draw(SpriteBatch batch) {}
 
   @Override
   public float getZIndex() {

@@ -31,7 +31,7 @@ public class KeyboardPauseInput extends InputComponent {
         entity.getEvents().trigger("escapePressed");
       }
       return true;
-  }
+    }
     if (pauseMenu.isPaused()) {
       switch (keycode) {
         case Input.Keys.UP:

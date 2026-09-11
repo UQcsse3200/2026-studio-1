@@ -116,9 +116,9 @@ public class DeathScreenDisplay extends UIComponent {
   }
 
   /**
-   * @return whether the death screen popup is currently visible - used by
-   *     DeathScreenInputComponent to gate keyboard input the same way PauseMenuInputComponent
-   *     gates on PauseMenuComponent.isPaused().
+   * @return whether the death screen popup is currently visible - used by DeathScreenInputComponent
+   *     to gate keyboard input the same way PauseMenuInputComponent gates on
+   *     PauseMenuComponent.isPaused().
    */
   public boolean isVisible() {
     return rootTable.isVisible();

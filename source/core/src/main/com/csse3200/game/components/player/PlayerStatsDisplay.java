@@ -12,9 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
-import com.csse3200.game.pausemenu.AudioSettings;
 
 /**
  * UI component for displaying the player's health as hearts.
@@ -139,7 +139,7 @@ public class PlayerStatsDisplay extends UIComponent {
       Sound hitSound =
           ServiceLocator.getResourceService().getAsset("sounds/player-hit.ogg", Sound.class);
 
-     hitSound.play(AudioSettings.getEffectiveEffectsVolume()); 
+      hitSound.play(AudioSettings.getEffectiveEffectsVolume());
     }
 
     previousHealth = health;

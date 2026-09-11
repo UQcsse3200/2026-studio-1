@@ -38,16 +38,16 @@ public class PauseMenuInputComponent extends InputComponent {
     }
 
     if (keycode == Input.Keys.LEFT) {
-    entity.getEvents().trigger("navigateLeft");
-    entity.getEvents().trigger("leftPressed");
-    return true;
-  }
+      entity.getEvents().trigger("navigateLeft");
+      entity.getEvents().trigger("leftPressed");
+      return true;
+    }
 
-  if (keycode == Input.Keys.RIGHT) {
-    entity.getEvents().trigger("navigateRight");
-    entity.getEvents().trigger("rightPressed");
-    return true;
-  }
+    if (keycode == Input.Keys.RIGHT) {
+      entity.getEvents().trigger("navigateRight");
+      entity.getEvents().trigger("rightPressed");
+      return true;
+    }
 
     if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE) {
       entity.getEvents().trigger("confirmSelection");
@@ -56,6 +56,7 @@ public class PauseMenuInputComponent extends InputComponent {
 
     return false;
   }
+
   @Override
   public boolean keyUp(int keycode) {
     if (pauseMenu == null || !pauseMenu.isPaused()) {

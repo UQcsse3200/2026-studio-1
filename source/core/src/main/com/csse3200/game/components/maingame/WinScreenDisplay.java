@@ -119,8 +119,8 @@ public class WinScreenDisplay extends UIComponent {
   }
 
   /**
-   * @return whether the win screen popup is currently visible - used by WinScreenInputComponent
-   *     to gate keyboard input the same way PauseMenuInputComponent gates on
+   * @return whether the win screen popup is currently visible - used by WinScreenInputComponent to
+   *     gate keyboard input the same way PauseMenuInputComponent gates on
    *     PauseMenuComponent.isPaused().
    */
   public boolean isVisible() {

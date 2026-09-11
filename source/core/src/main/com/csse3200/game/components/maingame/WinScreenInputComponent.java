@@ -4,13 +4,13 @@ import com.badlogic.gdx.Input;
 import com.csse3200.game.input.InputComponent;
 
 /**
- * Keyboard navigation for the win screen's two buttons. Mirrors PauseMenuInputComponent - gates
- * on the sibling Display's visibility instead of a separate state component.
+ * Keyboard navigation for the win screen's two buttons. Mirrors PauseMenuInputComponent - gates on
+ * the sibling Display's visibility instead of a separate state component.
  *
  * <p>Event names are prefixed ("winNavigateUp" etc.) rather than reusing "navigateUp" /
  * "confirmSelection" verbatim - this component lives on the same shared entity as
- * PauseMenuDisplay/PauseMenuInputComponent in MainGameScreen, and those generic names are
- * already claimed there. See DeathScreenInputComponent for the full reasoning.
+ * PauseMenuDisplay/PauseMenuInputComponent in MainGameScreen, and those generic names are already
+ * claimed there. See DeathScreenInputComponent for the full reasoning.
  */
 public class WinScreenInputComponent extends InputComponent {
   private WinScreenDisplay winScreenDisplay;
