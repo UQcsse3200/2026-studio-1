@@ -62,14 +62,11 @@ public class LadderComponent extends Component {
     int x = (int) Math.floor(centre.x / tileSize);
     int y = (int) Math.floor(centre.y / tileSize);
 
-    // The player is narrower than a tile but does not need to be perfectly centred on the ladder.
-    // Check the neighbouring column and two cells vertically so the climb can start at either
-    // landing without the adjacent wall collider winning the contact race.
-    for (int column = x - 1; column <= x + 1; column++) {
-      for (int row = y - 2; row <= y + 2; row++) {
-        if (isLadder(column, row)) {
-          return true;
-        }
+    // Require the player's centre to be in the ladder column so an adjacent tile cannot activate
+    // climbing. Keep the vertical tolerance so climbing can start and finish smoothly at landings.
+    for (int row = y - 2; row <= y + 2; row++) {
+      if (isLadder(x, row)) {
+        return true;
       }
     }
     return false;

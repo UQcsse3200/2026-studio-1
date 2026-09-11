@@ -343,6 +343,19 @@ class JsonMapLoaderTest {
     assertEquals(TileType.LADDER, levelOne.getTileType(26, 33));
     assertEquals(TileType.PLATFORM, levelOne.getTileType(27, 33));
     assertEquals(TileType.PLATFORM, levelOne.getTileType(26, 22));
+    // The dungeon ladder is continuous through the former gate-block obstruction.
+    for (int y = 18; y <= 21; y++) {
+      assertEquals(TileType.LADDER, levelOne.getTileType(30, y));
+    }
+    // The blue Styx hazards beside the Nether entrance are regular walkable floor tiles.
+    assertEquals(TileType.FLOOR, levelOne.getTileType(14, 33));
+    assertEquals(TileType.FLOOR, levelOne.getTileType(25, 33));
+    assertEquals(TileType.FLOOR, levelOne.getTileType(28, 33));
+    assertEquals(TileType.FLOOR, levelOne.getTileType(32, 33));
+    assertEquals(TileType.HAZARD, levelOne.getTileType(8, 12));
+    assertEquals(
+        "images/lvl1-tiles/hazard-spikes-bronze-512px.png",
+        levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
     assertEquals(1, levelOne.getTransitions().size());
     assertEquals("maps/room2.json", levelOne.getTransitions().getFirst().getDestinationMap());

@@ -112,8 +112,8 @@ public class ObstacleFactory {
   /**
    * Creates a hazard terrain tile collider.
    *
-   * <p>Hazards use the hazard collision layer so contact still damages the player, while the
-   * fixture remains solid enough to support the player and prevent falling through the tile.
+   * <p>The hazard is a sensor, meaning it detects contact with the player without physically
+   * preventing the player from moving through it.
    *
    * @param width width of the hazard in world units
    * @param height height of the hazard in world units
@@ -123,7 +123,7 @@ public class ObstacleFactory {
     Entity hazard =
         new Entity()
             .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.HAZARD).setSensor(false));
+            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.HAZARD).setSensor(true));
 
     hazard.setScale(width, height);
     return hazard;
