@@ -84,6 +84,9 @@ public class ArrowFactory {
 
     arrow.setPosition(position);
     arrow.setScale(0.5f, 0.2f);
+    // The source art faces right by default; mirror it for a leftward shot so the arrow
+    // visually points the direction it's actually travelling.
+    arrow.getComponent(TextureRenderComponent.class).setFlipX(!movingRight);
 
     return arrow;
   }
