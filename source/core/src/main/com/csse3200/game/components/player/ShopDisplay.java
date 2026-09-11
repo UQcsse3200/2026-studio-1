@@ -34,11 +34,11 @@ import java.util.function.IntConsumer;
  *   <li>Pets
  * </ul>
  *
- * <p>Each grid always displays {@value #ITEM_SLOT_COUNT} slots. Cards carry a thin top accent strip
- * color-coded by rarity (derived from price, see {@link #getRarityForPrice(int)}), matching the
- * icon and the detail panel's side accent bar. Clicking a card selects it and shows its details in
- * a shared bottom panel with a single action button (BUY or SELL depending on context), rather than
- * each card carrying its own button.
+ * <p>Catalog grids always display {@value #ITEM_SLOT_COUNT} slots. The SELL grid uses the sibling
+ * inventory capacity. Cards carry a thin top accent strip color-coded by rarity (derived from
+ * price, see {@link #getRarityForPrice(int)}), matching the icon and the detail panel's side accent
+ * bar. Clicking a card selects it and shows its details in a shared bottom panel with a single
+ * action button (BUY or SELL depending on context), rather than each card carrying its own button.
  */
 public class ShopDisplay extends UIComponent {
 
@@ -53,9 +53,7 @@ public class ShopDisplay extends UIComponent {
 
   private static final int ITEM_COLUMNS = 3;
 
-  // Also used as the assumed player inventory size when listing items to sell. If your
-  // InventoryComponent exposes its own capacity (e.g. getCapacity()/getSize()), swap the loop in
-  // createSellGrid() to use that instead.
+  // Shop catalog grid size (10 cards per tab). createSellGrid() uses inventory.getMaxSlots().
   private static final int ITEM_SLOT_COUNT = 10;
 
   private static final String LABEL_STYLE = "small";
@@ -156,7 +154,8 @@ public class ShopDisplay extends UIComponent {
     super.create();
 
     entity.getEvents().addListener("inventoryChanged", this::refreshShop);
-    entity.getEvents().addListener("upgradesPurchased", this::refreshShop);
+    entity.getEvents().addListener("shopChanged", this::refreshShop);
+    entity.getEvents().addListener("upgradePurchased", this::refreshShop);
     entity.getEvents().addListener("petPurchased", this::refreshShop);
 
     createShop();
@@ -479,7 +478,7 @@ public class ShopDisplay extends UIComponent {
 
     int displayedSlots = 0;
 
-    for (int slot = 1; slot <= ITEM_SLOT_COUNT; slot++) {
+    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
       Item item = inventory.getItem(slot);
 
       addSellCard(shop, item, slot);
@@ -538,23 +537,14 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Looks up the sell price for an inventory item by matching it against the shop's item catalog by
-   * name and item type (mirrors {@code ShopComponent.findItemListing}).
+   * Looks up the sell price for an inventory item using {@link ShopComponent#getSellPrice(Item)}.
    *
-   * @param shop shop component whose catalog is searched
+   * @param shop shop component that owns sell pricing
    * @param item inventory item to price
-   * @return sell price in gold, or {@code 0} if no matching catalog listing is found
+   * @return sell price in gold
    */
   private int getSellPriceFor(ShopComponent shop, Item item) {
-    for (ShopComponent.ShopListing<Item> listing : shop.getItemCatalog().values()) {
-      Item product = listing.getProduct();
-
-      if (product.getName().equals(item.getName()) && product.getItemType() == item.getItemType()) {
-        return listing.getSellPrice();
-      }
-    }
-
-    return 0;
+    return shop.getSellPrice(item);
   }
 
   /** Creates the Upgrades tab. Always shows {@value #ITEM_SLOT_COUNT} slots. */
@@ -894,7 +884,6 @@ public class ShopDisplay extends UIComponent {
     }
 
     shop.buyItem(catalogSlot);
-    refreshShop();
   }
 
   /**
@@ -910,7 +899,6 @@ public class ShopDisplay extends UIComponent {
     }
 
     shop.sellItem(playerSlot);
-    refreshShop();
   }
 
   /**
@@ -926,7 +914,6 @@ public class ShopDisplay extends UIComponent {
     }
 
     shop.buyUpgrade(catalogSlot);
-    refreshShop();
   }
 
   /**
@@ -942,7 +929,6 @@ public class ShopDisplay extends UIComponent {
     }
 
     shop.buyPet(catalogSlot);
-    refreshShop();
   }
 
   /** Refreshes the complete shop interface. */

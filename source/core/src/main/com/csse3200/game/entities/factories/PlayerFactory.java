@@ -66,7 +66,7 @@ public class PlayerFactory {
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new InventoryComponent(stats.gold))
-            .addComponent(new ShopComponent())
+            .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay())
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
