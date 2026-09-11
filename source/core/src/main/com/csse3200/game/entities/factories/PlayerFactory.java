@@ -26,6 +26,7 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
+import com.csse3200.game.components.player.QuestDisplay;
 
 /**
  * Factory to create a player entity.
@@ -68,6 +69,7 @@ public class PlayerFactory {
             .addComponent(inputComponent)
             .addComponent(new PlatformerComponent(3))
             .addComponent(new PlayerStatsDisplay())
+            .addComponent(new QuestDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
