@@ -123,13 +123,6 @@ public class WeaponRenderComponent extends RenderComponent {
 
       daggerThrown = true;
       daggerThrowTime = 0f;
-      throwDagger();
-
-      inventory.removeItem(inventory.getActiveSlot(), 1);
-
-      if (inventory.getActiveItem() == null) {
-        texture = null;
-      }
     }
   }
 

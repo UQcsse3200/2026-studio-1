@@ -6,9 +6,10 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ArrowFactory;
+import com.csse3200.game.entities.factories.DaggerFactory;
 import com.csse3200.game.services.ServiceLocator;
 
-// Handles player attacks based on the currently equipped weapon.
+/** Handles player attacks based on the currently equipped weapon. */
 public class WeaponAttackComponent extends Component {
   private final WeaponItem weapon;
   private Vector2 attackDirection = new Vector2(1f, 0f);
@@ -33,33 +34,92 @@ public class WeaponAttackComponent extends Component {
     }
   }
 
-  /** Performs an attack using the equipped weapon. */
+  /** Performs an attack using the currently equipped weapon. */
   void attack() {
-    WeaponType type = weapon.getWeaponType();
+    WeaponItem activeWeapon = getActiveWeapon();
+
+    if (activeWeapon == null) {
+      return;
+    }
+
+    WeaponType type = activeWeapon.getWeaponType();
 
     switch (type) {
       case SWORD:
-        swordAttack();
+        swordAttack(activeWeapon);
         break;
       case BOW:
-        bowAttack();
+        bowAttack(activeWeapon);
+        break;
+      case DAGGER:
+        daggerAttack(activeWeapon);
         break;
       default:
         throw new IllegalStateException("Unsupported weapon type: " + type);
     }
   }
 
-  private void swordAttack() {
-    entity.getEvents().trigger("swordAttack", weapon.getDamage());
+  private WeaponItem getActiveWeapon() {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    // Preserve existing behaviour for tests/entities without an inventory.
+    if (inventory == null) {
+      return weapon;
+    }
+
+    if (inventory.getActiveItem() instanceof WeaponItem activeWeapon) {
+      return activeWeapon;
+    }
+
+    return null;
   }
 
-  private void bowAttack() {
-    entity.getEvents().trigger("bowAttack", weapon.getDamage());
+  private void swordAttack(WeaponItem activeWeapon) {
+    entity.getEvents().trigger("swordAttack", activeWeapon.getDamage());
+  }
+
+  private void bowAttack(WeaponItem activeWeapon) {
+    entity.getEvents().trigger("bowAttack", activeWeapon.getDamage());
 
     Vector2 spawnPosition = entity.getCenterPosition();
+    Vector2 direction = getProjectileDirection();
 
-    Entity arrow = ArrowFactory.createArrow(spawnPosition, attackDirection);
+    Entity arrow =
+        ArrowFactory.createArrow(spawnPosition, direction, activeWeapon.getDamage(), entity);
+
     ServiceLocator.getEntityService().register(arrow);
+  }
+
+  private void daggerAttack(WeaponItem activeWeapon) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null || activeWeapon.getQuantity() <= 0) {
+      return;
+    }
+
+    Vector2 spawnPosition = entity.getCenterPosition();
+    Vector2 direction = getProjectileDirection();
+
+    Entity dagger =
+        DaggerFactory.createDagger(spawnPosition, direction, activeWeapon.getDamage(), entity);
+
+    ServiceLocator.getEntityService().register(dagger);
+
+    inventory.removeItem(inventory.getActiveSlot(), 1);
+  }
+
+  private Vector2 getProjectileDirection() {
+    WeaponRenderComponent weaponRender = entity.getComponent(WeaponRenderComponent.class);
+
+    if (weaponRender != null) {
+      Vector2 aimDirection = weaponRender.getAimDirection();
+
+      if (aimDirection != null && !aimDirection.isZero()) {
+        return aimDirection.nor();
+      }
+    }
+
+    return attackDirection.cpy().nor();
   }
 
   public WeaponItem getWeapon() {
