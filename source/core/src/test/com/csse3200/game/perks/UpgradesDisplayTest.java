@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * attemptPurchase()/selectedNode are private, so this drives them the same way
- * PauseMenuDisplayTest drives PauseMenuDisplay's package-private navigation methods - the only
- * difference is reflection is needed here since these particular members are private, not a
- * different code path from what a real Buy click triggers.
+ * attemptPurchase()/selectedNode are private, so this drives them the same way PauseMenuDisplayTest
+ * drives PauseMenuDisplay's package-private navigation methods - the only difference is reflection
+ * is needed here since these particular members are private, not a different code path from what a
+ * real Buy click triggers.
  */
 @ExtendWith(GameExtension.class)
 class UpgradesDisplayTest {
@@ -147,7 +147,7 @@ class UpgradesDisplayTest {
 
     for (int i = 0; i < 5; i++) {
       swordDamage.onEnemyKilled(); // deliberately overshoots the 2-kill threshold - onEnemyKilled()
-                                    // no-ops once inactive, so this still ends up fully expired
+      // no-ops once inactive, so this still ends up fully expired
     }
 
     assertEquals(0, swordDamage.getCurrentTier());

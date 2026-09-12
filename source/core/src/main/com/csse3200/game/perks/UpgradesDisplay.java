@@ -13,23 +13,20 @@ import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
-import com.csse3200.game.perks.UpgradeNode.ExpiryType;
 import com.csse3200.game.ui.UIComponent;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Displays the Upgrades screen: category tabs (Action / Defence), a row of
- * upgrade nodes per category, and a detail panel for the selected node.
+ * Displays the Upgrades screen: category tabs (Action / Defence), a row of upgrade nodes per
+ * category, and a detail panel for the selected node.
  *
- * Every upgrade is temporary and repurchasable - Action upgrades expire
- * after a number of kills, Defence upgrades expire after a duration.
- * Buying the same upgrade again while active advances its tier and grants
- * a longer expiry window. Once fully expired, it resets to Tier 0 and can
- * be bought again from Tier 1.
+ * <p>Every upgrade is temporary and repurchasable - Action upgrades expire after a number of kills,
+ * Defence upgrades expire after a duration. Buying the same upgrade again while active advances its
+ * tier and grants a longer expiry window. Once fully expired, it resets to Tier 0 and can be bought
+ * again from Tier 1.
  *
- * Currency is currently mocked (MOCK_CURRENCY_START) until the real
- * Currency System exists.
+ * <p>Currency is currently mocked (MOCK_CURRENCY_START) until the real Currency System exists.
  */
 public class UpgradesDisplay extends UIComponent {
 
@@ -97,9 +94,9 @@ public class UpgradesDisplay extends UIComponent {
 
   /**
    * Supplies the player entity so activated upgrades can reach its PlayerActions/
-   * CombatStatsComponent. Called by MainGameScreen once the player has actually been spawned
-   * (after this UI entity is already registered), so effect application/removal below must not
-   * assume player is non-null at any point before this runs.
+   * CombatStatsComponent. Called by MainGameScreen once the player has actually been spawned (after
+   * this UI entity is already registered), so effect application/removal below must not assume
+   * player is non-null at any point before this runs.
    */
   public void setPlayer(Entity player) {
     this.player = player;
@@ -111,8 +108,8 @@ public class UpgradesDisplay extends UIComponent {
    *     Returned as a new list each call so callers can't mutate the internal per-category lists.
    */
   public List<UpgradeNode> getAllUpgrades() {
-    List<UpgradeNode> all = new ArrayList<>(actionUpgrades.size() + defenceUpgrades.size()
-        + movementUpgrades.size());
+    List<UpgradeNode> all =
+        new ArrayList<>(actionUpgrades.size() + defenceUpgrades.size() + movementUpgrades.size());
     all.addAll(actionUpgrades);
     all.addAll(defenceUpgrades);
     all.addAll(movementUpgrades);
@@ -121,33 +118,41 @@ public class UpgradesDisplay extends UIComponent {
 
   private void buildUpgradeData() {
     // Action upgrades: expire after a number of kills while active.
-    UpgradeNode swordDamage = UpgradeNode.killCountBased(
-        "sword_damage", "Sword Damage",
-        "Increases melee damage. Stacking tiers also raises the kill threshold.",
-        new int[] {40, 35, 30},
-        new int[] {2, 5, 8});
+    UpgradeNode swordDamage =
+        UpgradeNode.killCountBased(
+            "sword_damage",
+            "Sword Damage",
+            "Increases melee damage. Stacking tiers also raises the kill threshold.",
+            new int[] {40, 35, 30},
+            new int[] {2, 5, 8});
     swordDamage.setOnTierChanged(() -> applySwordDamageEffect(swordDamage));
     swordDamage.setOnExpired(this::removeSwordDamageEffect);
     actionUpgrades.add(swordDamage);
 
-    actionUpgrades.add(UpgradeNode.killCountBased(
-        "attack_speed", "Attack Speed",
-        "Reduces the delay between attacks. Stacking tiers also raises the kill threshold.",
-        new int[] {50, 45, 40},
-        new int[] {5, 8, 12}));
+    actionUpgrades.add(
+        UpgradeNode.killCountBased(
+            "attack_speed",
+            "Attack Speed",
+            "Reduces the delay between attacks. Stacking tiers also raises the kill threshold.",
+            new int[] {50, 45, 40},
+            new int[] {5, 8, 12}));
 
     // Defence upgrades: expire after a fixed duration.
-    defenceUpgrades.add(UpgradeNode.timeBased(
-        "shield_durability", "Shield Durability",
-        "Reduces damage taken while your shield is active. Stacking tiers also extends the duration.",
-        new int[] {30, 25, 25},
-        new float[] {20f, 35f, 55f}));
+    defenceUpgrades.add(
+        UpgradeNode.timeBased(
+            "shield_durability",
+            "Shield Durability",
+            "Reduces damage taken while your shield is active. Stacking tiers also extends the duration.",
+            new int[] {30, 25, 25},
+            new float[] {20f, 35f, 55f}));
 
-    defenceUpgrades.add(UpgradeNode.timeBased(
-        "regen_on_kill", "Regen on Kill",
-        "Damaging enemies heals you. Stacking tiers also extends the duration.",
-        new int[] {60, 50},
-        new float[] {15f, 30f}));
+    defenceUpgrades.add(
+        UpgradeNode.timeBased(
+            "regen_on_kill",
+            "Regen on Kill",
+            "Damaging enemies heals you. Stacking tiers also extends the duration.",
+            new int[] {60, 50},
+            new float[] {15f, 30f}));
 
     // Movement upgrades: expire after a fixed duration, same pattern as Defence.
     // TODO: confirm with the team whether Movement should be time-based like this,
@@ -157,11 +162,13 @@ public class UpgradesDisplay extends UIComponent {
     // Every tier adds a flat +10s on top of whatever time is currently remaining (see
     // UpgradeNode.purchaseNextTier()'s TIME branch) - buying again before it expires always
     // extends the timer further rather than resetting it to a bigger flat total.
-    UpgradeNode playerSpeed = UpgradeNode.timeBased(
-        "player_speed", "Player Speed+",
-        "Increases movement speed. Stacking tiers also adds 10s to the remaining duration.",
-        new int[] {35, 30, 25},
-        new float[] {10f, 10f, 10f});
+    UpgradeNode playerSpeed =
+        UpgradeNode.timeBased(
+            "player_speed",
+            "Player Speed+",
+            "Increases movement speed. Stacking tiers also adds 10s to the remaining duration.",
+            new int[] {35, 30, 25},
+            new float[] {10f, 10f, 10f});
     playerSpeed.setOnTierChanged(() -> applyPlayerSpeedEffect(playerSpeed));
     playerSpeed.setOnExpired(() -> removePlayerSpeedEffect(playerSpeed));
     movementUpgrades.add(playerSpeed);
@@ -191,8 +198,8 @@ public class UpgradesDisplay extends UIComponent {
   /**
    * Applies/refreshes the Sword Damage effect on CombatStatsComponent. Recomputes from the stored
    * baseline (captured on first activation) plus the current tier's bonus every time, rather than
-   * adding on top of the already-modified value - so buying tier 2 after tier 1 replaces the
-   * bonus instead of stacking it twice.
+   * adding on top of the already-modified value - so buying tier 2 after tier 1 replaces the bonus
+   * instead of stacking it twice.
    */
   private void applySwordDamageEffect(UpgradeNode node) {
     CombatStatsComponent combatStats = getCombatStats();
@@ -255,27 +262,30 @@ public class UpgradesDisplay extends UIComponent {
     TextButton defenceTab = new TextButton("Defence", skin);
     TextButton movementTab = new TextButton("Movement", skin);
 
-    actionTab.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        activeCategory = "Action";
-        refreshNodeRow();
-      }
-    });
-    defenceTab.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        activeCategory = "Defence";
-        refreshNodeRow();
-      }
-    });
-    movementTab.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        activeCategory = "Movement";
-        refreshNodeRow();
-      }
-    });
+    actionTab.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            activeCategory = "Action";
+            refreshNodeRow();
+          }
+        });
+    defenceTab.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            activeCategory = "Defence";
+            refreshNodeRow();
+          }
+        });
+    movementTab.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            activeCategory = "Movement";
+            refreshNodeRow();
+          }
+        });
 
     tabs.add(actionTab).padRight(10f);
     tabs.add(defenceTab).padRight(10f);
@@ -302,12 +312,13 @@ public class UpgradesDisplay extends UIComponent {
     detailStatusLabel = new Label("", skin);
     buyButton = new TextButton("Buy", skin);
 
-    buyButton.addListener(new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent event, Actor actor) {
-        attemptPurchase();
-      }
-    });
+    buyButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            attemptPurchase();
+          }
+        });
 
     detailPanel.add(detailNameLabel).left().row();
     detailPanel.add(detailDescriptionLabel).width(400f).left().padTop(8f).row();
@@ -347,17 +358,19 @@ public class UpgradesDisplay extends UIComponent {
     }
 
     for (UpgradeNode node : upgrades) {
-      TextButton nodeButton = new TextButton(
-          node.getName() + (node.isActive() ? " (T" + node.getCurrentTier() + ")" : ""), skin);
+      TextButton nodeButton =
+          new TextButton(
+              node.getName() + (node.isActive() ? " (T" + node.getCurrentTier() + ")" : ""), skin);
       nodeButton.setColor(node.isActive() ? Color.GREEN : Color.WHITE);
 
-      nodeButton.addListener(new ChangeListener() {
-        @Override
-        public void changed(ChangeEvent event, Actor actor) {
-          selectedNode = node;
-          showDetail(node);
-        }
-      });
+      nodeButton.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              selectedNode = node;
+              showDetail(node);
+            }
+          });
 
       nodeRow.add(nodeButton).padRight(20f);
     }
@@ -367,26 +380,33 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void showDetail(UpgradeNode node) {
-    detailNameLabel.setText(node.getName()
-        + (node.isActive() ? " (Tier " + node.getCurrentTier() + "/" + node.getMaxTier() + ")" : ""));
+    detailNameLabel.setText(
+        node.getName()
+            + (node.isActive()
+                ? " (Tier " + node.getCurrentTier() + "/" + node.getMaxTier() + ")"
+                : ""));
     detailDescriptionLabel.setText(node.getDescription());
 
     if (node.isMaxTier()) {
       detailCostLabel.setText("Max tier reached");
       buyButton.setVisible(false);
     } else {
-      detailCostLabel.setText("Cost to " + (node.isActive() ? "advance tier" : "activate")
-          + ": " + node.getNextTierCost());
+      detailCostLabel.setText(
+          "Cost to "
+              + (node.isActive() ? "advance tier" : "activate")
+              + ": "
+              + node.getNextTierCost());
       buyButton.setVisible(true);
       buyButton.setText(node.isActive() ? "Upgrade Tier" : "Buy");
     }
 
-    detailStatusLabel.setText(node.isActive() ? "Active - " + node.getRemainingText() : "Not active");
+    detailStatusLabel.setText(
+        node.isActive() ? "Active - " + node.getRemainingText() : "Not active");
   }
 
   private void clearDetail() {
     detailNameLabel.setText(""); // the centered categoryHeaderLabel above the node row
-                                   // handles the "Select an upgrade" prompt instead
+    // handles the "Select an upgrade" prompt instead
     detailDescriptionLabel.setText("");
     detailCostLabel.setText("");
     detailStatusLabel.setText("");

@@ -58,10 +58,11 @@ class UpgradesDisplayPauseDeathGatingTest {
         .addComponent(display)
         .create();
 
-    player = new Entity()
-        .addComponent(new CombatStatsComponent(100, 10))
-        .addComponent(new PlayerActions())
-        .addComponent(new DeathStateComponent());
+    player =
+        new Entity()
+            .addComponent(new CombatStatsComponent(100, 10))
+            .addComponent(new PlayerActions())
+            .addComponent(new DeathStateComponent());
     display.setPlayer(player);
   }
 
@@ -148,7 +149,8 @@ class UpgradesDisplayPauseDeathGatingTest {
     assertEquals(9f, getRemainingSeconds(playerSpeed), 0.0001f); // still exactly 9s - untouched
 
     pauseMenu.toggleIsPaused(); // unpause
-    display.draw(null); // resumes from 9s, ticks the stubbed 1s -> 8s (not reset to 10s/anything else)
+    display.draw(
+        null); // resumes from 9s, ticks the stubbed 1s -> 8s (not reset to 10s/anything else)
 
     assertEquals(8f, getRemainingSeconds(playerSpeed), 0.0001f);
     assertEquals(1, playerSpeed.getCurrentTier());

@@ -8,14 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Small always-on HUD, in the top-right corner, listing every currently-active upgrade (name,
- * tier, remaining time/kills). Unlike UpgradesDisplay's own root table, this is NOT gated by
+ * Small always-on HUD, in the top-right corner, listing every currently-active upgrade (name, tier,
+ * remaining time/kills). Unlike UpgradesDisplay's own root table, this is NOT gated by
  * UpgradesMenuComponent.isOpen() - it stays visible during normal gameplay so the player can see
  * what's currently buffed without opening the Upgrades screen.
  *
  * <p>Reads the sibling UpgradesDisplay component's upgrade lists directly (same entity, same
- * pattern PauseMenuInputComponent uses to reach PauseMenuComponent) rather than owning any
- * upgrade state itself.
+ * pattern PauseMenuInputComponent uses to reach PauseMenuComponent) rather than owning any upgrade
+ * state itself.
  */
 public class ActiveUpgradesHud extends UIComponent {
   private Table root;

@@ -13,10 +13,10 @@ import com.csse3200.game.ui.UIComponent;
 /**
  * Displays information about the player's currently equipped weapon.
  *
- * <p>The damage line shown is weapon.getDamage() (the weapon's own fixed stat) PLUS whatever
- * Sword Damage upgrade bonus is currently active - the upgrade modifies CombatStatsComponent.
- * baseAttack directly, which is a separate number from the weapon's own damage stat, so this
- * class tracks the upgrade's bonus itself (via an event) rather than reading baseAttack back off
+ * <p>The damage line shown is weapon.getDamage() (the weapon's own fixed stat) PLUS whatever Sword
+ * Damage upgrade bonus is currently active - the upgrade modifies CombatStatsComponent. baseAttack
+ * directly, which is a separate number from the weapon's own damage stat, so this class tracks the
+ * upgrade's bonus itself (via an event) rather than reading baseAttack back off
  * CombatStatsComponent.
  */
 public class WeaponDisplay extends UIComponent {
@@ -60,7 +60,9 @@ public class WeaponDisplay extends UIComponent {
     stage.addActor(table);
   }
 
-  /** Called whenever UpgradesDisplay's Sword Damage effect changes (including back to 0 on expiry). */
+  /**
+   * Called whenever UpgradesDisplay's Sword Damage effect changes (including back to 0 on expiry).
+   */
   private void onSwordDamageBonusChanged(int bonus) {
     swordDamageBonus = bonus;
     weaponLabel.setText(buildLabelText());

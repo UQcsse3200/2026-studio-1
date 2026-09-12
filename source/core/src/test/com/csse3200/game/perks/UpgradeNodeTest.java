@@ -8,9 +8,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Covers the TIME-based expiry math in purchaseNextTier(): each purchase ADDS a fixed increment
- * to whatever time is currently remaining, rather than overwriting it with a flat per-tier total
- * - and confirms the tier-count cap is unaffected by that change.
+ * Covers the TIME-based expiry math in purchaseNextTier(): each purchase ADDS a fixed increment to
+ * whatever time is currently remaining, rather than overwriting it with a flat per-tier total - and
+ * confirms the tier-count cap is unaffected by that change.
  */
 class UpgradeNodeTest {
   private UpgradeNode node;
@@ -19,10 +19,13 @@ class UpgradeNodeTest {
   void beforeEach() {
     // Mirrors Player Speed+'s shape: 3 tiers, +10s increment every tier. Cost values are
     // irrelevant here - UpgradeNode itself has no currency concept, that's UpgradesDisplay's job.
-    node = UpgradeNode.timeBased(
-        "test_time_upgrade", "Test Time Upgrade", "For testing additive TIME expiry.",
-        new int[] {10, 10, 10},
-        new float[] {10f, 10f, 10f});
+    node =
+        UpgradeNode.timeBased(
+            "test_time_upgrade",
+            "Test Time Upgrade",
+            "For testing additive TIME expiry.",
+            new int[] {10, 10, 10},
+            new float[] {10f, 10f, 10f});
   }
 
   @Test

@@ -74,7 +74,8 @@ class ActiveUpgradesHudTest {
 
     SnapshotArray<Actor> children = getHudRoot().getChildren();
     assertEquals(1, children.size);
-    assertEquals("Sword Damage - Tier 1 - 2 kills left", ((Label) children.get(0)).getText().toString());
+    assertEquals(
+        "Sword Damage - Tier 1 - 2 kills left", ((Label) children.get(0)).getText().toString());
   }
 
   @Test
