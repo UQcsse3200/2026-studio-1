@@ -40,6 +40,12 @@ public class UpgradeNode {
   private float remainingSeconds = 0f;
   private int remainingKills = 0;
 
+  // Optional gameplay hooks - kept as generic Runnables so this class stays free of any
+  // dependency on player/combat-specific types. Registered by whoever builds the node (e.g.
+  // UpgradesDisplay) and invoked whenever tier changes or the upgrade fully expires.
+  private Runnable onTierChanged;
+  private Runnable onExpired;
+
   /** tierCosts and tierDurationsSeconds must be the same length. Durations should increase per tier. */
   public static UpgradeNode timeBased(String id, String name, String description,
       int[] tierCosts, float[] tierDurationsSeconds) {
@@ -101,6 +107,23 @@ public class UpgradeNode {
     return expiryType;
   }
 
+  /**
+   * Registers a callback fired every time {@link #purchaseNextTier()} successfully changes tier
+   * (covers both first activation and later tier advances - inspect {@link #getCurrentTier()}
+   * inside the callback to tell them apart).
+   */
+  public void setOnTierChanged(Runnable onTierChanged) {
+    this.onTierChanged = onTierChanged;
+  }
+
+  /**
+   * Registers a callback fired once the upgrade fully expires and resets to Tier 0 (via {@link
+   * #tickTime(float)} or {@link #onEnemyKilled()} running out).
+   */
+  public void setOnExpired(Runnable onExpired) {
+    this.onExpired = onExpired;
+  }
+
   /** Cost to advance to the NEXT tier. Returns -1 if already at max tier. */
   public int getNextTierCost() {
     if (isMaxTier()) {
@@ -138,6 +161,9 @@ public class UpgradeNode {
     } else {
       remainingKills = tierKillCounts[tierIndex];
     }
+    if (onTierChanged != null) {
+      onTierChanged.run();
+    }
   }
 
   /** Call every frame with the time elapsed. No-op for kill-count-based upgrades. */
@@ -167,6 +193,9 @@ public class UpgradeNode {
     currentTier = 0;
     remainingSeconds = 0;
     remainingKills = 0;
+    if (onExpired != null) {
+      onExpired.run();
+    }
   }
 
   /** Human-readable remaining-effect text for the UI, e.g. "7s left" or "3 kills left". */
