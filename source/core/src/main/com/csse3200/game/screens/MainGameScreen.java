@@ -86,6 +86,10 @@ public class MainGameScreen extends ScreenAdapter {
     fitCameraToMap(levelGameArea);
   }
 
+  public Entity getPlayerEntity() {
+    return levelGameArea != null ? levelGameArea.getPlayer() : null;
+  }
+
   /**
    * Centre the camera on the loaded map and zoom so the map fills the window. Uses the smaller of
    * the two axis zoom factors so the map covers the whole viewport (no empty background), cropping
@@ -198,7 +202,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new MainGameActions(this.game))
-        .addComponent(new PauseMenuActions());
+        .addComponent(new PauseMenuActions(this::getPlayerEntity));
     this.pauseMenu = pauseMenuComponent;
 
     ServiceLocator.getEntityService().register(ui);
