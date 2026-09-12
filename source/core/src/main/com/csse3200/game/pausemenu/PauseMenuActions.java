@@ -1,14 +1,14 @@
 package com.csse3200.game.pausemenu;
 
-import com.csse3200.game.components.Component;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.files.GameSaveData;
-import com.csse3200.game.files.SavedItem;
 import com.csse3200.game.files.SaveService;
+import com.csse3200.game.files.SavedItem;
 import java.util.Map;
 import java.util.function.Supplier;
 
