@@ -5,9 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.ui.UIComponent;
 
-/**
- * UI component for displaying the player's current quests.
- */
+/** UI component for displaying the player's current quests. */
 public class QuestDisplay extends UIComponent {
 
   private Table rootTable;
