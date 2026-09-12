@@ -12,7 +12,7 @@ package com.csse3200.game.components.loot;
 public enum WeaponType {
   SWORD(/* baseDamage */ 10),
   BOW( /* baseDamage */ 7),
-  DAGGER(/* baseDamage */ 3);
+  DAGGER(/* baseDamage */ 3)
 
   private final int baseDamage;
 
