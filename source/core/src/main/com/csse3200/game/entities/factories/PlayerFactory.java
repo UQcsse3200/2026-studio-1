@@ -47,7 +47,6 @@ public class PlayerFactory {
         ServiceLocator.getInputService().getInputFactory().createForPlayer();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
 
     WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
