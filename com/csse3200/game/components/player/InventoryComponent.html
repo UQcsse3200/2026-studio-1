@@ -156,98 +156,103 @@ loadScripts(document, 'script');</script>
 <div class="block">Adds a specific quantity using <code>item</code> as a stack template.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canStack(com.csse3200.game.components.loot.Item,com.csse3200.game.components.loot.Item)" class="member-name-link">canStack</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;existing,
- <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;incoming)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFullyAdd(com.csse3200.game.components.loot.Item)" class="member-name-link">canFullyAdd</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether <code>item</code> can be added in full without leftover.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canStack(com.csse3200.game.components.loot.Item,com.csse3200.game.components.loot.Item)" class="member-name-link">canStack</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;existing,
+ <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;incoming)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Checks whether two items can be stacked together.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#containsItem(int)" class="member-name-link">containsItem</a><wbr>(int&nbsp;slot)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#containsItem(int)" class="member-name-link">containsItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether the slot is valid and currently occupied.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActiveItem()" class="member-name-link">getActiveItem</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActiveItem()" class="member-name-link">getActiveItem</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the item in the currently active slot.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActiveSlot()" class="member-name-link">getActiveSlot</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActiveSlot()" class="member-name-link">getActiveSlot</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the currently selected inventory slot.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGold()" class="member-name-link">getGold</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGold()" class="member-name-link">getGold</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the player's gold.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getInventorySlots()" class="member-name-link">getInventorySlots</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getInventorySlots()" class="member-name-link">getInventorySlots</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of occupied slots.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItem(int)" class="member-name-link">getItem</a><wbr>(int&nbsp;slot)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItem(int)" class="member-name-link">getItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the item in the given slot without removing it.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaxSlots()" class="member-name-link">getMaxSlots</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaxSlots()" class="member-name-link">getMaxSlots</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the maximum number of item slots.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOccupiedSlots()" class="member-name-link">getOccupiedSlots</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOccupiedSlots()" class="member-name-link">getOccupiedSlots</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the number of occupied slots.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(com.csse3200.game.components.loot.Item)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;template)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(com.csse3200.game.components.loot.Item)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;template)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the total quantity of items compatible with <code>template</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(java.lang.String,com.csse3200.game.components.loot.ItemType,int)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(java.lang.String,com.csse3200.game.components.loot.ItemType,int)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="../loot/ItemType.html" title="enum class in com.csse3200.game.components.loot">ItemType</a>&nbsp;type,
  int&nbsp;maxQuantity)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the total quantity of matching items.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasGold(int)" class="member-name-link">hasGold</a><wbr>(int&nbsp;gold)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasGold(int)" class="member-name-link">hasGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns if the player has a certain amount of gold.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFull()" class="member-name-link">isFull</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFull()" class="member-name-link">isFull</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether every slot is occupied.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeItem(int)" class="member-name-link">removeItem</a><wbr>(int&nbsp;slot)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeItem(int)" class="member-name-link">removeItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Removes the whole stack from a slot.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeItem(int,int)" class="member-name-link">removeItem</a><wbr>(int&nbsp;slot,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeItem(int,int)" class="member-name-link">removeItem</a><wbr>(int&nbsp;slot,
  int&nbsp;amount)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Removes up to <code>amount</code> from a single slot.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setActiveSlot(int)" class="member-name-link">setActiveSlot</a><wbr>(int&nbsp;slot)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setActiveSlot(int)" class="member-name-link">setActiveSlot</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Selects an inventory slot as the active slot.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets the player's gold.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
  int&nbsp;splitQty)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Splits part of an occupied stack into the lowest empty slot.</div>
 </div>
 </div>
@@ -445,6 +450,22 @@ loadScripts(document, 'script');</script>
 <dd><code>quantity</code> - quantity to add</dd>
 <dt>Returns:</dt>
 <dd>quantity that could not be added</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="canFullyAdd(com.csse3200.game.components.loot.Item)">
+<h3>canFullyAdd</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canFullyAdd</span><wbr><span class="parameters">(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</span></div>
+<div class="block">Returns whether <code>item</code> can be added in full without leftover.
+
+ <p>Does not mutate inventory. Uses the same stack-then-empty-slot rules as <a href="#addItem(com.csse3200.game.components.loot.Item)"><code>addItem(Item)</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>item</code> - item to test; <code>null</code> or non-positive quantity cannot be fully added</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> iff <a href="#addItem(com.csse3200.game.components.loot.Item)"><code>addItem(Item)</code></a> would return <code>0</code> and at least one unit
+     would be stored</dd>
 </dl>
 </section>
 </li>
