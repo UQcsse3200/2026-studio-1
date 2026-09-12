@@ -531,7 +531,7 @@ public class ShopDisplay extends UIComponent {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-              selectCard(card, name, sellPrice, rarity, () -> sellItemAt(slot), "SELL");
+              selectCard(card, name, sellPrice, rarity, () -> sellItemAt(slot), "SELL", false);
             }
           });
     }
@@ -655,7 +655,8 @@ public class ShopDisplay extends UIComponent {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-              selectCard(card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY");
+              selectCard(
+                  card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
             }
           });
     }
@@ -873,9 +874,19 @@ public class ShopDisplay extends UIComponent {
     detailPanel.add(detailActionButton).size(80f, 34f).right();
   }
 
-  /** Selects a card and updates the detail panel. */
+  /**
+   * Selects a card and updates the detail panel.
+   *
+   * @param requiresAffordability true for BUY actions, false for SELL actions
+   */
   private void selectCard(
-      Table card, String name, int price, Rarity rarity, Runnable action, String actionLabel) {
+      Table card,
+      String name,
+      int price,
+      Rarity rarity,
+      Runnable action,
+      String actionLabel,
+      boolean requiresAffordability) {
 
     if (selectedCard != null) {
       selectedCard.setColor(CARD_TINT);
@@ -884,9 +895,9 @@ public class ShopDisplay extends UIComponent {
     selectedCard = card;
     selectedCard.setColor(CARD_TINT_SELECTED);
 
-    boolean affordable = canAfford(price);
+    boolean canPerformAction = !requiresAffordability || canAfford(price);
 
-    pendingAction = affordable ? action : null;
+    pendingAction = canPerformAction ? action : null;
 
     detailIconBg.setColor(rarity.color);
 
@@ -897,11 +908,16 @@ public class ShopDisplay extends UIComponent {
     detailNameLabel.setColor(TEXT_PRIMARY);
 
     detailPriceLabel.setText("Gold: " + price);
-    detailPriceLabel.setColor(affordable ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
+
+    if (requiresAffordability && !canPerformAction) {
+      detailPriceLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
+    } else {
+      detailPriceLabel.setColor(GOLD_COLOR);
+    }
 
     detailActionButton.setText(actionLabel);
-    detailActionButton.setDisabled(!affordable);
-    detailActionButton.setTouchable(affordable ? Touchable.enabled : Touchable.disabled);
+    detailActionButton.setDisabled(!canPerformAction);
+    detailActionButton.setTouchable(canPerformAction ? Touchable.enabled : Touchable.disabled);
   }
 
   /** Clears the current selection. */
