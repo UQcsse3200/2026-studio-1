@@ -11,15 +11,21 @@ package com.csse3200.game.perks;
  * by one tier - and can be bought again from Tier 1 next time.
  *
  * Expiry works one of two ways:
- *  - TIME: wears off after a fixed number of seconds (Defence upgrades,
- *    e.g. Shield Durability, Regen on Kill)
- *  - KILL_COUNT: wears off after a fixed number of kills while active
- *    (Action upgrades, e.g. Sword Damage, Attack Speed)
+ *  - TIME: each purchase ADDS a fixed increment (in seconds) on top of
+ *    whatever time is currently remaining - it never resets to a flat
+ *    total. E.g. buying with 4s left and a +10s increment leaves 14s
+ *    remaining, not a flat 10s (or 20s). (Movement upgrades, e.g. Player
+ *    Speed+; will apply the same way to Shield Durability/Regen on Kill
+ *    once those are built)
+ *  - KILL_COUNT: wears off after a fixed number of kills while active;
+ *    each purchase OVERWRITES the remaining kill count with that tier's
+ *    total threshold (Action upgrades, e.g. Sword Damage, Attack Speed)
  *
- * Each tier has its own cost AND its own expiry value - both arrays must be
- * the same length. Higher tiers should generally use larger expiry values
- * (more seconds or more kills) so stacking up is meaningfully rewarding,
- * not just cosmetic.
+ * Each tier has its own cost - and, depending on expiry type, either its own
+ * additive time increment (TIME) or its own total kill threshold
+ * (KILL_COUNT). The cost array and whichever expiry array is used must be
+ * the same length. Higher tiers should generally grant a larger value so
+ * stacking up is meaningfully rewarding, not just cosmetic.
  */
 public class UpgradeNode {
 
@@ -33,7 +39,9 @@ public class UpgradeNode {
   private final String description;
   private final int[] tierCosts; // cost to advance FROM index i TO tier i+1, e.g. {40, 35, 30}
   private final ExpiryType expiryType;
-  private final float[] tierDurationsSeconds; // total duration granted AT each tier (TIME upgrades)
+  private final float[] tierIncrementsSeconds; // seconds ADDED to remainingSeconds per purchase
+                                                // at each tier (TIME upgrades) - additive, never
+                                                // a flat replacement
   private final int[] tierKillCounts; // total kill threshold granted AT each tier (KILL_COUNT upgrades)
 
   private int currentTier = 0; // 0 = inactive/not currently owned
@@ -46,10 +54,14 @@ public class UpgradeNode {
   private Runnable onTierChanged;
   private Runnable onExpired;
 
-  /** tierCosts and tierDurationsSeconds must be the same length. Durations should increase per tier. */
+  /**
+   * tierCosts and tierIncrementsSeconds must be the same length. Each tier's value is ADDED to
+   * whatever time is currently remaining when purchased - not a flat replacement. E.g. buying
+   * with 4s left and this tier's increment at 10s leaves 14s remaining.
+   */
   public static UpgradeNode timeBased(String id, String name, String description,
-      int[] tierCosts, float[] tierDurationsSeconds) {
-    return new UpgradeNode(id, name, description, tierCosts, ExpiryType.TIME, tierDurationsSeconds, null);
+      int[] tierCosts, float[] tierIncrementsSeconds) {
+    return new UpgradeNode(id, name, description, tierCosts, ExpiryType.TIME, tierIncrementsSeconds, null);
   }
 
   /** tierCosts and tierKillCounts must be the same length. Kill thresholds should increase per tier. */
@@ -59,9 +71,9 @@ public class UpgradeNode {
   }
 
   private UpgradeNode(String id, String name, String description, int[] tierCosts,
-      ExpiryType expiryType, float[] tierDurationsSeconds, int[] tierKillCounts) {
-    if (expiryType == ExpiryType.TIME && tierCosts.length != tierDurationsSeconds.length) {
-      throw new IllegalArgumentException("tierCosts and tierDurationsSeconds must be the same length");
+      ExpiryType expiryType, float[] tierIncrementsSeconds, int[] tierKillCounts) {
+    if (expiryType == ExpiryType.TIME && tierCosts.length != tierIncrementsSeconds.length) {
+      throw new IllegalArgumentException("tierCosts and tierIncrementsSeconds must be the same length");
     }
     if (expiryType == ExpiryType.KILL_COUNT && tierCosts.length != tierKillCounts.length) {
       throw new IllegalArgumentException("tierCosts and tierKillCounts must be the same length");
@@ -71,7 +83,7 @@ public class UpgradeNode {
     this.description = description;
     this.tierCosts = tierCosts;
     this.expiryType = expiryType;
-    this.tierDurationsSeconds = tierDurationsSeconds;
+    this.tierIncrementsSeconds = tierIncrementsSeconds;
     this.tierKillCounts = tierKillCounts;
   }
 
@@ -133,22 +145,31 @@ public class UpgradeNode {
   }
 
   /**
-   * Human-readable description of what the NEXT tier purchase would grant, e.g. "20s" or
-   * "5 kills". Empty string if already at max tier.
+   * Human-readable description of what the NEXT tier purchase would grant, e.g. "+10s" (added to
+   * whatever time is currently remaining) or "5 kills" (the new total). Empty string if already
+   * at max tier.
    */
   public String getNextTierGrantText() {
     if (isMaxTier()) {
       return "";
     }
     return expiryType == ExpiryType.TIME
-        ? (int) tierDurationsSeconds[currentTier] + "s"
+        ? "+" + (int) tierIncrementsSeconds[currentTier] + "s"
         : tierKillCounts[currentTier] + " kills";
   }
 
   /**
-   * Purchases the next tier (Tier 1 if currently inactive, Tier+1 otherwise).
-   * The expiry countdown is set to that NEW tier's (larger) duration/kill
-   * threshold - stacking up doesn't just refresh the clock, it extends it.
+   * Purchases the next tier (Tier 1 if currently inactive, Tier+1 otherwise). Only the tier COUNT
+   * cap (getMaxTier(), i.e. tierCosts.length) limits how many times this can be bought before it
+   * must fully expire and reset - the duration/kill-count math below is otherwise independent of
+   * that cap.
+   *
+   * <p>TIME-based upgrades ADD this tier's increment on top of whatever time is currently
+   * remaining - buying again while time is still left always extends it further, it never resets
+   * to a flat total (e.g. 4s left + a 10s increment = 14s, not a flat 10s).
+   *
+   * <p>KILL_COUNT-based upgrades still work the old way: the remaining kill count is REPLACED
+   * with this tier's total threshold.
    */
   public void purchaseNextTier() {
     if (isMaxTier()) {
@@ -157,7 +178,7 @@ public class UpgradeNode {
     currentTier++;
     int tierIndex = currentTier - 1; // tier 1 -> array index 0
     if (expiryType == ExpiryType.TIME) {
-      remainingSeconds = tierDurationsSeconds[tierIndex];
+      remainingSeconds += tierIncrementsSeconds[tierIndex];
     } else {
       remainingKills = tierKillCounts[tierIndex];
     }

@@ -9,8 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.perks.UpgradeNode.ExpiryType;
 import com.csse3200.game.ui.UIComponent;
 import java.util.ArrayList;
@@ -40,6 +42,11 @@ public class UpgradesDisplay extends UIComponent {
   private static final float[] PLAYER_SPEED_MULTIPLIER_PER_TIER = {1.15f, 1.3f, 1.5f};
   private static final int[] SWORD_DAMAGE_BONUS_PER_TIER = {5, 10, 15};
 
+  // Fired on the player entity whenever Sword Damage's bonus changes (including back to 0 on
+  // expiry), so anything else on the player (e.g. WeaponDisplay) can reflect it without needing
+  // a direct reference to this class - see applySwordDamageEffect()/removeSwordDamageEffect().
+  private static final String SWORD_DAMAGE_BONUS_EVENT = "swordDamageBonusChanged";
+
   private Table root;
   private Table nodeRow;
   private Label currencyLabel;
@@ -54,6 +61,11 @@ public class UpgradesDisplay extends UIComponent {
   private String activeCategory = null; // nothing selected until the player picks a tab
   private UpgradeNode selectedNode;
   private UpgradesMenuComponent upgradesMenu;
+
+  // Fetched off this same entity, the same way PauseMenuInputComponent/PauseMenuDisplay already
+  // do - PauseMenuComponent is a sibling component on the shared "ui" entity in MainGameScreen,
+  // not separately tracked state.
+  private PauseMenuComponent pauseMenu;
 
   // The player entity, so activated upgrades can reach PlayerActions/CombatStatsComponent to
   // apply real gameplay effects. Not available at create() time - MainGameScreen constructs the
@@ -77,6 +89,7 @@ public class UpgradesDisplay extends UIComponent {
   public void create() {
     super.create();
     upgradesMenu = entity.getComponent(UpgradesMenuComponent.class);
+    pauseMenu = entity.getComponent(PauseMenuComponent.class);
     buildUpgradeData();
     addActors();
     root.setVisible(false); // hidden until upgradesMenu.isOpen() is true
@@ -112,7 +125,7 @@ public class UpgradesDisplay extends UIComponent {
         "sword_damage", "Sword Damage",
         "Increases melee damage. Stacking tiers also raises the kill threshold.",
         new int[] {40, 35, 30},
-        new int[] {5, 8, 12});
+        new int[] {2, 5, 8});
     swordDamage.setOnTierChanged(() -> applySwordDamageEffect(swordDamage));
     swordDamage.setOnExpired(this::removeSwordDamageEffect);
     actionUpgrades.add(swordDamage);
@@ -140,11 +153,15 @@ public class UpgradesDisplay extends UIComponent {
     // TODO: confirm with the team whether Movement should be time-based like this,
     // or kill-count-based like Action - defaulted to time-based since a speed
     // boost reads more naturally as "lasts N seconds" than "lasts N kills".
+    //
+    // Every tier adds a flat +10s on top of whatever time is currently remaining (see
+    // UpgradeNode.purchaseNextTier()'s TIME branch) - buying again before it expires always
+    // extends the timer further rather than resetting it to a bigger flat total.
     UpgradeNode playerSpeed = UpgradeNode.timeBased(
         "player_speed", "Player Speed+",
-        "Increases movement speed. Stacking tiers also extends the duration.",
-        new int[] {35, 30, 30},
-        new float[] {20f, 35f, 55f});
+        "Increases movement speed. Stacking tiers also adds 10s to the remaining duration.",
+        new int[] {35, 30, 25},
+        new float[] {10f, 10f, 10f});
     playerSpeed.setOnTierChanged(() -> applyPlayerSpeedEffect(playerSpeed));
     playerSpeed.setOnExpired(() -> removePlayerSpeedEffect(playerSpeed));
     movementUpgrades.add(playerSpeed);
@@ -187,6 +204,8 @@ public class UpgradesDisplay extends UIComponent {
     }
     int bonus = SWORD_DAMAGE_BONUS_PER_TIER[node.getCurrentTier() - 1];
     combatStats.setBaseAttack(swordDamageBaselineAttack + bonus);
+    // combatStats being non-null (from getCombatStats()) means player is non-null too.
+    player.getEvents().trigger(SWORD_DAMAGE_BONUS_EVENT, bonus);
   }
 
   /** Restores baseAttack to whatever it was before Sword Damage first applied a bonus. */
@@ -199,6 +218,9 @@ public class UpgradesDisplay extends UIComponent {
       combatStats.setBaseAttack(swordDamageBaselineAttack);
     }
     swordDamageBaselineAttack = null;
+    if (player != null) {
+      player.getEvents().trigger(SWORD_DAMAGE_BONUS_EVENT, 0);
+    }
   }
 
   private PlayerActions getPlayerActions() {
@@ -207,6 +229,10 @@ public class UpgradesDisplay extends UIComponent {
 
   private CombatStatsComponent getCombatStats() {
     return player == null ? null : player.getComponent(CombatStatsComponent.class);
+  }
+
+  private DeathStateComponent getDeathState() {
+    return player == null ? null : player.getComponent(DeathStateComponent.class);
   }
 
   private void addActors() {
@@ -401,15 +427,29 @@ public class UpgradesDisplay extends UIComponent {
   public void draw(SpriteBatch batch) {
     // Active upgrades keep counting down in the background even while this
     // screen is closed - only visibility is gated on isOpen(), not ticking.
-    float delta = Gdx.graphics.getDeltaTime();
-    for (UpgradeNode node : actionUpgrades) {
-      node.tickTime(delta);
-    }
-    for (UpgradeNode node : defenceUpgrades) {
-      node.tickTime(delta);
-    }
-    for (UpgradeNode node : movementUpgrades) {
-      node.tickTime(delta);
+    //
+    // ...but not while the game is paused or the player is dead - in both cases the game world
+    // itself is frozen (see MainGameScreen.render()'s own pauseMenu.isPaused()/isPlayerDead()
+    // guards around physics/entity updates), so an upgrade's countdown freezing right along with
+    // it is just "don't tick this frame" - no separate resume logic needed, since remainingSeconds/
+    // remainingKills are never touched while frozen, tickTime() picks up from the exact value it
+    // left off at once both conditions are false again. Tier level (currentTier) is never touched
+    // here either way - only the countdown ticking is gated.
+    boolean paused = pauseMenu != null && pauseMenu.isPaused();
+    DeathStateComponent deathState = getDeathState();
+    boolean playerDead = deathState != null && deathState.isDead();
+
+    if (!paused && !playerDead) {
+      float delta = Gdx.graphics.getDeltaTime();
+      for (UpgradeNode node : actionUpgrades) {
+        node.tickTime(delta);
+      }
+      for (UpgradeNode node : defenceUpgrades) {
+        node.tickTime(delta);
+      }
+      for (UpgradeNode node : movementUpgrades) {
+        node.tickTime(delta);
+      }
     }
 
     boolean isOpen = upgradesMenu != null && upgradesMenu.isOpen();

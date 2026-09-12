@@ -143,10 +143,11 @@ class UpgradesDisplayTest {
 
     UpgradeNode swordDamage = getActionUpgrades().get(0);
     selectNode(swordDamage);
-    attemptPurchase(); // Tier 1: 10 + 5 = 15, 5 kills remaining
+    attemptPurchase(); // Tier 1: 10 + 5 = 15, 2 kills remaining (tierKillCounts = {2, 5, 8})
 
     for (int i = 0; i < 5; i++) {
-      swordDamage.onEnemyKilled();
+      swordDamage.onEnemyKilled(); // deliberately overshoots the 2-kill threshold - onEnemyKilled()
+                                    // no-ops once inactive, so this still ends up fully expired
     }
 
     assertEquals(0, swordDamage.getCurrentTier());
@@ -165,7 +166,7 @@ class UpgradesDisplayTest {
     UpgradeNode playerSpeed = ((List<UpgradeNode>) field.get(display)).get(0); // "player_speed"
 
     selectNode(playerSpeed);
-    attemptPurchase(); // Tier 1: 1.15x, 20s duration
+    attemptPurchase(); // Tier 1: 1.15x, 0 + 10s increment = 10s remaining
 
     assertEquals(1.15f, playerActions.getEffectiveSpeedMultiplier(), 0.0001f);
 

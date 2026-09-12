@@ -68,36 +68,36 @@ class ActiveUpgradesHudTest {
   @Test
   void hudShowsActiveUpgradeWithNameTierAndRemainingText() throws Exception {
     UpgradeNode swordDamage = getField("actionUpgrades").get(0); // "sword_damage"
-    swordDamage.purchaseNextTier(); // Tier 1, 5 kills
+    swordDamage.purchaseNextTier(); // Tier 1, 2 kills (tierKillCounts = {2, 5, 8})
 
     hud.draw(null);
 
     SnapshotArray<Actor> children = getHudRoot().getChildren();
     assertEquals(1, children.size);
-    assertEquals("Sword Damage - Tier 1 - 5 kills left", ((Label) children.get(0)).getText().toString());
+    assertEquals("Sword Damage - Tier 1 - 2 kills left", ((Label) children.get(0)).getText().toString());
   }
 
   @Test
   void hudUpdatesImmediatelyWhenAFurtherPurchaseAdvancesTier() throws Exception {
     UpgradeNode swordDamage = getField("actionUpgrades").get(0);
-    swordDamage.purchaseNextTier(); // Tier 1, 5 kills
+    swordDamage.purchaseNextTier(); // Tier 1, 2 kills
     hud.draw(null);
     assertEquals(
-        "Sword Damage - Tier 1 - 5 kills left",
+        "Sword Damage - Tier 1 - 2 kills left",
         ((Label) getHudRoot().getChildren().get(0)).getText().toString());
 
-    swordDamage.purchaseNextTier(); // Tier 2, 8 kills - buying again before it expires
+    swordDamage.purchaseNextTier(); // Tier 2, 5 kills - buying again before it expires
     hud.draw(null);
 
     assertEquals(
-        "Sword Damage - Tier 2 - 8 kills left",
+        "Sword Damage - Tier 2 - 5 kills left",
         ((Label) getHudRoot().getChildren().get(0)).getText().toString());
   }
 
   @Test
   void hudRemovesUpgradeOnceItFullyExpires() throws Exception {
     UpgradeNode playerSpeed = getField("movementUpgrades").get(0); // "player_speed"
-    playerSpeed.purchaseNextTier(); // Tier 1, 20s duration
+    playerSpeed.purchaseNextTier(); // Tier 1: 0 + 10s increment = 10s remaining
 
     hud.draw(null);
     assertEquals(1, getHudRoot().getChildren().size);
