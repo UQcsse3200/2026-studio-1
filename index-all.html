@@ -622,6 +622,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/factories/RenderFactory.html#createCamera()" class="member-name-link">createCamera()</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/RenderFactory.html" title="class in com.csse3200.game.entities.factories">RenderFactory</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/factories/DaggerFactory.html#createDagger(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2)" class="member-name-link">createDagger(Vector2, Vector2)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/DaggerFactory.html" title="class in com.csse3200.game.entities.factories">DaggerFactory</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/factories/LootFactory.html#createDroppedLoot(com.csse3200.game.components.loot.Item,com.csse3200.game.entities.Entity)" class="member-name-link">createDroppedLoot(Item, Entity)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/LootFactory.html" title="class in com.csse3200.game.entities.factories">LootFactory</a></dt>
 <dd>
 <div class="block">Creates loot dropped by an entity, briefly preventing that entity from picking it straight back
@@ -724,6 +726,18 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:D">D</h2>
 <dl class="index">
+<dt><a href="com/csse3200/game/components/loot/WeaponType.html#DAGGER" class="member-name-link">DAGGER</a> - Enum constant in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/factories/DaggerFactory.html" class="type-name-link" title="class in com.csse3200.game.entities.factories">DaggerFactory</a> - Class in <a href="com/csse3200/game/entities/factories/package-summary.html">com.csse3200.game.entities.factories</a></dt>
+<dd>
+<div class="block">Factory for creating thrown dagger projectiles.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/DaggerMovementComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">DaggerMovementComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
+<dd>
+<div class="block">Moves a thrown dagger in a fixed direction for a short duration.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/DaggerMovementComponent.html#%3Cinit%3E(com.badlogic.gdx.math.Vector2)" class="member-name-link">DaggerMovementComponent(Vector2)</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DaggerMovementComponent.html" title="class in com.csse3200.game.components.player">DaggerMovementComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/BuffStat.html#DAMAGE" class="member-name-link">DAMAGE</a> - Enum constant in enum class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/BuffStat.html" title="enum class in com.csse3200.game.components.player">BuffStat</a></dt>
 <dd>
 <div class="block">Scales the entity's base attack damage via <code>CombatStatsComponent</code>.</div>
@@ -1121,6 +1135,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the currently selected inventory slot.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#getAimDirection()" class="member-name-link">getAimDirection()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/services/ResourceService.html#getAsset(java.lang.String,java.lang.Class)" class="member-name-link">getAsset(String, Class&lt;T&gt;)</a> - Method in class com.csse3200.game.services.<a href="com/csse3200/game/services/ResourceService.html" title="class in com.csse3200.game.services">ResourceService</a></dt>
 <dd>
 <div class="block">Load an asset from a file.</div>
@@ -1234,6 +1250,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the player's gold.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#getHandAnchor()" class="member-name-link">getHandAnchor()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/HealEffect.html#getHealAmount()" class="member-name-link">getHealAmount()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/HealEffect.html" title="class in com.csse3200.game.components.loot">HealEffect</a></dt>
 <dd>
 <div class="block">Returns the health this effect restores.</div>
@@ -1572,6 +1590,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/mainmenu/MainMenuDisplay.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.components.mainmenu.<a href="com/csse3200/game/components/mainmenu/MainMenuDisplay.html" title="class in com.csse3200.game.components.mainmenu">MainMenuDisplay</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/Renderable.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in interface com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/Renderable.html" title="interface in com.csse3200.game.rendering">Renderable</a></dt>
 <dd>
 <div class="block">Z index controls rendering order within a layer.</div>
@@ -1764,6 +1784,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/Item.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#isFacingRight()" class="member-name-link">isFacingRight()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html#isFinished()" class="member-name-link">isFinished()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></dt>
 <dd>
@@ -3349,6 +3371,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ArrowMovementComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ArrowMovementComponent.html" title="class in com.csse3200.game.components.player">ArrowMovementComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/DaggerMovementComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DaggerMovementComponent.html" title="class in com.csse3200.game.components.player">DaggerMovementComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/LootBobComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LootBobComponent.html" title="class in com.csse3200.game.components.player">LootBobComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerActions.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></dt>
@@ -3607,7 +3631,7 @@ the order they are declared.</div>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#%3Cinit%3E(java.lang.String)" class="member-name-link">WeaponRenderComponent(String)</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
+<dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#%3Cinit%3E()" class="member-name-link">WeaponRenderComponent()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponType.html" class="type-name-link" title="enum class in com.csse3200.game.components.loot">WeaponType</a> - Enum Class in <a href="com/csse3200/game/components/loot/package-summary.html">com.csse3200.game.components.loot</a></dt>
 <dd>&nbsp;</dd>
