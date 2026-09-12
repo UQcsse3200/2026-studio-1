@@ -80,7 +80,9 @@ public class LevelGameArea extends GameArea {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
     "images/gold_coin/gold_coin.atlas",
-    "images/skeleton.atlas"
+    "images/skeleton.atlas",
+    "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/skeleton_weapons/skeleton_sword.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";

@@ -5,8 +5,8 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 
 /**
- * Controller for enemy weapon animations on skeleton NPCs.
- * Synchronizes the weapon's facing direction and attack animations with the skeleton's state.
+ * Controller for enemy weapon animations on skeleton NPCs. Synchronizes the weapon's facing
+ * direction and attack animations with the skeleton's state.
  */
 public class SkeletonWeaponAnimationController extends Component {
   private EnemyWeaponAnimationComponent animator;

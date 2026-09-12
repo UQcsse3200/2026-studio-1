@@ -11,6 +11,7 @@ import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
+import com.csse3200.game.components.npc.SkeletonWeaponAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.tasks.ChaseTask;
@@ -32,6 +33,7 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
+import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,6 +138,16 @@ public class NPCFactory {
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
+    // Configure weapon animation component
+    EnemyWeaponAnimationComponent weaponAnimator =
+        new EnemyWeaponAnimationComponent(
+            ServiceLocator.getResourceService()
+                .getAsset("images/skeleton_weapons/skeleton_sword.atlas", TextureAtlas.class));
+    weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("sword_l", 0.08f, Animation.PlayMode.NORMAL);
+    weaponAnimator.addAnimation("sword_r", 0.08f, Animation.PlayMode.NORMAL);
+
     // Add necessary components to the entity
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
@@ -145,7 +157,9 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new SkeletonAnimationController())
+        .addComponent(weaponAnimator)
+        .addComponent(new SkeletonWeaponAnimationController());
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
     skeleton.setScale(scale, scale);
@@ -187,6 +201,16 @@ public class NPCFactory {
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
+    // Configure weapon animation component
+    EnemyWeaponAnimationComponent weaponAnimator =
+        new EnemyWeaponAnimationComponent(
+            ServiceLocator.getResourceService()
+                .getAsset("images/skeleton_weapons/skeleton_bow.atlas", TextureAtlas.class));
+    weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("bow_l", 0.1f, Animation.PlayMode.NORMAL);
+    weaponAnimator.addAnimation("bow_r", 0.1f, Animation.PlayMode.NORMAL);
+
     // Add necessary components to the entity
     rangedSkeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
@@ -196,7 +220,9 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new SkeletonAnimationController())
+        .addComponent(weaponAnimator)
+        .addComponent(new SkeletonWeaponAnimationController());
 
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 
