@@ -229,7 +229,7 @@ public class NPCFactory {
 
   /**
    * Creates a passive traveler NPC that wanders but cannot attack the player.
-   * 
+   *
    * @return entity
    */
   public static Entity createTravelerNPC() {
