@@ -81,12 +81,15 @@ class LootTableTest {
   void shouldMakeHigherTiersRarerInTheDefaultTable() {
     LootTable table = LootTable.createDefault(SEED);
 
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
     Map<Integer, Integer> tierCounts = new HashMap<>();
     for (int i = 0; i < 2000; i++) {
       Item item = table.rollItem();
       if (item instanceof WeaponItem weapon) {
-        // WeaponGenerator scales damage by tier, so damage identifies the tier it rolled.
-        int tier = weapon.getDamage() / (weapon.getWeaponType() == WeaponType.SWORD ? 10 : 7);
+        // WeaponGenerator multiplies a weapon's tier 1 damage by its tier, so dividing by the
+        // tier 1 damage recovers the tier. Looking it up keeps this right for any weapon type.
+        int tierOneDamage = weaponGenerator.generateWeapon(weapon.getWeaponType(), 1).getDamage();
+        int tier = weapon.getDamage() / tierOneDamage;
         tierCounts.merge(tier, 1, Integer::sum);
       }
     }
