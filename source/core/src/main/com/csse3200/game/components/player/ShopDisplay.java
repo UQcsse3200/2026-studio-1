@@ -33,8 +33,8 @@ import java.util.function.IntConsumer;
  *   <li>Pets
  * </ul>
  *
- * <p>The Pets tab uses the pet texture atlas located at {@code assets/images/pet.atlas}. The first
- * {@code idle_right} frame is used as the pet icon.
+ * <p>The Pets tab uses the pet texture atlas located at {@code assets/images/pet.atlas}. The
+ * catalog slot determines which {@code idle_right} frame is used as the pet icon.
  */
 public class ShopDisplay extends UIComponent {
 
@@ -48,8 +48,8 @@ public class ShopDisplay extends UIComponent {
   private static final float CARD_GAP = 6f;
 
   private static final int ITEM_COLUMNS = 3;
-
   private static final int ITEM_SLOT_COUNT = 10;
+  private static final int SELL_SLOT_COUNT = 5;
 
   private static final String LABEL_STYLE = "small";
 
@@ -68,6 +68,7 @@ public class ShopDisplay extends UIComponent {
   private static final Color CARD_TINT = new Color(0.12f, 0.13f, 0.18f, 1f);
   private static final Color CARD_TINT_SELECTED = new Color(0.20f, 0.21f, 0.27f, 1f);
   private static final Color EMPTY_CARD_TINT = new Color(0.09f, 0.10f, 0.13f, 1f);
+
   private static final Color TAB_TINT_ACTIVE = new Color(0.22f, 0.24f, 0.30f, 1f);
   private static final Color TAB_TINT_INACTIVE = new Color(0.13f, 0.14f, 0.18f, 1f);
   private static final Color TAB_UNDERLINE_INACTIVE = new Color(0f, 0f, 0f, 0f);
@@ -75,6 +76,7 @@ public class ShopDisplay extends UIComponent {
   private static final Color TEXT_PRIMARY = new Color(0.91f, 0.91f, 0.93f, 1f);
   private static final Color TEXT_MUTED = new Color(0.42f, 0.45f, 0.52f, 1f);
   private static final Color GOLD_COLOR = new Color(0.91f, 0.77f, 0.42f, 1f);
+  private static final Color INSUFFICIENT_FUNDS_COLOR = new Color(0.90f, 0.25f, 0.25f, 1f);
   private static final Color TAB_TEXT_ACTIVE = new Color(0.91f, 0.77f, 0.42f, 1f);
 
   private static final Color GOLD_PILL_TINT = new Color(0.22f, 0.18f, 0.09f, 1f);
@@ -141,8 +143,6 @@ public class ShopDisplay extends UIComponent {
   private Label detailNameLabel;
   private Label detailPriceLabel;
   private TextButton detailActionButton;
-
-  private static final int SELL_SLOT_COUNT = 5;
 
   @Override
   public void create() {
@@ -449,11 +449,9 @@ public class ShopDisplay extends UIComponent {
     }
 
     buySubButton.setColor(!sellMode ? BUY_MODE_TINT : TAB_TINT_INACTIVE);
-
     buySubButton.getLabel().setColor(Color.WHITE);
 
     sellSubButton.setColor(sellMode ? SELL_MODE_TINT : TAB_TINT_INACTIVE);
-
     sellSubButton.getLabel().setColor(Color.WHITE);
   }
 
@@ -591,12 +589,7 @@ public class ShopDisplay extends UIComponent {
     }
   }
 
-  /**
-   * Creates one catalog card.
-   *
-   * <p>When the current tab is PETS, the card uses the first {@code idle_right} frame from {@code
-   * pet.atlas}.
-   */
+  /** Creates one catalog card. */
   private <T> void addCatalogCard(
       ShopComponent.ShopListing<T> listing,
       int catalogSlot,
@@ -650,7 +643,10 @@ public class ShopDisplay extends UIComponent {
 
       Label priceLabel = new Label("Gold: " + price, whiteLabelStyle);
 
-      priceLabel.setColor(GOLD_COLOR);
+      /*
+       * Show unaffordable purchase prices in red.
+       */
+      priceLabel.setColor(canAfford(price) ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
 
       card.add(priceLabel).padTop(2f).center();
 
@@ -886,10 +882,11 @@ public class ShopDisplay extends UIComponent {
     }
 
     selectedCard = card;
-
     selectedCard.setColor(CARD_TINT_SELECTED);
 
-    pendingAction = action;
+    boolean affordable = canAfford(price);
+
+    pendingAction = affordable ? action : null;
 
     detailIconBg.setColor(rarity.color);
 
@@ -900,21 +897,18 @@ public class ShopDisplay extends UIComponent {
     detailNameLabel.setColor(TEXT_PRIMARY);
 
     detailPriceLabel.setText("Gold: " + price);
+    detailPriceLabel.setColor(affordable ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
 
     detailActionButton.setText(actionLabel);
-
-    detailActionButton.setDisabled(false);
-
-    detailActionButton.setTouchable(Touchable.enabled);
+    detailActionButton.setDisabled(!affordable);
+    detailActionButton.setTouchable(affordable ? Touchable.enabled : Touchable.disabled);
   }
 
   /** Clears the current selection. */
   private void clearSelection() {
 
     if (selectedCard != null) {
-
       selectedCard.setColor(CARD_TINT);
-
       selectedCard = null;
     }
 
@@ -929,15 +923,13 @@ public class ShopDisplay extends UIComponent {
     detailIconLabel.setText("");
 
     detailNameLabel.setText("Select an item to view details");
-
     detailNameLabel.setColor(TEXT_MUTED);
 
     detailPriceLabel.setText("");
+    detailPriceLabel.setColor(GOLD_COLOR);
 
     detailActionButton.setText("BUY");
-
     detailActionButton.setDisabled(true);
-
     detailActionButton.setTouchable(Touchable.disabled);
   }
 
@@ -1020,8 +1012,20 @@ public class ShopDisplay extends UIComponent {
     return "Gold: " + inventory.getGold();
   }
 
+  /** Checks whether the player has enough gold to purchase the given price. */
+  private boolean canAfford(int price) {
+
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null) {
+      return false;
+    }
+
+    return inventory.getGold() >= price;
+  }
+
   /** Opens the shop. */
-  public void openShop() {
+  private void openShop() {
 
     if (shopTable == null) {
       return;
@@ -1031,7 +1035,6 @@ public class ShopDisplay extends UIComponent {
     sellMode = false;
 
     refreshContent();
-
     positionShop();
 
     shopTable.setVisible(true);
