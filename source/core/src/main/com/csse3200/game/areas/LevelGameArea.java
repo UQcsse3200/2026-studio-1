@@ -20,6 +20,7 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
@@ -80,7 +81,8 @@ public class LevelGameArea extends GameArea {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
     "images/gold_coin/gold_coin.atlas",
-    "images/skeleton.atlas"
+    "images/skeleton.atlas",
+    "images/pet.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
@@ -295,6 +297,9 @@ public class LevelGameArea extends GameArea {
     }
 
     spawnEntityAt(newPlayer, spawn, true, true);
+
+    newPlayer.getComponent(PetManagerComponent.class).activatePet();
+
     return newPlayer;
   }
 
