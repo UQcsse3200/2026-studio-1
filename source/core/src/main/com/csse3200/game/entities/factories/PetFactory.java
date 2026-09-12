@@ -2,8 +2,11 @@ package com.csse3200.game.entities.factories;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.pet.PetComponent;
+import com.csse3200.game.components.pet.PetMovementComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -36,14 +39,15 @@ public class PetFactory {
     Entity pet =
         new Entity()
             .addComponent(new PetComponent(owner))
-            .addComponent(new PhysicsComponent())
+            .addComponent(new PetMovementComponent())
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
             .addComponent(new ColliderComponent())
             .addComponent(animator);
 
     pet.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     PhysicsUtils.setScaledCollider(pet, 0.6f, 0.3f);
-    pet.getComponent(ColliderComponent.class).setDensity(1.5f);
+    pet.getComponent(ColliderComponent.class).setLayer(PhysicsLayer.NONE).setSensor(true);
 
     animator.startAnimation("idle_right");
 
