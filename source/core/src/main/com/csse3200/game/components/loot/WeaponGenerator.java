@@ -15,10 +15,10 @@ public class WeaponGenerator {
 
     switch (weaponType) {
       case SWORD:
-        return new WeaponItem("Basic Sword", WeaponType.SWORD, 10 * tier, 1, 1);
+        return new WeaponItem("Basic Sword", WeaponType.SWORD, tier, 1, 1, true);
 
       case BOW:
-        return new WeaponItem("Basic Bow", WeaponType.BOW, 7 * tier, 1, 1);
+        return new WeaponItem("Basic Bow", WeaponType.BOW, tier, 1, 1, true);
 
       default:
         throw new IllegalArgumentException("Unsupported weapon type.");
