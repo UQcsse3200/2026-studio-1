@@ -12,8 +12,6 @@ import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
-import com.csse3200.game.components.player.ShopComponent;
-import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -51,6 +49,13 @@ public class PlayerFactory {
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
 
+    WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
+    startingDagger.setQuantity(20);
+
+    InventoryComponent inventory = new InventoryComponent(stats.gold);
+    inventory.addItem(startingWeapon);
+    inventory.addItem(startingDagger);
+
     Entity player =
         new Entity()
             .addComponent(new TextureRenderComponent("images/box_boy_leaf.png"))
@@ -65,9 +70,7 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
-            .addComponent(new InventoryComponent(stats.gold))
-            .addComponent(new ShopComponent().seedDefaultCatalog())
-            .addComponent(new ShopDisplay())
+            .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
             .addComponent(new PlatformerComponent(3))
@@ -75,7 +78,7 @@ public class PlayerFactory {
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent("images/sword.png"));
+            .addComponent(new WeaponRenderComponent());
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);
