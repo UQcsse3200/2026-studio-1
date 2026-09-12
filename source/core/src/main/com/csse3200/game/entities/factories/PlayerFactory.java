@@ -48,12 +48,13 @@ public class PlayerFactory {
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
-
+    WeaponItem startingBow = weaponGenerator.generateWeapon(WeaponType.BOW, 1);
     WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
     startingDagger.setQuantity(20);
 
     InventoryComponent inventory = new InventoryComponent(stats.gold);
     inventory.addItem(startingWeapon);
+    inventory.addItem(startingBow);
     inventory.addItem(startingDagger);
 
     Entity player =
