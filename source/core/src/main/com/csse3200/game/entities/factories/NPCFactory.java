@@ -227,13 +227,30 @@ public class NPCFactory {
     return npc;
   }
 
-  public static Entity createSimpleNPC() {
+  /**
+   * Creates a passive traveler NPC that wanders but cannot attack the player.
+   * 
+   * @return entity
+   */
+  public static Entity createTravelerNPC() {
+    final float floorCollisionScale = 0.45f;
+    final float playerHeight = 1000f / 792f;
+    AITaskComponent aiComponent =
+        new AITaskComponent()
+            .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale));
     Entity npc =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/NPC.png"))
             .addComponent(new PhysicsComponent())
-            .addComponent(new ColliderComponent());
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(aiComponent)
+            .addComponent(new CombatStatsComponent(50, 0))
+            .addComponent(new TextureRenderComponent("images/npc_traveler.png"));
 
+    npc.getComponent(TextureRenderComponent.class).scaleEntity();
+    npc.scaleHeight(playerHeight);
+    PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     return npc;
   }
 

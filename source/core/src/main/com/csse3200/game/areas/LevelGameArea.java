@@ -49,11 +49,11 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
-  private static final GridPoint2 Simple_NPC = new GridPoint2(5, 5);
+  private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(5, 5);
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/NPC.png",
+    "images/npc_traveler.png",
     "images/box_boy_leaf.png",
     "images/box_boy_crouch.png",
     "images/box_boy_slide.png",
@@ -130,7 +130,7 @@ public class LevelGameArea extends GameArea {
     player = spawnPlayer();
     spawnEnemies();
     spawnLoot();
-    spawnsimplenpc();
+    spawnTravelerNPC();
 
     playMusic();
   }
@@ -413,8 +413,8 @@ public class LevelGameArea extends GameArea {
     unloadAssets();
   }
 
-  private void spawnsimplenpc() {
-    Entity SimpleNPC = NPCFactory.createSimpleNPC();
-    spawnEntityAt(SimpleNPC, Simple_NPC, true, true);
+  private void spawnTravelerNPC() {
+    Entity travelerNPC = NPCFactory.createTravelerNPC();
+    spawnEntityAt(travelerNPC, TRAVELER_NPC_SPAWN, true, true);
   }
 }
