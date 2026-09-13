@@ -2,6 +2,7 @@ package com.csse3200.game.components.loot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -23,7 +24,7 @@ class LootTableTest {
     List<String> first = rollNames(LootTable.createDefault(SEED), 20);
     List<String> second = rollNames(LootTable.createDefault(SEED), 20);
 
-    assertEquals(first, second);
+    assertEquals(first, second, "the same seed should roll the same items in the same order");
   }
 
   /** A different seed gives a different run, otherwise seeding would be pointless. */
@@ -32,8 +33,8 @@ class LootTableTest {
     List<String> first = rollNames(LootTable.createDefault(SEED), 20);
     List<String> second = rollNames(LootTable.createDefault(SEED + 1), 20);
 
-    assertTrue(first.size() == second.size());
-    assertTrue(!first.equals(second), "a different seed should not repeat the same run");
+    assertEquals(first.size(), second.size(), "both runs should roll the same number of items");
+    assertNotEquals(first, second, "a different seed should not repeat the same run");
   }
 
   /** Acceptance criterion: entries are rolled in proportion to their weight. */
@@ -46,7 +47,7 @@ class LootTableTest {
 
     int swords = counts.getOrDefault("Basic Sword", 0);
     int bows = counts.getOrDefault("Basic Bow", 0);
-    assertEquals(1000, swords + bows);
+    assertEquals(1000, swords + bows, "every roll should be either a sword or a bow");
     assertTrue(swords > 850 && swords < 950, "expected about 900 swords, got " + swords);
     assertTrue(bows > 50 && bows < 150, "expected about 100 bows, got " + bows);
   }
@@ -58,8 +59,9 @@ class LootTableTest {
 
     Item item = table.rollItem();
 
-    WeaponItem weapon = assertInstanceOf(WeaponItem.class, item);
-    assertEquals(20, weapon.getDamage());
+    WeaponItem weapon =
+        assertInstanceOf(WeaponItem.class, item, "a weapon-only table should roll a weapon");
+    assertEquals(20, weapon.getDamage(), "a tier 2 sword should deal twice the tier 1 damage");
   }
 
   /** Consumables and weapons come out of the same table. */
@@ -120,20 +122,33 @@ class LootTableTest {
   void shouldRejectInvalidEntries() {
     LootTable table = new LootTable(SEED);
 
-    assertThrows(IllegalArgumentException.class, () -> table.addWeapon(WeaponType.SWORD, 1, 0));
-    assertThrows(IllegalArgumentException.class, () -> table.addWeapon(WeaponType.SWORD, 0, 10));
-    assertThrows(IllegalArgumentException.class, () -> table.addWeapon(null, 1, 10));
     assertThrows(
         IllegalArgumentException.class,
-        () -> table.addConsumable(ConsumableType.SPEED_BUFF, 1, -1));
+        () -> table.addWeapon(WeaponType.SWORD, 1, 0),
+        "a weight of zero should be rejected");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> table.addWeapon(WeaponType.SWORD, 0, 10),
+        "a tier of zero should be rejected");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> table.addWeapon(null, 1, 10),
+        "a missing weapon type should be rejected");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> table.addConsumable(ConsumableType.SPEED_BUFF, 1, -1),
+        "a negative weight should be rejected");
   }
 
   @Test
   void shouldRejectRollingAnEmptyTable() {
     LootTable table = new LootTable(SEED);
 
-    assertTrue(table.isEmpty());
-    assertThrows(IllegalStateException.class, table::rollItem);
+    assertTrue(table.isEmpty(), "a new table should start with no entries");
+    assertThrows(
+        IllegalStateException.class,
+        table::rollItem,
+        "rolling a table with no entries should be rejected");
   }
 
   /** Returns the display name a consumable type is generated with at tier 1. */

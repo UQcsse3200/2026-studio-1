@@ -1,6 +1,10 @@
 package com.csse3200.game.entities.factories;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.csse3200.game.components.player.ConsumableUseComponent;
@@ -19,32 +23,29 @@ import com.csse3200.game.services.ServiceLocator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 @ExtendWith(GameExtension.class)
 class PlayerFactoryTest {
 
   @BeforeEach
   void setUp() {
-    InputFactory inputFactory = Mockito.mock(InputFactory.class);
-    Mockito.when(inputFactory.createForPlayer()).thenReturn(Mockito.mock(InputComponent.class));
-    InputService inputService = Mockito.mock(InputService.class);
-    Mockito.when(inputService.getInputFactory()).thenReturn(inputFactory);
-
+    InputComponent inputComponent = mock(InputComponent.class);
+    InputFactory inputFactory = mock(InputFactory.class);
+    when(inputFactory.createForPlayer()).thenReturn(inputComponent);
+    InputService inputService = mock(InputService.class);
+    when(inputService.getInputFactory()).thenReturn(inputFactory);
     ServiceLocator.registerInputService(inputService);
+
     // The factory scales the player sprite, so the resource service has to hand back a texture.
-    Texture texture = Mockito.mock(Texture.class);
-    Mockito.when(texture.getWidth()).thenReturn(16);
-    Mockito.when(texture.getHeight()).thenReturn(16);
-    ResourceService resourceService = Mockito.mock(ResourceService.class);
-    Mockito.when(
-            resourceService.getAsset(
-                ArgumentMatchers.anyString(), ArgumentMatchers.eq(Texture.class)))
-        .thenReturn(texture);
+    Texture texture = mock(Texture.class);
+    when(texture.getWidth()).thenReturn(16);
+    when(texture.getHeight()).thenReturn(16);
+    ResourceService resourceService = mock(ResourceService.class);
+    when(resourceService.getAsset(anyString(), eq(Texture.class))).thenReturn(texture);
     ServiceLocator.registerResourceService(resourceService);
-    ServiceLocator.registerRenderService(Mockito.mock(RenderService.class));
-    ServiceLocator.registerTimeSource(Mockito.mock(GameTime.class));
+
+    ServiceLocator.registerRenderService(mock(RenderService.class));
+    ServiceLocator.registerTimeSource(mock(GameTime.class));
     ServiceLocator.registerPhysicsService(new PhysicsService());
   }
 

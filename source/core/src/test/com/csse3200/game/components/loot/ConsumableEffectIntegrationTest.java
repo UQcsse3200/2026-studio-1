@@ -60,8 +60,11 @@ class ConsumableEffectIntegrationTest {
   void shouldHealImmediatelyWithAHealthPotion() {
     ConsumableItem potion = generator.generateConsumable(ConsumableType.HEALTH_POTION, 1);
 
-    assertTrue(potion.use(player));
-    assertEquals(75, player.getComponent(CombatStatsComponent.class).getHealth());
+    assertTrue(potion.use(player), "a health potion below full health should be usable");
+    assertEquals(
+        75,
+        player.getComponent(CombatStatsComponent.class).getHealth(),
+        "a tier 1 health potion should restore 25 health straight away");
   }
 
   /** The regeneration potion heals gradually and stops when its duration ends. */
@@ -70,20 +73,20 @@ class ConsumableEffectIntegrationTest {
     ConsumableItem potion = generator.generateConsumable(ConsumableType.REGENERATION, 1);
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
 
-    assertTrue(potion.use(player));
-    assertEquals(50, stats.getHealth());
+    assertTrue(potion.use(player), "a regeneration potion should be usable");
+    assertEquals(50, stats.getHealth(), "regeneration should not heal the moment it is drunk");
 
     when(time.getTime()).thenReturn(1000L);
     player.update();
-    assertEquals(55, stats.getHealth());
+    assertEquals(55, stats.getHealth(), "the first tick should restore 5 health");
 
     when(time.getTime()).thenReturn(6000L);
     player.update();
-    assertEquals(80, stats.getHealth());
+    assertEquals(80, stats.getHealth(), "six ticks of 5 should have healed 30 health in total");
 
     when(time.getTime()).thenReturn(20000L);
     player.update();
-    assertEquals(80, stats.getHealth());
+    assertEquals(80, stats.getHealth(), "no healing should happen after the potion runs out");
   }
 
   /** The resistance potion reduces incoming damage until it expires. */
@@ -92,13 +95,20 @@ class ConsumableEffectIntegrationTest {
     ConsumableItem potion = generator.generateConsumable(ConsumableType.RESISTANCE, 1);
     PlayerBuffComponent buffs = player.getComponent(PlayerBuffComponent.class);
 
-    assertTrue(potion.use(player));
-    assertEquals(0.7f, buffs.getIncomingDamageMultiplier(), 0.0001f);
-    assertTrue(buffs.hasBuff(BuffStat.RESISTANCE));
+    assertTrue(potion.use(player), "a resistance potion should be usable");
+    assertEquals(
+        0.7f,
+        buffs.getIncomingDamageMultiplier(),
+        0.0001f,
+        "a tier 1 resistance potion should cut incoming damage to 70%");
+    assertTrue(buffs.hasBuff(BuffStat.RESISTANCE), "the resistance buff should be active");
 
     when(time.getTime()).thenReturn(10000L);
     player.update();
-    assertEquals(1f, buffs.getIncomingDamageMultiplier());
+    assertEquals(
+        1f,
+        buffs.getIncomingDamageMultiplier(),
+        "incoming damage should be back to normal once the potion expires");
   }
 
   /** The strength potion multiplies weapon damage through the buff component. */
@@ -107,11 +117,16 @@ class ConsumableEffectIntegrationTest {
     ConsumableItem potion = generator.generateConsumable(ConsumableType.DAMAGE_BUFF, 1);
     PlayerBuffComponent buffs = player.getComponent(PlayerBuffComponent.class);
 
-    assertTrue(potion.use(player));
-    assertEquals(1.5f, buffs.getDamageMultiplier(), 0.0001f);
+    assertTrue(potion.use(player), "a strength potion should be usable");
+    assertEquals(
+        1.5f,
+        buffs.getDamageMultiplier(),
+        0.0001f,
+        "a tier 1 strength potion should multiply damage by 1.5");
 
     when(time.getTime()).thenReturn(10000L);
     player.update();
-    assertEquals(1f, buffs.getDamageMultiplier());
+    assertEquals(
+        1f, buffs.getDamageMultiplier(), "damage should be back to normal once the potion expires");
   }
 }

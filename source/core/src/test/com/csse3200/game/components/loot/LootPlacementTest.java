@@ -1,6 +1,7 @@
 package com.csse3200.game.components.loot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,11 +29,17 @@ class LootPlacementTest {
     List<LootPlacement.PlacedLoot> placed =
         LootPlacement.forSpawnPoints(LootTable.createDefault(SEED), points);
 
-    assertEquals(2, placed.size());
-    assertEquals(new GridPoint2(3, 4), placed.get(0).getPosition());
-    assertEquals(new GridPoint2(9, 2), placed.get(1).getPosition());
-    assertNotNull(placed.get(0).getItem());
-    assertNotNull(placed.get(1).getItem());
+    assertEquals(2, placed.size(), "each spawn point should get exactly one item");
+    assertEquals(
+        new GridPoint2(3, 4),
+        placed.get(0).getPosition(),
+        "the first item should sit on the first spawn point");
+    assertEquals(
+        new GridPoint2(9, 2),
+        placed.get(1).getPosition(),
+        "the second item should sit on the second spawn point");
+    assertNotNull(placed.get(0).getItem(), "the first spawn point should be given an item");
+    assertNotNull(placed.get(1).getItem(), "the second spawn point should be given an item");
   }
 
   /** Acceptance criterion: the same seed puts the same loot in the same places. */
@@ -44,7 +51,7 @@ class LootPlacementTest {
     List<String> second =
         names(LootPlacement.forSpawnPoints(LootTable.createDefault(SEED), points));
 
-    assertEquals(first, second);
+    assertEquals(first, second, "the same seed should lay out the same loot in the same places");
   }
 
   /** A different seed lays out a different run. */
@@ -56,7 +63,7 @@ class LootPlacementTest {
     List<String> second =
         names(LootPlacement.forSpawnPoints(LootTable.createDefault(SEED + 1), points));
 
-    assertTrue(!first.equals(second), "a different seed should lay out different loot");
+    assertNotEquals(first, second, "a different seed should lay out different loot");
   }
 
   /** A map with no declared loot spawns plans nothing, leaving the caller to fall back. */
@@ -65,16 +72,27 @@ class LootPlacementTest {
     List<LootPlacement.PlacedLoot> placed =
         LootPlacement.forSpawnPoints(LootTable.createDefault(SEED), List.of());
 
-    assertTrue(placed.isEmpty());
+    assertTrue(placed.isEmpty(), "a map with no loot spawn points should get no loot");
   }
 
   @Test
-  void shouldRejectMissingArguments() {
-    assertThrows(
-        IllegalArgumentException.class, () -> LootPlacement.forSpawnPoints(null, List.of()));
+  void shouldRejectAMissingLootTable() {
+    List<SpawnPoint> noSpawns = List.of();
+
     assertThrows(
         IllegalArgumentException.class,
-        () -> LootPlacement.forSpawnPoints(LootTable.createDefault(SEED), null));
+        () -> LootPlacement.forSpawnPoints(null, noSpawns),
+        "placing loot without a loot table should be rejected");
+  }
+
+  @Test
+  void shouldRejectMissingSpawnPoints() {
+    LootTable table = LootTable.createDefault(SEED);
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> LootPlacement.forSpawnPoints(table, null),
+        "placing loot without a list of spawn points should be rejected");
   }
 
   private List<SpawnPoint> manySpawnPoints(int count) {
