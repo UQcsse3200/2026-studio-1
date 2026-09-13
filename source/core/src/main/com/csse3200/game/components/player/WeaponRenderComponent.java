@@ -81,6 +81,7 @@ public class WeaponRenderComponent extends RenderComponent {
 
     if (!(item instanceof WeaponItem weaponItem)) {
       texture = null;
+      isBow = false;
       return;
     }
 
