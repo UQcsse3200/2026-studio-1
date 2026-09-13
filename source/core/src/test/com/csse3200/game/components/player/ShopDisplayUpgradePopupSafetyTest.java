@@ -30,9 +30,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * popup stopped being last-drawn.
  *
  * <p>A headless test can't drive an actual render pass, so this directly asserts the specific
- * mechanism that caused the bug: the popup's background Table and close button must never carry
- * any color other than default white, across repeated open/close/purchase cycles - exactly the
- * scenario that originally triggered it. (toFront() is verified by inspection instead - see
+ * mechanism that caused the bug: the popup's background Table and close button must never carry any
+ * color other than default white, across repeated open/close/purchase cycles - exactly the scenario
+ * that originally triggered it. (toFront() is verified by inspection instead - see
  * ShopDisplay.showUpgradePopup(), which contains no such call.)
  */
 @ExtendWith(GameExtension.class)
@@ -132,10 +132,10 @@ class ShopDisplayUpgradePopupSafetyTest {
   }
 
   /**
-   * Same kind of direct proof as the popup test above, applied to the purchase-confirmation
-   * toast: its background Table must never carry any color other than default white, across
-   * several purchases in a row - the toast is (re)shown on every successful purchase, so this
-   * exercises ensurePurchaseToastCreated()/showPurchaseToast() repeatedly rather than just once.
+   * Same kind of direct proof as the popup test above, applied to the purchase-confirmation toast:
+   * its background Table must never carry any color other than default white, across several
+   * purchases in a row - the toast is (re)shown on every successful purchase, so this exercises
+   * ensurePurchaseToastCreated()/showPurchaseToast() repeatedly rather than just once.
    */
   @Test
   void purchaseToastStaysDefaultWhiteAcrossRepeatedPurchases() throws Exception {

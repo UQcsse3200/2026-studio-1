@@ -1104,12 +1104,14 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * "Tier X/Y" when {@code node} is currently active, or "Not active" otherwise - the single
-   * source of tier-status text shared by both the bottom detail panel (via upgradeDetailName())
-   * and the informational popup (via populateUpgradePopup()), so the two never drift apart.
+   * "Tier X/Y" when {@code node} is currently active, or "Not active" otherwise - the single source
+   * of tier-status text shared by both the bottom detail panel (via upgradeDetailName()) and the
+   * informational popup (via populateUpgradePopup()), so the two never drift apart.
    */
   private String tierStatusText(UpgradeNode node) {
-    return node.isActive() ? "Tier " + node.getCurrentTier() + "/" + node.getMaxTier() : "Not active";
+    return node.isActive()
+        ? "Tier " + node.getCurrentTier() + "/" + node.getMaxTier()
+        : "Not active";
   }
 
   /**
@@ -1157,9 +1159,9 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Shows the Upgrades-tab-only informational popup for {@code node}, in the empty space above
-   * the shop window. Purely informational: name, description, current tier/status, and a close
-   * (X) button - no purchase action here.
+   * Shows the Upgrades-tab-only informational popup for {@code node}, in the empty space above the
+   * shop window. Purely informational: name, description, current tier/status, and a close (X)
+   * button - no purchase action here.
    */
   private void showUpgradePopup(UpgradeNode node) {
     ensureUpgradePopupCreated();
@@ -1228,8 +1230,8 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Fills the popup with {@code node}'s current name/description/tier - purely display, no
-   * action. Reuses tierStatusText() rather than recomputing tier text separately, the same helper
+   * Fills the popup with {@code node}'s current name/description/tier - purely display, no action.
+   * Reuses tierStatusText() rather than recomputing tier text separately, the same helper
    * upgradeDetailName() uses for the bottom detail panel.
    */
   private void populateUpgradePopup(UpgradeNode node) {
@@ -1271,10 +1273,10 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Shows a brief "<Name> activated - Tier <N>" confirmation toast, top-center of the screen,
-   * after a successful upgrade purchase. Auto-hides itself after {@link
-   * #PURCHASE_TOAST_VISIBLE_SECONDS} - see {@link #ensurePurchaseToastCreated()} for exactly why
-   * this is safe against both rendering bugs already root-caused in this file.
+   * Shows a brief "<Name> activated - Tier <N>" confirmation toast, top-center of the screen, after
+   * a successful upgrade purchase. Auto-hides itself after {@link #PURCHASE_TOAST_VISIBLE_SECONDS}
+   * - see {@link #ensurePurchaseToastCreated()} for exactly why this is safe against both rendering
+   * bugs already root-caused in this file.
    */
   private void showPurchaseToast(UpgradeNode node) {
     ensurePurchaseToastCreated();
@@ -1296,16 +1298,15 @@ public class ShopDisplay extends UIComponent {
   /**
    * Builds the (initially hidden) purchase toast once, reused for every subsequent purchase.
    *
-   * <p>Safety, per both rendering bugs already root-caused in this file: the Table's background
-   * is "toast-charcoal" (Skin$TintedDrawable: name "white", color "toast-charcoal-color", added
-   * to flat-earth-ui.json using the identical pattern as the skin's own "black" entry) - its dark
-   * tone is baked in at skin-load time, never a custom setColor() tint applied to the Table
-   * itself, exactly the fix that resolved the informational popup's darkening bug. The Label uses
-   * whiteLabelStyle as-is (plain white text, no further setColor() call), which is safe
-   * regardless: Label text draws via BitmapFontCache's vertex-array batch.draw() overload, which
-   * never touches the shared SpriteBatch's color state. Never toFront()'d, and see
-   * showPurchaseToast() for why hiding it uses a plain scheduled setVisible(false) rather than any
-   * fade.
+   * <p>Safety, per both rendering bugs already root-caused in this file: the Table's background is
+   * "toast-charcoal" (Skin$TintedDrawable: name "white", color "toast-charcoal-color", added to
+   * flat-earth-ui.json using the identical pattern as the skin's own "black" entry) - its dark tone
+   * is baked in at skin-load time, never a custom setColor() tint applied to the Table itself,
+   * exactly the fix that resolved the informational popup's darkening bug. The Label uses
+   * whiteLabelStyle as-is (plain white text, no further setColor() call), which is safe regardless:
+   * Label text draws via BitmapFontCache's vertex-array batch.draw() overload, which never touches
+   * the shared SpriteBatch's color state. Never toFront()'d, and see showPurchaseToast() for why
+   * hiding it uses a plain scheduled setVisible(false) rather than any fade.
    */
   private void ensurePurchaseToastCreated() {
     if (purchaseToast != null) {
@@ -1328,8 +1329,8 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Positions the purchase toast centered horizontally, near the top of the screen - distinct
-   * from the bottom detail panel and the above-shop informational popup.
+   * Positions the purchase toast centered horizontally, near the top of the screen - distinct from
+   * the bottom detail panel and the above-shop informational popup.
    */
   private void positionPurchaseToastTopCenter() {
     purchaseToast.pack(); // resize to fit the current text before positioning

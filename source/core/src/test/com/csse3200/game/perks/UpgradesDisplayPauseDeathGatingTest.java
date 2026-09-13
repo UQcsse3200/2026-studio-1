@@ -14,6 +14,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.rendering.RenderService;
+import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.lang.reflect.Field;
@@ -46,6 +47,7 @@ class UpgradesDisplayPauseDeathGatingTest {
     renderService.setStage(mock(Stage.class));
     ServiceLocator.registerRenderService(renderService);
     ServiceLocator.registerResourceService(mock(ResourceService.class));
+    ServiceLocator.registerTimeSource(new GameTime());
 
     Gdx.graphics = mock(Graphics.class);
     when(Gdx.graphics.getDeltaTime()).thenReturn(1f); // deterministic 1s-per-draw() delta

@@ -33,7 +33,9 @@ public class ActiveUpgradesHud extends UIComponent {
 
     root = new Table();
     root.setFillParent(true);
-    root.bottom().right().pad(10f); // bottom-right - clear of everything else, which is top-anchored
+    root.bottom()
+        .right()
+        .pad(10f); // bottom-right - clear of everything else, which is top-anchored
     stage.addActor(root);
   }
 

@@ -33,8 +33,8 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
-import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
+import com.csse3200.game.ui.terminal.commands.WinCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
