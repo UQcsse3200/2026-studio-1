@@ -36,8 +36,7 @@ public class WeaponDisplay extends UIComponent {
     String imagePath =
         weapon.getWeaponType() == WeaponType.BOW ? "images/bow.png" : "images/sword.png";
 
-    weaponImage =
-        new Image(ServiceLocator.getResourceService().getAsset(imagePath, Texture.class));
+    weaponImage = new Image(ServiceLocator.getResourceService().getAsset(imagePath, Texture.class));
 
     switch (weapon.getTier()) {
       case 1:

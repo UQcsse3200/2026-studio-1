@@ -16,11 +16,9 @@ public class WeaponTierLootWeightTest {
 
   @Test
   void higherTiersShouldBeRarer() {
-    assertTrue(
-        WeaponTier.TIER_1.getLootWeight() > WeaponTier.TIER_2.getLootWeight());
+    assertTrue(WeaponTier.TIER_1.getLootWeight() > WeaponTier.TIER_2.getLootWeight());
 
-    assertTrue(
-        WeaponTier.TIER_2.getLootWeight() > WeaponTier.TIER_3.getLootWeight());
+    assertTrue(WeaponTier.TIER_2.getLootWeight() > WeaponTier.TIER_3.getLootWeight());
   }
 
   @Test

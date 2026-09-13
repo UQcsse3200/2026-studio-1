@@ -1,39 +1,9 @@
 package com.csse3200.game.components.loot;
 
 public enum WeaponTier {
-  TIER_1(
-      1,
-      70,
-      10,
-      1.0f,
-      1.0f,
-      2.0f,
-      7,
-      1.0f,
-      0.5f,
-      8.0f),
-  TIER_2(
-      2,
-      25,
-      20,
-      1.2f,
-      1.5f,
-      2.5f,
-      14,
-      1.2f,
-      0.75f,
-      10.0f),
-  TIER_3(
-      3,
-      5,
-      30,
-      1.5f,
-      2.0f,
-      3.0f,
-      21,
-      1.5f,
-      1.0f,
-      12.0f);
+  TIER_1(1, 70, 10, 1.0f, 1.0f, 2.0f, 7, 1.0f, 0.5f, 8.0f),
+  TIER_2(2, 25, 20, 1.2f, 1.5f, 2.5f, 14, 1.2f, 0.75f, 10.0f),
+  TIER_3(3, 5, 30, 1.5f, 2.0f, 3.0f, 21, 1.5f, 1.0f, 12.0f);
 
   private final int tier;
   private final int lootWeight;
@@ -79,12 +49,10 @@ public enum WeaponTier {
     }
 
     if (weaponType == WeaponType.SWORD) {
-      return new TierStats(
-          tier, swordDamage, swordAttackSpeed, swordKnockback, swordRange);
+      return new TierStats(tier, swordDamage, swordAttackSpeed, swordKnockback, swordRange);
     }
 
-    return new TierStats(
-        tier, bowDamage, bowAttackSpeed, bowKnockback, bowRange);
+    return new TierStats(tier, bowDamage, bowAttackSpeed, bowKnockback, bowRange);
   }
 
   private static class TierStats implements WeaponStats {

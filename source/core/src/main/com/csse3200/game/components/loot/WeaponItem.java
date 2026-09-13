@@ -6,8 +6,7 @@ public class WeaponItem extends Item {
   private final int tier;
   private final WeaponStats weaponStats;
 
-  public WeaponItem(
-      String name, WeaponType weaponType, int damage, int quantity, int maxQuantity) {
+  public WeaponItem(String name, WeaponType weaponType, int damage, int quantity, int maxQuantity) {
     super(name, ItemType.WEAPON, quantity, maxQuantity);
 
     if (weaponType == null) {
