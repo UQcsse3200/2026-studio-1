@@ -52,6 +52,7 @@ public class MainGameScreen extends ScreenAdapter {
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
+  private static final String SECOND_ROOM_MAP = "maps/level2.json";
   private static final float GAMEPLAY_ZOOM = 0.95f;
 
   /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
@@ -61,6 +62,7 @@ public class MainGameScreen extends ScreenAdapter {
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
+  private String currentRoomMapPath = FIRST_ROOM_MAP;
   private DeathScreenDisplay deathScreenDisplay;
   private boolean deathScreenShown = false;
   private Boolean playerInNether;
@@ -145,7 +147,10 @@ public class MainGameScreen extends ScreenAdapter {
     if (playerInNether != null
         && playerInNether != inNether
         && (travel == null || !travel.isControlLocked())) {
-      player.getEvents().trigger("subLevelEntered", inNether ? "NETHER" : "DUNGEON");
+      String title = subLevelTitle(currentRoomMapPath, inNether);
+      if (title != null) {
+        player.getEvents().trigger("subLevelEntered", title);
+      }
     }
     playerInNether = inNether;
     float subLevelBottom = inNether ? SUB_LEVEL_BOUNDARY : 0f;
@@ -156,6 +161,17 @@ public class MainGameScreen extends ScreenAdapter {
     float y = clampToRange(playerPosition.y, halfViewHeight, subLevelBottom, subLevelHeight);
 
     renderer.getCamera().getEntity().setPosition(x, y);
+  }
+
+  /** Selects a crossing title for the current room without relabelling other rooms. */
+  static String subLevelTitle(String mapPath, boolean upperSection) {
+    if (FIRST_ROOM_MAP.equals(mapPath)) {
+      return upperSection ? "NETHER" : "DUNGEON";
+    }
+    if (SECOND_ROOM_MAP.equals(mapPath)) {
+      return upperSection ? "SKIES" : "BASE";
+    }
+    return null;
   }
 
   /**
@@ -229,6 +245,7 @@ public class MainGameScreen extends ScreenAdapter {
     previousArea.dispose();
     nextArea.resumeMusic();
     levelGameArea = nextArea;
+    currentRoomMapPath = transition.getDestinationMap();
     playerInNether = null;
     player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
     if (FIRST_ROOM_MAP.equals(transition.getDestinationMap())) {

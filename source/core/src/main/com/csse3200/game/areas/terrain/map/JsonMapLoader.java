@@ -192,7 +192,9 @@ public class JsonMapLoader implements MapLoader {
 
     Map<String, TileDefinition> legend = authoredLegend();
     MapLayerData collision = buildLayer("collision", rows, legend, width, height);
-    MapLayerData hazards = buildStormHazardLayer(rows, width, height);
+    // Storm-cloud artwork does not currently show an active/danger state. Keep these clouds
+    // walkable without invisible damage; only explicitly placed hazards belong in this layer.
+    MapLayerData hazards = new MapLayerData("hazards", width, height);
     MapSpawns spawns = parseAuthoredSpawns(root.get("entry"), root.get("objects"), hazards, height);
     List<RoomTransition> transitions = parseAuthoredTransitions(root.get("exit"), height);
 
@@ -229,20 +231,8 @@ public class JsonMapLoader implements MapLoader {
       legend.put(symbol, new TileDefinition(TileType.PLATFORM, null));
     }
     legend.put("P", new TileDefinition(TileType.DECORATIVE, null));
+    legend.put("V", new TileDefinition(TileType.DECORATIVE, null));
     return legend;
-  }
-
-  private static MapLayerData buildStormHazardLayer(String[] rows, int width, int height) {
-    MapLayerData hazards = new MapLayerData("hazards", width, height);
-    TileDefinition storm = new TileDefinition(TileType.HAZARD, null);
-    for (int row = 0; row < rows.length; row++) {
-      for (int x = 0; x < rows[row].length(); x++) {
-        if (rows[row].charAt(x) == 'm') {
-          hazards.set(x, height - 1 - row, storm);
-        }
-      }
-    }
-    return hazards;
   }
 
   private static MapSpawns parseAuthoredSpawns(

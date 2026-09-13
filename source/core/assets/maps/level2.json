@@ -143,6 +143,7 @@
     "g": "cliff-granite",
     "K": "cliff-shelf",
     "P": "cliff-piton",
+    "V": "summit-pillar-decoration",
     "c": "cloud-solid",
     "d": "cloud-drift",
     "f": "cloud-fade",
@@ -742,14 +743,14 @@
     "                                                         SSSSSSSSSSSSSSSSSSSSSSS",
     "                                                         SSSSSSSSSSSSSSSSSSSSSSS",
     "                                                                                ",
-    "                                                           S  S   S   S   S     ",
-    "                                                           S  S   S   S   S     ",
-    "                                                           S  S   S   S   S     ",
-    "                                                           S  S   S   S   S     ",
-    "                                                           S  S   S   S   S     ",
-    "                                                           S  S   S   S   S     ",
-    "                                                           S  S   S   S   S     ",
-    "                                                           S  S   S   S   S     ",
+    "                                                           V  V   V   V   V     ",
+    "                                                           V  V   V   V   V     ",
+    "                                                           V  V   V   V   V     ",
+    "                                                           V  V   V   V   V     ",
+    "                                                           V  V   V   V   V     ",
+    "                                                           V  V   V   V   V     ",
+    "                                                           V  V   V   V   V     ",
+    "                                                           V  V   V   V   V     ",
     "                                                        IISSSSSSSSSSSSSSSSSSSSSS",
     "                                                        SSSSSSSSSSSSSSSSSSSSSSSS",
     "                                             cccccccc   gggggggggggggggggggggggg",
@@ -1037,12 +1038,6 @@
       "tag": "checkpoint"
     },
     {
-      "id": "hazard-falling-column",
-      "x": 42,
-      "y": 104,
-      "step": 3
-    },
-    {
       "id": "item-bow-artemis",
       "x": 18,
       "y": 98,
@@ -1085,7 +1080,7 @@
       "step": 4
     },
     {
-      "id": "enemy-cyclops",
+      "id": "enemy-skeleton-hoplite",
       "x": 43,
       "y": 32,
       "size": 16,

@@ -579,7 +579,13 @@ public class LevelGameArea extends GameArea {
   private void spawnLoot() {
     if (!mapData.getSpawns().getLoot().isEmpty()) {
       for (SpawnPoint spawn : mapData.getSpawns().getLoot()) {
-        spawnEntityAt(createMapLoot(spawn.getType()), spawn.getPosition(), true, true);
+        Entity loot = createMapLoot(spawn.getType());
+        if ("item-olive-branch".equals(spawn.getType())) {
+          // This authored summit pickup already rests on the floor. Let its render component bob,
+          // but keep the physics body still so it cannot jitter against the marble tiles.
+          loot.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
+        }
+        spawnEntityAt(loot, spawn.getPosition(), true, true);
       }
       return;
     }

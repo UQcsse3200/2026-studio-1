@@ -355,7 +355,19 @@ class JsonMapLoaderTest {
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());
     assertEquals(TileType.WALL, levelTwo.getTileType(1, 1));
     assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 155));
-    assertEquals(TileType.HAZARD, levelTwo.getLayer("hazards").get(27, 155).type());
+    assertNull(levelTwo.getLayer("hazards").get(27, 155));
+    assertNull(levelTwo.getLayer("hazards").get(27, 143));
+    assertNull(levelTwo.getLayer("hazards").get(31, 131));
+    assertNull(levelTwo.getLayer("hazards").get(42, 75));
+    assertEquals(TileType.HAZARD, levelTwo.getLayer("hazards").get(13, 45).type());
+    assertEquals(TileType.DECORATIVE, levelTwo.getTileType(59, 173));
+    assertEquals(TileType.WALL, levelTwo.getTileType(59, 165));
+    assertTrue(
+        levelTwo.getSpawns().getEnemies().stream()
+            .anyMatch(
+                spawn ->
+                    "skeleton".equals(spawn.getType())
+                        && spawn.getPosition().equals(new GridPoint2(43, 147))));
     assertEquals(6, levelTwo.getSpawns().getEnemies().size());
     assertEquals(6, levelTwo.getSpawns().getLoot().size());
     assertEquals("maps/level3.json", levelTwo.getTransitions().getFirst().getDestinationMap());
