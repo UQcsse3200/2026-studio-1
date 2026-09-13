@@ -35,12 +35,12 @@ import org.slf4j.LoggerFactory;
  */
 public class AnimationRenderComponent extends RenderComponent {
   private static final Logger logger = LoggerFactory.getLogger(AnimationRenderComponent.class);
-  private final GameTime timeSource;
+  protected final GameTime timeSource;
   private final TextureAtlas atlas;
   private final Map<String, Animation<TextureRegion>> animations;
-  private Animation<TextureRegion> currentAnimation;
+  protected Animation<TextureRegion> currentAnimation;
   private String currentAnimationName;
-  private float animationPlayTime;
+  protected float animationPlayTime;
 
   /**
    * Create the component for a given texture atlas.

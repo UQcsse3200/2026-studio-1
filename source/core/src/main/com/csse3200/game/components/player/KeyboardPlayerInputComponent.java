@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.input.InputComponent;
+import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
 
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
+  private boolean sliding = false;
   private String direction = "Right";
 
   /**
@@ -53,7 +55,11 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.A:
         walkDirection.add(Vector2Utils.LEFT);
-        entity.getEvents().trigger("run");
+        if (crouch) {
+          entity.getEvents().trigger("crouchidle");
+        } else {
+          entity.getEvents().trigger("run");
+        }
         direction = "Left";
         triggerWalkEvent();
         return true;
@@ -63,7 +69,11 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.D:
         walkDirection.add(Vector2Utils.RIGHT);
-        entity.getEvents().trigger("run");
+        if (crouch) {
+          entity.getEvents().trigger("crouchidle");
+        } else {
+          entity.getEvents().trigger("run");
+        }
         direction = "Right";
         triggerWalkEvent();
         return true;
@@ -76,6 +86,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
         entity.getEvents().trigger("crouchidle");
+        crouch = true;
         return true;
       case Keys.SHIFT_LEFT: // for slide
         entity.getEvents().trigger("slide", true);
@@ -151,10 +162,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", false);
         entity.getEvents().trigger("idle");
+        crouch = false;
         return true;
       case Keys.SHIFT_LEFT: // for slide
-        entity.getEvents().trigger("slide", false);
-        entity.getEvents().trigger("idle");
         return true;
       default:
         return false;

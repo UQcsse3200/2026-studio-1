@@ -13,6 +13,8 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.AnimationRenderComponent;
+import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.HashMap;
@@ -54,9 +56,6 @@ public class PlayerActions extends Component {
   // Death State
   private boolean dead = false;
 
-  private final String NORMAL_TEXTURE = "images/knight_default.png";
-  private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
-  private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
@@ -105,6 +104,14 @@ public class PlayerActions extends Component {
       updateSpeed();
     }
     timerforslide();
+    animationtimer();
+  }
+
+  private void animationtimer() {
+    PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
+    if (animator.isFinished() && animator.getCurrentAnimation() != "crouchidle") {
+      entity.getEvents().trigger("idle");
+    }
   }
 
   public void playMovementSound() {
@@ -264,12 +271,10 @@ public class PlayerActions extends Component {
     }
 
     if (pressed) {
-      textureRenderComponent.setTexture(CROUCH_TEXTURE);
       sneaking = true;
       crouching = true;
       updateSpeed();
     } else {
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
       sneaking = false;
       crouching = false;
       updateSpeed();
@@ -280,12 +285,10 @@ public class PlayerActions extends Component {
     if (pressed) {
       sliding = true;
       SlideTimer = 0;
-      textureRenderComponent.setTexture(SLIDE_TEXTURE);
       slidingAction(walkDirection.cpy());
-
+      entity.getEvents().trigger("sliding");
     } else {
       sliding = false;
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
   }
 
@@ -301,7 +304,6 @@ public class PlayerActions extends Component {
     SlideTimer += Gdx.graphics.getDeltaTime();
     if (SlideTimer >= SlideMaxTime) { // finish slide
       sliding = false;
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
   }
 
