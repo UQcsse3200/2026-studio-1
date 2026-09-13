@@ -5,6 +5,7 @@ import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -73,6 +74,7 @@ public class PlayerFactory {
             .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
+            .addComponent(new PetManagerComponent())
             .addComponent(new PlatformerComponent(3))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new InventoryDisplay())
