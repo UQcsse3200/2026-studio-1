@@ -4,12 +4,16 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
-import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.MeleeAttackComponent;
-import com.csse3200.game.components.RangedAttackComponent;
-import com.csse3200.game.components.TouchAttackComponent;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
+import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.tasks.ChaseTask;
 import com.csse3200.game.components.tasks.MeleeAttackTask;
 import com.csse3200.game.components.tasks.PlatformWanderTask;
@@ -19,8 +23,8 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.GhostKingConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
-import com.csse3200.game.entities.configs.RangedSkeletonConfig;
-import com.csse3200.game.entities.configs.SkeletonConfig;
+import com.csse3200.game.entities.configs.enemies.RangedSkeletonConfig;
+import com.csse3200.game.entities.configs.enemies.SkeletonConfig;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
@@ -30,6 +34,8 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Factory to create non-playable character (NPC) entities with predefined components.
@@ -109,6 +115,19 @@ public class NPCFactory {
     Entity skeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     SkeletonConfig config = configs.skeleton;
 
+    // Create loot on drop
+    int numGold = 3;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
+
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
@@ -118,11 +137,15 @@ public class NPCFactory {
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
+    // Add necessary components to the entity
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range, config.melee.cooldown, config.melee.knockback))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 
@@ -145,6 +168,18 @@ public class NPCFactory {
     Entity rangedSkeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     RangedSkeletonConfig config = configs.rangedSkeleton;
 
+    // Create loot on drop
+    int numGold = 3;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
@@ -154,11 +189,15 @@ public class NPCFactory {
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
+    // Add necessary components to the entity
     rangedSkeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 
@@ -223,6 +262,7 @@ public class NPCFactory {
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
     return npc;
   }
 
