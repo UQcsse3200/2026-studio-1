@@ -1,7 +1,10 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -11,8 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import com.csse3200.game.components.loot.Item;
-import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.ui.UIComponent;
 import java.util.EnumMap;
 import java.util.Map;
@@ -20,25 +23,18 @@ import java.util.function.Function;
 import java.util.function.IntConsumer;
 
 /**
- * Displays the player's shop interface using a dark, MOBA-style layout (inspired by games such as
- * Arena of Valor / League of Legends).
+ * Displays the player's shop interface using a dark, MOBA-style layout.
  *
- * <p>The shop is opened via a persistent shop icon/button (disabled while the game is paused via
- * {@link PauseMenuComponent}). Once opened it provides three categories:
+ * <p>The shop provides three categories:
  *
  * <ul>
- *   <li>Items — has BUY and SELL sub-tabs. BUY shows the shop's item catalog; SELL shows the
- *       player's inventory so they can sell items back for gold (via {@link
- *       ShopComponent#sellItem(int)}).
+ *   <li>Items - BUY and SELL modes
  *   <li>Upgrades
  *   <li>Pets
  * </ul>
  *
- * <p>Catalog grids always display {@value #ITEM_SLOT_COUNT} slots. The SELL grid uses the sibling
- * inventory capacity. Cards carry a thin top accent strip color-coded by rarity (derived from
- * price, see {@link #getRarityForPrice(int)}), matching the icon and the detail panel's side accent
- * bar. Clicking a card selects it and shows its details in a shared bottom panel with a single
- * action button (BUY or SELL depending on context), rather than each card carrying its own button.
+ * <p>The Pets tab uses the pet texture atlas located at {@code assets/images/pet.atlas}. The
+ * catalog slot determines which {@code idle_right} frame is used as the pet icon.
  */
 public class ShopDisplay extends UIComponent {
 
@@ -52,9 +48,8 @@ public class ShopDisplay extends UIComponent {
   private static final float CARD_GAP = 6f;
 
   private static final int ITEM_COLUMNS = 3;
-
-  // Shop catalog grid size (10 cards per tab). createSellGrid() uses inventory.getMaxSlots().
   private static final int ITEM_SLOT_COUNT = 10;
+  private static final int SELL_SLOT_COUNT = 5;
 
   private static final String LABEL_STYLE = "small";
 
@@ -68,10 +63,12 @@ public class ShopDisplay extends UIComponent {
   private static final float TAB_UNDERLINE_HEIGHT = 3f;
 
   // --- Dark / MOBA-style palette -------------------------------------------------------------
+
   private static final Color PANEL_TINT = new Color(0.07f, 0.08f, 0.11f, 1f);
   private static final Color CARD_TINT = new Color(0.12f, 0.13f, 0.18f, 1f);
   private static final Color CARD_TINT_SELECTED = new Color(0.20f, 0.21f, 0.27f, 1f);
   private static final Color EMPTY_CARD_TINT = new Color(0.09f, 0.10f, 0.13f, 1f);
+
   private static final Color TAB_TINT_ACTIVE = new Color(0.22f, 0.24f, 0.30f, 1f);
   private static final Color TAB_TINT_INACTIVE = new Color(0.13f, 0.14f, 0.18f, 1f);
   private static final Color TAB_UNDERLINE_INACTIVE = new Color(0f, 0f, 0f, 0f);
@@ -79,24 +76,25 @@ public class ShopDisplay extends UIComponent {
   private static final Color TEXT_PRIMARY = new Color(0.91f, 0.91f, 0.93f, 1f);
   private static final Color TEXT_MUTED = new Color(0.42f, 0.45f, 0.52f, 1f);
   private static final Color GOLD_COLOR = new Color(0.91f, 0.77f, 0.42f, 1f);
+  private static final Color INSUFFICIENT_FUNDS_COLOR = new Color(0.90f, 0.25f, 0.25f, 1f);
   private static final Color TAB_TEXT_ACTIVE = new Color(0.91f, 0.77f, 0.42f, 1f);
 
   private static final Color GOLD_PILL_TINT = new Color(0.22f, 0.18f, 0.09f, 1f);
   private static final Color DIVIDER_TINT = new Color(0.91f, 0.77f, 0.42f, 0.30f);
   private static final Color EMPTY_STRIP_TINT = new Color(0.42f, 0.45f, 0.52f, 0.25f);
 
-  // Single BUY/SELL toggle button colors for the Items tab.
   private static final Color BUY_MODE_TINT = new Color(0.20f, 0.22f, 0.28f, 1f);
   private static final Color SELL_MODE_TINT = new Color(0.32f, 0.15f, 0.15f, 1f);
-  private static final Color BUY_MODE_TEXT = new Color(0.91f, 0.77f, 0.42f, 1f);
-  private static final Color SELL_MODE_TEXT = new Color(0.87f, 0.40f, 0.40f, 1f);
 
   private static final Color RARITY_COMMON = new Color(0.42f, 0.45f, 0.52f, 1f);
   private static final Color RARITY_RARE = new Color(0.24f, 0.55f, 0.85f, 1f);
   private static final Color RARITY_EPIC = new Color(0.64f, 0.35f, 0.85f, 1f);
   private static final Color RARITY_LEGENDARY = new Color(0.91f, 0.77f, 0.42f, 1f);
 
-  /** Rarity tier used purely for card/icon/accent coloring. */
+  /** Pet atlas containing the pet sprites. */
+  private TextureAtlas petAtlas;
+
+  /** Rarity tier used for card/icon/accent coloring. */
   private enum Rarity {
     COMMON(RARITY_COMMON),
     RARE(RARITY_RARE),
@@ -123,10 +121,6 @@ public class ShopDisplay extends UIComponent {
   private Label goldLabel;
   private TextButton shopIconButton;
 
-  // Plain Labels in this skin default to black fontColor, which makes setColor(...) tinting
-  // always render black (anyColor * black = black). We build our own LabelStyle with a WHITE
-  // base fontColor instead, so every setColor(...) call below multiplies correctly and shows
-  // the intended color.
   private Label.LabelStyle whiteLabelStyle;
 
   private final Map<ShopTab, TextButton> tabButtons = new EnumMap<>(ShopTab.class);
@@ -134,15 +128,16 @@ public class ShopDisplay extends UIComponent {
 
   private ShopTab currentTab = ShopTab.ITEMS;
 
-  // Items tab sub-mode: BUY (shop catalog) vs SELL (player inventory).
+  // Items tab: BUY vs SELL.
   private boolean sellMode = false;
   private TextButton buySubButton;
   private TextButton sellSubButton;
 
-  // Currently selected card, shown in the bottom detail panel.
+  // Currently selected card.
   private Table selectedCard;
   private Runnable pendingAction;
 
+  // Detail panel.
   private Image detailIconBg;
   private Label detailIconLabel;
   private Label detailNameLabel;
@@ -157,6 +152,8 @@ public class ShopDisplay extends UIComponent {
     entity.getEvents().addListener("shopChanged", this::refreshShop);
     entity.getEvents().addListener("upgradePurchased", this::refreshShop);
     entity.getEvents().addListener("petPurchased", this::refreshShop);
+
+    petAtlas = new TextureAtlas(Gdx.files.internal("images/pet.atlas"));
 
     createShop();
     createShopIcon();
@@ -180,7 +177,7 @@ public class ShopDisplay extends UIComponent {
     stage.addActor(shopIconButton);
   }
 
-  /** Positions the shop icon in a fixed corner of the screen. */
+  /** Positions the shop icon in the top-right corner of the screen. */
   private void positionShopIcon() {
     if (shopIconButton == null) {
       return;
@@ -195,9 +192,9 @@ public class ShopDisplay extends UIComponent {
         screenWidth - iconWidth - ICON_MARGIN, screenHeight - ICON_SIZE - ICON_MARGIN);
   }
 
-  /** Toggles the shop window open/closed when the icon is clicked. */
+  /** Toggles the shop window open/closed. */
   private void toggleShop() {
-    if (shopTable == null || isGamePaused()) {
+    if (shopTable == null) {
       return;
     }
 
@@ -232,11 +229,13 @@ public class ShopDisplay extends UIComponent {
     createTabs();
 
     contentTable = new Table();
+
     shopTable.add(contentTable).grow().top().left();
 
     shopTable.row();
 
     createDetailPanel();
+
     shopTable.add(detailPanel).growX().height(72f).padTop(8f);
 
     refreshContent();
@@ -245,11 +244,10 @@ public class ShopDisplay extends UIComponent {
 
     stage.addActor(shopTable);
 
-    // Shop stays hidden until the shop icon is clicked (see openShop()/toggleShop()).
     shopTable.setVisible(false);
   }
 
-  /** Creates the shop title, a gold "pill" display and close button. */
+  /** Creates the shop header. */
   private void createHeader() {
     Table headerTable = new Table();
 
@@ -263,6 +261,7 @@ public class ShopDisplay extends UIComponent {
 
     goldLabel = new Label(getGoldText(), whiteLabelStyle);
     goldLabel.setColor(GOLD_COLOR);
+
     goldPill.add(goldLabel);
 
     TextButton closeButton = new TextButton("X", skin);
@@ -284,7 +283,7 @@ public class ShopDisplay extends UIComponent {
     shopTable.row();
   }
 
-  /** Adds a thin gold divider line separating the header from the tab bar. */
+  /** Adds a divider below the shop header. */
   private void addDivider() {
     Image divider = new Image(skin.getDrawable(BUTTON_BACKGROUND));
     divider.setColor(DIVIDER_TINT);
@@ -309,13 +308,7 @@ public class ShopDisplay extends UIComponent {
     updateTabHighlights();
   }
 
-  /**
-   * Adds one tab button (with an underline indicator beneath it) to the tab bar.
-   *
-   * @param tabTable table containing the tab buttons
-   * @param text button text
-   * @param tab tab represented by the button
-   */
+  /** Adds one tab button to the tab bar. */
   private void addTabButton(Table tabTable, String text, ShopTab tab) {
 
     TextButton button = new TextButton(text, skin);
@@ -338,8 +331,11 @@ public class ShopDisplay extends UIComponent {
     underline.setColor(TAB_UNDERLINE_INACTIVE);
 
     Table tabWrap = new Table();
+
     tabWrap.add(button).width(180f).height(36f);
+
     tabWrap.row();
+
     tabWrap.add(underline).growX().height(TAB_UNDERLINE_HEIGHT).padTop(3f);
 
     tabButtons.put(tab, button);
@@ -348,24 +344,27 @@ public class ShopDisplay extends UIComponent {
     tabTable.add(tabWrap).padRight(6f);
   }
 
-  /** Highlights the currently active tab (background, text and underline) and dims the others. */
+  /** Updates the active tab highlight. */
   private void updateTabHighlights() {
     for (Map.Entry<ShopTab, TextButton> entry : tabButtons.entrySet()) {
       ShopTab tab = entry.getKey();
       TextButton button = entry.getValue();
+
       boolean active = tab == currentTab;
 
       button.setColor(active ? TAB_TINT_ACTIVE : TAB_TINT_INACTIVE);
+
       button.getLabel().setColor(active ? TAB_TEXT_ACTIVE : TEXT_MUTED);
 
       Image underline = tabUnderlines.get(tab);
+
       if (underline != null) {
         underline.setColor(active ? TAB_TEXT_ACTIVE : TAB_UNDERLINE_INACTIVE);
       }
     }
   }
 
-  /** Refreshes the contents of the currently selected tab. */
+  /** Refreshes the currently selected tab. */
   private void refreshContent() {
     if (contentTable == null) {
       return;
@@ -382,6 +381,7 @@ public class ShopDisplay extends UIComponent {
     }
 
     activeGrid = new Table();
+
     contentTable.add(activeGrid).grow().top().left();
 
     switch (currentTab) {
@@ -406,7 +406,7 @@ public class ShopDisplay extends UIComponent {
     }
   }
 
-  /** Creates the BUY/SELL sub-tab row shown above the Items grid, two buttons side by side. */
+  /** Creates the BUY/SELL buttons for the Items tab. */
   private void createItemSubTabs() {
     Table subTabRow = new Table();
 
@@ -432,15 +432,17 @@ public class ShopDisplay extends UIComponent {
         });
 
     subTabRow.add(buySubButton).width(90f).height(32f).padRight(6f);
+
     subTabRow.add(sellSubButton).width(90f).height(32f);
 
     contentTable.add(subTabRow).left().padBottom(8f);
+
     contentTable.row();
 
     updateItemSubTabHighlights();
   }
 
-  /** Highlights whichever of BUY/SELL is currently active and dims the other. */
+  /** Updates the BUY/SELL sub-tab highlights. */
   private void updateItemSubTabHighlights() {
     if (buySubButton == null || sellSubButton == null) {
       return;
@@ -453,7 +455,7 @@ public class ShopDisplay extends UIComponent {
     sellSubButton.getLabel().setColor(Color.WHITE);
   }
 
-  /** Creates the Items (BUY) grid. Always shows {@value #ITEM_SLOT_COUNT} slots. */
+  /** Creates the Items BUY grid. */
   private void createItemsTab() {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
@@ -464,12 +466,10 @@ public class ShopDisplay extends UIComponent {
     createCatalogTab(shop.getItemCatalog(), Item::getName, this::buyItem);
   }
 
-  /**
-   * Creates the Items (SELL) grid: lists the player's inventory items instead of the shop catalog,
-   * using {@link ShopComponent#sellItem(int)} to sell.
-   */
+  /** Creates the Items SELL grid. */
   private void createSellGrid() {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
+
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
     if (shop == null || inventory == null) {
@@ -478,7 +478,7 @@ public class ShopDisplay extends UIComponent {
 
     int displayedSlots = 0;
 
-    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
+    for (int slot = 1; slot <= SELL_SLOT_COUNT; slot++) {
       Item item = inventory.getItem(slot);
 
       addSellCard(shop, item, slot);
@@ -491,44 +491,47 @@ public class ShopDisplay extends UIComponent {
     }
   }
 
-  /**
-   * Creates one sell card for a player inventory slot.
-   *
-   * @param shop shop component, used to look up the sell price for the item
-   * @param item item currently in this inventory slot, or {@code null} if empty
-   * @param slot player inventory slot
-   */
+  /** Creates one SELL card. */
   private void addSellCard(ShopComponent shop, Item item, int slot) {
+
     Table card = createCard();
 
     if (item == null) {
       addEmptyCardContent(card, slot);
     } else {
       String name = item.getName();
+
       int sellPrice = getSellPriceFor(shop, item);
+
       Rarity rarity = getRarityForPrice(sellPrice);
 
       addAccentStrip(card, rarity.color);
 
       card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
+
       card.row();
 
       Label nameLabel = new Label(name, whiteLabelStyle);
+
       nameLabel.setColor(Color.WHITE);
       nameLabel.setAlignment(Align.center);
+
       card.add(nameLabel).growX().center();
 
       card.row();
 
       Label priceLabel = new Label("Gold: " + sellPrice, whiteLabelStyle);
+
       priceLabel.setColor(GOLD_COLOR);
+
       card.add(priceLabel).padTop(2f).center();
 
       card.addListener(
           new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              selectCard(card, name, sellPrice, rarity, () -> sellItemAt(slot), "SELL");
+
+              selectCard(card, name, sellPrice, rarity, () -> sellItemAt(slot), "SELL", false);
             }
           });
     }
@@ -536,18 +539,13 @@ public class ShopDisplay extends UIComponent {
     addCardToContent(card);
   }
 
-  /**
-   * Looks up the sell price for an inventory item using {@link ShopComponent#getSellPrice(Item)}.
-   *
-   * @param shop shop component that owns sell pricing
-   * @param item inventory item to price
-   * @return sell price in gold
-   */
+  /** Gets the item's sell price. */
   private int getSellPriceFor(ShopComponent shop, Item item) {
+
     return shop.getSellPrice(item);
   }
 
-  /** Creates the Upgrades tab. Always shows {@value #ITEM_SLOT_COUNT} slots. */
+  /** Creates the Upgrades tab. */
   private void createUpgradesTab() {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
@@ -558,7 +556,7 @@ public class ShopDisplay extends UIComponent {
     createCatalogTab(shop.getUpgradeCatalog(), ShopComponent.Upgrade::getName, this::buyUpgrade);
   }
 
-  /** Creates the Pets tab. Always shows {@value #ITEM_SLOT_COUNT} slots. */
+  /** Creates the Pets tab. */
   private void createPetsTab() {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
@@ -569,15 +567,7 @@ public class ShopDisplay extends UIComponent {
     createCatalogTab(shop.getPetCatalog(), ShopComponent.Pet::getName, this::buyPet);
   }
 
-  /**
-   * Renders a shop tab with a fixed grid of {@value #ITEM_SLOT_COUNT} slots, regardless of the type
-   * of product being sold. Any slot without a listing is rendered as a locked/empty slot.
-   *
-   * @param catalog the catalog of listings for this tab, keyed by slot number
-   * @param nameExtractor function that extracts a display name from a product
-   * @param buyAction action invoked with the slot number when the detail panel's BUY is clicked
-   * @param <T> product type sold in this tab (Item, Upgrade, Pet, ...)
-   */
+  /** Creates a catalog grid for Items, Upgrades or Pets. */
   private <T> void createCatalogTab(
       Map<Integer, ShopComponent.ShopListing<T>> catalog,
       Function<T, String> nameExtractor,
@@ -599,16 +589,7 @@ public class ShopDisplay extends UIComponent {
     }
   }
 
-  /**
-   * Creates one catalog card (item, upgrade or pet) and adds it to the content grid. The whole card
-   * is clickable and selects the product, showing it in the bottom detail panel.
-   *
-   * @param listing shop listing for this slot, or null/empty if the slot is empty
-   * @param catalogSlot shop catalog slot number
-   * @param nameExtractor function that extracts a display name from a product
-   * @param buyAction action invoked with the slot number when the detail panel's BUY is clicked
-   * @param <T> product type sold in this tab
-   */
+  /** Creates one catalog card. */
   private <T> void addCatalogCard(
       ShopComponent.ShopListing<T> listing,
       int catalogSlot,
@@ -618,34 +599,64 @@ public class ShopDisplay extends UIComponent {
     Table card = createCard();
 
     if (listing == null || listing.getProduct() == null) {
+
       addEmptyCardContent(card, catalogSlot);
+
     } else {
+
       T product = listing.getProduct();
+
       String name = nameExtractor.apply(product);
+
       int price = listing.getBuyPrice();
+
       Rarity rarity = getRarityForPrice(price);
 
       addAccentStrip(card, rarity.color);
 
-      card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
+      /*
+       * PETS:
+       * Use the real pet sprite from pet.atlas.
+       *
+       * ITEMS / UPGRADES:
+       * Continue using the placeholder icon.
+       */
+      if (currentTab == ShopTab.PETS) {
+
+        card.add(createPetIconStack(rarity, catalogSlot)).size(40f, 40f).padBottom(4f);
+
+      } else {
+
+        card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
+      }
+
       card.row();
 
       Label nameLabel = new Label(name, whiteLabelStyle);
+
       nameLabel.setColor(Color.WHITE);
       nameLabel.setAlignment(Align.center);
+
       card.add(nameLabel).growX().center();
 
       card.row();
 
       Label priceLabel = new Label("Gold: " + price, whiteLabelStyle);
-      priceLabel.setColor(GOLD_COLOR);
+
+      /*
+       * Show unaffordable purchase prices in red.
+       */
+      priceLabel.setColor(canAfford(price) ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
+
       card.add(priceLabel).padTop(2f).center();
 
       card.addListener(
           new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              selectCard(card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY");
+
+              selectCard(
+                  card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
             }
           });
     }
@@ -653,39 +664,31 @@ public class ShopDisplay extends UIComponent {
     addCardToContent(card);
   }
 
-  /**
-   * Adds a thin rarity-colored accent strip as the first row of a card, giving each card a visible
-   * top "border" that hints at its rarity before the player even reads the price.
-   *
-   * @param card card to add the strip to
-   * @param color strip color
-   */
+  /** Adds a rarity-colored strip to the top of a card. */
   private void addAccentStrip(Table card, Color color) {
+
     Image strip = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+
     strip.setColor(color);
 
     card.add(strip).growX().height(ACCENT_STRIP_HEIGHT).padBottom(6f);
+
     card.row();
   }
 
-  /**
-   * Builds a placeholder "icon" for a product: a colored square (by rarity) with the product's
-   * first letter centered on top. Swap this for a real {@link Image} using your own item textures
-   * once icon assets are available.
-   *
-   * @param name product name, used to derive the initial shown on the icon
-   * @param rarity rarity used to color the icon background
-   * @return a stack containing the icon background and initial letter
-   */
+  /** Creates the placeholder icon used by Items and Upgrades. */
   private Stack createIconStack(String name, Rarity rarity) {
+
     Stack iconStack = new Stack();
 
     Image iconBackground = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+
     iconBackground.setColor(rarity.color);
 
     String initial = (name == null || name.isEmpty()) ? "?" : name.substring(0, 1).toUpperCase();
 
     Label iconLabel = new Label(initial, whiteLabelStyle);
+
     iconLabel.setColor(Color.WHITE);
     iconLabel.setAlignment(Align.center);
 
@@ -696,65 +699,112 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Derives a display rarity from an item's price. This is a simple stand-in until
-   * items/upgrades/pets carry their own rarity field — swap this out for {@code
-   * product.getRarity()} if/when that exists.
+   * Creates the pet icon corresponding to the pet's catalog slot.
    *
-   * @param price buy or sell price of the listing
-   * @return rarity tier used for card/icon/accent coloring
+   * <p>The catalog slot is converted to an atlas frame index:
+   *
+   * <pre>
+   * catalog slot 1 -> idle_right index 0
+   * catalog slot 2 -> idle_right index 1
+   * catalog slot 3 -> idle_right index 2
+   * catalog slot 4 -> idle_right index 3
+   * ...
+   * </pre>
+   *
+   * <p>If the atlas does not contain a matching frame, a fallback "P" icon is displayed.
    */
+  private Stack createPetIconStack(Rarity rarity, int catalogSlot) {
+
+    Stack iconStack = new Stack();
+
+    Image iconBackground = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+
+    iconBackground.setColor(rarity.color);
+
+    iconStack.add(iconBackground);
+
+    if (petAtlas != null && catalogSlot > 0) {
+
+      int frameIndex = catalogSlot - 1;
+
+      AtlasRegion petRegion = petAtlas.findRegion("idle_right", frameIndex);
+
+      if (petRegion != null) {
+
+        Image petImage = new Image(petRegion);
+
+        petImage.setScaling(Scaling.fit);
+
+        iconStack.add(petImage);
+
+        return iconStack;
+      }
+    }
+
+    /*
+     * Fallback if:
+     * - the atlas is not loaded, or
+     * - the requested pet frame does not exist.
+     */
+    Label fallbackLabel = new Label("P", whiteLabelStyle);
+
+    fallbackLabel.setColor(Color.WHITE);
+    fallbackLabel.setAlignment(Align.center);
+
+    iconStack.add(fallbackLabel);
+
+    return iconStack;
+  }
+
+  /** Converts price into a simple display rarity. */
   private Rarity getRarityForPrice(int price) {
+
     if (price >= 2000) {
       return Rarity.LEGENDARY;
     }
+
     if (price >= 1000) {
       return Rarity.EPIC;
     }
+
     if (price >= 300) {
       return Rarity.RARE;
     }
+
     return Rarity.COMMON;
   }
 
-  /**
-   * Creates a generic, dark-themed shop card shell (no content).
-   *
-   * @return empty shop card
-   */
+  /** Creates an empty dark shop card. */
   private Table createCard() {
+
     Table card = new Table();
 
     card.setBackground(skin.getDrawable(BUTTON_BACKGROUND));
+
     card.setColor(CARD_TINT);
+
     card.pad(8f);
 
     return card;
   }
 
-  /**
-   * Renders an empty/locked slot, including a faint strip so its layout still lines up with filled
-   * cards.
-   *
-   * @param card shop card
-   * @param slot slot number
-   */
+  /** Creates an empty/locked slot. */
   private void addEmptyCardContent(Table card, int slot) {
+
     card.setColor(EMPTY_CARD_TINT);
 
     addAccentStrip(card, EMPTY_STRIP_TINT);
 
     Label slotLabel = new Label("Empty", whiteLabelStyle);
+
     slotLabel.setColor(TEXT_MUTED);
 
     card.add(slotLabel).center().expand();
   }
 
-  /**
-   * Adds a card to the active grid.
-   *
-   * @param card card to add
-   */
+  /** Adds a card to the active grid. */
   private void addCardToContent(Table card) {
+
     activeGrid.add(card).size(CARD_WIDTH, CARD_HEIGHT).pad(CARD_GAP);
 
     int children = activeGrid.getChildren().size;
@@ -764,29 +814,39 @@ public class ShopDisplay extends UIComponent {
     }
   }
 
-  /** Creates the shared bottom detail/action panel (initially empty). */
+  /** Creates the bottom detail/action panel. */
   private void createDetailPanel() {
+
     detailPanel = new Table();
+
     detailPanel.setBackground(skin.getDrawable(BUTTON_BACKGROUND));
+
     detailPanel.setColor(CARD_TINT);
+
     detailPanel.pad(10f);
 
     detailIconBg = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+
     detailIconLabel = new Label("", whiteLabelStyle);
+
     detailIconLabel.setColor(Color.WHITE);
     detailIconLabel.setAlignment(Align.center);
 
     Stack detailIconStack = new Stack();
+
     detailIconStack.add(detailIconBg);
     detailIconStack.add(detailIconLabel);
 
     detailNameLabel = new Label("Select an item to view details", whiteLabelStyle);
+
     detailNameLabel.setColor(TEXT_MUTED);
 
     detailPriceLabel = new Label("", whiteLabelStyle);
+
     detailPriceLabel.setColor(GOLD_COLOR);
 
     detailActionButton = new TextButton("BUY", skin);
+
     detailActionButton.setDisabled(true);
     detailActionButton.setTouchable(Touchable.disabled);
 
@@ -794,6 +854,7 @@ public class ShopDisplay extends UIComponent {
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
+
             if (pendingAction != null) {
               pendingAction.run();
             }
@@ -801,27 +862,32 @@ public class ShopDisplay extends UIComponent {
         });
 
     Table textColumn = new Table();
+
     textColumn.add(detailNameLabel).left().row();
+
     textColumn.add(detailPriceLabel).left().padTop(2f);
 
     detailPanel.add(detailIconStack).size(40f, 40f).padRight(10f);
+
     detailPanel.add(textColumn).growX().left();
+
     detailPanel.add(detailActionButton).size(80f, 34f).right();
   }
 
   /**
-   * Marks a card as selected and populates the bottom detail panel with its info and a working
-   * action. Any previously selected card is un-highlighted.
+   * Selects a card and updates the detail panel.
    *
-   * @param card the card actor that was clicked
-   * @param name product/item display name
-   * @param price price shown (buy price or sell price depending on context)
-   * @param rarity rarity used to drive icon/detail color
-   * @param action action to run when the detail panel's action button is pressed
-   * @param actionLabel label for the action button, e.g. "BUY" or "SELL"
+   * @param requiresAffordability true for BUY actions, false for SELL actions
    */
   private void selectCard(
-      Table card, String name, int price, Rarity rarity, Runnable action, String actionLabel) {
+      Table card,
+      String name,
+      int price,
+      Rarity rarity,
+      Runnable action,
+      String actionLabel,
+      boolean requiresAffordability) {
+
     if (selectedCard != null) {
       selectedCard.setColor(CARD_TINT);
     }
@@ -829,9 +895,12 @@ public class ShopDisplay extends UIComponent {
     selectedCard = card;
     selectedCard.setColor(CARD_TINT_SELECTED);
 
-    pendingAction = action;
+    boolean canPerformAction = !requiresAffordability || canAfford(price);
+
+    pendingAction = canPerformAction ? action : null;
 
     detailIconBg.setColor(rarity.color);
+
     detailIconLabel.setText(
         (name == null || name.isEmpty()) ? "?" : name.substring(0, 1).toUpperCase());
 
@@ -840,13 +909,20 @@ public class ShopDisplay extends UIComponent {
 
     detailPriceLabel.setText("Gold: " + price);
 
+    if (requiresAffordability && !canPerformAction) {
+      detailPriceLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
+    } else {
+      detailPriceLabel.setColor(GOLD_COLOR);
+    }
+
     detailActionButton.setText(actionLabel);
-    detailActionButton.setDisabled(false);
-    detailActionButton.setTouchable(Touchable.enabled);
+    detailActionButton.setDisabled(!canPerformAction);
+    detailActionButton.setTouchable(canPerformAction ? Touchable.enabled : Touchable.disabled);
   }
 
-  /** Clears the current selection and resets the detail panel to its placeholder state. */
+  /** Clears the current selection. */
   private void clearSelection() {
+
     if (selectedCard != null) {
       selectedCard.setColor(CARD_TINT);
       selectedCard = null;
@@ -859,72 +935,62 @@ public class ShopDisplay extends UIComponent {
     }
 
     detailIconBg.setColor(EMPTY_CARD_TINT);
+
     detailIconLabel.setText("");
 
     detailNameLabel.setText("Select an item to view details");
     detailNameLabel.setColor(TEXT_MUTED);
 
     detailPriceLabel.setText("");
+    detailPriceLabel.setColor(GOLD_COLOR);
 
     detailActionButton.setText("BUY");
     detailActionButton.setDisabled(true);
     detailActionButton.setTouchable(Touchable.disabled);
   }
 
-  /**
-   * Attempts to purchase an item.
-   *
-   * @param catalogSlot shop catalog slot
-   */
+  /** Attempts to purchase an item. */
   private void buyItem(int catalogSlot) {
+
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null || isGamePaused()) {
+    if (shop == null) {
       return;
     }
 
     shop.buyItem(catalogSlot);
   }
 
-  /**
-   * Attempts to sell an item from the player's inventory.
-   *
-   * @param playerSlot inventory slot on the sibling {@link InventoryComponent}
-   */
+  /** Attempts to sell an item. */
   private void sellItemAt(int playerSlot) {
+
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null || isGamePaused()) {
+    if (shop == null) {
       return;
     }
 
     shop.sellItem(playerSlot);
   }
 
-  /**
-   * Attempts to purchase an upgrade.
-   *
-   * @param catalogSlot shop catalog slot
-   */
+  /** Attempts to purchase an upgrade. */
   private void buyUpgrade(int catalogSlot) {
+
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null || isGamePaused()) {
+    if (shop == null) {
       return;
     }
 
     shop.buyUpgrade(catalogSlot);
   }
 
-  /**
-   * Attempts to purchase a pet.
-   *
-   * @param catalogSlot shop catalog slot
-   */
+  /** Attempts to purchase a pet. */
   private void buyPet(int catalogSlot) {
+
     ShopComponent shop = entity.getComponent(ShopComponent.class);
 
-    if (shop == null || isGamePaused()) {
+    if (shop == null) {
       return;
     }
 
@@ -933,6 +999,7 @@ public class ShopDisplay extends UIComponent {
 
   /** Refreshes the complete shop interface. */
   private void refreshShop() {
+
     if (shopTable == null) {
       return;
     }
@@ -943,17 +1010,15 @@ public class ShopDisplay extends UIComponent {
 
   /** Updates the gold label. */
   private void updateGold() {
+
     if (goldLabel != null) {
       goldLabel.setText(getGoldText());
     }
   }
 
-  /**
-   * Gets the current player's gold as display text.
-   *
-   * @return formatted gold text
-   */
+  /** Gets the player's current gold. */
   private String getGoldText() {
+
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
     if (inventory == null) {
@@ -963,16 +1028,29 @@ public class ShopDisplay extends UIComponent {
     return "Gold: " + inventory.getGold();
   }
 
+  /** Checks whether the player has enough gold to purchase the given price. */
+  private boolean canAfford(int price) {
+
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null) {
+      return false;
+    }
+
+    return inventory.getGold() >= price;
+  }
+
   /** Opens the shop. */
-  public void openShop() {
-    if (shopTable == null || isGamePaused()) {
+  private void openShop() {
+
+    if (shopTable == null) {
       return;
     }
 
     currentTab = ShopTab.ITEMS;
     sellMode = false;
-    refreshContent();
 
+    refreshContent();
     positionShop();
 
     shopTable.setVisible(true);
@@ -981,6 +1059,7 @@ public class ShopDisplay extends UIComponent {
 
   /** Closes the shop. */
   public void closeShop() {
+
     if (shopTable == null) {
       return;
     }
@@ -990,37 +1069,30 @@ public class ShopDisplay extends UIComponent {
 
   /** Positions the shop in the centre of the screen. */
   private void positionShop() {
+
     if (shopTable == null) {
       return;
     }
 
     float screenWidth = stage.getViewport().getWorldWidth();
+
     float screenHeight = stage.getViewport().getWorldHeight();
 
     float x = (screenWidth - SHOP_WIDTH) / 2f;
+
     float y = (screenHeight - SHOP_HEIGHT) / 2f;
 
     shopTable.setPosition(x, y);
   }
 
-  /**
-   * Runs every frame. If the shop is open and the game becomes paused (regardless of how the pause
-   * was triggered), the shop is force-closed so it can't be used while paused.
-   */
-  @Override
-  public void update() {
-    if (shopTable != null && shopTable.isVisible() && isGamePaused()) {
-      closeShop();
-    }
-  }
-
   @Override
   public void draw(SpriteBatch batch) {
-    // Scene2D stage handles the shop rendering.
+    // Scene2D stage handles shop rendering.
   }
 
   @Override
   public void dispose() {
+
     if (shopTable != null) {
       shopTable.remove();
       shopTable = null;
@@ -1031,6 +1103,11 @@ public class ShopDisplay extends UIComponent {
       shopIconButton = null;
     }
 
+    if (petAtlas != null) {
+      petAtlas.dispose();
+      petAtlas = null;
+    }
+
     contentTable = null;
     activeGrid = null;
     detailPanel = null;
@@ -1039,16 +1116,5 @@ public class ShopDisplay extends UIComponent {
     pendingAction = null;
 
     super.dispose();
-  }
-
-  /**
-   * Checks whether the game is currently paused via the sibling {@link PauseMenuComponent}.
-   *
-   * @return {@code true} if a pause menu component is present and reports paused
-   */
-  private boolean isGamePaused() {
-    PauseMenuComponent pauseComponent = entity.getComponent(PauseMenuComponent.class);
-
-    return pauseComponent != null && pauseComponent.isPaused();
   }
 }
