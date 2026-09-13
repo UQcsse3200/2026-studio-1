@@ -56,39 +56,49 @@ class WeaponGeneratorTest {
     assertThrows(IllegalArgumentException.class, () -> generator.generateWeapon(null, 1));
   }
 
+  // --- Added tests below (existing tests above are unchanged) ---
+
+  // Generating a Dagger produces the correct name, type, and tier-1 damage.
   @Test
-  void shouldSetSwordSellPrice() {
+  void shouldGenerateDagger() {
     WeaponGenerator generator = new WeaponGenerator();
 
-    WeaponItem sword = generator.generateWeapon(WeaponType.SWORD, 1);
+    WeaponItem weapon = generator.generateWeapon(WeaponType.DAGGER, 1);
 
-    assertEquals(10, sword.getSellPrice());
+    assertEquals("Basic Dagger", weapon.getName());
+    assertEquals(WeaponType.DAGGER, weapon.getWeaponType());
+    assertEquals(3, weapon.getDamage());
   }
 
+  // Each weapon type is generated with its own fixed windup duration (Sword=3, Bow=2, Dagger=1).
   @Test
-  void shouldSetBowSellPrice() {
+  void shouldSetWindupDurationPerWeaponType() {
     WeaponGenerator generator = new WeaponGenerator();
 
-    WeaponItem bow = generator.generateWeapon(WeaponType.BOW, 1);
-
-    assertEquals(8, bow.getSellPrice());
+    assertEquals(3f, generator.generateWeapon(WeaponType.SWORD, 1).getWindupDuration());
+    assertEquals(2f, generator.generateWeapon(WeaponType.BOW, 1).getWindupDuration());
+    assertEquals(1f, generator.generateWeapon(WeaponType.DAGGER, 1).getWindupDuration());
   }
 
+  // Damage scales linearly with tier for Bow and Dagger too, not just Sword.
   @Test
-  void shouldSetDaggerSellPrice() {
+  void shouldIncreaseDamageForHigherTierAcrossWeaponTypes() {
     WeaponGenerator generator = new WeaponGenerator();
 
-    WeaponItem dagger = generator.generateWeapon(WeaponType.DAGGER, 1);
-
-    assertEquals(6, dagger.getSellPrice());
+    assertEquals(7, generator.generateWeapon(WeaponType.BOW, 1).getDamage());
+    assertEquals(14, generator.generateWeapon(WeaponType.BOW, 2).getDamage());
+    assertEquals(3, generator.generateWeapon(WeaponType.DAGGER, 1).getDamage());
+    assertEquals(6, generator.generateWeapon(WeaponType.DAGGER, 2).getDamage());
   }
 
+  // Generated weapons always have a quantity of 1 and a maxQuantity of 1.
   @Test
-  void shouldScaleWeaponSellPriceWithTier() {
+  void shouldGenerateWeaponsWithSingleQuantity() {
     WeaponGenerator generator = new WeaponGenerator();
 
-    WeaponItem sword = generator.generateWeapon(WeaponType.SWORD, 3);
+    WeaponItem weapon = generator.generateWeapon(WeaponType.SWORD, 1);
 
-    assertEquals(30, sword.getSellPrice());
+    assertEquals(1, weapon.getQuantity());
+    assertEquals(10, weapon.getMaxQuantity());
   }
 }
