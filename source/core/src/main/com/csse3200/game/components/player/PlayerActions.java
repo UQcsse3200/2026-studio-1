@@ -239,6 +239,12 @@ public class PlayerActions extends Component {
         Sound attackSound =
             ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
         attackSound.play();
+
+        // Check for death
+        if (enemyStats.isDead()) {
+          // event handles dropping loot and disposal of enemy
+        }
+        enemy.getEvents().trigger("enemyDeath");
       }
     }
 

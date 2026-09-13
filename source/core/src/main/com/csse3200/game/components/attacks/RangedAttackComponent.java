@@ -3,9 +3,13 @@ package com.csse3200.game.components.attacks;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Deals ranged damage and knockback to a target entity when triggered, provided the target is
@@ -33,8 +37,12 @@ public class RangedAttackComponent extends Component {
   private float range;
   private float cooldown;
   private float knockback;
+  private WeaponItem weapon;
+  private float windupDuration;
+  private float windupTimeRemaing;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
+  private static final Logger logger = LoggerFactory.getLogger(MeleeAttackComponent.class);
 
   /**
    * Creates a ranged attack component with configurable range, cooldown, and knockback.
@@ -45,10 +53,23 @@ public class RangedAttackComponent extends Component {
    * @param knockback knockback magnitude applied to the target on a successful hit; {@code 0f}
    *     results in no knockback
    */
-  public RangedAttackComponent(float range, float cooldown, float knockback) {
+  public RangedAttackComponent(float range, float cooldown, float knockback, WeaponItem weapon) {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
+    if (weapon == null) {
+      throw new IllegalArgumentException("weapon cannot be null");
+    }
+    this.weapon = weapon;
+    if (weapon.getWeaponType() == WeaponType.DAGGER || weapon.getWeaponType() == WeaponType.SWORD) {
+      throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
+    }
+    if (weapon.getWindupDuration() < 0) {
+      throw new IllegalArgumentException("windupDuration must not be negative.");
+    }
+    if (weapon.getWindupDuration() >= this.getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown");
+    }
     this.timeSinceLastAttack = cooldown;
   }
 
