@@ -55,7 +55,7 @@ public class MeleeAttackTask extends DefaultTask implements PriorityTask {
 
   /**
    * Called once when this task becomes the active task on the owning entity's AITaskComponent.
-   * Resolves this entity's MeleeAttackComponent for use in update(). Does not itself attempt an
+   * Resolves this entity's MeleeAttackComponent for use in update(). Doses not itself attempt an
    * attack — that only happens in update().
    */
   @Override

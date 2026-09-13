@@ -1,6 +1,5 @@
 package com.csse3200.game.components.tasks;
 
-import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.DefaultTask;
 import com.csse3200.game.ai.tasks.PriorityTask;
 import com.csse3200.game.components.attacks.ChargeComponent;
@@ -8,10 +7,9 @@ import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 
 /**
- * AI priority task governing aggro-and-charge behaviour, shared by Minotaur
- * and Centaur. Manages only the charge itself — has no opinion on what
- * attack follows; that's decided by whichever attack component (Melee or
- * Ranged) is also attached. Active/inactive priority split mirrors
+ * AI priority task governing aggro-and-charge behaviour, shared by Minotaur and Centaur. Manages
+ * only the charge itself — has no opinion on what attack follows; that's decided by whichever
+ * attack component (Melee or Ranged) is also attached. Active/inactive priority split mirrors
  * MeleeAttackTask's, per the Sprint 1 flicker fix.
  */
 public class ChargeTask extends DefaultTask implements PriorityTask {
@@ -24,14 +22,19 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
   /**
    * Creates a charge task.
    *
-   * @param target           entity this task tracks and charges toward (typically the player)
-   * @param chargeComponent  the charge state this task drives; must already be attached to the same entity
-   * @param aggroRadius      distance within which this task becomes active
-   * @param activePriority   priority returned while the target is within aggroRadius and alive
+   * @param target entity this task tracks and charges toward (typically the player)
+   * @param chargeComponent the charge state this task drives; must already be attached to the same
+   *     entity
+   * @param aggroRadius distance within which this task becomes active
+   * @param activePriority priority returned while the target is within aggroRadius and alive
    * @param inactivePriority priority returned otherwise
    */
-  public ChargeTask(Entity target, ChargeComponent chargeComponent, float aggroRadius,
-                    int activePriority, int inactivePriority) {
+  public ChargeTask(
+      Entity target,
+      ChargeComponent chargeComponent,
+      float aggroRadius,
+      int activePriority,
+      int inactivePriority) {
     this.target = target;
     this.chargeComponent = chargeComponent;
     this.aggroRadius = aggroRadius;
@@ -40,20 +43,23 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
   }
 
   /**
-   * Determines this task's current priority based only on distance and target liveness — never
-   * on {@code chargeComponent}'s cooldown state, per the Sprint 1 priority-flicker fix.
+   * Determines this task's current priority based only on distance and target liveness — never on
+   * {@code chargeComponent}'s cooldown state, per the Sprint 1 priority-flicker fix.
    *
-   * @return activePriority if the target is alive and within aggroRadius, otherwise inactivePriority
+   * @return activePriority if the target is alive and within aggroRadius, otherwise
+   *     inactivePriority
    */
   @Override
   public int getPriority() {
-//    IF target IS NULL OR target has no CombatStatsComponent OR target.getCombatStatsComponent().getHealth() <= 0 THEN
-//    RETURN inactivePriority
-//    END IF
-//    distance = DISTANCE(owner.getPosition(), target.getPosition())
-//    IF distance <= aggroRadius THEN RETURN activePriority END IF
-//    RETURN inactivePriority
-    if (this.target == null || this.target.getComponent(CombatStatsComponent.class) == null
+    //    IF target IS NULL OR target has no CombatStatsComponent OR
+    // target.getCombatStatsComponent().getHealth() <= 0 THEN
+    //    RETURN inactivePriority
+    //    END IF
+    //    distance = DISTANCE(owner.getPosition(), target.getPosition())
+    //    IF distance <= aggroRadius THEN RETURN activePriority END IF
+    //    RETURN inactivePriority
+    if (this.target == null
+        || this.target.getComponent(CombatStatsComponent.class) == null
         || this.target.getComponent(CombatStatsComponent.class).getHealth() <= 0) {
       return this.inactivePriority;
     }
@@ -65,8 +71,8 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
   }
 
   /**
-   * Starts a charge toward the target when off cooldown and not already charging;
-   * otherwise a no-op.
+   * Starts a charge toward the target when off cooldown and not already charging; otherwise a
+   * no-op.
    */
   @Override
   public void update() {

@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.attacks.CombatStatsComponent;
-import com.csse3200.game.components.npc.EnemyDisposalComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -245,7 +244,7 @@ public class PlayerActions extends Component {
         if (enemyStats.isDead()) {
           // event handles dropping loot and disposal of enemy
         }
-          enemy.getEvents().trigger("enemyDeath");
+        enemy.getEvents().trigger("enemyDeath");
       }
     }
 

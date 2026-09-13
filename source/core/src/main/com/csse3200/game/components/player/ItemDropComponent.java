@@ -3,7 +3,6 @@ package com.csse3200.game.components.player;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
-import com.csse3200.game.components.npc.EnemyDisposalComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.services.ServiceLocator;
@@ -96,18 +95,17 @@ public class ItemDropComponent extends Component {
     return true;
   }
 
-  /**
-   *
-   */
+  /** */
   public void dropAll() {
-      // Drop gold
-      this.dropGold();
+    // Drop gold
+    this.dropGold();
 
-      // Drop weapons and consumables
-      while (this.dropFirstStack()) {
-        logger.info("Enemy {} dropped item", this);
-      }
+    // Drop weapons and consumables
+    while (this.dropFirstStack()) {
+      logger.info("Enemy {} dropped item", this);
+    }
   }
+
   /**
    * Drops all gold in entities inventory.
    *

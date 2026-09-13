@@ -26,11 +26,11 @@ public class WeaponGenerator {
           case DAGGER -> 1;
         };
     int maxQuantity =
-            switch (weaponType) {
-                case SWORD -> 10;
-                case BOW -> 10;
-                case DAGGER -> 20;
-            };
+        switch (weaponType) {
+          case SWORD -> 10;
+          case BOW -> 10;
+          case DAGGER -> 20;
+        };
     return new WeaponItem(name, weaponType, windUpDuration, tier, 1, maxQuantity);
   }
 }

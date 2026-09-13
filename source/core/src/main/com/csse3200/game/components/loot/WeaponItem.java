@@ -14,8 +14,13 @@ public class WeaponItem extends Item {
   private float windupDuration;
 
   // Creates a weapon item.
-  public WeaponItem(String name, WeaponType weaponType, float windupDuration, int tier,
-                    int quantity, int maxQuantity)
+  public WeaponItem(
+      String name,
+      WeaponType weaponType,
+      float windupDuration,
+      int tier,
+      int quantity,
+      int maxQuantity)
       throws IllegalArgumentException {
 
     super(name, ItemType.WEAPON, quantity, maxQuantity);
@@ -34,6 +39,7 @@ public class WeaponItem extends Item {
 
   /**
    * Returns the weapon type that has been created.
+   *
    * @return this item's weapon type - i.e bow, sword,
    */
   public WeaponType getWeaponType() {

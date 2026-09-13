@@ -1,9 +1,9 @@
 package com.csse3200.game.entities.configs.attacks;
 
 /**
- * Per-weider ranged attack settings, symmetric with MeleeAttackConfig.
- * Reused across RangedSkeletonConfig and CentaurConfig. Range/knockback stay here,
- * same reasoning as melee - not weapon properties.
+ * Per-weider ranged attack settings, symmetric with MeleeAttackConfig. Reused across
+ * RangedSkeletonConfig and CentaurConfig. Range/knockback stay here, same reasoning as melee - not
+ * weapon properties.
  */
 
 /**

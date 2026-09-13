@@ -9,8 +9,6 @@ import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
 import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.*;
-import com.csse3200.game.components.npc.EnemyDisposalComponent;
-import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -143,7 +141,10 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range, config.melee.cooldown, config.melee.knockback))
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(1)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -194,7 +195,10 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new RangedAttackComponent(
-                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                (WeaponItem) inventory.getItem(1)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)

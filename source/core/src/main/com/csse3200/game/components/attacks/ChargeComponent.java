@@ -6,17 +6,14 @@ import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.services.ServiceLocator;
 
 /**
- * Represents a temporary charge state: a burst of movement speed toward a
- * target, and a short-lived damage multiplier applied to whichever attack
- * (melee or ranged) resolves next — NOT a separate damage-dealing hit of its
- * own. Attack-type-agnostic: Minotaur pairs this with MeleeAttackComponent,
- * Centaur pairs it with RangedAttackComponent; neither needs to know
- * charging exists beyond checking for this component and reading
- * getDamageMultiplier().
- * A separate damage-on-collision design was considered and rejected: it
- * risks double-dipping if the entity's normal attack also fires around the
- * same time as the collision. A pure multiplier on the next real attack
- * avoids that — exactly one damage-dealing event per charge.
+ * Represents a temporary charge state: a burst of movement speed toward a target, and a short-lived
+ * damage multiplier applied to whichever attack (melee or ranged) resolves next — NOT a separate
+ * damage-dealing hit of its own. Attack-type-agnostic: Minotaur pairs this with
+ * MeleeAttackComponent, Centaur pairs it with RangedAttackComponent; neither needs to know charging
+ * exists beyond checking for this component and reading getDamageMultiplier(). A separate
+ * damage-on-collision design was considered and rejected: it risks double-dipping if the entity's
+ * normal attack also fires around the same time as the collision. A pure multiplier on the next
+ * real attack avoids that — exactly one damage-dealing event per charge.
  */
 public class ChargeComponent extends Component {
   private final float chargeDuration;
@@ -31,7 +28,8 @@ public class ChargeComponent extends Component {
    *
    * @param chargeDuration seconds a single charge lasts once started
    * @param cooldown minimum seconds between the end of one charge and the start of the next
-   * @param damageMultiplier damage multiplier applied to the next attack while charging; must be greater than 1.0
+   * @param damageMultiplier damage multiplier applied to the next attack while charging; must be
+   *     greater than 1.0
    * @throws IllegalArgumentException if speedMultiplier or damageMultiplier is not greater than
    *     1.0, if chargeDuration is not positive, or if cooldown is negative
    */
@@ -52,9 +50,12 @@ public class ChargeComponent extends Component {
     this.chargeTimeRemaining = 0;
   }
 
-  /** Advances the charge/cooldown timers by one tick, restoring normal movement speed when a charge ends. */
+  /**
+   * Advances the charge/cooldown timers by one tick, restoring normal movement speed when a charge
+   * ends.
+   */
   @Override
-  public void update(){
+  public void update() {
     if (isCharging()) {
       chargeTimeRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
       if (chargeTimeRemaining <= 0) {
@@ -65,6 +66,7 @@ public class ChargeComponent extends Component {
       }
     }
   }
+
   /**
    * Checks whether a new charge may begin right now.
    *
@@ -73,16 +75,19 @@ public class ChargeComponent extends Component {
   public boolean canCharge() {
     return (!isCharging()) && (timeSinceLastCharge >= cooldown);
   }
-  /** @return true if a charge is currently in progress */
+
+  /**
+   * @return true if a charge is currently in progress
+   */
   public boolean isCharging() {
     return chargeTimeRemaining > 0;
   }
+
   /**
-   * Begins a charge if {@link #canCharge()} is true; otherwise a no-op. Starts the charge
-   * duration countdown only — no movement effect.
-   * Fires {@code "chargeStart"} on owning entity, an animation controller can
-   * listen for this to switch to a charging sprite, giving the player visual feedback even
-   * though there's no actual movement change.
+   * Begins a charge if {@link #canCharge()} is true; otherwise a no-op. Starts the charge duration
+   * countdown only — no movement effect. Fires {@code "chargeStart"} on owning entity, an animation
+   * controller can listen for this to switch to a charging sprite, giving the player visual
+   * feedback even though there's no actual movement change.
    *
    * @param direction direction the charge is aimed toward - represents the target being charged at
    */
@@ -97,8 +102,8 @@ public class ChargeComponent extends Component {
 
   /**
    * Returns the damage multiplier to apply to the next attack. Safe to call unconditionally —
-   * returns 1.0f (no change) whenever not currently charging, so callers never need to check
-   * {@link #isCharging()} first.
+   * returns 1.0f (no change) whenever not currently charging, so callers never need to check {@link
+   * #isCharging()} first.
    *
    * @return damageMultiplier while charging, otherwise 1.0f. No damage is dealt by this method.
    */

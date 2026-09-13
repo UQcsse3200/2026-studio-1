@@ -3,38 +3,31 @@ package com.csse3200.game.components.attacks;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.matchers.text.ValuePrinter.print;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.Vector2;
-import com.csse3200.game.components.loot.Item;
-import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.components.npc.SkeletonAnimationController;
-import com.csse3200.game.components.player.InventoryComponent;
-import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.configs.enemies.SkeletonConfig;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
-import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 @ExtendWith(GameExtension.class)
 class MeleeAttackComponentTest {
 
-  WeaponGenerator weaponGenerator = new WeaponGenerator();
+  /**
+   * Damage dealt by the default test weapon (see {@link #createInstantWeapon()}): the real,
+   * currently-compiling {@code WeaponItem} computes damage as {@code baseDamage * tier}, so a
+   * DAGGER (base damage 3) at tier 1 deals 3 damage.
+   */
+  private static final int DEFAULT_WEAPON_DAMAGE = 3;
+
+  /** Tier passed to {@link #createInstantWeapon()} to produce {@link #DEFAULT_WEAPON_DAMAGE}. */
+  private static final int DEFAULT_WEAPON_TIER = 1;
 
   @BeforeEach
   void beforeEach() {
@@ -44,25 +37,22 @@ class MeleeAttackComponentTest {
     ServiceLocator.registerTimeSource(gameTime);
   }
 
-  /* testing the constructor class */
+  // Constructor stores range, cooldown, knockback and exposes the weapon's damage via getDamage().
   @Test
   void shouldStoreConstructorValuesCorrectly() {
-    WeaponItem sword = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
-    WeaponItem dagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
     float rangeValue = 0.5f;
     float cooldownValue = 10;
     float knockbackValue = 2.0f;
-    MeleeAttackComponent meleeSword =
-        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, sword);
-    MeleeAttackComponent meleeDagger =
-        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, sword);
+    WeaponItem weapon = createInstantWeapon();
+    MeleeAttackComponent meleeAttack =
+        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, weapon);
     assertEquals(
         rangeValue,
-        meleeSword.getRange(),
+        meleeAttack.getRange(),
         "Range stats from meleeAttack expected: "
             + rangeValue
             + " but got: "
-            + meleeSword.getRange());
+            + meleeAttack.getRange());
     assertEquals(
         cooldownValue,
         meleeAttack.getCooldown(),
@@ -78,74 +68,158 @@ class MeleeAttackComponentTest {
             + " but got"
             + meleeAttack.getKnockback());
     assertEquals(
-        rangeValue,
-        meleeDagger.getRange(),
-        "Range stats from meleeAttack expected: "
-            + rangeValue
-            + " but got: "
-            + meleeSword.getRange());
-    assertEquals(
-        cooldownValue,
-        meleeDagger.getCooldown(),
-        "Cooldown stats from meleeAttack expected: "
-            + cooldownValue
-            + " but got"
-            + meleeDagger.getCooldown());
-    assertEquals(
-        knockbackValue,
-        meleeDagger.getKnockback(),
-        "Knockback stats from meleeAttack expected: "
-            + knockbackValue
-            + " but got"
-            + meleeDagger.getKnockback());
+        weapon.getDamage(),
+        meleeAttack.getDamage(),
+        "Expected getDamage() to expose the equipped weapon's damage, but got a mismatch.");
   }
 
+  // Constructor rejects a negative range value.
   @Test
   void shouldThrowWhenConstructedWithInvalidRange() {
-    /* Confirm an invalid range passed directly to the constructor is rejected. */
+    WeaponItem weapon = createInstantWeapon();
     assertThrows(
         IllegalArgumentException.class,
-        () -> new MeleeAttackComponent(-1, 10, 5f),
+        () -> new MeleeAttackComponent(-1, 10, 5f, weapon),
         "Expected constructor to throw IllegalArgumentException for range = "
             + -1
             + ", but it did not.");
   }
 
+  // Constructor rejects a negative cooldown value.
   @Test
   void shouldThrowWhenConstructedWithInvalidCooldown() {
-    /* Confirm an invalid cooldown passed directly to the constructor is rejected. */
+    WeaponItem weapon = createInstantWeapon();
     assertThrows(
         IllegalArgumentException.class,
-        () -> new MeleeAttackComponent(1, -10, 5f),
+        () -> new MeleeAttackComponent(1, -10, 5f, weapon),
         "Expected constructor to throw IllegalArgumentException for cooldown = "
             + -10
             + ", but it did not.");
   }
 
+  // Constructor rejects a negative knockback value.
   @Test
   void shouldThrowWhenConstructedWithInvalidKnockback() {
-    /* Confirm an invalid knockback passed directly to the constructor is rejected. */
+    WeaponItem weapon = createInstantWeapon();
     assertThrows(
         IllegalArgumentException.class,
-        () -> new MeleeAttackComponent(1, 10, -5f),
+        () -> new MeleeAttackComponent(1, 10, -5f, weapon),
         "Expected constructor to throw IllegalArgumentException for knockback = "
             + -5f
             + ", but it did not.");
   }
 
-  /* testing the setters and base and edge cases of inputs
-   * i.e. cooldown cannot be zero or negative, knockback can be 0 but not negative.
-   * range cannot be 0 or negative
-   */
+  // Constructor rejects a null weapon.
+  @Test
+  void shouldThrowWhenConstructedWithNullWeapon() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new MeleeAttackComponent(1, 10, 5f, null),
+        "Expected constructor to throw IllegalArgumentException for a null weapon, but it did not.");
+  }
+
+  // Constructor rejects a Bow weapon, since melee attacks cannot use ranged weapons.
+  @Test
+  void shouldThrowWhenConstructedWithBowWeapon() {
+    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, DEFAULT_WEAPON_TIER, 1, 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new MeleeAttackComponent(1, 10, 5f, bow),
+        "Expected constructor to throw IllegalArgumentException for a Bow weapon, but it did not.");
+  }
+
+  // Constructor rejects a weapon windup that is negative, equal to cooldown, or exceeds cooldown.
+  @Test
+  void shouldRejectInvalidWindupDurations() {
+    WeaponItem negativeWindup =
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, -1f, DEFAULT_WEAPON_TIER, 1, 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new MeleeAttackComponent(1, 10, 5f, negativeWindup),
+        "Expected a negative windupDuration to be rejected, but it was not.");
+
+    WeaponItem windupEqualsCooldown =
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, 10f, DEFAULT_WEAPON_TIER, 1, 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new MeleeAttackComponent(1, 10, 5f, windupEqualsCooldown),
+        "Expected windupDuration equal to cooldown to be rejected, but it was not.");
+
+    WeaponItem windupExceedsCooldown =
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, 11f, DEFAULT_WEAPON_TIER, 1, 1);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new MeleeAttackComponent(1, 10, 5f, windupExceedsCooldown),
+        "Expected windupDuration exceeding cooldown to be rejected, but it was not.");
+  }
+
+  // Constructor accepts a weapon windup that sits just below the configured cooldown.
+  @Test
+  void shouldAcceptWeaponWindupJustBelowCooldown() {
+    WeaponItem weapon =
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, 9.9f, DEFAULT_WEAPON_TIER, 1, 1);
+    assertDoesNotThrow(
+        () -> new MeleeAttackComponent(1, 10, 5f, weapon),
+        "Expected windupDuration just below cooldown to be accepted as a valid boundary value.");
+  }
+
+  // getDamage() and a landed hit both scale as baseDamage * tier, not just baseDamage.
+  @Test
+  void shouldApplyTierScaledWeaponDamage() {
+    int tier = 2;
+    WeaponItem tierTwoSword = new WeaponItem("Test Sword", WeaponType.SWORD, 0f, tier, 1, 1);
+    int expectedDamage = WeaponType.SWORD.getBaseDamage() * tier; // 10 * 2 = 20
+
+    MeleeAttackComponent meleeAttack = new MeleeAttackComponent(2, 5, 0, tierTwoSword);
+    assertEquals(
+        expectedDamage,
+        meleeAttack.getDamage(),
+        "Expected getDamage() to scale as baseDamage * tier, but got "
+            + meleeAttack.getDamage()
+            + " for tier "
+            + tier
+            + " (baseDamage "
+            + WeaponType.SWORD.getBaseDamage()
+            + ").");
+
+    Entity attacker =
+        new Entity()
+            .addComponent(meleeAttack)
+            .addComponent(new CombatStatsComponent(10, 2))
+            .addComponent(new PhysicsComponent());
+    attacker.create();
+    Entity target =
+        new Entity()
+            .addComponent(new CombatStatsComponent(50, 0))
+            .addComponent(new PhysicsComponent());
+    target.create();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+    int healthBeforeAttack = targetStats.getHealth();
+
+    attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update(); // resolve the zero-length windup
+
+    assertEquals(
+        healthBeforeAttack - expectedDamage,
+        targetStats.getHealth(),
+        "Expected a landed hit to reduce health by the tier-scaled damage of "
+            + expectedDamage
+            + ", but health went from "
+            + healthBeforeAttack
+            + " to "
+            + targetStats.getHealth());
+  }
+
+  // Setters update range, cooldown, and knockback to new valid values.
   @Test
   void ShouldUpdateStatsViaSetter() {
-    /*
-     */
     float oldRange = 0.5f;
     float oldCooldown = 10;
     float oldKnockback = 2.0f;
     MeleeAttackComponent meleeAttack =
-        new MeleeAttackComponent(oldRange, oldCooldown, oldKnockback);
+        new MeleeAttackComponent(oldRange, oldCooldown, oldKnockback, createInstantWeapon());
     float newRange = 0.1f;
     float newCooldown = 50;
     float newKnockback = 5.5f;
@@ -181,20 +255,16 @@ class MeleeAttackComponentTest {
             + meleeAttack.getKnockback());
   }
 
+  // setCooldown() rejects both a negative value and exactly zero, leaving the old value intact.
   @Test
   void shouldRejectZeroOrNegativeCooldown() {
     float rangeValue = 0.5f;
     float cooldownValue = 10;
     float knockbackValue = 2.0f;
     MeleeAttackComponent meleeAttack =
-        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue);
-    // negative value
+        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, createInstantWeapon());
     assertThrows(IllegalArgumentException.class, () -> meleeAttack.setCooldown(-30));
-
-    // base case also throws exception
     assertThrows(IllegalArgumentException.class, () -> meleeAttack.setCooldown(0));
-
-    // original value has not been modified
     assertEquals(
         cooldownValue,
         meleeAttack.getCooldown(),
@@ -204,14 +274,14 @@ class MeleeAttackComponentTest {
             + meleeAttack.getCooldown());
   }
 
+  // setRange() rejects a negative value, leaving the old value intact.
   @Test
   void shouldRejectNegativeRange() {
-    /* Confirm negative */
     float rangeValue = 0.5f;
     float cooldownValue = 10;
     float knockbackValue = 2.0f;
     MeleeAttackComponent meleeAttack =
-        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue);
+        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, createInstantWeapon());
     assertThrows(IllegalArgumentException.class, () -> meleeAttack.setRange(-1));
     assertEquals(
         rangeValue,
@@ -222,14 +292,14 @@ class MeleeAttackComponentTest {
             + meleeAttack.getRange());
   }
 
+  // setKnockback() rejects a negative value, leaving the old value intact.
   @Test
   void shouldRejectNegativeKnockback() {
-    /* Confirm negative */
     float rangeValue = 0.5f;
     float cooldownValue = 10;
     float knockbackValue = 2.0f;
     MeleeAttackComponent meleeAttack =
-        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue);
+        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, createInstantWeapon());
     assertThrows(IllegalArgumentException.class, () -> meleeAttack.setKnockback(-5f));
     assertEquals(
         knockbackValue,
@@ -240,14 +310,14 @@ class MeleeAttackComponentTest {
             + meleeAttack.getKnockback());
   }
 
+  // setKnockback() accepts exactly zero, which intentionally disables knockback.
   @Test
   void shouldAcceptZeroKnockback() {
-    /* Confirm 0 is treated as valid since it disables knockback rather than being invalid. */
     float rangeValue = 0.5f;
     float cooldownValue = 10;
     float knockbackValue = 2.0f;
     MeleeAttackComponent meleeAttack =
-        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue);
+        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, createInstantWeapon());
     meleeAttack.setKnockback(0f);
     assertEquals(
         0f,
@@ -258,165 +328,169 @@ class MeleeAttackComponentTest {
             + meleeAttack.getKnockback());
   }
 
-  /* the following test the create() function logic */
+  // create() wires up CombatStatsComponent and the meleeAttack listener so an attack can land.
   @Test
   void shouldResolveCombatStatsComponentOnCreate() {
-    int knownBaseAttack = 2;
     Entity attacker = createAttacker(3, 2, 5);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
     int targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
     attacker.getEvents().trigger("meleeAttack", target);
-    print(targetHealthBeforeAttack);
-    print(target.getComponent(CombatStatsComponent.class).getHealth());
+    attacker.update(); // resolve the zero-length windup so the hit actually lands
     assertTrue(
         target.getComponent(CombatStatsComponent.class).getHealth() < targetHealthBeforeAttack,
         "Expected Target's health to decrease from "
             + targetHealthBeforeAttack
             + " to "
-            + (targetHealthBeforeAttack - knownBaseAttack)
+            + (targetHealthBeforeAttack - DEFAULT_WEAPON_DAMAGE)
             + " but got "
             + target.getComponent(CombatStatsComponent.class).getHealth());
   }
 
+  // The meleeAttack listener registered in create() actually applies the weapon's damage.
   @Test
   void ShouldAttachToAttackEventOnCreate() {
+    WeaponItem weapon = createInstantWeapon();
     Entity attacker =
         new Entity()
-            .addComponent(new MeleeAttackComponent(3, 2, 5))
+            .addComponent(new MeleeAttackComponent(3, 2, 5, weapon))
             .addComponent(new CombatStatsComponent(20, 2));
     attacker.create();
 
     Entity target = new Entity().addComponent(new CombatStatsComponent(10, 0));
+    target.create();
     attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update(); // resolve the zero-length windup so the hit actually lands
 
+    int expectedHealth = 10 - DEFAULT_WEAPON_DAMAGE;
     assertEquals(
-        8,
+        expectedHealth,
         target.getComponent(CombatStatsComponent.class).getHealth(),
-        "expected 8 but got " + target.getComponent(CombatStatsComponent.class).getHealth());
+        "expected "
+            + expectedHealth
+            + " but got "
+            + target.getComponent(CombatStatsComponent.class).getHealth());
   }
 
-  /* This section tests the update() function logic */
+  // update() advances the cooldown timer, allowing a blocked attack to land once it elapses.
   @Test
   void ShouldIncrementCooldownTimerEachUpdate() {
-    // confirm update() advances the cooldown timer, verified indirectly by observing
-    // whether a blocked attack becomes allowed after enough updates.
-    // cooldown is represented in seconds
     float cooldownValue = 2;
     Entity attacker = createAttacker(3, cooldownValue, 1.0f);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
     CombatStatsComponent targetCombat = target.getComponent(CombatStatsComponent.class);
-    // health prior to 1st attack
-    int targetHealth = targetCombat.getHealth();
+    int targetHealthBeforeFirstAttack = targetCombat.getHealth();
+
     attacker.getEvents().trigger("meleeAttack", target);
-    assertTrue(targetHealth > targetCombat.getHealth());
-    assertEquals(8, targetCombat.getHealth());
-    // health after 1st attack before second attack
-    targetHealth = targetCombat.getHealth();
-    // the values should be the same despite being called as cooldown should still be running
+    attacker.update();
+    assertTrue(
+        targetHealthBeforeFirstAttack > targetCombat.getHealth(),
+        "Expected the first attack to land, reducing health below "
+            + targetHealthBeforeFirstAttack
+            + ", but got "
+            + targetCombat.getHealth());
+    int expectedHealthAfterFirstAttack = targetHealthBeforeFirstAttack - DEFAULT_WEAPON_DAMAGE;
+    assertEquals(
+        expectedHealthAfterFirstAttack,
+        targetCombat.getHealth(),
+        "Expected health of "
+            + expectedHealthAfterFirstAttack
+            + " after first attack, but got "
+            + targetCombat.getHealth());
+
+    int targetHealthAfterFirstAttack = targetCombat.getHealth();
     attacker.getEvents().trigger("meleeAttack", target);
-    assertEquals(8, targetCombat.getHealth());
-    // second attack is blocked due to cooldown so targetHealth remains the same.
-    // cycle through 2 seconds with mock game time set in beforeEach class.
+    attacker.update();
+    assertEquals(
+        targetHealthAfterFirstAttack,
+        targetCombat.getHealth(),
+        "Expected no additional damage while still on cooldown, but health changed from "
+            + targetHealthAfterFirstAttack
+            + " to "
+            + targetCombat.getHealth());
+
     for (int i = 0; i < 101; i++) {
       attacker.update();
     }
-    // duration of cooldown has passed, 3rd attack
+
     attacker.getEvents().trigger("meleeAttack", target);
-    assertTrue(targetHealth > targetCombat.getHealth());
-    assertEquals(6, targetCombat.getHealth());
+    attacker.update();
+    assertTrue(
+        targetHealthAfterFirstAttack > targetCombat.getHealth(),
+        "Expected a third attack to land once cooldown elapsed, reducing health below "
+            + targetHealthAfterFirstAttack
+            + ", but got "
+            + targetCombat.getHealth());
+    int expectedHealthAfterThirdAttack = targetHealthAfterFirstAttack - DEFAULT_WEAPON_DAMAGE;
+    assertEquals(
+        expectedHealthAfterThirdAttack,
+        targetCombat.getHealth(),
+        "Expected health of "
+            + expectedHealthAfterThirdAttack
+            + " after third attack, but got "
+            + targetCombat.getHealth());
   }
 
-  /* the following test the functionality, input base and edge cases of the
-   * attemptAttack function
-   */
+  // Triggering meleeAttack with a null target does not throw.
   @Test
   void ShouldNotThrowWhenTargetIsNull() {
-    // confirms a null target does not crash the component
     Entity attacker = createAttacker(2, 1, 0);
     attacker.create();
     assertDoesNotThrow(() -> attacker.getEvents().trigger("meleeAttack", null));
   }
 
-  /* the following tests the cooldown element of the attemptAttack */
+  // Attacks are blocked immediately after landing, still blocked partway through cooldown, then
+  // land once elapsed.
   @Test
-  void ShouldNotAttackDuringCooldown() {
+  void shouldRespectCooldownAcrossBlockedPartialAndElapsedStates() {
     Entity attacker = createAttacker(2, 2, 0);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(1, 0);
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+
+    // first attack lands and restarts the cooldown
     attacker.getEvents().trigger("meleeAttack", target);
-    float targetHealthAfterAttack1 = targetStats.getHealth();
-    // should not decrease in health due to cooldown
+    attacker.update();
+    float healthAfterFirstAttack = targetStats.getHealth();
+
+    // immediately blocked by cooldown
+    attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update();
+    assertEquals(
+        healthAfterFirstAttack,
+        targetStats.getHealth(),
+        "Expected no damage immediately after the first attack while on cooldown.");
+
+    // still blocked just before the 2-second cooldown completes (99 * 20ms = 1.98s total)
+    for (int i = 0; i < 98; i++) {
+      attacker.update();
+    }
     attacker.getEvents().trigger("meleeAttack", target);
     assertEquals(
-        targetHealthAfterAttack1,
+        healthAfterFirstAttack,
         targetStats.getHealth(),
-        "Expected second attack to not land due to cooldown in process. "
-            + "Targets health expected to be "
-            + targetHealthAfterAttack1
-            + " but got "
-            + targetStats.getHealth());
-  }
+        "Expected no damage with cooldown only partially elapsed.");
 
-  @Test
-  void ShouldAttackAgainAfterCooldownElapses() {
-    Entity attacker = createAttacker(3, 2, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(2, 0);
-    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
-    CombatStatsComponent attackerStats = attacker.getComponent(CombatStatsComponent.class);
-    // trigger first attacker
-    attacker.getEvents().trigger("meleeAttack", target);
-    float targetHealthAfterAttack1 = targetStats.getHealth();
-
-    // advance time past cooldown
+    // cooldown elapses, next attempt lands
     for (int i = 0; i < 101; i++) {
       attacker.update();
     }
-    // trigger second attacker
     attacker.getEvents().trigger("meleeAttack", target);
-    float targetHealthAfterAttack2 = targetStats.getHealth();
-
+    attacker.update();
     assertTrue(
-        targetHealthAfterAttack2 < targetHealthAfterAttack1,
-        "Expected second attack after cooldown to successfully landed another hit."
-            + "Expected health after second attack to be "
-            + (targetHealthAfterAttack1 - attackerStats.getBaseAttack())
-            + "and expected health after attack 1 is 8 but got "
-            + targetHealthAfterAttack1);
-  }
-
-  @Test
-  void shouldNotAttackWhenCooldownPartiallyElapsed() {
-    Entity attacker = createAttacker(2, 2, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(1, 0);
-    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
-    attacker.getEvents().trigger("meleeAttack", target);
-    float targetHealthAfterAttack1 = targetStats.getHealth();
-    // advance time to just before cooldown is complete
-    for (int i = 0; i < 99; i++) {
-      attacker.update();
-    }
-    // should not decrease in health due to cooldown not being completed
-    attacker.getEvents().trigger("meleeAttack", target);
-    assertEquals(
-        targetHealthAfterAttack1,
-        targetStats.getHealth(),
-        "Expected second attack to not land due to cooldown in process. "
-            + "Targets health expected to be "
-            + targetHealthAfterAttack1
-            + " but got "
+        targetStats.getHealth() < healthAfterFirstAttack,
+        "Expected a further attack to land once cooldown elapsed, reducing health below "
+            + healthAfterFirstAttack
+            + ", but got "
             + targetStats.getHealth());
   }
 
+  // A whiff on a target with no CombatStatsComponent does not consume cooldown for the next real
+  // target.
   @Test
   void ShouldResetCooldownOnlyAfterSuccessfulHit() {
     Entity attacker = createAttacker(2, 5, 0);
@@ -425,16 +499,15 @@ class MeleeAttackComponentTest {
     attacker.setPosition(0, 0);
     targetWithoutCombatStats.setPosition(1, 0);
 
-    // trigger attack on target
     attacker.getEvents().trigger("meleeAttack", targetWithoutCombatStats);
-    // cooldown should not start - target has no stats component
-    // target with stats = health should decrease
+
     Entity targetWithCombatStats = createTarget();
     attacker.setPosition(0, 0);
     targetWithCombatStats.setPosition(1, 0);
     float targetHealthBeforeAttack =
         targetWithCombatStats.getComponent(CombatStatsComponent.class).getHealth();
     attacker.getEvents().trigger("meleeAttack", targetWithCombatStats);
+    attacker.update();
     float targetHealthAfterAttack =
         targetWithCombatStats.getComponent(CombatStatsComponent.class).getHealth();
     assertTrue(
@@ -446,69 +519,51 @@ class MeleeAttackComponentTest {
             + targetHealthAfterAttack);
   }
 
-  /* the following tests will test the range element of attemptAttack */
-
+  // Attacks land within range and exactly at the boundary, but not when the target is out of range.
   @Test
-  void ShouldAttackWhenTargetWithinRange() {
-
-    Entity attacker = createAttacker(2, 1, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(1, 0);
-
-    float targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
-    attacker.getEvents().trigger("meleeAttack", target);
-    float targetHealthAfterAttack = target.getComponent(CombatStatsComponent.class).getHealth();
+  void shouldRespectRangeWithinAtBoundaryAndOutside() {
+    // within range
+    Entity attackerWithin = createAttacker(2, 1, 0);
+    Entity targetWithin = createTarget();
+    attackerWithin.setPosition(0, 0);
+    targetWithin.setPosition(1, 0);
+    float healthBeforeWithin = targetWithin.getComponent(CombatStatsComponent.class).getHealth();
+    attackerWithin.getEvents().trigger("meleeAttack", targetWithin);
+    attackerWithin.update();
     assertTrue(
-        targetHealthAfterAttack < targetHealthBeforeAttack,
-        "Expected the attack on target to land (cooldown was not "
-            + "consumed by the earlier failed attempt), reducing health from "
-            + targetHealthBeforeAttack
-            + " to below that value, but got "
-            + targetHealthAfterAttack);
-  }
+        targetWithin.getComponent(CombatStatsComponent.class).getHealth() < healthBeforeWithin,
+        "Expected an attack within range to land, reducing health below " + healthBeforeWithin);
 
-  @Test
-  void ShouldNotAttackWhenTargetOutsideRange() {
-    Entity attacker = createAttacker(2, 1, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(5, 0);
+    // exactly at the range boundary
+    Entity attackerBoundary = createAttacker(2, 1, 0);
+    Entity targetBoundary = createTarget();
+    attackerBoundary.setPosition(0, 0);
+    targetBoundary.setPosition(2, 0);
+    float healthBeforeBoundary =
+        targetBoundary.getComponent(CombatStatsComponent.class).getHealth();
+    attackerBoundary.getEvents().trigger("meleeAttack", targetBoundary);
+    attackerBoundary.update();
+    assertTrue(
+        targetBoundary.getComponent(CombatStatsComponent.class).getHealth() < healthBeforeBoundary,
+        "Expected an attack exactly at the range boundary to land, reducing health below "
+            + healthBeforeBoundary);
 
-    float targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
-    attacker.getEvents().trigger("meleeAttack", target);
-    float targetHealthAfterAttack = target.getComponent(CombatStatsComponent.class).getHealth();
+    // outside range
+    Entity attackerOutside = createAttacker(2, 1, 0);
+    Entity targetOutside = createTarget();
+    attackerOutside.setPosition(0, 0);
+    targetOutside.setPosition(5, 0);
+    float healthBeforeOutside = targetOutside.getComponent(CombatStatsComponent.class).getHealth();
+    attackerOutside.getEvents().trigger("meleeAttack", targetOutside);
+    attackerOutside.update();
     assertEquals(
-        targetHealthBeforeAttack,
-        targetHealthAfterAttack,
-        "Expected the before attack health of the target: "
-            + targetHealthBeforeAttack
-            + " to match the after attack health of the target: "
-            + targetHealthAfterAttack
-            + "as the target is not within the required range of 2");
+        healthBeforeOutside,
+        targetOutside.getComponent(CombatStatsComponent.class).getHealth(),
+        "Expected an attack outside range to not land; health should remain "
+            + healthBeforeOutside);
   }
 
-  @Test
-  void ShouldHandleTargetExactlyAtRangeBoundary() {
-    Entity attacker = createAttacker(2, 1, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(2, 0);
-
-    float targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
-    attacker.getEvents().trigger("meleeAttack", target);
-    float targetHealthAfterAttack = target.getComponent(CombatStatsComponent.class).getHealth();
-    assertTrue(
-        targetHealthAfterAttack < targetHealthBeforeAttack,
-        "Expected the attack on target despite the target being at boundary of "
-            + "the range of 2, reducing health from "
-            + targetHealthBeforeAttack
-            + " to below that value, but got "
-            + targetHealthAfterAttack);
-  }
-
-  /* the following tests when the target is missing the CombatStatsComponent */
-
+  // A target with no CombatStatsComponent never takes damage and never causes an exception.
   @Test
   void ShouldNotAttackWhenTargetHasNoCombatStatsComponent() {
     Entity attacker = createAttacker(2, 5, 0);
@@ -517,149 +572,124 @@ class MeleeAttackComponentTest {
     attacker.setPosition(0, 0);
     targetWithoutCombatStats.setPosition(1, 0);
 
-    // trigger attack on target
     attacker.getEvents().trigger("meleeAttack", targetWithoutCombatStats);
-    // cooldown should not start - target has no stats component
     assertDoesNotThrow(() -> attacker.getEvents().trigger("meleeAttack", targetWithoutCombatStats));
   }
 
-  /* The following tests the knockback element of the attemptAttack function */
+  // Knockback applies when positive and the target has physics, but not when zero or physics is
+  // absent.
   @Test
-  void ShouldApplyKnockbackWhenPositiveAndTargetHasPhysicsComponent() {
-    Entity attacker = createAttacker(3, 1, 3);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(2, 0);
-    PhysicsComponent targetPhysics = target.getComponent(PhysicsComponent.class);
-    float targetLinearVelocityBeforeAttack = targetPhysics.getBody().getLinearVelocity().len();
-    // checking velocity of target is at rest initially
+  void shouldApplyOrSkipKnockbackAcrossConditions() {
+    // positive knockback + target has PhysicsComponent -> velocity changes
+    Entity attackerWithKnockback = createAttacker(3, 1, 3);
+    Entity targetWithPhysics = createTarget();
+    attackerWithKnockback.setPosition(0, 0);
+    targetWithPhysics.setPosition(2, 0);
+    PhysicsComponent targetPhysics = targetWithPhysics.getComponent(PhysicsComponent.class);
+    float velocityBefore = targetPhysics.getBody().getLinearVelocity().len();
     assertEquals(
         0,
-        targetLinearVelocityBeforeAttack,
-        "Velocity of target is expected to be at rest - 0 initially, "
-            + "but was actually "
-            + targetLinearVelocityBeforeAttack);
-    // trigger attack on target
-    attacker.getEvents().trigger("meleeAttack", target);
-    float targetLinearVelocityAfterAttack = targetPhysics.getBody().getLinearVelocity().len();
+        velocityBefore,
+        "Velocity of target is expected to be at rest - 0 initially, but was actually "
+            + velocityBefore);
+    attackerWithKnockback.getEvents().trigger("meleeAttack", targetWithPhysics);
+    attackerWithKnockback.update();
+    float velocityAfter = targetPhysics.getBody().getLinearVelocity().len();
     assertNotSame(
-        targetLinearVelocityBeforeAttack,
-        targetLinearVelocityAfterAttack,
-        "Expected a change in velocity by a factor of 3 from knockback of attack, "
-            + "thus expecting velocity before attack: "
-            + targetLinearVelocityBeforeAttack
-            + "doesn't equal velocity after attack: "
-            + targetLinearVelocityAfterAttack
-            + "but got "
-            + (targetLinearVelocityBeforeAttack != targetLinearVelocityAfterAttack));
-  }
+        velocityBefore,
+        velocityAfter,
+        "Expected a change in velocity from knockback of attack, thus expecting velocity before "
+            + "attack: "
+            + velocityBefore
+            + " to not equal velocity after attack: "
+            + velocityAfter);
 
-  @Test
-  void ShouldNotApplyKnockbackWhenValueIsZero() {
-    Entity attacker = createAttacker(3, 1, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(2, 0);
-    PhysicsComponent targetPhysics = target.getComponent(PhysicsComponent.class);
-    float targetLinearVelocityBeforeAttack = targetPhysics.getBody().getLinearVelocity().len();
-    // checking velocity of target is at rest initially
+    // zero knockback -> velocity unaffected
+    Entity attackerNoKnockback = createAttacker(3, 1, 0);
+    Entity targetForZeroKnockback = createTarget();
+    attackerNoKnockback.setPosition(0, 0);
+    targetForZeroKnockback.setPosition(2, 0);
+    PhysicsComponent zeroKnockbackPhysics =
+        targetForZeroKnockback.getComponent(PhysicsComponent.class);
+    float velocityBeforeZero = zeroKnockbackPhysics.getBody().getLinearVelocity().len();
+    attackerNoKnockback.getEvents().trigger("meleeAttack", targetForZeroKnockback);
+    attackerNoKnockback.update();
+    float velocityAfterZero = zeroKnockbackPhysics.getBody().getLinearVelocity().len();
     assertEquals(
-        0,
-        targetLinearVelocityBeforeAttack,
-        "Velocity of target is expected to be at rest - 0 initially, "
-            + "but was actually "
-            + targetLinearVelocityBeforeAttack);
-    // trigger attack on target
-    attacker.getEvents().trigger("meleeAttack", target);
-    float targetLinearVelocityAfterAttack = targetPhysics.getBody().getLinearVelocity().len();
-    assertEquals(
-        targetLinearVelocityBeforeAttack,
-        targetLinearVelocityAfterAttack,
-        "Expected no change in velocity from knockback as it is disabled"
-            + "thus expecting velocity before attack: "
-            + targetLinearVelocityBeforeAttack
-            + "to equal velocity after attack: "
-            + targetLinearVelocityAfterAttack
-            + "but got "
-            + (targetLinearVelocityBeforeAttack == targetLinearVelocityAfterAttack));
-  }
+        velocityBeforeZero,
+        velocityAfterZero,
+        "Expected no change in velocity from knockback as it is disabled, thus expecting "
+            + "velocity before attack: "
+            + velocityBeforeZero
+            + " to equal velocity after attack: "
+            + velocityAfterZero);
 
-  @Test
-  void ShouldNotApplyKnockbackWhenTargetHasNoPhysicsComponent() {
-    Entity attacker = createAttacker(2, 1, 3);
-    Entity target = new Entity().addComponent(new CombatStatsComponent(10, 0));
-    target.create();
-    attacker.setPosition(0, 0);
-    target.setPosition(2, 0);
-
-    float healthBefore = target.getComponent(CombatStatsComponent.class).getHealth();
-
-    assertDoesNotThrow(() -> attacker.getEvents().trigger("meleeAttack", target));
-
-    float healthAfter = target.getComponent(CombatStatsComponent.class).getHealth();
-
+    // target has no PhysicsComponent -> damage still applies, knockback is skipped without throwing
+    Entity attackerVsNoPhysicsTarget = createAttacker(2, 1, 3);
+    Entity targetWithoutPhysics = new Entity().addComponent(new CombatStatsComponent(10, 0));
+    targetWithoutPhysics.create();
+    attackerVsNoPhysicsTarget.setPosition(0, 0);
+    targetWithoutPhysics.setPosition(2, 0);
+    float healthBeforeNoPhysics =
+        targetWithoutPhysics.getComponent(CombatStatsComponent.class).getHealth();
+    attackerVsNoPhysicsTarget.getEvents().trigger("meleeAttack", targetWithoutPhysics);
+    assertDoesNotThrow(
+        attackerVsNoPhysicsTarget::update,
+        "Expected resolving an attack on a target with no PhysicsComponent not to throw.");
+    float healthAfterNoPhysics =
+        targetWithoutPhysics.getComponent(CombatStatsComponent.class).getHealth();
     assertTrue(
-        healthAfter < healthBefore,
-        "Expected damage to still apply even though target has no PhysicsComponent"
+        healthAfterNoPhysics < healthBeforeNoPhysics,
+        "Expected damage to still apply even though target has no PhysicsComponent "
             + "(knockback should be skipped but not damage), but health went from "
-            + healthBefore
+            + healthBeforeNoPhysics
             + " to "
-            + healthAfter);
+            + healthAfterNoPhysics);
   }
 
-  /* the following test the canAttack() function logic */
+  // canAttack() is false right after triggering, stays false until cooldown elapses, then true and
+  // stays true.
   @Test
-  void canAttack_immediatelyAfterAttack_returnsFalse() {
+  void canAttack_reflectsCooldownProgressionOverTime() {
     Entity attacker = createAttacker(2, 2, 0);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(1, 0);
+    MeleeAttackComponent meleeAttack = attacker.getComponent(MeleeAttackComponent.class);
 
     attacker.getEvents().trigger("meleeAttack", target);
-
     assertFalse(
-        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
-        "Expected canAttack() to be false immediately after a successful attack.");
-  }
+        meleeAttack.canAttack(),
+        "Expected canAttack() to be false immediately after the attack windup starts.");
 
-  @Test
-  void canAttack_beforeCooldownElapsed_returnsFalse() {
-    Entity attacker = createAttacker(2, 2, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(1, 0);
+    attacker.update(); // resolve the zero-length windup; cooldown timer restarts at 0 from here
 
-    attacker.getEvents().trigger("meleeAttack", target);
-    // advance time to just before the 2-second cooldown completes (99 * 20ms = 1.98s)
+    // just before the 2-second cooldown completes (99 * 20ms = 1.98s)
     for (int i = 0; i < 99; i++) {
       attacker.update();
     }
-
     assertFalse(
-        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
+        meleeAttack.canAttack(),
         "Expected canAttack() to still be false with cooldown partially elapsed.");
-  }
 
-  @Test
-  void canAttack_atOrJustPastCooldownBoundary_returnsTrue() {
-    Entity attacker = createAttacker(2, 2, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(1, 0);
-
-    attacker.getEvents().trigger("meleeAttack", target);
-    // advance time to just past the 2-second cooldown (101 * 20ms = 2.02s) — avoids
-    // asserting exact float-accumulation equality at the boundary itself, which is
-    // unreliable since deltaTime (0.02f) doesn't sum to a bit-exact 2.0f over 100 additions
-    for (int i = 0; i < 101; i++) {
+    // just past the 2-second cooldown (2 more * 20ms => total 2.02s)
+    for (int i = 0; i < 2; i++) {
       attacker.update();
     }
-
     assertTrue(
-        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
-        "Expected canAttack() to be true once the cooldown timer has reached or passed the configured duration.");
+        meleeAttack.canAttack(),
+        "Expected canAttack() to be true once the cooldown timer has reached or passed the "
+            + "configured duration.");
+
+    // well past the cooldown
+    for (int i = 0; i < 50; i++) {
+      attacker.update();
+    }
+    assertTrue(
+        meleeAttack.canAttack(), "Expected canAttack() to remain true well past the cooldown.");
   }
 
+  // canAttack() reporting true is consistent with a second attack actually landing.
   @Test
   void canAttack_consistentWithAttemptAttackBehaviour() {
     Entity attacker = createAttacker(2, 2, 0);
@@ -669,6 +699,7 @@ class MeleeAttackComponentTest {
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
 
     attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update();
     for (int i = 0; i < 101; i++) {
       attacker.update();
     }
@@ -678,57 +709,46 @@ class MeleeAttackComponentTest {
 
     float healthBeforeSecondAttack = targetStats.getHealth();
     attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update();
     float healthAfterSecondAttack = targetStats.getHealth();
 
     assertTrue(
         healthAfterSecondAttack < healthBeforeSecondAttack,
-        "Expected the second attack to actually land (consistent with canAttack() reporting true beforehand), "
-            + "reducing health from "
+        "Expected the second attack to actually land (consistent with canAttack() reporting "
+            + "true beforehand), reducing health from "
             + healthBeforeSecondAttack
             + " to below that value, but got "
             + healthAfterSecondAttack);
   }
 
-  @Test
-  void canAttack_afterCooldownElapsed_returnsTrue() {
-    Entity attacker = createAttacker(2, 2, 0);
-    Entity target = createTarget();
-    attacker.setPosition(0, 0);
-    target.setPosition(1, 0);
-
-    attacker.getEvents().trigger("meleeAttack", target);
-    // advance time well past the 2-second cooldown
-    for (int i = 0; i < 150; i++) {
-      attacker.update();
-    }
-
-    assertTrue(
-        attacker.getComponent(MeleeAttackComponent.class).canAttack(),
-        "Expected canAttack() to be true once the cooldown duration has been exceeded.");
-  }
-
   /* ---------- Helpers ---------- */
 
   /**
-   * Builds a fully created Entity representing an attack, with a {@link MeleeAttackComponent} and
-   * the components it depends on, ready for use in a test.
+   * Builds the default weapon used by {@link #createAttacker(float, float, float)}: a non-BOW type
+   * with zero windup, so an attack resolves on the very next {@code update()} call after being
+   * triggered. Deals {@link #DEFAULT_WEAPON_DAMAGE} damage per hit.
    *
-   * @param knockback - passed directly into {@link MeleeAttackComponent}'s constructor - the amount
-   *     of force the target will experience from the attack
-   * @param range - the distance between the target and the attacker that allows the attacker to use
-   *     the component to attack the target i.e. within 1.5 m of the target, the attacker can use
-   *     the melee component
-   * @param cooldown - the duration of time the entity must wait before attacking the target again
-   * @return - an entity that uses the {@link MeleeAttackComponent} to attack another entity with
-   *     the {@link CombatStatsComponent} and {@link PhysicsComponent} added as well.
-   *     <p><bold>Design Decision:</bold> given that for this test, it is only testing the melee
-   *     component which doesn't use the physics layer checks, the target layer is not included as
-   *     an input.
+   * @return a fresh weapon item suitable for most tests
    */
-  Entity createAttacker(float range, float cooldown, float knockback, WeaponItem weapon) {
+  WeaponItem createInstantWeapon() {
+    return new WeaponItem("Test Dagger", WeaponType.DAGGER, 0f, DEFAULT_WEAPON_TIER, 1, 1);
+  }
+
+  /**
+   * Builds a fully created Entity representing an attacker, with a {@link MeleeAttackComponent}
+   * (equipped with the default {@link #createInstantWeapon()}) and the components it depends on.
+   *
+   * @param knockback knockback magnitude passed directly into {@link MeleeAttackComponent}
+   * @param range melee reach passed directly into {@link MeleeAttackComponent}
+   * @param cooldown minimum time, in seconds, between successive melee attacks
+   * @return an entity carrying {@link MeleeAttackComponent}, {@link CombatStatsComponent}, and
+   *     {@link PhysicsComponent}
+   */
+  Entity createAttacker(float range, float cooldown, float knockback) {
     Entity attacker =
         new Entity()
-            .addComponent(new MeleeAttackComponent(range, cooldown, knockback, weapon))
+            .addComponent(
+                new MeleeAttackComponent(range, cooldown, knockback, createInstantWeapon()))
             .addComponent(new CombatStatsComponent(20, 2))
             .addComponent(new PhysicsComponent());
     attacker.create();
@@ -736,11 +756,10 @@ class MeleeAttackComponentTest {
   }
 
   /**
-   * Builds a fully created Entity representing an attack, with a {@link MeleeAttackComponent} and
-   * the components it depends on, ready for use in a test.
+   * Builds a fully created Entity representing a target.
    *
-   * @return a target entity that has the {@link CombatStatsComponent} and {@link PhysicsComponent}
-   *     attached.
+   * @return a target entity that has {@link CombatStatsComponent} and {@link PhysicsComponent}
+   *     attached
    */
   Entity createTarget() {
     Entity target =

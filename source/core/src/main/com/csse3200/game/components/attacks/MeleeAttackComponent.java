@@ -34,14 +34,14 @@ import org.slf4j.LoggerFactory;
  * relies entirely on being triggered externally with a target entity. If nothing ever triggers the
  * configured event, this component will never attack.
  */
-public class MeleeAttackComponent extends Component  {
+public class MeleeAttackComponent extends Component {
   private float range;
   private float cooldown;
   private float knockback;
   private WeaponItem weapon;
   /* This is set in the {@link WeaponItem} creation rather than here as animation is per weapon
-  * Adjustments can be made as public setter and getter for the value is avaliable.
-  */
+   * Adjustments can be made as public setter and getter for the value is avaliable.
+   */
   private float windupDuration;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
@@ -54,11 +54,11 @@ public class MeleeAttackComponent extends Component  {
    * @param cooldown minimum time, in seconds, between attacks
    * @param knockback knockback magnitude on a successful hit — this wielder's own property
    * @param weapon supplies damage only
-   * @throws IllegalArgumentException if weapon is null, range/cooldown are non-positive,
-   *     knockback is negative, or windupDuration is negative or &gt;= cooldown
+   * @throws IllegalArgumentException if weapon is null, range/cooldown are non-positive, knockback
+   *     is negative, or windupDuration is negative or &gt;= cooldown
    */
-  public MeleeAttackComponent(float range, float cooldown, float knockback,
-                              WeaponItem weapon) throws IllegalArgumentException {
+  public MeleeAttackComponent(float range, float cooldown, float knockback, WeaponItem weapon)
+      throws IllegalArgumentException {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
@@ -103,7 +103,7 @@ public class MeleeAttackComponent extends Component  {
       windupTimeRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
       if (windupTimeRemaining <= 0) {
         resolveAttack();
-     }
+      }
     }
   }
 
@@ -144,7 +144,7 @@ public class MeleeAttackComponent extends Component  {
    * @param cooldown new cooldown value, in seconds
    * @throws IllegalArgumentException if {@code cooldown} is zero or negative
    */
-  public void setCooldown(float cooldown) throws IllegalArgumentException{
+  public void setCooldown(float cooldown) throws IllegalArgumentException {
     if (cooldown <= 0) {
       throw new IllegalArgumentException("Cooldown duration must be greater than zero.");
     }
@@ -238,7 +238,6 @@ public class MeleeAttackComponent extends Component  {
     this.windupTimeRemaining = this.windupDuration;
     timeSinceLastAttack = 0;
     entity.getEvents().trigger("meleeAttackWindup", this.pendingTarget);
-
   }
 
   /**
@@ -255,14 +254,18 @@ public class MeleeAttackComponent extends Component  {
     if (targetStats == null || targetStats.getHealth() <= 0) {
       return;
     }
-    float distance = (float) distance(entity.getPosition().x, entity.getPosition().y,
-        target.getPosition().x, target.getPosition().y
-    );
+    float distance =
+        (float)
+            distance(
+                entity.getPosition().x,
+                entity.getPosition().y,
+                target.getPosition().x,
+                target.getPosition().y);
     if (distance > this.getRange()) {
       return;
     }
     int finalDamage = weapon.getDamage();
-    //retrieve damage stats from weapon
+    // retrieve damage stats from weapon
     ChargeComponent chargeComponent = entity.getComponent(ChargeComponent.class);
     if (chargeComponent != null) {
       // if not charging then 1.0f is the mutiplier
@@ -283,5 +286,4 @@ public class MeleeAttackComponent extends Component  {
       targetBody.applyLinearImpulse(impulse, targetBody.getWorldCenter(), true);
     }
   }
-
 }
