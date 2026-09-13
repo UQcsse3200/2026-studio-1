@@ -93,7 +93,7 @@ class WeaponGeneratorTest {
     assertEquals(6, generator.generateWeapon(WeaponType.DAGGER, 2).getDamage());
   }
 
-  // Generated weapons always have a quantity of 1 and a maxQuantity of 1.
+  // Generated weapons start with one copy and can stack up to five copies.
   @Test
   void shouldGenerateWeaponsWithSingleQuantity() {
     WeaponGenerator generator = new WeaponGenerator();
@@ -101,6 +101,6 @@ class WeaponGeneratorTest {
     WeaponItem weapon = generator.generateWeapon(WeaponType.SWORD, 1);
 
     assertEquals(1, weapon.getQuantity());
-    assertEquals(10, weapon.getMaxQuantity());
+    assertEquals(5, weapon.getMaxQuantity());
   }
 }
