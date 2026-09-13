@@ -141,13 +141,13 @@ public class PlatformerComponent extends Component {
   public String canWallJump() {
     RaycastHit leftHit = new RaycastHit();
     RaycastHit rightHit = new RaycastHit();
-    int rightOffset = 3; // The rightHit raycast isn't able to hit the left part of the wall
+    int rightOffset = 0; // The rightHit raycast isn't able to hit the left part of the wall
     // as well as the right part of the wall, so we give a boost to the distanceThreshold
-    float distanceThreshold = 15f; // The wall jump applies if the collider is X units away
+    float distanceThreshold = 5f; // The wall jump applies if the collider is X units away
     Vector2 from = entity.getPosition();
     from.y+=5;
     Vector2 fromRight = from;
-    fromRight.x+=5;
+    fromRight.x+=8;
     Vector2 fromLeft = from;//It's already on the left
 
     Vector2 vectorToRight = new Vector2(fromRight.x + (distanceThreshold), fromRight.y);
