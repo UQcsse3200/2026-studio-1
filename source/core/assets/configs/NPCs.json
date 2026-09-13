@@ -25,20 +25,6 @@
       "cooldown": 5,
       "knockback": 0
     }
-  },
-  "centaur": {
-    "health": 40,
-    "baseAttack": 10,
-    "melee": {
-      "range": 4,
-      "cooldown": 5,
-      "knockback": 2
-    },
-    "ranged": {
-      "range": 10,
-      "cooldown": 4,
-      "knockback": 3
-    }
   }
 }
 

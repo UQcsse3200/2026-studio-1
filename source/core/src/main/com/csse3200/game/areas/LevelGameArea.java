@@ -69,10 +69,10 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghost_king.png",
     "images/enemies/ghost_1.png",
     "images/items/sword.png",
-          "images/sword.png",
+    "images/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
-          "images/dagger.png",
+    "images/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
     "images/ui/Strength.png"
@@ -94,7 +94,7 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
-          "images/pet.atlas"
+    "images/pet.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
