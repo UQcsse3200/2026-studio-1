@@ -84,7 +84,10 @@ public class MainGameScreen extends ScreenAdapter {
     this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
     levelGameArea.create();
     if (loadsave) {
-      LoadService.load(levelGameArea.getPlayer());
+      LoadService.load(
+          levelGameArea.getPlayer(),
+          levelGameArea.getMapWorldWidth(),
+          levelGameArea.getMapWorldHeight());
     }
 
     fitCameraToMap(levelGameArea);

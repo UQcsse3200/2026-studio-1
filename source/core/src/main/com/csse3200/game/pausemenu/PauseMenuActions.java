@@ -60,6 +60,8 @@ public class PauseMenuActions extends Component {
     GameSaveData data = new GameSaveData();
     data.health = stats.getHealth();
     data.gold = inventory.getGold();
+    data.posX = player.getPosition().x;
+    data.posY = player.getPosition().y;
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();
@@ -78,5 +80,6 @@ public class PauseMenuActions extends Component {
     }
 
     SaveService.save(data);
+    entity.getEvents().trigger("mainMenuClicked");
   }
 }

@@ -16,7 +16,7 @@ public class LoadService {
    *
    * @param player player entity to restore
    */
-  public static void load(Entity player) {
+  public static void load(Entity player, float mapWidth, float mapHeight) {
     if (player == null) {
       return;
     }
@@ -30,6 +30,7 @@ public class LoadService {
 
     loadHealth(player, data);
     loadInventory(player, data);
+    loadPosition(player, data, mapWidth, mapHeight);
   }
 
   /**
@@ -39,7 +40,11 @@ public class LoadService {
    * @return true if saved progress exists
    */
   private static boolean hasSavedData(GameSaveData data) {
-    return data.health > 0 || data.gold > 0 || !data.items.isEmpty();
+    return data.health > 0
+        || data.gold > 0
+        || !data.items.isEmpty()
+        || data.posX != 0
+        || data.posY != 0;
   }
 
   private static void loadHealth(Entity player, GameSaveData data) {
@@ -48,6 +53,17 @@ public class LoadService {
     if (stats != null && data.health > 0) {
       stats.setHealth(data.health);
     }
+  }
+
+  private static void loadPosition(
+      Entity player, GameSaveData data, float mapWidth, float mapHeight) {
+    boolean validX = data.posX >= 0 && data.posX <= mapWidth;
+    boolean validY = data.posY >= 0 && data.posY <= mapHeight;
+
+    if (validX && validY) {
+      player.setPosition(data.posX, data.posY);
+    }
+    // Otherwise, leave the player at its default spawn position.
   }
 
   private static void loadInventory(Entity player, GameSaveData data) {
