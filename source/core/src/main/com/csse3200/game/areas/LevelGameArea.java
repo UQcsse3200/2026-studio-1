@@ -62,35 +62,35 @@ public class LevelGameArea extends GameArea {
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-          "images/player/box_boy_leaf.png",
-          "images/player/box_boy_crouch.png",
-          "images/player/box_boy_slide.png",
-          "images/enemies/ghost_king.png",
-          "images/enemies/ghost_1.png",
-          "images/items/sword.png",
-          "images/items/bow.png",
-          "images/items/arrow.png",
-          "images/ui/Health.png",
-          "images/ui/Poison.png",
-          "images/ui/Strength.png"
+    "images/player/box_boy_leaf.png",
+    "images/player/box_boy_crouch.png",
+    "images/player/box_boy_slide.png",
+    "images/enemies/ghost_king.png",
+    "images/enemies/ghost_1.png",
+    "images/items/sword.png",
+    "images/items/bow.png",
+    "images/items/arrow.png",
+    "images/ui/Health.png",
+    "images/ui/Poison.png",
+    "images/ui/Strength.png"
   };
 
   private static final String[] entitySounds = {
-          "sounds/Impact4.ogg",
-          "sounds/player-hit.ogg",
-          "sounds/player-hit-crown.ogg",
-          "sounds/walking1.mp3",
-          "sounds/jump.mp3",
-          "sounds/dash.mp3",
-          "sounds/sneaking1.mp3",
-          "sounds/slide.mp3"
+    "sounds/Impact4.ogg",
+    "sounds/player-hit.ogg",
+    "sounds/player-hit-crown.ogg",
+    "sounds/walking1.mp3",
+    "sounds/jump.mp3",
+    "sounds/dash.mp3",
+    "sounds/sneaking1.mp3",
+    "sounds/slide.mp3"
   };
 
   private static final String[] entityAtlases = {
-          "images/enemies/ghost.atlas",
-          "images/enemies/ghostKing.atlas",
-          "images/items/gold_coin/gold_coin.atlas",
-          "images/enemies/skeleton.atlas"
+    "images/enemies/ghost.atlas",
+    "images/enemies/ghostKing.atlas",
+    "images/items/gold_coin/gold_coin.atlas",
+    "images/enemies/skeleton.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
@@ -137,16 +137,16 @@ public class LevelGameArea extends GameArea {
    * @param entrySpawn destination entrance tile, or {@code null} for the map's player spawn
    */
   public LevelGameArea(
-          TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
+      TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
     this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn);
   }
 
   private LevelGameArea(
-          TerrainFactory terrainFactory,
-          String mapPath,
-          MapLoader mapLoader,
-          Entity existingPlayer,
-          GridPoint2 entrySpawn) {
+      TerrainFactory terrainFactory,
+      String mapPath,
+      MapLoader mapLoader,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
@@ -257,7 +257,7 @@ public class LevelGameArea extends GameArea {
       return;
     }
     Entity backdrop =
-            new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
+        new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
     backdrop.setScale(getMapWorldWidth(), getMapWorldHeight());
     spawnEntity(backdrop);
   }
@@ -329,12 +329,12 @@ public class LevelGameArea extends GameArea {
           nextActiveRectangles.put(run, new SolidRectangle(run.x(), y, run.width(), 1));
         } else {
           nextActiveRectangles.put(
-                  run,
-                  new SolidRectangle(
-                          previousRectangle.x(),
-                          previousRectangle.y(),
-                          previousRectangle.width(),
-                          previousRectangle.height() + 1));
+              run,
+              new SolidRectangle(
+                  previousRectangle.x(),
+                  previousRectangle.y(),
+                  previousRectangle.width(),
+                  previousRectangle.height() + 1));
         }
       }
 
@@ -375,8 +375,8 @@ public class LevelGameArea extends GameArea {
 
   private void spawnSolidRectangle(SolidRectangle rectangle, float tileSize) {
     Entity collider =
-            ObstacleFactory.createSolidTile(
-                    rectangle.width() * tileSize, rectangle.height() * tileSize);
+        ObstacleFactory.createSolidTile(
+            rectangle.width() * tileSize, rectangle.height() * tileSize);
     Vector2 position = terrain.tileToWorldPosition(rectangle.x(), rectangle.y());
 
     if (position == null) {
@@ -481,54 +481,54 @@ public class LevelGameArea extends GameArea {
     final long[] lastHazardDamageTime = {0L};
 
     newPlayer
-            .getEvents()
-            .addListener(
-                    "collisionStart",
-                    (EventListener2<Fixture, Fixture>)
-                            (fixtureA, fixtureB) -> {
-                              Entity entityA = ((BodyUserData) fixtureA.getBody().getUserData()).entity;
+        .getEvents()
+        .addListener(
+            "collisionStart",
+            (EventListener2<Fixture, Fixture>)
+                (fixtureA, fixtureB) -> {
+                  Entity entityA = ((BodyUserData) fixtureA.getBody().getUserData()).entity;
 
-                              Entity entityB = ((BodyUserData) fixtureB.getBody().getUserData()).entity;
+                  Entity entityB = ((BodyUserData) fixtureB.getBody().getUserData()).entity;
 
-                              Entity other;
+                  Entity other;
 
-                              if (entityA == newPlayer) {
-                                other = entityB;
-                              } else {
-                                other = entityA;
-                              }
+                  if (entityA == newPlayer) {
+                    other = entityB;
+                  } else {
+                    other = entityA;
+                  }
 
-                              ColliderComponent collider = other.getComponent(ColliderComponent.class);
+                  ColliderComponent collider = other.getComponent(ColliderComponent.class);
 
-                              if (collider != null && collider.getLayer() == PhysicsLayer.HAZARD) {
+                  if (collider != null && collider.getLayer() == PhysicsLayer.HAZARD) {
 
-                                long currentTime = System.currentTimeMillis();
+                    long currentTime = System.currentTimeMillis();
 
-                                if (currentTime - lastHazardDamageTime[0] >= HAZARD_DAMAGE_COOLDOWN_MS) {
+                    if (currentTime - lastHazardDamageTime[0] >= HAZARD_DAMAGE_COOLDOWN_MS) {
 
-                                  CombatStatsComponent stats =
-                                          newPlayer.getComponent(CombatStatsComponent.class);
+                      CombatStatsComponent stats =
+                          newPlayer.getComponent(CombatStatsComponent.class);
 
-                                  stats.addHealth(-(int) HAZARD_DAMAGE);
+                      stats.addHealth(-(int) HAZARD_DAMAGE);
 
-                                  lastHazardDamageTime[0] = currentTime;
+                      lastHazardDamageTime[0] = currentTime;
 
-                                  logger.info("Player hit hazard! Health: {}", stats.getHealth());
-                                }
-                              }
-                            });
+                      logger.info("Player hit hazard! Health: {}", stats.getHealth());
+                    }
+                  }
+                });
   }
 
   private void spawnTransitions() {
     float tileSize = terrain.getTileSize();
     for (RoomTransition transition : mapData.getTransitions()) {
       Entity doorway =
-              new Entity()
-                      .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-                      .addComponent(new ColliderComponent().setSensor(true))
-                      .addComponent(
-                              new RoomTransitionComponent(
-                                      transition, player, requested -> pendingTransition = requested));
+          new Entity()
+              .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+              .addComponent(new ColliderComponent().setSensor(true))
+              .addComponent(
+                  new RoomTransitionComponent(
+                      transition, player, requested -> pendingTransition = requested));
 
       if (transition.getTexture() != null) {
         doorway.addComponent(new TextureRenderComponent(transition.getTexture()));
@@ -613,7 +613,7 @@ public class LevelGameArea extends GameArea {
     }
     if ("item-olive-branch".equals(type)) {
       return LootFactory.createLoot(
-              consumables.generateConsumable(ConsumableType.HEALTH_POTION, 2));
+          consumables.generateConsumable(ConsumableType.HEALTH_POTION, 2));
     }
     return LootFactory.createLoot(consumables.generateConsumable(ConsumableType.SPEED_BUFF, 1));
   }
