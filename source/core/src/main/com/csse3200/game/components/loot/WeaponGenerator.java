@@ -1,7 +1,6 @@
 package com.csse3200.game.components.loot;
 
-// Generates weapon items with properties based on weapon type and loot tier.
-
+/** Generates weapon items with properties based on weapon type and loot tier. */
 public class WeaponGenerator {
 
   public WeaponItem generateWeapon(WeaponType weaponType, int tier) {

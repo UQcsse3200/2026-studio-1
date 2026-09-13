@@ -3,7 +3,7 @@ package com.csse3200.game.components.loot;
 /**
  * Represents the base structure for all items in the loot generation system.
  *
- * <p>Each item has a unique ID, name, type, quantity, and maximum stack quantity.
+ * <p>Each item has a unique ID, name, type, quantity, maximum stack quantity, and sell price.
  */
 public class Item {
 
@@ -14,6 +14,7 @@ public class Item {
   private final ItemType itemType;
   private int quantity;
   private final int maxQuantity;
+  private int sellPrice;
 
   public Item(String name, ItemType itemType, int quantity, int maxQuantity) {
 
@@ -33,6 +34,7 @@ public class Item {
     this.name = name;
     this.itemType = itemType;
     this.maxQuantity = maxQuantity;
+    this.sellPrice = 0;
 
     setQuantity(quantity);
   }
@@ -55,6 +57,17 @@ public class Item {
 
   public int getMaxQuantity() {
     return maxQuantity;
+  }
+
+  public int getSellPrice() {
+    return sellPrice;
+  }
+
+  public void setSellPrice(int sellPrice) {
+    if (sellPrice < 0) {
+      throw new IllegalArgumentException("sellPrice must not be negative.");
+    }
+    this.sellPrice = sellPrice;
   }
 
   public void setQuantity(int quantity) {

@@ -60,16 +60,34 @@ public class ConsumableGenerator {
 
     switch (type) {
       case HEALTH_POTION:
-        return new ConsumableItem(
-            name, type, new HealEffect(config.healAmount * tier), 1, config.maxQuantity);
+        {
+          ConsumableItem potion =
+              new ConsumableItem(
+                  name, type, new HealEffect(config.healAmount * tier), 1, config.maxQuantity);
+
+          potion.setSellPrice(10 * tier);
+          return potion;
+        }
 
       case DAMAGE_BUFF:
-        return new ConsumableItem(
-            name, type, buildBuff(BuffStat.DAMAGE, config, tier), 1, config.maxQuantity);
+        {
+          ConsumableItem potion =
+              new ConsumableItem(
+                  name, type, buildBuff(BuffStat.DAMAGE, config, tier), 1, config.maxQuantity);
+
+          potion.setSellPrice(15 * tier);
+          return potion;
+        }
 
       case SPEED_BUFF:
-        return new ConsumableItem(
-            name, type, buildBuff(BuffStat.SPEED, config, tier), 1, config.maxQuantity);
+        {
+          ConsumableItem potion =
+              new ConsumableItem(
+                  name, type, buildBuff(BuffStat.SPEED, config, tier), 1, config.maxQuantity);
+
+          potion.setSellPrice(15 * tier);
+          return potion;
+        }
 
       default:
         throw new IllegalArgumentException("Unsupported consumable type.");
