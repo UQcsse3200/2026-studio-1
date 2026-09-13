@@ -52,7 +52,8 @@ public class FileLoader {
     try {
       object = json.fromJson(type, file);
     } catch (Exception e) {
-      logger.error(e.getMessage());
+      System.err.println("FAILED TO LOAD " + filename);
+      e.printStackTrace();
       return null;
     }
     if (object == null) {
