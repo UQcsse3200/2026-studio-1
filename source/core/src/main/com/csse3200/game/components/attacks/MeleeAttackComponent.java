@@ -6,13 +6,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.table.JTableHeader;
 
 /**
  * Deals melee damage and knockback to a target entity when triggered, provided the target is within
@@ -40,6 +39,9 @@ public class MeleeAttackComponent extends Component {
   private float cooldown;
   private float knockback;
   private WeaponItem weapon;
+  /* This is set in the {@link WeaponItem} creation rather than here as animation is per weapon
+  * Adjustments can be made as public setter and getter for the value is avaliable.
+  */
   private float windupDuration;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
@@ -51,27 +53,32 @@ public class MeleeAttackComponent extends Component {
    * @param range melee reach — this wielder's own property, not the weapon's
    * @param cooldown minimum time, in seconds, between attacks
    * @param knockback knockback magnitude on a successful hit — this wielder's own property
-   * @param windupDuration delay, in seconds, between commit and resolve, matching this wielder's swing animation
    * @param weapon supplies damage only
    * @throws IllegalArgumentException if weapon is null, range/cooldown are non-positive,
    *     knockback is negative, or windupDuration is negative or &gt;= cooldown
    */
-  public MeleeAttackComponent(float range, float cooldown, float knockback, float windupDuration,
-            WeaponItem weapon) throws IllegalArgumentException {
+  public MeleeAttackComponent(float range, float cooldown, float knockback,
+                              WeaponItem weapon) throws IllegalArgumentException {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-    if (windupDuration < 0) {
-      throw new IllegalArgumentException("windupDuration must not be negative.");
-    }
-    if (windupDuration <= getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown.");
-    }
-    this.windupDuration = windupDuration;
     if (weapon == null) {
       throw new IllegalArgumentException("weapon cannot be null");
     }
     this.weapon = weapon;
+    if (weapon.getWeaponType() == WeaponType.BOW) {
+      throw new IllegalArgumentException("Melee Attack cannot use a Bow Weapon.");
+    }
+    if (weapon.getWindupDuration() < 0) {
+      throw new IllegalArgumentException("windupDuration must not be negative.");
+    }
+    if (weapon.getWindupDuration() <= getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown.");
+    }
+    this.windupDuration = weapon.getWindupDuration();
+    this.combatStats.setBaseAttack(weapon.getDamage());
+    logger.debug("Entity's base attack value matches current weapon's damage value.");
+    logger.debug("Entity's base attack in config is: 5, sword is 10; dagger is 3;");
     this.timeSinceLastAttack = cooldown;
   }
 
@@ -233,7 +240,7 @@ public class MeleeAttackComponent extends Component {
     this.pendingTarget = target;
     this.windupTimeRemaining = this.windupDuration;
     timeSinceLastAttack = 0;
-    entity.getEvents().trigger("meleeAttackWindup", this.getPendingTarget());
+    entity.getEvents().trigger("meleeAttackWindup", this.pendingTarget);
 
   }
 
@@ -257,14 +264,14 @@ public class MeleeAttackComponent extends Component {
     if (distance > this.getRange()) {
       return;
     }
-    float finalDamage = weapon.getDamage();
+    int finalDamage = weapon.getDamage();
     //retrieve damage stats from weapon
     ChargeComponent chargeComponent = entity.getComponent(ChargeComponent.class);
     if (chargeComponent != null) {
       // if not charging then 1.0f is the mutiplier
-      finalDamage = finalDamage * chargeComponent.getDamageMultiplier();
+      finalDamage = (int) (finalDamage * chargeComponent.getDamageMultiplier());
     }
-    combatStats.setBaseAttack(weapon.getDamage());
+    combatStats.setBaseAttack(finalDamage);
     targetStats.hit(combatStats);
     // announce a successful hit - useful for triggering special effects
     entity.getEvents().trigger("meleeAttackHit", target);
