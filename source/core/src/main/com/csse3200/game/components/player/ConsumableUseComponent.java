@@ -3,6 +3,7 @@ package com.csse3200.game.components.player;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.entities.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,24 @@ public class ConsumableUseComponent extends Component {
    */
   public int getMaxHealth() {
     return maxHealth;
+  }
+
+  /**
+   * Returns the maximum health declared for an entity.
+   *
+   * <p>{@code CombatStatsComponent} is shared with other teams and has no maximum health field, so
+   * every healing effect resolves the cap through this component instead. An entity without one is
+   * left uncapped, matching current engine behaviour.
+   *
+   * @param entity entity whose cap is needed
+   * @return the declared maximum health, or {@link Integer#MAX_VALUE} when there is none
+   */
+  public static int maxHealthOf(Entity entity) {
+    if (entity == null) {
+      return Integer.MAX_VALUE;
+    }
+    ConsumableUseComponent useComponent = entity.getComponent(ConsumableUseComponent.class);
+    return useComponent == null ? Integer.MAX_VALUE : useComponent.getMaxHealth();
   }
 
   /**
