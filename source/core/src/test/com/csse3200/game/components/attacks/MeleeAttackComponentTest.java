@@ -5,18 +5,36 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.matchers.text.ValuePrinter.print;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.math.Vector2;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.npc.SkeletonAnimationController;
+import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.configs.enemies.SkeletonConfig;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+
+import java.util.ArrayList;
+import java.util.List;
+
 @ExtendWith(GameExtension.class)
 class MeleeAttackComponentTest {
+
+  WeaponGenerator weaponGenerator = new WeaponGenerator();
 
   @BeforeEach
   void beforeEach() {
@@ -24,25 +42,27 @@ class MeleeAttackComponentTest {
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(20f / 1000);
     ServiceLocator.registerTimeSource(gameTime);
-    // should reject negative range
-
   }
 
   /* testing the constructor class */
   @Test
   void shouldStoreConstructorValuesCorrectly() {
+    WeaponItem sword = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
+    WeaponItem dagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
     float rangeValue = 0.5f;
     float cooldownValue = 10;
     float knockbackValue = 2.0f;
-    MeleeAttackComponent meleeAttack =
-        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue);
+    MeleeAttackComponent meleeSword =
+        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, sword);
+    MeleeAttackComponent meleeDagger =
+        new MeleeAttackComponent(rangeValue, cooldownValue, knockbackValue, sword);
     assertEquals(
         rangeValue,
-        meleeAttack.getRange(),
+        meleeSword.getRange(),
         "Range stats from meleeAttack expected: "
             + rangeValue
             + " but got: "
-            + meleeAttack.getRange());
+            + meleeSword.getRange());
     assertEquals(
         cooldownValue,
         meleeAttack.getCooldown(),
@@ -57,6 +77,27 @@ class MeleeAttackComponentTest {
             + knockbackValue
             + " but got"
             + meleeAttack.getKnockback());
+    assertEquals(
+        rangeValue,
+        meleeDagger.getRange(),
+        "Range stats from meleeAttack expected: "
+            + rangeValue
+            + " but got: "
+            + meleeSword.getRange());
+    assertEquals(
+        cooldownValue,
+        meleeDagger.getCooldown(),
+        "Cooldown stats from meleeAttack expected: "
+            + cooldownValue
+            + " but got"
+            + meleeDagger.getCooldown());
+    assertEquals(
+        knockbackValue,
+        meleeDagger.getKnockback(),
+        "Knockback stats from meleeAttack expected: "
+            + knockbackValue
+            + " but got"
+            + meleeDagger.getKnockback());
   }
 
   @Test
@@ -684,10 +725,10 @@ class MeleeAttackComponentTest {
    *     component which doesn't use the physics layer checks, the target layer is not included as
    *     an input.
    */
-  Entity createAttacker(float range, float cooldown, float knockback) {
+  Entity createAttacker(float range, float cooldown, float knockback, WeaponItem weapon) {
     Entity attacker =
         new Entity()
-            .addComponent(new MeleeAttackComponent(range, cooldown, knockback))
+            .addComponent(new MeleeAttackComponent(range, cooldown, knockback, weapon))
             .addComponent(new CombatStatsComponent(20, 2))
             .addComponent(new PhysicsComponent());
     attacker.create();
