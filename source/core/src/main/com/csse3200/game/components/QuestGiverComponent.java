@@ -7,8 +7,12 @@ public class QuestGiverComponent {
     public QuestGiverComponent(){
         uniqueNPCID = Quest.giveOutUniqueNPCID();
     }
-    public void logJumpQuest(String Reward, int jumpsToDo){
-        Quest.logJumpQuest(uniqueNPCID, jumpsToDo);
+    public boolean logJumpQuest(String Reward, int jumpsToDo){
+        if(Quest.logJumpQuest(uniqueNPCID, jumpsToDo)){
+            return true;
+        }else{
+            return false;
+        }
     }
     public void clearJumpQuest(){
         Quest.clearJumpQuest(uniqueNPCID);
