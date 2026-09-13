@@ -5,9 +5,14 @@ import static java.awt.geom.Point2D.distance;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.table.JTableHeader;
 
 /**
  * Deals melee damage and knockback to a target entity when triggered, provided the target is within
@@ -34,22 +39,39 @@ public class MeleeAttackComponent extends Component {
   private float range;
   private float cooldown;
   private float knockback;
+  private WeaponItem weapon;
+  private float windupDuration;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
+  private Entity pendingTarget;
+  private float windupTimeRemaining;
+  private static final Logger logger = LoggerFactory.getLogger(MeleeAttackComponent.class);
 
   /**
-   * Creates a melee attack component with configurable range, cooldown, and knockback.
-   *
-   * @param range melee reach, checked as a direct distance calculation between this entity's and
-   *     the target's positions
-   * @param cooldown minimum time, in seconds, between successive attacks
-   * @param knockback knockback magnitude applied to the target on a successful hit; {@code 0f}
-   *     results in no knockback
+   * @param range melee reach — this wielder's own property, not the weapon's
+   * @param cooldown minimum time, in seconds, between attacks
+   * @param knockback knockback magnitude on a successful hit — this wielder's own property
+   * @param windupDuration delay, in seconds, between commit and resolve, matching this wielder's swing animation
+   * @param weapon supplies damage only
+   * @throws IllegalArgumentException if weapon is null, range/cooldown are non-positive,
+   *     knockback is negative, or windupDuration is negative or &gt;= cooldown
    */
-  public MeleeAttackComponent(float range, float cooldown, float knockback) {
+  public MeleeAttackComponent(float range, float cooldown, float knockback, float windupDuration,
+            WeaponItem weapon) throws IllegalArgumentException {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
+    if (windupDuration < 0) {
+      throw new IllegalArgumentException("windupDuration must not be negative.");
+    }
+    if (windupDuration <= getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown.");
+    }
+    this.windupDuration = windupDuration;
+    if (weapon == null) {
+      throw new IllegalArgumentException("weapon cannot be null");
+    }
+    this.weapon = weapon;
     this.timeSinceLastAttack = cooldown;
   }
 
@@ -73,12 +95,18 @@ public class MeleeAttackComponent extends Component {
   @Override
   public void update() {
     timeSinceLastAttack += ServiceLocator.getTimeSource().getDeltaTime();
+    if (pendingTarget != null) {
+      windupTimeRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
+      if (windupTimeRemaining <= 0) {
+        resolveAttack();
+     }
+    }
   }
 
   /**
    * Returns the configured melee range.
    *
-   * @return melee range
+   * @return melee range, in world units
    */
   public float getRange() {
     return this.range;
@@ -90,7 +118,7 @@ public class MeleeAttackComponent extends Component {
    * @param range new range value
    * @throws IllegalArgumentException if {@code range} is negative
    */
-  public void setRange(float range) {
+  public void setRange(float range) throws IllegalArgumentException {
     if (range < 0) {
       throw new IllegalArgumentException("range must not be negative");
     }
@@ -112,7 +140,7 @@ public class MeleeAttackComponent extends Component {
    * @param cooldown new cooldown value, in seconds
    * @throws IllegalArgumentException if {@code cooldown} is zero or negative
    */
-  public void setCooldown(float cooldown) {
+  public void setCooldown(float cooldown) throws IllegalArgumentException{
     if (cooldown <= 0) {
       throw new IllegalArgumentException("Cooldown duration must be greater than zero.");
     }
@@ -135,19 +163,34 @@ public class MeleeAttackComponent extends Component {
    * @param knockback new knockback magnitude
    * @throws IllegalArgumentException if {@code knockback} is negative
    */
-  public void setKnockback(float knockback) {
+  public void setKnockback(float knockback) throws IllegalArgumentException {
     if (knockback < 0) {
       throw new IllegalArgumentException("Knockback must not be negative");
     }
     this.knockback = knockback;
   }
 
-  public float getCooldownTimer() {
-    return this.timeSinceLastAttack;
+  /**
+   * Returns the equipped weapon's damage. The only stat this component reads from the weapon —
+   * range and knockback are this wielder's own properties, not the weapon's.
+   *
+   * @return the equipped weapon's damage, sourced from {@code weapon.getDamage()}
+   * @throws NullPointerException if no weapon has been set
+   */
+  public float getDamage() throws NullPointerException {
+    if (this.weapon == null) {
+      throw new NullPointerException("weapon cannot be null");
+    }
+    return this.weapon.getDamage();
   }
 
+  /**
+   * Checks whether enough time has elapsed since the last attack for a new one to be attempted.
+   *
+   * @return true if the cooldown has fully elapsed
+   */
   public boolean canAttack() {
-    return timeSinceLastAttack >= cooldown;
+    return timeSinceLastAttack >= this.getCooldown();
   }
 
   /**
@@ -187,7 +230,41 @@ public class MeleeAttackComponent extends Component {
     if (targetStats == null) {
       return;
     }
-    // apply damage
+    this.pendingTarget = target;
+    this.windupTimeRemaining = this.windupDuration;
+    timeSinceLastAttack = 0;
+    entity.getEvents().trigger("meleeAttackWindup", this.getPendingTarget());
+
+  }
+
+  /**
+   * Called once the windup timer elapses. Re-validates the pending target is still alive and in
+   * range (it may have died or moved away during the windup), and if so, applies weapon damage
+   * (multiplied by any active {@link ChargeComponent} bonus), fires {@code "meleeAttackHit"}, and
+   * applies knockback. A no-op (a "whiff") if the target is no longer valid.
+   */
+  private void resolveAttack() {
+    Entity target = this.pendingTarget;
+    this.pendingTarget = null;
+    this.windupTimeRemaining = 0;
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+    if (targetStats == null || targetStats.getHealth() <= 0) {
+      return;
+    }
+    float distance = (float) distance(entity.getPosition().x, entity.getPosition().y,
+        target.getPosition().x, target.getPosition().y
+    );
+    if (distance > this.getRange()) {
+      return;
+    }
+    float finalDamage = weapon.getDamage();
+    //retrieve damage stats from weapon
+    ChargeComponent chargeComponent = entity.getComponent(ChargeComponent.class);
+    if (chargeComponent != null) {
+      // if not charging then 1.0f is the mutiplier
+      finalDamage = finalDamage * chargeComponent.getDamageMultiplier();
+    }
+    combatStats.setBaseAttack(weapon.getDamage());
     targetStats.hit(combatStats);
     // announce a successful hit - useful for triggering special effects
     entity.getEvents().trigger("meleeAttackHit", target);
@@ -202,4 +279,5 @@ public class MeleeAttackComponent extends Component {
       targetBody.applyLinearImpulse(impulse, targetBody.getWorldCenter(), true);
     }
   }
+
 }
