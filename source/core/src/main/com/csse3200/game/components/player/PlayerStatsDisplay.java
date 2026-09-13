@@ -61,26 +61,26 @@ public class PlayerStatsDisplay extends UIComponent {
 
     // Full heart textures
     greenHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-green.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-green.png", Texture.class);
 
     yellowHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-yellow.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-yellow.png", Texture.class);
 
     redHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart.png", Texture.class);
 
     emptyHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-empty.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-empty.png", Texture.class);
 
     // Half heart textures
     greenHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-green-half.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-green-half.png", Texture.class);
 
     yellowHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-yellow-half.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-yellow-half.png", Texture.class);
 
     redHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-red-half.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-red-half.png", Texture.class);
 
     // Create 10 heart slots
     for (int i = 0; i < MAX_HEARTS; i++) {

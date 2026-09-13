@@ -4,19 +4,19 @@
   "legend": {
     "#": {
       "type": "WALL",
-      "texture": "images/wall_px.png"
+      "texture": "images/environment/dungeon-prototype/wall_px.png"
     },
     ".": {
       "type": "DECORATIVE",
-      "texture": "images/bg_decor_px.png"
+      "texture": "images/environment/dungeon-prototype/bg_decor_px.png"
     },
     "=": {
       "type": "PLATFORM",
-      "texture": "images/platform_px.png"
+      "texture": "images/environment/dungeon-prototype/platform_px.png"
     },
     "^": {
       "type": "HAZARD",
-      "texture": "images/hazard_px.png"
+      "texture": "images/environment/dungeon-prototype/hazard_px.png"
     }
   },
   "layers": {
@@ -197,7 +197,7 @@
       "y": 61,
       "width": 2,
       "height": 3,
-      "texture": "images/wall_px_2.png",
+      "texture": "images/environment/dungeon-prototype/wall_px_2.png",
       "destinationMap": "maps/room2.json",
       "destinationSpawn": {
         "x": 2,

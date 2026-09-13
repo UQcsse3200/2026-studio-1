@@ -42,13 +42,13 @@ import org.slf4j.LoggerFactory;
 public class MainGameScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(MainGameScreen.class);
   private static final String[] mainGameTextures = {
-    "images/heart.png",
-    "images/heart-empty.png",
-    "images/heart-green-half.png",
-    "images/heart-yellow-half.png",
-    "images/heart-red-half.png",
-    "images/heart-green.png",
-    "images/heart-yellow.png"
+    "images/ui/heart.png",
+    "images/ui/heart-empty.png",
+    "images/ui/heart-green-half.png",
+    "images/ui/heart-yellow-half.png",
+    "images/ui/heart-red-half.png",
+    "images/ui/heart-green.png",
+    "images/ui/heart-yellow.png"
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";

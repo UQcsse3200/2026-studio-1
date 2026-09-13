@@ -49,9 +49,9 @@ public class LootFactory {
       String texturePath;
 
       if (weaponItem.getWeaponType() == WeaponType.BOW) {
-        texturePath = "images/bow.png";
+        texturePath = "images/items/bow.png";
       } else {
-        texturePath = "images/sword.png";
+        texturePath = "images/items/sword.png";
       }
 
       loot.addComponent(new BobbingTextureRenderComponent(texturePath));
@@ -62,7 +62,7 @@ public class LootFactory {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(
               ServiceLocator.getResourceService()
-                  .getAsset("images/gold_coin/gold_coin.atlas", TextureAtlas.class));
+                  .getAsset("images/items/gold_coin/gold_coin.atlas", TextureAtlas.class));
 
       animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
       animator.startAnimation("gold_coin");

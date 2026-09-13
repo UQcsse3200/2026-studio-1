@@ -30,13 +30,13 @@ class ConsumableItemTest {
 
   @Test
   void shouldExposeTexturePathForEachType() {
-    assertEquals("images/Health.png", ConsumableType.HEALTH_POTION.getTexturePath());
-    assertEquals("images/Poison.png", ConsumableType.DAMAGE_BUFF.getTexturePath());
-    assertEquals("images/Strength.png", ConsumableType.SPEED_BUFF.getTexturePath());
+    assertEquals("images/ui/Health.png", ConsumableType.HEALTH_POTION.getTexturePath());
+    assertEquals("images/ui/Poison.png", ConsumableType.DAMAGE_BUFF.getTexturePath());
+    assertEquals("images/ui/Strength.png", ConsumableType.SPEED_BUFF.getTexturePath());
 
     ConsumableItem potion =
         new ConsumableItem("Health Potion", ConsumableType.HEALTH_POTION, NO_OP, 1, 9);
-    assertEquals("images/Health.png", potion.getTexturePath());
+    assertEquals("images/ui/Health.png", potion.getTexturePath());
   }
 
   @Test

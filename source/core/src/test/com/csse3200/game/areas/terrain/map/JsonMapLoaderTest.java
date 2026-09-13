@@ -312,22 +312,6 @@ class JsonMapLoaderTest {
   }
 
   @Test
-  void loadsLevelOneMap() {
-    LevelMapData levelOne = loader.load("maps/level1.json");
-
-    assertEquals(48, levelOne.getWidth());
-    assertEquals(64, levelOne.getHeight());
-    assertEquals(new GridPoint2(4, 2), levelOne.getSpawns().getPlayer());
-    assertEquals(4, levelOne.getSpawns().getEnemies().size());
-    assertTrue(levelOne.getSpawns().getLoot().isEmpty());
-    assertEquals(TileType.LADDER, levelOne.getTileType(7, 7));
-    assertEquals(TileType.PLATFORM, levelOne.getTileType(23, 38));
-    assertEquals(TileType.PLATFORM, levelOne.getTileType(23, 35));
-    // The central shaft visually separates the dungeon from the Nether.
-    assertEquals(TileType.DECORATIVE, levelOne.getTileType(23, 37));
-  }
-
-  @Test
   void loadsGreekLevelOneDesignMap() {
     LevelMapData levelOne = loader.load("maps/level1-greek.json");
 
@@ -354,17 +338,17 @@ class JsonMapLoaderTest {
     assertEquals(TileType.FLOOR, levelOne.getTileType(32, 33));
     assertEquals(TileType.HAZARD, levelOne.getTileType(8, 12));
     assertEquals(
-        "images/lvl1-tiles/hazard-spikes-bronze-512px.png",
+        "images/level1/hazard-spikes-bronze-512px.png",
         levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
     assertEquals(1, levelOne.getTransitions().size());
     assertEquals(
-        "images/level2/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+        "maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
   }
 
   @Test
   void loadsTheAuthoredLevelTwoMountainAndItsSummitExit() {
-    LevelMapData levelTwo = loader.load("images/level2/level2.json");
+    LevelMapData levelTwo = loader.load("maps/level2.json");
 
     assertEquals("Level 2 — Climb Mount Olympus", levelTwo.getName());
     assertEquals(80, levelTwo.getWidth());

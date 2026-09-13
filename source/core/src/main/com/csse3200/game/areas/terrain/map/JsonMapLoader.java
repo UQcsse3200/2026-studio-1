@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
  *   "name": "Demo Level",
  *   "tileSize": 0.5,
  *   "legend": {
- *     "#": { "type": "WALL",  "texture": "images/grass_3.png" },
- *     ".": { "type": "FLOOR", "texture": "images/grass_1.png" }
+ *     "#": { "type": "WALL",  "texture": "images/environment/forest/grass_3.png" },
+ *     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" }
  *   },
  *   "layers": {
  *     "background": ["....", "...."],

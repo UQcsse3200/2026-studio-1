@@ -59,7 +59,7 @@ public class PlayerFactory {
 
     Entity player =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/box_boy_leaf.png"))
+            .addComponent(new TextureRenderComponent("images/player/box_boy_leaf.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
@@ -79,7 +79,7 @@ public class PlayerFactory {
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent("images/sword.png"));
+            .addComponent(new WeaponRenderComponent("images/items/sword.png"));
 
     if (mapData != null) {
       player.addComponent(new LadderComponent(mapData));

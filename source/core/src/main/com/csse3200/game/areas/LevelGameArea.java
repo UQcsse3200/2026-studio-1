@@ -62,17 +62,17 @@ public class LevelGameArea extends GameArea {
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/box_boy_leaf.png",
-    "images/box_boy_crouch.png",
-    "images/box_boy_slide.png",
-    "images/ghost_king.png",
-    "images/ghost_1.png",
-    "images/sword.png",
-    "images/bow.png",
-    "images/arrow.png",
-    "images/Health.png",
-    "images/Poison.png",
-    "images/Strength.png"
+    "images/player/box_boy_leaf.png",
+    "images/player/box_boy_crouch.png",
+    "images/player/box_boy_slide.png",
+    "images/enemies/ghost_king.png",
+    "images/enemies/ghost_1.png",
+    "images/items/sword.png",
+    "images/items/bow.png",
+    "images/items/arrow.png",
+    "images/ui/Health.png",
+    "images/ui/Poison.png",
+    "images/ui/Strength.png"
   };
 
   private static final String[] entitySounds = {
@@ -87,10 +87,10 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas",
-    "images/ghostKing.atlas",
-    "images/gold_coin/gold_coin.atlas",
-    "images/skeleton.atlas"
+    "images/enemies/ghost.atlas",
+    "images/enemies/ghostKing.atlas",
+    "images/items/gold_coin/gold_coin.atlas",
+    "images/enemies/skeleton.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
