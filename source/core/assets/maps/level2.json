@@ -1,0 +1,1165 @@
+{
+  "id": "level-2",
+  "name": "Level 2 — Climb Mount Olympus",
+  "tilePx": 16,
+  "width": 80,
+  "height": 180,
+  "backgroundTexture": "images/level2/level2-map.png",
+  "playerMetrics": {
+    "height": 2,
+    "jumpUp": 3,
+    "jumpAcross": 4,
+    "safeFall": 8
+  },
+  "structure": {
+    "mountain": "one rock material the whole climb — granite body with granite shelf faces — so the massif always reads as the same mountain; only weather and the platforms change with altitude",
+    "frame": "the massif slopes back from x38 at the foot to x56 at the shoulder of an 80-cell frame: roughly 60% platforming air, 40% mountain",
+    "rhythm": "14 wall shelves 12 rows apart; three air platforms between each pair, one every 3 rows"
+  },
+  "entry": {
+    "from": "level-1",
+    "via": "gate-exit",
+    "x": 3,
+    "y": 177
+  },
+  "exit": {
+    "to": "level-3",
+    "via": "gate-exit",
+    "x": 67,
+    "y": 13
+  },
+  "zones": [
+    {
+      "id": "foothills",
+      "label": "FOOTHILLS",
+      "rows": [
+        150,
+        179
+      ],
+      "platforms": "grass-capped soil blocks",
+      "bg": "bg-sky-dawn"
+    },
+    {
+      "id": "quarry",
+      "label": "QUARRY & SHRINES",
+      "rows": [
+        120,
+        149
+      ],
+      "platforms": "half-cut marble blocks and rubble slabs",
+      "bg": "bg-sky-noon"
+    },
+    {
+      "id": "cliff",
+      "label": "CLIFF FACE",
+      "rows": [
+        90,
+        119
+      ],
+      "platforms": "thin granite shelves hung on bronze pitons",
+      "bg": "bg-sky-noon"
+    },
+    {
+      "id": "cloudsea",
+      "label": "CLOUD SEA",
+      "rows": [
+        50,
+        89
+      ],
+      "platforms": "cloud-solid / drift / fade / thermal",
+      "bg": "bg-sky-storm"
+    },
+    {
+      "id": "storm",
+      "label": "STORM BELT",
+      "rows": [
+        20,
+        49
+      ],
+      "platforms": "charged storm clouds",
+      "bg": "bg-sky-storm"
+    },
+    {
+      "id": "palace",
+      "label": "PALACE APPROACH",
+      "rows": [
+        0,
+        19
+      ],
+      "platforms": "last cloud-solid step onto the plateau",
+      "bg": "bg-sky-summit"
+    }
+  ],
+  "cloudTypes": {
+    "solid": "behaves like ground",
+    "drift": "travels a fixed path",
+    "fade": "dissolves ~1s after landing, reforms after 3s",
+    "thermal": "launches to double jump height",
+    "storm": "charges then electrifies for 1s",
+    "anchor": "reserved for Level 3"
+  },
+  "route": {
+    "steps": 57,
+    "validated": true,
+    "rule": "every consecutive pair: rise 1–3 cells, horizontal gap ≤4 cells",
+    "violations": []
+  },
+  "checkpoints": [
+    {
+      "x": 7,
+      "y": 177
+    },
+    {
+      "x": 33,
+      "y": 164
+    },
+    {
+      "x": 39,
+      "y": 140
+    },
+    {
+      "x": 38,
+      "y": 104
+    },
+    {
+      "x": 27,
+      "y": 83
+    },
+    {
+      "x": 32,
+      "y": 53
+    },
+    {
+      "x": 39,
+      "y": 32
+    }
+  ],
+  "legend": {
+    " ": null,
+    "O": "foothill-soil",
+    "E": "foothill-grass-edge",
+    "Q": "quarry-marble-cut",
+    "R": "quarry-rubble",
+    "g": "cliff-granite",
+    "K": "cliff-shelf",
+    "P": "cliff-piton",
+    "c": "cloud-solid",
+    "d": "cloud-drift",
+    "f": "cloud-fade",
+    "t": "cloud-thermal",
+    "m": "cloud-storm",
+    "S": "summit-marble",
+    "I": "summit-gold-inlay"
+  },
+  "ledges": [
+    {
+      "y": 177,
+      "edgeX": 38,
+      "tipX": 29,
+      "x1": 37,
+      "thick": 2,
+      "zone": "foothills",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 165,
+      "edgeX": 39,
+      "tipX": 32,
+      "x1": 38,
+      "thick": 2,
+      "zone": "foothills",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 153,
+      "edgeX": 41,
+      "tipX": 29,
+      "x1": 40,
+      "thick": 2,
+      "zone": "foothills",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 141,
+      "edgeX": 42,
+      "tipX": 34,
+      "x1": 41,
+      "thick": 2,
+      "zone": "quarry",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 129,
+      "edgeX": 44,
+      "tipX": 34,
+      "x1": 43,
+      "thick": 2,
+      "zone": "quarry",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 117,
+      "edgeX": 45,
+      "tipX": 38,
+      "x1": 44,
+      "thick": 2,
+      "zone": "cliff",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 105,
+      "edgeX": 46,
+      "tipX": 37,
+      "x1": 45,
+      "thick": 2,
+      "zone": "cliff",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 93,
+      "edgeX": 48,
+      "tipX": 41,
+      "x1": 47,
+      "thick": 2,
+      "zone": "cliff",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 81,
+      "edgeX": 49,
+      "tipX": 37,
+      "x1": 48,
+      "thick": 2,
+      "zone": "cloudsea",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 69,
+      "edgeX": 50,
+      "tipX": 42,
+      "x1": 49,
+      "thick": 2,
+      "zone": "cloudsea",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 57,
+      "edgeX": 52,
+      "tipX": 42,
+      "x1": 51,
+      "thick": 2,
+      "zone": "cloudsea",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 45,
+      "edgeX": 53,
+      "tipX": 47,
+      "x1": 53,
+      "thick": 2,
+      "zone": "storm",
+      "anvil": false,
+      "garden": false
+    },
+    {
+      "y": 33,
+      "edgeX": 55,
+      "tipX": 38,
+      "x1": 53,
+      "thick": 3,
+      "zone": "storm",
+      "anvil": true,
+      "garden": false
+    },
+    {
+      "y": 21,
+      "edgeX": 56,
+      "tipX": 49,
+      "x1": 55,
+      "thick": 2,
+      "zone": "storm",
+      "anvil": false,
+      "garden": false
+    }
+  ],
+  "chain": [
+    {
+      "y": 178,
+      "x0": 1,
+      "x1": 36,
+      "kind": "ground",
+      "zone": "foothills"
+    },
+    {
+      "y": 177,
+      "x0": 29,
+      "x1": 37,
+      "kind": "shelf",
+      "zone": "foothills"
+    },
+    {
+      "y": 174,
+      "x0": 17,
+      "x1": 25,
+      "kind": "air",
+      "zone": "foothills",
+      "mat": "O"
+    },
+    {
+      "y": 171,
+      "x0": 5,
+      "x1": 13,
+      "kind": "air",
+      "zone": "foothills",
+      "mat": "O"
+    },
+    {
+      "y": 168,
+      "x0": 17,
+      "x1": 28,
+      "kind": "air",
+      "zone": "foothills",
+      "mat": "O"
+    },
+    {
+      "y": 165,
+      "x0": 32,
+      "x1": 38,
+      "kind": "shelf",
+      "zone": "foothills"
+    },
+    {
+      "y": 162,
+      "x0": 20,
+      "x1": 28,
+      "kind": "air",
+      "zone": "foothills",
+      "mat": "O"
+    },
+    {
+      "y": 159,
+      "x0": 8,
+      "x1": 16,
+      "kind": "air",
+      "zone": "foothills",
+      "mat": "O"
+    },
+    {
+      "y": 156,
+      "x0": 17,
+      "x1": 25,
+      "kind": "air",
+      "zone": "foothills",
+      "mat": "O"
+    },
+    {
+      "y": 153,
+      "x0": 29,
+      "x1": 40,
+      "kind": "shelf",
+      "zone": "foothills"
+    },
+    {
+      "y": 150,
+      "x0": 17,
+      "x1": 25,
+      "kind": "air",
+      "zone": "foothills",
+      "mat": "O"
+    },
+    {
+      "y": 147,
+      "x0": 6,
+      "x1": 13,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "R"
+    },
+    {
+      "y": 144,
+      "x0": 17,
+      "x1": 30,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "Q"
+    },
+    {
+      "y": 141,
+      "x0": 34,
+      "x1": 41,
+      "kind": "shelf",
+      "zone": "quarry"
+    },
+    {
+      "y": 138,
+      "x0": 23,
+      "x1": 30,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "Q"
+    },
+    {
+      "y": 135,
+      "x0": 12,
+      "x1": 19,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "R"
+    },
+    {
+      "y": 132,
+      "x0": 23,
+      "x1": 30,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "Q"
+    },
+    {
+      "y": 129,
+      "x0": 34,
+      "x1": 43,
+      "kind": "shelf",
+      "zone": "quarry"
+    },
+    {
+      "y": 126,
+      "x0": 23,
+      "x1": 30,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "Q"
+    },
+    {
+      "y": 123,
+      "x0": 12,
+      "x1": 19,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "Q"
+    },
+    {
+      "y": 120,
+      "x0": 23,
+      "x1": 34,
+      "kind": "air",
+      "zone": "quarry",
+      "mat": "Q"
+    },
+    {
+      "y": 117,
+      "x0": 38,
+      "x1": 44,
+      "kind": "shelf",
+      "zone": "cliff"
+    },
+    {
+      "y": 114,
+      "x0": 28,
+      "x1": 34,
+      "kind": "air",
+      "zone": "cliff",
+      "mat": "K"
+    },
+    {
+      "y": 111,
+      "x0": 18,
+      "x1": 24,
+      "kind": "air",
+      "zone": "cliff",
+      "mat": "K"
+    },
+    {
+      "y": 108,
+      "x0": 27,
+      "x1": 33,
+      "kind": "air",
+      "zone": "cliff",
+      "mat": "K"
+    },
+    {
+      "y": 105,
+      "x0": 37,
+      "x1": 45,
+      "kind": "shelf",
+      "zone": "cliff"
+    },
+    {
+      "y": 102,
+      "x0": 27,
+      "x1": 33,
+      "kind": "air",
+      "zone": "cliff",
+      "mat": "K"
+    },
+    {
+      "y": 99,
+      "x0": 17,
+      "x1": 23,
+      "kind": "air",
+      "zone": "cliff",
+      "mat": "K"
+    },
+    {
+      "y": 96,
+      "x0": 27,
+      "x1": 37,
+      "kind": "air",
+      "zone": "cliff",
+      "mat": "K"
+    },
+    {
+      "y": 93,
+      "x0": 41,
+      "x1": 47,
+      "kind": "shelf",
+      "zone": "cliff"
+    },
+    {
+      "y": 90,
+      "x0": 31,
+      "x1": 37,
+      "kind": "air",
+      "zone": "cliff",
+      "mat": "K"
+    },
+    {
+      "y": 87,
+      "x0": 20,
+      "x1": 27,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "t"
+    },
+    {
+      "y": 84,
+      "x0": 26,
+      "x1": 33,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "c"
+    },
+    {
+      "y": 81,
+      "x0": 37,
+      "x1": 48,
+      "kind": "shelf",
+      "zone": "cloudsea"
+    },
+    {
+      "y": 78,
+      "x0": 26,
+      "x1": 33,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "c"
+    },
+    {
+      "y": 75,
+      "x0": 15,
+      "x1": 22,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "c"
+    },
+    {
+      "y": 72,
+      "x0": 26,
+      "x1": 38,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "c"
+    },
+    {
+      "y": 69,
+      "x0": 42,
+      "x1": 49,
+      "kind": "shelf",
+      "zone": "cloudsea"
+    },
+    {
+      "y": 66,
+      "x0": 31,
+      "x1": 38,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "f"
+    },
+    {
+      "y": 63,
+      "x0": 20,
+      "x1": 27,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "t"
+    },
+    {
+      "y": 60,
+      "x0": 31,
+      "x1": 38,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "f"
+    },
+    {
+      "y": 57,
+      "x0": 42,
+      "x1": 51,
+      "kind": "shelf",
+      "zone": "cloudsea"
+    },
+    {
+      "y": 54,
+      "x0": 31,
+      "x1": 38,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "c"
+    },
+    {
+      "y": 51,
+      "x0": 20,
+      "x1": 27,
+      "kind": "air",
+      "zone": "cloudsea",
+      "mat": "c"
+    },
+    {
+      "y": 48,
+      "x0": 31,
+      "x1": 43,
+      "kind": "air",
+      "zone": "storm",
+      "mat": "m"
+    },
+    {
+      "y": 45,
+      "x0": 47,
+      "x1": 53,
+      "kind": "shelf",
+      "zone": "storm"
+    },
+    {
+      "y": 42,
+      "x0": 36,
+      "x1": 43,
+      "kind": "air",
+      "zone": "storm",
+      "mat": "c"
+    },
+    {
+      "y": 39,
+      "x0": 25,
+      "x1": 32,
+      "kind": "air",
+      "zone": "storm",
+      "mat": "c"
+    },
+    {
+      "y": 36,
+      "x0": 27,
+      "x1": 34,
+      "kind": "air",
+      "zone": "storm",
+      "mat": "m"
+    },
+    {
+      "y": 33,
+      "x0": 38,
+      "x1": 53,
+      "kind": "shelf",
+      "zone": "storm"
+    },
+    {
+      "y": 30,
+      "x0": 27,
+      "x1": 34,
+      "kind": "air",
+      "zone": "storm",
+      "mat": "c"
+    },
+    {
+      "y": 27,
+      "x0": 16,
+      "x1": 23,
+      "kind": "air",
+      "zone": "storm",
+      "mat": "c"
+    },
+    {
+      "y": 24,
+      "x0": 27,
+      "x1": 45,
+      "kind": "air",
+      "zone": "storm",
+      "mat": "m"
+    },
+    {
+      "y": 21,
+      "x0": 49,
+      "x1": 55,
+      "kind": "shelf",
+      "zone": "storm"
+    },
+    {
+      "y": 18,
+      "x0": 38,
+      "x1": 45,
+      "kind": "air",
+      "zone": "palace",
+      "mat": "c"
+    },
+    {
+      "y": 16,
+      "x0": 45,
+      "x1": 52,
+      "kind": "air",
+      "zone": "palace",
+      "mat": "c"
+    },
+    {
+      "y": 14,
+      "x0": 56,
+      "x1": 79,
+      "kind": "plateau",
+      "zone": "palace"
+    }
+  ],
+  "tiles": [
+    "                                                                                ",
+    "                                                                                ",
+    "                                                         IIIIIIIIIIIIIIIIIIIIIII",
+    "                                                         SSSSSSSSSSSSSSSSSSSSSSS",
+    "                                                         SSSSSSSSSSSSSSSSSSSSSSS",
+    "                                                                                ",
+    "                                                           S  S   S   S   S     ",
+    "                                                           S  S   S   S   S     ",
+    "                                                           S  S   S   S   S     ",
+    "                                                           S  S   S   S   S     ",
+    "                                                           S  S   S   S   S     ",
+    "                                                           S  S   S   S   S     ",
+    "                                                           S  S   S   S   S     ",
+    "                                                           S  S   S   S   S     ",
+    "                                                        IISSSSSSSSSSSSSSSSSSSSSS",
+    "                                                        SSSSSSSSSSSSSSSSSSSSSSSS",
+    "                                             cccccccc   gggggggggggggggggggggggg",
+    "                                                       Kgggggggggggggggggggggggg",
+    "                                      cccccccc          gggggggggggggggggggggggg",
+    "                                                       Kgggggggggggggggggggggggg",
+    "                                                        gggggggggggggggggggggggg",
+    "                                                 KKKKKKKKKgggggggggggggggggggggg",
+    "                                                 KKKKKKKgggggggggggggggggggggggg",
+    "                                                  P  PKKKggggggggggggggggggggggg",
+    "                           mmmmmmmmmmmmmmmmmmm         KKggggggggggggggggggggggg",
+    "                                                       KKggggggggggggggggggggggg",
+    "                                                       KKKgKgggggggggggggggggggg",
+    "                cccccccc                               KKggggggggggggggggggggggg",
+    "                                                       KKggggggggggggggggggggggg",
+    "                                                       KKggggggggggggggggggggggg",
+    "                           cccccccc                   KKgggggggggggggggggggggggg",
+    "                                                      KKgggggggggggggggggggggggg",
+    "                                                       KKggggggggggggggggggggggg",
+    "                                      KKKKKKKKKKKKKKKKKKgggggggggggggggggggggggg",
+    "                                      KKKKKKKKKKKKKKKKKggggggggggggggggggggggggg",
+    "                                      KKKKKKKKKKKKKKKKKKgggggggggggggggggggggggg",
+    "                           mmmmmmmm    P           P KKggggggggggggggggggggggggg",
+    "                                                     KKggggggggggggggggggggggggg",
+    "                                                      KKgggggggggggggggggggggggg",
+    "                         cccccccc                     KKKKKggggggggggggggggggggg",
+    "                                                     KKggggggggggggggggggggggggg",
+    "                                                     KKggggggggggggggggggggggggg",
+    "                                    cccccccc         KKggggggggggggggggggggggggg",
+    "                                                    KKKggggggggggggggggggggggggg",
+    "                                                     KKggggggggggggggggggggggggg",
+    "                                               KKKKKKKKKgggggggggggggggggggggggg",
+    "                                               KKKKKKKgggggggggggggggggggggggggg",
+    "                                                P  PKKgggggggggggggggggggggggggg",
+    "                               mmmmmmmmmmmmm        KKgggggggggggggggggggggggggg",
+    "                                                    KKgggggggggggggggggggggggggg",
+    "                                                    KKgggggggggggggggggggggggggg",
+    "                    cccccccc                       KKggggggggggggggggggggggggggg",
+    "                                                    KKgKgggggggggggggggggggggggg",
+    "                                                    KKgggggggggggggggggggggggggg",
+    "                               cccccccc             KKgggggggggggggggggggggggggg",
+    "                                                    KKgggggggggggggggggggggggggg",
+    "                                                     KKggggggggggggggggggggggggg",
+    "                                          KKKKKKKKKKKKgggggggggggggggggggggggggg",
+    "                                          KKKKKKKKKKgggggggggggggggggggggggggggg",
+    "                                           P     PKKgggggggggggggggggggggggggggg",
+    "                               ffffffff          KKKgggggggggggggggggggggggggggg",
+    "                                                 KKggggggggggggggggggggggggggggg",
+    "                                                  KKgggggggggggggggggggggggggggg",
+    "                    tttttttt                      KKgggggggggggggggggggggggggggg",
+    "                                                  KKgggggggggggggggggggggggggggg",
+    "                                                 KKggKgggggggggggggggggggggggggg",
+    "                               ffffffff           KKgggggggggggggggggggggggggggg",
+    "                                                  KKgggggggggggggggggggggggggggg",
+    "                                                  KKgggggggggggggggggggggggggggg",
+    "                                          KKKKKKKKKKgggggggggggggggggggggggggggg",
+    "                                          KKKKKKKKKggggggggggggggggggggggggggggg",
+    "                                           P   P KKggggggggggggggggggggggggggggg",
+    "                          ccccccccccccc         KKgggggggggggggggggggggggggggggg",
+    "                                                 KKggggggggggggggggggggggggggggg",
+    "                                                 KKggggggggggggggggggggggggggggg",
+    "               cccccccc                          KKggggggggggggggggggggggggggggg",
+    "                                                 KKggggggggggggggggggggggggggggg",
+    "                                                 KKggggggggggggggggggggggggggggg",
+    "                          cccccccc               KKgKKgggggggggggggggggggggggggg",
+    "                                                 KKggggggggggggggggggggggggggggg",
+    "                                                KKgggggggggggggggggggggggggggggg",
+    "                                     KKKKKKKKKKKKKKggggggggggggggggggggggggggggg",
+    "                                     KKKKKKKKKKKKKKggggggggggggggggggggggggggggg",
+    "                                      P       P KKgggggggggggggggggggggggggggggg",
+    "                          cccccccc             KKKgggggggggggggggggggggggggggggg",
+    "                                                KKgggggggggggggggggggggggggggggg",
+    "                                                KKgggggggggggggggggggggggggggggg",
+    "                    tttttttt                    KKgggggggggggggggggggggggggggggg",
+    "                                               KKKgggggggggggggggggggggggggggggg",
+    "                                                KKgggggggggggggggggggggggggggggg",
+    "                               KKKKKKK          KKgggggggggggggggggggggggggggggg",
+    "                               P     P          KKgggggggggggggggggggggggggggggg",
+    "                                                KKgggggggggggggggggggggggggggggg",
+    "                                         KKKKKKKKKgggggggggggggggggggggggggggggg",
+    "                                         KKKKKKKgggggggggggggggggggggggggggggggg",
+    "                                          P  PKKgggggggggggggggggggggggggggggggg",
+    "                           KKKKKKKKKKK        KKgggggggggggggggggggggggggggggggg",
+    "                           P         P         KKggggggggggggggggggggggggggggggg",
+    "                                             KKggggggggggggggggggggggggggggggggg",
+    "                 KKKKKKK                      KKgggggggggggggggggggggggggggggggg",
+    "                 P     P                      KKgggggggggggggggggggggggggggggggg",
+    "                                              KKgggggggggggggggggggggggggggggggg",
+    "                           KKKKKKK            KKgggggggggggggggggggggggggggggggg",
+    "                           P     P            KKgggggggggggggggggggggggggggggggg",
+    "                                              KKKKKggggggggggggggggggggggggggggg",
+    "                                     KKKKKKKKKKKgggggggggggggggggggggggggggggggg",
+    "                                     KKKKKKKKKgggggggggggggggggggggggggggggggggg",
+    "                                      P    P KKggggggggggggggggggggggggggggggggg",
+    "                           KKKKKKK           KKggggggggggggggggggggggggggggggggg",
+    "                           P     P           KKggggggggggggggggggggggggggggggggg",
+    "                                             KKggggggggggggggggggggggggggggggggg",
+    "                  KKKKKKK                   KKgggggggggggggggggggggggggggggggggg",
+    "                  P     P                    KKggggggggggggggggggggggggggggggggg",
+    "                                             KKggggggggggggggggggggggggggggggggg",
+    "                            KKKKKKK         KKgggggggggggggggggggggggggggggggggg",
+    "                            P     P         KKgggggggggggggggggggggggggggggggggg",
+    "                                             KKKgggggggggggggggggggggggggggggggg",
+    "                                      KKKKKKKKKgKKgggggggggggggggggggggggggggggg",
+    "                                      KKKKKKKKgggggggggggggggggggggggggggggggggg",
+    "                                       P  P KKgggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQQQQQ         KKgggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQQQQQ         KKgggggggggggggggggggggggggggggggggg",
+    "                                            KKgggggggggggggggggggggggggggggggggg",
+    "            QQQQQQQQ                        KKgggggggggggggggggggggggggggggggggg",
+    "            QQQQQQQQ                        KKgggggggggggggggggggggggggggggggggg",
+    "                                            KKgggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQ             KKgggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQ             KKgggggggggggggggggggggggggggggggggg",
+    "                                            KKgggggggggggggggggggggggggggggggggg",
+    "                                  KKKKKKKKKKKKgggggggggggggggggggggggggggggggggg",
+    "                                  KKKKKKKKKKgggggggggggggggggggggggggggggggggggg",
+    "                                   P     P KKggggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQ          KKggggggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQ           KKgggggggggggggggggggggggggggggggggggg",
+    "                                           KKggggggggggggggggggggggggggggggggggg",
+    "            RRRRRRRR                     KKggggggggggggggggggggggggggggggggggggg",
+    "            RRRRRRRR                      KKgggggggggggggggggggggggggggggggggggg",
+    "                                          KKgggggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQ            KKggggggggggggggggggggggggggggggggggg",
+    "                       QQQQQQQQ          KKKgggggggggggggggggggggggggggggggggggg",
+    "                                          KKgggggggggggggggggggggggggggggggggggg",
+    "                                  KKKKKKKKKKgggggggggggggggggggggggggggggggggggg",
+    "                                  KKKKKKKKKggggggggggggggggggggggggggggggggggggg",
+    "                                   P   PKKKKKggggggggggggggggggggggggggggggggggg",
+    "                 QQQQQQQQQQQQQQ          KKggggggggggggggggggggggggggggggggggggg",
+    "                 QQQQQQQQQQQQQQ          KKggggggggggggggggggggggggggggggggggggg",
+    "                                        KKKggggggggggggggggggggggggggggggggggggg",
+    "      RRRRRRRR                          KKgggggggggggggggggggggggggggggggggggggg",
+    "      RRRRRRRR                           KKggggggggggggggggggggggggggggggggggggg",
+    "                                        KKgggggggggggggggggggggggggggggggggggggg",
+    "                 EEEEEEEEE               KKggggggggggggggggggggggggggggggggggggg",
+    "                 OOOOOOOOO               KKggggggggggggggggggggggggggggggggggggg",
+    "                                        KKgggggggggggggggggggggggggggggggggggggg",
+    "                             KKKKKKKKKKKKKKggggggggggggggggggggggggggggggggggggg",
+    "                             KKKKKKKKKKKKggggggggggggggggggggggggggggggggggggggg",
+    "                              P       PKKggggggggggggggggggggggggggggggggggggggg",
+    "                 EEEEEEEEE              KKKgKggggggggggggggggggggggggggggggggggg",
+    "                 OOOOOOOOO             KKggggggggggggggggggggggggggggggggggggggg",
+    "                                        KKgggggggggggggggggggggggggggggggggggggg",
+    "        EEEEEEEEE                      KKggggggggggggggggggggggggggggggggggggggg",
+    "        OOOOOOOOO                     KKKggggggggggggggggggggggggggggggggggggggg",
+    "                                       KKggggggggggggggggggggggggggggggggggggggg",
+    "                    EEEEEEEEE          KKggggggggggggggggggggggggggggggggggggggg",
+    "                    OOOOOOOOO          KKggggggggggggggggggggggggggggggggggggggg",
+    "                                       KKggggggggggggggggggggggggggggggggggggggg",
+    "                                KKKKKKKKKggggggggggggggggggggggggggggggggggggggg",
+    "                                KKKKKKKKgggggggggggggggggggggggggggggggggggggggg",
+    "                                 P  P KKgggggggggggggggggggggggggggggggggggggggg",
+    "                 EEEEEEEEEEEE        KKKgggggggggggggggggggggggggggggggggggggggg",
+    "                 OOOOOOOOOOOO         KKKKgggggggggggggggggggggggggggggggggggggg",
+    "                                     KKKgggggggggggggggggggggggggggggggggggggggg",
+    "     EEEEEEEEE                       KKKgggggggggggggggggggggggggggggggggggggggg",
+    "     OOOOOOOOO                         KKggggggggggggggggggggggggggggggggggggggg",
+    "                                      KKgggggggggggggggggggggggggggggggggggggggg",
+    "                 EEEEEEEEE             KKggggggggggggggggggggggggggggggggggggggg",
+    "                 OOOOOOOOO             KKggggggggggggggggggggggggggggggggggggggg",
+    "                                       KKggggggggggggggggggggggggggggggggggggggg",
+    "                             KKKKKKKKKKKgggggggggggggggggggggggggggggggggggggggg",
+    " EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEKKggggggggggggggggggggggggggggggggggggggggg",
+    " OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO KKgggggggggggggggggggggggggggggggggggggggg"
+  ],
+  "objects": [
+    {
+      "id": "hero-hoplite",
+      "x": 3,
+      "y": 177,
+      "size": 16,
+      "step": 1,
+      "tag": "entry from the Level 1 door"
+    },
+    {
+      "id": "decor-herm",
+      "x": 7,
+      "y": 177,
+      "step": 1,
+      "tag": "checkpoint — entry"
+    },
+    {
+      "id": "decor-olive-tree",
+      "x": 14,
+      "y": 177,
+      "step": 1
+    },
+    {
+      "id": "decor-cypress",
+      "x": 6,
+      "y": 170,
+      "step": 1
+    },
+    {
+      "id": "decor-olive-tree",
+      "x": 10,
+      "y": 158,
+      "step": 1
+    },
+    {
+      "id": "decor-herm",
+      "x": 33,
+      "y": 164,
+      "step": 1,
+      "tag": "checkpoint"
+    },
+    {
+      "id": "decor-olive-vine",
+      "x": 36,
+      "y": 179,
+      "step": 1
+    },
+    {
+      "id": "decor-olive-vine",
+      "x": 31,
+      "y": 155,
+      "step": 1
+    },
+    {
+      "id": "decor-quarry-crane",
+      "x": 35,
+      "y": 139,
+      "step": 2
+    },
+    {
+      "id": "decor-herm",
+      "x": 39,
+      "y": 140,
+      "step": 2,
+      "tag": "checkpoint"
+    },
+    {
+      "id": "enemy-skeleton-hoplite",
+      "x": 7,
+      "y": 146,
+      "size": 16,
+      "step": 2
+    },
+    {
+      "id": "hazard-rockslide",
+      "x": 13,
+      "y": 134,
+      "step": 2
+    },
+    {
+      "id": "enemy-skeleton-hoplite",
+      "x": 27,
+      "y": 131,
+      "size": 16,
+      "step": 2
+    },
+    {
+      "id": "decor-fallen-pillar",
+      "x": 35,
+      "y": 128,
+      "step": 2
+    },
+    {
+      "id": "enemy-skeleton-hoplite",
+      "x": 40,
+      "y": 128,
+      "size": 16,
+      "step": 2
+    },
+    {
+      "id": "decor-column-broken",
+      "x": 24,
+      "y": 119,
+      "step": 2
+    },
+    {
+      "id": "enemy-centaur",
+      "x": 40,
+      "y": 116,
+      "size": 16,
+      "step": 3
+    },
+    {
+      "id": "decor-herm",
+      "x": 38,
+      "y": 104,
+      "step": 3,
+      "tag": "checkpoint"
+    },
+    {
+      "id": "hazard-falling-column",
+      "x": 42,
+      "y": 104,
+      "step": 3
+    },
+    {
+      "id": "item-bow-artemis",
+      "x": 18,
+      "y": 98,
+      "size": 16,
+      "step": 3,
+      "tag": "off-route"
+    },
+    {
+      "id": "enemy-centaur",
+      "x": 43,
+      "y": 92,
+      "size": 16,
+      "step": 3
+    },
+    {
+      "id": "decor-herm",
+      "x": 27,
+      "y": 83,
+      "step": 4,
+      "tag": "checkpoint — always on cloud-solid"
+    },
+    {
+      "id": "petrified-climber",
+      "x": 17,
+      "y": 74,
+      "step": 4
+    },
+    {
+      "id": "decor-herm",
+      "x": 32,
+      "y": 53,
+      "step": 4,
+      "tag": "checkpoint — always on cloud-solid"
+    },
+    {
+      "id": "item-cloud-flask",
+      "x": 26,
+      "y": 62,
+      "size": 16,
+      "step": 4
+    },
+    {
+      "id": "enemy-cyclops",
+      "x": 43,
+      "y": 32,
+      "size": 16,
+      "step": 5,
+      "tag": "anvil plateau — mid-boss"
+    },
+    {
+      "id": "item-bronze-spear",
+      "x": 48,
+      "y": 32,
+      "size": 16,
+      "step": 5,
+      "tag": "dropped by the cyclops"
+    },
+    {
+      "id": "decor-herm",
+      "x": 39,
+      "y": 32,
+      "step": 5,
+      "tag": "checkpoint"
+    },
+    {
+      "id": "item-aegis-fragment",
+      "x": 51,
+      "y": 32,
+      "size": 16,
+      "step": 5
+    },
+    {
+      "id": "decor-shrine-votive",
+      "x": 58,
+      "y": 13,
+      "step": 6
+    },
+    {
+      "id": "item-olive-branch",
+      "x": 61,
+      "y": 13,
+      "size": 16,
+      "step": 6,
+      "tag": "last shrine — full heal"
+    },
+    {
+      "id": "decor-tripod",
+      "x": 64,
+      "y": 13,
+      "step": 6
+    },
+    {
+      "id": "decor-tripod",
+      "x": 71,
+      "y": 13,
+      "step": 6
+    },
+    {
+      "id": "gate-exit",
+      "x": 67,
+      "y": 13,
+      "size": 32,
+      "step": 6,
+      "tag": "DESTINATION: LEVEL 3"
+    },
+    {
+      "id": "item-laurel",
+      "x": 68,
+      "y": 5,
+      "size": 16,
+      "step": 6
+    },
+    {
+      "id": "decor-urn",
+      "x": 76,
+      "y": 13,
+      "step": 6
+    }
+  ]
+}

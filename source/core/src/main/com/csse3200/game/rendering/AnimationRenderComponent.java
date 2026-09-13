@@ -188,7 +188,9 @@ public class AnimationRenderComponent extends RenderComponent {
 
   @Override
   public void dispose() {
-    atlas.dispose();
+    // The ResourceService/AssetManager owns the atlas. Disposing it here breaks every other
+    // entity sharing the same atlas (including entities in a newly loaded room) and then causes
+    // the AssetManager to dispose it a second time during room or screen cleanup.
     super.dispose();
   }
 }

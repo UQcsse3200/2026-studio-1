@@ -1,0 +1,805 @@
+{
+  "id": "level-1",
+  "name": "Level 1 — Out of the Underworld",
+  "tilePx": 16,
+  "width": 56,
+  "height": 64,
+  "zones": [
+    {
+      "id": "catacombs",
+      "name": "Catacombs",
+      "rows": [
+        34,
+        63
+      ],
+      "architecture": "compartmented maze — rooms, doorways, ladder shafts",
+      "gravity": 1
+    },
+    {
+      "id": "crust",
+      "name": "Crust seam",
+      "rows": [
+        32,
+        33
+      ],
+      "solid": true
+    },
+    {
+      "id": "cavern",
+      "name": "The Underworld",
+      "rows": [
+        6,
+        31
+      ],
+      "architecture": "one open cavern — terraced cliffs, no compartments",
+      "gravity": 0.9
+    },
+    {
+      "id": "tunnel",
+      "name": "Exit tunnel",
+      "rows": [
+        0,
+        5
+      ],
+      "architecture": "worked stone stair, ascends right to left",
+      "gravity": 1
+    }
+  ],
+  "rooms": {
+    "crypt": [
+      3,
+      14,
+      57,
+      63
+    ],
+    "spikeRun": [
+      18,
+      24,
+      60,
+      63
+    ],
+    "gateHall": [
+      28,
+      35,
+      55,
+      63
+    ],
+    "vault": [
+      39,
+      52,
+      57,
+      63
+    ],
+    "westGallery": [
+      3,
+      12,
+      48,
+      53
+    ],
+    "pitRoom": [
+      16,
+      24,
+      48,
+      53
+    ],
+    "fireHall": [
+      28,
+      37,
+      47,
+      53
+    ],
+    "eastChamber": [
+      41,
+      52,
+      48,
+      53
+    ],
+    "treasury": [
+      8,
+      17,
+      38,
+      44
+    ],
+    "liftHall": [
+      22,
+      32,
+      36,
+      44
+    ],
+    "upperEast": [
+      36,
+      45,
+      38,
+      44
+    ],
+    "shrineNiche": [
+      47,
+      53,
+      38,
+      43
+    ]
+  },
+  "doors": [
+    [
+      14,
+      18,
+      61,
+      63
+    ],
+    [
+      24,
+      28,
+      61,
+      63
+    ],
+    [
+      35,
+      39,
+      61,
+      63
+    ],
+    [
+      12,
+      16,
+      51,
+      53
+    ],
+    [
+      24,
+      28,
+      51,
+      53
+    ],
+    [
+      37,
+      41,
+      51,
+      53
+    ],
+    [
+      17,
+      22,
+      42,
+      44
+    ],
+    [
+      32,
+      36,
+      42,
+      44
+    ],
+    [
+      45,
+      47,
+      41,
+      43
+    ]
+  ],
+  "shafts": [
+    [
+      5,
+      7,
+      53,
+      57,
+      "l"
+    ],
+    [
+      45,
+      47,
+      53,
+      57,
+      "l"
+    ],
+    [
+      29,
+      31,
+      44,
+      55,
+      "l"
+    ]
+  ],
+  "connections": [
+    {
+      "type": "lift",
+      "x": [
+        26,
+        27
+      ],
+      "from": {
+        "zone": "catacombs",
+        "y": 43
+      },
+      "to": {
+        "zone": "cavern",
+        "y": 30
+      },
+      "car": "lift-car",
+      "winch": "lift-winch"
+    },
+    {
+      "type": "ladder",
+      "x": [
+        6,
+        6
+      ],
+      "from": {
+        "zone": "catacombs",
+        "y": 57
+      },
+      "to": {
+        "zone": "catacombs",
+        "y": 53
+      },
+      "tile": "ladder-wood"
+    },
+    {
+      "type": "ladder",
+      "x": [
+        46,
+        46
+      ],
+      "from": {
+        "zone": "catacombs",
+        "y": 57
+      },
+      "to": {
+        "zone": "catacombs",
+        "y": 53
+      },
+      "tile": "ladder-wood"
+    },
+    {
+      "type": "ladder",
+      "x": [
+        30,
+        30
+      ],
+      "from": {
+        "zone": "catacombs",
+        "y": 55
+      },
+      "to": {
+        "zone": "catacombs",
+        "y": 44
+      },
+      "tile": "ladder-wood",
+      "note": "gated"
+    },
+    {
+      "type": "switchback",
+      "x": [
+        52,
+        52
+      ],
+      "from": {
+        "zone": "cavern",
+        "y": 29
+      },
+      "to": {
+        "zone": "tunnel",
+        "y": 5
+      },
+      "tile": "ladder-bronze",
+      "note": "three bronze flights up the east wall"
+    }
+  ],
+  "route": [
+    {
+      "step": 1,
+      "zone": "catacombs",
+      "beat": "Spawn at the stele of the hero before you. Take their xiphos."
+    },
+    {
+      "step": 2,
+      "zone": "catacombs",
+      "beat": "East through the spike run under a swinging blade, to a locked bronze gate."
+    },
+    {
+      "step": 3,
+      "zone": "catacombs",
+      "beat": "Back west and up: the pit room, then the fire hall."
+    },
+    {
+      "step": 4,
+      "zone": "catacombs",
+      "beat": "Down the east ladder into the vault. The chest holds the bronze key."
+    },
+    {
+      "step": 5,
+      "zone": "catacombs",
+      "beat": "Unlock the gate, climb to the lift hall. Optional: the hoplon in the treasury."
+    },
+    {
+      "step": 6,
+      "zone": "lift",
+      "beat": "Ride the lift up through the crust seam."
+    },
+    {
+      "step": 7,
+      "zone": "cavern",
+      "beat": "You surface on the bank of the Styx. The architecture changes — no more rooms, one open cavern."
+    },
+    {
+      "step": 8,
+      "zone": "cavern",
+      "beat": "Climb the terraces and the bone bridge. Cerberus guards the east switchback."
+    },
+    {
+      "step": 9,
+      "zone": "cavern",
+      "beat": "Take the bolt from the high terrace."
+    },
+    {
+      "step": 10,
+      "zone": "tunnel",
+      "beat": "Three bronze flights up the east wall into a worked-stone tunnel. Climb the stair west to the door. DESTINATION: LEVEL 2."
+    }
+  ],
+  "legend": {
+    " ": null,
+    ".": "bg-cavern",
+    "#": "cavern-rock",
+    "V": "cavern-rock-veined",
+    "^": "cavern-ceiling",
+    "_": "cavern-floor-ash",
+    "%": "cavern-floor-sulfur",
+    "-": "ledge-basalt",
+    "=": "ledge-bone",
+    "~": "river-phlegethon",
+    "S": "river-styx",
+    "e": "hazard-embers",
+    "W": "wall-limestone",
+    "w": "wall-limestone-cracked",
+    "m": "wall-limestone-mossy",
+    "F": "floor-limestone",
+    "M": "floor-marble",
+    "P": "platform-marble",
+    "p": "platform-wood",
+    "D": "frieze-meander",
+    "X": "hazard-spikes-bronze",
+    "L": "hazard-firepit",
+    "O": "hazard-pit",
+    "l": "ladder-wood",
+    "r": "ladder-bronze",
+    "I": "lift-shaft",
+    "i": "lift-cable",
+    "C": "crust-seam",
+    "T": "tunnel-wall",
+    "t": "tunnel-floor",
+    "s": "tunnel-step",
+    "b": "bg-catacomb",
+    "v": "bg-cavern",
+    "u": "bg-tunnel"
+  },
+  "tiles": [
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "TTTuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuTT",
+    "TTTttttttttttttsuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuTT",
+    "TTTTTTTTTTTTTTTstttttttttttsuuuuuuuuuuuuuuuuuuuuuuuuruTT",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTstttttttttttsuuuuuuuuuuuuruTT",
+    "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTsttttttttttttrtTT",
+    "^^^^^^TTTTTTTT^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^r^^^",
+    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^r^^^",
+    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^r^^^",
+    "#######^^^----------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^###r#V#",
+    "######^^^^.^^..^^^^...^..^.^^^^^.^^^.^^^^^.^.-------r###",
+    "######^.....^..^..^......^..^.^^.^.^.....^....^^..##r###",
+    "###V##V..........................----------.......#Vr###",
+    "##V###..............----------.....................#r#V#",
+    "######~~........................................------##",
+    "#V####---------...................................##r#V#",
+    "#V####~~......=======..............................#rV##",
+    "######~~..............................----------....r#V#",
+    "######~~............................................r###",
+    "V#####~~.................----------.................r#V#",
+    "#####.~~............................................r###",
+    "###...~~....----------..............................r..#",
+    "###...~~......................................-------.##",
+    "###...~~............=================...........------.#",
+    "V##...~~............................................r.##",
+    "##....~~.............-----ii---.....................r...",
+    "#V....~~..................ii......------------......r.##",
+    "#.....~~----------........ii........................r...",
+    "#.....~~..................ii........................r...",
+    "#..~~~~~~~~...............ii........................r.#V",
+    "....eeeeee..SSSSSSSSSSSSSSiiSSS.........................",
+    "____________SSSSSSSSSSSSSSiiSSS___%%%%%%%%%%%___________",
+    "CCCCCCCCCCCCCCCCCCCCCCCCCCIICCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+    "CCCCCCCCCCCCCCCCCCCCCCCCCCIICCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+    "WWWWWWWWWWWWWWWWWWWWWWWWWWIImWWWWWWWWWmWWWWWWWWWWWWWWwWW",
+    "WWWWWWWWWWWWWmWWWWWWWWWWwWIIWWWmWWWWWWWWWWWWWWWWWWmWWmWW",
+    "WWWWWWWWWWWWWWWWWWWWWWDDDDIIDDDDDWWWWWWWWWWmWWWWWWWWWWWW",
+    "WWWWWWWWmWWWWWmWmWWWWWbbbbIIbbbbbWWWWWWWmWWWWWWWWWWWWWmW",
+    "WWWWWWWWbbbbbbbbbbWWWWbbbbIIbbbbbWmWbbbbbbbbbbWbbbbbbbWW",
+    "WWWWWWWWbbbbbbbbbbWWWWbbbbIIbbbbbWWWbbbbbbbbbbWbbbbbbbWW",
+    "WWWWwWWWbbbbbbbbbbWWWWbbbbIIbbbbbWWWbbbbbbbbbbWbPPPPPbmW",
+    "WWWWwWWWbbbbbbbbbbWWWWbbbPIIPPbbbWWWbbpppppbbbbbbbbbbbWw",
+    "WWWWWWWWbbbPPPPPbbbbbbbbbbIIbbbbbbbbbbbbbbbbbbbbbbbbbbWW",
+    "WWWWWWWWbbbbbbbbbbbbbbbbbbIIbbbbbbbbbbbbbbbbbbFFFFWWWFWW",
+    "WWWWWWWWFFFFFFFFFFFFFFMMMMMMMWlWMFFFFFFFFFFFFFWWwWWWWWWW",
+    "WWWWWWWWWWWWWWWwwWWWWWWWWWWWWWlWWWWWWWWWWWWWWwWWWWWWWWWW",
+    "WWWmWWWWWWWWWWmWWWmWWWWWWWWWWWlWWWWWWWWWWWWWWWmWWWWWWWWW",
+    "WWWWWWWWWwWWWWWWWWWWWWWmWWWWbWlWbbbbbbWWWWWwWWWWmWWWWWWW",
+    "WWWbbbbbbbbbbWWWbbbbbbbbbWWWbWlWbbbbbbWWWbbbbbbbbbFFFWWW",
+    "WWWbbbbbbbbbbWWWbbbbbbbbbWWWbWlWbbbbbbWmWbbbbbbbbbbbbWWW",
+    "WWWbbbbbbbbbbWWWbbbpppppbWWWbWlWPPPPbbWWWbbPPPPPPbbbbWWW",
+    "WWWbbbPPPPPbbbbbbbbbbbbbbbbbbWlWbbbbbbbbbbbbbbbbbbbbbWWW",
+    "WWWbbbbbbbbbbbbbbbbbbbbbbbbbLWlWLLLbbbbbbbbbbbbbbbbbbWWW",
+    "WWWFFblbFFFFFFFFFFOOOOOFFFFFFWlWLLLLFFFFFFFFFblbFXXXXwWW",
+    "WWmWWblbWWWWWWWWWWWWWWWWWWWWWWlWWWWWWWWWWWWWWblbWWWWWWWW",
+    "WWWWWblbWWWWWWWWmWWWWWWWWWWWbWlWbbbbWWWWwWWWWblbWWwWWWWW",
+    "WwWDDDlDDDDDDDDWWWwWWWWWWmWWbbbbbbbbWWWWWWmWWblbWWwWWmmW",
+    "WWWbbblbbbbbbbbWWWWWWWWWWWWWbbbbbbbbWWWbbbbbbblbbbbbbWWW",
+    "WWWbbbbbbbbbbbbWWWWWWWWWWWWWbbbbbbbbWWwbbbbbbbbbbbbbbWwW",
+    "wWWbbbbbbbbbbbbWWWWWWWWWWmWWbbbbbbbbWWWbbbbbbbbbbbbbbWWW",
+    "WmWbbbbbbbbbbbbWWWbbbbbbbWWWbbbbbbbbWWWbbbbbbbbbbbbbbWWW",
+    "WwWbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbWWW",
+    "WWWbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbWWW",
+    "WWWbbbbbbbbbbbbbbbbXXXXXbbbbMMMMMMMMbbbMMMMMMMMMMMMMMWWW"
+  ],
+  "objects": [
+    {
+      "id": "hero-hoplite",
+      "x": 5,
+      "y": 55,
+      "size": 16,
+      "step": 1,
+      "tag": "spawn — the crypt (placeholder art)"
+    },
+    {
+      "id": "decor-stele",
+      "x": 6,
+      "y": 54,
+      "step": 1,
+      "tag": "the last hero; take their loot"
+    },
+    {
+      "id": "hero-fallen",
+      "x": 19,
+      "y": 62,
+      "size": 16,
+      "step": 1,
+      "tag": "the corpse (placeholder art)"
+    },
+    {
+      "id": "decor-oil-lamp",
+      "x": 3,
+      "y": 56
+    },
+    {
+      "id": "decor-amphora",
+      "x": 20,
+      "y": 61
+    },
+    {
+      "id": "decor-urn",
+      "x": 3,
+      "y": 51
+    },
+    {
+      "id": "item-xiphos",
+      "x": 8,
+      "y": 52,
+      "size": 16,
+      "step": 1,
+      "tag": "inherited weapon"
+    },
+    {
+      "id": "hazard-swinging-blade",
+      "x": 18,
+      "y": 60,
+      "step": 2,
+      "tag": "pendulum over the spike run"
+    },
+    {
+      "id": "enemy-skeleton-hoplite",
+      "x": 22,
+      "y": 62,
+      "size": 16,
+      "step": 2
+    },
+    {
+      "id": "gate-bronze",
+      "x": 30,
+      "y": 49,
+      "size": 16,
+      "step": 2,
+      "tag": "locked — the grand ladder is the only way to the top tier"
+    },
+    {
+      "id": "decor-column-doric",
+      "x": 32,
+      "y": 61
+    },
+    {
+      "id": "decor-bone-pile",
+      "x": 35,
+      "y": 61
+    },
+    {
+      "id": "enemy-skeleton-hoplite",
+      "x": 43,
+      "y": 62,
+      "size": 16,
+      "step": 4
+    },
+    {
+      "id": "item-chest",
+      "x": 46,
+      "y": 62,
+      "size": 16,
+      "step": 4,
+      "tag": "vault chest — the bronze key"
+    },
+    {
+      "id": "item-obol",
+      "x": 47,
+      "y": 62,
+      "size": 16
+    },
+    {
+      "id": "decor-olive-vine",
+      "x": 16,
+      "y": 48
+    },
+    {
+      "id": "hazard-flame-jet",
+      "x": 34,
+      "y": 50,
+      "step": 3
+    },
+    {
+      "id": "item-pouch",
+      "x": 20,
+      "y": 49,
+      "size": 16,
+      "step": 3
+    },
+    {
+      "id": "decor-chain-bronze",
+      "x": 29,
+      "y": 47
+    },
+    {
+      "id": "decor-oil-lamp",
+      "x": 42,
+      "y": 48
+    },
+    {
+      "id": "item-phial-olive",
+      "x": 44,
+      "y": 49,
+      "size": 16
+    },
+    {
+      "id": "item-hoplon",
+      "x": 11,
+      "y": 41,
+      "size": 16,
+      "step": 5,
+      "tag": "treasury dead end"
+    },
+    {
+      "id": "decor-column-doric",
+      "x": 14,
+      "y": 40
+    },
+    {
+      "id": "lift-car",
+      "x": 26,
+      "y": 42,
+      "size": 16,
+      "step": 6,
+      "tag": "lift at rest"
+    },
+    {
+      "id": "decor-tripod",
+      "x": 22,
+      "y": 42
+    },
+    {
+      "id": "item-phial-red",
+      "x": 29,
+      "y": 40,
+      "size": 16
+    },
+    {
+      "id": "enemy-skeleton-hoplite",
+      "x": 38,
+      "y": 40,
+      "size": 16,
+      "step": 5
+    },
+    {
+      "id": "decor-gorgoneion",
+      "x": 49,
+      "y": 39,
+      "step": 5,
+      "tag": "wards the niche"
+    },
+    {
+      "id": "lift-winch",
+      "x": 26,
+      "y": 27,
+      "size": 16,
+      "step": 7,
+      "tag": "cavern-side machinery"
+    },
+    {
+      "id": "decor-stalagmite",
+      "x": 15,
+      "y": 28
+    },
+    {
+      "id": "decor-stalactite",
+      "x": 19,
+      "y": 10
+    },
+    {
+      "id": "decor-stalactite",
+      "x": 37,
+      "y": 4
+    },
+    {
+      "id": "decor-ember-vent",
+      "x": 5,
+      "y": 28,
+      "step": 7
+    },
+    {
+      "id": "decor-column-broken",
+      "x": 35,
+      "y": 29
+    },
+    {
+      "id": "decor-bone-pile",
+      "x": 40,
+      "y": 29
+    },
+    {
+      "id": "enemy-shade",
+      "x": 17,
+      "y": 29,
+      "size": 16,
+      "step": 7,
+      "tag": "drifts over the Styx"
+    },
+    {
+      "id": "decor-stalagmite",
+      "x": 29,
+      "y": 21
+    },
+    {
+      "id": "enemy-keres",
+      "x": 25,
+      "y": 22,
+      "size": 16,
+      "step": 8
+    },
+    {
+      "id": "item-phial-blue",
+      "x": 23,
+      "y": 12,
+      "size": 16
+    },
+    {
+      "id": "decor-column-broken",
+      "x": 41,
+      "y": 15
+    },
+    {
+      "id": "enemy-cerberus",
+      "x": 43,
+      "y": 25,
+      "size": 16,
+      "step": 8,
+      "tag": "guards the switchback"
+    },
+    {
+      "id": "decor-tripod",
+      "x": 48,
+      "y": 12
+    },
+    {
+      "id": "item-bolt",
+      "x": 34,
+      "y": 11,
+      "size": 16,
+      "step": 9,
+      "tag": "objective — the bolt"
+    },
+    {
+      "id": "decor-stalactite",
+      "x": 13,
+      "y": 9
+    },
+    {
+      "id": "item-laurel",
+      "x": 12,
+      "y": 14,
+      "size": 16,
+      "step": 8,
+      "tag": "trophy"
+    },
+    {
+      "id": "gate-exit",
+      "x": 4,
+      "y": 0,
+      "step": 10,
+      "tag": "DESTINATION: LEVEL 2 — the way out"
+    },
+    {
+      "id": "decor-oil-lamp",
+      "x": 23,
+      "y": 10
+    },
+    {
+      "id": "decor-oil-lamp",
+      "x": 24,
+      "y": 1
+    },
+    {
+      "id": "decor-stalagmite",
+      "x": 32,
+      "y": 29
+    },
+    {
+      "id": "decor-stalactite",
+      "x": 27,
+      "y": 3
+    },
+    {
+      "id": "decor-bone-pile",
+      "x": 21,
+      "y": 21
+    },
+    {
+      "id": "decor-stalagmite",
+      "x": 43,
+      "y": 15
+    },
+    {
+      "id": "decor-column-broken",
+      "x": 15,
+      "y": 19
+    },
+    {
+      "id": "decor-ember-vent",
+      "x": 37,
+      "y": 30
+    },
+    {
+      "id": "decor-stalactite",
+      "x": 44,
+      "y": 4
+    },
+    {
+      "id": "decor-stalagmite",
+      "x": 26,
+      "y": 11
+    }
+  ],
+  "passable": [
+    " ",
+    ".",
+    "b",
+    "v",
+    "u",
+    "F",
+    "M",
+    "P",
+    "p",
+    "-",
+    "=",
+    "_",
+    "%",
+    "l",
+    "r",
+    "I",
+    "i",
+    "D",
+    "s",
+    "t",
+    "C"
+  ]
+}

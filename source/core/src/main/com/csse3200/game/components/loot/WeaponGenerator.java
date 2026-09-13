@@ -3,6 +3,8 @@ package com.csse3200.game.components.loot;
 // Generates weapon items with properties based on weapon type and loot tier.
 
 public class WeaponGenerator {
+  /** One copy of a basic weapon can be collected from each of the planned rooms. */
+  private static final int BASIC_WEAPON_MAX_QUANTITY = 5;
 
   public WeaponItem generateWeapon(WeaponType weaponType, int tier) {
     if (weaponType == null) {
@@ -15,10 +17,11 @@ public class WeaponGenerator {
 
     switch (weaponType) {
       case SWORD:
-        return new WeaponItem("Basic Sword", WeaponType.SWORD, 10 * tier, 1, 1);
+        return new WeaponItem(
+            "Basic Sword", WeaponType.SWORD, 10 * tier, 1, BASIC_WEAPON_MAX_QUANTITY);
 
       case BOW:
-        return new WeaponItem("Basic Bow", WeaponType.BOW, 7 * tier, 1, 1);
+        return new WeaponItem("Basic Bow", WeaponType.BOW, 7 * tier, 1, BASIC_WEAPON_MAX_QUANTITY);
 
       default:
         throw new IllegalArgumentException("Unsupported weapon type.");

@@ -8,11 +8,11 @@ package com.csse3200.game.components.loot;
  */
 public enum ConsumableType {
   /** Restores health, capped at the player's maximum health. */
-  HEALTH_POTION("images/Health.png"),
+  HEALTH_POTION("images/ui/Health.png"),
   /** Temporarily multiplies the player's attack damage. */
-  DAMAGE_BUFF("images/Poison.png"),
+  DAMAGE_BUFF("images/ui/Poison.png"),
   /** Temporarily multiplies the player's movement speed. */
-  SPEED_BUFF("images/Strength.png");
+  SPEED_BUFF("images/ui/Strength.png");
 
   private final String texturePath;
 

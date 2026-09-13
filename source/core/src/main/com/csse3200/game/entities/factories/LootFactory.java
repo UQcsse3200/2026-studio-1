@@ -14,7 +14,6 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.BobbingTextureRenderComponent;
-import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
 /** Factory for creating loot entities that can be picked up by the player. */
@@ -50,12 +49,12 @@ public class LootFactory {
       String texturePath;
 
       if (weaponItem.getWeaponType() == WeaponType.BOW) {
-        texturePath = "images/bow.png";
+        texturePath = "images/items/bow.png";
       } else {
-        texturePath = "images/sword.png";
+        texturePath = "images/items/sword.png";
       }
 
-      loot.addComponent(new TextureRenderComponent(texturePath));
+      loot.addComponent(new BobbingTextureRenderComponent(texturePath));
     } else if (item instanceof ConsumableItem consumableItem) {
       // Consumables carry their own sprite, and bob gently so they read as collectable.
       loot.addComponent(new BobbingTextureRenderComponent(consumableItem.getTexturePath()));
@@ -63,7 +62,7 @@ public class LootFactory {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(
               ServiceLocator.getResourceService()
-                  .getAsset("images/gold_coin/gold_coin.atlas", TextureAtlas.class));
+                  .getAsset("images/items/gold_coin/gold_coin.atlas", TextureAtlas.class));
 
       animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
       animator.startAnimation("gold_coin");
@@ -72,7 +71,10 @@ public class LootFactory {
     }
 
     loot.addComponent(new PhysicsComponent())
-        .addComponent(new ColliderComponent())
+        // The solid fixture keeps loot on terrain but must not block the player or other pickups.
+        // Collection is handled independently by the ITEM sensor below.
+        .addComponent(
+            new ColliderComponent().setLayer(PhysicsLayer.ITEM).setMask(PhysicsLayer.OBSTACLE))
         .addComponent(new HitboxComponent().setLayer(PhysicsLayer.ITEM))
         .addComponent(new LootPickupComponent(item, pickupBlockedPlayer, pickupDelayMillis));
 

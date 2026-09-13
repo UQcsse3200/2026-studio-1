@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.factories;
 
+import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
@@ -10,8 +11,10 @@ import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
+import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -43,6 +46,11 @@ public class PlayerFactory {
    * @return entity
    */
   public static Entity createPlayer() {
+    return createPlayer(null);
+  }
+
+  /** Create a player, optionally enabling ladder traversal for a tile map. */
+  public static Entity createPlayer(LevelMapData mapData) {
     InputComponent inputComponent =
         ServiceLocator.getInputService().getInputFactory().createForPlayer();
 
@@ -51,7 +59,7 @@ public class PlayerFactory {
 
     Entity player =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/box_boy_leaf.png"))
+            .addComponent(new TextureRenderComponent("images/player/box_boy_leaf.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
@@ -66,16 +74,32 @@ public class PlayerFactory {
             .addComponent(new InventoryComponent(stats.gold))
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
-            .addComponent(new PlatformerComponent(3))
+            .addComponent(new PlatformerComponent(5, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent("images/sword.png"));
+            .addComponent(new WeaponRenderComponent("images/items/sword.png"));
 
-    PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
-    player.getComponent(ColliderComponent.class).setDensity(1.5f);
+    if (mapData != null) {
+      player.addComponent(new LadderComponent(mapData));
+      player.addComponent(new SubLevelTravelComponent());
+    }
+
+    // The map uses 0.5 world units per tile. Keep the player just over one tile wide and under
+    // two tiles tall so doorway and ladder clearances match the authored layout.
     player.getComponent(TextureRenderComponent.class).scaleEntity();
+    // The box-boy sprite has a much denser silhouette than the skeleton atlas, so use a slightly
+    // smaller rendered body to make both characters occupy the same visual footprint.
+    player.setScale(0.75f, 0.75f);
+    PhysicsUtils.setScaledCollider(player, 0.5f, 0.28f);
+    player
+        .getComponent(HitboxComponent.class)
+        .setAsBoxAligned(
+            new com.badlogic.gdx.math.Vector2(0.5f, 0.8f),
+            PhysicsComponent.AlignX.CENTER,
+            PhysicsComponent.AlignY.BOTTOM);
+    player.getComponent(ColliderComponent.class).setDensity(1.5f);
 
     return player;
   }

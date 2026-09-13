@@ -11,7 +11,7 @@ public class ArrowFactory {
   public static Entity createArrow(Vector2 position, Vector2 direction) {
     Entity arrow =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/arrow.png"))
+            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
             .addComponent(new ArrowMovementComponent(direction));
 
     arrow.setPosition(position);

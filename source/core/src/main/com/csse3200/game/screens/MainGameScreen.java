@@ -1,5 +1,6 @@
 package com.csse3200.game.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
@@ -7,10 +8,13 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
-// import com.csse3200.game.areas.terrain.map.RoomTransition;
+import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
+import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -38,16 +42,20 @@ import org.slf4j.LoggerFactory;
 public class MainGameScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(MainGameScreen.class);
   private static final String[] mainGameTextures = {
-    "images/heart.png",
-    "images/heart-empty.png",
-    "images/heart-green-half.png",
-    "images/heart-yellow-half.png",
-    "images/heart-red-half.png",
-    "images/heart-green.png",
-    "images/heart-yellow.png"
+    "images/ui/heart.png",
+    "images/ui/heart-empty.png",
+    "images/ui/heart-green-half.png",
+    "images/ui/heart-yellow-half.png",
+    "images/ui/heart-red-half.png",
+    "images/ui/heart-green.png",
+    "images/ui/heart-yellow.png"
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
-  private static final String FIRST_ROOM_MAP = "maps/demo.json";
+  private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
+  private static final float GAMEPLAY_ZOOM = 0.95f;
+
+  /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
+  private static final float SUB_LEVEL_BOUNDARY = 16f;
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -55,11 +63,15 @@ public class MainGameScreen extends ScreenAdapter {
   private LevelGameArea levelGameArea;
   private DeathScreenDisplay deathScreenDisplay;
   private boolean deathScreenShown = false;
+  private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
+  private Entity subLevelTravelPromptEntity;
 
   public MainGameScreen(GdxGame game) {
     this.game = game;
+
+    Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 
     logger.debug("Initialising main game screen services");
     ServiceLocator.registerTimeSource(new GameTime());
@@ -85,22 +97,27 @@ public class MainGameScreen extends ScreenAdapter {
     terrainFactory = new TerrainFactory(renderer.getCamera());
     this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
+    ServiceLocator.getEntityService()
+        .register(new Entity().addComponent(new SubLevelTitleDisplay(levelGameArea.getPlayer())));
+    createSubLevelTravelPrompt(levelGameArea.getPlayer());
 
     fitCameraToMap(levelGameArea);
   }
 
   /**
-   * Zoom the camera so the map fills the window. Uses the smaller of the two axis zoom factors so
-   * the map always covers the whole viewport (axes where the map is bigger than the viewport are
-   * left free for {@link #followPlayer()} to scroll along).
+   * Set an approachable gameplay view that is close enough to read platforms and hazards without
+   * hiding the neighbouring routes that guide exploration. Small maps still use the smaller
+   * whole-map zoom when necessary.
    *
    * @param area the level area whose map the camera should frame
    */
   private void fitCameraToMap(LevelGameArea area) {
     OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
-    float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
-    float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
-    cam.zoom = Math.min(zoomForWidth, zoomForHeight);
+    float zoomForWholeMap =
+        Math.min(
+            area.getMapWorldWidth() / cam.viewportWidth,
+            area.getMapWorldHeight() / cam.viewportHeight);
+    cam.zoom = Math.min(GAMEPLAY_ZOOM, zoomForWholeMap);
     cam.update();
 
     followPlayer();
@@ -122,11 +139,21 @@ public class MainGameScreen extends ScreenAdapter {
     float halfViewHeight = (cam.viewportHeight * cam.zoom) / 2f;
 
     float mapWidth = levelGameArea.getMapWorldWidth();
-    float mapHeight = levelGameArea.getMapWorldHeight();
-
     Vector2 playerPosition = player.getPosition();
+    boolean inNether = player.getCenterPosition().y >= SUB_LEVEL_BOUNDARY;
+    SubLevelTravelComponent travel = player.getComponent(SubLevelTravelComponent.class);
+    if (playerInNether != null
+        && playerInNether != inNether
+        && (travel == null || !travel.isControlLocked())) {
+      player.getEvents().trigger("subLevelEntered", inNether ? "NETHER" : "DUNGEON");
+    }
+    playerInNether = inNether;
+    float subLevelBottom = inNether ? SUB_LEVEL_BOUNDARY : 0f;
+    float subLevelHeight =
+        inNether ? levelGameArea.getMapWorldHeight() - SUB_LEVEL_BOUNDARY : SUB_LEVEL_BOUNDARY;
+
     float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
-    float y = clampToMap(playerPosition.y, halfViewHeight, mapHeight);
+    float y = clampToRange(playerPosition.y, halfViewHeight, subLevelBottom, subLevelHeight);
 
     renderer.getCamera().getEntity().setPosition(x, y);
   }
@@ -140,6 +167,13 @@ public class MainGameScreen extends ScreenAdapter {
       return mapSize / 2f;
     }
     return Math.max(halfViewSize, Math.min(value, mapSize - halfViewSize));
+  }
+
+  private static float clampToRange(float value, float halfViewSize, float bottom, float height) {
+    if (halfViewSize * 2f >= height) {
+      return bottom + height / 2f;
+    }
+    return Math.max(bottom + halfViewSize, Math.min(value, bottom + height - halfViewSize));
   }
 
   @Override
@@ -166,15 +200,56 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
-    /*
     RoomTransition transition = levelGameArea.consumePendingTransition();
     if (transition != null) {
       transitionTo(transition);
     }
-    */
 
     followPlayer();
     renderer.render();
+  }
+
+  private void transitionTo(RoomTransition transition) {
+    logger.info(
+        "Entering '{}' through transition '{}'",
+        transition.getDestinationMap(),
+        transition.getId());
+
+    LevelGameArea previousArea = levelGameArea;
+    removeSubLevelTravelPrompt();
+    Entity player = previousArea.releasePlayer();
+    LevelGameArea nextArea =
+        new LevelGameArea(
+            terrainFactory,
+            transition.getDestinationMap(),
+            player,
+            transition.getDestinationSpawn());
+    nextArea.create();
+
+    previousArea.dispose();
+    nextArea.resumeMusic();
+    levelGameArea = nextArea;
+    playerInNether = null;
+    player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
+    if (FIRST_ROOM_MAP.equals(transition.getDestinationMap())) {
+      createSubLevelTravelPrompt(player);
+    }
+    fitCameraToMap(nextArea);
+  }
+
+  private void createSubLevelTravelPrompt(Entity player) {
+    subLevelTravelPromptEntity =
+        new Entity()
+            .addComponent(
+                new SubLevelTravelPromptDisplay(player, renderer.getCamera().getCamera()));
+    ServiceLocator.getEntityService().register(subLevelTravelPromptEntity);
+  }
+
+  private void removeSubLevelTravelPrompt() {
+    if (subLevelTravelPromptEntity != null) {
+      subLevelTravelPromptEntity.dispose();
+      subLevelTravelPromptEntity = null;
+    }
   }
 
   @Override

@@ -45,36 +45,36 @@ public class ForestGameArea extends GameArea {
   private static final float WALL_WIDTH = 0.1f;
 
   private static final String[] forestTextures = {
-    "images/box_boy_leaf.png",
-    "images/box_boy_crouch.png",
-    "images/box_boy_slide.png",
-    "images/tree.png",
-    "images/sword.png",
-    "images/bow.png",
-    "images/arrow.png",
-    "images/ghost_king.png",
-    "images/ghost_1.png",
-    "images/grass_1.png",
-    "images/grass_2.png",
-    "images/grass_3.png",
-    "images/hex_grass_1.png",
-    "images/hex_grass_2.png",
-    "images/hex_grass_3.png",
-    "images/iso_grass_1.png",
-    "images/iso_grass_2.png",
-    "images/iso_grass_3.png",
-    "images/platform.png",
-    "images/Health.png",
-    "images/Poison.png",
-    "images/Strength.png"
+    "images/player/box_boy_leaf.png",
+    "images/player/box_boy_crouch.png",
+    "images/player/box_boy_slide.png",
+    "images/environment/forest/tree.png",
+    "images/items/sword.png",
+    "images/items/bow.png",
+    "images/items/arrow.png",
+    "images/enemies/ghost_king.png",
+    "images/enemies/ghost_1.png",
+    "images/environment/forest/grass_1.png",
+    "images/environment/forest/grass_2.png",
+    "images/environment/forest/grass_3.png",
+    "images/environment/forest/hex_grass_1.png",
+    "images/environment/forest/hex_grass_2.png",
+    "images/environment/forest/hex_grass_3.png",
+    "images/environment/forest/iso_grass_1.png",
+    "images/environment/forest/iso_grass_2.png",
+    "images/environment/forest/iso_grass_3.png",
+    "images/environment/forest/platform.png",
+    "images/ui/Health.png",
+    "images/ui/Poison.png",
+    "images/ui/Strength.png"
   };
 
   private static final String[] forestTextureAtlases = {
-    "images/terrain_iso_grass.atlas",
-    "images/ghost.atlas",
-    "images/ghostKing.atlas",
-    "images/skeleton.atlas",
-    "images/gold_coin/gold_coin.atlas"
+    "images/environment/forest/terrain_iso_grass.atlas",
+    "images/enemies/ghost.atlas",
+    "images/enemies/ghostKing.atlas",
+    "images/enemies/skeleton.atlas",
+    "images/items/gold_coin/gold_coin.atlas"
   };
 
   private static final String[] forestSounds = {
