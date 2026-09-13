@@ -27,7 +27,7 @@ public class WeaponGenerator {
           case BOW -> 2;
           case DAGGER -> 1;
         };
-    int maxQuantity = BASIC_WEAPON_MAX_QUANTITY;;
+    int maxQuantity = BASIC_WEAPON_MAX_QUANTITY;
     return new WeaponItem(name, weaponType, windUpDuration, tier, 1, maxQuantity);
   }
 }
