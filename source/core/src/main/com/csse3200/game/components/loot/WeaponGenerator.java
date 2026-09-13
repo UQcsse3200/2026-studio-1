@@ -15,10 +15,13 @@ public class WeaponGenerator {
 
     switch (weaponType) {
       case SWORD:
-        return new WeaponItem("Basic Sword", WeaponType.SWORD, 10 * tier, 1, 1);
+        return new WeaponItem("Basic Sword", WeaponType.SWORD, 10 * tier, 1, 10);
 
       case BOW:
-        return new WeaponItem("Basic Bow", WeaponType.BOW, 7 * tier, 1, 1);
+        return new WeaponItem("Basic Bow", WeaponType.BOW, 7 * tier, 1, 10);
+
+      case DAGGER:
+        return new WeaponItem("Basic Dagger", WeaponType.DAGGER, 8 * tier, 1, 20);
 
       case DAGGER:
         return new WeaponItem("Basic Dagger", WeaponType.DAGGER, 3 * tier, 1, 1);

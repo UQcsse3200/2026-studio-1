@@ -74,7 +74,8 @@ public class ForestGameArea extends GameArea {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
     "images/skeleton.atlas",
-    "images/gold_coin/gold_coin.atlas"
+    "images/gold_coin/gold_coin.atlas",
+    "images/pet.atlas"
   };
 
   private static final String[] forestSounds = {
