@@ -7,5 +7,6 @@ package com.csse3200.game.components.loot;
 public enum ItemType {
   CONSUMABLE,
   WEAPON,
-  CURRENCY
-}
+  CURRENCY,
+  SHIELD
+  }

@@ -62,7 +62,8 @@ public class LevelGameArea extends GameArea {
     "images/arrow.png",
     "images/Health.png",
     "images/Poison.png",
-    "images/Strength.png"
+    "images/Strength.png",
+    "images/Shield.png"
   };
 
   private static final String[] entitySounds = {
@@ -324,13 +325,15 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Spawns pickup loot (weapons, consumables, and a gold coin) so the loot/inventory features work
-   * in this level, mirroring what {@code ForestGameArea} spawns. Items are laid out in a row
-   * anchored to the map's first loot spawn point (falling back to just right of the player), so
-   * they land on the loaded map regardless of its size.
+   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
+   * features work in this level, mirroring what {@code ForestGameArea} spawns. Items are laid out
+   * in a row anchored to the map's first loot spawn point (falling back to just right of the
+   * player), so they land on the loaded map regardless of its size.
    */
   private void spawnLoot() {
     List<Entity> items = new ArrayList<>();
+
+    items.add(LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)));
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.BOW, 1)));

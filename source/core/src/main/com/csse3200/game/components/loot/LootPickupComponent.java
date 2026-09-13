@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -102,6 +103,18 @@ public class LootPickupComponent extends Component {
       inventory.addGold(amount);
       collected = true;
       logger.info("Picked up {}. Gold: {}", item.getName(), inventory.getGold());
+      Gdx.app.postRunnable(entity::dispose);
+      return;
+    }
+
+    if (item.getItemType() == ItemType.SHIELD) {
+      ShieldComponent shieldComponent = player.getComponent(ShieldComponent.class);
+      if (shieldComponent == null) {
+        return;
+      }
+      shieldComponent.grantShield();
+      collected = true;
+      logger.info("Picked up {}. Press the shield key to activate.", item.getName());
       Gdx.app.postRunnable(entity::dispose);
       return;
     }

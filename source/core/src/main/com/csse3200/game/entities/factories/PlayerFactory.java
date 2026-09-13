@@ -12,6 +12,8 @@ import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.ShieldComponent;
+import com.csse3200.game.components.player.ShieldRenderComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -63,6 +65,8 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
+            .addComponent(new ShieldComponent())
+            .addComponent(new ShieldRenderComponent())
             .addComponent(new InventoryComponent(stats.gold))
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
