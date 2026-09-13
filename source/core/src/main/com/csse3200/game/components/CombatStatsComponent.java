@@ -1,6 +1,5 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components;
 
-import com.csse3200.game.components.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +50,6 @@ public class CombatStatsComponent extends Component {
     }
     if (entity != null) {
       entity.getEvents().trigger("updateHealth", this.health);
-      if (this.health <= 0) {
-        entity.getEvents().trigger("death");
-      }
     }
   }
 
