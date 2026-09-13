@@ -22,9 +22,6 @@ public class PetManagerComponent extends Component {
     removePet();
 
     activePet = PetFactory.createPet(entity);
-
-    activePet.setPosition(entity.getPosition().x + 1f, entity.getPosition().y);
-
     ServiceLocator.getEntityService().register(activePet);
   }
 
