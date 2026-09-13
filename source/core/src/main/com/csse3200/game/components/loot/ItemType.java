@@ -9,4 +9,4 @@ public enum ItemType {
   WEAPON,
   CURRENCY,
   SHIELD
-  }
+}

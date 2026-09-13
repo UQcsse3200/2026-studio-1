@@ -56,7 +56,9 @@ public class ShieldComponent extends Component {
     this.durationMillis = durationMillis;
   }
 
-  /** Registers the {@code "activateShield"} listener and, if present, tracks health for blocking. */
+  /**
+   * Registers the {@code "activateShield"} listener and, if present, tracks health for blocking.
+   */
   @Override
   public void create() {
     timeSource = ServiceLocator.getTimeSource();
@@ -71,14 +73,13 @@ public class ShieldComponent extends Component {
   }
 
   /**
-   * Applies any pending damage reversal, then deactivates the shield once its duration has
-   * elapsed.
+   * Applies any pending damage reversal, then deactivates the shield once its duration has elapsed.
    *
    * <p>The reversal is applied here, outside of any event dispatch, rather than directly inside
    * {@link #onHealthChanged}. Calling {@code CombatStatsComponent.setHealth} synchronously from
    * within its own {@code "updateHealth"} listener re-enters that event's dispatch while it is
-   * still iterating its listener list, which this engine's event system does not support and
-   * throws {@code GdxRuntimeException: #iterator() cannot be used nested.}
+   * still iterating its listener list, which this engine's event system does not support and throws
+   * {@code GdxRuntimeException: #iterator() cannot be used nested.}
    */
   @Override
   public void update() {
@@ -93,9 +94,8 @@ public class ShieldComponent extends Component {
   }
 
   /**
-   * Grants the player a shield to activate later. Called on pickup, bypassing the inventory
-   * slot system entirely (the same way currency does), so a full inventory never blocks
-   * collecting it.
+   * Grants the player a shield to activate later. Called on pickup, bypassing the inventory slot
+   * system entirely (the same way currency does), so a full inventory never blocks collecting it.
    */
   public void grantShield() {
     hasShield = true;

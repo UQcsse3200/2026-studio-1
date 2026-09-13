@@ -17,7 +17,9 @@ import com.csse3200.game.services.ServiceLocator;
 public class ShieldRenderComponent extends RenderComponent {
   private static final String TEXTURE_PATH = "images/Shield.png";
 
-  /** How much larger than the player's own scale the bubble is drawn, so it visibly surrounds them. */
+  /**
+   * How much larger than the player's own scale the bubble is drawn, so it visibly surrounds them.
+   */
   private static final float SCALE_PADDING = 1.4f;
 
   private Texture texture;

@@ -169,10 +169,7 @@ public class ForestGameArea extends GameArea {
 
     // Bottom
     spawnEntityAt(
-        ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH),
-        GridPoint2Utils.ZERO,
-        false,
-        false);
+        ObstacleFactory.createWall(worldBounds.x, WALL_WIDTH), GridPoint2Utils.ZERO, false, false);
   }
 
   private void spawnTrees() {
