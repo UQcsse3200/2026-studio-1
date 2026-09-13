@@ -21,8 +21,8 @@ public class WeaponGenerator {
         };
     float windUpDuration =
         switch (weaponType) {
-          case SWORD -> 2;
-          case BOW -> 3;
+          case SWORD -> 3;
+          case BOW -> 2;
           case DAGGER -> 1;
         };
     return new WeaponItem(name, weaponType, windUpDuration, tier, 1, 1);

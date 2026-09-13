@@ -17,18 +17,6 @@ package com.csse3200.game.entities.configs.attacks;
  */
 public class RangedAttackConfig {
   public float range = 6;
-  public float cooldown = 2.5f;
+  public float cooldown = 4;
   public float knockback = 0;
-
-  private void validate() {
-    if (range <= 0) {
-      throw new IllegalArgumentException("Range must be positive.");
-    }
-    if (cooldown <= 0) {
-      throw new IllegalArgumentException("Cooldown must be positive.");
-    }
-    if (knockback < 0) {
-      throw new IllegalArgumentException("Knockback must not be negative.");
-    }
-  }
 }

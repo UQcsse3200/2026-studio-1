@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * relies entirely on being triggered externally with a target entity. If nothing ever triggers the
  * configured event, this component will never attack.
  */
-public class MeleeAttackComponent extends Component {
+public class MeleeAttackComponent extends Component  {
   private float range;
   private float cooldown;
   private float knockback;
@@ -72,13 +72,10 @@ public class MeleeAttackComponent extends Component {
     if (weapon.getWindupDuration() < 0) {
       throw new IllegalArgumentException("windupDuration must not be negative.");
     }
-    if (weapon.getWindupDuration() <= getCooldown()) {
+    if (weapon.getWindupDuration() >= getCooldown()) {
       throw new IllegalArgumentException("windupDuration must be less than cooldown.");
     }
     this.windupDuration = weapon.getWindupDuration();
-    this.combatStats.setBaseAttack(weapon.getDamage());
-    logger.debug("Entity's base attack value matches current weapon's damage value.");
-    logger.debug("Entity's base attack in config is: 5, sword is 10; dagger is 3;");
     this.timeSinceLastAttack = cooldown;
   }
 

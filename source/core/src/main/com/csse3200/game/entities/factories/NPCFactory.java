@@ -9,6 +9,7 @@ import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
 import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.EnemyDisposalComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -148,6 +149,7 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
+        .addComponent(new EnemyDisposalComponent())
         .addComponent(new SkeletonAnimationController());
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
@@ -201,6 +203,7 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
+        .addComponent(new EnemyDisposalComponent())
         .addComponent(new SkeletonAnimationController()
         );
 

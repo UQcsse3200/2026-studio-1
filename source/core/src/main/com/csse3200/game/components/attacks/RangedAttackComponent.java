@@ -67,11 +67,9 @@ public class RangedAttackComponent extends Component {
     if (weapon.getWindupDuration() < 0) {
       throw new IllegalArgumentException("windupDuration must not be negative.");
     }
-    if (weapon.getWindupDuration() <= this.getCooldown()) {
+    if (weapon.getWindupDuration() >= this.getCooldown()) {
       throw new IllegalArgumentException("windupDuration must be less than cooldown");
     }
-    this.combatStats.setBaseAttack(weapon.getDamage());
-    logger.debug("Entity's base attack value matches current weapon's damage value");
     this.timeSinceLastAttack = cooldown;
   }
 
