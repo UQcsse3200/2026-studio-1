@@ -120,7 +120,8 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    WeaponItem sword = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
+    items.add(sword);
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -141,7 +142,9 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range, config.melee.cooldown, config.melee.knockback))
+                config.melee.range, config.melee.cooldown, config.melee.knockback,
+                (WeaponItem) items.get(0))
+        )
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -172,7 +175,8 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
+    WeaponItem bow = weaponGenerator.generateWeapon(WeaponType.BOW, 1);
+    items.add(bow);
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -189,14 +193,16 @@ public class NPCFactory {
 
     // Add necessary components to the entity
     rangedSkeleton
-        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(new CombatStatsComponent(config.health, bow.getDamage()))
         .addComponent(
             new RangedAttackComponent(
-                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback, bow)
+        )
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new SkeletonAnimationController()
+        );
 
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 
