@@ -14,7 +14,7 @@ import com.csse3200.game.areas.terrain.map.MapLoader;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
-import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
@@ -22,6 +22,7 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -70,6 +71,7 @@ public class LevelGameArea extends GameArea {
     "images/items/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
+          "images/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
     "images/ui/Strength.png"
@@ -90,7 +92,8 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghost.atlas",
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
-    "images/enemies/skeleton.atlas"
+    "images/enemies/skeleton.atlas",
+          "images/pet.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
@@ -475,6 +478,7 @@ public class LevelGameArea extends GameArea {
       spawn = new GridPoint2(0, 0);
     }
     spawnEntityAt(newPlayer, spawn, true, true);
+    newPlayer.getComponent(PetManagerComponent.class).activatePet();
   }
 
   private static void addHazardCollisionListener(Entity newPlayer) {

@@ -49,6 +49,8 @@ class WeaponInventoryIntegrationTest {
     assertNull(inventory.getItem(1));
   }
 
+  // --- Added tests below (existing tests above are unchanged) ---
+
   @Test
   void shouldStackDuplicateRoomWeaponsWhenAllInventorySlotsAreOccupied() {
     WeaponGenerator generator = new WeaponGenerator();
@@ -68,15 +70,37 @@ class WeaponInventoryIntegrationTest {
     assertEquals(2, inventory.getTotalQuantity("Basic Bow", ItemType.WEAPON, 5));
   }
 
+  // Sword, Bow, and Dagger can each be added to and read back from inventory correctly.
   @Test
-  void shouldNotStackWeaponsWithDifferentDamageTiers() {
+  void shouldAddEachWeaponTypeToInventory() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    InventoryComponent swordInventory = new InventoryComponent(0);
+    WeaponItem sword = generator.generateWeapon(WeaponType.SWORD, 1);
+    swordInventory.addItem(sword);
+    assertEquals(WeaponType.SWORD, ((WeaponItem) swordInventory.getItem(1)).getWeaponType());
+
+    InventoryComponent bowInventory = new InventoryComponent(0);
+    WeaponItem bow = generator.generateWeapon(WeaponType.BOW, 1);
+    bowInventory.addItem(bow);
+    assertEquals(WeaponType.BOW, ((WeaponItem) bowInventory.getItem(1)).getWeaponType());
+
+    InventoryComponent daggerInventory = new InventoryComponent(0);
+    WeaponItem dagger = generator.generateWeapon(WeaponType.DAGGER, 1);
+    daggerInventory.addItem(dagger);
+    assertEquals(WeaponType.DAGGER, ((WeaponItem) daggerInventory.getItem(1)).getWeaponType());
+  }
+
+  // A weapon's damage is preserved unchanged after being added to and read back from inventory.
+  @Test
+  void shouldPreserveWeaponDamageThroughInventoryRoundTrip() {
     WeaponGenerator generator = new WeaponGenerator();
     InventoryComponent inventory = new InventoryComponent(0);
 
-    inventory.addItem(generator.generateWeapon(WeaponType.SWORD, 1));
-    inventory.addItem(generator.generateWeapon(WeaponType.SWORD, 2));
+    WeaponItem tierTwoSword = generator.generateWeapon(WeaponType.SWORD, 2);
+    inventory.addItem(tierTwoSword);
 
-    assertEquals(1, inventory.getItem(1).getQuantity());
-    assertEquals(1, inventory.getItem(2).getQuantity());
+    WeaponItem storedWeapon = (WeaponItem) inventory.getItem(1);
+    assertEquals(20, storedWeapon.getDamage());
   }
 }

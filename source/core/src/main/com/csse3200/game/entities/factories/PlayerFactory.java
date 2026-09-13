@@ -3,9 +3,11 @@ package com.csse3200.game.entities.factories;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.PlatformerComponent;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -57,6 +59,13 @@ public class PlayerFactory {
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
 
+    WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
+    startingDagger.setQuantity(20);
+
+    InventoryComponent inventory = new InventoryComponent(stats.gold);
+    inventory.addItem(startingWeapon);
+    inventory.addItem(startingDagger);
+
     Entity player =
         new Entity()
             .addComponent(new TextureRenderComponent("images/player/box_boy_leaf.png"))
@@ -71,15 +80,16 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
-            .addComponent(new InventoryComponent(stats.gold))
+            .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
+            .addComponent(new PetManagerComponent())
             .addComponent(new PlatformerComponent(5, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent("images/items/sword.png"));
+            .addComponent(new WeaponRenderComponent());
 
     if (mapData != null) {
       player.addComponent(new LadderComponent(mapData));
