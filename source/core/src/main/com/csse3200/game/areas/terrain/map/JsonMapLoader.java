@@ -115,20 +115,32 @@ public class JsonMapLoader implements MapLoader {
       throw new MapLoadException("Map '" + name + "' 'layers' must be a JSON object");
     }
 
-    // First pass: collect raw rows and compute overall dimensions.
+    // First pass: collect raw rows and compute dimensions from map layers.
+// The entities layer does not determine the map dimensions.
     List<String> layerNames = new ArrayList<>();
     List<String[]> layerRows = new ArrayList<>();
+
     int width = 0;
     int height = 0;
+
     for (JsonValue layer = layersJson.child; layer != null; layer = layer.next) {
       if (!layer.isArray()) {
         throw new MapLoadException(
-            "Layer '" + layer.name + "' in map '" + name + "' must be an array of strings");
+                "Layer '" + layer.name + "' in map '" + name + "' must be an array of strings");
       }
+
       String[] rows = layer.asStringArray();
+
       layerNames.add(layer.name);
       layerRows.add(rows);
+
+      // Entity positions should not affect the map dimensions.
+      if (layer.name.equals("entities")) {
+        continue;
+      }
+
       height = Math.max(height, rows.length);
+
       for (String row : rows) {
         width = Math.max(width, row.length());
       }
@@ -136,35 +148,81 @@ public class JsonMapLoader implements MapLoader {
 
     // Second pass: build the typed tile grids, flipping rows so y=0 is the bottom.
     List<MapLayerData> layers = new ArrayList<>();
-
     String[] entityRows = null;
 
     for (int i = 0; i < layerNames.size(); i++) {
-
       String layerName = layerNames.get(i);
+      String[] rows = layerRows.get(i);
 
       if (layerName.equals("entities")) {
-        entityRows = layerRows.get(i);
-        continue;
+        entityRows = rows;
+      } else {
+        layers.add(buildLayer(layerName, rows, legend, width, height));
       }
-
-      layers.add(buildLayer(layerName, layerRows.get(i), legend, width, height));
     }
 
-    MapSpawns spawns = parseSpawns(root.get("spawns"), entityRows, entityLegend, width, height);
+    MapSpawns spawns =
+            parseSpawns(
+                    root.get("spawns"),
+                    entityRows,
+                    entityLegend,
+                    width,
+                    height);
+
+    List<RoomTransition> transitions =
+            parseTransitions(root.get("transitions"), name);
+
+    validateSpawns(spawns, width, height, name);
+    validateTransitions(transitions, width, height, name);
+
+    return new LevelMapData(
+            name,
+            tileSize,
+            width,
+            height,
+            legend,
+            layers,
+            spawns,
+            transitions);
+  }
+
+  /**
+   * Adapts the Level 2 art team's concise blueprint format to the runtime map representation. Its
+   * {@code tiles} rows are still used directly for collision; the provided composed artwork is
+   * rendered as a single background so the intended mountain scene is preserved exactly.
+   */
+  private LevelMapData parseAuthoredLevel(JsonValue root) {
+    String name = root.getString("name", "unnamed");
+    JsonValue tilesJson = root.get("tiles");
+    if (!tilesJson.isArray()) {
+      throw new MapLoadException("Authored map '" + name + "' tiles must be an array of strings");
+    }
+
+    String[] rows = tilesJson.asStringArray();
+    int width = root.getInt("width", widestRow(rows));
+    int height = root.getInt("height", rows.length);
+    if (width <= 0 || height <= 0 || rows.length != height || widestRow(rows) > width) {
+      throw new MapLoadException("Authored map '" + name + "' has inconsistent dimensions");
+    }
+
+    Map<String, TileDefinition> legend = authoredLegend();
+    MapLayerData collision = buildLayer("collision", rows, legend, width, height);
+    MapLayerData hazards = buildStormHazardLayer(rows, width, height);
+    MapSpawns spawns = parseAuthoredSpawns(root.get("entry"), root.get("objects"), hazards, height);
+    List<RoomTransition> transitions = parseAuthoredTransitions(root.get("exit"), height);
 
     validateSpawns(spawns, width, height, name);
     validateTransitions(transitions, width, height, name);
     return new LevelMapData(
-        name,
-        DEFAULT_TILE_SIZE,
-        width,
-        height,
-        legend,
-        List.of(collision, hazards),
-        spawns,
-        transitions,
-        root.getString("backgroundTexture", LEVEL_TWO_BACKGROUND));
+            name,
+            DEFAULT_TILE_SIZE,
+            width,
+            height,
+            legend,
+            List.of(collision, hazards),
+            spawns,
+            transitions,
+            root.getString("backgroundTexture", LEVEL_TWO_BACKGROUND));
   }
 
   private static int widestRow(String[] rows) {
