@@ -1,10 +1,10 @@
 package com.csse3200.game.components.loot;
 
 // Generates weapon items with properties based on weapon type and loot tier.
+
 public class WeaponGenerator {
 
-  public WeaponItem generateWeapon(WeaponType weaponType, int tier)
-      throws IllegalArgumentException {
+  public WeaponItem generateWeapon(WeaponType weaponType, int tier) {
     if (weaponType == null) {
       throw new IllegalArgumentException("WeaponType must not be null.");
     }
@@ -25,6 +25,12 @@ public class WeaponGenerator {
           case BOW -> 2;
           case DAGGER -> 1;
         };
-    return new WeaponItem(name, weaponType, windUpDuration, tier, 1, 1);
+    int maxQuantity =
+            switch (weaponType) {
+                case SWORD -> 10;
+                case BOW -> 10;
+                case DAGGER -> 20;
+            };
+    return new WeaponItem(name, weaponType, windUpDuration, tier, 1, maxQuantity);
   }
 }

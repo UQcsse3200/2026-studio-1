@@ -10,6 +10,7 @@ import com.csse3200.game.components.attacks.RangedAttackComponent;
 import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.EnemyDisposalComponent;
+import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -121,8 +122,7 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    WeaponItem sword = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
-    items.add(sword);
+    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -143,13 +143,10 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range, config.melee.cooldown, config.melee.knockback,
-                (WeaponItem) items.get(0))
-        )
+                config.melee.range, config.melee.cooldown, config.melee.knockback))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
-        .addComponent(new EnemyDisposalComponent())
         .addComponent(new SkeletonAnimationController());
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
@@ -177,8 +174,7 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    WeaponItem bow = weaponGenerator.generateWeapon(WeaponType.BOW, 1);
-    items.add(bow);
+    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -195,17 +191,14 @@ public class NPCFactory {
 
     // Add necessary components to the entity
     rangedSkeleton
-        .addComponent(new CombatStatsComponent(config.health, bow.getDamage()))
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new RangedAttackComponent(
-                config.ranged.range, config.ranged.cooldown, config.ranged.knockback, bow)
-        )
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
-        .addComponent(new EnemyDisposalComponent())
-        .addComponent(new SkeletonAnimationController()
-        );
+        .addComponent(new SkeletonAnimationController());
 
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 

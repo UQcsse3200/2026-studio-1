@@ -53,4 +53,34 @@ class CombatStatsComponentTest {
     combat.setBaseAttack(-50);
     assertEquals(150, combat.getBaseAttack());
   }
+
+  @Test
+  void shouldTriggerDeathEventWhenHealthReachesZero() {
+    Entity entity = new Entity();
+    CombatStatsComponent stats = new CombatStatsComponent(10, 5);
+    entity.addComponent(stats);
+    entity.create();
+
+    int[] deathCount = {0};
+    entity.getEvents().addListener("death", () -> deathCount[0]++);
+
+    stats.setHealth(0);
+
+    assertEquals(1, deathCount[0]);
+  }
+
+  @Test
+  void shouldNotTriggerDeathEventWhileHealthPositive() {
+    Entity entity = new Entity();
+    CombatStatsComponent stats = new CombatStatsComponent(10, 5);
+    entity.addComponent(stats);
+    entity.create();
+
+    int[] deathCount = {0};
+    entity.getEvents().addListener("death", () -> deathCount[0]++);
+
+    stats.setHealth(3);
+
+    assertEquals(0, deathCount[0]);
+  }
 }
