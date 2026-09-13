@@ -13,6 +13,7 @@ import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.QuestDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -77,6 +78,7 @@ public class PlayerFactory {
             .addComponent(new PetManagerComponent())
             .addComponent(new PlatformerComponent(3))
             .addComponent(new PlayerStatsDisplay())
+            .addComponent(new QuestDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
