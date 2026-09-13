@@ -98,7 +98,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Adds to the player's gold.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#addHealth(int)" class="member-name-link">addHealth(int)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#addHealth(int)" class="member-name-link">addHealth(int)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>
 <div class="block">Adds to the player's health.</div>
 </dd>
@@ -138,6 +138,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Add a priority task to the list of tasks.</div>
 </dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html#aggroRadius" class="member-name-link">aggroRadius</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html#aggroRadius" class="member-name-link">aggroRadius</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ai/tasks/AITaskComponent.html" class="type-name-link" title="class in com.csse3200.game.ai.tasks">AITaskComponent</a> - Class in <a href="com/csse3200/game/ai/tasks/package-summary.html">com.csse3200.game.ai.tasks</a></dt>
 <dd>
 <div class="block">Task-based AI component.</div>
@@ -274,8 +278,14 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/CameraComponent.html#%3Cinit%3E(com.badlogic.gdx.graphics.Camera)" class="member-name-link">CameraComponent(Camera)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/CameraComponent.html" title="class in com.csse3200.game.components">CameraComponent</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#canAttack()" class="member-name-link">canAttack()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
-<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#canAttack()" class="member-name-link">canAttack()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
+<dd>
+<div class="block">Checks whether enough time has elapsed since the last attack for a new one to be attempted.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#canCharge()" class="member-name-link">canCharge()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
+<dd>
+<div class="block">Checks whether a new charge may begin right now.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#canFullyAdd(com.csse3200.game.components.loot.Item)" class="member-name-link">canFullyAdd(Item)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
 <div class="block">Returns whether <code>item</code> can be added in full without leftover.</div>
@@ -284,10 +294,52 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Checks whether two items can be stacked together.</div>
 </dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a> - Class in <a href="com/csse3200/game/entities/configs/enemies/package-summary.html">com.csse3200.game.entities.configs.enemies</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html#%3Cinit%3E()" class="member-name-link">CentaurConfig()</a> - Constructor for class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/components/PhysicsComponent.AlignX.html#CENTER" class="member-name-link">CENTER</a> - Enum constant in enum class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/PhysicsComponent.AlignX.html" title="enum class in com.csse3200.game.physics.components">PhysicsComponent.AlignX</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/components/PhysicsComponent.AlignY.html#CENTER" class="member-name-link">CENTER</a> - Enum constant in enum class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/PhysicsComponent.AlignY.html" title="enum class in com.csse3200.game.physics.components">PhysicsComponent.AlignY</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/attacks/ChargeAttackConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.attacks">ChargeAttackConfig</a> - Class in <a href="com/csse3200/game/entities/configs/attacks/package-summary.html">com.csse3200.game.entities.configs.attacks</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/attacks/ChargeAttackConfig.html#%3Cinit%3E()" class="member-name-link">ChargeAttackConfig()</a> - Constructor for class com.csse3200.game.entities.configs.attacks.<a href="com/csse3200/game/entities/configs/attacks/ChargeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks">ChargeAttackConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html" class="type-name-link" title="class in com.csse3200.game.components.attacks">ChargeComponent</a> - Class in <a href="com/csse3200/game/components/attacks/package-summary.html">com.csse3200.game.components.attacks</a></dt>
+<dd>
+<div class="block">Represents a temporary charge state: a burst of movement speed toward a target, and a short-lived
+ damage multiplier applied to whichever attack (melee or ranged) resolves next — NOT a separate
+ damage-dealing hit of its own.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#%3Cinit%3E(float,float,float)" class="member-name-link">ChargeComponent(float, float, float)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
+<dd>
+<div class="block">Creates a charge component.</div>
+</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html#chargeCooldown" class="member-name-link">chargeCooldown</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html#chargeCooldown" class="member-name-link">chargeCooldown</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html#chargeDamageMultiplier" class="member-name-link">chargeDamageMultiplier</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html#chargeDamageMultiplier" class="member-name-link">chargeDamageMultiplier</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html#chargeDuration" class="member-name-link">chargeDuration</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html#chargeDuration" class="member-name-link">chargeDuration</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html#chargeSpeedMultiplier" class="member-name-link">chargeSpeedMultiplier</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html#chargeSpeedMultiplier" class="member-name-link">chargeSpeedMultiplier</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/tasks/ChargeTask.html" class="type-name-link" title="class in com.csse3200.game.components.tasks">ChargeTask</a> - Class in <a href="com/csse3200/game/components/tasks/package-summary.html">com.csse3200.game.components.tasks</a></dt>
+<dd>
+<div class="block">AI priority task governing aggro-and-charge behaviour, shared by Minotaur and Centaur.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/tasks/ChargeTask.html#%3Cinit%3E(com.csse3200.game.entities.Entity,com.csse3200.game.components.attacks.ChargeComponent,float,int,int)" class="member-name-link">ChargeTask(Entity, ChargeComponent, float, int, int)</a> - Constructor for class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/ChargeTask.html" title="class in com.csse3200.game.components.tasks">ChargeTask</a></dt>
+<dd>
+<div class="block">Creates a charge task.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/tasks/ChaseTask.html" class="type-name-link" title="class in com.csse3200.game.components.tasks">ChaseTask</a> - Class in <a href="com/csse3200/game/components/tasks/package-summary.html">com.csse3200.game.components.tasks</a></dt>
 <dd>
 <div class="block">Chases a target entity until they get too far away or line of sight is lost</div>
@@ -336,6 +388,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a> - package com.csse3200.game.components</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/package-summary.html">com.csse3200.game.components.attacks</a> - package com.csse3200.game.components.attacks</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/package-summary.html">com.csse3200.game.components.effects</a> - package com.csse3200.game.components.effects</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/gamearea/package-summary.html">com.csse3200.game.components.gamearea</a> - package com.csse3200.game.components.gamearea</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/package-summary.html">com.csse3200.game.components.loot</a> - package com.csse3200.game.components.loot</dt>
@@ -361,6 +417,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/entities/configs/package-summary.html">com.csse3200.game.entities.configs</a> - package com.csse3200.game.entities.configs</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/attacks/package-summary.html">com.csse3200.game.entities.configs.attacks</a> - package com.csse3200.game.entities.configs.attacks</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/package-summary.html">com.csse3200.game.entities.configs.enemies</a> - package com.csse3200.game.entities.configs.enemies</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/factories/package-summary.html">com.csse3200.game.entities.factories</a> - package com.csse3200.game.entities.factories</dt>
 <dd>&nbsp;</dd>
@@ -396,11 +454,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/utils/math/package-summary.html">com.csse3200.game.utils.math</a> - package com.csse3200.game.utils.math</dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html" class="type-name-link" title="class in com.csse3200.game.components">CombatStatsComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" class="type-name-link" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a> - Class in <a href="com/csse3200/game/components/attacks/package-summary.html">com.csse3200.game.components.attacks</a></dt>
 <dd>
 <div class="block">Component used to store information related to combat such as health, attack, etc.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#%3Cinit%3E(int,int)" class="member-name-link">CombatStatsComponent(int, int)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#%3Cinit%3E(int,int)" class="member-name-link">CombatStatsComponent(int, int)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ui/terminal/commands/Command.html" class="type-name-link" title="interface in com.csse3200.game.ui.terminal.commands">Command</a> - Interface in <a href="com/csse3200/game/ui/terminal/commands/package-summary.html">com.csse3200.game.ui.terminal.commands</a></dt>
 <dd>
@@ -498,15 +556,33 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/areas/LevelGameArea.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/LevelGameArea.html" title="class in com.csse3200.game.areas">LevelGameArea</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
+<dd>
+<div class="block">Resolves this entity's <a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks"><code>CombatStatsComponent</code></a> and registers a listener for the
+ attack-trigger event.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
+<dd>
+<div class="block">Resolves this entity's <a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks"><code>CombatStatsComponent</code></a> and registers a listener for the
+ attack-trigger event.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/TouchAttackComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks">TouchAttackComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/Component.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/Component.html" title="class in com.csse3200.game.components">Component</a></dt>
 <dd>
 <div class="block">Called when the entity is created and registered.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/effects/HealthEffectComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/HealthEffectComponent.html" title="class in com.csse3200.game.components.effects">HealthEffectComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/OnHitEffectComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/OnHitEffectComponent.html" title="class in com.csse3200.game.components.effects">OnHitEffectComponent</a></dt>
+<dd>
+<div class="block">Called when the entity is registered in the game world.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/gamearea/GameAreaDisplay.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.gamearea.<a href="com/csse3200/game/components/gamearea/GameAreaDisplay.html" title="class in com.csse3200.game.components.gamearea">GameAreaDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/gamearea/PerformanceDisplay.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.gamearea.<a href="com/csse3200/game/components/gamearea/PerformanceDisplay.html" title="class in com.csse3200.game.components.gamearea">PerformanceDisplay</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/HealthEffectComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/HealthEffectComponent.html" title="class in com.csse3200.game.components">HealthEffectComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/LootPickupComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/LootPickupComponent.html" title="class in com.csse3200.game.components.loot">LootPickupComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -518,19 +594,16 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/mainmenu/MainMenuDisplay.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.mainmenu.<a href="com/csse3200/game/components/mainmenu/MainMenuDisplay.html" title="class in com.csse3200.game.components.mainmenu">MainMenuDisplay</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/npc/EnemyDeathComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/EnemyDeathComponent.html" title="class in com.csse3200.game.components.npc">EnemyDeathComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/npc/EnemyDisposalComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/EnemyDisposalComponent.html" title="class in com.csse3200.game.components.npc">EnemyDisposalComponent</a></dt>
 <dd>
-<div class="block">Resolves this entity's <a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> and registers a listener for the
- attack-trigger event.</div>
+<div class="block">Registers a listener for "enemyDeath" on this entity.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/npc/GhostAnimationController.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/GhostAnimationController.html" title="class in com.csse3200.game.components.npc">GhostAnimationController</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/npc/SkeletonAnimationController.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/SkeletonAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonAnimationController</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/OnHitEffectComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/OnHitEffectComponent.html" title="class in com.csse3200.game.components">OnHitEffectComponent</a></dt>
-<dd>
-<div class="block">Called when the entity is registered in the game world.</div>
-</dd>
 <dt><a href="com/csse3200/game/components/PlatformerComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/PlatformerComponent.html" title="class in com.csse3200.game.components">PlatformerComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ConsumableUseComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ConsumableUseComponent.html" title="class in com.csse3200.game.components.player">ConsumableUseComponent</a></dt>
@@ -567,16 +640,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
-<dd>
-<div class="block">Resolves this entity's <a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> and registers a listener for the
- attack-trigger event.</div>
-</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html" title="class in com.csse3200.game.components.settingsmenu">SettingsMenuDisplay</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/SpeedEffectComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/SpeedEffectComponent.html" title="class in com.csse3200.game.components">SpeedEffectComponent</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/TouchAttackComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/TouchAttackComponent.html" title="class in com.csse3200.game.components">TouchAttackComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/Entity.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.entities.<a href="com/csse3200/game/entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></dt>
 <dd>
@@ -827,6 +891,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Called when the component is disposed.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/gamearea/GameAreaDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.gamearea.<a href="com/csse3200/game/components/gamearea/GameAreaDisplay.html" title="class in com.csse3200.game.components.gamearea">GameAreaDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/gamearea/PerformanceDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.gamearea.<a href="com/csse3200/game/components/gamearea/PerformanceDisplay.html" title="class in com.csse3200.game.components.gamearea">PerformanceDisplay</a></dt>
@@ -847,8 +913,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html" title="class in com.csse3200.game.components.settingsmenu">SettingsMenuDisplay</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/SpeedEffectComponent.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/SpeedEffectComponent.html" title="class in com.csse3200.game.components">SpeedEffectComponent</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/Entity.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.entities.<a href="com/csse3200/game/entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></dt>
 <dd>
 <div class="block">Dispose of the entity.</div>
@@ -868,8 +932,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/physics/components/PhysicsComponent.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/PhysicsComponent.html" title="class in com.csse3200.game.physics.components">PhysicsComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/PhysicsEngine.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsEngine.html" title="class in com.csse3200.game.physics">PhysicsEngine</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/RenderComponent.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -943,9 +1005,15 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Draw a rectangle</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropAll()" class="member-name-link">dropAll()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropFirstStack()" class="member-name-link">dropFirstStack()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
 <dd>
 <div class="block">Drops the whole stack from the lowest-numbered occupied inventory slot.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropGold()" class="member-name-link">dropGold()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
+<dd>
+<div class="block">Drops all gold in entities inventory.</div>
 </dd>
 <dt><a href="com/csse3200/game/entities/configs/ConsumableConfig.html#durationSeconds" class="member-name-link">durationSeconds</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/ConsumableConfig.html" title="class in com.csse3200.game.entities.configs">ConsumableConfig</a></dt>
 <dd>
@@ -969,6 +1037,16 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/Component.html#enabled" class="member-name-link">enabled</a> - Variable in class com.csse3200.game.components.<a href="com/csse3200/game/components/Component.html" title="class in com.csse3200.game.components">Component</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/PhysicsContactListener.html#endContact(com.badlogic.gdx.physics.box2d.Contact)" class="member-name-link">endContact(Contact)</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsContactListener.html" title="class in com.csse3200.game.physics">PhysicsContactListener</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/npc/EnemyDeathComponent.html" class="type-name-link" title="class in com.csse3200.game.components.npc">EnemyDeathComponent</a> - Class in <a href="com/csse3200/game/components/npc/package-summary.html">com.csse3200.game.components.npc</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/npc/EnemyDeathComponent.html#%3Cinit%3E()" class="member-name-link">EnemyDeathComponent()</a> - Constructor for class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/EnemyDeathComponent.html" title="class in com.csse3200.game.components.npc">EnemyDeathComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/npc/EnemyDisposalComponent.html" class="type-name-link" title="class in com.csse3200.game.components.npc">EnemyDisposalComponent</a> - Class in <a href="com/csse3200/game/components/npc/package-summary.html">com.csse3200.game.components.npc</a></dt>
+<dd>
+<div class="block">Disposes an enemy entity when it dies.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/npc/EnemyDisposalComponent.html#%3Cinit%3E()" class="member-name-link">EnemyDisposalComponent()</a> - Constructor for class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/EnemyDisposalComponent.html" title="class in com.csse3200.game.components.npc">EnemyDisposalComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/Component.html#entity" class="member-name-link">entity</a> - Variable in class com.csse3200.game.components.<a href="com/csse3200/game/components/Component.html" title="class in com.csse3200.game.components">Component</a></dt>
 <dd>&nbsp;</dd>
@@ -1155,9 +1233,13 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Load an asset from a file.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#getBaseAttack()" class="member-name-link">getBaseAttack()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#getBaseAttack()" class="member-name-link">getBaseAttack()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>
 <div class="block">Returns the entity's base attack damage.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponType.html#getBaseDamage()" class="member-name-link">getBaseDamage()</a> - Method in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></dt>
+<dd>
+<div class="block">Returns the actual base damage set for each weapon type</div>
 </dd>
 <dt><a href="com/csse3200/game/components/PlatformerComponent.html#getBaseJumpScaler()" class="member-name-link">getBaseJumpScaler()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/PlatformerComponent.html" title="class in com.csse3200.game.components">PlatformerComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -1194,22 +1276,28 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns which consumable this is.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#getCooldown()" class="member-name-link">getCooldown()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#getCooldown()" class="member-name-link">getCooldown()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>
 <div class="block">Returns the configured cooldown duration.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#getCooldown()" class="member-name-link">getCooldown()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#getCooldown()" class="member-name-link">getCooldown()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Returns the configured cooldown duration.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#getCooldownTimer()" class="member-name-link">getCooldownTimer()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html#getCurrentAnimation()" class="member-name-link">getCurrentAnimation()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></dt>
 <dd>
 <div class="block">Get the name of the animation currently being played.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#getDamage()" class="member-name-link">getDamage()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
+<dd>
+<div class="block">Returns the equipped weapon's damage.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponItem.html#getDamage()" class="member-name-link">getDamage()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#getDamageMultiplier()" class="member-name-link">getDamageMultiplier()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
+<dd>
+<div class="block">Returns the damage multiplier to apply to the next attack.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerActions.html#getDashing()" class="member-name-link">getDashing()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/Renderer.html#getDebug()" class="member-name-link">getDebug()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/Renderer.html" title="class in com.csse3200.game.rendering">Renderer</a></dt>
@@ -1270,7 +1358,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the health this effect restores.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#getHealth()" class="member-name-link">getHealth()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#getHealth()" class="member-name-link">getHealth()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>
 <div class="block">Returns the entity's health.</div>
 </dd>
@@ -1316,11 +1404,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/PlatformerComponent.html#getJumpingBool()" class="member-name-link">getJumpingBool()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/PlatformerComponent.html" title="class in com.csse3200.game.components">PlatformerComponent</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#getKnockback()" class="member-name-link">getKnockback()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#getKnockback()" class="member-name-link">getKnockback()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>
 <div class="block">Returns the configured knockback magnitude.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#getKnockback()" class="member-name-link">getKnockback()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#getKnockback()" class="member-name-link">getKnockback()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Returns the configured knockback magnitude.</div>
 </dd>
@@ -1436,6 +1524,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/ai/tasks/PriorityTask.html#getPriority()" class="member-name-link">getPriority()</a> - Method in interface com.csse3200.game.ai.tasks.<a href="com/csse3200/game/ai/tasks/PriorityTask.html" title="interface in com.csse3200.game.ai.tasks">PriorityTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/tasks/ChargeTask.html#getPriority()" class="member-name-link">getPriority()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/ChargeTask.html" title="class in com.csse3200.game.components.tasks">ChargeTask</a></dt>
+<dd>
+<div class="block">Determines this task's current priority based only on distance and target liveness — never on
+ <code>chargeComponent</code>'s cooldown state, per the Sprint 1 priority-flicker fix.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/tasks/ChaseTask.html#getPriority()" class="member-name-link">getPriority()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/ChaseTask.html" title="class in com.csse3200.game.components.tasks">ChaseTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/tasks/MeleeAttackTask.html#getPriority()" class="member-name-link">getPriority()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/MeleeAttackTask.html" title="class in com.csse3200.game.components.tasks">MeleeAttackTask</a></dt>
@@ -1476,11 +1569,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/tasks/WanderTask.html#getRandomPosInRange()" class="member-name-link">getRandomPosInRange()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/WanderTask.html" title="class in com.csse3200.game.components.tasks">WanderTask</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#getRange()" class="member-name-link">getRange()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#getRange()" class="member-name-link">getRange()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>
 <div class="block">Returns the configured melee range.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#getRange()" class="member-name-link">getRange()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#getRange()" class="member-name-link">getRange()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Returns the configured attack range.</div>
 </dd>
@@ -1591,10 +1684,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/WeaponAttackComponent.html#getWeapon()" class="member-name-link">getWeapon()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player">WeaponAttackComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponItem.html#getWeaponType()" class="member-name-link">getWeaponType()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the weapon type that has been created.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getWidth()" class="member-name-link">getWidth()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/MapLayerData.html#getWidth()" class="member-name-link">getWidth()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/MapLayerData.html" title="class in com.csse3200.game.areas.terrain.map">MapLayerData</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponItem.html#getWindupDuration()" class="member-name-link">getWindupDuration()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/PhysicsEngine.html#getWorld()" class="member-name-link">getWorld()</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsEngine.html" title="class in com.csse3200.game.physics">PhysicsEngine</a></dt>
 <dd>&nbsp;</dd>
@@ -1706,9 +1803,9 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Restores health, capped at the player's maximum health.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/HealthEffectComponent.html" class="type-name-link" title="class in com.csse3200.game.components">HealthEffectComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dt><a href="com/csse3200/game/components/effects/HealthEffectComponent.html" class="type-name-link" title="class in com.csse3200.game.components.effects">HealthEffectComponent</a> - Class in <a href="com/csse3200/game/components/effects/package-summary.html">com.csse3200.game.components.effects</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/HealthEffectComponent.html#%3Cinit%3E(int,int)" class="member-name-link">HealthEffectComponent(int, int)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/HealthEffectComponent.html" title="class in com.csse3200.game.components">HealthEffectComponent</a></dt>
+<dt><a href="com/csse3200/game/components/effects/HealthEffectComponent.html#%3Cinit%3E(int,int)" class="member-name-link">HealthEffectComponent(int, int)</a> - Constructor for class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/HealthEffectComponent.html" title="class in com.csse3200.game.components.effects">HealthEffectComponent</a></dt>
 <dd>
 <div class="block">Create a component which changes health over time.</div>
 </dd>
@@ -1720,7 +1817,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/raycast/SingleHitCallback.html#hit" class="member-name-link">hit</a> - Variable in class com.csse3200.game.physics.raycast.<a href="com/csse3200/game/physics/raycast/SingleHitCallback.html" title="class in com.csse3200.game.physics.raycast">SingleHitCallback</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#hit(com.csse3200.game.components.CombatStatsComponent)" class="member-name-link">hit(CombatStatsComponent)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#hit(com.csse3200.game.components.attacks.CombatStatsComponent)" class="member-name-link">hit(CombatStatsComponent)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/components/HitboxComponent.html" class="type-name-link" title="class in com.csse3200.game.physics.components">HitboxComponent</a> - Class in <a href="com/csse3200/game/physics/components/package-summary.html">com.csse3200.game.physics.components</a></dt>
 <dd>
@@ -1791,7 +1888,9 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#%3Cinit%3E()" class="member-name-link">InventoryDisplay()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#isDead()" class="member-name-link">isDead()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#isCharging()" class="member-name-link">isCharging()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#isDead()" class="member-name-link">isDead()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>
 <div class="block">Returns true if the entity's has 0 health, otherwise false.</div>
 </dd>
@@ -2152,17 +2251,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Maximum stack size of the generated item.</div>
 </dd>
-<dt><a href="com/csse3200/game/entities/configs/SkeletonConfig.html#melee" class="member-name-link">melee</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/SkeletonConfig.html" title="class in com.csse3200.game.entities.configs">SkeletonConfig</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html#melee" class="member-name-link">melee</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html" class="type-name-link" title="class in com.csse3200.game.components">MeleeAttackComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/SkeletonConfig.html#melee" class="member-name-link">melee</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/SkeletonConfig.html" title="class in com.csse3200.game.entities.configs.enemies">SkeletonConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" class="type-name-link" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a> - Class in <a href="com/csse3200/game/components/attacks/package-summary.html">com.csse3200.game.components.attacks</a></dt>
 <dd>
 <div class="block">Deals melee damage and knockback to a target entity when triggered, provided the target is within
  <code>range</code> and this component is off cooldown.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#%3Cinit%3E(float,float,float)" class="member-name-link">MeleeAttackComponent(float, float, float)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
-<dd>
-<div class="block">Creates a melee attack component with configurable range, cooldown, and knockback.</div>
-</dd>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">MeleeAttackComponent(float, float, float, WeaponItem)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/attacks/MeleeAttackConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.attacks">MeleeAttackConfig</a> - Class in <a href="com/csse3200/game/entities/configs/attacks/package-summary.html">com.csse3200.game.entities.configs.attacks</a></dt>
 <dd>
 <div class="block">Configuration for a melee attack capability.</div>
@@ -2179,6 +2278,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a melee attack task for the given target.</div>
 </dd>
 <dt><a href="com/csse3200/game/utils/math/Vector2Utils.html#MIN" class="member-name-link">MIN</a> - Static variable in class com.csse3200.game.utils.math.<a href="com/csse3200/game/utils/math/Vector2Utils.html" title="class in com.csse3200.game.utils.math">Vector2Utils</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a> - Class in <a href="com/csse3200/game/entities/configs/enemies/package-summary.html">com.csse3200.game.entities.configs.enemies</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html#%3Cinit%3E()" class="member-name-link">MinotaurConfig()</a> - Constructor for class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MinotaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MinotaurConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/input/InputComponent.html#mouseMoved(int,int)" class="member-name-link">mouseMoved(int, int)</a> - Method in class com.csse3200.game.input.<a href="com/csse3200/game/input/InputComponent.html" title="class in com.csse3200.game.input">InputComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -2241,20 +2344,29 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Factory to create obstacle entities.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/OnHitEffectComponent.html#onAttackHit(com.csse3200.game.entities.Entity)" class="member-name-link">onAttackHit(Entity)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/OnHitEffectComponent.html" title="class in com.csse3200.game.components">OnHitEffectComponent</a></dt>
+<dt><a href="com/csse3200/game/components/effects/OnHitEffectComponent.html#onAttackHit(com.csse3200.game.entities.Entity)" class="member-name-link">onAttackHit(Entity)</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/OnHitEffectComponent.html" title="class in com.csse3200.game.components.effects">OnHitEffectComponent</a></dt>
 <dd>
 <div class="block">Event handler for the configured hit event.</div>
 </dd>
 <dt><a href="com/csse3200/game/utils/math/Vector2Utils.html#ONE" class="member-name-link">ONE</a> - Static variable in class com.csse3200.game.utils.math.<a href="com/csse3200/game/utils/math/Vector2Utils.html" title="class in com.csse3200.game.utils.math">Vector2Utils</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/OnHitEffectComponent.html" class="type-name-link" title="class in com.csse3200.game.components">OnHitEffectComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dt><a href="com/csse3200/game/components/npc/EnemyDisposalComponent.html#onEnemyDeath()" class="member-name-link">onEnemyDeath()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/EnemyDisposalComponent.html" title="class in com.csse3200.game.components.npc">EnemyDisposalComponent</a></dt>
+<dd>
+<div class="block">Disposes this entity.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/effects/OnHitEffectComponent.html" class="type-name-link" title="class in com.csse3200.game.components.effects">OnHitEffectComponent</a> - Class in <a href="com/csse3200/game/components/effects/package-summary.html">com.csse3200.game.components.effects</a></dt>
 <dd>
 <div class="block">Rolls a probability check on a configurable hit event and, on success, attaches a
  HealthEffectComponent to the target — applying a bonus health-over-time effect (e.g.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/OnHitEffectComponent.html#%3Cinit%3E(java.util.List,float,int,int)" class="member-name-link">OnHitEffectComponent(List&lt;String&gt;, float, int, int)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/OnHitEffectComponent.html" title="class in com.csse3200.game.components">OnHitEffectComponent</a></dt>
+<dt><a href="com/csse3200/game/components/effects/OnHitEffectComponent.html#%3Cinit%3E(java.util.List,float,int,int)" class="member-name-link">OnHitEffectComponent(List&lt;String&gt;, float, int, int)</a> - Constructor for class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/OnHitEffectComponent.html" title="class in com.csse3200.game.components.effects">OnHitEffectComponent</a></dt>
 <dd>
 <div class="block">Creates an on-hit effect component using a default (non-seeded) random source.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/effects/OnHitEffectComponent.html#%3Cinit%3E(java.util.List,float,int,int,java.util.Random)" class="member-name-link">OnHitEffectComponent(List&lt;String&gt;, float, int, int, Random)</a> - Constructor for class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/OnHitEffectComponent.html" title="class in com.csse3200.game.components.effects">OnHitEffectComponent</a></dt>
+<dd>
+<div class="block">Package-private constructor for injecting a specific Random instance, used by tests to force
+ deterministic roll outcomes.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainComponent.TerrainOrientation.html#ORTHOGONAL" class="member-name-link">ORTHOGONAL</a> - Enum constant in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainComponent.TerrainOrientation.html" title="enum class in com.csse3200.game.areas.terrain">TerrainComponent.TerrainOrientation</a></dt>
 <dd>&nbsp;</dd>
@@ -2483,14 +2595,16 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/attacks/RangedAttackConfig.html#range" class="member-name-link">range</a> - Variable in class com.csse3200.game.entities.configs.attacks.<a href="com/csse3200/game/entities/configs/attacks/RangedAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks">RangedAttackConfig</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/entities/configs/RangedSkeletonConfig.html#ranged" class="member-name-link">ranged</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/RangedSkeletonConfig.html" title="class in com.csse3200.game.entities.configs">RangedSkeletonConfig</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html#ranged" class="member-name-link">ranged</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CentaurConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CentaurConfig</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html" class="type-name-link" title="class in com.csse3200.game.components">RangedAttackComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/RangedSkeletonConfig.html#ranged" class="member-name-link">ranged</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/RangedSkeletonConfig.html" title="class in com.csse3200.game.entities.configs.enemies">RangedSkeletonConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" class="type-name-link" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a> - Class in <a href="com/csse3200/game/components/attacks/package-summary.html">com.csse3200.game.components.attacks</a></dt>
 <dd>
 <div class="block">Deals ranged damage and knockback to a target entity when triggered, provided the target is
  within <code>range</code> and this component is off cooldown.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#%3Cinit%3E(float,float,float)" class="member-name-link">RangedAttackComponent(float, float, float)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">RangedAttackComponent(float, float, float, WeaponItem)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Creates a ranged attack component with configurable range, cooldown, and knockback.</div>
 </dd>
@@ -2508,11 +2622,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/NPCConfigs.html#rangedSkeleton" class="member-name-link">rangedSkeleton</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/NPCConfigs.html" title="class in com.csse3200.game.entities.configs">NPCConfigs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/entities/configs/RangedSkeletonConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs">RangedSkeletonConfig</a> - Class in <a href="com/csse3200/game/entities/configs/package-summary.html">com.csse3200.game.entities.configs</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/RangedSkeletonConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.enemies">RangedSkeletonConfig</a> - Class in <a href="com/csse3200/game/entities/configs/enemies/package-summary.html">com.csse3200.game.entities.configs.enemies</a></dt>
 <dd>
 <div class="block">Configuration for a ranged basic enemy (e.g.</div>
 </dd>
-<dt><a href="com/csse3200/game/entities/configs/RangedSkeletonConfig.html#%3Cinit%3E()" class="member-name-link">RangedSkeletonConfig()</a> - Constructor for class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/RangedSkeletonConfig.html" title="class in com.csse3200.game.entities.configs">RangedSkeletonConfig</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/RangedSkeletonConfig.html#%3Cinit%3E()" class="member-name-link">RangedSkeletonConfig()</a> - Constructor for class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/RangedSkeletonConfig.html" title="class in com.csse3200.game.entities.configs.enemies">RangedSkeletonConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/PhysicsEngine.html#raycast(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,short,com.csse3200.game.physics.raycast.RaycastHit)" class="member-name-link">raycast(Vector2, Vector2, short, RaycastHit)</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsEngine.html" title="class in com.csse3200.game.physics">PhysicsEngine</a></dt>
 <dd>
@@ -2759,7 +2873,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Set physics as a box with a given size.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#setBaseAttack(int)" class="member-name-link">setBaseAttack(int)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#setBaseAttack(int)" class="member-name-link">setBaseAttack(int)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>
 <div class="block">Sets the entity's attack damage.</div>
 </dd>
@@ -2775,11 +2889,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Closes the terminal and clears the stored message.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#setCooldown(float)" class="member-name-link">setCooldown(float)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#setCooldown(float)" class="member-name-link">setCooldown(float)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>
 <div class="block">Updates the cooldown duration.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#setCooldown(float)" class="member-name-link">setCooldown(float)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#setCooldown(float)" class="member-name-link">setCooldown(float)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Updates the cooldown duration.</div>
 </dd>
@@ -2821,7 +2935,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Restrict this movement controller to horizontal movement only, leaving vertical motion (e.g.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/CombatStatsComponent.html#setHealth(int)" class="member-name-link">setHealth(int)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/CombatStatsComponent.html#setHealth(int)" class="member-name-link">setHealth(int)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/CombatStatsComponent.html" title="class in com.csse3200.game.components.attacks">CombatStatsComponent</a></dt>
 <dd>
 <div class="block">Sets the entity's health.</div>
 </dd>
@@ -2831,11 +2945,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Sets or clears an item catalog listing.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#setKnockback(float)" class="member-name-link">setKnockback(float)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#setKnockback(float)" class="member-name-link">setKnockback(float)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>
 <div class="block">Updates the knockback magnitude.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#setKnockback(float)" class="member-name-link">setKnockback(float)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#setKnockback(float)" class="member-name-link">setKnockback(float)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Updates the knockback magnitude.</div>
 </dd>
@@ -2879,11 +2993,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/Item.html#setQuantity(int)" class="member-name-link">setQuantity(int)</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#setRange(float)" class="member-name-link">setRange(float)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#setRange(float)" class="member-name-link">setRange(float)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>
 <div class="block">Updates the melee range.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#setRange(float)" class="member-name-link">setRange(float)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#setRange(float)" class="member-name-link">setRange(float)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Updates the attack range.</div>
 </dd>
@@ -2957,6 +3071,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Sets or clears an Upgrade catalog listing.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponItem.html#setWindupDuration(float)" class="member-name-link">setWindupDuration(float)</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ShopComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">ShopComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
 <dd>
 <div class="block">A player component that owns shop catalogs and buy/sell transactions.</div>
@@ -3006,11 +3122,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/npc/SkeletonAnimationController.html#%3Cinit%3E()" class="member-name-link">SkeletonAnimationController()</a> - Constructor for class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/SkeletonAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonAnimationController</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/entities/configs/SkeletonConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs">SkeletonConfig</a> - Class in <a href="com/csse3200/game/entities/configs/package-summary.html">com.csse3200.game.entities.configs</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/SkeletonConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.enemies">SkeletonConfig</a> - Class in <a href="com/csse3200/game/entities/configs/enemies/package-summary.html">com.csse3200.game.entities.configs.enemies</a></dt>
 <dd>
 <div class="block">Configuration for a skeleton basic enemy.</div>
 </dd>
-<dt><a href="com/csse3200/game/entities/configs/SkeletonConfig.html#%3Cinit%3E()" class="member-name-link">SkeletonConfig()</a> - Constructor for class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/SkeletonConfig.html" title="class in com.csse3200.game.entities.configs">SkeletonConfig</a></dt>
+<dt><a href="com/csse3200/game/entities/configs/enemies/SkeletonConfig.html#%3Cinit%3E()" class="member-name-link">SkeletonConfig()</a> - Constructor for class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/SkeletonConfig.html" title="class in com.csse3200.game.entities.configs.enemies">SkeletonConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ui/UIComponent.html#skin" class="member-name-link">skin</a> - Static variable in class com.csse3200.game.ui.<a href="com/csse3200/game/ui/UIComponent.html" title="class in com.csse3200.game.ui">UIComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -3049,11 +3165,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/entities/configs/ConsumableConfigs.html#speedBuff" class="member-name-link">speedBuff</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/ConsumableConfigs.html" title="class in com.csse3200.game.entities.configs">ConsumableConfigs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/SpeedEffectComponent.html" class="type-name-link" title="class in com.csse3200.game.components">SpeedEffectComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" class="type-name-link" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a> - Class in <a href="com/csse3200/game/components/effects/package-summary.html">com.csse3200.game.components.effects</a></dt>
 <dd>
 <div class="block">Component which temporarily changes a player's movement speed over time, then reverts it.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/SpeedEffectComponent.html#%3Cinit%3E(int,float)" class="member-name-link">SpeedEffectComponent(int, float)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/SpeedEffectComponent.html" title="class in com.csse3200.game.components">SpeedEffectComponent</a></dt>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html#%3Cinit%3E(int,float)" class="member-name-link">SpeedEffectComponent(int, float)</a> - Constructor for class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a></dt>
 <dd>
 <div class="block">Create a component which changes movement speed for a fixed duration.</div>
 </dd>
@@ -3094,6 +3210,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html#startAnimation(java.lang.String)" class="member-name-link">startAnimation(String)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></dt>
 <dd>
 <div class="block">Start playback of an animation.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#startCharge(com.badlogic.gdx.math.Vector2)" class="member-name-link">startCharge(Vector2)</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
+<dd>
+<div class="block">Begins a charge if <a href="com/csse3200/game/components/attacks/ChargeComponent.html#canCharge()"><code>ChargeComponent.canCharge()</code></a> is true; otherwise a no-op.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/tasks/WanderTask.html#startMoving()" class="member-name-link">startMoving()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/WanderTask.html" title="class in com.csse3200.game.components.tasks">WanderTask</a></dt>
 <dd>&nbsp;</dd>
@@ -3251,15 +3371,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/input/InputFactory.InputType.html#TOUCH" class="member-name-link">TOUCH</a> - Enum constant in enum class com.csse3200.game.input.<a href="com/csse3200/game/input/InputFactory.InputType.html" title="enum class in com.csse3200.game.input">InputFactory.InputType</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/TouchAttackComponent.html" class="type-name-link" title="class in com.csse3200.game.components">TouchAttackComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/TouchAttackComponent.html" class="type-name-link" title="class in com.csse3200.game.components.attacks">TouchAttackComponent</a> - Class in <a href="com/csse3200/game/components/attacks/package-summary.html">com.csse3200.game.components.attacks</a></dt>
 <dd>
 <div class="block">When this entity touches a valid enemy's hitbox, deal damage to them and apply a knockback.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/TouchAttackComponent.html#%3Cinit%3E(short)" class="member-name-link">TouchAttackComponent(short)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/TouchAttackComponent.html" title="class in com.csse3200.game.components">TouchAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/TouchAttackComponent.html#%3Cinit%3E(short)" class="member-name-link">TouchAttackComponent(short)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks">TouchAttackComponent</a></dt>
 <dd>
 <div class="block">Create a component which attacks entities on collision, without knockback.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/TouchAttackComponent.html#%3Cinit%3E(short,float)" class="member-name-link">TouchAttackComponent(short, float)</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/TouchAttackComponent.html" title="class in com.csse3200.game.components">TouchAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/TouchAttackComponent.html#%3Cinit%3E(short,float)" class="member-name-link">TouchAttackComponent(short, float)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks">TouchAttackComponent</a></dt>
 <dd>
 <div class="block">Create a component which attacks entities on collision, with knockback.</div>
 </dd>
@@ -3386,23 +3506,34 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Run one frame of the task.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
+<dd>
+<div class="block">Advances the charge/cooldown timers by one tick, restoring normal movement speed when a charge
+ ends.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
+<dd>
+<div class="block">Advances the internal cooldown timer by the time elapsed since the last frame.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
+<dd>
+<div class="block">Advances the internal cooldown timer by the time elapsed since the last frame.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/CameraComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CameraComponent.html" title="class in com.csse3200.game.components">CameraComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/Component.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/Component.html" title="class in com.csse3200.game.components">Component</a></dt>
 <dd>
 <div class="block">Called once per frame of the game, and should be used for most component logic.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/HealthEffectComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/HealthEffectComponent.html" title="class in com.csse3200.game.components">HealthEffectComponent</a></dt>
+<dt><a href="com/csse3200/game/components/effects/HealthEffectComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/HealthEffectComponent.html" title="class in com.csse3200.game.components.effects">HealthEffectComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/OnHitEffectComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/OnHitEffectComponent.html" title="class in com.csse3200.game.components.effects">OnHitEffectComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.maingame.<a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html" title="class in com.csse3200.game.components.maingame">DeathScreenDisplay</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/MeleeAttackComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/MeleeAttackComponent.html" title="class in com.csse3200.game.components">MeleeAttackComponent</a></dt>
-<dd>
-<div class="block">Advances the internal cooldown timer by the time elapsed since the last frame.</div>
-</dd>
 <dt><a href="com/csse3200/game/components/npc/SkeletonAnimationController.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/SkeletonAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonAnimationController</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/OnHitEffectComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/OnHitEffectComponent.html" title="class in com.csse3200.game.components">OnHitEffectComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ArrowMovementComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ArrowMovementComponent.html" title="class in com.csse3200.game.components.player">ArrowMovementComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -3418,14 +3549,13 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/RangedAttackComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" title="class in com.csse3200.game.components">RangedAttackComponent</a></dt>
-<dd>
-<div class="block">Advances the internal cooldown timer by the time elapsed since the last frame.</div>
-</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html" title="class in com.csse3200.game.components.settingsmenu">SettingsMenuDisplay</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/SpeedEffectComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/SpeedEffectComponent.html" title="class in com.csse3200.game.components">SpeedEffectComponent</a></dt>
-<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/tasks/ChargeTask.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/ChargeTask.html" title="class in com.csse3200.game.components.tasks">ChargeTask</a></dt>
+<dd>
+<div class="block">Starts a charge toward the target when off cooldown and not already charging; otherwise a
+ no-op.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/tasks/ChaseTask.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/ChaseTask.html" title="class in com.csse3200.game.components.tasks">ChaseTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/tasks/MeleeAttackTask.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/MeleeAttackTask.html" title="class in com.csse3200.game.components.tasks">MeleeAttackTask</a></dt>
@@ -3657,15 +3787,20 @@ the order they are declared.</div>
 <dt><a href="com/csse3200/game/components/loot/WeaponGenerator.html#%3Cinit%3E()" class="member-name-link">WeaponGenerator()</a> - Constructor for class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponGenerator.html" title="class in com.csse3200.game.components.loot">WeaponGenerator</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponItem.html" class="type-name-link" title="class in com.csse3200.game.components.loot">WeaponItem</a> - Class in <a href="com/csse3200/game/components/loot/package-summary.html">com.csse3200.game.components.loot</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/loot/WeaponItem.html#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,int,int,int)" class="member-name-link">WeaponItem(String, WeaponType, int, int, int)</a> - Constructor for class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
+<dd>
+<div class="block">Represents a weapon item that can be stored in any entity's inventory and usable to supply an
+ attack component's damage.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponItem.html#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,float,int,int,int)" class="member-name-link">WeaponItem(String, WeaponType, float, int, int, int)</a> - Constructor for class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#%3Cinit%3E()" class="member-name-link">WeaponRenderComponent()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponType.html" class="type-name-link" title="enum class in com.csse3200.game.components.loot">WeaponType</a> - Enum Class in <a href="com/csse3200/game/components/loot/package-summary.html">com.csse3200.game.components.loot</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">The set of weapon stypes avaliable in the game.</div>
+</dd>
 <dt><a href="com/csse3200/game/files/UserSettings.DisplaySettings.html#width" class="member-name-link">width</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/UserSettings.DisplaySettings.html" title="class in com.csse3200.game.files">UserSettings.DisplaySettings</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/files/FileLoader.html#writeClass(java.lang.Object,java.lang.String)" class="member-name-link">writeClass(Object, String)</a> - Static method in class com.csse3200.game.files.<a href="com/csse3200/game/files/FileLoader.html" title="class in com.csse3200.game.files">FileLoader</a></dt>

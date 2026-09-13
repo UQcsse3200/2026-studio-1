@@ -107,7 +107,7 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
  themselves.
 
  <p>Does not itself apply damage, knockback, or enforce a cooldown — it just triggers a <code>
- "rangedAttack"</code> event every frame while in range. A <a href="../RangedAttackComponent.html" title="class in com.csse3200.game.components"><code>RangedAttackComponent</code></a> on the same
+ "rangedAttack"</code> event every frame while in range. A <a href="../attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a> on the same
  entity is what actually resolves the attack (including its own cooldown check), so triggering the
  event repeatedly here is safe and intentional.</div>
 </section>
@@ -206,7 +206,7 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
      priority (e.g. <a href="ChaseTask.html" title="class in com.csse3200.game.components.tasks"><code>ChaseTask</code></a>) so the entity stops moving to attack instead of walking
      through its target.</dd>
 <dd><code>range</code> - Distance from the target at which this task becomes active. Should normally match
-     the <a href="../RangedAttackComponent.html" title="class in com.csse3200.game.components"><code>RangedAttackComponent</code></a>'s configured range on the same entity.</dd>
+     the <a href="../attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a>'s configured range on the same entity.</dd>
 </dl>
 </section>
 </li>
