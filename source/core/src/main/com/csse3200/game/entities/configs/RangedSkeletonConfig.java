@@ -1,6 +1,5 @@
-package com.csse3200.game.entities.configs.enemies;
+package com.csse3200.game.entities.configs;
 
-import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.attacks.RangedAttackConfig;
 
 /** Configuration for a ranged basic enemy (e.g. an archer-type skeleton). */

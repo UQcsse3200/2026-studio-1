@@ -88,15 +88,9 @@ public class InventoryComponent extends Component {
    * Adds to the player's gold. The amount added can be negative.
    *
    * @param gold gold to add
-   * @return false if gold is negative and would take away more gold than currently owned, true if
-   *     gold was successfully added or removed.
    */
-  public boolean addGold(int gold) {
-    if (gold < 0 && gold < -this.gold) {
-      return false;
-    }
+  public void addGold(int gold) {
     setGold(this.gold + gold);
-    return true;
   }
 
   /**
