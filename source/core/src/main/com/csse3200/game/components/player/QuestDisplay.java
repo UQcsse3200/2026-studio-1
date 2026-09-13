@@ -8,9 +8,7 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.ui.UIComponent;
 import java.util.ArrayList;
 
-/**
- * UI component for displaying the player's current quests.
- */
+/** UI component for displaying the player's current quests. */
 public class QuestDisplay extends UIComponent {
 
   private Table rootTable;

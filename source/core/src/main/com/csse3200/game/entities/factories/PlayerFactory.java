@@ -12,6 +12,7 @@ import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.QuestDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -26,7 +27,6 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
-import com.csse3200.game.components.player.QuestDisplay;
 
 /**
  * Factory to create a player entity.
