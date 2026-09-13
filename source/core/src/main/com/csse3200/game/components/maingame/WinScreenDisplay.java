@@ -10,13 +10,14 @@ import com.csse3200.game.GdxGame;
 import com.csse3200.game.GdxGame.ScreenType;
 import com.csse3200.game.ui.UIComponent;
 
-public class DeathScreenDisplay extends UIComponent {
+public class WinScreenDisplay extends UIComponent {
   private final GdxGame game;
+
   private Table rootTable;
   private TextButton[] buttons;
   private int selectedIndex = 0;
 
-  public DeathScreenDisplay(GdxGame game) {
+  public WinScreenDisplay(GdxGame game) {
     super();
     this.game = game;
   }
@@ -30,15 +31,17 @@ public class DeathScreenDisplay extends UIComponent {
 
     Table popup = new Table(skin);
 
-    Label title = new Label("YOU DIED", skin, "title");
-    TextButton retryButton = new TextButton("Try Again", skin);
+    Label title = new Label("YOU WIN!", skin, "title");
+    TextButton playAgainButton = new TextButton("Play Again", skin);
     TextButton menuButton = new TextButton("Main Menu", skin);
 
-    buttons = new TextButton[] {retryButton, menuButton};
+    buttons = new TextButton[] {playAgainButton, menuButton};
 
     popup.add(title).padBottom(30f);
+
     popup.row();
-    popup.add(retryButton).width(180f).padBottom(15f);
+    popup.add(playAgainButton).width(180f).padBottom(15f);
+
     popup.row();
     popup.add(menuButton).width(180f);
 
@@ -48,11 +51,11 @@ public class DeathScreenDisplay extends UIComponent {
 
     rootTable.setVisible(false);
 
-    retryButton.addListener(
+    playAgainButton.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            onRetry();
+            onPlayAgain();
           }
         });
 
@@ -68,11 +71,11 @@ public class DeathScreenDisplay extends UIComponent {
     updateHighlight();
   }
 
-  /** Listens for the keyboard-navigation events fired by DeathScreenInputComponent. */
+  /** Listens for the keyboard-navigation events fired by WinScreenInputComponent. */
   private void registerEventListeners() {
-    entity.getEvents().addListener("deathNavigateUp", this::navigateUp);
-    entity.getEvents().addListener("deathNavigateDown", this::navigateDown);
-    entity.getEvents().addListener("deathConfirmSelection", this::confirmSelection);
+    entity.getEvents().addListener("winNavigateUp", this::navigateUp);
+    entity.getEvents().addListener("winNavigateDown", this::navigateDown);
+    entity.getEvents().addListener("winConfirmSelection", this::confirmSelection);
   }
 
   void navigateUp() {
@@ -95,7 +98,7 @@ public class DeathScreenDisplay extends UIComponent {
   /** Enter/Space was pressed - trigger whatever the currently highlighted button does. */
   private void confirmSelection() {
     switch (selectedIndex) {
-      case 0 -> onRetry();
+      case 0 -> onPlayAgain();
       case 1 -> onMainMenu();
       default -> {
         // No action needed for invalid selection index
@@ -103,7 +106,7 @@ public class DeathScreenDisplay extends UIComponent {
     }
   }
 
-  private void onRetry() {
+  private void onPlayAgain() {
     game.setScreen(ScreenType.MAIN_GAME);
   }
 
@@ -111,13 +114,13 @@ public class DeathScreenDisplay extends UIComponent {
     game.setScreen(ScreenType.MAIN_MENU);
   }
 
-  public void showDeathScreen() {
+  public void showWinScreen() {
     rootTable.setVisible(true);
   }
 
   /**
-   * @return whether the death screen popup is currently visible - used by DeathScreenInputComponent
-   *     to gate keyboard input the same way PauseMenuInputComponent gates on
+   * @return whether the win screen popup is currently visible - used by WinScreenInputComponent to
+   *     gate keyboard input the same way PauseMenuInputComponent gates on
    *     PauseMenuComponent.isPaused().
    */
   public boolean isVisible() {

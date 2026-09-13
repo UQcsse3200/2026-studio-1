@@ -1,32 +1,40 @@
 package com.csse3200.game.components.mainmenu;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** A ui component for displaying the Main menu. */
 public class MainMenuDisplay extends UIComponent {
   private static final Logger logger = LoggerFactory.getLogger(MainMenuDisplay.class);
   private static final float Z_INDEX = 2f;
-  private Table table;
-  TextButton[] buttons;
-  int selectedIndex = 0;
 
-  // Whether keyboard nav currently owns button highlighting. True = keyboard nav controls
-  // colors; false = mouse hover controls colors. Only one of the two is ever allowed to set
-  // a button's color at a time.
-  private boolean usingKeyboardNav = true;
+  private static final Color PANEL_COLOR = new Color(0f, 0f, 0f, 0.5f);
+  private static final Color SELECTED_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
+  private static final Color SELECTED_TEXT = Color.CYAN;
+  private static final Color UNSELECTED_TEXT = Color.WHITE;
+  private static final float LEFT_PANEL_WIDTH_FRACTION = 0.30f;
+  private static final float TITLE_WIDTH_FRACTION = 0.45f;
+  private static final float TITLE_SPLIT_FRACTION = 0.55f;
+  private static final float MENU_ITEM_FONT_SCALE = 1.6f;
+  private static final float OPTIONS_WIDTH_FRACTION = 0.75f;
+
+  private static final String[] MENU_ITEMS = {"Start", "Load", "Settings", "Exit"};
+
+  Label[] buttons;
+  int selectedIndex = 0;
 
   @Override
   public void create() {
@@ -36,106 +44,94 @@ public class MainMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
-    table = new Table();
-    table.setFillParent(true);
-    Image title =
-        new Image(
-            ServiceLocator.getResourceService()
-                .getAsset("images/box_boy_title.png", Texture.class));
+    Table titleStack = buildTitleStack();
 
-    TextButton startBtn = new TextButton("Start", skin);
-    TextButton loadBtn = new TextButton("Load", skin);
-    TextButton settingsBtn = new TextButton("Settings", skin);
-    TextButton exitBtn = new TextButton("Exit", skin);
+    Table optionsPanel = new Table();
+    optionsPanel.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    optionsPanel.center();
 
-    buttons = new TextButton[] {startBtn, loadBtn, settingsBtn, exitBtn};
-
-    // Triggers an event when the button is pressed
-    startBtn.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent changeEvent, Actor actor) {
-            logger.debug("Start button clicked");
-            entity.getEvents().trigger("start");
-          }
-        });
-
-    loadBtn.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent changeEvent, Actor actor) {
-            logger.debug("Load button clicked");
-            entity.getEvents().trigger("load");
-          }
-        });
-
-    settingsBtn.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent changeEvent, Actor actor) {
-            logger.debug("Settings button clicked");
-            entity.getEvents().trigger("settings");
-          }
-        });
-
-    exitBtn.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent changeEvent, Actor actor) {
-
-            logger.debug("Exit button clicked");
-            entity.getEvents().trigger("exit");
-          }
-        });
-
-    table.add(title);
-    table.row();
-    table.add(startBtn).padTop(30f);
-    table.row();
-    table.add(loadBtn).padTop(15f);
-    table.row();
-    table.add(settingsBtn).padTop(15f);
-    table.row();
-    table.add(exitBtn).padTop(15f);
-
-    // Moving the mouse at all hands color control over to hover: drop keyboard-nav
-    // ownership and clear every button back to the default color so no stale
-    // keyboard highlight is left behind.
-    table.addListener(
-        new InputListener() {
-          @Override
-          public boolean mouseMoved(InputEvent event, float x, float y) {
-            usingKeyboardNav = false;
-            for (TextButton button : buttons) {
-              button.setColor(Color.WHITE);
-            }
-            return false;
-          }
-        });
-
-    // Hover highlighting per-button - only takes effect once the mouse owns color control.
-    for (TextButton button : buttons) {
-      button.addListener(
-          new InputListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-              if (!usingKeyboardNav) {
-                button.setColor(Color.YELLOW);
-              }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-              button.setColor(Color.WHITE);
-            }
-          });
+    buttons = new Label[MENU_ITEMS.length];
+    for (int i = 0; i < MENU_ITEMS.length; i++) {
+      Label label = createLabel(MENU_ITEMS[i]);
+      buttons[i] = label;
+      Table row = new Table();
+      row.add(label).pad(6f, 15f, 6f, 15f).left();
+      addRowInteraction(row, i);
+      optionsPanel.add(row).left().padBottom(4f).fillX();
+      optionsPanel.row();
     }
+    float screenWidth = Gdx.graphics.getWidth();
+    float screenHeight = Gdx.graphics.getHeight();
+    float panelWidth = screenWidth * LEFT_PANEL_WIDTH_FRACTION;
+    applyUniformRowWidths(optionsPanel, panelWidth * OPTIONS_WIDTH_FRACTION);
+    Table root = new Table();
+    root.setFillParent(true);
+    root.left().top();
 
-    stage.addActor(table);
+    root.add(optionsPanel)
+        .width(screenWidth * LEFT_PANEL_WIDTH_FRACTION)
+        .height(screenHeight)
+        .left()
+        .padLeft(0f);
+
+    root.add(titleStack).width(screenWidth * TITLE_WIDTH_FRACTION).padRight(40f);
+
+    stage.addActor(root);
+
     updateHighlight();
   }
 
-  /** Listens for the keyboard-navigation events fired by MainMenuInputComponent. */
+  private Table buildTitleStack() {
+    Texture titleTexture =
+        ServiceLocator.getResourceService().getAsset("images/box_boy_title.png", Texture.class);
+
+    int splitX = (int) (titleTexture.getWidth() * TITLE_SPLIT_FRACTION);
+    TextureRegion boxRegion =
+        new TextureRegion(titleTexture, 0, 0, splitX, titleTexture.getHeight());
+    TextureRegion boyRegion =
+        new TextureRegion(
+            titleTexture, splitX, 0, titleTexture.getWidth() - splitX, titleTexture.getHeight());
+
+    Table titleStack = new Table();
+    titleStack.add(new Image(boxRegion)).row();
+    titleStack.add(new Image(boyRegion)).padTop(10f);
+    return titleStack;
+  }
+
+  private Label createLabel(String text) {
+    Label label = new Label(text, skin);
+    Label.LabelStyle style = new Label.LabelStyle(label.getStyle());
+    style.fontColor = UNSELECTED_TEXT;
+    label.setStyle(style);
+    label.setFontScale(MENU_ITEM_FONT_SCALE);
+    return label;
+  }
+
+  private void addRowInteraction(Table row, int rowIndex) {
+    row.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            selectedIndex = rowIndex;
+            updateHighlight();
+          }
+
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            selectedIndex = rowIndex;
+            confirmSelection();
+            return true;
+          }
+        });
+  }
+
+  private void applyUniformRowWidths(Table panel, float width) {
+    for (Cell<?> cell : panel.getCells()) {
+      cell.width(width);
+    }
+    panel.invalidateHierarchy();
+  }
+
   private void registerEventListeners() {
     entity.getEvents().addListener("navigateUp", this::navigateUp);
     entity.getEvents().addListener("navigateDown", this::navigateDown);
@@ -143,49 +139,37 @@ public class MainMenuDisplay extends UIComponent {
   }
 
   void navigateUp() {
-    usingKeyboardNav = true;
     selectedIndex = (selectedIndex - 1 + buttons.length) % buttons.length;
     updateHighlight();
   }
 
   void navigateDown() {
-    usingKeyboardNav = true;
     selectedIndex = (selectedIndex + 1) % buttons.length;
     updateHighlight();
   }
 
-  /**
-   * Highlights whichever button is currently selected via keyboard navigation. Only applies color
-   * when keyboard nav owns highlighting, so it can never fight with the hover listeners.
-   */
   void updateHighlight() {
-    if (!usingKeyboardNav) {
-      return;
-    }
     for (int i = 0; i < buttons.length; i++) {
-      buttons[i].setColor(i == selectedIndex ? Color.YELLOW : Color.WHITE);
+      boolean selected = i == selectedIndex;
+      buttons[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
+      Table row = (Table) buttons[i].getParent();
+      row.setBackground(selected ? skin.newDrawable("white", SELECTED_BG) : null);
     }
   }
 
-  /** Enter/Space was pressed - trigger whatever the currently highlighted button does. */
   private void confirmSelection() {
-    usingKeyboardNav = true;
     updateHighlight();
     switch (selectedIndex) {
       case 0 -> entity.getEvents().trigger("start");
       case 1 -> entity.getEvents().trigger("load");
       case 2 -> entity.getEvents().trigger("settings");
       case 3 -> entity.getEvents().trigger("exit");
-      default -> {
-        // No action needed for invalid selection index
-      }
+      default -> {}
     }
   }
 
   @Override
-  public void draw(SpriteBatch batch) {
-    // draw is handled by the stage
-  }
+  public void draw(SpriteBatch batch) {}
 
   @Override
   public float getZIndex() {
@@ -194,7 +178,6 @@ public class MainMenuDisplay extends UIComponent {
 
   @Override
   public void dispose() {
-    table.clear();
     super.dispose();
   }
 }
