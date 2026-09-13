@@ -9,6 +9,7 @@ import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
 import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -144,6 +145,7 @@ public class NPCFactory {
                 config.melee.range, config.melee.cooldown, config.melee.knockback))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 
@@ -195,6 +197,7 @@ public class NPCFactory {
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 
