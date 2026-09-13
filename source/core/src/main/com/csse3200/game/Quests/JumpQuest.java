@@ -14,9 +14,6 @@ public class JumpQuest {
             //To avoid giving out over 100%
             return 100;
         }
-        System.out.println("global jumps "+globalJumps);
-        System.out.println("jumpstodo "+jumpsToDoTotal);
-        System.out.println((globalJumps/jumpsToDoTotal));
         return (int) ((globalJumps/jumpsToDoTotal)*100);
     }
     public void checkGlobalJumps(){
