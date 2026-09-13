@@ -10,6 +10,7 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.MainGameActions;
+import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -87,7 +88,13 @@ public class MainGameScreen extends ScreenAdapter {
     TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
     this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
     levelGameArea.create();
-    upgradesDisplay.setPlayer(levelGameArea.getPlayer());
+    Entity player = levelGameArea.getPlayer();
+    upgradesDisplay.setPlayer(player);
+
+    ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
+    if (shopDisplay != null) {
+      shopDisplay.setUpgradesDisplay(upgradesDisplay);
+    }
 
     fitCameraToMap(levelGameArea);
   }
