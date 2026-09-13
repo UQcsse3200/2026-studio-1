@@ -52,6 +52,7 @@ public class QuestDisplay extends UIComponent {
   public void update(){
     jumpQuestsToDisplay = Quest.getJumpQuests();
     questTable.clear();
+    addActors();
     if(jumpQuestsToDisplay!= null) {
       for (int i = 0; i < jumpQuestsToDisplay.size(); i++) {
         if(jumpQuestsToDisplay.get(i)!=null) {
