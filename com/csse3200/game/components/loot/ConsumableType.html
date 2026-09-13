@@ -100,7 +100,9 @@ loadScripts(document, 'script');</script>
 <div class="block">The different consumable items that can be generated as loot.
 
  <p>Each type carries the texture used to represent it, so inventory and world rendering can look
- the sprite up from the item itself rather than hardcoding paths at every call site.</div>
+ the sprite up from the item itself rather than hardcoding paths at every call site. Every potion
+ has its own sprite; sharing one sprite between two potions made them indistinguishable on the
+ ground.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -127,7 +129,15 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color"><code><a href="#HEALTH_POTION" class="member-name-link">HEALTH_POTION</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Restores health, capped at the player's maximum health.</div>
+<div class="block">Restores health immediately, capped at the player's maximum health.</div>
+</div>
+<div class="col-first even-row-color"><code><a href="#REGENERATION" class="member-name-link">REGENERATION</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Restores health gradually over its duration.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="#RESISTANCE" class="member-name-link">RESISTANCE</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Temporarily reduces the damage the player takes.</div>
 </div>
 <div class="col-first even-row-color"><code><a href="#SPEED_BUFF" class="member-name-link">SPEED_BUFF</a></code></div>
 <div class="col-last even-row-color">
@@ -187,7 +197,7 @@ the order they are declared.</div>
 <section class="detail" id="HEALTH_POTION">
 <h3>HEALTH_POTION</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a></span>&nbsp;<span class="element-name">HEALTH_POTION</span></div>
-<div class="block">Restores health, capped at the player's maximum health.</div>
+<div class="block">Restores health immediately, capped at the player's maximum health.</div>
 </section>
 </li>
 <li>
@@ -202,6 +212,20 @@ the order they are declared.</div>
 <h3>SPEED_BUFF</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a></span>&nbsp;<span class="element-name">SPEED_BUFF</span></div>
 <div class="block">Temporarily multiplies the player's movement speed.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="REGENERATION">
+<h3>REGENERATION</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a></span>&nbsp;<span class="element-name">REGENERATION</span></div>
+<div class="block">Restores health gradually over its duration.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="RESISTANCE">
+<h3>RESISTANCE</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a></span>&nbsp;<span class="element-name">RESISTANCE</span></div>
+<div class="block">Temporarily reduces the damage the player takes.</div>
 </section>
 </li>
 </ul>
