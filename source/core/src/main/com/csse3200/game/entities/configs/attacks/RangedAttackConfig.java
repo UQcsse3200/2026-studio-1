@@ -1,6 +1,12 @@
 package com.csse3200.game.entities.configs.attacks;
 
 /**
+ * Per-weider ranged attack settings, symmetric with MeleeAttackConfig. Reused across
+ * RangedSkeletonConfig and CentaurConfig. Range/knockback stay here, same reasoning as melee - not
+ * weapon properties.
+ */
+
+/**
  * Configuration for a ranged attack capability. Attached to any entity config that includes ranged
  * attacks.
  *
@@ -11,6 +17,6 @@ package com.csse3200.game.entities.configs.attacks;
  */
 public class RangedAttackConfig {
   public float range = 6;
-  public float cooldown = 2.5f;
+  public float cooldown = 4;
   public float knockback = 0;
 }

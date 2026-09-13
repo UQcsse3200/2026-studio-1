@@ -1,4 +1,4 @@
-package com.csse3200.game.components;
+package com.csse3200.game.components.effects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
