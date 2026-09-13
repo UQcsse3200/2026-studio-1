@@ -358,7 +358,30 @@ class JsonMapLoaderTest {
         levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
     assertEquals(1, levelOne.getTransitions().size());
-    assertEquals("maps/room2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+    assertEquals(
+        "images/level2/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+  }
+
+  @Test
+  void loadsTheAuthoredLevelTwoMountainAndItsSummitExit() {
+    LevelMapData levelTwo = loader.load("images/level2/level2.json");
+
+    assertEquals("Level 2 — Climb Mount Olympus", levelTwo.getName());
+    assertEquals(80, levelTwo.getWidth());
+    assertEquals(180, levelTwo.getHeight());
+    assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());
+    assertEquals(TileType.WALL, levelTwo.getTileType(1, 1));
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 155));
+    assertEquals(TileType.HAZARD, levelTwo.getLayer("hazards").get(27, 155).type());
+    assertEquals(6, levelTwo.getSpawns().getEnemies().size());
+    assertEquals(6, levelTwo.getSpawns().getLoot().size());
+    assertEquals("maps/level3.json", levelTwo.getTransitions().getFirst().getDestinationMap());
+    assertEquals(new GridPoint2(67, 166), levelTwo.getTransitions().getFirst().getPosition());
+    assertEquals("images/level2/level2-map.png", levelTwo.getBackgroundTexture());
+
+    LevelMapData levelThree = loader.load("maps/level3.json");
+    assertEquals("Level 3 (Coming Soon)", levelThree.getName());
+    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
   }
 
   @Test

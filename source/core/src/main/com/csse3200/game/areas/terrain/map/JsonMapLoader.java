@@ -47,6 +47,7 @@ public class JsonMapLoader implements MapLoader {
   private static final Logger logger = LoggerFactory.getLogger(JsonMapLoader.class);
   private static final float DEFAULT_TILE_SIZE = 0.5f;
   private static final char EMPTY_CELL = ' ';
+  private static final String LEVEL_TWO_BACKGROUND = "images/level2/level2-map.png";
 
   @Override
   public LevelMapData load(String path) {
@@ -102,6 +103,9 @@ public class JsonMapLoader implements MapLoader {
 
     JsonValue layersJson = root.get("layers");
     if (layersJson == null) {
+      if (root.get("tiles") != null) {
+        return parseAuthoredLevel(root);
+      }
       throw new MapLoadException("Map '" + name + "' has no 'layers' section");
     }
     if (!layersJson.isObject()) {
@@ -139,6 +143,140 @@ public class JsonMapLoader implements MapLoader {
     validateTransitions(transitions, width, height, name);
 
     return new LevelMapData(name, tileSize, width, height, legend, layers, spawns, transitions);
+  }
+
+  /**
+   * Adapts the Level 2 art team's concise blueprint format to the runtime map representation. Its
+   * {@code tiles} rows are still used directly for collision; the provided composed artwork is
+   * rendered as a single background so the intended mountain scene is preserved exactly.
+   */
+  private LevelMapData parseAuthoredLevel(JsonValue root) {
+    String name = root.getString("name", "unnamed");
+    JsonValue tilesJson = root.get("tiles");
+    if (!tilesJson.isArray()) {
+      throw new MapLoadException("Authored map '" + name + "' tiles must be an array of strings");
+    }
+
+    String[] rows = tilesJson.asStringArray();
+    int width = root.getInt("width", widestRow(rows));
+    int height = root.getInt("height", rows.length);
+    if (width <= 0 || height <= 0 || rows.length != height || widestRow(rows) > width) {
+      throw new MapLoadException("Authored map '" + name + "' has inconsistent dimensions");
+    }
+
+    Map<String, TileDefinition> legend = authoredLegend();
+    MapLayerData collision = buildLayer("collision", rows, legend, width, height);
+    MapLayerData hazards = buildStormHazardLayer(rows, width, height);
+    MapSpawns spawns = parseAuthoredSpawns(root.get("entry"), root.get("objects"), hazards, height);
+    List<RoomTransition> transitions = parseAuthoredTransitions(root.get("exit"), height);
+
+    validateSpawns(spawns, width, height, name);
+    validateTransitions(transitions, width, height, name);
+    return new LevelMapData(
+        name,
+        DEFAULT_TILE_SIZE,
+        width,
+        height,
+        legend,
+        List.of(collision, hazards),
+        spawns,
+        transitions,
+        root.getString("backgroundTexture", LEVEL_TWO_BACKGROUND));
+  }
+
+  private static int widestRow(String[] rows) {
+    int width = 0;
+    for (String row : rows) {
+      width = Math.max(width, row.length());
+    }
+    return width;
+  }
+
+  private static Map<String, TileDefinition> authoredLegend() {
+    Map<String, TileDefinition> legend = new HashMap<>();
+    // Soil, marble, granite, and the summit are solid mountain geometry. Shelves and clouds are
+    // one-way surfaces, so the authored three-cell jumps remain reachable from below.
+    for (String symbol : List.of("O", "E", "Q", "R", "g", "S", "I")) {
+      legend.put(symbol, new TileDefinition(TileType.WALL, null));
+    }
+    for (String symbol : List.of("K", "c", "d", "f", "t", "m")) {
+      legend.put(symbol, new TileDefinition(TileType.PLATFORM, null));
+    }
+    legend.put("P", new TileDefinition(TileType.DECORATIVE, null));
+    return legend;
+  }
+
+  private static MapLayerData buildStormHazardLayer(String[] rows, int width, int height) {
+    MapLayerData hazards = new MapLayerData("hazards", width, height);
+    TileDefinition storm = new TileDefinition(TileType.HAZARD, null);
+    for (int row = 0; row < rows.length; row++) {
+      for (int x = 0; x < rows[row].length(); x++) {
+        if (rows[row].charAt(x) == 'm') {
+          hazards.set(x, height - 1 - row, storm);
+        }
+      }
+    }
+    return hazards;
+  }
+
+  private static MapSpawns parseAuthoredSpawns(
+      JsonValue entryJson, JsonValue objectsJson, MapLayerData hazards, int height) {
+    MapSpawns spawns = new MapSpawns();
+    if (entryJson != null) {
+      spawns.setPlayer(
+          new GridPoint2(
+              entryJson.getInt("x", 0), authoredYToWorld(entryJson.getInt("y", 0), height)));
+    }
+    if (objectsJson == null) {
+      return spawns;
+    }
+
+    TileDefinition hazard = new TileDefinition(TileType.HAZARD, null);
+    for (JsonValue object = objectsJson.child; object != null; object = object.next) {
+      String id = object.getString("id", "");
+      int x = object.getInt("x", 0);
+      int y = authoredYToWorld(object.getInt("y", 0), height);
+      switch (id) {
+        case "enemy-skeleton-hoplite" -> spawns.addEnemy(new SpawnPoint("skeleton", x, y));
+        // The current combat roster has no centaur/cyclops classes. These map to the existing
+        // ranged skeleton and boss respectively, retaining working combat at authored locations.
+        case "enemy-centaur" -> spawns.addEnemy(new SpawnPoint("ranged-skeleton", x, y));
+        case "enemy-cyclops" -> spawns.addEnemy(new SpawnPoint("ghostKing", x, y));
+        case "item-bow-artemis",
+            "item-bronze-spear",
+            "item-cloud-flask",
+            "item-aegis-fragment",
+            "item-olive-branch",
+            "item-laurel" ->
+            spawns.addLoot(new SpawnPoint(id, x, y));
+        case "hazard-rockslide", "hazard-falling-column" -> hazards.set(x, y, hazard);
+        default -> {
+          // Decorative authored objects are represented by the composed map artwork.
+        }
+      }
+    }
+    return spawns;
+  }
+
+  private static List<RoomTransition> parseAuthoredTransitions(JsonValue exitJson, int height) {
+    if (exitJson == null) {
+      return List.of();
+    }
+    return List.of(
+        new RoomTransition(
+            "mountain-summit-to-level-3",
+            new GridPoint2(
+                exitJson.getInt("x", 0), authoredYToWorld(exitJson.getInt("y", 0), height)),
+            2,
+            2,
+            null,
+            "maps/level3.json",
+            new GridPoint2(2, 2)));
+  }
+
+  /** The art blueprint uses image coordinates (top-left origin); runtime maps use bottom-left. */
+  private static int authoredYToWorld(int authoredY, int height) {
+    return height - 1 - authoredY;
   }
 
   private Map<String, TileDefinition> parseLegend(JsonValue legendJson, String mapName) {

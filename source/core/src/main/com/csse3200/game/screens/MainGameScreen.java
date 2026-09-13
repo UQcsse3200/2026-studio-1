@@ -230,6 +230,7 @@ public class MainGameScreen extends ScreenAdapter {
     nextArea.resumeMusic();
     levelGameArea = nextArea;
     playerInNether = null;
+    player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
     if (FIRST_ROOM_MAP.equals(transition.getDestinationMap())) {
       createSubLevelTravelPrompt(player);
     }

@@ -33,6 +33,7 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.MapBackgroundRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -160,6 +161,7 @@ public class LevelGameArea extends GameArea {
     loadAssets();
 
     displayUI();
+    spawnBackdrop();
     spawnTerrain();
     spawnCollisions();
     player = existingPlayer == null ? spawnPlayer() : adoptPlayer(existingPlayer);
@@ -248,6 +250,18 @@ public class LevelGameArea extends GameArea {
     spawnEntity(new Entity().addComponent(terrain));
   }
 
+  /** Adds a supplied full-map image behind the collision-driven terrain, when the map has one. */
+  private void spawnBackdrop() {
+    String backgroundTexture = mapData.getBackgroundTexture();
+    if (backgroundTexture == null) {
+      return;
+    }
+    Entity backdrop =
+        new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
+    backdrop.setScale(getMapWorldWidth(), getMapWorldHeight());
+    spawnEntity(backdrop);
+  }
+
   /** Spawns collision bodies from the map's collision layer. */
   private void spawnCollisions() {
     MapLayerData collisionLayer = mapData.getCollisionLayer();
@@ -268,6 +282,10 @@ public class LevelGameArea extends GameArea {
 
     // Hazards remain individual.
     spawnHazardCollisions(collisionLayer, tileSize);
+    MapLayerData hazardLayer = mapData.getLayer("hazards");
+    if (hazardLayer != null && hazardLayer != collisionLayer) {
+      spawnHazardCollisions(hazardLayer, tileSize);
+    }
   }
 
   private void spawnPlatformCollisions(MapLayerData collisionLayer, float tileSize) {
@@ -554,6 +572,13 @@ public class LevelGameArea extends GameArea {
    * they land on the loaded map regardless of its size.
    */
   private void spawnLoot() {
+    if (!mapData.getSpawns().getLoot().isEmpty()) {
+      for (SpawnPoint spawn : mapData.getSpawns().getLoot()) {
+        spawnEntityAt(createMapLoot(spawn.getType()), spawn.getPosition(), true, true);
+      }
+      return;
+    }
+
     List<Entity> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
@@ -574,6 +599,23 @@ public class LevelGameArea extends GameArea {
       spawnEntityAt(item, new GridPoint2(Math.min(x, maxX), start.y), true, true);
       x++;
     }
+  }
+
+  /** Creates the closest working equivalent for an authored loot placement. */
+  private Entity createMapLoot(String type) {
+    WeaponGenerator weapons = new WeaponGenerator();
+    ConsumableGenerator consumables = new ConsumableGenerator();
+    if ("item-bow-artemis".equals(type)) {
+      return LootFactory.createLoot(weapons.generateWeapon(WeaponType.BOW, 1));
+    }
+    if ("item-bronze-spear".equals(type)) {
+      return LootFactory.createLoot(weapons.generateWeapon(WeaponType.SWORD, 1));
+    }
+    if ("item-olive-branch".equals(type)) {
+      return LootFactory.createLoot(
+          consumables.generateConsumable(ConsumableType.HEALTH_POTION, 2));
+    }
+    return LootFactory.createLoot(consumables.generateConsumable(ConsumableType.SPEED_BUFF, 1));
   }
 
   /**

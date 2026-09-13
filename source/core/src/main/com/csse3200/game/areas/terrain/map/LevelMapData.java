@@ -31,6 +31,7 @@ public class LevelMapData {
   private final List<MapLayerData> layers;
   private final MapSpawns spawns;
   private final List<RoomTransition> transitions;
+  private final String backgroundTexture;
 
   public LevelMapData(
       String name,
@@ -52,6 +53,25 @@ public class LevelMapData {
       List<MapLayerData> layers,
       MapSpawns spawns,
       List<RoomTransition> transitions) {
+    this(name, tileSize, width, height, legend, layers, spawns, transitions, null);
+  }
+
+  /**
+   * Creates map data with an optional full-map background image.
+   *
+   * <p>This is used by authored maps whose supplied artwork is a single composed image while their
+   * tile data remains the authoritative source for collisions.
+   */
+  public LevelMapData(
+      String name,
+      float tileSize,
+      int width,
+      int height,
+      Map<String, TileDefinition> legend,
+      List<MapLayerData> layers,
+      MapSpawns spawns,
+      List<RoomTransition> transitions,
+      String backgroundTexture) {
     this.name = name;
     this.tileSize = tileSize;
     this.width = width;
@@ -60,6 +80,7 @@ public class LevelMapData {
     this.layers = layers;
     this.spawns = spawns;
     this.transitions = transitions;
+    this.backgroundTexture = backgroundTexture;
   }
 
   public String getName() {
@@ -148,6 +169,13 @@ public class LevelMapData {
   }
 
   /**
+   * @return an optional composed background image which spans this entire map
+   */
+  public String getBackgroundTexture() {
+    return backgroundTexture;
+  }
+
+  /**
    * All distinct, non-null texture paths referenced by the legend. Used by a game area to know
    * which textures to load before building the terrain.
    *
@@ -164,6 +192,9 @@ public class LevelMapData {
       if (transition.getTexture() != null) {
         paths.add(transition.getTexture());
       }
+    }
+    if (backgroundTexture != null) {
+      paths.add(backgroundTexture);
     }
     return paths;
   }

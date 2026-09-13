@@ -552,7 +552,7 @@
       "width": 1,
       "height": 1,
       "texture": "images/lvl1-tiles/gate-exit-512px.png",
-      "destinationMap": "maps/room2.json",
+      "destinationMap": "images/level2/level2.json",
       "destinationSpawn": {
         "x": 2,
         "y": 2
