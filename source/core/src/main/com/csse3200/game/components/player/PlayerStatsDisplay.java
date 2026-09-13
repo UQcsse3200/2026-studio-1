@@ -74,10 +74,12 @@ public class PlayerStatsDisplay extends UIComponent {
 
     // Half heart textures
     greenHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/ui/heart-green-half.png", Texture.class);
+        ServiceLocator.getResourceService()
+            .getAsset("images/ui/heart-green-half.png", Texture.class);
 
     yellowHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/ui/heart-yellow-half.png", Texture.class);
+        ServiceLocator.getResourceService()
+            .getAsset("images/ui/heart-yellow-half.png", Texture.class);
 
     redHalfHeartTexture =
         ServiceLocator.getResourceService().getAsset("images/ui/heart-red-half.png", Texture.class);

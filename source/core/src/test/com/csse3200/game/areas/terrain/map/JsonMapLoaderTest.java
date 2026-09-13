@@ -342,8 +342,7 @@ class JsonMapLoaderTest {
         levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
     assertEquals(1, levelOne.getTransitions().size());
-    assertEquals(
-        "maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+    assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
   }
 
   @Test

@@ -69,7 +69,8 @@ class PlayerStatsDisplayTest {
     when(resourceService.getAsset("images/ui/heart-yellow-half.png", Texture.class))
         .thenReturn(yellowHalf);
 
-    when(resourceService.getAsset("images/ui/heart-red-half.png", Texture.class)).thenReturn(redHalf);
+    when(resourceService.getAsset("images/ui/heart-red-half.png", Texture.class))
+        .thenReturn(redHalf);
 
     when(resourceService.getAsset("sounds/player-hit.ogg", Sound.class)).thenReturn(hitSound);
 
