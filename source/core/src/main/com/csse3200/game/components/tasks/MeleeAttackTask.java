@@ -2,8 +2,8 @@ package com.csse3200.game.components.tasks;
 
 import com.csse3200.game.ai.tasks.DefaultTask;
 import com.csse3200.game.ai.tasks.PriorityTask;
-import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.MeleeAttackComponent;
+import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.entities.Entity;
 
 /**
@@ -55,7 +55,7 @@ public class MeleeAttackTask extends DefaultTask implements PriorityTask {
 
   /**
    * Called once when this task becomes the active task on the owning entity's AITaskComponent.
-   * Resolves this entity's MeleeAttackComponent for use in update(). Does not itself attempt an
+   * Resolves this entity's MeleeAttackComponent for use in update(). Doses not itself attempt an
    * attack — that only happens in update().
    */
   @Override
