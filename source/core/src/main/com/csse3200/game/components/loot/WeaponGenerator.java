@@ -1,9 +1,6 @@
 package com.csse3200.game.components.loot;
 
 // Generates weapon items with properties based on weapon type and loot tier.
-
-import static com.csse3200.game.components.loot.WeaponType.*;
-
 public class WeaponGenerator {
 
   public WeaponItem generateWeapon(WeaponType weaponType, int tier)
@@ -22,7 +19,12 @@ public class WeaponGenerator {
           case DAGGER -> "Basic Dagger";
           default -> throw new IllegalArgumentException("Unsupported weapon type.");
         };
-
-    return new WeaponItem(name, weaponType, tier, 1, 1);
+    float windUpDuration =
+        switch (weaponType) {
+          case SWORD -> 2;
+          case BOW -> 3;
+          case DAGGER -> 1;
+        };
+    return new WeaponItem(name, weaponType, windUpDuration, tier, 1, 1);
   }
 }

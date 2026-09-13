@@ -41,7 +41,7 @@ class ItemDropComponentTest {
     player.create();
 
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
-    WeaponItem sword = new WeaponItem("Sword", WeaponType.SWORD, 10, 1, 1);
+    WeaponItem sword = new WeaponItem("Sword", WeaponType.SWORD, 2, 10, 1, 1);
     Item potion = new Item("Potion", ItemType.CONSUMABLE, 3, 9);
     inventory.addItem(sword);
     inventory.addItem(potion);
