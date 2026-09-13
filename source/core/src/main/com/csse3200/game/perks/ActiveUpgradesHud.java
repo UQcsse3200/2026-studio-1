@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Small always-on HUD, in the top-right corner, listing every currently-active upgrade (name, tier,
- * remaining time/kills). Unlike UpgradesDisplay's own root table, this is NOT gated by
+ * Small always-on HUD, in the bottom-right corner, listing every currently-active upgrade (name,
+ * tier, remaining time/kills). Unlike UpgradesDisplay's own root table, this is NOT gated by
  * UpgradesMenuComponent.isOpen() - it stays visible during normal gameplay so the player can see
  * what's currently buffed without opening the Upgrades screen.
  *
@@ -33,7 +33,7 @@ public class ActiveUpgradesHud extends UIComponent {
 
     root = new Table();
     root.setFillParent(true);
-    root.top().right().pad(10f); // top-right - clear of PerformanceDisplay, which sits top-left
+    root.bottom().right().pad(10f); // bottom-right - clear of everything else, which is top-anchored
     stage.addActor(root);
   }
 
