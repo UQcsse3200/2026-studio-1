@@ -9,14 +9,22 @@ import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
+import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
+import com.csse3200.game.components.maingame.WinScreenDisplay;
+import com.csse3200.game.components.maingame.WinScreenInputComponent;
+import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.files.LoadService;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.pausemenu.*;
+import com.csse3200.game.perks.ActiveUpgradesHud;
+import com.csse3200.game.perks.UpgradesDisplay;
+import com.csse3200.game.perks.UpgradesMenuComponent;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -26,6 +34,8 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
+import com.csse3200.game.ui.terminal.commands.WinCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,17 +55,19 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-green.png",
     "images/heart-yellow.png"
   };
-  private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
+  private static final Vector2 CAMERA_POSITION = new Vector2(10f, 5f);
 
   private final GdxGame game;
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
   private DeathScreenDisplay deathScreenDisplay;
+  private WinScreenDisplay winScreenDisplay;
+  private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
   private PauseMenuComponent pauseMenu;
 
-  public MainGameScreen(GdxGame game) {
+  public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
 
     logger.debug("Initialising main game screen services");
@@ -82,8 +94,23 @@ public class MainGameScreen extends ScreenAdapter {
     TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
     this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
     levelGameArea.create();
+    Entity player = levelGameArea.getPlayer();
+    upgradesDisplay.setPlayer(player);
 
-    fitCameraToMap(levelGameArea);
+    ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
+    if (shopDisplay != null) {
+      if (loadsave) {
+        LoadService.load(
+            levelGameArea.getPlayer(),
+            levelGameArea.getMapWorldWidth(),
+            levelGameArea.getMapWorldHeight());
+      }
+      fitCameraToMap(levelGameArea);
+    }
+  }
+
+  public Entity getPlayerEntity() {
+    return levelGameArea != null ? levelGameArea.getPlayer() : null;
   }
 
   /**
@@ -186,20 +213,33 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity ui = new Entity();
     deathScreenDisplay = new DeathScreenDisplay(this.game);
+    winScreenDisplay = new WinScreenDisplay(this.game);
+
+    Terminal terminal = new Terminal();
+    terminal.addCommand("win", new WinCommand(winScreenDisplay));
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
+    UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
+    upgradesDisplay = new UpgradesDisplay();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
-        .addComponent(new Terminal())
+        .addComponent(terminal)
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
+        .addComponent(new PauseMenuActions()) // change on addition of save-load addition required
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
+        .addComponent(new DeathScreenInputComponent())
+        .addComponent(winScreenDisplay)
+        .addComponent(new WinScreenInputComponent())
         .addComponent(new MainGameActions(this.game))
-        .addComponent(new PauseMenuActions());
+        .addComponent(upgradesMenuComponent)
+        .addComponent(upgradesDisplay)
+        .addComponent(new ActiveUpgradesHud());
     this.pauseMenu = pauseMenuComponent;
+    terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
 
     ServiceLocator.getEntityService().register(ui);
   }

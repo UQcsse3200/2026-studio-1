@@ -13,13 +13,16 @@ public class ConsumableConfig {
   /** Display name of the generated item. */
   public String name = "Consumable";
 
-  /** Health restored by a health potion at tier 1. Unused by buff potions. */
+  /**
+   * Health restored at tier 1: the whole amount for a health potion, or the amount per tick for a
+   * regeneration potion. Unused by buff potions.
+   */
   public int healAmount = 0;
 
   /** Stat multiplier applied by a buff potion at tier 1, where 1.0 is no change. */
   public float magnitude = 1f;
 
-  /** How long a buff potion lasts, in seconds. Unused by health potions. */
+  /** How long a buff or regeneration potion lasts, in seconds. Unused by health potions. */
   public float durationSeconds = 0f;
 
   /** Maximum stack size of the generated item. */
