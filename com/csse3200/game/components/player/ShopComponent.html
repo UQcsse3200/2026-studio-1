@@ -99,10 +99,10 @@ loadScripts(document, 'script');</script>
  the same entity.
 
  <p>Item purchases deduct gold only when the copied product fits in full. A successful item buy
- consumes that item listing (one-use offer) and triggers <code>shopChanged</code>. Selling uses the
- player inventory; a matching BUY listing is only used for price and is not consumed. Upgrade and
- pet purchases trigger <code>upgradePurchased</code> and <code>petPurchased</code> and leave those listings
- in place.</div>
+ stamps <code>sellPrice</code> as 60% of the listing buy price onto the copied item, consumes that item
+ listing (one-use offer), and triggers <code>shopChanged</code>. Selling uses the player inventory and
+ refunds <a href="../loot/Item.html#getSellPrice()"><code>Item.getSellPrice()</code></a>. Upgrade and pet purchases trigger <code>upgradePurchased</code>
+ and <code>petPurchased</code> and leave those listings in place.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -478,8 +478,8 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getSellPrice</span><wbr><span class="parameters">(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</span></div>
 <div class="block">Returns the gold refund for selling <code>item</code>.
 
- <p>If a BUY listing still matches by name and <a href="../loot/ItemType.html" title="enum class in com.csse3200.game.components.loot"><code>ItemType</code></a>, that listing's sell price is
- used. Otherwise a default based on quantity is used. A live listing is not required.</div>
+ <p>Uses <a href="../loot/Item.html#getSellPrice()"><code>Item.getSellPrice()</code></a> stored on the inventory item. Bought items are stamped at
+ purchase; looted items keep the value set by loot generation.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>item</code> - inventory item to price; <code>null</code> returns <code>0</code></dd>

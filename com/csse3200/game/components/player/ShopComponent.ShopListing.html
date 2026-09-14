@@ -112,9 +112,8 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(T,int,int)" class="member-name-link">ShopListing</a><wbr>(<a href="ShopComponent.ShopListing.html" title="type parameter in ShopComponent.ShopListing">T</a>&nbsp;product,
- int&nbsp;buyPrice,
- int&nbsp;sellPrice)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(T,int)" class="member-name-link">ShopListing</a><wbr>(<a href="ShopComponent.ShopListing.html" title="type parameter in ShopComponent.ShopListing">T</a>&nbsp;product,
+ int&nbsp;buyPrice)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Creates a listing.</div>
 </div>
@@ -142,11 +141,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the catalog product.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSellPrice()" class="member-name-link">getSellPrice</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the sell price in gold.</div>
-</div>
 </div>
 </div>
 </div>
@@ -165,19 +159,17 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(T,int,int)">
-<h3 id="&lt;init&gt;(java.lang.Object,int,int)">ShopListing</h3>
+<section class="detail" id="&lt;init&gt;(T,int)">
+<h3 id="&lt;init&gt;(java.lang.Object,int)">ShopListing</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ShopListing</span><wbr><span class="parameters">(<a href="ShopComponent.ShopListing.html" title="type parameter in ShopComponent.ShopListing">T</a>&nbsp;product,
- int&nbsp;buyPrice,
- int&nbsp;sellPrice)</span></div>
+ int&nbsp;buyPrice)</span></div>
 <div class="block">Creates a listing.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>product</code> - catalog product; must be non-null</dd>
 <dd><code>buyPrice</code> - gold cost to buy; must be <code>&gt;= 0</code></dd>
-<dd><code>sellPrice</code> - gold refund on sell; must be <code>&gt;= 0</code></dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>product</code> is null or a price is negative</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>product</code> is null or <code>buyPrice</code> is negative</dd>
 </dl>
 </section>
 </li>
@@ -208,17 +200,6 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>buy price</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getSellPrice()">
-<h3>getSellPrice</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getSellPrice</span>()</div>
-<div class="block">Returns the sell price in gold. Unused for Upgrade and pet listings.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>sell price</dd>
 </dl>
 </section>
 </li>
