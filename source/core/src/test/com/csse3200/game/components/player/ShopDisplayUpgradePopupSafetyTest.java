@@ -17,7 +17,6 @@ import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.BeforeEach;

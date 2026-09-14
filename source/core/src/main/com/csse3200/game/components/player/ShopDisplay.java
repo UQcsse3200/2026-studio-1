@@ -20,7 +20,6 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.ui.UIComponent;
 import com.csse3200.game.upgrades.UpgradeNode;
 import com.csse3200.game.upgrades.UpgradesDisplay;
-
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;

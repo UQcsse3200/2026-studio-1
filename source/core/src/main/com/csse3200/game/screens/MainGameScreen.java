@@ -31,7 +31,6 @@ import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
