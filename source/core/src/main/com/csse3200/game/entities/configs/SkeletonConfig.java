@@ -1,6 +1,5 @@
-package com.csse3200.game.entities.configs.enemies;
+package com.csse3200.game.entities.configs;
 
-import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
 
 /** Configuration for a skeleton basic enemy. */

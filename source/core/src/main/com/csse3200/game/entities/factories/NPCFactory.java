@@ -4,15 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
-import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.MeleeAttackComponent;
+import com.csse3200.game.components.RangedAttackComponent;
+import com.csse3200.game.components.TouchAttackComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
-import com.csse3200.game.components.player.InventoryComponent;
-import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.tasks.ChaseTask;
 import com.csse3200.game.components.tasks.MeleeAttackTask;
 import com.csse3200.game.components.tasks.PlatformWanderTask;
@@ -22,7 +19,8 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.GhostKingConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
-import com.csse3200.game.entities.configs.enemies.*;
+import com.csse3200.game.entities.configs.RangedSkeletonConfig;
+import com.csse3200.game.entities.configs.SkeletonConfig;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
@@ -32,8 +30,6 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Factory to create non-playable character (NPC) entities with predefined components.
@@ -113,19 +109,6 @@ public class NPCFactory {
     Entity skeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     SkeletonConfig config = configs.skeleton;
 
-    // Create loot on drop
-    int numGold = 3;
-    InventoryComponent inventory = new InventoryComponent(numGold);
-    List<Item> items = new ArrayList<>();
-
-    WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
-    for (Item item : items) {
-      inventory.addItem(item);
-    }
-
-    // Configure animation component
-
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
@@ -135,14 +118,11 @@ public class NPCFactory {
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
-    // Add necessary components to the entity
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range, config.melee.cooldown, config.melee.knockback))
-        .addComponent(inventory)
-        .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 
@@ -165,18 +145,6 @@ public class NPCFactory {
     Entity rangedSkeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     RangedSkeletonConfig config = configs.rangedSkeleton;
 
-    // Create loot on drop
-    int numGold = 3;
-    InventoryComponent inventory = new InventoryComponent(numGold);
-    List<Item> items = new ArrayList<>();
-
-    WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
-    for (Item item : items) {
-      inventory.addItem(item);
-    }
-
-    // Configure animation component
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
@@ -186,14 +154,11 @@ public class NPCFactory {
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
-    // Add necessary components to the entity
     rangedSkeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
-        .addComponent(inventory)
-        .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 
@@ -208,50 +173,6 @@ public class NPCFactory {
     rangedSkeleton.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(rangedSkeleton, collisionScale.x, collisionScale.y);
     return rangedSkeleton;
-  }
-
-  /**
-   * Creates a Minotaur Entity: a melee attacker whose charge boosts the damage of its next hit.
-   *
-   * @param target entity to chase
-   * @return entity created with Minotaur properties
-   */
-  public static Entity createMinotaur(Entity target) {
-    float scale = 2f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
-    Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
-    MinotaurConfig config = configs.minotaur;
-    return minotaur;
-  }
-
-  /**
-   * Creates a Centaur Entity: a ranged attacker whose charge boos the damage of its next shot.
-   *
-   * @param target entity to chase
-   * @return entity created with Centaur properties
-   */
-  public static Entity createCentaur(Entity target) {
-    float scale = 2f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
-    Entity centaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
-    CentaurConfig config = configs.centaur;
-    return centaur;
-  }
-
-  /**
-   * Creates a Cyclops Entity: a mini-boss with no unique components.
-   * Has both melee and ranged attacks.
-   *
-   * @param target the entity to chase
-   * @return entity created with Cyclops properties as a mini-boss
-   */
-  public static Entity createCyclops(Entity target) {
-    float scale = 3f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
-    Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
-    CyclopsConfig config = configs.cyclops;
-    return cyclops;
-
   }
 
   /**
@@ -302,7 +223,6 @@ public class NPCFactory {
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
-    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
     return npc;
   }
 

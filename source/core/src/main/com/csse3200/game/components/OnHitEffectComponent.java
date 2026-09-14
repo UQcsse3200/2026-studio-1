@@ -1,7 +1,5 @@
-package com.csse3200.game.components.effects;
+package com.csse3200.game.components;
 
-import com.csse3200.game.components.Component;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -59,7 +57,7 @@ public class OnHitEffectComponent extends Component {
    *
    * @param random the random source to use for the trigger roll.
    */
-  public OnHitEffectComponent(
+  OnHitEffectComponent(
       List<String> hitEventNames,
       float triggerChance,
       int effectDuration,

@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
