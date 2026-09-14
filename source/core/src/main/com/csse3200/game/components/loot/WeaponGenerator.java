@@ -15,13 +15,23 @@ public class WeaponGenerator {
 
     switch (weaponType) {
       case SWORD:
-        return new WeaponItem("Basic Sword", WeaponType.SWORD, WeaponTier.values()[tier - 1], 1, 1);
+        WeaponItem sword =
+            new WeaponItem(
+                "Basic Sword", WeaponType.SWORD, WeaponTier.values()[tier - 1], 1, 1);
+        sword.setSellPrice(10 * tier);
+        return sword;
 
       case BOW:
-        return new WeaponItem("Basic Bow", WeaponType.BOW, WeaponTier.values()[tier - 1], 1, 1);
+        WeaponItem bow =
+            new WeaponItem(
+                "Basic Bow", WeaponType.BOW, WeaponTier.values()[tier - 1], 1, 1);
+        bow.setSellPrice(8 * tier);
+        return bow;
 
       case DAGGER:
-        return new WeaponItem("Basic Dagger", WeaponType.DAGGER, 8 * tier, 1, 20);
+        WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, 8 * tier, 1, 20);
+        dagger.setSellPrice(6 * tier);
+        return dagger;
 
       default:
         throw new IllegalArgumentException("Unsupported weapon type.");

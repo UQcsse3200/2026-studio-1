@@ -15,6 +15,8 @@ import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.ShopComponent;
+import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -51,12 +53,13 @@ public class PlayerFactory {
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
-
+    WeaponItem startingBow = weaponGenerator.generateWeapon(WeaponType.BOW, 1);
     WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
     startingDagger.setQuantity(20);
 
     InventoryComponent inventory = new InventoryComponent(stats.gold);
     inventory.addItem(startingWeapon);
+    inventory.addItem(startingBow);
     inventory.addItem(startingDagger);
 
     Entity player =
@@ -84,7 +87,9 @@ public class PlayerFactory {
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent());
+            .addComponent(new WeaponRenderComponent())
+            .addComponent(new ShopComponent().seedDefaultCatalog())
+            .addComponent(new ShopDisplay());
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);
