@@ -93,10 +93,10 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Works out what loot goes where before anything is spawned.
 
- <p>Maps declare their own loot spawn points, which are already on reachable ground, so placement
- is a matter of rolling the loot table once per declared point rather than searching the terrain
- for a legal position. Keeping the decision separate from the spawning also means the layout can
- be tested without standing up a game area.</div>
+ <p>Loot goes on a list of spawn points: the ones a map declares when it has any, or spots picked
+ at random from the open ground by <a href="#pickRandomSpots(java.util.List,int,java.util.Random)"><code>pickRandomSpots(java.util.List&lt;com.csse3200.game.areas.terrain.map.SpawnPoint&gt;, int, java.util.Random)</code></a> when it does not. Each spot then gets
+ one item rolled from the loot table. Keeping the decision separate from the spawning also means
+ the layout can be tested without standing up a game area.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -134,6 +134,13 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Rolls one item for each loot spawn point the map declares.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="../../areas/terrain/map/SpawnPoint.html" title="class in com.csse3200.game.areas.terrain.map">SpawnPoint</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pickRandomSpots(java.util.List,int,java.util.Random)" class="member-name-link">pickRandomSpots</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../areas/terrain/map/SpawnPoint.html" title="class in com.csse3200.game.areas.terrain.map">SpawnPoint</a>&gt;&nbsp;candidates,
+ int&nbsp;count,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Random.html" title="class or interface in java.util" class="external-link">Random</a>&nbsp;random)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Picks distinct spots at random from a list of candidates.</div>
+</div>
 </div>
 </div>
 </div>
@@ -165,6 +172,30 @@ loadScripts(document, 'script');</script>
 <dd>the planned loot, in spawn point order; empty when the map declares none</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if either argument is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="pickRandomSpots(java.util.List,int,java.util.Random)">
+<h3>pickRandomSpots</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../areas/terrain/map/SpawnPoint.html" title="class in com.csse3200.game.areas.terrain.map">SpawnPoint</a>&gt;</span>&nbsp;<span class="element-name">pickRandomSpots</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../areas/terrain/map/SpawnPoint.html" title="class in com.csse3200.game.areas.terrain.map">SpawnPoint</a>&gt;&nbsp;candidates,
+ int&nbsp;count,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Random.html" title="class or interface in java.util" class="external-link">Random</a>&nbsp;random)</span></div>
+<div class="block">Picks distinct spots at random from a list of candidates.
+
+ <p>A copy of the candidates is shuffled and the first <code>count</code> are taken, so no two pieces
+ of loot share a tile and the caller's list is left in its original order. With the same seed
+ the same spots come out every time.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>candidates</code> - tiles loot could go on</dd>
+<dd><code>count</code> - how many spots to pick; must be <code>&gt;= 0</code></dd>
+<dd><code>random</code> - random source to pick with</dd>
+<dt>Returns:</dt>
+<dd>up to <code>count</code> distinct spots, or every candidate when there are fewer</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>candidates</code> or <code>random</code> is null, or <code>
+     count</code> is negative</dd>
 </dl>
 </section>
 </li>
