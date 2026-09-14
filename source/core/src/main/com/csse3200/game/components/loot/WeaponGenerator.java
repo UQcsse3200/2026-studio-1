@@ -35,5 +35,27 @@ public class WeaponGenerator {
           case DAGGER -> 20;
         };
     return new WeaponItem(name, weaponType, windUpDuration, tier, 1, maxQuantity);
+
+    switch (weaponType) {
+      case SWORD:
+        WeaponItem sword =
+            new WeaponItem("Basic Sword", WeaponType.SWORD, WeaponTier.values()[tier - 1], 1, 1);
+        sword.setSellPrice(10 * tier);
+        return sword;
+
+      case BOW:
+        WeaponItem bow =
+            new WeaponItem("Basic Bow", WeaponType.BOW, WeaponTier.values()[tier - 1], 1, 1);
+        bow.setSellPrice(8 * tier);
+        return bow;
+
+      case DAGGER:
+        WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, 8 * tier, 1, 20);
+        dagger.setSellPrice(6 * tier);
+        return dagger;
+
+      default:
+        throw new IllegalArgumentException("Unsupported weapon type.");
+    }
   }
 }
