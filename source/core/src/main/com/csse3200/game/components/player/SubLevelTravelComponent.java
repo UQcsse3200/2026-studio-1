@@ -8,9 +8,12 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 public class SubLevelTravelComponent extends Component {
   // Central lift endpoints in level1-greek.json.
   private static final Vector2 DUNGEON_DOOR = new Vector2(13.25f, 11.9f);
-  // Arrive inside the hollow checkpoint cell, with feet just above the solid landing below.
+  // The lift shaft remains the return interaction point.
   private static final Vector2 NETHER_DOOR = new Vector2(13.25f, 17.4f);
   private static final float TILE_SIZE = 0.5f;
+  // The platform one tile right of the shaft supports the player after the ascent.
+  private static final Vector2 NETHER_LANDING = new Vector2(13.75f, 17.4f);
+  private static final float ASCENT_FRACTION = 0.8f;
   private static final float TRAVEL_DURATION = 1.4f;
 
   private PhysicsComponent physics;
@@ -30,7 +33,7 @@ public class SubLevelTravelComponent extends Component {
       return true;
     }
     if (canTravelToNether()) {
-      startTravel(NETHER_DOOR);
+      startTravel(NETHER_LANDING);
       return true;
     }
     if (canTravelToDungeon()) {
@@ -64,7 +67,10 @@ public class SubLevelTravelComponent extends Component {
     }
     elapsed += com.badlogic.gdx.Gdx.graphics.getDeltaTime();
     float progress = Math.min(1f, elapsed / TRAVEL_DURATION);
-    Vector2 position = start.cpy().lerp(destination, progress);
+    Vector2 position =
+        destination == NETHER_LANDING
+            ? netherAscentPosition(start, progress)
+            : dungeonDescentPosition(start, progress);
     entity.setPosition(
         position.x - entity.getScale().x / 2f, position.y - entity.getScale().y / 2f);
     physics.getBody().setLinearVelocity(0f, 0f);
@@ -73,8 +79,28 @@ public class SubLevelTravelComponent extends Component {
       travelling = false;
       entity
           .getEvents()
-          .trigger("subLevelEntered", destination == NETHER_DOOR ? "NETHER" : "DUNGEON");
+          .trigger("subLevelEntered", destination == NETHER_LANDING ? "NETHER" : "DUNGEON");
     }
+  }
+
+  /** Rise through the shaft before moving sideways onto the Nether landing platform. */
+  static Vector2 netherAscentPosition(Vector2 start, float progress) {
+    if (progress <= ASCENT_FRACTION) {
+      return start.cpy().lerp(NETHER_DOOR, progress / ASCENT_FRACTION);
+    }
+    return NETHER_DOOR
+        .cpy()
+        .lerp(NETHER_LANDING, (progress - ASCENT_FRACTION) / (1f - ASCENT_FRACTION));
+  }
+
+  /** Return to the shaft before descending, avoiding the platform beside the Nether lift. */
+  static Vector2 dungeonDescentPosition(Vector2 start, float progress) {
+    float sideStepFraction = 1f - ASCENT_FRACTION;
+    Vector2 shaftEntry = new Vector2(NETHER_DOOR.x, start.y);
+    if (progress <= sideStepFraction) {
+      return start.cpy().lerp(shaftEntry, progress / sideStepFraction);
+    }
+    return shaftEntry.lerp(DUNGEON_DOOR, (progress - sideStepFraction) / ASCENT_FRACTION);
   }
 
   private void startTravel(Vector2 target) {

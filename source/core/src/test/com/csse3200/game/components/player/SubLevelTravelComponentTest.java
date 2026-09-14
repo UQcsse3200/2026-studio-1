@@ -1,8 +1,10 @@
 package com.csse3200.game.components.player;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.entities.Entity;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +28,32 @@ class SubLevelTravelComponentTest {
     positionCentre(player, DUNGEON_DOOR_X + 1f, DUNGEON_DOOR_Y);
 
     assertFalse(travel.canTravelToNether());
+  }
+
+  @Test
+  void ascentEndsOneTileRightOfNetherLiftOnThePlatform() {
+    Vector2 start = new Vector2(DUNGEON_DOOR_X, DUNGEON_DOOR_Y);
+
+    Vector2 shaftExit = SubLevelTravelComponent.netherAscentPosition(start, 0.8f);
+    Vector2 landing = SubLevelTravelComponent.netherAscentPosition(start, 1f);
+
+    assertEquals(13.25f, shaftExit.x, 0.0001f);
+    assertEquals(17.4f, shaftExit.y, 0.0001f);
+    assertEquals(shaftExit.x + 0.5f, landing.x, 0.0001f);
+    assertEquals(shaftExit.y, landing.y, 0.0001f);
+  }
+
+  @Test
+  void returnTravelMovesBackIntoLiftShaftBeforeDescending() {
+    Vector2 landing = new Vector2(13.75f, 17.4f);
+
+    Vector2 shaftEntry = SubLevelTravelComponent.dungeonDescentPosition(landing, 0.2f);
+    Vector2 dungeonArrival = SubLevelTravelComponent.dungeonDescentPosition(landing, 1f);
+
+    assertEquals(13.25f, shaftEntry.x, 0.0001f);
+    assertEquals(17.4f, shaftEntry.y, 0.0001f);
+    assertEquals(DUNGEON_DOOR_X, dungeonArrival.x, 0.0001f);
+    assertEquals(DUNGEON_DOOR_Y, dungeonArrival.y, 0.0001f);
   }
 
   private static void positionCentre(Entity player, float x, float y) {
