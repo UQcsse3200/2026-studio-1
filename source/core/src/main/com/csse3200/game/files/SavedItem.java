@@ -9,6 +9,7 @@ public class SavedItem {
 
   public String weaponType;
   public Integer damage;
+  public String consumableType;
 
   public SavedItem() {
     // required no-arg constructor so Json can reconstruct this on load
