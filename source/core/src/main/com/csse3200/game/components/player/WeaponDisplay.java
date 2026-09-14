@@ -17,6 +17,11 @@ public class WeaponDisplay extends UIComponent {
   private Label weaponLabel;
   private Image weaponImage;
 
+  // Current bonus from the Sword Damage upgrade (0 when inactive/expired). Updated purely via
+  // the "swordDamageBonusChanged" event fired on this same entity by UpgradesDisplay - this
+  // class has no direct reference to UpgradesDisplay and doesn't need one.
+  private int swordDamageBonus = 0;
+
   public WeaponDisplay(WeaponItem weapon) {
     this.weapon = weapon;
   }
@@ -25,6 +30,7 @@ public class WeaponDisplay extends UIComponent {
   public void create() {
     super.create();
     addActors();
+    entity.getEvents().addListener("swordDamageBonusChanged", this::onSwordDamageBonusChanged);
   }
 
   private void addActors() {
@@ -64,6 +70,20 @@ public class WeaponDisplay extends UIComponent {
     table.add(weaponLabel).left();
 
     stage.addActor(table);
+  }
+
+  /**
+   * Called whenever UpgradesDisplay's Sword Damage effect changes (including back to 0 on expiry).
+   */
+  private void onSwordDamageBonusChanged(int bonus) {
+    swordDamageBonus = bonus;
+    weaponLabel.setText(buildLabelText());
+  }
+
+  private String buildLabelText() {
+    return String.format(
+        "Weapon: %s\nType: %s\nDamage: %d",
+        weapon.getName(), weapon.getWeaponType(), weapon.getDamage() + swordDamageBonus);
   }
 
   @Override
