@@ -4,10 +4,10 @@ import com.csse3200.game.perks.UpgradesMenuComponent;
 import java.util.ArrayList;
 
 /**
- * Debug terminal command to open/close the Upgrades screen for testing,
- * without needing the Pause Menu button wired up yet.
+ * Debug terminal command to open/close the Upgrades screen for testing, without needing the Pause
+ * Menu button wired up yet.
  *
- * Usage in the debug terminal: "upgrades" (toggles open/closed)
+ * <p>Usage in the debug terminal: "upgrades" (toggles open/closed)
  */
 public class UpgradesCommand implements Command {
   private final UpgradesMenuComponent upgradesMenu;
