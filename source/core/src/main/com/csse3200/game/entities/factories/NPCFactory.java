@@ -225,6 +225,10 @@ public class NPCFactory {
         .addComponent(weaponAnimator)
         .addComponent(new SkeletonWeaponAnimationController());
 
+    rangedSkeleton
+        .getComponent(RangedAttackComponent.class)
+        .setProjectileSpeed(config.ranged.projectileSpeed);
+
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
