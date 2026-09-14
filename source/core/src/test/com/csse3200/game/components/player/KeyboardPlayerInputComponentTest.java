@@ -20,4 +20,16 @@ class KeyboardPlayerInputComponentTest {
     assertTrue(input.keyDown(Keys.Q));
     assertEquals(1, drops.get());
   }
+
+  /** Acceptance criterion: pressing the shield key fires the shield activation event. */
+  @Test
+  void shouldTriggerActivateShieldEventWhenBIsPressed() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player = new Entity().addComponent(input);
+    AtomicInteger activations = new AtomicInteger();
+    player.getEvents().addListener("activateShield", activations::incrementAndGet);
+
+    assertTrue(input.keyDown(Keys.B));
+    assertEquals(1, activations.get());
+  }
 }

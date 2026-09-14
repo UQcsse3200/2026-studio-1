@@ -458,8 +458,10 @@ public class InventoryComponent extends Component {
    * @return new item stack
    */
   private Item createStack(Item template, int quantity) {
-    return new Item(
-        template.getName(), template.getItemType(), quantity, template.getMaxQuantity());
+    Item copy =
+        new Item(template.getName(), template.getItemType(), quantity, template.getMaxQuantity());
+    copy.setSellPrice(template.getSellPrice());
+    return copy;
   }
 
   /**
@@ -503,6 +505,7 @@ public class InventoryComponent extends Component {
       return false;
     }
 
+<<<<<<< HEAD
     boolean sameBaseItem =
         existing.getName().equals(incoming.getName())
             && existing.getItemType() == incoming.getItemType()
@@ -519,6 +522,12 @@ public class InventoryComponent extends Component {
     }
 
     return !(existing instanceof WeaponItem) && !(incoming instanceof WeaponItem);
+=======
+    return existing.getName().equals(incoming.getName())
+        && existing.getItemType() == incoming.getItemType()
+        && existing.getMaxQuantity() == incoming.getMaxQuantity()
+        && existing.getSellPrice() == incoming.getSellPrice();
+>>>>>>> origin/main
   }
 
   /**

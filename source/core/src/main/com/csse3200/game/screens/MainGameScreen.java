@@ -13,8 +13,15 @@ import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
+import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
+<<<<<<< HEAD
 import com.csse3200.game.components.player.SubLevelTravelComponent;
+=======
+import com.csse3200.game.components.maingame.WinScreenDisplay;
+import com.csse3200.game.components.maingame.WinScreenInputComponent;
+import com.csse3200.game.components.player.ShopDisplay;
+>>>>>>> origin/main
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -23,6 +30,9 @@ import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.pausemenu.*;
+import com.csse3200.game.perks.ActiveUpgradesHud;
+import com.csse3200.game.perks.UpgradesDisplay;
+import com.csse3200.game.perks.UpgradesMenuComponent;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -32,6 +42,8 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
+import com.csse3200.game.ui.terminal.commands.WinCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +63,7 @@ public class MainGameScreen extends ScreenAdapter {
     "images/ui/heart-green.png",
     "images/ui/heart-yellow.png"
   };
+<<<<<<< HEAD
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
@@ -58,6 +71,9 @@ public class MainGameScreen extends ScreenAdapter {
 
   /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
   private static final float SUB_LEVEL_BOUNDARY = 16f;
+=======
+  private static final Vector2 CAMERA_POSITION = new Vector2(10f, 5f);
+>>>>>>> origin/main
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -65,6 +81,8 @@ public class MainGameScreen extends ScreenAdapter {
   private LevelGameArea levelGameArea;
   private String currentRoomMapPath = FIRST_ROOM_MAP;
   private DeathScreenDisplay deathScreenDisplay;
+  private WinScreenDisplay winScreenDisplay;
+  private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
@@ -100,6 +118,7 @@ public class MainGameScreen extends ScreenAdapter {
     terrainFactory = new TerrainFactory(renderer.getCamera());
     this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
+<<<<<<< HEAD
     ServiceLocator.getEntityService()
         .register(new Entity().addComponent(new SubLevelTitleDisplay(levelGameArea.getPlayer())));
     createSubLevelTravelPrompt(levelGameArea.getPlayer());
@@ -109,8 +128,21 @@ public class MainGameScreen extends ScreenAdapter {
           levelGameArea.getMapWorldWidth(),
           levelGameArea.getMapWorldHeight());
     }
+=======
+    Entity player = levelGameArea.getPlayer();
+    upgradesDisplay.setPlayer(player);
+>>>>>>> origin/main
 
-    fitCameraToMap(levelGameArea);
+    ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
+    if (shopDisplay != null) {
+      if (loadsave) {
+        LoadService.load(
+            levelGameArea.getPlayer(),
+            levelGameArea.getMapWorldWidth(),
+            levelGameArea.getMapWorldHeight());
+      }
+      fitCameraToMap(levelGameArea);
+    }
   }
 
   public Entity getPlayerEntity() {
@@ -332,20 +364,33 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity ui = new Entity();
     deathScreenDisplay = new DeathScreenDisplay(this.game);
+    winScreenDisplay = new WinScreenDisplay(this.game);
+
+    Terminal terminal = new Terminal();
+    terminal.addCommand("win", new WinCommand(winScreenDisplay));
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
+    UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
+    upgradesDisplay = new UpgradesDisplay();
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
-        .addComponent(new Terminal())
+        .addComponent(terminal)
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
+        .addComponent(new PauseMenuActions()) // change on addition of save-load addition required
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
+        .addComponent(new DeathScreenInputComponent())
+        .addComponent(winScreenDisplay)
+        .addComponent(new WinScreenInputComponent())
         .addComponent(new MainGameActions(this.game))
-        .addComponent(new PauseMenuActions(this::getPlayerEntity));
+        .addComponent(upgradesMenuComponent)
+        .addComponent(upgradesDisplay)
+        .addComponent(new ActiveUpgradesHud());
     this.pauseMenu = pauseMenuComponent;
+    terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
 
     ServiceLocator.getEntityService().register(ui);
   }

@@ -86,7 +86,8 @@ public class LevelGameArea extends GameArea {
     "images/potions/strength_potion.png",
     "images/potions/speed_potion.png",
     "images/potions/regeneration_potion.png",
-    "images/potions/resistance_potion.png"
+    "images/potions/resistance_potion.png",
+    "images/Shield.png"
   };
 
   private static final String[] entitySounds = {
@@ -582,13 +583,18 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Spawns pickup loot across the map.
+   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
+   * features work in this level, mirroring what {@code ForestGameArea} spawns.
    *
-   * <p>Every loot spawn point the map declares gets one item rolled from the weighted loot table,
+   * <p>The shield is guaranteed at the map's first declared loot spawn point, the same way the gold
+   * coin is always placed directly rather than rolled — with maps sometimes declaring only a
+   * handful of loot spawn points, leaving the shield to the weighted table risked it never
+   * appearing. Every remaining loot spawn point gets one item rolled from the weighted loot table,
    * so loot lands on reachable ground and higher tiers stay rare. A map with no declared loot
    * spawns falls back to a starter row beside the player.
    */
   private void spawnLoot() {
+<<<<<<< HEAD
     if (!mapData.getSpawns().getLoot().isEmpty()) {
       for (SpawnPoint spawn : mapData.getSpawns().getLoot()) {
         Entity loot = createMapLoot(spawn.getType());
@@ -598,6 +604,21 @@ public class LevelGameArea extends GameArea {
           loot.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
         }
         spawnEntityAt(loot, spawn.getPosition(), true, true);
+=======
+    List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();
+    if (!lootSpawns.isEmpty()) {
+      SpawnPoint shieldSpawn = lootSpawns.get(0);
+      spawnEntityAt(
+          LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
+          shieldSpawn.getPosition(),
+          true,
+          true);
+
+      List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
+      LootTable table = LootTable.createDefault(LOOT_SEED);
+      for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
+        spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
+>>>>>>> origin/main
       }
       return;
     }
@@ -613,6 +634,8 @@ public class LevelGameArea extends GameArea {
    */
   private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
+
+    items.add(LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)));
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.BOW, 1)));
