@@ -3,15 +3,17 @@ package com.csse3200.game.components.loot;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Works out what loot goes where before anything is spawned.
  *
- * <p>Maps declare their own loot spawn points, which are already on reachable ground, so placement
- * is a matter of rolling the loot table once per declared point rather than searching the terrain
- * for a legal position. Keeping the decision separate from the spawning also means the layout can
- * be tested without standing up a game area.
+ * <p>Loot goes on a list of spawn points: the ones a map declares when it has any, or spots picked
+ * at random from the open ground by {@link #pickRandomSpots} when it does not. Each spot then gets
+ * one item rolled from the loot table. Keeping the decision separate from the spawning also means
+ * the layout can be tested without standing up a game area.
  */
 public class LootPlacement {
 
@@ -37,6 +39,41 @@ public class LootPlacement {
       placed.add(new PlacedLoot(spawn.getPosition(), table.rollItem()));
     }
     return placed;
+  }
+
+  /**
+   * Picks distinct spots at random from a list of candidates.
+   *
+   * <p>A copy of the candidates is shuffled and the first {@code count} are taken, so no two pieces
+   * of loot share a tile and the caller's list is left in its original order. With the same seed
+   * the same spots come out every time.
+   *
+   * @param candidates tiles loot could go on
+   * @param count how many spots to pick; must be {@code >= 0}
+   * @param random random source to pick with
+   * @return up to {@code count} distinct spots, or every candidate when there are fewer
+   * @throws IllegalArgumentException if {@code candidates} or {@code random} is null, or {@code
+   *     count} is negative
+   */
+  public static List<SpawnPoint> pickRandomSpots(
+      List<SpawnPoint> candidates, int count, Random random) {
+    if (candidates == null) {
+      throw new IllegalArgumentException("Candidates must not be null.");
+    }
+
+    if (count < 0) {
+      throw new IllegalArgumentException("Count must not be negative.");
+    }
+
+    if (random == null) {
+      throw new IllegalArgumentException("Random must not be null.");
+    }
+
+    List<SpawnPoint> shuffled = new ArrayList<>(candidates);
+    Collections.shuffle(shuffled, random);
+
+    int picked = Math.min(count, shuffled.size());
+    return new ArrayList<>(shuffled.subList(0, picked));
   }
 
   private LootPlacement() {

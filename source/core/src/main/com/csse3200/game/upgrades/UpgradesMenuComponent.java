@@ -1,4 +1,4 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.upgrades;
 
 import com.csse3200.game.components.Component;
 import org.slf4j.Logger;

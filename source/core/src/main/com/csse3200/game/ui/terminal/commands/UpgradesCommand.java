@@ -1,6 +1,6 @@
 package com.csse3200.game.ui.terminal.commands;
 
-import com.csse3200.game.perks.UpgradesMenuComponent;
+import com.csse3200.game.upgrades.UpgradesMenuComponent;
 import java.util.ArrayList;
 
 /**

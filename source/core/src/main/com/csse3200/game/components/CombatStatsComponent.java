@@ -13,6 +13,7 @@ public class CombatStatsComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(CombatStatsComponent.class);
   private int health;
   private int baseAttack;
+  private int shieldHits;
 
   public CombatStatsComponent(int health, int baseAttack) {
     setHealth(health);
@@ -74,6 +75,14 @@ public class CombatStatsComponent extends Component {
     return baseAttack;
   }
 
+  public int getShieldHits() {
+    return shieldHits;
+  }
+
+  public void setShieldHits(int shieldHits) {
+    this.shieldHits = Math.max(0, shieldHits);
+  }
+
   /**
    * Sets the entity's attack damage. Attack damage has a minimum bound of 0.
    *
@@ -88,7 +97,18 @@ public class CombatStatsComponent extends Component {
   }
 
   public void hit(CombatStatsComponent attacker) {
+    if (shieldHits > 0) {
+      shieldHits--;
+      return;
+    }
+
+    boolean wasAlive = !isDead();
+
     int newHealth = getHealth() - attacker.getBaseAttack();
     setHealth(newHealth);
+
+    if (wasAlive && isDead() && attacker.getEntity() != null) {
+      attacker.getEntity().getEvents().trigger("enemyKilled");
+    }
   }
 }
