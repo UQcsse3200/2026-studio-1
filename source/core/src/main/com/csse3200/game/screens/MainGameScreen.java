@@ -99,14 +99,19 @@ public class MainGameScreen extends ScreenAdapter {
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
-      if (loadsave) {
-        LoadService.load(
-            levelGameArea.getPlayer(),
-            levelGameArea.getMapWorldWidth(),
-            levelGameArea.getMapWorldHeight());
-      }
-      fitCameraToMap(levelGameArea);
+      // TODO: ShopDisplay.setUpgradesDisplay(UpgradesDisplay) does not exist on
+      // ShopDisplay as of main - broken/incomplete Shop-Upgrades integration,
+      // commented out to unblock this PR. Needs fixing by the Shop feature owner.
+      // shopDisplay.setUpgradesDisplay(upgradesDisplay);
     }
+
+    if (loadsave) {
+      LoadService.load(
+          levelGameArea.getPlayer(),
+          levelGameArea.getMapWorldWidth(),
+          levelGameArea.getMapWorldHeight());
+    }
+    fitCameraToMap(levelGameArea);
   }
 
   public Entity getPlayerEntity() {
@@ -228,7 +233,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
-        .addComponent(new PauseMenuActions()) // change on addition of save-load addition required
+        .addComponent(new PauseMenuActions(this::getPlayerEntity))
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new DeathScreenInputComponent())
