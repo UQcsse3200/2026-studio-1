@@ -164,7 +164,7 @@
     },
     "enemies": [
       {
-        "type": "skeleton",
+        "type": "cyclops",
         "x": 15,
         "y": 16
       },

@@ -73,8 +73,8 @@ class EnemyWeaponAnimationComponentTest {
     entity.setPosition(new Vector2(5f, 10f));
     animator.setEntity(entity);
 
-    // Entity body z-index is -10.0f; weapon should be -10.0f + 0.01f = -9.99f
-    assertEquals(-10f + 0.01f, animator.getZIndex(), 0.0001f);
+    // Entity body z-index is -10.0f; weapon should be -10.0f + 1 = -9.0f
+    assertEquals(-10f + 1f, animator.getZIndex(), 0.0001f);
   }
 
   @Test

@@ -9,8 +9,10 @@ import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.CyclopsAnimationController;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
+import com.csse3200.game.components.npc.MinotaurAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.npc.SkeletonWeaponAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -269,13 +271,12 @@ public class NPCFactory {
     }
 
     // Configure animation component
-    // TODO: THIS WILL BE CHANGED TO MINOTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton  .atlas"));
-    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/minotaur.atlas"));
+    animator.addAnimation("minotaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_walk_r", 0.1f, Animation.PlayMode.LOOP);
 
     // Add necessary components to the entity
     minotaur
@@ -288,9 +289,9 @@ public class NPCFactory {
                 (WeaponItem) inventory.getItem(1)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
-        .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(animator)
+        .addComponent(new MinotaurAnimationController());
 
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
@@ -308,7 +309,7 @@ public class NPCFactory {
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
         .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
 
-    minotaur.setScale(scale, scale);
+    minotaur.setScale(scale, scale * (80f / 96f));
     PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
     return minotaur;
   }
@@ -411,33 +412,33 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
-    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/cyclops.atlas"));
+    animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
 
     // Add necessary components to the entity
     cyclops
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
-            new RangedAttackComponent(
-                config.ranged.range,
-                config.ranged.cooldown,
-                config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1),
-                8f))
-        .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,
                 config.melee.cooldown,
                 config.melee.knockback,
-                (WeaponItem) inventory.getItem(2)))
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                (WeaponItem) inventory.getItem(2),
+                8f))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new CyclopsAnimationController());
 
     cyclops.getComponent(AnimationRenderComponent.class).scaleEntity();
 
@@ -448,7 +449,7 @@ public class NPCFactory {
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
         .addTask(new RangedAttackTask(target, 9, config.ranged.range));
 
-    cyclops.setScale(scale, scale);
+    cyclops.setScale(scale, scale * (48f / 64f));
     PhysicsUtils.setScaledCollider(cyclops, collisionScale.x, collisionScale.y);
     return cyclops;
   }
