@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.LootPickupComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
@@ -50,20 +51,23 @@ public class LootFactory {
       String texturePath;
 
       if (weaponItem.getWeaponType() == WeaponType.BOW) {
-        texturePath = "images/bow.png";
+        texturePath = "images/items/bow.png";
       } else {
-        texturePath = "images/sword.png";
+        texturePath = "images/items/sword.png";
       }
 
-      loot.addComponent(new TextureRenderComponent(texturePath));
+      loot.addComponent(new BobbingTextureRenderComponent(texturePath));
     } else if (item instanceof ConsumableItem consumableItem) {
       // Consumables carry their own sprite, and bob gently so they read as collectable.
       loot.addComponent(new BobbingTextureRenderComponent(consumableItem.getTexturePath()));
+    } else if (item.getItemType() == ItemType.SHIELD) {
+      // Shield loot uses the shield sprite.
+      loot.addComponent(new TextureRenderComponent("images/Shield.png"));
     } else {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(
               ServiceLocator.getResourceService()
-                  .getAsset("images/gold_coin/gold_coin.atlas", TextureAtlas.class));
+                  .getAsset("images/items/gold_coin/gold_coin.atlas", TextureAtlas.class));
 
       animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
       animator.startAnimation("gold_coin");
@@ -72,7 +76,10 @@ public class LootFactory {
     }
 
     loot.addComponent(new PhysicsComponent())
-        .addComponent(new ColliderComponent())
+        // The solid fixture keeps loot on terrain but must not block the player or other pickups.
+        // Collection is handled independently by the ITEM sensor below.
+        .addComponent(
+            new ColliderComponent().setLayer(PhysicsLayer.ITEM).setMask(PhysicsLayer.OBSTACLE))
         .addComponent(new HitboxComponent().setLayer(PhysicsLayer.ITEM))
         .addComponent(new LootPickupComponent(item, pickupBlockedPlayer, pickupDelayMillis));
 

@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
@@ -61,26 +62,28 @@ public class PlayerStatsDisplay extends UIComponent {
 
     // Full heart textures
     greenHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-green.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-green.png", Texture.class);
 
     yellowHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-yellow.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-yellow.png", Texture.class);
 
     redHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart.png", Texture.class);
 
     emptyHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-empty.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-empty.png", Texture.class);
 
     // Half heart textures
     greenHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-green-half.png", Texture.class);
+        ServiceLocator.getResourceService()
+            .getAsset("images/ui/heart-green-half.png", Texture.class);
 
     yellowHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-yellow-half.png", Texture.class);
+        ServiceLocator.getResourceService()
+            .getAsset("images/ui/heart-yellow-half.png", Texture.class);
 
     redHalfHeartTexture =
-        ServiceLocator.getResourceService().getAsset("images/heart-red-half.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/heart-red-half.png", Texture.class);
 
     // Create 10 heart slots
     for (int i = 0; i < MAX_HEARTS; i++) {
@@ -131,14 +134,14 @@ public class PlayerStatsDisplay extends UIComponent {
       Sound crownHitSound =
           ServiceLocator.getResourceService().getAsset("sounds/player-hit-crown.ogg", Sound.class);
 
-      crownHitSound.play();
+      crownHitSound.play(AudioSettings.getEffectiveEffectsVolume());
 
     } else if (damageTaken > 0) {
       // Regular damage
       Sound hitSound =
           ServiceLocator.getResourceService().getAsset("sounds/player-hit.ogg", Sound.class);
 
-      hitSound.play();
+      hitSound.play(AudioSettings.getEffectiveEffectsVolume());
     }
 
     previousHealth = health;

@@ -1,0 +1,15 @@
+gold_coin.png
+size:1024,256
+repeat:none
+gold_coin
+index:3
+bounds:2,2,128,128
+gold_coin
+index:2
+bounds:132,2,128,128
+gold_coin
+index:4
+bounds:262,2,128,128
+gold_coin
+index:1
+bounds:392,2,128,128
