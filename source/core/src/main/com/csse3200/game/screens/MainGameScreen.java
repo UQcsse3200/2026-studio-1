@@ -55,7 +55,7 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-green.png",
     "images/heart-yellow.png"
   };
-  private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
+  private static final Vector2 CAMERA_POSITION = new Vector2(10f, 5f);
 
   private final GdxGame game;
   private final Renderer renderer;
