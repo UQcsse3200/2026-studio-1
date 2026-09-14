@@ -15,7 +15,6 @@ public class WeaponGenerator {
     if (tier <= 0) {
       throw new IllegalArgumentException("Tier must be greater than 0.");
     }
-
     String name =
         switch (weaponType) {
           case SWORD -> "Basic Sword";
@@ -23,14 +22,18 @@ public class WeaponGenerator {
           case DAGGER -> "Basic Dagger";
           default -> throw new IllegalArgumentException("Unsupported weapon type.");
         };
-
-    int max_Capacity =
+    float windUpDuration =
+        switch (weaponType) {
+          case SWORD -> 3;
+          case BOW -> 2;
+          case DAGGER -> 1;
+        };
+    int maxQuantity =
         switch (weaponType) {
           case SWORD -> 10;
-          case BOW -> 20;
-          case DAGGER -> 10;
-          default -> throw new IllegalArgumentException("Unsupported weapon type");
+          case BOW -> 10;
+          case DAGGER -> 20;
         };
-    return new WeaponItem(name, weaponType, tier, 1, max_Capacity);
+    return new WeaponItem(name, weaponType, windUpDuration, tier, 1, maxQuantity);
   }
 }

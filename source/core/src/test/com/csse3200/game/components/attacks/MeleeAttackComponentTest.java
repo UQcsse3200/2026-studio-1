@@ -1,4 +1,4 @@
-package com.csse3200.game.components;
+package com.csse3200.game.components.attacks;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -187,7 +187,7 @@ class MeleeAttackComponentTest {
     Entity attacker =
         new Entity()
             .addComponent(meleeAttack)
-            .addComponent(new CombatStatsComponent(20, 2))
+            .addComponent(new CombatStatsComponent(10, 2))
             .addComponent(new PhysicsComponent());
     attacker.create();
     // health set well above expectedDamage (20) so a landed hit can't bottom out at a health
@@ -446,7 +446,8 @@ class MeleeAttackComponentTest {
     assertDoesNotThrow(() -> attacker.getEvents().trigger("meleeAttack", null));
   }
 
-  // Attacks are blocked immediately after landing, still blocked partway through cooldown, then land once elapsed.
+  // Attacks are blocked immediately after landing, still blocked partway through cooldown, then
+  // land once elapsed.
   @Test
   void shouldRespectCooldownAcrossBlockedPartialAndElapsedStates() {
     Entity attacker = createAttacker(2, 2, 0);
@@ -492,7 +493,8 @@ class MeleeAttackComponentTest {
             + targetStats.getHealth());
   }
 
-  // A whiff on a target with no CombatStatsComponent does not consume cooldown for the next real target.
+  // A target with no CombatStatsComponent does not consume cooldown of Attacker, only when the
+  // next real target is given does it then consume cooldown.
   @Test
   void ShouldResetCooldownOnlyAfterSuccessfulHit() {
     Entity attacker = createAttacker(2, 5, 0);
@@ -578,7 +580,8 @@ class MeleeAttackComponentTest {
     assertDoesNotThrow(() -> attacker.getEvents().trigger("meleeAttack", targetWithoutCombatStats));
   }
 
-  // Knockback applies when positive and the target has physics, but not when zero or physics is absent.
+  // Knockback applies when positive and the target has physics, but not when zero or physics is
+  // absent.
   @Test
   void shouldApplyOrSkipKnockbackAcrossConditions() {
     // positive knockback + target has PhysicsComponent -> velocity changes
@@ -648,7 +651,8 @@ class MeleeAttackComponentTest {
             + healthAfterNoPhysics);
   }
 
-  // canAttack() is false right after triggering, stays false until cooldown elapses, then true and stays true.
+  // canAttack() is false right after triggering, stays false until cooldown elapses, then true and
+  // stays true.
   @Test
   void canAttack_reflectsCooldownProgressionOverTime() {
     Entity attacker = createAttacker(2, 2, 0);
@@ -724,9 +728,9 @@ class MeleeAttackComponentTest {
   /* ---------- Helpers ---------- */
 
   /**
-   * Builds the default weapon used by {@link #createAttacker(float, float, float)}: a non-BOW
-   * type with zero windup, so an attack resolves on the very next {@code update()} call after
-   * being triggered. Deals {@link #DEFAULT_WEAPON_DAMAGE} damage per hit.
+   * Builds the default weapon used by {@link #createAttacker(float, float, float)}: a non-BOW type
+   * with zero windup, so an attack resolves on the very next {@code update()} call after being
+   * triggered. Deals {@link #DEFAULT_WEAPON_DAMAGE} damage per hit.
    *
    * @return a fresh weapon item suitable for most tests
    */
@@ -747,7 +751,8 @@ class MeleeAttackComponentTest {
   Entity createAttacker(float range, float cooldown, float knockback) {
     Entity attacker =
         new Entity()
-            .addComponent(new MeleeAttackComponent(range, cooldown, knockback, createInstantWeapon()))
+            .addComponent(
+                new MeleeAttackComponent(range, cooldown, knockback, createInstantWeapon()))
             .addComponent(new CombatStatsComponent(20, 2))
             .addComponent(new PhysicsComponent());
     attacker.create();
