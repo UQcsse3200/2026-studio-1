@@ -94,6 +94,8 @@ public class LevelGameArea extends GameArea {
     "images/ghostKing.atlas",
     "images/gold_coin/gold_coin.atlas",
     "images/skeleton.atlas",
+    "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/skeleton_weapons/skeleton_sword.atlas",
     "images/pet.atlas"
   };
 
