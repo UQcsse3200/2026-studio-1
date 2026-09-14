@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -10,15 +11,6 @@ import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
-/**
- * Displays information about the player's currently equipped weapon.
- *
- * <p>The damage line shown is weapon.getDamage() (the weapon's own fixed stat) PLUS whatever Sword
- * Damage upgrade bonus is currently active - the upgrade modifies CombatStatsComponent. baseAttack
- * directly, which is a separate number from the weapon's own damage stat, so this class tracks the
- * upgrade's bonus itself (via an event) rather than reading baseAttack back off
- * CombatStatsComponent.
- */
 public class WeaponDisplay extends UIComponent {
   private final WeaponItem weapon;
   private Table table;
@@ -52,7 +44,27 @@ public class WeaponDisplay extends UIComponent {
 
     weaponImage = new Image(ServiceLocator.getResourceService().getAsset(imagePath, Texture.class));
 
-    weaponLabel = new Label(buildLabelText(), skin, "large");
+    switch (weapon.getTier()) {
+      case 1:
+        weaponImage.setColor(Color.WHITE);
+        break;
+      case 2:
+        weaponImage.setColor(Color.GOLD);
+        break;
+      case 3:
+        weaponImage.setColor(Color.PURPLE);
+        break;
+      default:
+        weaponImage.setColor(Color.WHITE);
+        break;
+    }
+
+    String text =
+        String.format(
+            "Weapon: %s\nType: %s\nTier: %d\nDamage: %d",
+            weapon.getName(), weapon.getWeaponType(), weapon.getTier(), weapon.getDamage());
+
+    weaponLabel = new Label(text, skin, "large");
 
     table.add(weaponImage).size(45f).padRight(10f);
     table.add(weaponLabel).left();
@@ -75,9 +87,7 @@ public class WeaponDisplay extends UIComponent {
   }
 
   @Override
-  public void draw(SpriteBatch batch) {
-    // Drawing handled by the stage.
-  }
+  public void draw(SpriteBatch batch) {}
 
   @Override
   public void dispose() {

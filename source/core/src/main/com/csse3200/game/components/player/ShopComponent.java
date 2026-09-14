@@ -16,10 +16,10 @@ import java.util.Map;
  * the same entity.
  *
  * <p>Item purchases deduct gold only when the copied product fits in full. A successful item buy
- * consumes that item listing (one-use offer) and triggers {@code shopChanged}. Selling uses the
- * player inventory; a matching BUY listing is only used for price and is not consumed. Upgrade and
- * pet purchases trigger {@code upgradePurchased} and {@code petPurchased} and leave those listings
- * in place.
+ * stamps {@code sellPrice} as 60% of the listing buy price onto the copied item, consumes that item
+ * listing (one-use offer), and triggers {@code shopChanged}. Selling uses the player inventory and
+ * refunds {@link Item#getSellPrice()}. Upgrade and pet purchases trigger {@code upgradePurchased}
+ * and {@code petPurchased} and leave those listings in place.
  */
 public class ShopComponent extends Component {
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
@@ -48,10 +48,10 @@ public class ShopComponent extends Component {
    * @return this shop, for chaining from {@code PlayerFactory}
    */
   public ShopComponent seedDefaultCatalog() {
-    setItemListing(1, new ShopListing<>(new Item("Potion", ItemType.CONSUMABLE, 1, 9), 10, 5));
-    setItemListing(2, new ShopListing<>(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 8));
-    setUpgradeListing(1, new ShopListing<>(new Upgrade("Health Upgrade"), 15, 0));
-    setPetListing(1, new ShopListing<>(new Pet("Wolf"), 20, 0));
+    setItemListing(1, new ShopListing<>(new Item("Potion", ItemType.CONSUMABLE, 1, 9), 10));
+    setItemListing(2, new ShopListing<>(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
+    setUpgradeListing(1, new ShopListing<>(new Upgrade("Health Upgrade"), 15));
+    setPetListing(1, new ShopListing<>(new Pet("Wolf"), 20));
     return this;
   }
 
@@ -171,6 +171,7 @@ public class ShopComponent extends Component {
     }
 
     Item copy = copyItem(listing.getProduct());
+    copy.setSellPrice(sellPriceFromBuyPrice(listing.getBuyPrice()));
     if (!inventory.hasGold(listing.getBuyPrice()) || !inventory.canFullyAdd(copy)) {
       return false;
     }
@@ -189,8 +190,8 @@ public class ShopComponent extends Component {
   /**
    * Returns the gold refund for selling {@code item}.
    *
-   * <p>If a BUY listing still matches by name and {@link ItemType}, that listing's sell price is
-   * used. Otherwise a default based on quantity is used. A live listing is not required.
+   * <p>Uses {@link Item#getSellPrice()} stored on the inventory item. Bought items are stamped at
+   * purchase; looted items keep the value set by loot generation.
    *
    * @param item inventory item to price; {@code null} returns {@code 0}
    * @return sell refund in gold
@@ -199,14 +200,7 @@ public class ShopComponent extends Component {
     if (item == null) {
       return 0;
     }
-    Integer matchSlot = findMatchingItemSlot(item);
-    if (matchSlot != null) {
-      ShopListing<Item> listing = getItemListing(matchSlot);
-      if (listing != null) {
-        return listing.getSellPrice();
-      }
-    }
-    return defaultSellPrice(item);
+    return item.getSellPrice();
   }
 
   /**
@@ -334,35 +328,14 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Finds the lowest-numbered item catalog slot whose product matches {@code item} by name and
-   * type. Used only as an optional sell-price lookup; selling does not require a match.
+   * Returns the sell refund stamped onto a purchased item: 60% of {@code buyPrice}, using integer
+   * division.
    *
-   * @param item player item to match
-   * @return matching catalog slot, or {@code null} if none
+   * @param buyPrice listing buy price
+   * @return sell price in gold
    */
-  private Integer findMatchingItemSlot(Item item) {
-    Integer matchSlot = null;
-    for (Map.Entry<Integer, ShopListing<Item>> entry : itemCatalog.entrySet()) {
-      Item product = entry.getValue().getProduct();
-      if (!product.getName().equals(item.getName())
-          || product.getItemType() != item.getItemType()) {
-        continue;
-      }
-      if (matchSlot == null || entry.getKey() < matchSlot) {
-        matchSlot = entry.getKey();
-      }
-    }
-    return matchSlot;
-  }
-
-  /**
-   * Default refund when no BUY listing matches {@code item}.
-   *
-   * @param item inventory item
-   * @return at least {@code 1} gold, using the stack quantity
-   */
-  private static int defaultSellPrice(Item item) {
-    return Math.max(1, item.getQuantity());
+  private static int sellPriceFromBuyPrice(int buyPrice) {
+    return (buyPrice * 3) / 5;
   }
 
   /** Triggers {@code shopChanged} when this component is attached to an entity. */
@@ -453,26 +426,23 @@ public class ShopComponent extends Component {
   public static class ShopListing<T> {
     private final T product;
     private final int buyPrice;
-    private final int sellPrice;
 
     /**
      * Creates a listing.
      *
      * @param product catalog product; must be non-null
      * @param buyPrice gold cost to buy; must be {@code >= 0}
-     * @param sellPrice gold refund on sell; must be {@code >= 0}
-     * @throws IllegalArgumentException if {@code product} is null or a price is negative
+     * @throws IllegalArgumentException if {@code product} is null or {@code buyPrice} is negative
      */
-    public ShopListing(T product, int buyPrice, int sellPrice) {
+    public ShopListing(T product, int buyPrice) {
       if (product == null) {
         throw new IllegalArgumentException("product must not be null");
       }
-      if (buyPrice < 0 || sellPrice < 0) {
-        throw new IllegalArgumentException("prices must be >= 0");
+      if (buyPrice < 0) {
+        throw new IllegalArgumentException("buyPrice must be >= 0");
       }
       this.product = product;
       this.buyPrice = buyPrice;
-      this.sellPrice = sellPrice;
     }
 
     /**
@@ -491,15 +461,6 @@ public class ShopComponent extends Component {
      */
     public int getBuyPrice() {
       return buyPrice;
-    }
-
-    /**
-     * Returns the sell price in gold. Unused for Upgrade and pet listings.
-     *
-     * @return sell price
-     */
-    public int getSellPrice() {
-      return sellPrice;
     }
   }
 

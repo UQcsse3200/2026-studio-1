@@ -9,11 +9,15 @@ import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
+import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
+import com.csse3200.game.components.maingame.WinScreenDisplay;
+import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.files.LoadService;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
@@ -28,6 +32,7 @@ import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
+import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
@@ -50,18 +55,19 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-green.png",
     "images/heart-yellow.png"
   };
-  private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
+  private static final Vector2 CAMERA_POSITION = new Vector2(10f, 5f);
 
   private final GdxGame game;
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
   private DeathScreenDisplay deathScreenDisplay;
+  private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
   private PauseMenuComponent pauseMenu;
 
-  public MainGameScreen(GdxGame game) {
+  public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
 
     logger.debug("Initialising main game screen services");
@@ -93,10 +99,23 @@ public class MainGameScreen extends ScreenAdapter {
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
-      shopDisplay.setUpgradesDisplay(upgradesDisplay);
+      // TODO: ShopDisplay.setUpgradesDisplay(UpgradesDisplay) does not exist on
+      // ShopDisplay as of main - broken/incomplete Shop-Upgrades integration,
+      // commented out to unblock this PR. Needs fixing by the Shop feature owner.
+      // shopDisplay.setUpgradesDisplay(upgradesDisplay);
     }
 
+    if (loadsave) {
+      LoadService.load(
+          levelGameArea.getPlayer(),
+          levelGameArea.getMapWorldWidth(),
+          levelGameArea.getMapWorldHeight());
+    }
     fitCameraToMap(levelGameArea);
+  }
+
+  public Entity getPlayerEntity() {
+    return levelGameArea != null ? levelGameArea.getPlayer() : null;
   }
 
   /**
@@ -199,8 +218,11 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity ui = new Entity();
     deathScreenDisplay = new DeathScreenDisplay(this.game);
-    PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
+    winScreenDisplay = new WinScreenDisplay(this.game);
+
     Terminal terminal = new Terminal();
+    terminal.addCommand("win", new WinCommand(winScreenDisplay));
+    PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
     upgradesDisplay = new UpgradesDisplay();
     ui.addComponent(new InputDecorator(stage, 10))
@@ -211,10 +233,13 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
+        .addComponent(new PauseMenuActions(this::getPlayerEntity))
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
+        .addComponent(new DeathScreenInputComponent())
+        .addComponent(winScreenDisplay)
+        .addComponent(new WinScreenInputComponent())
         .addComponent(new MainGameActions(this.game))
-        .addComponent(new PauseMenuActions())
         .addComponent(upgradesMenuComponent)
         .addComponent(upgradesDisplay)
         .addComponent(new ActiveUpgradesHud());
