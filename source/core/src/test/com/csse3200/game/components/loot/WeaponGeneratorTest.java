@@ -55,4 +55,40 @@ class WeaponGeneratorTest {
 
     assertThrows(IllegalArgumentException.class, () -> generator.generateWeapon(null, 1));
   }
+
+  @Test
+  void shouldSetSwordSellPrice() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem sword = generator.generateWeapon(WeaponType.SWORD, 1);
+
+    assertEquals(10, sword.getSellPrice());
+  }
+
+  @Test
+  void shouldSetBowSellPrice() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem bow = generator.generateWeapon(WeaponType.BOW, 1);
+
+    assertEquals(8, bow.getSellPrice());
+  }
+
+  @Test
+  void shouldSetDaggerSellPrice() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem dagger = generator.generateWeapon(WeaponType.DAGGER, 1);
+
+    assertEquals(6, dagger.getSellPrice());
+  }
+
+  @Test
+  void shouldScaleWeaponSellPriceWithTier() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem sword = generator.generateWeapon(WeaponType.SWORD, 3);
+
+    assertEquals(30, sword.getSellPrice());
+  }
 }
