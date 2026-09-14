@@ -1,5 +1,6 @@
 package com.csse3200.game.pausemenu;
 
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
@@ -15,6 +16,11 @@ import java.util.function.Supplier;
 public class PauseMenuActions extends Component {
 
   private PauseMenuComponent pauseMenu;
+  private final Supplier<Entity> playerSupplier;
+
+  public PauseMenuActions(Supplier<Entity> playerSupplier) {
+    this.playerSupplier = playerSupplier;
+  }
 
   @Override
   public void create() {
@@ -27,6 +33,7 @@ public class PauseMenuActions extends Component {
     entity.getEvents().addListener("resumeClicked", this::resume);
     entity.getEvents().addListener("restartClicked", this::restart);
     entity.getEvents().addListener("mainMenuClicked", this::goToMainMenu);
+    entity.getEvents().addListener("saveClicked", this::save);
   }
 
   private void resume() {

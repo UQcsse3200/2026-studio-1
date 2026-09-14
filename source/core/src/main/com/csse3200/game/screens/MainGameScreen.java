@@ -229,7 +229,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
-        .addComponent(new PauseMenuActions())
+        .addComponent(new PauseMenuActions(this::getPlayerEntity))
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new DeathScreenInputComponent())
