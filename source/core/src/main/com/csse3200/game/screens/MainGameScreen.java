@@ -99,7 +99,6 @@ public class MainGameScreen extends ScreenAdapter {
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
-      shopDisplay.setUpgradesDisplay(upgradesDisplay);
       if (loadsave) {
         LoadService.load(
             levelGameArea.getPlayer(),
