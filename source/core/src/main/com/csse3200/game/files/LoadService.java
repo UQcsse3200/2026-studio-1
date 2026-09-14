@@ -1,13 +1,13 @@
 package com.csse3200.game.files;
 
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
-import com.csse3200.game.components.loot.ConsumableGenerator;
-import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.entities.Entity;
 
 /** Applies saved game data to a newly created player. */
