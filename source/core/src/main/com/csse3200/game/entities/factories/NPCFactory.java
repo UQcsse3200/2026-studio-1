@@ -239,7 +239,7 @@ public class NPCFactory {
    */
   public static Entity createTravelerNPC(Entity player) {
     final float floorCollisionScale = 0.45f;
-    final float playerHeight = 1000f / 792f;
+    final float scale = 1.5f;
     String[] dialoguetext = {"Hello", "Good luck"};
     AITaskComponent aiComponent =
         new AITaskComponent()
@@ -259,7 +259,7 @@ public class NPCFactory {
             .addComponent(new DialogueProximityComponent(player, 2f));
 
     npc.getComponent(TextureRenderComponent.class).scaleEntity();
-    npc.scaleHeight(playerHeight);
+    npc.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     return npc;
   }
