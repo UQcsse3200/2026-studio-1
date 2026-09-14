@@ -26,7 +26,7 @@ class ShopComponentTest {
     attach(inventory, shop);
 
     Item catalogPotion = potion(1, 10);
-    shop.setItemListing(1, itemListing(catalogPotion, 10, 5));
+    shop.setItemListing(1, itemListing(catalogPotion, 10));
 
     assertTrue(shop.buyItem(1));
 
@@ -37,6 +37,7 @@ class ShopComponentTest {
     assertEquals("Potion", bought.getName());
     assertEquals(ItemType.CONSUMABLE, bought.getItemType());
     assertEquals(1, bought.getQuantity());
+    assertEquals(6, bought.getSellPrice());
     assertNull(shop.getItemListing(1));
   }
 
@@ -45,7 +46,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(5);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
     assertFalse(shop.buyItem(1));
 
@@ -61,8 +62,8 @@ class ShopComponentTest {
     attach(inventory, shop);
 
     fillInventory(inventory);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
-    shop.setItemListing(2, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 8));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
+    shop.setItemListing(2, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
 
     assertTrue(inventory.isFull());
     assertFalse(shop.buyItem(1));
@@ -74,7 +75,7 @@ class ShopComponentTest {
     assertNotNull(shop.getItemListing(1));
     assertFalse(inventory.isFull());
     assertTrue(shop.buyItem(1));
-    assertEquals(98, inventory.getGold());
+    assertEquals(90, inventory.getGold());
     assertEquals("Potion", inventory.getItem(1).getName());
     assertNull(shop.getItemListing(1));
   }
@@ -85,8 +86,10 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
 
-    inventory.addItem(potion(5, 10));
-    shop.setItemListing(1, itemListing(potion(3, 10), 10, 5));
+    Item existing = potion(5, 10);
+    existing.setSellPrice(6);
+    inventory.addItem(existing);
+    shop.setItemListing(1, itemListing(potion(3, 10), 10));
 
     assertTrue(inventory.isFull());
     assertTrue(shop.buyItem(1));
@@ -104,7 +107,7 @@ class ShopComponentTest {
     attach(inventory, shop);
 
     inventory.addItem(potion(10, 10));
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
     assertFalse(shop.buyItem(1));
 
@@ -119,7 +122,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
     shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
     shop.setPetListing(1, petListing("Wolf", 20));
 
@@ -157,7 +160,7 @@ class ShopComponentTest {
   void shouldRejectBuyAndSellWhenShopHasNoInventory() {
     ShopComponent shop = new ShopComponent();
     new Entity().addComponent(shop);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
     shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
     shop.setPetListing(1, petListing("Wolf", 20));
 
@@ -178,7 +181,6 @@ class ShopComponentTest {
     assertEquals("Potion", shop.getItemListing(1).getProduct().getName());
     assertEquals(ItemType.CONSUMABLE, shop.getItemListing(1).getProduct().getItemType());
     assertEquals(10, shop.getItemListing(1).getBuyPrice());
-    assertEquals(5, shop.getItemListing(1).getSellPrice());
     assertEquals("Sword", shop.getItemListing(2).getProduct().getName());
     assertEquals(ItemType.WEAPON, shop.getItemListing(2).getProduct().getItemType());
     assertEquals("Health Upgrade", shop.getUpgradeListing(1).getProduct().getName());
@@ -196,8 +198,10 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
 
-    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
-    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 8));
+    Item sword = new Item("Sword", ItemType.WEAPON, 1, 1);
+    sword.setSellPrice(8);
+    inventory.addItem(sword);
+    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
 
     assertTrue(shop.sellItem(1));
 
@@ -212,7 +216,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
     assertFalse(shop.sellItem(1));
     assertFalse(shop.sellItem(0));
@@ -229,14 +233,15 @@ class ShopComponentTest {
     attach(inventory, shop);
 
     Item relic = new Item("Mystery Relic", ItemType.WEAPON, 1, 1);
+    relic.setSellPrice(12);
     inventory.addItem(relic);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
-    assertEquals(1, shop.getSellPrice(relic));
+    assertEquals(12, shop.getSellPrice(relic));
     assertTrue(shop.sellItem(1));
 
     assertNull(inventory.getItem(1));
-    assertEquals(101, inventory.getGold());
+    assertEquals(112, inventory.getGold());
     assertNotNull(shop.getItemListing(1));
   }
 
@@ -330,7 +335,7 @@ class ShopComponentTest {
   @Test
   void shouldRejectBuyAndSellWhenShopHasNoEntity() {
     ShopComponent shop = new ShopComponent();
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
     shop.setUpgradeListing(1, UpgradeListing("Speed Boost", 15));
     shop.setPetListing(1, petListing("Wolf", 20));
 
@@ -347,7 +352,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     Item coins = new Item("Coins", ItemType.CURRENCY, 10, 100);
 
-    assertFalse(shop.setItemListing(1, itemListing(coins, 1, 1)));
+    assertFalse(shop.setItemListing(1, itemListing(coins, 1)));
     assertNull(shop.getItemListing(1));
     assertTrue(shop.getItemCatalog().isEmpty());
   }
@@ -355,7 +360,7 @@ class ShopComponentTest {
   @Test
   void shouldReturnUnmodifiableCatalogs() {
     ShopComponent shop = new ShopComponent();
-    ShopComponent.ShopListing<Item> potionListing = itemListing(potion(1, 10), 10, 5);
+    ShopComponent.ShopListing<Item> potionListing = itemListing(potion(1, 10), 10);
     ShopComponent.ShopListing<ShopComponent.Upgrade> UpgradeListing =
         UpgradeListing("Speed Boost", 15);
     ShopComponent.ShopListing<ShopComponent.Pet> petListing = petListing("Wolf", 20);
@@ -363,7 +368,7 @@ class ShopComponentTest {
     shop.setUpgradeListing(1, UpgradeListing);
     shop.setPetListing(1, petListing);
 
-    ShopComponent.ShopListing<Item> extraItem = itemListing(potion(1, 10), 1, 1);
+    ShopComponent.ShopListing<Item> extraItem = itemListing(potion(1, 10), 1);
     ShopComponent.ShopListing<ShopComponent.Upgrade> extraUpgrade = UpgradeListing("Shield", 5);
     ShopComponent.ShopListing<ShopComponent.Pet> extraPet = petListing("Cat", 5);
 
@@ -418,24 +423,23 @@ class ShopComponentTest {
     return new Item("Potion", ItemType.CONSUMABLE, quantity, maxQuantity);
   }
 
-  private static ShopComponent.ShopListing<Item> itemListing(
-      Item product, int buyPrice, int sellPrice) {
-    return new ShopComponent.ShopListing<>(product, buyPrice, sellPrice);
+  private static ShopComponent.ShopListing<Item> itemListing(Item product, int buyPrice) {
+    return new ShopComponent.ShopListing<>(product, buyPrice);
   }
 
   private static ShopComponent.ShopListing<ShopComponent.Upgrade> UpgradeListing(
       String name, int buyPrice) {
-    return new ShopComponent.ShopListing<>(new ShopComponent.Upgrade(name), buyPrice, 0);
+    return new ShopComponent.ShopListing<>(new ShopComponent.Upgrade(name), buyPrice);
   }
 
   private static ShopComponent.ShopListing<ShopComponent.Pet> petListing(
       String name, int buyPrice) {
-    return new ShopComponent.ShopListing<>(new ShopComponent.Pet(name), buyPrice, 0);
+    return new ShopComponent.ShopListing<>(new ShopComponent.Pet(name), buyPrice);
   }
 
   private static void fillCatalogs(ShopComponent shop) {
     for (int slot = 1; slot <= ShopComponent.MAX_CATALOG_SLOTS; slot++) {
-      assertTrue(shop.setItemListing(slot, itemListing(potion(1, 5), 20, 10)));
+      assertTrue(shop.setItemListing(slot, itemListing(potion(1, 5), 20)));
       assertTrue(shop.setUpgradeListing(slot, UpgradeListing("Upgrade " + slot, 5)));
       assertTrue(shop.setPetListing(slot, petListing("Pet " + slot, 5)));
     }
@@ -445,35 +449,28 @@ class ShopComponentTest {
   void shouldCreateShopListing() {
     Item item = potion(1, 5);
 
-    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20, 10);
+    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20);
 
     assertSame(item, listing.getProduct());
     assertEquals(20, listing.getBuyPrice());
-    assertEquals(10, listing.getSellPrice());
   }
 
   @Test
   void shouldRejectInvalidShopListing() {
     Item item = potion(1, 5);
 
-    assertThrows(
-        IllegalArgumentException.class, () -> new ShopComponent.ShopListing<>(null, 20, 10));
+    assertThrows(IllegalArgumentException.class, () -> new ShopComponent.ShopListing<>(null, 20));
 
-    assertThrows(
-        IllegalArgumentException.class, () -> new ShopComponent.ShopListing<>(item, -1, 10));
-
-    assertThrows(
-        IllegalArgumentException.class, () -> new ShopComponent.ShopListing<>(item, 20, -1));
+    assertThrows(IllegalArgumentException.class, () -> new ShopComponent.ShopListing<>(item, -1));
   }
 
   @Test
   void shouldAllowZeroShopPrices() {
     Item item = potion(1, 5);
 
-    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 0, 0);
+    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 0);
 
     assertEquals(0, listing.getBuyPrice());
-    assertEquals(0, listing.getSellPrice());
   }
 
   @Test
@@ -481,7 +478,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     Item item = potion(1, 5);
 
-    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20, 10);
+    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20);
 
     assertTrue(shop.setItemListing(1, listing));
     assertSame(listing, shop.getItemListing(1));
@@ -492,7 +489,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     Item item = potion(1, 5);
 
-    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20, 10);
+    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20);
 
     assertFalse(shop.setItemListing(0, listing));
     assertFalse(shop.setItemListing(-1, listing));
@@ -505,7 +502,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     Item item = potion(1, 5);
 
-    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20, 10);
+    ShopComponent.ShopListing<Item> listing = new ShopComponent.ShopListing<>(item, 20);
 
     shop.setItemListing(1, listing);
 
@@ -517,9 +514,9 @@ class ShopComponentTest {
   void shouldReplaceItemListing() {
     ShopComponent shop = new ShopComponent();
 
-    ShopComponent.ShopListing<Item> first = new ShopComponent.ShopListing<>(potion(1, 5), 20, 10);
+    ShopComponent.ShopListing<Item> first = new ShopComponent.ShopListing<>(potion(1, 5), 20);
 
-    ShopComponent.ShopListing<Item> second = new ShopComponent.ShopListing<>(potion(1, 5), 30, 15);
+    ShopComponent.ShopListing<Item> second = new ShopComponent.ShopListing<>(potion(1, 5), 30);
 
     shop.setItemListing(1, first);
     shop.setItemListing(1, second);
@@ -533,7 +530,7 @@ class ShopComponentTest {
     ShopComponent.Upgrade upgrade = new ShopComponent.Upgrade("Health Upgrade");
 
     ShopComponent.ShopListing<ShopComponent.Upgrade> listing =
-        new ShopComponent.ShopListing<>(upgrade, 50, 0);
+        new ShopComponent.ShopListing<>(upgrade, 50);
 
     assertTrue(shop.setUpgradeListing(1, listing));
     assertSame(listing, shop.getUpgradeListing(1));
@@ -548,7 +545,7 @@ class ShopComponentTest {
     ShopComponent.Upgrade upgrade = new ShopComponent.Upgrade("Health Upgrade");
 
     ShopComponent.ShopListing<ShopComponent.Upgrade> listing =
-        new ShopComponent.ShopListing<>(upgrade, 50, 0);
+        new ShopComponent.ShopListing<>(upgrade, 50);
 
     assertFalse(shop.setUpgradeListing(0, listing));
     assertFalse(shop.setUpgradeListing(-1, listing));
@@ -560,7 +557,7 @@ class ShopComponentTest {
     ShopComponent.Pet pet = new ShopComponent.Pet("Dog");
 
     ShopComponent.ShopListing<ShopComponent.Pet> listing =
-        new ShopComponent.ShopListing<>(pet, 100, 0);
+        new ShopComponent.ShopListing<>(pet, 100);
 
     assertTrue(shop.setPetListing(1, listing));
     assertSame(listing, shop.getPetListing(1));
@@ -575,7 +572,7 @@ class ShopComponentTest {
     ShopComponent.Pet pet = new ShopComponent.Pet("Dog");
 
     ShopComponent.ShopListing<ShopComponent.Pet> listing =
-        new ShopComponent.ShopListing<>(pet, 100, 0);
+        new ShopComponent.ShopListing<>(pet, 100);
 
     assertFalse(shop.setPetListing(0, listing));
     assertFalse(shop.setPetListing(-1, listing));
@@ -586,7 +583,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     int last = ShopComponent.MAX_CATALOG_SLOTS;
 
-    assertTrue(shop.setItemListing(last, itemListing(potion(1, 5), 20, 10)));
+    assertTrue(shop.setItemListing(last, itemListing(potion(1, 5), 20)));
     assertTrue(shop.setUpgradeListing(last, UpgradeListing("Speed Boost", 15)));
     assertTrue(shop.setPetListing(last, petListing("Wolf", 20)));
 
@@ -600,7 +597,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     int tooHigh = ShopComponent.MAX_CATALOG_SLOTS + 1;
 
-    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20, 10)));
+    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20)));
     assertFalse(shop.setUpgradeListing(tooHigh, UpgradeListing("Speed Boost", 15)));
     assertFalse(shop.setPetListing(tooHigh, petListing("Wolf", 20)));
     assertFalse(shop.setItemListing(tooHigh, null));
@@ -618,7 +615,7 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     fillCatalogs(shop);
 
-    ShopComponent.ShopListing<Item> itemReplacement = itemListing(potion(2, 5), 30, 15);
+    ShopComponent.ShopListing<Item> itemReplacement = itemListing(potion(2, 5), 30);
     ShopComponent.ShopListing<ShopComponent.Upgrade> upgradeReplacement =
         UpgradeListing("Shield", 25);
     ShopComponent.ShopListing<ShopComponent.Pet> petReplacement = petListing("Cat", 40);
@@ -641,7 +638,7 @@ class ShopComponentTest {
     fillCatalogs(shop);
 
     int tooHigh = ShopComponent.MAX_CATALOG_SLOTS + 1;
-    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20, 10)));
+    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20)));
     assertFalse(shop.setUpgradeListing(tooHigh, UpgradeListing("Shield", 25)));
     assertFalse(shop.setPetListing(tooHigh, petListing("Cat", 40)));
 
@@ -687,7 +684,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(50);
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    ShopComponent.ShopListing<Item> listing = itemListing(potion(1, 10), 10, 5);
+    ShopComponent.ShopListing<Item> listing = itemListing(potion(1, 10), 10);
     shop.setItemListing(1, listing);
 
     AtomicInteger inventoryEvents = new AtomicInteger();
@@ -709,7 +706,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
     AtomicInteger inventoryEvents = new AtomicInteger();
     AtomicInteger shopEvents = new AtomicInteger();
@@ -727,8 +724,10 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
-    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 8));
+    Item sword = new Item("Sword", ItemType.WEAPON, 1, 1);
+    sword.setSellPrice(8);
+    inventory.addItem(sword);
+    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
 
     AtomicInteger inventoryEvents = new AtomicInteger();
     AtomicInteger shopEvents = new AtomicInteger();
@@ -747,8 +746,9 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
     Item relic = new Item("Mystery Relic", ItemType.WEAPON, 1, 1);
+    relic.setSellPrice(1);
     inventory.addItem(relic);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
     AtomicInteger shopEvents = new AtomicInteger();
     entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
@@ -765,7 +765,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(5);
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
     AtomicInteger shopEvents = new AtomicInteger();
     entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
@@ -781,10 +781,14 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
 
-    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
-    inventory.addItem(new Item("Sword", ItemType.WEAPON, 1, 1));
-    shop.setItemListing(3, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 7));
-    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20, 4));
+    Item firstSword = new Item("Sword", ItemType.WEAPON, 1, 1);
+    firstSword.setSellPrice(4);
+    Item secondSword = new Item("Sword", ItemType.WEAPON, 1, 1);
+    secondSword.setSellPrice(4);
+    inventory.addItem(firstSword);
+    inventory.addItem(secondSword);
+    shop.setItemListing(3, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
+    shop.setItemListing(1, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
 
     assertTrue(shop.sellItem(1));
     assertNotNull(shop.getItemListing(1));
@@ -798,20 +802,20 @@ class ShopComponentTest {
   }
 
   @Test
-  void shouldSellAtDefaultPriceAfterBuyConsumesListing() {
+  void shouldSellBoughtItemAtSixtyPercent() {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
-    shop.setItemListing(1, itemListing(potion(1, 10), 10, 5));
+    shop.setItemListing(1, itemListing(potion(1, 10), 10));
 
     assertTrue(shop.buyItem(1));
     assertNull(shop.getItemListing(1));
     assertEquals(90, inventory.getGold());
 
-    assertEquals(1, shop.getSellPrice(inventory.getItem(1)));
+    assertEquals(6, shop.getSellPrice(inventory.getItem(1)));
     assertTrue(shop.sellItem(1));
     assertNull(inventory.getItem(1));
-    assertEquals(91, inventory.getGold());
+    assertEquals(96, inventory.getGold());
     assertNull(shop.getItemListing(1));
   }
 
@@ -822,11 +826,11 @@ class ShopComponentTest {
     AtomicInteger shopEvents = new AtomicInteger();
     entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
 
-    ShopComponent.ShopListing<Item> first = itemListing(potion(1, 5), 20, 10);
+    ShopComponent.ShopListing<Item> first = itemListing(potion(1, 5), 20);
     assertTrue(shop.setItemListing(1, first));
     assertEquals(1, shopEvents.get());
 
-    ShopComponent.ShopListing<Item> second = itemListing(potion(1, 5), 30, 15);
+    ShopComponent.ShopListing<Item> second = itemListing(potion(1, 5), 30);
     assertTrue(shop.setItemListing(1, second));
     assertEquals(2, shopEvents.get());
 
@@ -848,18 +852,17 @@ class ShopComponentTest {
     entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
 
     Item coins = new Item("Coins", ItemType.CURRENCY, 10, 100);
-    assertFalse(shop.setItemListing(1, itemListing(coins, 1, 1)));
-    assertFalse(shop.setItemListing(0, itemListing(potion(1, 5), 20, 10)));
+    assertFalse(shop.setItemListing(1, itemListing(coins, 1)));
+    assertFalse(shop.setItemListing(0, itemListing(potion(1, 5), 20)));
     assertFalse(
-        shop.setItemListing(
-            ShopComponent.MAX_CATALOG_SLOTS + 1, itemListing(potion(1, 5), 20, 10)));
+        shop.setItemListing(ShopComponent.MAX_CATALOG_SLOTS + 1, itemListing(potion(1, 5), 20)));
     assertTrue(shop.setItemListing(2, null));
     assertEquals(0, shopEvents.get());
 
     fillCatalogs(shop);
     int afterFill = shopEvents.get();
     int tooHigh = ShopComponent.MAX_CATALOG_SLOTS + 1;
-    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20, 10)));
+    assertFalse(shop.setItemListing(tooHigh, itemListing(potion(1, 5), 20)));
     assertEquals(afterFill, shopEvents.get());
   }
 
