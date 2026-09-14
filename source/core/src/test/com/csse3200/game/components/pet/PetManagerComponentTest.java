@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.services.ServiceLocator;
@@ -29,7 +30,7 @@ public class PetManagerComponentTest {
 
   @Test
   public void shouldStartWithoutActivePet() {
-    PetManagerComponent manager = new PetManagerComponent(petOwner -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     assertNull(manager.getActivePet());
     assertFalse(manager.hasActivePet());
@@ -38,10 +39,12 @@ public class PetManagerComponentTest {
   @Test
   public void shouldActivatePet() {
     Entity pet = new Entity();
-    PetManagerComponent manager = new PetManagerComponent(petOwner -> pet);
+
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> pet);
+
     owner.addComponent(manager);
 
-    manager.activatePet();
+    manager.activatePet(new ShopComponent.Pet("Bird"));
 
     assertSame(pet, manager.getActivePet());
     assertTrue(manager.hasActivePet());
@@ -49,13 +52,14 @@ public class PetManagerComponentTest {
 
   @Test
   public void shouldReplaceExistingPet() {
-    PetManagerComponent manager = new PetManagerComponent(petOwner -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+
     owner.addComponent(manager);
 
-    manager.activatePet();
+    manager.activatePet(new ShopComponent.Pet("Bird"));
     Entity firstPet = manager.getActivePet();
 
-    manager.activatePet();
+    manager.activatePet(new ShopComponent.Pet("Bat"));
     Entity secondPet = manager.getActivePet();
 
     assertNotSame(firstPet, secondPet);
@@ -65,10 +69,11 @@ public class PetManagerComponentTest {
 
   @Test
   public void shouldRemoveActivePet() {
-    PetManagerComponent manager = new PetManagerComponent(petOwner -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+
     owner.addComponent(manager);
 
-    manager.activatePet();
+    manager.activatePet(new ShopComponent.Pet("Bird"));
     manager.removePet();
 
     assertNull(manager.getActivePet());
@@ -77,10 +82,11 @@ public class PetManagerComponentTest {
 
   @Test
   public void shouldDisposeActivePet() {
-    PetManagerComponent manager = new PetManagerComponent(petOwner -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+
     owner.addComponent(manager);
 
-    manager.activatePet();
+    manager.activatePet(new ShopComponent.Pet("Bird"));
     manager.dispose();
 
     assertNull(manager.getActivePet());
@@ -90,12 +96,13 @@ public class PetManagerComponentTest {
   @Test
   void shouldActivatePetWhenPetPurchasedEventTriggered() {
     Entity pet = new Entity();
-    PetManagerComponent manager = new PetManagerComponent(petOwner -> pet);
+
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> pet);
 
     owner.addComponent(manager);
     ServiceLocator.getEntityService().register(owner);
 
-    owner.getEvents().trigger("petPurchased");
+    owner.getEvents().trigger("petPurchased", new ShopComponent.Pet("Bird"));
 
     assertSame(pet, manager.getActivePet());
     assertTrue(manager.hasActivePet());

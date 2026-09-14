@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.pet.PetComponent;
 import com.csse3200.game.components.pet.PetMovementComponent;
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
@@ -29,18 +30,36 @@ public class PetFactory {
    * @param owner player entity that owns this pet
    * @return unregistered pet entity
    */
-  public static Entity createPet(Entity owner) {
+  public static Entity createPet(Entity owner, ShopComponent.Pet petData) {
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService().getAsset(PET_ATLAS, TextureAtlas.class));
 
-    animator.addAnimation("idle_left", 0.15f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idle_right", 0.15f, Animation.PlayMode.LOOP);
+    String animationPrefix;
+
+    switch (petData.getName().toLowerCase()) {
+      case "bat":
+        animationPrefix = "bat";
+        break;
+
+      case "spirit":
+        animationPrefix = "spirit";
+        break;
+
+      case "bird":
+      default:
+        animationPrefix = "bird";
+        break;
+    }
+
+    animator.addAnimation(animationPrefix + "_left", 0.15f, Animation.PlayMode.LOOP);
+
+    animator.addAnimation(animationPrefix + "_right", 0.15f, Animation.PlayMode.LOOP);
 
     Entity pet =
         new Entity()
             .addComponent(new PetComponent(owner))
-            .addComponent(new PetMovementComponent())
+            .addComponent(new PetMovementComponent(animationPrefix))
             .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
             .addComponent(new ColliderComponent())
             .addComponent(animator);
@@ -50,7 +69,7 @@ public class PetFactory {
     PhysicsUtils.setScaledCollider(pet, 0.6f, 0.3f);
     pet.getComponent(ColliderComponent.class).setLayer(PhysicsLayer.NONE).setSensor(true);
 
-    animator.startAnimation("idle_right");
+    animator.startAnimation(animationPrefix + "_right");
 
     return pet;
   }

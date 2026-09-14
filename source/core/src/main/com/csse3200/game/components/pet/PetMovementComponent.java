@@ -20,17 +20,23 @@ public class PetMovementComponent extends Component {
   private float previousOwnerX;
   private float facingDirection = 1f;
   private AnimationRenderComponent animator;
+  private final String animationPrefix;
 
   /** Creates pet movement using the game's time source. */
-  public PetMovementComponent() {
-    this(ServiceLocator.getTimeSource());
+  public PetMovementComponent(String animationPrefix) {
+    this(ServiceLocator.getTimeSource(), animationPrefix);
   }
 
-  PetMovementComponent(GameTime timeSource) {
+  PetMovementComponent(GameTime timeSource, String animationPrefix) {
     if (timeSource == null) {
       throw new IllegalArgumentException("Pet movement requires a time source");
     }
+    if (animationPrefix == null || animationPrefix.isBlank()) {
+      throw new IllegalArgumentException("Animation prefix cannot be null or blank");
+    }
+
     this.timeSource = timeSource;
+    this.animationPrefix = animationPrefix;
   }
 
   @Override
@@ -75,9 +81,9 @@ public class PetMovementComponent extends Component {
 
         if (animator != null) {
           if (facingDirection > 0f) {
-            animator.startAnimation("idle_right");
+            animator.startAnimation(animationPrefix + "_right");
           } else {
-            animator.startAnimation("idle_left");
+            animator.startAnimation(animationPrefix + "_left");
           }
         }
       }

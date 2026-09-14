@@ -1,10 +1,11 @@
 package com.csse3200.game.components.pet;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.PetFactory;
 import com.csse3200.game.services.ServiceLocator;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 /**
  * Manages the player's active companion pet.
@@ -14,7 +15,7 @@ import java.util.function.Function;
  */
 public class PetManagerComponent extends Component {
   private Entity activePet;
-  private final Function<Entity, Entity> petFactory;
+  private final BiFunction<Entity, ShopComponent.Pet, Entity> petFactory;
 
   /** Creates a pet manager using the normal game pet factory. */
   public PetManagerComponent() {
@@ -27,7 +28,7 @@ public class PetManagerComponent extends Component {
    * <p>This constructor is package-private so tests can provide a lightweight pet factory without
    * loading game assets.
    */
-  PetManagerComponent(Function<Entity, Entity> petFactory) {
+  PetManagerComponent(BiFunction<Entity, ShopComponent.Pet, Entity> petFactory) {
     this.petFactory = petFactory;
   }
 
@@ -47,10 +48,10 @@ public class PetManagerComponent extends Component {
    *
    * <p>If a pet is already active, it is removed before the new pet is created.
    */
-  public void activatePet() {
+  public void activatePet(ShopComponent.Pet pet) {
     removePet();
 
-    activePet = petFactory.apply(entity);
+    activePet = petFactory.apply(entity, pet);
     ServiceLocator.getEntityService().register(activePet);
   }
 
