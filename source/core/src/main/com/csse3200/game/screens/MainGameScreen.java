@@ -15,13 +15,10 @@ import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
-<<<<<<< HEAD
-import com.csse3200.game.components.player.SubLevelTravelComponent;
-=======
 import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
->>>>>>> origin/main
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -63,7 +60,6 @@ public class MainGameScreen extends ScreenAdapter {
     "images/ui/heart-green.png",
     "images/ui/heart-yellow.png"
   };
-<<<<<<< HEAD
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
@@ -71,9 +67,6 @@ public class MainGameScreen extends ScreenAdapter {
 
   /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
   private static final float SUB_LEVEL_BOUNDARY = 16f;
-=======
-  private static final Vector2 CAMERA_POSITION = new Vector2(10f, 5f);
->>>>>>> origin/main
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -118,20 +111,11 @@ public class MainGameScreen extends ScreenAdapter {
     terrainFactory = new TerrainFactory(renderer.getCamera());
     this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
-<<<<<<< HEAD
-    ServiceLocator.getEntityService()
-        .register(new Entity().addComponent(new SubLevelTitleDisplay(levelGameArea.getPlayer())));
-    createSubLevelTravelPrompt(levelGameArea.getPlayer());
-    if (loadsave) {
-      LoadService.load(
-          levelGameArea.getPlayer(),
-          levelGameArea.getMapWorldWidth(),
-          levelGameArea.getMapWorldHeight());
-    }
-=======
     Entity player = levelGameArea.getPlayer();
     upgradesDisplay.setPlayer(player);
->>>>>>> origin/main
+    ServiceLocator.getEntityService()
+        .register(new Entity().addComponent(new SubLevelTitleDisplay(player)));
+    createSubLevelTravelPrompt(player);
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {

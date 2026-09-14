@@ -15,16 +15,11 @@ public class ArrowFactory {
 
     Entity arrow =
         new Entity()
-<<<<<<< HEAD
             .addComponent(new TextureRenderComponent("images/items/arrow.png"))
-            .addComponent(new ArrowMovementComponent(direction));
-=======
-            .addComponent(new TextureRenderComponent("images/arrow.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new HitboxComponent())
             .addComponent(new ArrowMovementComponent(direction))
             .addComponent(new ProjectileHitComponent(damage, owner));
->>>>>>> origin/main
 
     arrow.setPosition(position);
     arrow.setScale(0.5f, 0.2f);

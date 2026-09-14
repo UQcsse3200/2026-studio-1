@@ -3,7 +3,6 @@ package com.csse3200.game.components.player;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
-import com.csse3200.game.components.loot.WeaponItem;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -505,29 +504,10 @@ public class InventoryComponent extends Component {
       return false;
     }
 
-<<<<<<< HEAD
-    boolean sameBaseItem =
-        existing.getName().equals(incoming.getName())
-            && existing.getItemType() == incoming.getItemType()
-            && existing.getMaxQuantity() == incoming.getMaxQuantity();
-
-    if (!sameBaseItem) {
-      return false;
-    }
-
-    if (existing instanceof WeaponItem existingWeapon
-        && incoming instanceof WeaponItem incomingWeapon) {
-      return existingWeapon.getWeaponType() == incomingWeapon.getWeaponType()
-          && existingWeapon.getDamage() == incomingWeapon.getDamage();
-    }
-
-    return !(existing instanceof WeaponItem) && !(incoming instanceof WeaponItem);
-=======
     return existing.getName().equals(incoming.getName())
         && existing.getItemType() == incoming.getItemType()
         && existing.getMaxQuantity() == incoming.getMaxQuantity()
         && existing.getSellPrice() == incoming.getSellPrice();
->>>>>>> origin/main
   }
 
   /**

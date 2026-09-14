@@ -44,16 +44,7 @@ public class MainMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
-<<<<<<< HEAD
-    table = new Table();
-    table.setFillParent(true);
-    Image title =
-        new Image(
-            ServiceLocator.getResourceService()
-                .getAsset("images/ui/box_boy_title.png", Texture.class));
-=======
     Table titleStack = buildTitleStack();
->>>>>>> origin/main
 
     Table optionsPanel = new Table();
     optionsPanel.setBackground(skin.newDrawable("white", PANEL_COLOR));
@@ -92,7 +83,7 @@ public class MainMenuDisplay extends UIComponent {
 
   private Table buildTitleStack() {
     Texture titleTexture =
-        ServiceLocator.getResourceService().getAsset("images/box_boy_title.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/box_boy_title.png", Texture.class);
 
     int splitX = (int) (titleTexture.getWidth() * TITLE_SPLIT_FRACTION);
     TextureRegion boxRegion =

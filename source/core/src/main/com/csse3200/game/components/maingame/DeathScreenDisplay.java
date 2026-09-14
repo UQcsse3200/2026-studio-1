@@ -52,11 +52,7 @@ public class DeathScreenDisplay extends UIComponent {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-<<<<<<< HEAD
-            game.setScreenDeferred(ScreenType.MAIN_GAME);
-=======
             onRetry();
->>>>>>> origin/main
           }
         });
 
@@ -64,11 +60,7 @@ public class DeathScreenDisplay extends UIComponent {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-<<<<<<< HEAD
-            game.setScreenDeferred(ScreenType.MAIN_MENU);
-=======
             onMainMenu();
->>>>>>> origin/main
           }
         });
 

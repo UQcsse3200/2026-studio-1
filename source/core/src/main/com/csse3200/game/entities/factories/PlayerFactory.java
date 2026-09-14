@@ -17,14 +17,11 @@ import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
-<<<<<<< HEAD
-import com.csse3200.game.components.player.SubLevelTravelComponent;
-=======
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShieldRenderComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.ShopDisplay;
->>>>>>> origin/main
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
