@@ -110,6 +110,12 @@ loadScripts(document, 'script');</script>
  int&nbsp;quantity,
  int&nbsp;maxQuantity)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,com.csse3200.game.components.loot.WeaponTier,int,int)" class="member-name-link">WeaponItem</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
+ <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a>&nbsp;weaponTier,
+ int&nbsp;quantity,
+ int&nbsp;maxQuantity)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -124,8 +130,20 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAttackSpeed()" class="member-name-link">getAttackSpeed</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockback()" class="member-name-link">getKnockback</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRange()" class="member-name-link">getRange</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTier()" class="member-name-link">getTier</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWeaponType()" class="member-name-link">getWeaponType</a>()</code></div>
@@ -160,6 +178,16 @@ loadScripts(document, 'script');</script>
  int&nbsp;maxQuantity)</span></div>
 </section>
 </li>
+<li>
+<section class="detail" id="&lt;init&gt;(java.lang.String,com.csse3200.game.components.loot.WeaponType,com.csse3200.game.components.loot.WeaponTier,int,int)">
+<h3>WeaponItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">WeaponItem</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
+ <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a>&nbsp;weaponTier,
+ int&nbsp;quantity,
+ int&nbsp;maxQuantity)</span></div>
+</section>
+</li>
 </ul>
 </section>
 </li>
@@ -178,6 +206,30 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getDamage()">
 <h3>getDamage</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getDamage</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getTier()">
+<h3>getTier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTier</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAttackSpeed()">
+<h3>getAttackSpeed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getAttackSpeed</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getKnockback()">
+<h3>getKnockback</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getKnockback</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRange()">
+<h3>getRange</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getRange</span>()</div>
 </section>
 </li>
 </ul>
