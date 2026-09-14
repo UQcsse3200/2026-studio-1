@@ -104,9 +104,9 @@ public class MainGameScreen extends ScreenAdapter {
 
     if (loadsave) {
       LoadService.load(
-              levelGameArea.getPlayer(),
-              levelGameArea.getMapWorldWidth(),
-              levelGameArea.getMapWorldHeight());
+          levelGameArea.getPlayer(),
+          levelGameArea.getMapWorldWidth(),
+          levelGameArea.getMapWorldHeight());
     }
     fitCameraToMap(levelGameArea);
   }

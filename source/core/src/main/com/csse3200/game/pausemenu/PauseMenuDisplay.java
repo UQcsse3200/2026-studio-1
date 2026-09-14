@@ -51,7 +51,7 @@ public class PauseMenuDisplay extends UIComponent {
   private static final float DEFAULT_MUSIC_VOL = 0.8f;
   private static final float DEFAULT_EFFECTS_VOL = 1f;
 
-  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu","Save"};
+  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu", "Save"};
   private static final String[] SETTINGS_ITEMS = {"Audio", "Keybinds", "Back"};
   private static final String[] AUDIO_ITEMS = {
     "Master Volume", "Music Volume", "Effects Volume", "Back"
