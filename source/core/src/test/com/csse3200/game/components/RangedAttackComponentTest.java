@@ -9,10 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.loot.WeaponItem;
-import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
@@ -62,8 +58,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldStoreConstructorValuesCorrectly() {
-    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, 1, 1, 1);
-    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, bow);
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f);
     assertEquals(6f, ranged.getRange());
     assertEquals(2.5f, ranged.getCooldown());
     assertEquals(1f, ranged.getKnockback());
@@ -75,8 +70,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldRejectNonPositiveProjectileSpeed() {
-    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, 1, 1, 1);
-    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 0f, bow);
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 0f);
     assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(0f));
     assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(-1f));
   }
@@ -212,10 +206,9 @@ class RangedAttackComponentTest {
   }
 
   private Entity createAttacker(float range, float cooldown, float knockback) {
-    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, 1, 1, 1);
     Entity attacker =
         new Entity()
-            .addComponent(new RangedAttackComponent(range, cooldown, knockback, bow))
+            .addComponent(new RangedAttackComponent(range, cooldown, knockback))
             .addComponent(new CombatStatsComponent(20, 5));
     attacker.create();
     return attacker;

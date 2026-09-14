@@ -1,10 +1,6 @@
 package com.csse3200.game.components;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.csse3200.game.components.Component;
-import com.csse3200.game.components.loot.WeaponItem;
-import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ArrowFactory;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -47,9 +43,6 @@ public class RangedAttackComponent extends Component {
   private float range;
   private float cooldown;
   private float knockback;
-  private WeaponItem weapon;
-  private float windupDuration;
-  private float windupTimeRemaing;
   private float projectileSpeed;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
@@ -69,19 +62,6 @@ public class RangedAttackComponent extends Component {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-    if (weapon == null) {
-      throw new IllegalArgumentException("weapon cannot be null");
-    }
-    this.weapon = weapon;
-    if (weapon.getWeaponType() == WeaponType.DAGGER || weapon.getWeaponType() == WeaponType.SWORD) {
-      throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
-    }
-    if (weapon.getWindupDuration() < 0) {
-      throw new IllegalArgumentException("windupDuration must not be negative.");
-    }
-    if (weapon.getWindupDuration() >= this.getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown");
-    }
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
     this.timeSinceLastAttack = cooldown;
   }
