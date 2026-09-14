@@ -77,7 +77,8 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas", "images/knight.atlas"
+    "images/ghost.atlas", "images/ghostKing.atlas", "images/gold_coin/gold_coin.atlas",
+          "images/knight.atlas", "images/LeftKnight.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";

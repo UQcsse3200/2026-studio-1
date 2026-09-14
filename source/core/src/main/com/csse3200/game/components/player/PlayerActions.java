@@ -109,8 +109,11 @@ public class PlayerActions extends Component {
 
   private void animationtimer() {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
-    if (animator.isFinished() && animator.getCurrentAnimation() != "crouchidle") {
-      entity.getEvents().trigger("idle");
+    if (animator.isFinished()
+            &! animator.getCurrentAnimation().equals("crouchidle")
+            &! animator.getCurrentAnimation().equals("Leftcrouchidle")
+    ) {
+      entity.getEvents().trigger("idle", "Right");
     }
   }
 
@@ -286,7 +289,6 @@ public class PlayerActions extends Component {
       sliding = true;
       SlideTimer = 0;
       slidingAction(walkDirection.cpy());
-      entity.getEvents().trigger("sliding");
     } else {
       sliding = false;
     }

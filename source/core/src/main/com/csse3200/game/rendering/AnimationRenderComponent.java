@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
  * - other third-party tools, e.g. https://www.codeandweb.com/texturepacker <br>
  */
 public class AnimationRenderComponent extends RenderComponent {
-  private static final Logger logger = LoggerFactory.getLogger(AnimationRenderComponent.class);
+  protected static final Logger logger = LoggerFactory.getLogger(AnimationRenderComponent.class);
   protected final GameTime timeSource;
   private final TextureAtlas atlas;
-  private final Map<String, Animation<TextureRegion>> animations;
+  protected final Map<String, Animation<TextureRegion>> animations;
   protected Animation<TextureRegion> currentAnimation;
   private String currentAnimationName;
   protected float animationPlayTime;

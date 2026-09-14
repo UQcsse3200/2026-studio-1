@@ -18,38 +18,66 @@ public class PlayerAnimationController extends Component {
         animator = this.entity.getComponent(PlayerRenderComponent.class);
         entity.getEvents().addListener("idle", this::animateIdle);
         entity.getEvents().addListener("run", this::animateRun);
-        entity.getEvents().addListener("attack", this::animateAttack);
+        entity.getEvents().addListener("attacking", this::animateAttack);
         entity.getEvents().addListener("sliding", this::animateSlide);
         entity.getEvents().addListener("crouchidle", this::animateCrouch);
-        entity.getEvents().addListener("jump", this::animateJump);
-        entity.getEvents().addListener("roll", this::animateRoll);
+        entity.getEvents().addListener("jumping", this::animateJump);
+        entity.getEvents().addListener("rolling", this::animateRoll);
     }
 
-    void animateIdle() {
-        animator.startAnimation("Idle");
+    void animateIdle(String direction) {
+        if ("Right".equals(direction)) {
+            animator.startAnimation("Idle");
+        } else {
+            animator.startAnimation("LeftIdle");
+        }
     }
 
-    void animateRun() {
-        animator.startAnimation("Run");
+    void animateRun(String direction) {
+        if ("Right".equals(direction)) {
+            animator.startAnimation("Run");
+        } else {
+            animator.startAnimation("LeftRun");
+        }
     }
 
-    void animateAttack() {
-        animator.startAnimation("Attacks");
+    void animateAttack(String direction) {
+        if ("Right".equals(direction)) {
+            animator.startAnimation("Attacks");
+        } else {
+            animator.startAnimation("LeftAttacks");
+        }
     }
 
-    void animateSlide() {
-        animator.startAnimation("Slide");
+    void animateSlide(String direction) {
+        if ("Right".equals(direction)) {
+            animator.startAnimation("Slide");
+        } else {
+            animator.startAnimation("LeftSlide");
+        }
     }
 
-    void animateCrouch() {
-        animator.startAnimation("crouchidle");
+    void animateCrouch(String direction) {
+        if ("Right".equals(direction)) {
+            animator.startAnimation("crouchidle");
+        } else {
+            animator.startAnimation("Leftcrouchidle");
+        }
     }
 
-    void animateJump(Vector2 direction) {
-        animator.startAnimation("Jump");
+    void animateJump(String direction) {
+        if ("Right".equals(direction)) {
+            animator.startAnimation("Jump");
+        } else {
+            animator.startAnimation("LeftJump");
+        }
     }
 
-    void animateRoll() {
-        animator.startAnimation("Roll");
+    void animateRoll(String direction) {
+        if ("Right".equals(direction)) {
+            animator.startAnimation("Roll");
+        } else {
+            animator.startAnimation("LeftRoll");
+        }
     }
 }

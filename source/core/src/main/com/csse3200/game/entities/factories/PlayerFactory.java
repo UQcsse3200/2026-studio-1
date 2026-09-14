@@ -71,7 +71,11 @@ public class PlayerFactory {
     PlayerRenderComponent animator =
             new PlayerRenderComponent(
                     ServiceLocator.getResourceService()
-                            .getAsset("images/knight.atlas", TextureAtlas.class));
+                            .getAsset("images/knight.atlas", TextureAtlas.class),
+                    ServiceLocator.getResourceService()
+                            .getAsset("images/LeftKnight.atlas", TextureAtlas.class)
+            );
+
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);
     animator.addAnimation("Attacks", 0.1f, Animation.PlayMode.NORMAL);
@@ -79,6 +83,13 @@ public class PlayerFactory {
     animator.addAnimation("Roll", 0.1f, Animation.PlayMode.NORMAL);
     animator.addAnimation("Slide", 0.1f, Animation.PlayMode.NORMAL);
     animator.addAnimation("Run", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("LeftIdle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("LeftJump", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("LeftAttacks", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Leftcrouchidle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("LeftRoll", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("LeftSlide", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("LeftRun", 0.1f, Animation.PlayMode.LOOP);
     player.addComponent(animator).addComponent(new PlayerAnimationController());
 
     player.setScale(0.75f, (float) size.getHeight()/size.getWidth());
