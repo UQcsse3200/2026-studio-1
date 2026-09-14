@@ -18,7 +18,7 @@ public class PerksMenuDisplay extends UIComponent {
   private static final Color LOCKED_TEXT = new Color(0.6f, 0.6f, 0.6f, 1f);
   private static final Color SELECTED_TEXT = Color.YELLOW;
   private static final Color HIGHLIGHT_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
-
+  private static final String colour = "white";
   private final GdxGame game;
   private Label[] nameLabels;
   private Label backLabel;
@@ -42,7 +42,7 @@ public class PerksMenuDisplay extends UIComponent {
 
   private void addActors() {
     Table listPanel = new Table();
-    listPanel.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    listPanel.setBackground(skin.newDrawable(colour, PANEL_COLOR));
     listPanel.pad(20f, 30f, 20f, 30f);
     listPanel.left();
 
@@ -146,22 +146,17 @@ public class PerksMenuDisplay extends UIComponent {
     for (int i = 0; i < nameLabels.length; i++) {
       boolean selected = i == selectedIndex;
       Table row = (Table) nameLabels[i].getParent();
-      row.setBackground(selected ? skin.newDrawable("white", HIGHLIGHT_BG) : null);
+      row.setBackground(selected ? skin.newDrawable(colour, HIGHLIGHT_BG) : null);
       nameLabels[i].getStyle().fontColor = selected ? SELECTED_TEXT : textColorFor(perks.get(i));
     }
     boolean backSelected = selectedIndex == backIndex;
     backLabel.getStyle().fontColor = backSelected ? SELECTED_TEXT : LOCKED_TEXT;
     Table backRow = (Table) backLabel.getParent();
-    backRow.setBackground(backSelected ? skin.newDrawable("white", HIGHLIGHT_BG) : null);
+    backRow.setBackground(backSelected ? skin.newDrawable(colour, HIGHLIGHT_BG) : null);
   }
 
   @Override
   public void draw(SpriteBatch batch) {
     // draw is handled by the stage
-  }
-
-  @Override
-  public void dispose() {
-    super.dispose();
   }
 }

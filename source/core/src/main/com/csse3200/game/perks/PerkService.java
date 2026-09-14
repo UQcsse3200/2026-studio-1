@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 public final class PerkService {
   private static final Logger logger = LoggerFactory.getLogger(PerkService.class);
   private static final String PREFS_NAME = "perks";
+  private static final String PREFS_PROGRESS_SUFFIX = ".progress";
+  private static final String PREFS_UNLOCKED_SUFFIX = ".unlocked";
 
   private static final Map<String, Perk> perksById = new LinkedHashMap<>();
   private static final Preferences prefs =
@@ -73,8 +75,8 @@ public final class PerkService {
     if (prefs == null) {
       return;
     }
-    int progress = prefs.getInteger(perk.getId() + ".progress", 0);
-    boolean unlocked = prefs.getBoolean(perk.getId() + ".unlocked", false);
+    int progress = prefs.getInteger(perk.getId() + PREFS_PROGRESS_SUFFIX, 0);
+    boolean unlocked = prefs.getBoolean(perk.getId() + PREFS_UNLOCKED_SUFFIX, false);
     perk.restoreState(progress, unlocked);
   }
 
@@ -82,8 +84,8 @@ public final class PerkService {
     if (prefs == null) {
       return;
     }
-    prefs.putInteger(perk.getId() + ".progress", perk.getProgress());
-    prefs.putBoolean(perk.getId() + ".unlocked", perk.isUnlocked());
+    prefs.putInteger(perk.getId() + PREFS_PROGRESS_SUFFIX, perk.getProgress());
+    prefs.putBoolean(perk.getId() + PREFS_UNLOCKED_SUFFIX, perk.isUnlocked());
     prefs.flush();
   }
 
@@ -92,8 +94,8 @@ public final class PerkService {
     for (Perk perk : perksById.values()) {
       perk.restoreState(0, false);
       if (prefs != null) {
-        prefs.remove(perk.getId() + ".progress");
-        prefs.remove(perk.getId() + ".unlocked");
+        prefs.remove(perk.getId() + PREFS_PROGRESS_SUFFIX);
+        prefs.remove(perk.getId() + PREFS_UNLOCKED_SUFFIX);
       }
     }
     if (prefs != null) {
