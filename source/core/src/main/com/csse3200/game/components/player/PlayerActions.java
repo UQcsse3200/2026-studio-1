@@ -104,16 +104,28 @@ public class PlayerActions extends Component {
       updateSpeed();
     }
     timerforslide();
-    animationtimer();
+    String direction = entity.getComponent(KeyboardPlayerInputComponent.class).getDirection();
+    animationtimer(direction);
   }
 
-  private void animationtimer() {
+  private void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
     if (animator.isFinished()
             &! animator.getCurrentAnimation().equals("crouchidle")
             &! animator.getCurrentAnimation().equals("Leftcrouchidle")
+            &! animator.getCurrentAnimation().equals("Run")
+            &! animator.getCurrentAnimation().equals("LeftRun")
+
     ) {
-      entity.getEvents().trigger("idle", "Right");
+      if (animator.getCurrentAnimation().equals("Jump") || animator.getCurrentAnimation().equals("LeftJump")) {
+        if (!walkDirection.isZero()) {
+          entity.getEvents().trigger("run", direction);
+        } else {
+          entity.getEvents().trigger("idle", direction);
+        }
+      } else {
+        entity.getEvents().trigger("idle", direction);
+      }
     }
   }
 
@@ -297,6 +309,10 @@ public class PlayerActions extends Component {
   private void slidingAction(Vector2 direction) {
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(slidespeed);
+    if (impulse.x != 0f) {
+      entity.getEvents().trigger("sliding",
+              entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
+    }
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 

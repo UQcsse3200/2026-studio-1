@@ -29,6 +29,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean sliding = false;
   private String direction = "Right";
 
+
+  public String getDirection(){
+    return this.direction;
+  }
   /**
    * Triggers player events on specific keycodes.
    *
@@ -40,7 +44,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     entity.getEvents().trigger("idle", direction);
     switch (keycode) {
       case Keys.W:
-        jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
+        jumpDirection.add(Vector2Utils.UP);// Adds to the y vector
         triggerJumpEvent();
         entity.getEvents().trigger("jumping", direction);
         jumped = true;
@@ -94,7 +98,6 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.SHIFT_LEFT: // for slide
         entity.getEvents().trigger("slide", true);
-        entity.getEvents().trigger("sliding", direction);
         return true;
       case Keys.NUM_1:
         handleInventorySlot(1);
