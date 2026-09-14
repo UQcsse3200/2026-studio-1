@@ -89,7 +89,8 @@ class LootPickupComponentTest {
 
     triggerPlayerCollision(loot, player);
 
-    assertFalse(loot.getComponent(HitboxComponent.class) == null, "loot entity should be untouched");
+    assertFalse(
+        loot.getComponent(HitboxComponent.class) == null, "loot entity should be untouched");
     assertEquals(
         0,
         player.getComponent(InventoryComponent.class).getOccupiedSlots(),

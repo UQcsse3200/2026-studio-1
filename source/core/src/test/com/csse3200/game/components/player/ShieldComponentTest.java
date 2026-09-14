@@ -110,7 +110,8 @@ class ShieldComponentTest {
     when(timeSource.getTime()).thenReturn(DURATION_MILLIS - 1);
     player.update();
 
-    assertTrue(shield.isActive(), "the shield should still be active just before its duration ends");
+    assertTrue(
+        shield.isActive(), "the shield should still be active just before its duration ends");
   }
 
   /** Acceptance criterion: damage taken right up to expiry is still blocked. */
