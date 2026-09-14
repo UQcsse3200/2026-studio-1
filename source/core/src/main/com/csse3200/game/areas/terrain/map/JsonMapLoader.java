@@ -120,8 +120,7 @@ public class JsonMapLoader implements MapLoader {
     int width = collected.width();
     int height = collected.height();
 
-    MapSpawns spawns =
-        parseSpawns(root.get("spawns"), split.entityRows(), entityLegend, width, height);
+    MapSpawns spawns = parseSpawns(root.get("spawns"), split.entityRows(), entityLegend, height);
 
     List<RoomTransition> transitions = parseTransitions(root.get("transitions"), name);
 
@@ -361,7 +360,7 @@ public class JsonMapLoader implements MapLoader {
   }
 
   private void parseEntityLayer(
-      String[] rows, Map<String, JsonValue> entityLegend, MapSpawns spawns, int width, int height) {
+      String[] rows, Map<String, JsonValue> entityLegend, MapSpawns spawns, int height) {
     for (int r = 0; r < rows.length; r++) {
       String row = rows[r];
       int y = height - 1 - r; // Same coordinate conversion used by buildLayer().
@@ -426,11 +425,7 @@ public class JsonMapLoader implements MapLoader {
   }
 
   private MapSpawns parseSpawns(
-      JsonValue spawnsJson,
-      String[] entityRows,
-      Map<String, JsonValue> entityLegend,
-      int width,
-      int height) {
+      JsonValue spawnsJson, String[] entityRows, Map<String, JsonValue> entityLegend, int height) {
 
     MapSpawns spawns = new MapSpawns();
 
@@ -465,7 +460,7 @@ public class JsonMapLoader implements MapLoader {
 
     // New symbol-based spawns.
     if (entityRows != null) {
-      parseEntityLayer(entityRows, entityLegend, spawns, width, height);
+      parseEntityLayer(entityRows, entityLegend, spawns, height);
     }
 
     return spawns;

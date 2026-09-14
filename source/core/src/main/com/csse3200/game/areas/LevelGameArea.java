@@ -111,8 +111,8 @@ public class LevelGameArea extends GameArea {
     "images/pet.atlas"
   };
 
-  private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
-  private static final String[] entityMusic = {backgroundMusic};
+  private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
+  private static final String[] entityMusic = {BACKGROUND_MUSIC};
 
   private final TerrainFactory terrainFactory;
   private final MapLoader mapLoader;
@@ -528,7 +528,7 @@ public class LevelGameArea extends GameArea {
                       CombatStatsComponent stats =
                           newPlayer.getComponent(CombatStatsComponent.class);
 
-                      stats.addHealth(-(int) HAZARD_DAMAGE);
+                      stats.addHealth(-HAZARD_DAMAGE);
 
                       lastHazardDamageTime[0] = currentTime;
 
@@ -663,7 +663,7 @@ public class LevelGameArea extends GameArea {
   }
 
   private void playMusic() {
-    Music music = ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class);
+    Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
     music.setLooping(true);
     music.setVolume(0.3f);
     music.play();
@@ -705,7 +705,7 @@ public class LevelGameArea extends GameArea {
   @Override
   public void dispose() {
     super.dispose();
-    ServiceLocator.getResourceService().getAsset(backgroundMusic, Music.class).stop();
+    ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class).stop();
     unloadAssets();
   }
 }
