@@ -32,6 +32,10 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
+import com.csse3200.game.components.npc.DialogueComponent;
+import com.csse3200.game.components.npc.DisplayDialogue;
+import com.csse3200.game.components.npc.DialogueProximityComponent;
+
 /**
  * Factory to create non-playable character (NPC) entities with predefined components.
  *
@@ -232,9 +236,13 @@ public class NPCFactory {
    *
    * @return entity
    */
-  public static Entity createTravelerNPC() {
+  public static Entity createTravelerNPC(Entity player) {
     final float floorCollisionScale = 0.45f;
     final float playerHeight = 1000f / 792f;
+    String[] dialoguetext = {
+            "Hello",
+            "Good luck"
+    };
     AITaskComponent aiComponent =
         new AITaskComponent()
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale));
@@ -246,7 +254,11 @@ public class NPCFactory {
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
             .addComponent(aiComponent)
             .addComponent(new CombatStatsComponent(50, 0))
-            .addComponent(new TextureRenderComponent("images/npc_traveler.png"));
+            .addComponent(new TextureRenderComponent("images/npc_traveler.png"))
+            // npc dialogue
+            .addComponent(new DialogueComponent(dialoguetext))
+            .addComponent(new DisplayDialogue("Traveler"))
+            .addComponent(new DialogueProximityComponent(player, 2f));
 
     npc.getComponent(TextureRenderComponent.class).scaleEntity();
     npc.scaleHeight(playerHeight);

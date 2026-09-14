@@ -414,7 +414,7 @@ public class LevelGameArea extends GameArea {
   }
 
   private void spawnTravelerNPC() {
-    Entity travelerNPC = NPCFactory.createTravelerNPC();
+    Entity travelerNPC = NPCFactory.createTravelerNPC(player);
     spawnEntityAt(travelerNPC, TRAVELER_NPC_SPAWN, true, true);
   }
 }
