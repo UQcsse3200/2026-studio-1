@@ -29,12 +29,8 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
    * @param activePriority priority returned while the target is within aggroRadius and alive
    * @param inactivePriority priority returned otherwise
    */
-  public ChargeTask(
-      Entity target,
-      ChargeComponent chargeComponent,
-      float aggroRadius,
-      int activePriority,
-      int inactivePriority) {
+  public ChargeTask(Entity target, ChargeComponent chargeComponent, float aggroRadius,
+                    int activePriority, int inactivePriority) {
     this.target = target;
     this.chargeComponent = chargeComponent;
     this.aggroRadius = aggroRadius;
@@ -51,13 +47,6 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
    */
   @Override
   public int getPriority() {
-    //    IF target IS NULL OR target has no CombatStatsComponent OR
-    // target.getCombatStatsComponent().getHealth() <= 0 THEN
-    //    RETURN inactivePriority
-    //    END IF
-    //    distance = DISTANCE(owner.getPosition(), target.getPosition())
-    //    IF distance <= aggroRadius THEN RETURN activePriority END IF
-    //    RETURN inactivePriority
     if (this.target == null
         || this.target.getComponent(CombatStatsComponent.class) == null
         || this.target.getComponent(CombatStatsComponent.class).getHealth() <= 0) {
@@ -71,12 +60,13 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
   }
 
   /**
-   * Starts a charge toward the target when off cooldown and not already charging; otherwise a
-   * no-op.
+   * Starts a charge toward the target when off cooldown and not already charging;
+   * otherwise don't do anything
    */
   @Override
   public void update() {
-    if (this.target == null || target.getComponent(CombatStatsComponent.class).getHealth() <= 0) {
+    if (this.target == null || target.getComponent(CombatStatsComponent.class) == null
+        || target.getComponent(CombatStatsComponent.class).getHealth() <= 0) {
       return;
     }
     if (chargeComponent.isCharging()) {

@@ -19,21 +19,23 @@ public class ChargeComponent extends Component {
   private final float chargeDuration;
   private final float cooldown;
   private final float damageMultiplier;
+  private final float speedMultiplier;
 
   private float timeSinceLastCharge;
   private float chargeTimeRemaining;
 
   /**
-   * Creates a charge component.
    *
+   * Create a charge component - increases the speed and attack damage from the entity.
    * @param chargeDuration seconds a single charge lasts once started
    * @param cooldown minimum seconds between the end of one charge and the start of the next
-   * @param damageMultiplier damage multiplier applied to the next attack while charging; must be
-   *     greater than 1.0
-   * @throws IllegalArgumentException if speedMultiplier or damageMultiplier is not greater than
+   * @param damageMultiplier damage multiplier applied to the next attack while charging; must be greater than 1.0
+   * @param speedMultiplier movement speed multiplier applied while charging; must be greater than 1.0
+   * @throws IllegalArgumentException if damageMultiplier or speedMultiplier is not greater than
    *     1.0, if chargeDuration is not positive, or if cooldown is negative
    */
-  public ChargeComponent(float chargeDuration, float cooldown, float damageMultiplier) {
+  public ChargeComponent(float chargeDuration, float cooldown, float damageMultiplier,
+                         float speedMultiplier) throws IllegalArgumentException {
     if (chargeDuration <= 0) {
       throw new IllegalArgumentException("chargeDuration must be positive.");
     }
@@ -43,9 +45,15 @@ public class ChargeComponent extends Component {
     if (damageMultiplier <= 1.0) {
       throw new IllegalArgumentException("damageMultiplier must be greater than 1.0");
     }
+    if (speedMultiplier <= 1.0) {
+      throw new IllegalArgumentException("to have any effect on speed, multiplier must be greater than 1.");
+    }
     this.chargeDuration = chargeDuration;
     this.cooldown = cooldown;
+
     this.damageMultiplier = damageMultiplier;
+    this.speedMultiplier = speedMultiplier;
+
     this.timeSinceLastCharge = cooldown;
     this.chargeTimeRemaining = 0;
   }
@@ -61,6 +69,7 @@ public class ChargeComponent extends Component {
       if (chargeTimeRemaining <= 0) {
         chargeTimeRemaining = 0;
         timeSinceLastCharge = 0;
+        this.getEntity().getComponent(PhysicsMovementComponent.class).setSpeedMultiplier(1.0f);
       } else {
         timeSinceLastCharge += ServiceLocator.getTimeSource().getDeltaTime();
       }
@@ -84,19 +93,19 @@ public class ChargeComponent extends Component {
   }
 
   /**
-   * Begins a charge if {@link #canCharge()} is true; otherwise a no-op. Starts the charge duration
-   * countdown only — no movement effect. Fires {@code "chargeStart"} on owning entity, an animation
-   * controller can listen for this to switch to a charging sprite, giving the player visual
-   * feedback even though there's no actual movement change.
+   * Begins a charge toward the given target position if {@link #canCharge()} is true; otherwise a
+   * no-op. A one-time snapshot of the target's position, not tracked continuously — the entity
+   * keeps moving toward this point even if the target later moves.
    *
-   * @param direction direction the charge is aimed toward - represents the target being charged at
+   * @param targetPosition the world position to charge toward
    */
-  public void startCharge(Vector2 direction) {
+  public void startCharge(Vector2 targetPosition) {
     if (!canCharge()) {
       return;
     }
     chargeTimeRemaining = chargeDuration;
-    entity.getComponent(PhysicsMovementComponent.class).setTarget(direction);
+    entity.getComponent(PhysicsMovementComponent.class).setTarget(targetPosition);
+    entity.getComponent(PhysicsMovementComponent.class).setSpeedMultiplier(this.speedMultiplier);
     entity.getEvents().trigger("chargeStart");
   }
 
