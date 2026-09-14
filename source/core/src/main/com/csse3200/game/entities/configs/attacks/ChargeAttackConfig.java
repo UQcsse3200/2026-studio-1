@@ -6,9 +6,9 @@ package com.csse3200.game.entities.configs.attacks;
  * pulls the previously-duplicated charge fields out of MinotaurConfig/CentaurConfig into a single
  * reusable config class, the same way melee/ranged settings were already factored out.
  *
- * <p>Deliberately does not include {@code aggroRadius} - that governs when an enemy starts
- * chasing at all (read by ChargeTask's priority check), not charge behaviour itself, so it stays
- * a top-level field on each enemy config rather than moving in here.
+ * <p>Deliberately does not include {@code aggroRadius} - that governs when an enemy starts chasing
+ * at all (read by ChargeTask's priority check), not charge behaviour itself, so it stays a
+ * top-level field on each enemy config rather than moving in here.
  */
 public class ChargeAttackConfig {
   /* Movement speed multiplier applied while charging */
@@ -22,4 +22,7 @@ public class ChargeAttackConfig {
 
   /* Damage multiplier applied to the attack that lands while charging */
   public float damageMultiplier = 1.0f;
+
+  /* Aggression radius that triggers the charge task */
+  public float aggroRadius = 10;
 }

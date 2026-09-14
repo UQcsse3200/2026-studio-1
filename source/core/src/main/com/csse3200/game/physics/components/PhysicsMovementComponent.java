@@ -127,8 +127,8 @@ public class PhysicsMovementComponent extends Component implements MovementContr
   }
 
   /**
-   * Sets a multiplier applied to this entity's base movement speed.
-   * A value of 1.0f restores to original speed.
+   * Sets a multiplier applied to this entity's base movement speed. A value of 1.0f restores to
+   * original speed.
    *
    * @param speedMultiplier the positive multiplier to apply.
    * @throws IllegalArgumentException if speedMultiplier is not positive.

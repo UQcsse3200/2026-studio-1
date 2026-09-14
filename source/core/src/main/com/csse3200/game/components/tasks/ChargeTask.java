@@ -29,8 +29,12 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
    * @param activePriority priority returned while the target is within aggroRadius and alive
    * @param inactivePriority priority returned otherwise
    */
-  public ChargeTask(Entity target, ChargeComponent chargeComponent, float aggroRadius,
-                    int activePriority, int inactivePriority) {
+  public ChargeTask(
+      Entity target,
+      ChargeComponent chargeComponent,
+      float aggroRadius,
+      int activePriority,
+      int inactivePriority) {
     this.target = target;
     this.chargeComponent = chargeComponent;
     this.aggroRadius = aggroRadius;
@@ -60,12 +64,13 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
   }
 
   /**
-   * Starts a charge toward the target when off cooldown and not already charging;
-   * otherwise don't do anything
+   * Starts a charge toward the target when off cooldown and not already charging; otherwise don't
+   * do anything
    */
   @Override
   public void update() {
-    if (this.target == null || target.getComponent(CombatStatsComponent.class) == null
+    if (this.target == null
+        || target.getComponent(CombatStatsComponent.class) == null
         || target.getComponent(CombatStatsComponent.class).getHealth() <= 0) {
       return;
     }

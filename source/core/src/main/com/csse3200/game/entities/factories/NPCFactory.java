@@ -4,26 +4,18 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
-import com.csse3200.game.components.tasks.ChaseTask;
-import com.csse3200.game.components.tasks.MeleeAttackTask;
-import com.csse3200.game.components.tasks.PlatformWanderTask;
-import com.csse3200.game.components.tasks.RangedAttackTask;
-import com.csse3200.game.components.tasks.WanderTask;
+import com.csse3200.game.components.tasks.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.GhostKingConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
-import com.csse3200.game.entities.configs.enemies.RangedSkeletonConfig;
-import com.csse3200.game.entities.configs.enemies.SkeletonConfig;
+import com.csse3200.game.entities.configs.enemies.*;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
@@ -215,6 +207,216 @@ public class NPCFactory {
     rangedSkeleton.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(rangedSkeleton, collisionScale.x, collisionScale.y);
     return rangedSkeleton;
+  }
+
+  /**
+   * Creates a Minotaur entity (e.g. a large enemy with an axe) that attacks through charging at
+   * enemy with melee weapon and added damage.
+   *
+   * @param target entity to chase
+   * @return minotaur entity that charges at target to attack
+   */
+  public static Entity createMinotaur(Entity target) {
+    float scale = 2f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    MinotaurConfig config = configs.minotaur;
+
+    // Create loot on drop
+    int numGold = 3;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
+    // TODO: THIS WILL BE CHANGED TO MINOTAUR ANIMATION AND SPRITES
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(
+            ServiceLocator.getResourceService()
+                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+
+    // Add necessary components to the entity
+    minotaur
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(animator)
+        .addComponent(new SkeletonAnimationController());
+
+    minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    ChargeComponent chargeComponent =
+        new ChargeComponent(
+            config.charge.duration,
+            config.charge.cooldown,
+            config.charge.damageMultiplier,
+            config.charge.speedMultiplier);
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    minotaur
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, 10, config.melee.range))
+        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
+
+    minotaur.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
+    return minotaur;
+  }
+
+  /**
+   * Creates a Centaur entity (e.g. a large enemy with a bow) that attacks from a distance while
+   * charging towards the target.
+   *
+   * @param target entity to chase
+   * @return centaur entity that charges at target to attack from a distance.
+   */
+  public static Entity createCentaur(Entity target) {
+    float scale = 2f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity centaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    CentaurConfig config = configs.centaur;
+
+    // Create loot on drop
+    int numGold = 3;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
+    // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(
+            ServiceLocator.getResourceService()
+                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+
+    // Add necessary components to the entity
+    centaur
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(animator)
+        .addComponent(new SkeletonAnimationController());
+
+    centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    ChargeComponent chargeComponent =
+        new ChargeComponent(
+            config.charge.duration,
+            config.charge.cooldown,
+            config.charge.damageMultiplier,
+            config.charge.speedMultiplier);
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    centaur
+        .getComponent(AITaskComponent.class)
+        .addTask(new RangedAttackTask(target, 10, config.ranged.range))
+        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
+
+    centaur.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
+    return centaur;
+  }
+
+  /**
+   * Creates a Cyclops (e.g. a mini-boss that has both melee and ranged attacks) that can attack
+   * from close or far away.
+   *
+   * @param target entity to chase
+   * @return Cyclops entity as a mini boss enemy
+   */
+  public static Entity createCyclops(Entity target) {
+    float scale = 2f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    CyclopsConfig config = configs.cyclops;
+
+    // Create loot on drop
+    int numGold = 3;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
+    // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(
+            ServiceLocator.getResourceService()
+                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+
+    // Add necessary components to the entity
+    cyclops
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(2)))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(animator)
+        .addComponent(new SkeletonAnimationController());
+
+    cyclops.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    cyclops
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, 10, config.melee.range))
+        .addTask(new RangedAttackTask(target, 9, config.ranged.range));
+
+    cyclops.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(cyclops, collisionScale.x, collisionScale.y);
+    return cyclops;
   }
 
   /**

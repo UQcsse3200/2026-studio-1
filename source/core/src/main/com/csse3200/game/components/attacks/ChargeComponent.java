@@ -25,17 +25,20 @@ public class ChargeComponent extends Component {
   private float chargeTimeRemaining;
 
   /**
-   *
    * Create a charge component - increases the speed and attack damage from the entity.
+   *
    * @param chargeDuration seconds a single charge lasts once started
    * @param cooldown minimum seconds between the end of one charge and the start of the next
-   * @param damageMultiplier damage multiplier applied to the next attack while charging; must be greater than 1.0
-   * @param speedMultiplier movement speed multiplier applied while charging; must be greater than 1.0
+   * @param damageMultiplier damage multiplier applied to the next attack while charging; must be
+   *     greater than 1.0
+   * @param speedMultiplier movement speed multiplier applied while charging; must be greater than
+   *     1.0
    * @throws IllegalArgumentException if damageMultiplier or speedMultiplier is not greater than
    *     1.0, if chargeDuration is not positive, or if cooldown is negative
    */
-  public ChargeComponent(float chargeDuration, float cooldown, float damageMultiplier,
-                         float speedMultiplier) throws IllegalArgumentException {
+  public ChargeComponent(
+      float chargeDuration, float cooldown, float damageMultiplier, float speedMultiplier)
+      throws IllegalArgumentException {
     if (chargeDuration <= 0) {
       throw new IllegalArgumentException("chargeDuration must be positive.");
     }
@@ -46,7 +49,8 @@ public class ChargeComponent extends Component {
       throw new IllegalArgumentException("damageMultiplier must be greater than 1.0");
     }
     if (speedMultiplier <= 1.0) {
-      throw new IllegalArgumentException("to have any effect on speed, multiplier must be greater than 1.");
+      throw new IllegalArgumentException(
+          "to have any effect on speed, multiplier must be greater than 1.");
     }
     this.chargeDuration = chargeDuration;
     this.cooldown = cooldown;

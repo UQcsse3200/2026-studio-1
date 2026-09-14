@@ -1,10 +1,10 @@
 package com.csse3200.game.entities.configs.enemies;
 
 import com.csse3200.game.entities.configs.BaseEntityConfig;
-import com.csse3200.game.entities.configs.attacks.ChargeAttackConfig;
 import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
+import com.csse3200.game.entities.configs.attacks.RangedAttackConfig;
 
-public class MinotaurConfig extends BaseEntityConfig {
+public class CyclopsConfig extends BaseEntityConfig {
   public MeleeAttackConfig melee;
-  public ChargeAttackConfig charge;
+  public RangedAttackConfig ranged;
 }
