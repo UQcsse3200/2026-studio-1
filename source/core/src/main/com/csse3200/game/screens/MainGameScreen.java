@@ -100,14 +100,15 @@ public class MainGameScreen extends ScreenAdapter {
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
       shopDisplay.setUpgradesDisplay(upgradesDisplay);
-      if (loadsave) {
-        LoadService.load(
-            levelGameArea.getPlayer(),
-            levelGameArea.getMapWorldWidth(),
-            levelGameArea.getMapWorldHeight());
-      }
-      fitCameraToMap(levelGameArea);
     }
+
+    if (loadsave) {
+      LoadService.load(
+              levelGameArea.getPlayer(),
+              levelGameArea.getMapWorldWidth(),
+              levelGameArea.getMapWorldHeight());
+    }
+    fitCameraToMap(levelGameArea);
   }
 
   public Entity getPlayerEntity() {
