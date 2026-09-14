@@ -144,21 +144,27 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the entity is created and registered.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDashing()" class="member-name-link">getDashing</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAttackSpeedMultiplier()" class="member-name-link">getAttackSpeedMultiplier</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEffectiveSpeedMultiplier()" class="member-name-link">getEffectiveSpeedMultiplier</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the combined effect of all active speed modifiers (their product).</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#playMovementSound()" class="member-name-link">playMovementSound</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDashing()" class="member-name-link">getDashing</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEffectiveSpeedMultiplier()" class="member-name-link">getEffectiveSpeedMultiplier</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSpeedModifier(java.lang.Object)" class="member-name-link">removeSpeedModifier</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;key)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#playMovementSound()" class="member-name-link">playMovementSound</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSpeedModifier(java.lang.Object)" class="member-name-link">removeSpeedModifier</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;key)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Removes a previously-added speed modifier.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setAttackSpeedMultiplier(float)" class="member-name-link">setAttackSpeedMultiplier</a><wbr>(float&nbsp;multiplier)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the combined effect of all active speed modifiers (their product).</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
@@ -258,10 +264,22 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="setAttackSpeedMultiplier(float)">
+<h3>setAttackSpeedMultiplier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setAttackSpeedMultiplier</span><wbr><span class="parameters">(float&nbsp;multiplier)</span></div>
+<div class="block">Returns the combined effect of all active speed modifiers (their product). 1 if none active.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAttackSpeedMultiplier()">
+<h3>getAttackSpeedMultiplier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getAttackSpeedMultiplier</span>()</div>
+</section>
+</li>
+<li>
 <section class="detail" id="getEffectiveSpeedMultiplier()">
 <h3>getEffectiveSpeedMultiplier</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getEffectiveSpeedMultiplier</span>()</div>
-<div class="block">Returns the combined effect of all active speed modifiers (their product). 1 if none active.</div>
 </section>
 </li>
 <li>
