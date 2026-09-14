@@ -13,7 +13,7 @@
     "baseAttack": 5,
     "melee": {
       "range": 2,
-      "cooldown": 5,
+      "cooldown": 3,
       "knockback": 0
     }
   },
@@ -23,6 +23,8 @@
     "ranged": {
       "range": 5,
       "cooldown": 5,
+      "range": 8,
+      "cooldown": 4,
       "knockback": 0
     }
   },

@@ -1,6 +1,6 @@
 package com.csse3200.game.components.loot;
 
-import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.entities.Entity;
 
@@ -69,7 +69,6 @@ public class HealEffect implements ConsumableEffect {
    * @return the configured cap, or {@link Integer#MAX_VALUE} when the entity declares none
    */
   private int resolveMaxHealth(Entity entity) {
-    ConsumableUseComponent useComponent = entity.getComponent(ConsumableUseComponent.class);
-    return useComponent == null ? Integer.MAX_VALUE : useComponent.getMaxHealth();
+    return ConsumableUseComponent.maxHealthOf(entity);
   }
 }

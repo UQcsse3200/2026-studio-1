@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -64,9 +64,11 @@ public class ForestGameArea extends GameArea {
     "images/iso_grass_2.png",
     "images/iso_grass_3.png",
     "images/platform.png",
-    "images/Health.png",
-    "images/Poison.png",
-    "images/Strength.png"
+    "images/potions/health_potion.png",
+    "images/potions/strength_potion.png",
+    "images/potions/speed_potion.png",
+    "images/potions/regeneration_potion.png",
+    "images/potions/resistance_potion.png"
   };
 
   private static final String[] forestTextureAtlases = {
