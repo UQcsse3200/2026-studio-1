@@ -32,5 +32,6 @@ public class PauseMenuComponent extends Component {
         music.play();
       }
     }
+    ServiceLocator.getTimeSource().setTimeScale(isPaused ? 0f : 1f);
   }
 }
