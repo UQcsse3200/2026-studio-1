@@ -200,7 +200,7 @@ public class EnemyWeaponAnimationComponent extends RenderComponent {
   @Override
   public float getZIndex() {
     // Drawn slightly in front of the base entity's body sprite
-    return -entity.getPosition().y + 0.01f;
+    return -entity.getPosition().y + 1;
   }
 
   @Override
