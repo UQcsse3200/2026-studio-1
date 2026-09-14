@@ -1,11 +1,7 @@
 package com.csse3200.game.perks;
 
 /**
- * Declares every known Perk and registers them with {@link PerkService}. Call {@link
- * #registerAll()} once at game startup, alongside other service setup (e.g. in MainGameScreen's
- * constructor, or wherever the game's very first screen is created).
- *
- * <p>To add a new perk tied to an event that's already reported somewhere in the game (e.g.
+ * To add a new perk tied to an event that's already reported somewhere in the game (e.g.
  * "dashUsed", "enemyKilled"): add one new {@code PerkService.register(new Perk(...))} line below.
  * Nothing else needs to change.
  *

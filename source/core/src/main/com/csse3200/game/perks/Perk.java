@@ -1,12 +1,5 @@
 package com.csse3200.game.perks;
 
-/**
- * Represents a single permanent, milestone-based perk - unlike UpgradeNode (tiered, purchasable,
- * temporary), a Perk is unlocked exactly once, forever, by accumulating enough of a named gameplay
- * event (e.g. "dashUsed", "enemyKilled", "wallJumpUsed").
- *
- * <p>Perks know nothing about how progress is reported - see {@link PerkService#recordEvent}.
- */
 public class Perk {
   private final String id;
   private final String name;
@@ -54,17 +47,10 @@ public class Perk {
     return unlocked;
   }
 
-  /** Registers a callback fired the moment this perk's threshold is first reached. */
   public void setOnUnlocked(Runnable onUnlocked) {
     this.onUnlocked = onUnlocked;
   }
 
-  /**
-   * Called by PerkService when a matching event fires. No-op once already unlocked, so further
-   * events for an already-completed perk are harmless.
-   *
-   * @return true if this call was the one that crossed the threshold
-   */
   boolean recordProgress(int amount) {
     if (unlocked) {
       return false;
@@ -80,7 +66,6 @@ public class Perk {
     return false;
   }
 
-  /** Used only when loading saved state - sets values directly without re-firing onUnlocked. */
   void restoreState(int progress, boolean unlocked) {
     this.progress = Math.min(threshold, progress);
     this.unlocked = unlocked;
