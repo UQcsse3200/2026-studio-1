@@ -7,9 +7,7 @@ import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.raycast.RaycastHit;
-import com.csse3200.game.rendering.DebugRenderer;
 import com.csse3200.game.services.ServiceLocator;
-import com.csse3200.game.utils.math.Vector2Utils;
 import java.util.Objects;
 
 public class PlatformerComponent extends Component {
@@ -29,7 +27,6 @@ public class PlatformerComponent extends Component {
   private PhysicsComponent physicsComponent;
   private PhysicsEngine physics;
   ColliderComponent collider;
-  DebugRenderer debug = new DebugRenderer();
 
   public PlatformerComponent(int baseJumpScaler) {
     this.baseJumpScaler = baseJumpScaler;
@@ -144,14 +141,14 @@ public class PlatformerComponent extends Component {
     // as well as the right part of the wall, so we give a boost to the distanceThreshold
     float distanceThreshold = 5f; // The wall jump applies if the collider is X units away
     Vector2 from = entity.getPosition();
-    from.y+=5;
+    from.y += 5;
     Vector2 fromRight = from;
-    fromRight.x+=8;//Moving "fromRight" to the right since entity.getPosition()
-    //returns the Entity's position form the bottom left of the character
-    Vector2 fromLeft = from;//It's already on the left
+    fromRight.x += 8; // Moving "fromRight" to the right since entity.getPosition()
+    // returns the Entity's position form the bottom left of the character
+    Vector2 fromLeft = from; // It's already on the left
 
     Vector2 vectorToRight = new Vector2(fromRight.x + (distanceThreshold), fromRight.y);
-    Vector2 vectorToLeft = new Vector2(fromLeft.x-distanceThreshold, fromLeft.y);
+    Vector2 vectorToLeft = new Vector2(fromLeft.x - distanceThreshold, fromLeft.y);
     float left = 100000;
     float right = 100000;
     physics.raycast(fromLeft, vectorToLeft, PhysicsLayer.OBSTACLE, leftHit);
@@ -163,8 +160,7 @@ public class PlatformerComponent extends Component {
       right = Math.abs(from.x - rightHit.point.x);
     }
 
-
-    if(left<right) {
+    if (left < right) {
       if (left <= distanceThreshold && leftHit.point != null) {
         return "LEFT";
       }
