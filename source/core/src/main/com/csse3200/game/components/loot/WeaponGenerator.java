@@ -22,13 +22,12 @@ public class WeaponGenerator {
       default -> throw new IllegalArgumentException("Unsupported weapon type.");
     };
 
-    int maxCapacity = switch(weaponType) {
-      case SWORD -> 10;
-      case BOW -> 20;
-      case DAGGER -> 10;
-      default -> throw new IllegalArgumentException("Unsupported weapon type.");
+   int max_Capacity = switch(weaponType) {
+     case SWORD -> 10;
+     case BOW -> 20;
+     case DAGGER -> 10;
+     default -> throw new IllegalArgumentException("Unsupported weapon type");
     };
-
-    return new WeaponItem(name, weaponType, tier, 1, maxCapacity);
+    return new WeaponItem(name, weaponType, tier, 1, max_Capacity);
   }
 }
