@@ -30,6 +30,9 @@ public class PlayerActions extends Component {
   // Thank you Lachlan, you beautiful, beautiful man
   private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
+  private static final float BASE_ATTACK_COOLDOWN = 0.5f;
+  private float attackCooldownRemaining = 0f;
+  private float attackCooldownMultiplier = 1f;
 
   private PhysicsComponent physicsComponent;
   private CombatStatsComponent combatStats;
@@ -100,6 +103,11 @@ public class PlayerActions extends Component {
 
   @Override
   public void update() {
+    if (attackCooldownRemaining > 0f) {
+      attackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
+      attackCooldownRemaining = Math.max(0f, attackCooldownRemaining);
+    }
+
     playMovementSound();
     if (!dead && (moving || platformerComponent.getJumpingBool())) {
       updateSpeed();
@@ -191,6 +199,13 @@ public class PlayerActions extends Component {
   /**
    * Returns the combined effect of all active speed modifiers (their product). 1 if none active.
    */
+  public void setAttackSpeedMultiplier(float multiplier) {
+    attackCooldownMultiplier = multiplier;
+  }
+
+  public float getAttackSpeedMultiplier() {
+    return attackCooldownMultiplier;
+  }
   public float getEffectiveSpeedMultiplier() {
     float result = 1f;
     for (float value : speedModifiers.values()) {
@@ -226,9 +241,7 @@ public class PlayerActions extends Component {
 
   /** Makes the player attack. */
   void attack() {
-    if (dead) {
-      return;
-    }
+    if (dead || attackCooldownRemaining > 0f) return;
 
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
@@ -244,6 +257,7 @@ public class PlayerActions extends Component {
 
     // Existing weapon functionality
     entity.getEvents().trigger("weaponAttack");
+  attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
   }
 
   /** Makes the player dash. */
