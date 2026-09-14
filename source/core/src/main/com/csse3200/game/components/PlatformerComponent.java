@@ -157,17 +157,10 @@ public class PlatformerComponent extends Component {
     physics.raycast(fromLeft, vectorToLeft, PhysicsLayer.OBSTACLE, leftHit);
     if (leftHit.point != null) {
       left = Math.abs(from.x - leftHit.point.x);
-      System.out.println(left + "LEFT" + leftHit.point.x);
-    }else{
-      System.out.println("LEFT DOESNT HIT");
     }
     physics.raycast(fromRight, vectorToRight, PhysicsLayer.OBSTACLE, rightHit);
-    debug.drawLine(from, rightHit.point);
     if (rightHit.point != null) {
       right = Math.abs(from.x - rightHit.point.x);
-      System.out.println(right + "R" + rightHit.point.x);
-    }else{
-      System.out.println("RIGHT DOESNT HIT");
     }
 
 
