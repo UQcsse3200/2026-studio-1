@@ -21,6 +21,7 @@ import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.LootPlacement;
+import com.csse3200.game.components.loot.LootSpawnFinder;
 import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,11 +65,14 @@ public class LevelGameArea extends GameArea {
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
   private static final int HAZARD_DAMAGE = 10;
 
+  /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
+  private static final int RANDOM_LOOT_COUNT = 8;
+
   /**
-   * Seed for loot rolls. Fixing it keeps a level's loot the same from run to run, so a bug found
-   * while playing can be reproduced.
+   * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
+   * it is logged when loot spawns so a run with a bug in it can be replayed from that seed.
    */
-  private static final long LOOT_SEED = 2026L;
+  private final long lootSeed = new Random().nextLong();
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
@@ -586,41 +591,61 @@ public class LevelGameArea extends GameArea {
 
   /**
    * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
-   * features work in this level, mirroring what {@code ForestGameArea} spawns.
+   * features work in this level.
    *
-   * <p>The shield is guaranteed at the map's first declared loot spawn point, the same way the gold
-   * coin is always placed directly rather than rolled — with maps sometimes declaring only a
-   * handful of loot spawn points, leaving the shield to the weighted table risked it never
-   * appearing. Every remaining loot spawn point gets one item rolled from the weighted loot table,
-   * so loot lands on reachable ground and higher tiers stay rare. A map with no declared loot
-   * spawns falls back to a starter row beside the player.
+   * <p>Loot goes on the spots chosen by {@link #chooseLootSpawns()}. The shield is guaranteed on
+   * the first spot, the same way the gold coin is always placed directly rather than rolled, since
+   * leaving the shield to the weighted table risked it never appearing. Every remaining spot gets
+   * one item rolled from the weighted loot table, so higher tiers stay rare. A map with no usable
+   * ground at all falls back to a starter row beside the player.
    */
   private void spawnLoot() {
-    List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();
-    if (!lootSpawns.isEmpty()) {
-      SpawnPoint shieldSpawn = lootSpawns.get(0);
-      spawnEntityAt(
-          LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
-          shieldSpawn.getPosition(),
-          true,
-          true);
-
-      List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
-      LootTable table = LootTable.createDefault(LOOT_SEED);
-      for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
-        spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
-      }
+    List<SpawnPoint> lootSpawns = chooseLootSpawns();
+    if (lootSpawns.isEmpty()) {
+      spawnStarterLootRow();
       return;
     }
 
-    spawnStarterLootRow();
+    SpawnPoint shieldSpawn = lootSpawns.get(0);
+    spawnEntityAt(
+        LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
+        shieldSpawn.getPosition(),
+        true,
+        true);
+
+    List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
+    LootTable table = LootTable.createDefault(lootSeed);
+    for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
+      spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
+    }
+  }
+
+  /**
+   * Chooses the tiles this level's loot goes on.
+   *
+   * <p>A map's own loot spawn points always win, so a map author can place loot by hand. Most maps
+   * declare none, so otherwise {@link #RANDOM_LOOT_COUNT} distinct tiles are picked at random from
+   * the open ground, which spreads the loot out and changes it every run.
+   *
+   * @return the chosen tiles, empty only when the map has no open ground at all
+   */
+  private List<SpawnPoint> chooseLootSpawns() {
+    logger.info("Loot seed for {}: {}", mapData.getName(), lootSeed);
+
+    List<SpawnPoint> declared = mapData.getSpawns().getLoot();
+    if (!declared.isEmpty()) {
+      return declared;
+    }
+
+    List<SpawnPoint> ground = LootSpawnFinder.findGroundSpots(mapData);
+    return LootPlacement.pickRandomSpots(ground, RANDOM_LOOT_COUNT, new Random(lootSeed));
   }
 
   /**
    * Lays one of everything out in a row next to the player.
    *
-   * <p>Used for maps that declare no loot spawn points, so the loot and inventory features are
-   * still reachable while a map is being built.
+   * <p>A last resort for a map with no open ground to scatter loot over, so the loot and inventory
+   * features are still reachable while a map is being built.
    */
   private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
