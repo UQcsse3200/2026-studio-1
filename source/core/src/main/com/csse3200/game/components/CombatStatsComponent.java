@@ -99,7 +99,13 @@ public class CombatStatsComponent extends Component {
       return;
     }
 
+    boolean wasAlive = !isDead();
+
     int newHealth = getHealth() - attacker.getBaseAttack();
     setHealth(newHealth);
+
+    if (wasAlive && isDead() && attacker.getEntity() != null) {
+      attacker.getEntity().getEvents().trigger("enemyKilled");
+    }
   }
 }
