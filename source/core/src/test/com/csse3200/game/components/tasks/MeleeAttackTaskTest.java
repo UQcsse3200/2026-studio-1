@@ -5,10 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.csse3200.game.ai.tasks.AITaskComponent;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.loot.WeaponItem;
-import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.MeleeAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
@@ -30,7 +28,7 @@ class MeleeAttackTaskTest {
     ServiceLocator.registerTimeSource(gameTime);
   }
 
-  // Constructor rejects a null target.
+  /* testing the constructor class */
   @Test
   void shouldThrowWhenConstructedWithNullTarget() {
     assertThrows(
@@ -39,9 +37,8 @@ class MeleeAttackTaskTest {
         "Expected constructor to throw IllegalArgumentException for a null target, but it did not.");
   }
 
-  // Constructor rejects a negative attackRange but accepts exactly zero.
   @Test
-  void shouldValidateAttackRangeBoundary() {
+  void shouldThrowWhenConstructedWithNegativeAttackRange() {
     Entity target = createTarget();
     assertThrows(
         IllegalArgumentException.class,
@@ -49,53 +46,70 @@ class MeleeAttackTaskTest {
         "Expected constructor to throw IllegalArgumentException for attackRange = "
             + -1
             + ", but it did not.");
+  }
+
+  @Test
+  void shouldAcceptZeroAttackRange() {
+    Entity target = createTarget();
     assertDoesNotThrow(
         () -> new MeleeAttackTask(target, 10, 0f),
         "Expected attackRange = 0 to be accepted as a valid boundary value.");
   }
 
-  // While inactive, priority is the configured value within range and at the boundary, -1 outside
-  // it.
+  /* the following tests the getPriority() function's inactive-status branch, i.e. before the
+   * task has been started by an AITaskComponent
+   */
   @Test
-  void getPriority_inactiveAcrossWithinAtBoundaryAndOutOfRange() {
+  void shouldReturnPriorityWhenInactiveAndTargetWithinRange() {
+    Entity target = createTarget();
+    target.setPosition(1, 0);
     Entity attacker = createAttacker(2, 1, 0);
     attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
 
-    Entity targetWithin = createTarget();
-    targetWithin.setPosition(1, 0);
-    MeleeAttackTask taskWithin = attachTask(attacker, targetWithin);
     assertEquals(
         10,
-        taskWithin.getPriority(),
+        task.getPriority(),
         "Expected priority of 10 as target is within attackRange while task is inactive, but got "
-            + taskWithin.getPriority());
-
-    Entity targetAtBoundary = createTarget();
-    targetAtBoundary.setPosition(2, 0);
-    MeleeAttackTask taskAtBoundary = attachTask(attacker, targetAtBoundary);
-    assertEquals(
-        10,
-        taskAtBoundary.getPriority(),
-        "Expected priority of 10 as target sits exactly at the attackRange boundary, but got "
-            + taskAtBoundary.getPriority());
-
-    Entity targetOutOfRange = createTarget();
-    targetOutOfRange.setPosition(10, 0);
-    MeleeAttackTask taskOutOfRange = attachTask(attacker, targetOutOfRange);
-    assertTrue(
-        taskOutOfRange.getPriority() < 0,
-        "Expected an inactive priority as target is outside attackRange, but got "
-            + taskOutOfRange.getPriority());
+            + task.getPriority());
   }
 
-  // Priority is inactive once the target's health reaches zero.
+  @Test
+  void shouldReturnInactivePriorityWhenInactiveAndTargetOutOfRange() {
+    Entity target = createTarget();
+    target.setPosition(10, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+
+    assertTrue(
+        task.getPriority() < 0,
+        "Expected an inactive priority as target is outside attackRange, but got "
+            + task.getPriority());
+  }
+
+  @Test
+  void shouldReturnPriorityWhenInactiveAndTargetExactlyAtRangeBoundary() {
+    Entity target = createTarget();
+    target.setPosition(2, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+
+    assertEquals(
+        10,
+        task.getPriority(),
+        "Expected priority of 10 as target sits exactly at the attackRange boundary, but got "
+            + task.getPriority());
+  }
+
   @Test
   void shouldReturnInactivePriorityWhenTargetHasNoHealthRemaining() {
     Entity target = createTarget();
     target.setPosition(1, 0);
     Entity attacker = createAttacker(2, 1, 0);
     attacker.setPosition(0, 0);
-    MeleeAttackTask task = attachTask(attacker, target);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
 
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
     CombatStatsComponent attackerStats = attacker.getComponent(CombatStatsComponent.class);
@@ -109,15 +123,16 @@ class MeleeAttackTaskTest {
             + task.getPriority());
   }
 
-  // While active, priority stays at the configured value in range, and drops once the target moves
-  // out of range.
+  /* the following tests the getPriority() function's active-status branch, i.e. after the
+   * task has been started (as would happen once AITaskComponent selects it as highest priority)
+   */
   @Test
-  void getPriority_activeReflectsRangeChanges() {
+  void shouldReturnPriorityWhenActiveAndTargetWithinRange() {
     Entity target = createTarget();
     target.setPosition(1, 0);
     Entity attacker = createAttacker(2, 1, 0);
     attacker.setPosition(0, 0);
-    MeleeAttackTask task = attachTask(attacker, target);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
     task.start();
 
     assertEquals(
@@ -125,31 +140,38 @@ class MeleeAttackTaskTest {
         task.getPriority(),
         "Expected priority of 10 while active and target remains in range, but got "
             + task.getPriority());
+  }
+
+  @Test
+  void shouldReturnInactivePriorityWhenActiveAndTargetMovesOutOfRange() {
+    Entity target = createTarget();
+    target.setPosition(1, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+    task.start();
 
     target.setPosition(10, 0);
+
     assertTrue(
         task.getPriority() < 0,
         "Expected an inactive priority once target moves out of attackRange while active, but got "
             + task.getPriority());
   }
 
-  // Priority stays at the configured value even while the attacker's MeleeAttackComponent is on
-  // cooldown.
   @Test
   void shouldNotConsiderCooldownWhenCalculatingPriority() {
     Entity target = createTarget();
     target.setPosition(1, 0);
     Entity attacker = createAttacker(2, 5, 0);
     attacker.setPosition(0, 0);
-    MeleeAttackTask task = attachTask(attacker, target);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
     task.start();
 
-    // timeSinceLastAttack resets to 0 synchronously once the windup starts, so canAttack() is
-    // already false here without needing to resolve the windup via update()
     attacker.getEvents().trigger("meleeAttack", target);
     assertFalse(
         attacker.getComponent(MeleeAttackComponent.class).canAttack(),
-        "Expected the attacker's MeleeAttackComponent to now be on cooldown after the windup started.");
+        "Expected the attacker's MeleeAttackComponent to now be on cooldown after a successful hit.");
 
     assertEquals(
         10,
@@ -158,50 +180,43 @@ class MeleeAttackTaskTest {
             + task.getPriority());
   }
 
-  // start(), update() before start, and stop() (with or without a prior start) never throw.
+  /* the following tests the start() function */
   @Test
-  void lifecycleMethodsDoNotThrowAcrossStartStopStates() {
+  void shouldNotThrowOnStart() {
     Entity target = createTarget();
     target.setPosition(1, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
 
-    Entity attackerForStart = createAttacker(2, 1, 0);
-    attackerForStart.setPosition(0, 0);
-    MeleeAttackTask taskForStart = attachTask(attackerForStart, target);
-    assertDoesNotThrow(taskForStart::start, "Expected start() not to throw.");
-
-    Entity attackerForUpdateBeforeStart = createAttacker(2, 1, 0);
-    attackerForUpdateBeforeStart.setPosition(0, 0);
-    MeleeAttackTask taskForUpdateBeforeStart = attachTask(attackerForUpdateBeforeStart, target);
-    assertDoesNotThrow(
-        taskForUpdateBeforeStart::update,
-        "Expected update() not to throw when called before start().");
-
-    Entity attackerForStopAfterStart = createAttacker(2, 1, 0);
-    attackerForStopAfterStart.setPosition(0, 0);
-    MeleeAttackTask taskForStopAfterStart = attachTask(attackerForStopAfterStart, target);
-    taskForStopAfterStart.start();
-    assertDoesNotThrow(taskForStopAfterStart::stop, "Expected stop() not to throw after start().");
-
-    Entity attackerForStopWithoutStart = createAttacker(2, 1, 0);
-    attackerForStopWithoutStart.setPosition(0, 0);
-    MeleeAttackTask taskForStopWithoutStart = attachTask(attackerForStopWithoutStart, target);
-    assertDoesNotThrow(
-        taskForStopWithoutStart::stop, "Expected stop() not to throw without a prior start().");
+    assertDoesNotThrow(task::start);
   }
 
-  // update() triggers meleeAttack on an eligible target, landing the hit once the windup resolves.
+  /* the following tests the update() function, including its interaction with
+   * MeleeAttackComponent's cooldown and the target's range/health
+   */
+  @Test
+  void shouldNotThrowWhenUpdateCalledBeforeStart() {
+    Entity target = createTarget();
+    target.setPosition(1, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+
+    assertDoesNotThrow(task::update);
+  }
+
   @Test
   void shouldLandAttackOnUpdateWhenEligible() {
     Entity target = createTarget();
     target.setPosition(1, 0);
     Entity attacker = createAttacker(2, 1, 0);
     attacker.setPosition(0, 0);
-    MeleeAttackTask task = attachTask(attacker, target);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
     task.start();
 
     float targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
     task.update();
-    attacker.update(); // let MeleeAttackComponent resolve the zero-length windup the task started
     float targetHealthAfterAttack = target.getComponent(CombatStatsComponent.class).getHealth();
 
     assertTrue(
@@ -212,69 +227,61 @@ class MeleeAttackTaskTest {
             + targetHealthAfterAttack);
   }
 
-  // update() does not attack when the target is out of range or has no health remaining.
   @Test
-  void shouldNotAttackOnUpdateWhenIneligible() {
-    // out of range
-    Entity targetOutOfRange = createTarget();
-    targetOutOfRange.setPosition(10, 0);
-    Entity attackerForRangeCheck = createAttacker(2, 1, 0);
-    attackerForRangeCheck.setPosition(0, 0);
-    MeleeAttackTask taskForRangeCheck = attachTask(attackerForRangeCheck, targetOutOfRange);
-    taskForRangeCheck.start();
+  void shouldNotAttackOnUpdateWhenOutOfRange() {
+    Entity target = createTarget();
+    target.setPosition(10, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+    task.start();
 
-    float healthBeforeRangeCheck =
-        targetOutOfRange.getComponent(CombatStatsComponent.class).getHealth();
-    taskForRangeCheck.update();
-    attackerForRangeCheck.update();
-    float healthAfterRangeCheck =
-        targetOutOfRange.getComponent(CombatStatsComponent.class).getHealth();
+    float targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
+    task.update();
+    float targetHealthAfterAttack = target.getComponent(CombatStatsComponent.class).getHealth();
+
     assertEquals(
-        healthBeforeRangeCheck,
-        healthAfterRangeCheck,
+        targetHealthBeforeAttack,
+        targetHealthAfterAttack,
         "Expected no attack to land as target is outside attackRange, but health changed from "
-            + healthBeforeRangeCheck
+            + targetHealthBeforeAttack
             + " to "
-            + healthAfterRangeCheck);
+            + targetHealthAfterAttack);
+  }
 
-    // no health remaining
-    Entity targetWithNoHealth = createTarget();
-    targetWithNoHealth.setPosition(1, 0);
-    Entity attackerForHealthCheck = createAttacker(2, 1, 0);
-    attackerForHealthCheck.setPosition(0, 0);
-    MeleeAttackTask taskForHealthCheck = attachTask(attackerForHealthCheck, targetWithNoHealth);
-    taskForHealthCheck.start();
+  @Test
+  void shouldNotAttackOnUpdateWhenTargetHasNoHealthRemaining() {
+    Entity target = createTarget();
+    target.setPosition(1, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+    task.start();
 
-    CombatStatsComponent targetStats = targetWithNoHealth.getComponent(CombatStatsComponent.class);
-    CombatStatsComponent attackerStats =
-        attackerForHealthCheck.getComponent(CombatStatsComponent.class);
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+    CombatStatsComponent attackerStats = attacker.getComponent(CombatStatsComponent.class);
     while (targetStats.getHealth() > 0) {
       targetStats.hit(attackerStats);
     }
 
     assertDoesNotThrow(
-        taskForHealthCheck::update,
-        "Expected update() not to throw when target has no health remaining.");
+        task::update, "Expected update() not to throw when target has no health remaining.");
   }
 
-  // A blocked-then-eligible attack sequence: lands, stays blocked during cooldown, lands again once
-  // ready.
   @Test
   void shouldStayEligibleThroughCooldownThenAttackAgainOnceReady() {
     Entity target = createTarget();
     target.setPosition(1, 0);
     Entity attacker = createAttacker(2, 2, 0);
     attacker.setPosition(0, 0);
-    MeleeAttackTask task = attachTask(attacker, target);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
     task.start();
 
     task.update();
-    attacker.update(); // resolve first attack's windup
     float targetHealthAfterFirstAttack =
         target.getComponent(CombatStatsComponent.class).getHealth();
 
-    task.update(); // still within cooldown - canAttack() is false, no event is triggered
-    attacker.update();
+    task.update();
     float targetHealthDuringCooldown = target.getComponent(CombatStatsComponent.class).getHealth();
     assertEquals(
         targetHealthAfterFirstAttack,
@@ -288,8 +295,7 @@ class MeleeAttackTaskTest {
       attacker.update();
     }
 
-    task.update(); // cooldown has elapsed - triggers a new windup
-    attacker.update(); // resolve it
+    task.update();
     float targetHealthAfterCooldown = target.getComponent(CombatStatsComponent.class).getHealth();
     assertTrue(
         targetHealthAfterCooldown < targetHealthDuringCooldown,
@@ -299,37 +305,47 @@ class MeleeAttackTaskTest {
             + targetHealthAfterCooldown);
   }
 
+  /* the following tests the stop() function */
+  @Test
+  void shouldNotThrowWhenStoppedAfterStart() {
+    Entity target = createTarget();
+    target.setPosition(1, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+    task.start();
+
+    assertDoesNotThrow(task::stop);
+  }
+
+  @Test
+  void shouldNotThrowWhenStoppedWithoutPriorStart() {
+    Entity target = createTarget();
+    target.setPosition(1, 0);
+    Entity attacker = createAttacker(2, 1, 0);
+    attacker.setPosition(0, 0);
+    MeleeAttackTask task = attachTask(attacker, target, 10, 2f);
+
+    assertDoesNotThrow(task::stop);
+  }
+
   /* ---------- Helpers ---------- */
 
   /**
-   * Builds the default weapon used by {@link #createAttacker(float, float, float)}: a non-BOW type
-   * with zero windup, so an attack resolves on the very next {@code update()} call after being
-   * triggered.
-   *
-   * @return a fresh weapon item suitable for most tests
-   */
-  // The real, currently-compiling WeaponItem computes damage as baseDamage * tier, so passing
-  // tier = 1 for a DAGGER (base damage 3) deals 3 damage.
-  WeaponItem createInstantWeapon() {
-    return new WeaponItem("Test Dagger", WeaponType.DAGGER, 0f, 1, 1, 1);
-  }
-
-  /**
-   * Builds a fully created Entity representing an attacker, with a {@link MeleeAttackComponent}
-   * (equipped with the default {@link #createInstantWeapon()}), an (initially empty) {@link
-   * AITaskComponent}, and the components it depends on.
+   * Builds a fully created Entity representing an attacker, with a {@link MeleeAttackComponent}, an
+   * (initially empty) {@link AITaskComponent}, and the components it depends on, ready for use in a
+   * test.
    *
    * @param range melee reach passed directly into {@link MeleeAttackComponent}'s constructor
    * @param cooldown minimum time, in seconds, between successive melee attacks
    * @param knockback knockback magnitude applied to the target on a successful hit
    * @return an entity carrying {@link MeleeAttackComponent}, {@link CombatStatsComponent}, {@link
-   *     PhysicsComponent}, and an empty {@link AITaskComponent}
+   *     PhysicsComponent}, and an empty {@link AITaskComponent}.
    */
   Entity createAttacker(float range, float cooldown, float knockback) {
     Entity attacker =
         new Entity()
-            .addComponent(
-                new MeleeAttackComponent(range, cooldown, knockback, createInstantWeapon()))
+            .addComponent(new MeleeAttackComponent(range, cooldown, knockback))
             .addComponent(new CombatStatsComponent(20, 2))
             .addComponent(new PhysicsComponent())
             .addComponent(new AITaskComponent());
@@ -338,10 +354,11 @@ class MeleeAttackTaskTest {
   }
 
   /**
-   * Builds a fully created Entity representing a target.
+   * Builds a fully created Entity representing a target, with the components {@link
+   * MeleeAttackTask} tests depend on.
    *
    * @return a target entity that has {@link CombatStatsComponent} and {@link PhysicsComponent}
-   *     attached
+   *     attached.
    */
   Entity createTarget() {
     Entity target =
@@ -354,15 +371,19 @@ class MeleeAttackTaskTest {
 
   /**
    * Creates a {@link MeleeAttackTask} for the given target and wires it to the attacker's existing
-   * {@link AITaskComponent}.
+   * {@link AITaskComponent} (which implements {@code TaskRunner}), matching how production code
+   * would attach it via {@code AITaskComponent.addTask(...)}, but keeping a direct reference to the
+   * task itself so its lifecycle methods can be called and asserted on directly in tests.
    *
    * @param attacker an entity already created via {@link #createAttacker(float, float, float)}
    * @param target the entity the task will attempt to melee attack
+   * @param priority the priority value to return from getPriority() when eligible
+   * @param attackRange the distance, in world units, at or under which the task is eligible
    * @return the constructed and wired {@link MeleeAttackTask}, not yet started
    */
-  MeleeAttackTask attachTask(Entity attacker, Entity target) {
+  MeleeAttackTask attachTask(Entity attacker, Entity target, int priority, float attackRange) {
     AITaskComponent aiTaskComponent = attacker.getComponent(AITaskComponent.class);
-    MeleeAttackTask task = new MeleeAttackTask(target, 10, 2f);
+    MeleeAttackTask task = new MeleeAttackTask(target, priority, attackRange);
     task.create(aiTaskComponent);
     return task;
   }

@@ -1,8 +1,8 @@
 package com.csse3200.game.entities.factories;
 
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.components.PlatformerComponent;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
@@ -14,6 +14,8 @@ import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.PlayerActions;
+import com.csse3200.game.components.player.PlayerBuffComponent;
+import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
@@ -79,6 +81,8 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
+            .addComponent(new PlayerBuffComponent())
+            .addComponent(new PlayerRegenComponent())
             .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)

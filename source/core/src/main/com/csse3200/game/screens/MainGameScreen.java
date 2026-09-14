@@ -18,6 +18,7 @@ import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.files.LoadService;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
@@ -70,7 +71,7 @@ public class MainGameScreen extends ScreenAdapter {
   private final TerrainFactory terrainFactory;
   private Entity subLevelTravelPromptEntity;
 
-  public MainGameScreen(GdxGame game) {
+  public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
 
     Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
@@ -102,8 +103,18 @@ public class MainGameScreen extends ScreenAdapter {
     ServiceLocator.getEntityService()
         .register(new Entity().addComponent(new SubLevelTitleDisplay(levelGameArea.getPlayer())));
     createSubLevelTravelPrompt(levelGameArea.getPlayer());
+    if (loadsave) {
+      LoadService.load(
+          levelGameArea.getPlayer(),
+          levelGameArea.getMapWorldWidth(),
+          levelGameArea.getMapWorldHeight());
+    }
 
     fitCameraToMap(levelGameArea);
+  }
+
+  public Entity getPlayerEntity() {
+    return levelGameArea != null ? levelGameArea.getPlayer() : null;
   }
 
   /**
@@ -333,7 +344,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new MainGameActions(this.game))
-        .addComponent(new PauseMenuActions());
+        .addComponent(new PauseMenuActions(this::getPlayerEntity));
     this.pauseMenu = pauseMenuComponent;
 
     ServiceLocator.getEntityService().register(ui);
