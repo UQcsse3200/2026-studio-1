@@ -8,6 +8,9 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.MeleeAttackComponent;
 import com.csse3200.game.components.RangedAttackComponent;
 import com.csse3200.game.components.TouchAttackComponent;
+import com.csse3200.game.components.npc.DialogueComponent;
+import com.csse3200.game.components.npc.DialogueProximityComponent;
+import com.csse3200.game.components.npc.DisplayDialogue;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.tasks.ChaseTask;
@@ -31,10 +34,6 @@ import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
-
-import com.csse3200.game.components.npc.DialogueComponent;
-import com.csse3200.game.components.npc.DisplayDialogue;
-import com.csse3200.game.components.npc.DialogueProximityComponent;
 
 /**
  * Factory to create non-playable character (NPC) entities with predefined components.
@@ -239,10 +238,7 @@ public class NPCFactory {
   public static Entity createTravelerNPC(Entity player) {
     final float floorCollisionScale = 0.45f;
     final float playerHeight = 1000f / 792f;
-    String[] dialoguetext = {
-            "Hello",
-            "Good luck"
-    };
+    String[] dialoguetext = {"Hello", "Good luck"};
     AITaskComponent aiComponent =
         new AITaskComponent()
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale));
