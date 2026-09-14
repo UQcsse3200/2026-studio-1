@@ -53,6 +53,7 @@ class CombatStatsComponentTest {
     combat.setBaseAttack(-50);
     assertEquals(150, combat.getBaseAttack());
   }
+
   @Test
   void shouldAbsorbDamageWithShield() {
     CombatStatsComponent combat = new CombatStatsComponent(100, 20);

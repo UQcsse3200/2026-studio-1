@@ -206,6 +206,7 @@ public class PlayerActions extends Component {
   public float getAttackSpeedMultiplier() {
     return attackCooldownMultiplier;
   }
+
   public float getEffectiveSpeedMultiplier() {
     float result = 1f;
     for (float value : speedModifiers.values()) {
@@ -257,7 +258,7 @@ public class PlayerActions extends Component {
 
     // Existing weapon functionality
     entity.getEvents().trigger("weaponAttack");
-  attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
+    attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
   }
 
   /** Makes the player dash. */

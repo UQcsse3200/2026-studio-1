@@ -38,9 +38,7 @@ public class UpgradesDisplay extends UIComponent {
   // doesn't exist in the codebase yet.
   private static final float[] PLAYER_SPEED_MULTIPLIER_PER_TIER = {1.15f, 1.3f, 1.5f};
   private static final int[] SWORD_DAMAGE_BONUS_PER_TIER = {5, 10, 15};
-  private static final float[] ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER = {
-          0.8f, 0.6f, 0.4f
-  };
+  private static final float[] ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER = {0.8f, 0.6f, 0.4f};
 
   // Fired on the player entity whenever Sword Damage's bonus changes (including back to 0 on
   // expiry), so anything else on the player (e.g. WeaponDisplay) can reflect it without needing
@@ -133,12 +131,12 @@ public class UpgradesDisplay extends UIComponent {
     actionUpgrades.add(swordDamage);
 
     UpgradeNode attackSpeed =
-            UpgradeNode.killCountBased(
-                    "attack_speed",
-                    "Attack Speed",
-                    "Reduces the delay between attacks. Stacking tiers also raises the kill threshold.",
-                    new int[] {50, 45, 40},
-                    new int[] {5, 8, 12});
+        UpgradeNode.killCountBased(
+            "attack_speed",
+            "Attack Speed",
+            "Reduces the delay between attacks. Stacking tiers also raises the kill threshold.",
+            new int[] {50, 45, 40},
+            new int[] {5, 8, 12});
 
     attackSpeed.setOnTierChanged(() -> applyAttackSpeedEffect(attackSpeed));
     attackSpeed.setOnExpired(this::removeAttackSpeedEffect);
@@ -147,12 +145,12 @@ public class UpgradesDisplay extends UIComponent {
 
     // Defence upgrades: expire after a fixed duration.
     UpgradeNode shieldDurability =
-            UpgradeNode.timeBased(
-                    "shield_durability",
-                    "Shield Durability",
-                    "Absorbs a limited number of attacks. Stacking tiers increases shield durability.",
-                    new int[] {30, 25, 25},
-                    new float[] {20f, 35f, 55f});
+        UpgradeNode.timeBased(
+            "shield_durability",
+            "Shield Durability",
+            "Absorbs a limited number of attacks. Stacking tiers increases shield durability.",
+            new int[] {30, 25, 25},
+            new float[] {20f, 35f, 55f});
 
     shieldDurability.setOnTierChanged(() -> applyShieldEffect(shieldDurability));
     shieldDurability.setOnExpired(this::removeShieldEffect);
@@ -207,6 +205,7 @@ public class UpgradesDisplay extends UIComponent {
       playerActions.removeSpeedModifier(node);
     }
   }
+
   private void applyShieldEffect(UpgradeNode node) {
     CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
     if (combatStats == null) {
@@ -225,14 +224,14 @@ public class UpgradesDisplay extends UIComponent {
       combatStats.setShieldHits(0);
     }
   }
+
   private void applyAttackSpeedEffect(UpgradeNode node) {
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
       return;
     }
 
-    float multiplier =
-            ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER[node.getCurrentTier() - 1];
+    float multiplier = ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER[node.getCurrentTier() - 1];
 
     playerActions.setAttackSpeedMultiplier(multiplier);
   }
@@ -243,6 +242,7 @@ public class UpgradesDisplay extends UIComponent {
       playerActions.setAttackSpeedMultiplier(1f);
     }
   }
+
   /**
    * Applies/refreshes the Sword Damage effect on CombatStatsComponent. Recomputes from the stored
    * baseline (captured on first activation) plus the current tier's bonus every time, rather than

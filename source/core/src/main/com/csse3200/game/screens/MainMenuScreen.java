@@ -9,9 +9,9 @@ import com.csse3200.game.components.mainmenu.MainMenuInputComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
-import com.csse3200.game.perks.*;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
+import com.csse3200.game.perks.*;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.ResourceService;
@@ -105,7 +105,7 @@ public class MainMenuScreen extends ScreenAdapter {
         .addComponent(perkTrackerMenuComponent)
         .addComponent(new PerkTrackerInputComponent())
         .addComponent(new PerkTrackerDisplay());
-     ui.getEvents().addListener("perks", perkTrackerMenuComponent::toggleIsOpen);
-     ServiceLocator.getEntityService().register(ui);
+    ui.getEvents().addListener("perks", perkTrackerMenuComponent::toggleIsOpen);
+    ServiceLocator.getEntityService().register(ui);
   }
 }

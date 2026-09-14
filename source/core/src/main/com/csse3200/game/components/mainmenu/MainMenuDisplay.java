@@ -80,13 +80,13 @@ public class MainMenuDisplay extends UIComponent {
         });
 
     perksBtn.addListener(
-    new ChangeListener() {
-      @Override
-      public void changed(ChangeEvent changeEvent, Actor actor) {
-        logger.debug("Perks button clicked");
-        entity.getEvents().trigger("perks");
-      }
-    });   
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent changeEvent, Actor actor) {
+            logger.debug("Perks button clicked");
+            entity.getEvents().trigger("perks");
+          }
+        });
 
     exitBtn.addListener(
         new ChangeListener() {

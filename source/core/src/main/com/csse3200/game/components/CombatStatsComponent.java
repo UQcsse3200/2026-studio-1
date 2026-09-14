@@ -71,6 +71,7 @@ public class CombatStatsComponent extends Component {
   public int getBaseAttack() {
     return baseAttack;
   }
+
   public int getShieldHits() {
     return shieldHits;
   }
