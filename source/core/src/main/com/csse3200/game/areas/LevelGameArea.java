@@ -83,7 +83,7 @@ public class LevelGameArea extends GameArea {
     "images/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
-    "images/ui/Strength.png"
+    "images/ui/Strength.png",
     "images/potions/health_potion.png",
     "images/potions/strength_potion.png",
     "images/potions/speed_potion.png",
