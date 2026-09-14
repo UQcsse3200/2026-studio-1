@@ -9,6 +9,7 @@ import com.csse3200.game.components.mainmenu.MainMenuInputComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.perks.*;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.rendering.RenderService;
@@ -33,6 +34,7 @@ public class MainMenuScreen extends ScreenAdapter {
     ServiceLocator.registerResourceService(new ResourceService());
     ServiceLocator.registerEntityService(new EntityService());
     ServiceLocator.registerRenderService(new RenderService());
+    PerkDefinitions.registerAll();
 
     renderer = RenderFactory.createRenderer();
 
@@ -95,10 +97,15 @@ public class MainMenuScreen extends ScreenAdapter {
     logger.debug("Creating ui");
     Stage stage = ServiceLocator.getRenderService().getStage();
     Entity ui = new Entity();
+    PerkTrackerMenuComponent perkTrackerMenuComponent = new PerkTrackerMenuComponent();
     ui.addComponent(new MainMenuDisplay())
         .addComponent(new InputDecorator(stage, 10))
         .addComponent(new MainMenuInputComponent())
-        .addComponent(new MainMenuActions(game));
-    ServiceLocator.getEntityService().register(ui);
+        .addComponent(new MainMenuActions(game))
+        .addComponent(perkTrackerMenuComponent)
+        .addComponent(new PerkTrackerInputComponent())
+        .addComponent(new PerkTrackerDisplay());
+     ui.getEvents().addListener("perks", perkTrackerMenuComponent::toggleIsOpen);
+     ServiceLocator.getEntityService().register(ui);
   }
 }

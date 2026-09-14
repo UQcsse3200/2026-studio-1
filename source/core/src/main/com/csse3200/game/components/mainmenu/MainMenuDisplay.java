@@ -46,6 +46,7 @@ public class MainMenuDisplay extends UIComponent {
     TextButton startBtn = new TextButton("Start", skin);
     TextButton loadBtn = new TextButton("Load", skin);
     TextButton settingsBtn = new TextButton("Settings", skin);
+    TextButton perksBtn = new TextButton("Perks", skin);
     TextButton exitBtn = new TextButton("Exit", skin);
 
     buttons = new TextButton[] {startBtn, loadBtn, settingsBtn, exitBtn};
@@ -78,6 +79,15 @@ public class MainMenuDisplay extends UIComponent {
           }
         });
 
+    perksBtn.addListener(
+    new ChangeListener() {
+      @Override
+      public void changed(ChangeEvent changeEvent, Actor actor) {
+        logger.debug("Perks button clicked");
+        entity.getEvents().trigger("perks");
+      }
+    });   
+
     exitBtn.addListener(
         new ChangeListener() {
           @Override
@@ -95,6 +105,8 @@ public class MainMenuDisplay extends UIComponent {
     table.add(loadBtn).padTop(15f);
     table.row();
     table.add(settingsBtn).padTop(15f);
+    table.row();
+    table.add(perksBtn).padTop(15f);
     table.row();
     table.add(exitBtn).padTop(15f);
 
@@ -175,7 +187,8 @@ public class MainMenuDisplay extends UIComponent {
       case 0 -> entity.getEvents().trigger("start");
       case 1 -> entity.getEvents().trigger("load");
       case 2 -> entity.getEvents().trigger("settings");
-      case 3 -> entity.getEvents().trigger("exit");
+      case 3 -> entity.getEvents().trigger("perks");
+      case 4 -> entity.getEvents().trigger("exit");
       default -> {
         // No action needed for invalid selection index
       }
