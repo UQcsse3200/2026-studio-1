@@ -22,8 +22,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.GhostKingConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
-import com.csse3200.game.entities.configs.enemies.RangedSkeletonConfig;
-import com.csse3200.game.entities.configs.enemies.SkeletonConfig;
+import com.csse3200.game.entities.configs.enemies.*;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
@@ -209,6 +208,50 @@ public class NPCFactory {
     rangedSkeleton.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(rangedSkeleton, collisionScale.x, collisionScale.y);
     return rangedSkeleton;
+  }
+
+  /**
+   * Creates a Minotaur Entity: a melee attacker whose charge boosts the damage of its next hit.
+   *
+   * @param target entity to chase
+   * @return entity created with Minotaur properties
+   */
+  public static Entity createMinotaur(Entity target) {
+    float scale = 2f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    MinotaurConfig config = configs.minotaur;
+    return minotaur;
+  }
+
+  /**
+   * Creates a Centaur Entity: a ranged attacker whose charge boos the damage of its next shot.
+   *
+   * @param target entity to chase
+   * @return entity created with Centaur properties
+   */
+  public static Entity createCentaur(Entity target) {
+    float scale = 2f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity centaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    CentaurConfig config = configs.centaur;
+    return centaur;
+  }
+
+  /**
+   * Creates a Cyclops Entity: a mini-boss with no unique components.
+   * Has both melee and ranged attacks.
+   *
+   * @param target the entity to chase
+   * @return entity created with Cyclops properties as a mini-boss
+   */
+  public static Entity createCyclops(Entity target) {
+    float scale = 3f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    CyclopsConfig config = configs.cyclops;
+    return cyclops;
+
   }
 
   /**
