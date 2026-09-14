@@ -1,7 +1,7 @@
 package com.csse3200.game.entities.factories;
 
-import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
