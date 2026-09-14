@@ -1,9 +1,7 @@
 package com.csse3200.game.components;
 
-import com.csse3200.game.Quests.JumpQuest;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.physics.components.PhysicsComponent;
 
 public class PlatformerComponent extends Component {
