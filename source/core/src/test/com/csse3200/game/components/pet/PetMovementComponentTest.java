@@ -71,7 +71,7 @@ class PetMovementComponentTest {
     Entity pet =
         new Entity()
             .addComponent(new PetComponent(owner))
-            .addComponent(new PetMovementComponent(timeSource));
+            .addComponent(new PetMovementComponent(timeSource, "bird"));
     pet.setScale(width, height);
     pet.create();
     return pet;

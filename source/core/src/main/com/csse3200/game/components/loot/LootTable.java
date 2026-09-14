@@ -26,6 +26,12 @@ public class LootTable {
   /** Weight of each tier in the standard table, from tier 1 upwards. */
   private static final int[] DEFAULT_TIER_WEIGHTS = {60, 30, 10};
 
+  /**
+   * Weight of the shield entry in the standard table. Shields have no tiers, so this sits alongside
+   * the tier weights as a single rarity knob, currently matched to a tier-3 item.
+   */
+  private static final int SHIELD_WEIGHT = 10;
+
   private final List<LootEntry> entries = new ArrayList<>();
   private final Random random;
   private int totalWeight;
@@ -74,6 +80,8 @@ public class LootTable {
       }
     }
 
+    table.addShield(SHIELD_WEIGHT);
+
     return table;
   }
 
@@ -113,6 +121,21 @@ public class LootTable {
 
     WeaponGenerator generator = new WeaponGenerator();
     return addEntry(weight, () -> generator.generateWeapon(type, tier));
+  }
+
+  /**
+   * Adds a shield to the table. Shields have no tier, so only a weight is required.
+   *
+   * @param weight how often it is picked relative to other entries; must be {@code > 0}
+   * @return this table, so entries can be chained
+   * @throws IllegalArgumentException if weight is not positive
+   */
+  public LootTable addShield(int weight) {
+    if (weight <= 0) {
+      throw new IllegalArgumentException("Weight must be greater than 0.");
+    }
+
+    return addEntry(weight, () -> new Item("Shield", ItemType.SHIELD, 1, 1));
   }
 
   /**

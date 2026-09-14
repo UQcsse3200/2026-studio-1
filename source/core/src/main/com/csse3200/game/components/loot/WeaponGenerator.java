@@ -1,6 +1,7 @@
 package com.csse3200.game.components.loot;
 
-/** Generates weapon items with properties based on weapon type and loot tier. */
+// Generates weapon items with properties based on weapon type and loot tier.
+
 public class WeaponGenerator {
 
   public WeaponItem generateWeapon(WeaponType weaponType, int tier) {
@@ -14,12 +15,14 @@ public class WeaponGenerator {
 
     switch (weaponType) {
       case SWORD:
-        WeaponItem sword = new WeaponItem("Basic Sword", WeaponType.SWORD, 10 * tier, 1, 10);
+        WeaponItem sword =
+            new WeaponItem("Basic Sword", WeaponType.SWORD, WeaponTier.values()[tier - 1], 1, 1);
         sword.setSellPrice(10 * tier);
         return sword;
 
       case BOW:
-        WeaponItem bow = new WeaponItem("Basic Bow", WeaponType.BOW, 7 * tier, 1, 10);
+        WeaponItem bow =
+            new WeaponItem("Basic Bow", WeaponType.BOW, WeaponTier.values()[tier - 1], 1, 1);
         bow.setSellPrice(8 * tier);
         return bow;
 
