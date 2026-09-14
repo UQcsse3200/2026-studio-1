@@ -22,7 +22,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
+  private boolean sliding = false;
   private String direction = "Right";
+
+  public String getDirection() {
+    return this.direction;
+  }
 
   /**
    * Triggers player events on specific keycodes.
@@ -32,10 +37,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyDown(int keycode) {
+    entity.getEvents().trigger("idle", direction);
     switch (keycode) {
       case Keys.W:
         jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
         triggerJumpEvent();
+        entity.getEvents().trigger("jumping", direction);
         jumped = true;
         return true;
       case Keys.L:
@@ -45,11 +52,17 @@ public class KeyboardPlayerInputComponent extends InputComponent {
           dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
         }
         triggerDashEvent();
+        entity.getEvents().trigger("rolling", direction);
         dashed = true;
         return true;
       case Keys.A:
-        walkDirection.add(Vector2Utils.LEFT);
         direction = "Left";
+        walkDirection.add(Vector2Utils.LEFT);
+        if (crouch) {
+          entity.getEvents().trigger("crouchidle", direction);
+        } else {
+          entity.getEvents().trigger("run", direction);
+        }
         triggerWalkEvent();
         return true;
       case Keys.S:
@@ -57,18 +70,27 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         triggerWalkEvent();
         return true;
       case Keys.D:
-        walkDirection.add(Vector2Utils.RIGHT);
         direction = "Right";
+        walkDirection.add(Vector2Utils.RIGHT);
+        if (crouch) {
+          entity.getEvents().trigger("crouchidle", direction);
+        } else {
+          entity.getEvents().trigger("run", direction);
+        }
         triggerWalkEvent();
         return true;
       case Keys.SPACE:
         entity.getEvents().trigger("attack");
+        entity.getEvents().trigger("attacking", direction);
+
         return true;
       case Keys.Q:
         entity.getEvents().trigger("dropItem");
         return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
+        entity.getEvents().trigger("crouchidle", direction);
+        crouch = true;
         return true;
       case Keys.SHIFT_LEFT: // for slide
         entity.getEvents().trigger("slide", true);
@@ -122,6 +144,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       // No need for a W case since gravity cancels out the jump
       case Keys.A:
         walkDirection.sub(Vector2Utils.LEFT);
+        if (walkDirection.isZero()) {
+          entity.getEvents().trigger("idle", direction);
+        }
         triggerWalkEvent();
         return true;
       case Keys.S:
@@ -130,13 +155,17 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.D:
         walkDirection.sub(Vector2Utils.RIGHT);
+        if (walkDirection.isZero()) {
+          entity.getEvents().trigger("idle", direction);
+        }
         triggerWalkEvent();
         return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", false);
+        entity.getEvents().trigger("idle", direction);
+        crouch = false;
         return true;
       case Keys.SHIFT_LEFT: // for slide
-        entity.getEvents().trigger("slide", false);
         return true;
       default:
         return false;
