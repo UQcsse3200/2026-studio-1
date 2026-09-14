@@ -61,16 +61,6 @@ public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
   private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(5, 5);
-
-  /** Entity textures needed by the player, enemies, and loot items. */
-  private static final String[] entityTextures = {
-    "images/npc_traveler.png",
-    "images/box_boy_leaf.png",
-    "images/box_boy_crouch.png",
-    "images/box_boy_slide.png",
-    "images/ghost_king.png",
-    "images/ghost_1.png",
-
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
   private static final int HAZARD_DAMAGE = 10;
 
@@ -82,6 +72,7 @@ public class LevelGameArea extends GameArea {
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
+    "images/enemies/npc_traveler.png",
     "images/player/box_boy_leaf.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",

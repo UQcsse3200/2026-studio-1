@@ -252,7 +252,7 @@ public class NPCFactory {
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
             .addComponent(aiComponent)
             .addComponent(new CombatStatsComponent(50, 0))
-            .addComponent(new TextureRenderComponent("images/npc_traveler.png"))
+            .addComponent(new TextureRenderComponent("images/enemies/npc_traveler.png"))
             // npc dialogue
             .addComponent(new DialogueComponent(dialoguetext))
             .addComponent(new DisplayDialogue("Traveler"))
