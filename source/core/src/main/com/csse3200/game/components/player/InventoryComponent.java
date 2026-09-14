@@ -3,6 +3,7 @@ package com.csse3200.game.components.player;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponItem;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -185,6 +186,48 @@ public class InventoryComponent extends Component {
     remaining = placeIntoEmptySlots(item, remaining);
     if (remaining < requested) {
       notifyInventoryChanged();
+    }
+    return remaining;
+  }
+
+  /**
+   * Returns whether {@code item} can be added in full without leftover.
+   *
+   * <p>Does not mutate inventory. Uses the same stack-then-empty-slot rules as {@link
+   * #addItem(Item)}.
+   *
+   * @param item item to test; {@code null} or non-positive quantity cannot be fully added
+   * @return {@code true} iff {@link #addItem(Item)} would return {@code 0} and at least one unit
+   *     would be stored
+   */
+  public boolean canFullyAdd(Item item) {
+    if (!isAddable(item)) {
+      return false;
+    }
+    return leftoverAfterAdd(item, item.getQuantity()) == 0;
+  }
+
+  /**
+   * Returns how much of {@code remaining} would not fit, without mutating slots.
+   *
+   * @param item template used for stack compatibility and max quantity
+   * @param remaining quantity still to place
+   * @return leftover quantity
+   */
+  private int leftoverAfterAdd(Item item, int remaining) {
+    for (int slot = 1; slot <= maxSlots && remaining > 0; slot++) {
+      Item existing = inventorySlots.get(slot);
+      if (!canStack(existing, item)) {
+        continue;
+      }
+      int space = existing.getMaxQuantity() - existing.getQuantity();
+      remaining -= Math.min(remaining, space);
+    }
+
+    int emptySlots = maxSlots - inventorySlots.size();
+    while (remaining > 0 && emptySlots > 0) {
+      remaining -= Math.min(remaining, item.getMaxQuantity());
+      emptySlots--;
     }
     return remaining;
   }
@@ -460,9 +503,22 @@ public class InventoryComponent extends Component {
       return false;
     }
 
-    return existing.getName().equals(incoming.getName())
-        && existing.getItemType() == incoming.getItemType()
-        && existing.getMaxQuantity() == incoming.getMaxQuantity();
+    boolean sameBaseItem =
+        existing.getName().equals(incoming.getName())
+            && existing.getItemType() == incoming.getItemType()
+            && existing.getMaxQuantity() == incoming.getMaxQuantity();
+
+    if (!sameBaseItem) {
+      return false;
+    }
+
+    if (existing instanceof WeaponItem existingWeapon
+        && incoming instanceof WeaponItem incomingWeapon) {
+      return existingWeapon.getWeaponType() == incomingWeapon.getWeaponType()
+          && existingWeapon.getDamage() == incomingWeapon.getDamage();
+    }
+
+    return !(existing instanceof WeaponItem) && !(incoming instanceof WeaponItem);
   }
 
   /**

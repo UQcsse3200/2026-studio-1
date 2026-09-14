@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GdxGame extends Game {
   private static final Logger logger = LoggerFactory.getLogger(GdxGame.class);
+  private boolean screenChangePending;
 
   @Override
   public void create() {
@@ -53,6 +54,25 @@ public class GdxGame extends Game {
     setScreen(newScreen(screenType));
   }
 
+  /**
+   * Requests a screen replacement after the current frame's UI callbacks finish. Scene2D invokes
+   * button listeners while its stage is updating, so disposing that stage synchronously from a
+   * listener can crash the game.
+   *
+   * @param screenType screen to create on the next application cycle
+   */
+  public void setScreenDeferred(ScreenType screenType) {
+    if (screenChangePending) {
+      return;
+    }
+    screenChangePending = true;
+    Gdx.app.postRunnable(
+        () -> {
+          screenChangePending = false;
+          setScreen(screenType);
+        });
+  }
+
   @Override
   public void dispose() {
     logger.debug("Disposing of current screen");
@@ -70,7 +90,9 @@ public class GdxGame extends Game {
       case MAIN_MENU:
         return new MainMenuScreen(this);
       case MAIN_GAME:
-        return new MainGameScreen(this);
+        return new MainGameScreen(this, true);
+      case RESTART_GAME:
+        return new MainGameScreen(this, false);
       case SETTINGS:
         return new SettingsScreen(this);
       case DEATH_SCREEN:
@@ -83,6 +105,7 @@ public class GdxGame extends Game {
   public enum ScreenType {
     MAIN_MENU,
     MAIN_GAME,
+    RESTART_GAME,
     SETTINGS,
     DEATH_SCREEN
   }

@@ -16,6 +16,7 @@ public class PhysicsMovementComponent extends Component implements MovementContr
   private PhysicsComponent physicsComponent;
   private Vector2 targetPosition;
   private boolean movementEnabled = true;
+  private boolean groundedMovement = false;
 
   @Override
   public void create() {
@@ -69,6 +70,24 @@ public class PhysicsMovementComponent extends Component implements MovementContr
     this.targetPosition = target;
   }
 
+  /**
+   * Restrict this movement controller to horizontal movement only, leaving vertical motion (e.g.
+   * falling under gravity) entirely to the physics engine. Useful for grounded entities that should
+   * be pulled down by gravity instead of being steered directly toward a target's height.
+   *
+   * @param groundedMovement true to ignore the vertical component of the movement direction
+   */
+  public void setGroundedMovement(boolean groundedMovement) {
+    this.groundedMovement = groundedMovement;
+  }
+
+  /**
+   * @return true if this controller is currently restricted to horizontal-only movement
+   */
+  public boolean isGroundedMovement() {
+    return groundedMovement;
+  }
+
   private void updateDirection(Body body) {
     Vector2 desiredVelocity = getDirection().scl(maxSpeed);
     setToVelocity(body, desiredVelocity);
@@ -77,12 +96,22 @@ public class PhysicsMovementComponent extends Component implements MovementContr
   private void setToVelocity(Body body, Vector2 desiredVelocity) {
     // impulse force = (desired velocity - current velocity) * mass
     Vector2 velocity = body.getLinearVelocity();
-    Vector2 impulse = desiredVelocity.cpy().sub(velocity).scl(body.getMass());
+    Vector2 clampedVelocity = desiredVelocity.cpy();
+    if (groundedMovement) {
+      // Only steer horizontally.
+      clampedVelocity.y = velocity.y;
+    }
+    Vector2 impulse = clampedVelocity.sub(velocity).scl(body.getMass());
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 
   private Vector2 getDirection() {
     // Move towards targetPosition based on our current position
-    return targetPosition.cpy().sub(entity.getPosition()).nor();
+    Vector2 direction = targetPosition.cpy().sub(entity.getPosition());
+    if (groundedMovement) {
+      // Ignore vertical distance to the target
+      direction.y = 0f;
+    }
+    return direction.nor();
   }
 }

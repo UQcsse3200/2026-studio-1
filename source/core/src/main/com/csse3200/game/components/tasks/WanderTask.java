@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
 public class WanderTask extends DefaultTask implements PriorityTask {
   private static final Logger logger = LoggerFactory.getLogger(WanderTask.class);
 
-  private final Vector2 wanderRange;
+  protected final Vector2 wanderRange;
   private final float waitTime;
-  private Vector2 startPos;
-  private MovementTask movementTask;
-  private WaitTask waitTask;
-  private Task currentTask;
+  protected Vector2 startPos;
+  protected MovementTask movementTask;
+  protected WaitTask waitTask;
+  protected Task currentTask;
 
   /**
    * @param wanderRange Distance in X and Y the entity can move from its position when start() is
@@ -65,18 +65,18 @@ public class WanderTask extends DefaultTask implements PriorityTask {
     currentTask.update();
   }
 
-  private void startWaiting() {
+  protected void startWaiting() {
     logger.debug("Starting waiting");
     swapTask(waitTask);
   }
 
-  private void startMoving() {
+  protected void startMoving() {
     logger.debug("Starting moving");
     movementTask.setTarget(getRandomPosInRange());
     swapTask(movementTask);
   }
 
-  private void swapTask(Task newTask) {
+  protected void swapTask(Task newTask) {
     if (currentTask != null) {
       currentTask.stop();
     }
@@ -84,7 +84,7 @@ public class WanderTask extends DefaultTask implements PriorityTask {
     currentTask.start();
   }
 
-  private Vector2 getRandomPosInRange() {
+  protected Vector2 getRandomPosInRange() {
     Vector2 halfRange = wanderRange.cpy().scl(0.5f);
     Vector2 min = startPos.cpy().sub(halfRange);
     Vector2 max = startPos.cpy().add(halfRange);
