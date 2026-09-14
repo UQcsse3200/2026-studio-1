@@ -25,12 +25,12 @@ public class MainGameActions extends Component {
 
   private void onRestart() {
     logger.info("Restarting game");
-    game.setScreen(GdxGame.ScreenType.MAIN_GAME);
+    game.setScreenDeferred(GdxGame.ScreenType.MAIN_GAME);
   }
 
   /** Swaps to the Main Menu screen. */
   private void onExit() {
     logger.info("Exiting main game screen");
-    game.setScreen(GdxGame.ScreenType.MAIN_MENU);
+    game.setScreenDeferred(GdxGame.ScreenType.MAIN_MENU);
   }
 }
