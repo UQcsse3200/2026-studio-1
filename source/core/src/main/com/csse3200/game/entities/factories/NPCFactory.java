@@ -238,19 +238,17 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createTravelerNPC(Entity player) {
-    final float floorCollisionScale = 0.45f;
-    final float scale = 1.5f;
+    final float colliderWidthFraction = 0.9f;
+    // Matches the player's rendered height: PlayerFactory scales box_boy_leaf.png (792x1000) to
+    // width 1, height 1000/792 via TextureRenderComponent.scaleEntity().
+    final float playerHeight = 1000f / 792f;
     String[] dialoguetext = {"Hello", "Good luck"};
-    AITaskComponent aiComponent =
-        new AITaskComponent()
-            .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale));
     Entity npc =
         new Entity()
             .addComponent(new PhysicsComponent())
             .addComponent(new PhysicsMovementComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(aiComponent)
             .addComponent(new CombatStatsComponent(50, 0))
             .addComponent(new TextureRenderComponent("images/enemies/npc_traveler.png"))
             // npc dialogue
@@ -259,8 +257,26 @@ public class NPCFactory {
             .addComponent(new DialogueProximityComponent(player, 2f));
 
     npc.getComponent(TextureRenderComponent.class).scaleEntity();
-    npc.setScale(scale, scale);
-    PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    npc.scaleHeight(playerHeight);
+
+    // rayCastPositionScale is a fraction of the entity's own width (0 = sprite edge, 0.5 =
+    // centre), so the fraction that lines the raycast up with the collider's edge is
+    // 0.5 - colliderWidthFraction / 2, independent of the entity's absolute scale.
+    float floorCollisionScale = 0.5f - colliderWidthFraction / 2f;
+    // Wander range is a hard guarantee, not just a low-probability-of-falling value: at spawn
+    // TRAVELER_NPC_SPAWN=(4, 13) in level1-greek.json, the entity's left edge (position.x) is
+    // 1.782, on a floor patch spanning world x=[1.0, 3.0] (wall to the left, a non-solid ladder
+    // tile from x=3.0). With this entity's width (0.937) and 0.9-fraction collider (0.843 wide,
+    // 0.047 margin each side of the sprite), the tightest constraint is the ladder side: the
+    // largest half-range that still keeps the collider's right edge >=0.05 inside the floor at
+    // the worst-case wander target is (3.0 - 0.05 - 1.782 - 0.937 + 0.047) = 0.279. Using 0.25
+    // (half-range) keeps a comfortable ~0.08 margin from the ladder edge, and an even larger
+    // ~0.58 margin from the wall on the left, at the furthest wander position on either side.
+    npc.addComponent(
+        new AITaskComponent()
+            .addTask(new PlatformWanderTask(new Vector2(0.5f, 0.5f), 2f, floorCollisionScale)));
+
+    PhysicsUtils.setScaledCollider(npc, colliderWidthFraction, 0.7f);
     return npc;
   }
 

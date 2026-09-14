@@ -60,9 +60,12 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
-  // Left side of the dungeon floor, directly beneath the doric column decoration at (5, 14)
+  // Left side of the dungeon floor, next to the doric column decoration at (5, 14)
   // (level1-greek.json foreground layer) and the platform above it where the key item sits.
-  private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(5, 13);
+  // x=4 (rather than 5) centers the NPC's collider within the floor patch (world x=[1.0,3.0])
+  // instead of overhanging onto the ladder tile at x=[3.0,3.5) - see createTravelerNPC()'s
+  // wander-range comment for the full margin math.
+  private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
   private static final int HAZARD_DAMAGE = 10;
 
