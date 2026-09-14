@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.services.ServiceLocator;
@@ -30,8 +31,7 @@ public class DaggerMovementComponent extends Component {
     timeAlive += delta;
 
     if (timeAlive >= LIFETIME) {
-      entity.setPosition(-1000f, -1000f);
-      entity.setEnabled(false);
+      Gdx.app.postRunnable(entity::dispose);
     }
   }
 }
