@@ -146,13 +146,18 @@ public class UpgradesDisplay extends UIComponent {
     actionUpgrades.add(attackSpeed);
 
     // Defence upgrades: expire after a fixed duration.
-    defenceUpgrades.add(
-        UpgradeNode.timeBased(
-            "shield_durability",
-            "Shield Durability",
-            "Reduces damage taken while your shield is active. Stacking tiers also extends the duration.",
-            new int[] {30, 25, 25},
-            new float[] {20f, 35f, 55f}));
+    UpgradeNode shieldDurability =
+            UpgradeNode.timeBased(
+                    "shield_durability",
+                    "Shield Durability",
+                    "Absorbs a limited number of attacks. Stacking tiers increases shield durability.",
+                    new int[] {30, 25, 25},
+                    new float[] {20f, 35f, 55f});
+
+    shieldDurability.setOnTierChanged(() -> applyShieldEffect(shieldDurability));
+    shieldDurability.setOnExpired(this::removeShieldEffect);
+
+    defenceUpgrades.add(shieldDurability);
 
     defenceUpgrades.add(
         UpgradeNode.timeBased(
@@ -200,6 +205,24 @@ public class UpgradesDisplay extends UIComponent {
     PlayerActions playerActions = getPlayerActions();
     if (playerActions != null) {
       playerActions.removeSpeedModifier(node);
+    }
+  }
+  private void applyShieldEffect(UpgradeNode node) {
+    CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
+    if (combatStats == null) {
+      return;
+    }
+
+    int[] shieldHitsPerTier = {3, 5, 8};
+    int shieldHits = shieldHitsPerTier[node.getCurrentTier() - 1];
+
+    combatStats.setShieldHits(shieldHits);
+  }
+
+  private void removeShieldEffect() {
+    CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
+    if (combatStats != null) {
+      combatStats.setShieldHits(0);
     }
   }
   private void applyAttackSpeedEffect(UpgradeNode node) {
