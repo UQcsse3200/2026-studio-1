@@ -25,7 +25,6 @@ import com.csse3200.game.components.loot.LootSpawnFinder;
 import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -199,7 +198,6 @@ public class LevelGameArea extends GameArea {
     spawnEnemies();
     spawnLoot();
     spawnTravelerNPC();
-
     playMusic();
   }
 
@@ -507,7 +505,6 @@ public class LevelGameArea extends GameArea {
       spawn = new GridPoint2(0, 0);
     }
     spawnEntityAt(newPlayer, spawn, true, true);
-    newPlayer.getComponent(PetManagerComponent.class).activatePet();
   }
 
   private static void addHazardCollisionListener(Entity newPlayer) {
