@@ -60,7 +60,7 @@ public class PlayerFactory {
             .addComponent(new InventoryComponent(stats.gold))
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
-            .addComponent(new PlatformerComponent(3))
+            .addComponent(new PlatformerComponent(5))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
