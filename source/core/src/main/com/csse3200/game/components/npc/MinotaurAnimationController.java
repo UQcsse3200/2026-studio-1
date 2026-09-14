@@ -6,7 +6,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 
 /**
- * This class listens to events relevant to a skeleton entity's state and plays the animation when
+ * This class listens to events relevant to a minotaur entity's state and plays the animation when
  * one of the events is triggered. It also updates the animation state based on velocity.
  */
 public class MinotaurAnimationController extends Component {
@@ -82,18 +82,18 @@ public class MinotaurAnimationController extends Component {
   }
 
   void animateIdleL() {
-    animator.startAnimation("idlel");
+    animator.startAnimation("minotaur_idle_l");
   }
 
   void animateIdleR() {
-    animator.startAnimation("idler");
+    animator.startAnimation("minotaur_idle_r");
   }
 
   void animateWalkL() {
-    animator.startAnimation("walkl");
+    animator.startAnimation("minotaur_walk_l");
   }
 
   void animateWalkR() {
-    animator.startAnimation("walkr");
+    animator.startAnimation("minotaur_walk_r");
   }
 }

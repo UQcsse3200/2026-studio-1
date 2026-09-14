@@ -1,6 +1,8 @@
 minotaur.png
 size:2048,512
 repeat:none
+default
+bounds:1864,412,96,80
 minotaur_charge_l
 index:5
 bounds:198,2,96,80
