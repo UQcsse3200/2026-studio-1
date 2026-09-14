@@ -15,6 +15,7 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
     entity.getEvents().addListener("collisionEnd", this::onCollisionEnd);
 
-    // Death State
+    // Death State for player
     entity.getEvents().addListener("death", this::onDeath);
   }
 
@@ -243,8 +244,8 @@ public class PlayerActions extends Component {
         // Check for death
         if (enemyStats.isDead()) {
           // event handles dropping loot and disposal of enemy
+          enemy.getEvents().trigger("enemyDeath");
         }
-        enemy.getEvents().trigger("enemyDeath");
       }
     }
 

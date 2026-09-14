@@ -42,7 +42,7 @@ public class RangedAttackComponent extends Component {
   private float windupTimeRemaing;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
-  private static final Logger logger = LoggerFactory.getLogger(MeleeAttackComponent.class);
+  private static final Logger logger = LoggerFactory.getLogger(RangedAttackComponent.class);
 
   /**
    * Creates a ranged attack component with configurable range, cooldown, and knockback.

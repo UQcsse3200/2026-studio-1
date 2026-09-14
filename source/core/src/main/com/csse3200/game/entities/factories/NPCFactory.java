@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -140,6 +141,7 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
+        .addComponent(new EnemyDeathComponent())
         .addComponent(new SkeletonAnimationController());
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
@@ -194,6 +196,7 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
+        .addComponent(new EnemyDeathComponent())
         .addComponent(new SkeletonAnimationController());
 
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
@@ -256,6 +259,7 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
+        .addComponent(new EnemyDeathComponent())
         .addComponent(new SkeletonAnimationController());
 
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
@@ -272,7 +276,8 @@ public class NPCFactory {
     minotaur
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
-        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
+        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius,
+            15, 10)));
 
     minotaur.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
@@ -326,6 +331,7 @@ public class NPCFactory {
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
+        .addComponent(new EnemyDeathComponent())
         .addComponent(new SkeletonAnimationController());
 
     centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
@@ -402,6 +408,7 @@ public class NPCFactory {
                 (WeaponItem) inventory.getItem(2)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 

@@ -26,6 +26,7 @@ public class EnemyDeathComponent extends Component {
       }
     }
 
-//    entity.dispose();
+    entity.dispose();
+    logger.info("Enemy {} died.", entity);
   }
 }
