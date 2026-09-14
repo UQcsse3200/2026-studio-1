@@ -51,12 +51,12 @@ public class LootFactory {
       String texturePath;
 
       if (weaponItem.getWeaponType() == WeaponType.BOW) {
-        texturePath = "images/bow.png";
+        texturePath = "images/items/bow.png";
       } else {
-        texturePath = "images/sword.png";
+        texturePath = "images/items/sword.png";
       }
 
-      loot.addComponent(new TextureRenderComponent(texturePath));
+      loot.addComponent(new BobbingTextureRenderComponent(texturePath));
     } else if (item instanceof ConsumableItem consumableItem) {
       // Consumables carry their own sprite, and bob gently so they read as collectable.
       loot.addComponent(new BobbingTextureRenderComponent(consumableItem.getTexturePath()));
@@ -75,7 +75,10 @@ public class LootFactory {
     }
 
     loot.addComponent(new PhysicsComponent())
-        .addComponent(new ColliderComponent())
+        // The solid fixture keeps loot on terrain but must not block the player or other pickups.
+        // Collection is handled independently by the ITEM sensor below.
+        .addComponent(
+            new ColliderComponent().setLayer(PhysicsLayer.ITEM).setMask(PhysicsLayer.OBSTACLE))
         .addComponent(new HitboxComponent().setLayer(PhysicsLayer.ITEM))
         .addComponent(new LootPickupComponent(item, pickupBlockedPlayer, pickupDelayMillis));
 

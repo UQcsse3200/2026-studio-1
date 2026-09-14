@@ -86,13 +86,14 @@ public class WeaponRenderComponent extends RenderComponent {
     }
 
     if (weaponItem.getWeaponType() == WeaponType.BOW) {
-      texture = ServiceLocator.getResourceService().getAsset("images/bow.png", Texture.class);
+      texture = ServiceLocator.getResourceService().getAsset("images/items/bow.png", Texture.class);
       isBow = true;
     } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
       texture = ServiceLocator.getResourceService().getAsset("images/dagger.png", Texture.class);
       isBow = false;
     } else {
-      texture = ServiceLocator.getResourceService().getAsset("images/sword.png", Texture.class);
+      texture =
+          ServiceLocator.getResourceService().getAsset("images/items/sword.png", Texture.class);
       isBow = false;
     }
   }
