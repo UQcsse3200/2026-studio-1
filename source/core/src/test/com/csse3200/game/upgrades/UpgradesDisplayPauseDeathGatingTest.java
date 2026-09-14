@@ -14,6 +14,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.rendering.RenderService;
+import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.lang.reflect.Field;
@@ -21,7 +22,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import com.csse3200.game.services.GameTime;
 
 /**
  * Confirms UpgradesDisplay.draw() skips ticking active upgrades' countdowns entirely - never

@@ -38,15 +38,8 @@ public class UpgradesDisplay extends UIComponent {
   // doesn't exist in the codebase yet.
   private static final float[] PLAYER_SPEED_MULTIPLIER_PER_TIER = {1.15f, 1.3f, 1.5f};
   private static final int[] SWORD_DAMAGE_BONUS_PER_TIER = {5, 10, 15};
-<<<<<<< HEAD
   private static final float[] ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER = {0.8f, 0.6f, 0.4f};
-
-=======
-  private static final float[] ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER = {
-          0.8f, 0.6f, 0.4f
-  };
   private static final int[] REGEN_HEAL_PER_KILL_PER_TIER = {5, 10};
->>>>>>> cd10c99 (Implement regen on kill upgrade)
   // Fired on the player entity whenever Sword Damage's bonus changes (including back to 0 on
   // expiry), so anything else on the player (e.g. WeaponDisplay) can reflect it without needing
   // a direct reference to this class - see applySwordDamageEffect()/removeSwordDamageEffect().
@@ -110,6 +103,7 @@ public class UpgradesDisplay extends UIComponent {
     this.player = player;
     player.getEvents().addListener("enemyKilled", this::onEnemyKilled);
   }
+
   private void onEnemyKilled() {
     if (player == null) {
       return;
@@ -127,18 +121,18 @@ public class UpgradesDisplay extends UIComponent {
       return;
     }
 
-    int healAmount =
-            REGEN_HEAL_PER_KILL_PER_TIER[regenOnKill.getCurrentTier() - 1];
+    int healAmount = REGEN_HEAL_PER_KILL_PER_TIER[regenOnKill.getCurrentTier() - 1];
 
-    CombatStatsComponent combatStats =
-            player.getComponent(CombatStatsComponent.class);
+    CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
 
     if (combatStats == null) {
       return;
     }
 
-    int maxHealth = player.getComponent(
-            com.csse3200.game.components.player.ConsumableUseComponent.class).getMaxHealth();
+    int maxHealth =
+        player
+            .getComponent(com.csse3200.game.components.player.ConsumableUseComponent.class)
+            .getMaxHealth();
 
     combatStats.setHealth(Math.min(combatStats.getHealth() + healAmount, maxHealth));
   }
@@ -198,12 +192,12 @@ public class UpgradesDisplay extends UIComponent {
     defenceUpgrades.add(shieldDurability);
 
     UpgradeNode regenOnKill =
-            UpgradeNode.timeBased(
-                    "regen_on_kill",
-                    "Regen on Kill",
-                    "Heals you when you defeat an enemy. Stacking tiers also extends the duration.",
-                    new int[] {60, 50},
-                    new float[] {15f, 30f});
+        UpgradeNode.timeBased(
+            "regen_on_kill",
+            "Regen on Kill",
+            "Heals you when you defeat an enemy. Stacking tiers also extends the duration.",
+            new int[] {60, 50},
+            new float[] {15f, 30f});
 
     regenOnKill.setOnTierChanged(() -> applyRegenEffect(regenOnKill));
     regenOnKill.setOnExpired(this::removeRegenEffect);
@@ -278,6 +272,7 @@ public class UpgradesDisplay extends UIComponent {
   private void removeRegenEffect() {
     // Regen has no persistent player stat to remove.
   }
+
   private void applyAttackSpeedEffect(UpgradeNode node) {
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
