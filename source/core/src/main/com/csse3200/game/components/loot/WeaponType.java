@@ -4,5 +4,6 @@ package com.csse3200.game.components.loot;
 
 public enum WeaponType {
   SWORD,
-  BOW
+  BOW,
+  DAGGER
 }

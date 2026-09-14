@@ -190,6 +190,48 @@ public class InventoryComponent extends Component {
   }
 
   /**
+   * Returns whether {@code item} can be added in full without leftover.
+   *
+   * <p>Does not mutate inventory. Uses the same stack-then-empty-slot rules as {@link
+   * #addItem(Item)}.
+   *
+   * @param item item to test; {@code null} or non-positive quantity cannot be fully added
+   * @return {@code true} iff {@link #addItem(Item)} would return {@code 0} and at least one unit
+   *     would be stored
+   */
+  public boolean canFullyAdd(Item item) {
+    if (!isAddable(item)) {
+      return false;
+    }
+    return leftoverAfterAdd(item, item.getQuantity()) == 0;
+  }
+
+  /**
+   * Returns how much of {@code remaining} would not fit, without mutating slots.
+   *
+   * @param item template used for stack compatibility and max quantity
+   * @param remaining quantity still to place
+   * @return leftover quantity
+   */
+  private int leftoverAfterAdd(Item item, int remaining) {
+    for (int slot = 1; slot <= maxSlots && remaining > 0; slot++) {
+      Item existing = inventorySlots.get(slot);
+      if (!canStack(existing, item)) {
+        continue;
+      }
+      int space = existing.getMaxQuantity() - existing.getQuantity();
+      remaining -= Math.min(remaining, space);
+    }
+
+    int emptySlots = maxSlots - inventorySlots.size();
+    while (remaining > 0 && emptySlots > 0) {
+      remaining -= Math.min(remaining, item.getMaxQuantity());
+      emptySlots--;
+    }
+    return remaining;
+  }
+
+  /**
    * Returns the total quantity of matching items.
    *
    * @param name item name to match

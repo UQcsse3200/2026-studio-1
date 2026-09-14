@@ -5,12 +5,15 @@ import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.InventoryDisplay;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.PlayerActions;
+import com.csse3200.game.components.player.PlayerBuffComponent;
+import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
@@ -49,6 +52,13 @@ public class PlayerFactory {
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
 
+    WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
+    startingDagger.setQuantity(20);
+
+    InventoryComponent inventory = new InventoryComponent(stats.gold);
+    inventory.addItem(startingWeapon);
+    inventory.addItem(startingDagger);
+
     Entity player =
         new Entity()
             .addComponent(new TextureRenderComponent("images/box_boy_leaf.png"))
@@ -63,15 +73,18 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
-            .addComponent(new InventoryComponent(stats.gold))
+            .addComponent(new PlayerBuffComponent())
+            .addComponent(new PlayerRegenComponent())
+            .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
+            .addComponent(new PetManagerComponent())
             .addComponent(new PlatformerComponent(3))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
-            .addComponent(new WeaponRenderComponent("images/sword.png"));
+            .addComponent(new WeaponRenderComponent());
 
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);

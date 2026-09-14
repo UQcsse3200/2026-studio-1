@@ -43,6 +43,7 @@ public class SettingsMenuDisplay extends UIComponent {
   public void create() {
     super.create();
     addActors();
+    entity.getEvents().addListener("exitSettings", this::exitMenu);
   }
 
   private void addActors() {
