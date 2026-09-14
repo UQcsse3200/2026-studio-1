@@ -583,6 +583,7 @@ public class LevelGameArea extends GameArea {
       case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
       case "skeleton" -> NPCFactory.createSkeleton(player);
       case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
+      case "cyclops" -> NPCFactory.createCyclops(player);
       default -> {
         logger.warn("Unknown enemy spawn type '{}' - skipped", type);
         yield null;
