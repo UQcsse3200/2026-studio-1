@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
  * Central registry and progress tracker for every Perk in the game. Any gameplay system - existing
  * or future - reports progress toward a milestone with a single call:
  *
- * <p>{@code PerkService.recordEvent("dashUsed", 1);}</pre>
+ * <p>{@code PerkService.recordEvent("dashUsed", 1);}
  *
- * Adding a new perk tied to an EXISTING event key needs zero changes anywhere else - just a new
+ * <p>Adding a new perk tied to an EXISTING event key needs zero changes anywhere else - just a new
  * entry in {@link PerkDefinitions}. Adding a perk for a brand-new milestone needs one new
  * recordEvent(...) call at the point that milestone happens (e.g. inside the wall-jump code, once
  * it exists), plus a new PerkDefinitions entry - nothing about this class changes either way.
