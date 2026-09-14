@@ -109,7 +109,17 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createDagger(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2)" class="member-name-link">createDagger</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;position,
  com.badlogic.gdx.math.Vector2&nbsp;direction)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Legacy dagger creation method used by the rendering code.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createDagger(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,int,com.csse3200.game.entities.Entity)" class="member-name-link">createDagger</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;position,
+ com.badlogic.gdx.math.Vector2&nbsp;direction,
+ int&nbsp;damage,
+ <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a combat dagger projectile with collision and damage.</div>
+</div>
 </div>
 </div>
 </div>
@@ -132,6 +142,33 @@ loadScripts(document, 'script');</script>
 <h3>createDagger</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createDagger</span><wbr><span class="parameters">(com.badlogic.gdx.math.Vector2&nbsp;position,
  com.badlogic.gdx.math.Vector2&nbsp;direction)</span></div>
+<div class="block">Legacy dagger creation method used by the rendering code.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>position</code> - spawn position</dd>
+<dd><code>direction</code> - travel direction</dd>
+<dt>Returns:</dt>
+<dd>dagger entity</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createDagger(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,int,com.csse3200.game.entities.Entity)">
+<h3>createDagger</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createDagger</span><wbr><span class="parameters">(com.badlogic.gdx.math.Vector2&nbsp;position,
+ com.badlogic.gdx.math.Vector2&nbsp;direction,
+ int&nbsp;damage,
+ <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</span></div>
+<div class="block">Creates a combat dagger projectile with collision and damage.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>position</code> - spawn position</dd>
+<dd><code>direction</code> - travel direction</dd>
+<dd><code>damage</code> - projectile damage</dd>
+<dd><code>owner</code> - entity that threw the dagger</dd>
+<dt>Returns:</dt>
+<dd>dagger projectile entity</dd>
+</dl>
 </section>
 </li>
 </ul>
