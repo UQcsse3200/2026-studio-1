@@ -63,7 +63,6 @@ class ShopDisplayUpgradePopupSafetyTest {
     UpgradesDisplay upgradesDisplay = new UpgradesDisplay();
     new Entity().addComponent(new UpgradesMenuComponent()).addComponent(upgradesDisplay).create();
 
-    shopDisplay.setUpgradesDisplay(upgradesDisplay);
   }
 
   private UpgradeNode firstUpgrade() throws Exception {
