@@ -23,17 +23,22 @@ public class Quest {
         if(questActiveForNPCID.get(NPCId)){
             return false;
         }else {
-            jumpQuestTracker.add(NPCId, new JumpQuest(globalJumps,jumpsToDo));
-            questActiveForNPCID.add(NPCId, true);
+            jumpQuestTracker.set(NPCId, new JumpQuest(globalJumps,jumpsToDo));
+            questActiveForNPCID.set(NPCId, true);
             return true;
         }
     }
     public static int checkJumpQuestComplete(int NPCId){
-        return jumpQuestTracker.get(NPCId).checkQuestProgress();
+        if(jumpQuestTracker.get(NPCId)!= null) {
+            return jumpQuestTracker.get(NPCId).checkQuestProgress();
+        }else{
+            //There is no jumpQuest to check because it wasn't set up
+            return -1;
+        }
     }
     public static void clearJumpQuest(int NPCId){
         jumpQuestTracker.set(NPCId,null);
-        questActiveForNPCID.set(NPCId,null);
+        questActiveForNPCID.set(NPCId,false);
     }
     public static ArrayList<JumpQuest> getJumpQuests(){
         return jumpQuestTracker;
@@ -44,4 +49,6 @@ public class Quest {
     public static int getGlobalJumps(){
         return globalJumps;
     }
+    public static ArrayList<Integer> getUniqueNPCIDArrayList(){return uniqueNPCID;}
+    public static ArrayList<Boolean> getQuestActiveForNPCID(){return questActiveForNPCID;}
 }
