@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.LootPickupComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
@@ -59,6 +60,9 @@ public class LootFactory {
     } else if (item instanceof ConsumableItem consumableItem) {
       // Consumables carry their own sprite, and bob gently so they read as collectable.
       loot.addComponent(new BobbingTextureRenderComponent(consumableItem.getTexturePath()));
+    } else if (item.getItemType() == ItemType.SHIELD) {
+      // Shield loot uses the shield sprite.
+      loot.addComponent(new TextureRenderComponent("images/Shield.png"));
     } else {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(

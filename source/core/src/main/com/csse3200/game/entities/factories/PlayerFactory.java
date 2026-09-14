@@ -15,6 +15,8 @@ import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.ShieldComponent;
+import com.csse3200.game.components.player.ShieldRenderComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
@@ -53,12 +55,13 @@ public class PlayerFactory {
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
-
+    WeaponItem startingBow = weaponGenerator.generateWeapon(WeaponType.BOW, 1);
     WeaponItem startingDagger = weaponGenerator.generateWeapon(WeaponType.DAGGER, 1);
     startingDagger.setQuantity(20);
 
     InventoryComponent inventory = new InventoryComponent(stats.gold);
     inventory.addItem(startingWeapon);
+    inventory.addItem(startingBow);
     inventory.addItem(startingDagger);
 
     Entity player =
@@ -75,6 +78,8 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
+            .addComponent(new ShieldComponent())
+            .addComponent(new ShieldRenderComponent())
             .addComponent(new PlayerBuffComponent())
             .addComponent(new PlayerRegenComponent())
             .addComponent(inventory)

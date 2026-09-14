@@ -5,28 +5,49 @@ filter: Nearest,Nearest
 repeat: none
 default
   rotate: false
-  xy: 0, 0
+  xy: 288, 320
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+idle_left
+  rotate: false
+  xy: 288, 288
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+idle_left
+  rotate: false
+  xy: 320, 288
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+idle_left
+  rotate: false
+  xy: 352, 288
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+idle_right
+  rotate: false
+  xy: 288, 320
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 0
 idle_right
   rotate: false
-  xy: 0, 0
-  size: 32, 32
-  orig: 32, 32
-  offset: 0, 0
-  index: 0
-idle_right
-  rotate: false
-  xy: 32, 0
+  xy: 320, 320
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 1
 idle_right
   rotate: false
-  xy: 64, 0
+  xy: 352, 320
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

@@ -86,4 +86,18 @@ public class PetManagerComponentTest {
     assertNull(manager.getActivePet());
     assertFalse(manager.hasActivePet());
   }
+
+  @Test
+  void shouldActivatePetWhenPetPurchasedEventTriggered() {
+    Entity pet = new Entity();
+    PetManagerComponent manager = new PetManagerComponent(petOwner -> pet);
+
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+
+    owner.getEvents().trigger("petPurchased");
+
+    assertSame(pet, manager.getActivePet());
+    assertTrue(manager.hasActivePet());
+  }
 }

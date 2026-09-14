@@ -9,7 +9,8 @@ import java.util.function.Function;
 /**
  * Manages the player's active companion pet.
  *
- * <p>A player can have at most one active pet at a time.
+ * <p>A player can have at most one active pet at a time. The manager listens for successful pet
+ * purchases and activates a pet when the {@code petPurchased} event is triggered.
  */
 public class PetManagerComponent extends Component {
   private Entity activePet;
@@ -28,6 +29,17 @@ public class PetManagerComponent extends Component {
    */
   PetManagerComponent(Function<Entity, Entity> petFactory) {
     this.petFactory = petFactory;
+  }
+
+  /**
+   * Registers the pet manager to listen for successful pet purchases.
+   *
+   * <p>When the player successfully purchases a pet from the shop, the {@code petPurchased} event
+   * is triggered and a companion pet is activated.
+   */
+  @Override
+  public void create() {
+    entity.getEvents().addListener("petPurchased", this::activatePet);
   }
 
   /**

@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
@@ -131,14 +132,14 @@ public class PlayerStatsDisplay extends UIComponent {
       Sound crownHitSound =
           ServiceLocator.getResourceService().getAsset("sounds/player-hit-crown.ogg", Sound.class);
 
-      crownHitSound.play();
+      crownHitSound.play(AudioSettings.getEffectiveEffectsVolume());
 
     } else if (damageTaken > 0) {
       // Regular damage
       Sound hitSound =
           ServiceLocator.getResourceService().getAsset("sounds/player-hit.ogg", Sound.class);
 
-      hitSound.play();
+      hitSound.play(AudioSettings.getEffectiveEffectsVolume());
     }
 
     previousHealth = health;

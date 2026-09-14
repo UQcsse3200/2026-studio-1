@@ -144,6 +144,34 @@ class ConsumableGeneratorTest {
     assertTrue(damage.getDurationSeconds() > 0f);
   }
 
+  @Test
+  void shouldSetHealthPotionSellPrice() {
+    ConsumableItem potion = generator.generateConsumable(ConsumableType.HEALTH_POTION, 1);
+
+    assertEquals(10, potion.getSellPrice());
+  }
+
+  @Test
+  void shouldSetDamageBuffSellPrice() {
+    ConsumableItem potion = generator.generateConsumable(ConsumableType.DAMAGE_BUFF, 1);
+
+    assertEquals(15, potion.getSellPrice());
+  }
+
+  @Test
+  void shouldSetSpeedBuffSellPrice() {
+    ConsumableItem potion = generator.generateConsumable(ConsumableType.SPEED_BUFF, 1);
+
+    assertEquals(15, potion.getSellPrice());
+  }
+
+  @Test
+  void shouldScaleConsumableSellPriceWithTier() {
+    ConsumableItem potion = generator.generateConsumable(ConsumableType.HEALTH_POTION, 3);
+
+    assertEquals(30, potion.getSellPrice());
+  }
+
   /** Acceptance criterion: regeneration heals per tick, and a higher tier heals faster. */
   @Test
   void shouldScaleRegenerationHealPerTickWithTier() {

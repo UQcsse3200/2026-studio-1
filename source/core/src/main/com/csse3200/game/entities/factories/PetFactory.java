@@ -34,6 +34,7 @@ public class PetFactory {
         new AnimationRenderComponent(
             ServiceLocator.getResourceService().getAsset(PET_ATLAS, TextureAtlas.class));
 
+    animator.addAnimation("idle_left", 0.15f, Animation.PlayMode.LOOP);
     animator.addAnimation("idle_right", 0.15f, Animation.PlayMode.LOOP);
 
     Entity pet =
