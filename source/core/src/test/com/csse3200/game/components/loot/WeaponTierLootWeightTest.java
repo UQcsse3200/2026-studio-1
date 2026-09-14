@@ -9,9 +9,9 @@ public class WeaponTierLootWeightTest {
 
   @Test
   void shouldHaveCorrectLootWeights() {
-    assertEquals(70, WeaponTier.TIER_1.getLootWeight());
-    assertEquals(25, WeaponTier.TIER_2.getLootWeight());
-    assertEquals(5, WeaponTier.TIER_3.getLootWeight());
+    assertEquals(60, WeaponTier.TIER_1.getLootWeight());
+    assertEquals(30, WeaponTier.TIER_2.getLootWeight());
+    assertEquals(10, WeaponTier.TIER_3.getLootWeight());
   }
 
   @Test
