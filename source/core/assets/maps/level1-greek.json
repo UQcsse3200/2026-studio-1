@@ -136,7 +136,7 @@
     },
     "@": {
       "type": "DECORATIVE",
-      "texture": "images/level1/hero-hoplite-512px.png"
+      "texture": "images/player/hero-hoplite-512px.png"
     },
     "!": {
       "type": "DECORATIVE",
@@ -168,7 +168,7 @@
     },
     "E": {
       "type": "DECORATIVE",
-      "texture": "images/level1/enemy-skeleton-hoplite-512px.png"
+      "texture": "images/enemies/enemy-skeleton-hoplite-512px.png"
     },
     "R": {
       "type": "DECORATIVE",

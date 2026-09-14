@@ -115,61 +115,83 @@ public class JsonMapLoader implements MapLoader {
       throw new MapLoadException("Map '" + name + "' 'layers' must be a JSON object");
     }
 
-    // First pass: collect raw rows and compute dimensions from map layers.
-    // The entities layer does not determine the map dimensions.
-    List<String> layerNames = new ArrayList<>();
-    List<String[]> layerRows = new ArrayList<>();
+    LayerRows collected = collectLayerRows(layersJson, name);
+    SplitLayers split = splitLayers(collected, legend);
+    int width = collected.width();
+    int height = collected.height();
 
-    int width = 0;
-    int height = 0;
-
-    for (JsonValue layer = layersJson.child; layer != null; layer = layer.next) {
-      if (!layer.isArray()) {
-        throw new MapLoadException(
-            "Layer '" + layer.name + "' in map '" + name + "' must be an array of strings");
-      }
-
-      String[] rows = layer.asStringArray();
-
-      layerNames.add(layer.name);
-      layerRows.add(rows);
-
-      // Entity positions should not affect the map dimensions.
-      if (layer.name.equals("entities")) {
-        continue;
-      }
-
-      height = Math.max(height, rows.length);
-
-      for (String row : rows) {
-        width = Math.max(width, row.length());
-      }
-    }
-
-    // Second pass: build the typed tile grids, flipping rows so y=0 is the bottom.
-    List<MapLayerData> layers = new ArrayList<>();
-    String[] entityRows = null;
-
-    for (int i = 0; i < layerNames.size(); i++) {
-      String layerName = layerNames.get(i);
-      String[] rows = layerRows.get(i);
-
-      if (layerName.equals("entities")) {
-        entityRows = rows;
-      } else {
-        layers.add(buildLayer(layerName, rows, legend, width, height));
-      }
-    }
-
-    MapSpawns spawns = parseSpawns(root.get("spawns"), entityRows, entityLegend, width, height);
+    MapSpawns spawns =
+        parseSpawns(root.get("spawns"), split.entityRows(), entityLegend, width, height);
 
     List<RoomTransition> transitions = parseTransitions(root.get("transitions"), name);
 
     validateSpawns(spawns, width, height, name);
     validateTransitions(transitions, width, height, name);
 
-    return new LevelMapData(name, tileSize, width, height, legend, layers, spawns, transitions);
+    return new LevelMapData(
+        name, tileSize, width, height, legend, split.layers(), spawns, transitions);
   }
+
+  /**
+   * Collects each layer's raw rows and computes the overall map dimensions. The {@code entities}
+   * layer is collected but does not contribute to the dimensions, since entity positions should not
+   * affect map size.
+   */
+  private LayerRows collectLayerRows(JsonValue layersJson, String mapName) {
+    List<String> layerNames = new ArrayList<>();
+    List<String[]> layerRows = new ArrayList<>();
+    int width = 0;
+    int height = 0;
+
+    for (JsonValue layer = layersJson.child; layer != null; layer = layer.next) {
+      if (!layer.isArray()) {
+        throw new MapLoadException(
+            "Layer '" + layer.name + "' in map '" + mapName + "' must be an array of strings");
+      }
+
+      String[] rows = layer.asStringArray();
+      layerNames.add(layer.name);
+      layerRows.add(rows);
+
+      if (layer.name.equals("entities")) {
+        continue;
+      }
+
+      height = Math.max(height, rows.length);
+      for (String row : rows) {
+        width = Math.max(width, row.length());
+      }
+    }
+
+    return new LayerRows(layerNames, layerRows, width, height);
+  }
+
+  /**
+   * Builds the typed tile grids from the collected rows, flipping each so {@code y = 0} is the
+   * bottom, and separates out the raw {@code entities} layer rows (if present) rather than treating
+   * them as a tile layer.
+   */
+  private SplitLayers splitLayers(LayerRows collected, Map<String, TileDefinition> legend) {
+    List<MapLayerData> layers = new ArrayList<>();
+    String[] entityRows = null;
+
+    for (int i = 0; i < collected.names().size(); i++) {
+      String layerName = collected.names().get(i);
+      String[] rows = collected.rows().get(i);
+
+      if (layerName.equals("entities")) {
+        entityRows = rows;
+      } else {
+        layers.add(buildLayer(layerName, rows, legend, collected.width(), collected.height()));
+      }
+    }
+
+    return new SplitLayers(layers, entityRows);
+  }
+
+  private record LayerRows(List<String> names, List<String[]> rows, int width, int height) {}
+
+  private record SplitLayers(List<MapLayerData> layers, String[] entityRows) {}
 
   /**
    * Adapts the Level 2 art team's concise blueprint format to the runtime map representation. Its
@@ -340,58 +362,45 @@ public class JsonMapLoader implements MapLoader {
 
   private void parseEntityLayer(
       String[] rows, Map<String, JsonValue> entityLegend, MapSpawns spawns, int width, int height) {
-
     for (int r = 0; r < rows.length; r++) {
-
       String row = rows[r];
-
-      // Same coordinate conversion used by buildLayer().
-      int y = height - 1 - r;
+      int y = height - 1 - r; // Same coordinate conversion used by buildLayer().
 
       for (int x = 0; x < row.length(); x++) {
-
         char ch = row.charAt(x);
-
         if (ch == EMPTY_CELL) {
           continue;
         }
-
-        String symbol = String.valueOf(ch);
-        JsonValue definition = entityLegend.get(symbol);
-
-        if (definition == null) {
-          logger.warn("Unknown entity symbol '{}' in entities layer - ignored", ch);
-          continue;
-        }
-
-        String type = definition.getString("type", "").trim().toUpperCase(Locale.ROOT);
-
-        switch (type) {
-          case "PLAYER":
-            if (spawns.getPlayer() != null) {
-              logger.warn("Multiple player spawn points found; replacing previous player spawn");
-            }
-
-            spawns.setPlayer(new GridPoint2(x, y));
-            break;
-
-          case "ENEMY":
-            String enemyType = definition.getString("enemyType", null);
-
-            spawns.addEnemy(new SpawnPoint(enemyType, x, y));
-            break;
-
-          case "LOOT":
-            String lootType = definition.getString("lootType", null);
-
-            spawns.addLoot(new SpawnPoint(lootType, x, y));
-            break;
-
-          default:
-            logger.warn("Unknown entity type '{}' for symbol '{}'", type, symbol);
-        }
+        placeEntity(ch, x, y, entityLegend, spawns);
       }
     }
+  }
+
+  /** Resolves one entities-layer symbol against the entity legend and records its spawn. */
+  private void placeEntity(
+      char ch, int x, int y, Map<String, JsonValue> entityLegend, MapSpawns spawns) {
+    String symbol = String.valueOf(ch);
+    JsonValue definition = entityLegend.get(symbol);
+    if (definition == null) {
+      logger.warn("Unknown entity symbol '{}' in entities layer - ignored", ch);
+      return;
+    }
+
+    String type = definition.getString("type", "").trim().toUpperCase(Locale.ROOT);
+    switch (type) {
+      case "PLAYER" -> placePlayerSpawn(x, y, spawns);
+      case "ENEMY" ->
+          spawns.addEnemy(new SpawnPoint(definition.getString("enemyType", null), x, y));
+      case "LOOT" -> spawns.addLoot(new SpawnPoint(definition.getString("lootType", null), x, y));
+      default -> logger.warn("Unknown entity type '{}' for symbol '{}'", type, symbol);
+    }
+  }
+
+  private void placePlayerSpawn(int x, int y, MapSpawns spawns) {
+    if (spawns.getPlayer() != null) {
+      logger.warn("Multiple player spawn points found; replacing previous player spawn");
+    }
+    spawns.setPlayer(new GridPoint2(x, y));
   }
 
   private MapLayerData buildLayer(
