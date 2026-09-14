@@ -24,25 +24,20 @@ public class WeaponItem extends Item {
   }
 
   public WeaponItem(
-      String name,
-      WeaponType weaponType,
-      int tier,
-      int quantity,
-      int maxQuantity,
-      boolean useTierStats) {
+      String name, WeaponType weaponType, WeaponTier weaponTier, int quantity, int maxQuantity) {
     super(name, ItemType.WEAPON, quantity, maxQuantity);
 
     if (weaponType == null) {
       throw new IllegalArgumentException("WeaponType must not be null.");
     }
 
-    if (tier < 1 || tier > 3) {
-      throw new IllegalArgumentException("Tier must be between 1 and 3.");
+    if (weaponTier == null) {
+      throw new IllegalArgumentException("WeaponTier must not be null.");
     }
 
     this.weaponType = weaponType;
-    this.tier = tier;
-    this.weaponStats = WeaponTier.values()[tier - 1].getStats(weaponType);
+    this.tier = weaponTier.getStats(weaponType).getTier();
+    this.weaponStats = weaponTier.getStats(weaponType);
     this.damage = weaponStats.getDamage();
   }
 
