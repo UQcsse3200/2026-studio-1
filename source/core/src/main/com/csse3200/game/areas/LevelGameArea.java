@@ -341,21 +341,29 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * task/shield Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the
-   * loot/inventory features work in this level, mirroring what {@code ForestGameArea} spawns. Items
-   * are laid out in a row anchored to the map's first loot spawn point (falling back to just right
-   * of the player), so they land on the loaded map regardless of its size. Spawns pickup loot
-   * across the map.
+   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
+   * features work in this level, mirroring what {@code ForestGameArea} spawns.
    *
-   * <p>Every loot spawn point the map declares gets one item rolled from the weighted loot table,
+   * <p>The shield is guaranteed at the map's first declared loot spawn point, the same way the gold
+   * coin is always placed directly rather than rolled — with maps sometimes declaring only a
+   * handful of loot spawn points, leaving the shield to the weighted table risked it never
+   * appearing. Every remaining loot spawn point gets one item rolled from the weighted loot table,
    * so loot lands on reachable ground and higher tiers stay rare. A map with no declared loot
-   * spawns falls back to a starter row beside the player. main
+   * spawns falls back to a starter row beside the player.
    */
   private void spawnLoot() {
     List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();
     if (!lootSpawns.isEmpty()) {
+      SpawnPoint shieldSpawn = lootSpawns.get(0);
+      spawnEntityAt(
+          LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
+          shieldSpawn.getPosition(),
+          true,
+          true);
+
+      List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
       LootTable table = LootTable.createDefault(LOOT_SEED);
-      for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, lootSpawns)) {
+      for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
         spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
       }
       logger.debug("Spawned {} pieces of loot from the loot table", lootSpawns.size());
