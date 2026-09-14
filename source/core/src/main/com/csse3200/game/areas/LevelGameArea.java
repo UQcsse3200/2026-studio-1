@@ -70,12 +70,12 @@ public class LevelGameArea extends GameArea {
     "images/bow.png",
     "images/arrow.png",
     "images/dagger.png",
-"images/potions/health_potion.png",
-"images/potions/strength_potion.png",
-"images/potions/speed_potion.png",
-"images/potions/regeneration_potion.png",
-"images/potions/resistance_potion.png",
-"images/Shield.png"
+    "images/potions/health_potion.png",
+    "images/potions/strength_potion.png",
+    "images/potions/speed_potion.png",
+    "images/potions/regeneration_potion.png",
+    "images/potions/resistance_potion.png",
+    "images/Shield.png"
   };
 
   private static final String[] entitySounds = {
@@ -341,17 +341,15 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
- task/shield
-   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
-   * features work in this level, mirroring what {@code ForestGameArea} spawns. Items are laid out
-   * in a row anchored to the map's first loot spawn point (falling back to just right of the
-   * player), so they land on the loaded map regardless of its size.
-   * Spawns pickup loot across the map.
+   * task/shield Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the
+   * loot/inventory features work in this level, mirroring what {@code ForestGameArea} spawns. Items
+   * are laid out in a row anchored to the map's first loot spawn point (falling back to just right
+   * of the player), so they land on the loaded map regardless of its size. Spawns pickup loot
+   * across the map.
    *
    * <p>Every loot spawn point the map declares gets one item rolled from the weighted loot table,
    * so loot lands on reachable ground and higher tiers stay rare. A map with no declared loot
-   * spawns falls back to a starter row beside the player.
- main
+   * spawns falls back to a starter row beside the player. main
    */
   private void spawnLoot() {
     List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();

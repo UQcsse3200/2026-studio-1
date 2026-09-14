@@ -75,13 +75,10 @@ public class PlayerFactory {
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
- task/shield
             .addComponent(new ShieldComponent())
             .addComponent(new ShieldRenderComponent())
-
             .addComponent(new PlayerBuffComponent())
             .addComponent(new PlayerRegenComponent())
- main
             .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
