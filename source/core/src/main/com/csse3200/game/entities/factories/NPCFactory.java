@@ -141,7 +141,10 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range, config.melee.cooldown, config.melee.knockback))
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(1)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -196,6 +199,12 @@ public class NPCFactory {
                 config.ranged.cooldown,
                 config.ranged.knockback,
                 config.ranged.projectileSpeed))
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
 

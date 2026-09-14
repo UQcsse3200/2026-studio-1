@@ -1,9 +1,8 @@
-package com.csse3200.game.components;
+package com.csse3200.game.components.effects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;

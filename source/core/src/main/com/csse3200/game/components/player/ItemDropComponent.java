@@ -44,6 +44,7 @@ public class ItemDropComponent extends Component {
   @Override
   public void create() {
     entity.getEvents().addListener("dropItem", this::dropFirstStack);
+    entity.getEvents().addListener("enemyDeath", this::dropAll);
   }
 
   /**
@@ -92,6 +93,17 @@ public class ItemDropComponent extends Component {
     logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
     entity.getEvents().trigger("itemDropped", removed, loot);
     return true;
+  }
+
+  /** */
+  public void dropAll() {
+    // Drop gold
+    this.dropGold();
+
+    // Drop weapons and consumables
+    while (this.dropFirstStack()) {
+      logger.info("Enemy {} dropped item", this);
+    }
   }
 
   /**

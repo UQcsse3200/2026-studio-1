@@ -13,7 +13,7 @@
     "baseAttack": 5,
     "melee": {
       "range": 2,
-      "cooldown": 3,
+      "cooldown": 5,
       "knockback": 0
     }
   },
@@ -22,9 +22,23 @@
     "baseAttack": 5,
     "ranged": {
       "range": 5,
+      "cooldown": 5,
+      "knockback": 0
+    }
+  },
+  "centaur": {
+    "health": 40,
+    "baseAttack": 10,
+    "melee": {
+      "range": 4,
+      "cooldown": 5,
+      "knockback": 2
+    },
+    "ranged": {
+      "range": 10,
       "cooldown": 4,
-      "knockback": 0,
-      "projectileSpeed": 8
+      "projectileSpeed": 8,
+      "knockback": 3
     }
   }
 }

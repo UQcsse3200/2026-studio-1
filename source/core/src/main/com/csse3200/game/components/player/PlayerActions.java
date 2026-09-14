@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Action component for interacting with the player.
@@ -244,22 +242,9 @@ public class PlayerActions extends Component {
 
         // Check for death
         if (enemyStats.isDead()) {
-          // Drop loot
-          Logger logger = LoggerFactory.getLogger(ItemDropComponent.class);
-          ItemDropComponent dropper = enemy.getComponent(ItemDropComponent.class);
-          if (dropper != null) {
-            // Drop gold
-            dropper.dropGold();
-
-            // Drop weapons and consumables
-            while (dropper.dropFirstStack()) {
-              logger.info("Enemy {} dropped item", enemy);
-            }
-          }
-
-          // Remove enemy
-          enemy.dispose();
+          // event handles dropping loot and disposal of enemy
         }
+        enemy.getEvents().trigger("enemyDeath");
       }
     }
 
