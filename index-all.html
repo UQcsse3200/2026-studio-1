@@ -66,7 +66,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ui/terminal/commands/WinCommand.html#action(java.util.ArrayList)" class="member-name-link">action(ArrayList&lt;String&gt;)</a> - Method in class com.csse3200.game.ui.terminal.commands.<a href="com/csse3200/game/ui/terminal/commands/WinCommand.html" title="class in com.csse3200.game.ui.terminal.commands">WinCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#activatePet()" class="member-name-link">activatePet()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
+<dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#activatePet(com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">activatePet(ShopComponent.Pet)</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
 <dd>
 <div class="block">Creates and activates a pet for this player.</div>
 </dd>
@@ -618,6 +618,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Called when the entity is registered in the game world.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
+<dd>
+<div class="block">Registers the pet manager to listen for successful pet purchases.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/pet/PetMovementComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetMovementComponent.html" title="class in com.csse3200.game.components.pet">PetMovementComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/PlatformerComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/PlatformerComponent.html" title="class in com.csse3200.game.components">PlatformerComponent</a></dt>
@@ -813,7 +817,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a loot entity containing the given item.</div>
 </dd>
-<dt><a href="com/csse3200/game/entities/factories/PetFactory.html#createPet(com.csse3200.game.entities.Entity)" class="member-name-link">createPet(Entity)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/PetFactory.html" title="class in com.csse3200.game.entities.factories">PetFactory</a></dt>
+<dt><a href="com/csse3200/game/entities/factories/PetFactory.html#createPet(com.csse3200.game.entities.Entity,com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">createPet(Entity, ShopComponent.Pet)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/PetFactory.html" title="class in com.csse3200.game.entities.factories">PetFactory</a></dt>
 <dd>
 <div class="block">Creates a base companion pet owned by the given player.</div>
 </dd>
@@ -997,6 +1001,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/npc/DisplayDialogue.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/DisplayDialogue.html" title="class in com.csse3200.game.components.npc">DisplayDialogue</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
+<dd>
+<div class="block">Removes the active pet when this component is disposed.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerStatsDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></dt>
@@ -1986,6 +1994,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Removes the last character of the entered message.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#hasActivePet()" class="member-name-link">hasActivePet()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
+<dd>
+<div class="block">Returns whether this player currently has an active pet.</div>
+</dd>
 <dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html#hasAnimation(java.lang.String)" class="member-name-link">hasAnimation(String)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></dt>
 <dd>
 <div class="block">Whether the animator has added the given animation.</div>
@@ -2791,12 +2803,14 @@ loadScripts(document, 'script');</script>
 <div class="block">Manages the player's active companion pet.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#%3Cinit%3E()" class="member-name-link">PetManagerComponent()</a> - Constructor for class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Creates a pet manager using the normal game pet factory.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/pet/PetMovementComponent.html" class="type-name-link" title="class in com.csse3200.game.components.pet">PetMovementComponent</a> - Class in <a href="com/csse3200/game/components/pet/package-summary.html">com.csse3200.game.components.pet</a></dt>
 <dd>
 <div class="block">Keeps a companion pet hovering above and behind its owner.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/pet/PetMovementComponent.html#%3Cinit%3E()" class="member-name-link">PetMovementComponent()</a> - Constructor for class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetMovementComponent.html" title="class in com.csse3200.game.components.pet">PetMovementComponent</a></dt>
+<dt><a href="com/csse3200/game/components/pet/PetMovementComponent.html#%3Cinit%3E(java.lang.String)" class="member-name-link">PetMovementComponent(String)</a> - Constructor for class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetMovementComponent.html" title="class in com.csse3200.game.components.pet">PetMovementComponent</a></dt>
 <dd>
 <div class="block">Creates pet movement using the game's time source.</div>
 </dd>
