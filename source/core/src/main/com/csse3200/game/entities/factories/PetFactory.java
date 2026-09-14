@@ -65,6 +65,9 @@ public class PetFactory {
 
     pet.getComponent(AnimationRenderComponent.class).scaleEntity();
 
+    float petScale = 0.7f;
+    pet.setScale(pet.getScale().x * petScale, pet.getScale().y * petScale);
+
     PhysicsUtils.setScaledCollider(pet, 0.6f, 0.3f);
     pet.getComponent(ColliderComponent.class).setLayer(PhysicsLayer.NONE).setSensor(true);
 
