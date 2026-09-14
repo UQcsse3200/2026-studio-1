@@ -52,6 +52,7 @@ public class ForestGameArea extends GameArea {
     "images/sword.png",
     "images/bow.png",
     "images/arrow.png",
+    "images/Shield.png",
     "images/ghost_king.png",
     "images/ghost_1.png",
     "images/grass_1.png",
@@ -90,6 +91,7 @@ public class ForestGameArea extends GameArea {
     "sounds/player-hit.ogg",
     "sounds/player-hit-crown.ogg"
   };
+
   private static final String backgroundMusic = "sounds/BGM_03_mp3.mp3";
   private static final String[] forestMusic = {backgroundMusic};
 
@@ -127,6 +129,7 @@ public class ForestGameArea extends GameArea {
     spawnSkeleton();
     spawnRangedSkeleton();
     spawnConsumables();
+    spawnShieldLoot();
 
     Item goldCoinItem = new Item("Gold Coin", ItemType.CURRENCY, 1, 99);
     Entity goldCoin = LootFactory.createLoot(goldCoinItem);
@@ -212,6 +215,13 @@ public class ForestGameArea extends GameArea {
     WeaponItem swordItem = generator.generateWeapon(WeaponType.SWORD, 1);
     Entity sword = LootFactory.createLoot(swordItem);
     spawnEntityAt(sword, new GridPoint2(13, 10), true, true);
+  }
+
+  /** Spawns a shield as loot in the game world. */
+  private void spawnShieldLoot() {
+    Item shieldItem = new Item("Shield", ItemType.SHIELD, 1, 1);
+    Entity shield = LootFactory.createLoot(shieldItem);
+    spawnEntityAt(shield, new GridPoint2(12, 11), true, true);
   }
 
   private void spawnGhosts() {
