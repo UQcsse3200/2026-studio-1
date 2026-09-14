@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
@@ -163,6 +164,10 @@ public class PlayerActions extends Component {
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
 
+    //To track player global stats
+    if(platformerComponent.getJumpingBool()){
+      Quest.incrementGlobalJumps();
+    }
     // For the jump portion
     platformerComponent.updateJump(MAX_SPEED);
   }

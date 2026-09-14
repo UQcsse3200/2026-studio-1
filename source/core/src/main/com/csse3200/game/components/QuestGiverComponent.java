@@ -2,8 +2,8 @@ package com.csse3200.game.components;
 
 import com.csse3200.game.Quests.Quest;
 
-public class QuestGiverComponent {
-    int uniqueNPCID;
+public class QuestGiverComponent  extends Component {
+    public int uniqueNPCID;
     public QuestGiverComponent(){
         uniqueNPCID = Quest.giveOutUniqueNPCID();
     }
@@ -18,6 +18,11 @@ public class QuestGiverComponent {
         Quest.clearJumpQuest(uniqueNPCID);
     }
     public int checkJumpQuestComplete(){
-        return Quest.checkJumpQuestComplete(uniqueNPCID);
+        if(Quest.checkJumpQuestComplete(uniqueNPCID)==-1){
+            throw new  NullPointerException("A QuestGiver component tried to call checkJumpQuestComplete when " +
+                    "there isn't a quest to check the progress of i.e. it returned null");
+        }else{
+            return Quest.checkJumpQuestComplete(uniqueNPCID);
+        }
     }
 }

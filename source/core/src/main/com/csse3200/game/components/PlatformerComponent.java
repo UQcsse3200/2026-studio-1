@@ -113,7 +113,6 @@ public class PlatformerComponent extends Component {
       Vector2 jumpImpulse = desiredVelocity.scl(body.getMass());
       body.applyLinearImpulse(jumpImpulse, body.getWorldCenter(), true);
       jumpDirection.y = 0;
-      Quest.incrementGlobalJumps();
       jumping = false;
     }
   }
