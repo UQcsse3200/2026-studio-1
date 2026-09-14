@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 import com.badlogic.gdx.graphics.Texture;
 import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
@@ -30,8 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * Covers the behaviour unique to {@link RangedAttackComponent} now that it fires a real arrow
  * rather than resolving damage instantly: the cooldown/range gate on <i>firing</i>, and that
  * cooldown resets on firing rather than on a confirmed hit (see this class's own javadoc for why).
- * Whether a fired arrow actually deals damage/knockback on contact is covered separately by {@link
- * com.csse3200.game.components.projectile.ProjectileHitComponentTest}, since {@link
+ * Whether a fired arrow actually deals damage/knockback on contact is covered separately by {@code
+ * ProjectileHitComponentTest} (package-private, so it can't be linked from here), since {@link
  * com.csse3200.game.entities.EntityService} doesn't expose a way to inspect an entity it was just
  * asked to register - only that firing didn't throw and produced the expected "rangedAttackFired"
  * notification is verified here.
@@ -60,23 +62,28 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldStoreConstructorValuesCorrectly() {
-    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, 8f);
+    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, 1, 1, 1);
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, bow);
     assertEquals(6f, ranged.getRange());
     assertEquals(2.5f, ranged.getCooldown());
     assertEquals(1f, ranged.getKnockback());
-    assertEquals(8f, ranged.getProjectileSpeed());
+    assertEquals(
+        8f,
+        ranged.getProjectileSpeed(),
+        "Should default to 8f until overridden via setProjectileSpeed(...)");
   }
 
   @Test
   void shouldRejectNonPositiveProjectileSpeed() {
-    assertThrows(IllegalArgumentException.class, () -> new RangedAttackComponent(6f, 2.5f, 0f, 0f));
-    assertThrows(
-        IllegalArgumentException.class, () -> new RangedAttackComponent(6f, 2.5f, 0f, -1f));
+    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, 1, 1, 1);
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 0f, bow);
+    assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(0f));
+    assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(-1f));
   }
 
   @Test
   void shouldFireOnFirstAttackWithinRange() {
-    Entity attacker = createAttacker(6f, 2f, 0f, 8f);
+    Entity attacker = createAttacker(6f, 2f, 0f);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
@@ -89,7 +96,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldNotFireWhenTargetOutsideRange() {
-    Entity attacker = createAttacker(2f, 1f, 0f, 8f);
+    Entity attacker = createAttacker(2f, 1f, 0f);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(10, 0);
@@ -102,7 +109,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldHandleTargetExactlyAtRangeBoundary() {
-    Entity attacker = createAttacker(2f, 1f, 0f, 8f);
+    Entity attacker = createAttacker(2f, 1f, 0f);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
@@ -115,7 +122,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldNotFireAtTargetWithoutCombatStatsComponent() {
-    Entity attacker = createAttacker(6f, 1f, 0f, 8f);
+    Entity attacker = createAttacker(6f, 1f, 0f);
     Entity targetWithoutStats = new Entity().addComponent(new PhysicsComponent());
     targetWithoutStats.create();
     attacker.setPosition(0, 0);
@@ -129,7 +136,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldNotFireDuringCooldown() {
-    Entity attacker = createAttacker(6f, 2f, 0f, 8f);
+    Entity attacker = createAttacker(6f, 2f, 0f);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
@@ -150,7 +157,7 @@ class RangedAttackComponentTest {
     // component never finds out whether the arrow it fires actually lands - see this class's
     // javadoc. So cooldown must allow firing again once the cooldown duration elapses after the
     // FIRST shot alone, with no hit confirmation involved at all.
-    Entity attacker = createAttacker(6f, 2f, 0f, 8f);
+    Entity attacker = createAttacker(6f, 2f, 0f);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
@@ -167,7 +174,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldNotThrowWhenTargetIsNull() {
-    Entity attacker = createAttacker(6f, 2f, 0f, 8f);
+    Entity attacker = createAttacker(6f, 2f, 0f);
     assertDoesNotThrow(() -> attacker.getEvents().trigger("rangedAttack", (Entity) null));
   }
 
@@ -175,7 +182,7 @@ class RangedAttackComponentTest {
   void firingShouldNotThrowAndShouldSuccessfullyRegisterAnArrow() {
     // Smoke test for the full spawn pipeline: ArrowFactory.createRangedArrow(...) building a
     // physics-backed entity and EntityService actually being able to create() it without error.
-    Entity attacker = createAttacker(6f, 2f, 1f, 8f);
+    Entity attacker = createAttacker(6f, 2f, 1f);
     Entity target = createTarget();
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
@@ -187,7 +194,7 @@ class RangedAttackComponentTest {
   void shouldAimLeftWhenTargetIsToTheLeft() {
     // Indirect check: firing at a target to the left must not throw despite the direction/spawn
     // offset math flipping sign compared to firing to the right.
-    Entity attacker = createAttacker(6f, 2f, 0f, 8f);
+    Entity attacker = createAttacker(6f, 2f, 0f);
     Entity target = createTarget();
     attacker.setPosition(5, 0);
     target.setPosition(0, 0);
@@ -204,10 +211,11 @@ class RangedAttackComponentTest {
     return fired;
   }
 
-  private Entity createAttacker(float range, float cooldown, float knockback, float speed) {
+  private Entity createAttacker(float range, float cooldown, float knockback) {
+    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, 1, 1, 1);
     Entity attacker =
         new Entity()
-            .addComponent(new RangedAttackComponent(range, cooldown, knockback, speed))
+            .addComponent(new RangedAttackComponent(range, cooldown, knockback, bow))
             .addComponent(new CombatStatsComponent(20, 5));
     attacker.create();
     return attacker;

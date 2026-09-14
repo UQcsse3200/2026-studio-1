@@ -198,15 +198,15 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                config.ranged.projectileSpeed))
-                config.ranged.range,
-                config.ranged.cooldown,
-                config.ranged.knockback,
                 (WeaponItem) inventory.getItem(1)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new SkeletonAnimationController());
+
+    rangedSkeleton
+        .getComponent(RangedAttackComponent.class)
+        .setProjectileSpeed(config.ranged.projectileSpeed);
 
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 

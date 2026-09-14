@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.configs;
 
+import com.csse3200.game.entities.configs.enemies.CentaurConfig;
 import com.csse3200.game.entities.configs.enemies.RangedSkeletonConfig;
 import com.csse3200.game.entities.configs.enemies.SkeletonConfig;
 
@@ -9,4 +10,5 @@ public class NPCConfigs {
   public GhostKingConfig ghostKing = new GhostKingConfig();
   public SkeletonConfig skeleton = new SkeletonConfig();
   public RangedSkeletonConfig rangedSkeleton = new RangedSkeletonConfig();
+  public CentaurConfig centaur = new CentaurConfig();
 }

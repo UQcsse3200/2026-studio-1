@@ -41,6 +41,9 @@ public class RangedAttackComponent extends Component {
   // How far in front of the shooter's centre the arrow spawns, so it doesn't spawn inside the
   // shooter's own collider and immediately register a (harmless, but pointless) self-collision.
   private static final float SPAWN_OFFSET = 0.3f;
+  // Default speed for a fired arrow when the caller doesn't override it via
+  // setProjectileSpeed(...) - matches RangedAttackConfig's own previous default.
+  private static final float DEFAULT_PROJECTILE_SPEED = 8f;
 
   private float range;
   private float cooldown;
@@ -81,7 +84,7 @@ public class RangedAttackComponent extends Component {
     if (weapon.getWindupDuration() >= this.getCooldown()) {
       throw new IllegalArgumentException("windupDuration must be less than cooldown");
     }
-    setProjectileSpeed(projectileSpeed);
+    setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
     this.timeSinceLastAttack = cooldown;
   }
 
