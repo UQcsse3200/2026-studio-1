@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.factories;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -12,7 +13,6 @@ import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
-import com.csse3200.game.services.ServiceLocator;
 
 /**
  * Factory for creating companion pet entities.
@@ -31,9 +31,8 @@ public class PetFactory {
    * @return unregistered pet entity
    */
   public static Entity createPet(Entity owner, ShopComponent.Pet petData) {
-    AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService().getAsset(PET_ATLAS, TextureAtlas.class));
+    TextureAtlas petAtlas = new TextureAtlas(Gdx.files.internal(PET_ATLAS));
+    AnimationRenderComponent animator = new AnimationRenderComponent(petAtlas);
 
     String animationPrefix;
 
