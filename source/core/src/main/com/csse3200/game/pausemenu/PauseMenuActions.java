@@ -2,6 +2,7 @@ package com.csse3200.game.pausemenu;
 
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -75,6 +76,8 @@ public class PauseMenuActions extends Component {
       if (item instanceof WeaponItem weapon) {
         saved.weaponType = weapon.getWeaponType().name();
         saved.damage = weapon.getDamage();
+      } else if (item instanceof ConsumableItem consumable) {
+        saved.consumableType = consumable.getConsumableType().name();
       }
       data.items.add(saved);
     }

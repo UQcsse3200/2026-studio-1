@@ -9,6 +9,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
@@ -19,6 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Action component for interacting with the player.
@@ -27,6 +30,7 @@ import java.util.Set;
  * is triggered.
  */
 public class PlayerActions extends Component {
+  private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
   // Thank you Lachlan, you beautiful, beautiful man
   private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
@@ -54,9 +58,9 @@ public class PlayerActions extends Component {
   // Death State
   private boolean dead = false;
 
-  private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
-  private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
-  private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
+  private final String NORMAL_TEXTURE = "images/player/box_boy_leaf.png";
+  private final String CROUCH_TEXTURE = "images/player/box_boy_crouch.png";
+  private final String SLIDE_TEXTURE = "images/player/box_boy_slide.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
@@ -94,7 +98,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
     entity.getEvents().addListener("collisionEnd", this::onCollisionEnd);
 
-    // Death State
+    // Death State for player
     entity.getEvents().addListener("death", this::onDeath);
   }
 
@@ -112,28 +116,28 @@ public class PlayerActions extends Component {
     Sound sneakSound = ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
     if (dashing) {
       Sound dashSound = ServiceLocator.getResourceService().getAsset(DASH_SE, Sound.class);
-      dashSound.play();
+      dashSound.play(AudioSettings.getEffectiveEffectsVolume());
       dashing = false;
     } else if (platformerComponent.getJumpingBool()) {
       Sound jumpSound = ServiceLocator.getResourceService().getAsset(JUMP_SE, Sound.class);
-      jumpSound.play();
+      jumpSound.play(AudioSettings.getEffectiveEffectsVolume());
     } else if (sliding) {
       Sound slideSound = ServiceLocator.getResourceService().getAsset(SLIDE_SE, Sound.class);
       if (!slideSoundPlaying) {
-        slideSound.play();
+        slideSound.play(AudioSettings.getEffectiveEffectsVolume());
         slideSoundPlaying = true;
       }
     } else if (moving && platformerComponent.isGrounded()) {
       if (sneaking) {
         if (!sneakSoundPlaying) {
-          sneakSound.loop();
+          sneakSound.loop(AudioSettings.getEffectiveEffectsVolume());
           sneakSoundPlaying = true;
         }
         walkSound.stop();
         walkSoundPlaying = false;
       } else {
         if (!walkSoundPlaying) {
-          walkSound.loop();
+          walkSound.loop(AudioSettings.getEffectiveEffectsVolume());
           walkSoundPlaying = true;
         }
         sneakSound.stop();
@@ -232,13 +236,20 @@ public class PlayerActions extends Component {
 
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
-    attackSound.play();
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
       CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
+        logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+        attackSound.play(AudioSettings.getEffectiveEffectsVolume());
+
+        // Check for death
+        if (enemyStats.isDead()) {
+          // event handles dropping loot and disposal of enemy
+          enemy.getEvents().trigger("death");
+        }
       }
     }
 

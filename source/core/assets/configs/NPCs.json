@@ -13,7 +13,7 @@
     "baseAttack": 5,
     "melee": {
       "range": 2,
-      "cooldown": 3,
+      "cooldown": 5,
       "knockback": 0
     }
   },
@@ -21,24 +21,42 @@
     "health": 20,
     "baseAttack": 5,
     "ranged": {
+      "range": 8,
+      "cooldown": 5,
+      "projectileSpeed": 8,
+      "knockback": 0
+    }
+  },
+  "minotaur": {
+    "health":  40,
+    "baseAttack": 5,
+    "melee": {
       "range": 5,
       "cooldown": 5,
-      "range": 8,
-      "cooldown": 4,
-      "knockback": 0
+      "knockback": 2
     }
   },
   "centaur": {
     "health": 40,
+    "baseAttack": 7,
+    "ranged": {
+      "range": 8,
+      "cooldown": 5,
+      "projectileSpeed": 8,
+      "knockback": 2
+    }
+  },
+  "cyclops": {
+    "health": 50,
     "baseAttack": 10,
     "melee": {
-      "range": 4,
-      "cooldown": 5,
-      "knockback": 2
+      "range": 3,
+      "cooldown": 4,
+      "knockback": 2.5
     },
     "ranged": {
-      "range": 10,
-      "cooldown": 4,
+      "range": 7,
+      "cooldown": 3,
       "projectileSpeed": 8,
       "knockback": 3
     }
