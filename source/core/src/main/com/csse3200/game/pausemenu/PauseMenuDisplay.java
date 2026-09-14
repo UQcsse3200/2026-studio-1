@@ -44,17 +44,17 @@ public class PauseMenuDisplay extends UIComponent {
   private long rightLastRepeat = 0;
 
   private static final String PREFS_NAME = "pause_menu_settings";
-  private static final String MASTER_VOLUME_KEY = "masterVolume";
-  private static final String MUSIC_VOLUME_KEY = "musicVolume";
-  private static final String EFFECTS_VOLUME_KEY = "effectsVolume";
+  private static final String MASTER_VOLUME_KEY = "master";
+  private static final String MUSIC_VOLUME_KEY = "music";
+  private static final String EFFECTS_VOLUME_KEY = "effects";
   private static final float DEFAULT_MASTER_VOL = 1f;
   private static final float DEFAULT_MUSIC_VOL = 0.8f;
   private static final float DEFAULT_EFFECTS_VOL = 1f;
 
-  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu"};
+  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu", "Save"};
   private static final String[] SETTINGS_ITEMS = {"Audio", "Keybinds", "Back"};
   private static final String[] AUDIO_ITEMS = {
-    "Master Volume", "Music Volume", "Effects Volume", "Back"
+    "Master", "Music", "Effects", "Back"
   };
   private static final int AUDIO_BACK_INDEX = 3;
 
@@ -420,6 +420,7 @@ public class PauseMenuDisplay extends UIComponent {
         refreshPanels();
       }
       case 3 -> entity.getEvents().trigger("mainMenuClicked");
+      case 4 -> entity.getEvents().trigger("saveClicked");
       default -> {}
     }
   }
@@ -448,6 +449,46 @@ public class PauseMenuDisplay extends UIComponent {
     if (audioIndex == AUDIO_BACK_INDEX) {
       state = MenuState.SETTINGS;
       refreshPanels();
+    }
+  }
+
+  private void handleEscape() {
+    switch (state) {
+      case MAIN -> entity.getEvents().trigger("resumeClicked");
+      case SETTINGS -> {
+        state = MenuState.MAIN;
+        refreshPanels();
+      }
+      case AUDIO -> {
+        state = MenuState.SETTINGS;
+        refreshPanels();
+      }
+    }
+  }
+
+  private void refreshPanels() {
+    settingsPanel.setVisible(state != MenuState.MAIN);
+    audioPanel.setVisible(state == MenuState.AUDIO);
+
+    mainPanel.getColor().a = (state == MenuState.MAIN) ? 1f : INACTIVE_PANEL_ALPHA;
+    settingsPanel.getColor().a = (state == MenuState.SETTINGS) ? 1f : INACTIVE_PANEL_ALPHA;
+    audioPanel.getColor().a = (state == MenuState.AUDIO) ? 1f : INACTIVE_PANEL_ALPHA;
+
+    refreshHighlights();
+  }
+
+  private void refreshHighlights() {
+    highlightPanel(mainLabels, mainIndex, state == MenuState.MAIN);
+    highlightPanel(settingsLabels, settingsIndex, state == MenuState.SETTINGS);
+    highlightPanel(audioLabels, audioIndex, state == MenuState.AUDIO);
+  }
+
+  private void highlightPanel(Label[] labels, int selectedIndex, boolean isActivePanel) {
+    for (int i = 0; i < labels.length; i++) {
+      boolean selected = isActivePanel && i == selectedIndex;
+      labels[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
+      Table row = (Table) labels[i].getParent();
+      row.setBackground(selected ? skin.newDrawable("button", SELECTED_BG) : null);
     }
   }
 
@@ -551,6 +592,20 @@ public class PauseMenuDisplay extends UIComponent {
       refreshPanels();
     }
     wasPaused = isPaused;
+  }
+
+  private void applyUniformRowWidths(Table panel) {
+    float maxWidth = 0f;
+    for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
+      Table row = (Table) cell.getActor();
+      if (row != null) {
+        maxWidth = Math.max(maxWidth, row.getPrefWidth());
+      }
+    }
+    for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
+      cell.width(maxWidth);
+    }
+    panel.invalidateHierarchy();
   }
 
   @Override

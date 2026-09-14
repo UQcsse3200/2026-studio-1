@@ -17,6 +17,7 @@ import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.files.LoadService;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
@@ -66,7 +67,7 @@ public class MainGameScreen extends ScreenAdapter {
   private boolean deathScreenShown = false;
   private PauseMenuComponent pauseMenu;
 
-  public MainGameScreen(GdxGame game) {
+  public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
 
     logger.debug("Initialising main game screen services");
@@ -99,9 +100,18 @@ public class MainGameScreen extends ScreenAdapter {
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
       shopDisplay.setUpgradesDisplay(upgradesDisplay);
+    if (loadsave) {
+      LoadService.load(
+          levelGameArea.getPlayer(),
+          levelGameArea.getMapWorldWidth(),
+          levelGameArea.getMapWorldHeight());
     }
 
     fitCameraToMap(levelGameArea);
+  }
+
+  public Entity getPlayerEntity() {
+    return levelGameArea != null ? levelGameArea.getPlayer() : null;
   }
 
   /**
@@ -229,6 +239,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(upgradesMenuComponent)
         .addComponent(upgradesDisplay)
         .addComponent(new ActiveUpgradesHud());
+        .addComponent(new PauseMenuActions(this::getPlayerEntity));
     this.pauseMenu = pauseMenuComponent;
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
 
