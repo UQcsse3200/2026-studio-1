@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
@@ -17,6 +18,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.ui.UIComponent;
+import com.csse3200.game.upgrades.UpgradeNode;
+import com.csse3200.game.upgrades.UpgradesDisplay;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -47,6 +50,13 @@ public class ShopDisplay extends UIComponent {
   private static final float PANEL_PADDING = 12f;
   private static final float CARD_GAP = 6f;
 
+  private static final float UPGRADE_POPUP_WIDTH = 320f;
+  private static final float UPGRADE_POPUP_HEIGHT = 150f;
+  private static final float UPGRADE_POPUP_GAP_ABOVE_SHOP = 16f;
+
+  private static final float PURCHASE_TOAST_TOP_MARGIN = 24f;
+  private static final float PURCHASE_TOAST_VISIBLE_SECONDS = 1.75f;
+
   private static final int ITEM_COLUMNS = 3;
   private static final int ITEM_SLOT_COUNT = 10;
   private static final int SELL_SLOT_COUNT = 5;
@@ -54,6 +64,20 @@ public class ShopDisplay extends UIComponent {
   private static final String LABEL_STYLE = "small";
 
   private static final String WINDOW_BACKGROUND = "window-w";
+
+  // Used only by the Upgrades-tab popup and purchase toast, to visually match the shop's dark
+  // green look - "window-c" is a Skin$TintedDrawable (name: window, color: color) with its green
+  // baked in at skin-load time, the same safe mechanism as the skin's "black" drawable, NOT a
+  // live Actor.setColor() tint. Kept distinct from WINDOW_BACKGROUND ("window-w", baked orange)
+  // since shopTable itself is unaffected by this change.
+  private static final String ACCENT_PANEL_BACKGROUND = "window-c";
+
+  // Used only by the purchase-confirmation toast - "toast-charcoal" is a Skin$TintedDrawable
+  // (name: white, color: toast-charcoal-color) added to flat-earth-ui.json using the identical
+  // config-time-baked mechanism as the skin's existing "black" entry, just with CARD_TINT's exact
+  // RGB (0.12, 0.13, 0.18) baked in instead, so the toast matches the shop's own card color
+  // precisely. No live setColor() call involved either way.
+  private static final String TOAST_BACKGROUND = "toast-charcoal";
   private static final String BUTTON_BACKGROUND = "button-c";
 
   private static final float ICON_SIZE = 48f;
@@ -144,6 +168,43 @@ public class ShopDisplay extends UIComponent {
   private Label detailPriceLabel;
   private TextButton detailActionButton;
 
+  // Real upgrade data, supplied late (once the player entity + UpgradesDisplay both exist) via
+  // setUpgradesDisplay() - same late-binding pattern UpgradesDisplay itself uses for setPlayer().
+  private UpgradesDisplay upgradesDisplay;
+
+  // Upgrades-tab-only informational popup shown ALONGSIDE the normal selectCard()/detail-panel
+  // flow: a single reusable Table positioned in the empty space above the shop window, hidden by
+  // default and repopulated per upgrade on each click. Purely informational - name, description,
+  // tier/status, and a close (X) button. No purchase action lives here.
+  //
+  // Rebuilt after root-causing a rendering bug in an earlier version of this popup: its
+  // background Table was tinted via setColor(customColor) and brought to the front via
+  // toFront() every time it was shown. Table backgrounds are drawn through
+  // batch.setColor(tableColor) + batch.draw(region,...) - the standard region-based path that
+  // DOES persist in the shared SpriteBatch's color state after drawing, unlike Label text
+  // (drawn via BitmapFontCache's vertex-array batch.draw() overload, which never touches the
+  // batch's color at all). Since nothing after this popup in a frame necessarily resets that
+  // color back to white, and since toFront() guaranteed it was among the last things drawn, its
+  // tint leaked into every world sprite drawn on the next frame until the popup stopped being
+  // last-drawn. This rebuild never tints the Table itself and never reorders it - see
+  // ensureUpgradePopupCreated()'s comments for exactly how.
+  private Table upgradePopup;
+  private Label upgradePopupNameLabel;
+  private Label upgradePopupDescriptionLabel;
+  private Label upgradePopupTierLabel;
+  private TextButton upgradePopupCloseButton;
+
+  // Purchase-confirmation toast: a small top-center "<Name> activated - Tier <N>" notification
+  // shown briefly right after a successful upgrade purchase. Built with the same two safety
+  // rules confirmed by the two rendering bugs already root-caused in this file: (1) no fade -
+  // Actions.visible(false) is a scheduled flag flip, never an alpha/color transition, so the
+  // Table is always either fully opaque or fully invisible, never partially so; (2) the Table's
+  // background is the skin's own untinted window drawable - no setColor() call on it or on any
+  // non-text element - so its background always draws with the Table's default white Actor
+  // color, exactly like the informational popup this mirrors. Never toFront()'d either.
+  private Table purchaseToast;
+  private Label purchaseToastLabel;
+
   @Override
   public void create() {
     super.create();
@@ -190,6 +251,61 @@ public class ShopDisplay extends UIComponent {
 
     shopIconButton.setPosition(
         screenWidth - iconWidth - ICON_MARGIN, screenHeight - ICON_SIZE - ICON_MARGIN);
+  }
+
+  /**
+   * Supplies the real upgrade system so the Upgrades tab can show real upgrades (name + current
+   * next-tier cost) instead of ShopComponent's placeholder stubs, and so its popup can look up the
+   * matching UpgradeNode to actually apply a purchase. Called once both this entity's ShopDisplay
+   * and the UI entity's UpgradesDisplay exist - see MainGameScreen, which wires this up the same
+   * way it calls upgradesDisplay.setPlayer(...).
+   */
+  public void setUpgradesDisplay(UpgradesDisplay upgradesDisplay) {
+    this.upgradesDisplay = upgradesDisplay;
+    syncUpgradeCatalog();
+    refreshContent();
+  }
+
+  /**
+   * Replaces ShopComponent's Upgrade catalog listings with one real entry per UpgradeNode (name +
+   * current next-tier cost), in {@link UpgradesDisplay#getAllUpgrades()} order starting at slot 1.
+   * ShopComponent stays fully decoupled from the perks package - this only ever calls its existing
+   * public setUpgradeListing(), it never gains any UpgradeNode-specific logic of its own.
+   */
+  private void syncUpgradeCatalog() {
+    if (upgradesDisplay == null || entity == null) {
+      return;
+    }
+
+    ShopComponent shop = entity.getComponent(ShopComponent.class);
+
+    if (shop == null) {
+      return;
+    }
+
+    int slot = 1;
+
+    for (UpgradeNode node : upgradesDisplay.getAllUpgrades()) {
+      if (slot > ShopComponent.MAX_CATALOG_SLOTS) {
+        break;
+      }
+
+      syncUpgradeListing(shop, slot, node);
+
+      slot++;
+    }
+  }
+
+  /**
+   * Writes/refreshes one catalog slot's listing so its price matches {@code node}'s current
+   * next-tier cost.
+   */
+  private void syncUpgradeListing(ShopComponent shop, int catalogSlot, UpgradeNode node) {
+    int cost = node.isMaxTier() ? 0 : node.getNextTierCost();
+
+    shop.setUpgradeListing(
+        catalogSlot,
+        new ShopComponent.ShopListing<>(new ShopComponent.Upgrade(node.getName()), cost));
   }
 
   /** Toggles the shop window open/closed. */
@@ -369,6 +485,8 @@ public class ShopDisplay extends UIComponent {
     if (contentTable == null) {
       return;
     }
+
+    hideUpgradePopup();
 
     contentTable.clearChildren();
 
@@ -655,8 +773,25 @@ public class ShopDisplay extends UIComponent {
             @Override
             public void clicked(InputEvent event, float x, float y) {
 
-              selectCard(
-                  card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
+              if (currentTab == ShopTab.UPGRADES) {
+                UpgradeNode node = findUpgradeNodeByName(name);
+
+                if (node != null) {
+                  showUpgradePopup(node);
+                }
+
+                selectCard(
+                    card,
+                    upgradeDetailName(name, node),
+                    price,
+                    rarity,
+                    () -> attemptUpgradePurchase(catalogSlot, node),
+                    "BUY",
+                    true);
+              } else {
+                selectCard(
+                    card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
+              }
             }
           });
     }
@@ -949,6 +1084,266 @@ public class ShopDisplay extends UIComponent {
     detailActionButton.setTouchable(Touchable.disabled);
   }
 
+  /**
+   * Finds the UpgradeNode whose name matches {@code name}, or null if none/not yet wired up.
+   * ShopComponent's Upgrade stub only carries a name, so name is the join key between the two
+   * systems.
+   */
+  private UpgradeNode findUpgradeNodeByName(String name) {
+    if (upgradesDisplay == null) {
+      return null;
+    }
+
+    for (UpgradeNode node : upgradesDisplay.getAllUpgrades()) {
+      if (node.getName().equals(name)) {
+        return node;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * "Tier X/Y" when {@code node} is currently active, or "Not active" otherwise - the single source
+   * of tier-status text shared by both the bottom detail panel (via upgradeDetailName()) and the
+   * informational popup (via populateUpgradePopup()), so the two never drift apart.
+   */
+  private String tierStatusText(UpgradeNode node) {
+    return node.isActive()
+        ? "Tier " + node.getCurrentTier() + "/" + node.getMaxTier()
+        : "Not active";
+  }
+
+  /**
+   * Builds the name shown in the bottom detail panel for an Upgrades-tab card: the plain name, plus
+   * " (Tier X/Y)" when the upgrade is currently active - Items/Pets never call this, they pass
+   * their plain name into selectCard() exactly as before.
+   */
+  private String upgradeDetailName(String name, UpgradeNode node) {
+    if (node == null || !node.isActive()) {
+      return name;
+    }
+
+    return name + " (" + tierStatusText(node) + ")";
+  }
+
+  /**
+   * Runs the bottom detail panel's BUY action for an Upgrades-tab card: deducts gold and records
+   * the purchase via {@link ShopComponent#buyUpgrade(int)}, and ONLY if that actually succeeded,
+   * applies the real gameplay effect via {@link UpgradeNode#purchaseNextTier()} - so a failed (e.g.
+   * unaffordable) purchase never advances the upgrade's tier. On success, also refreshes this
+   * catalog slot's listing to the new next-tier cost and rebuilds the shop content so the grid
+   * immediately reflects the updated price/tier/gold.
+   *
+   * @param node the matching UpgradeNode, or null if none was found (defensive - shouldn't happen
+   *     once wired via setUpgradesDisplay(); the ShopComponent-side purchase still runs, just
+   *     without applying a gameplay effect)
+   */
+  private void attemptUpgradePurchase(int catalogSlot, UpgradeNode node) {
+    ShopComponent shop = entity.getComponent(ShopComponent.class);
+
+    if (shop == null) {
+      return;
+    }
+
+    boolean purchased = shop.buyUpgrade(catalogSlot);
+
+    if (purchased) {
+      if (node != null) {
+        node.purchaseNextTier();
+        syncUpgradeListing(shop, catalogSlot, node);
+        showPurchaseToast(node); // after purchaseNextTier() so the tier shown is the new one
+      }
+      refreshContent(); // also hides the informational popup - see hideUpgradePopup()
+    }
+  }
+
+  /**
+   * Shows the Upgrades-tab-only informational popup for {@code node}, in the empty space above the
+   * shop window. Purely informational: name, description, current tier/status, and a close (X)
+   * button - no purchase action here.
+   */
+  private void showUpgradePopup(UpgradeNode node) {
+    ensureUpgradePopupCreated();
+    populateUpgradePopup(node);
+    positionUpgradePopupAboveShop();
+
+    upgradePopup.setVisible(true);
+    // Deliberately NOT calling toFront() - see the field-level comment on upgradePopup for why.
+    // It's added to the stage after shopTable/shopIconButton, so it already renders above them
+    // through plain insertion order alone; forcing it further to the very end of the whole
+    // stage's draw order is exactly what caused the original bug and isn't needed here.
+  }
+
+  /**
+   * Builds the (initially hidden) upgrade popup once, reused for every subsequent click.
+   *
+   * <p>Safety, per the confirmed root cause: the Table itself is never given a custom background
+   * tint - only the skin's own untinted window drawable, so its background draws with
+   * batch.setColor(1,1,1,1) (the Table's own default Actor color), never anything else. The close
+   * button is likewise never tinted (default white). Neither is ever the source of a lingering
+   * non-white batch color, regardless of draw order. The three Labels DO have non-white colors
+   * (TEXT_PRIMARY/TEXT_MUTED/GOLD_COLOR, matching the rest of this UI) - that's safe specifically
+   * because Label text is drawn via BitmapFontCache's vertex-array batch.draw() overload, which
+   * (verified against the libGDX source) never reads or writes the batch's color state at all, so
+   * no Label anywhere in this codebase can cause this bug.
+   */
+  private void ensureUpgradePopupCreated() {
+    if (upgradePopup != null) {
+      return;
+    }
+
+    upgradePopup = new Table();
+    // untinted - no setColor() call; "window-c"'s green is baked into the drawable itself
+    upgradePopup.setBackground(skin.getDrawable(ACCENT_PANEL_BACKGROUND));
+    upgradePopup.pad(PANEL_PADDING);
+    upgradePopup.setSize(UPGRADE_POPUP_WIDTH, UPGRADE_POPUP_HEIGHT);
+
+    upgradePopupCloseButton = new TextButton("X", skin); // untinted - stays default white
+    upgradePopupCloseButton.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            hideUpgradePopup();
+          }
+        });
+
+    upgradePopupNameLabel = new Label("", whiteLabelStyle);
+    upgradePopupNameLabel.setColor(TEXT_PRIMARY);
+
+    upgradePopupDescriptionLabel = new Label("", whiteLabelStyle);
+    upgradePopupDescriptionLabel.setWrap(true);
+    upgradePopupDescriptionLabel.setColor(TEXT_MUTED);
+
+    upgradePopupTierLabel = new Label("", whiteLabelStyle);
+    upgradePopupTierLabel.setColor(GOLD_COLOR);
+
+    upgradePopup.add(upgradePopupCloseButton).size(22f, 22f).right().padBottom(6f);
+    upgradePopup.row();
+    upgradePopup.add(upgradePopupNameLabel).left().row();
+    upgradePopup.add(upgradePopupDescriptionLabel).width(280f).left().padTop(8f).row();
+    upgradePopup.add(upgradePopupTierLabel).left().padTop(8f);
+
+    stage.addActor(upgradePopup);
+
+    upgradePopup.setVisible(false);
+  }
+
+  /**
+   * Fills the popup with {@code node}'s current name/description/tier - purely display, no action.
+   * Reuses tierStatusText() rather than recomputing tier text separately, the same helper
+   * upgradeDetailName() uses for the bottom detail panel.
+   */
+  private void populateUpgradePopup(UpgradeNode node) {
+    upgradePopupNameLabel.setText(node.getName());
+    upgradePopupDescriptionLabel.setText(node.getDescription());
+    upgradePopupTierLabel.setText(tierStatusText(node));
+  }
+
+  /**
+   * Positions the upgrade popup in the empty space ABOVE the shop window (where the player sprite
+   * and open world are visible), rather than centered over the card grid - so it never blocks
+   * access to other cards while open. Anchored to the shop's own top edge (not an absolute screen
+   * position) so it can never overlap the shop regardless of screen size.
+   */
+  private void positionUpgradePopupAboveShop() {
+    if (upgradePopup == null) {
+      return;
+    }
+
+    float screenWidth = stage.getViewport().getWorldWidth();
+    float screenHeight = stage.getViewport().getWorldHeight();
+
+    float shopTop = (screenHeight - SHOP_HEIGHT) / 2f + SHOP_HEIGHT;
+
+    float x = (screenWidth - upgradePopup.getWidth()) / 2f;
+    float y = shopTop + UPGRADE_POPUP_GAP_ABOVE_SHOP;
+
+    upgradePopup.setPosition(x, y);
+  }
+
+  /**
+   * Hides the upgrade popup, if it exists. Called whenever the shop's content is rebuilt/closed,
+   * and by the popup's own close (X) button.
+   */
+  private void hideUpgradePopup() {
+    if (upgradePopup != null) {
+      upgradePopup.setVisible(false);
+    }
+  }
+
+  /**
+   * Shows a brief "<Name> activated - Tier <N>" confirmation toast, top-center of the screen, after
+   * a successful upgrade purchase. Auto-hides itself after {@link #PURCHASE_TOAST_VISIBLE_SECONDS}
+   * - see {@link #ensurePurchaseToastCreated()} for exactly why this is safe against both rendering
+   * bugs already root-caused in this file.
+   */
+  private void showPurchaseToast(UpgradeNode node) {
+    ensurePurchaseToastCreated();
+
+    purchaseToastLabel.setText(node.getName() + " activated - Tier " + node.getCurrentTier());
+    positionPurchaseToastTopCenter();
+
+    // clearActions() first so repeated purchases in quick succession restart the visible window
+    // from full length, rather than queuing up multiple hide actions.
+    purchaseToast.clearActions();
+    purchaseToast.setVisible(true);
+    // Binary visibility only - a scheduled flag flip, never an alpha/color transition. No
+    // Actions.fadeOut() or any other tween: this was the exact cause of the first darkening bug.
+    purchaseToast.addAction(
+        Actions.sequence(Actions.delay(PURCHASE_TOAST_VISIBLE_SECONDS), Actions.visible(false)));
+    // Deliberately NOT calling toFront() - same reasoning as showUpgradePopup().
+  }
+
+  /**
+   * Builds the (initially hidden) purchase toast once, reused for every subsequent purchase.
+   *
+   * <p>Safety, per both rendering bugs already root-caused in this file: the Table's background is
+   * "toast-charcoal" (Skin$TintedDrawable: name "white", color "toast-charcoal-color", added to
+   * flat-earth-ui.json using the identical pattern as the skin's own "black" entry) - its dark tone
+   * is baked in at skin-load time, never a custom setColor() tint applied to the Table itself,
+   * exactly the fix that resolved the informational popup's darkening bug. The Label uses
+   * whiteLabelStyle as-is (plain white text, no further setColor() call), which is safe regardless:
+   * Label text draws via BitmapFontCache's vertex-array batch.draw() overload, which never touches
+   * the shared SpriteBatch's color state. Never toFront()'d, and see showPurchaseToast() for why
+   * hiding it uses a plain scheduled setVisible(false) rather than any fade.
+   */
+  private void ensurePurchaseToastCreated() {
+    if (purchaseToast != null) {
+      return;
+    }
+
+    purchaseToast = new Table();
+    // untinted - no setColor() call; the dark tone is baked into the drawable itself
+    purchaseToast.setBackground(skin.getDrawable(TOAST_BACKGROUND));
+    purchaseToast.pad(PANEL_PADDING);
+
+    purchaseToastLabel = new Label("", whiteLabelStyle); // whiteLabelStyle is already white
+
+    purchaseToast.add(purchaseToastLabel);
+    purchaseToast.pack();
+
+    stage.addActor(purchaseToast);
+
+    purchaseToast.setVisible(false);
+  }
+
+  /**
+   * Positions the purchase toast centered horizontally, near the top of the screen - distinct from
+   * the bottom detail panel and the above-shop informational popup.
+   */
+  private void positionPurchaseToastTopCenter() {
+    purchaseToast.pack(); // resize to fit the current text before positioning
+
+    float screenWidth = stage.getViewport().getWorldWidth();
+    float screenHeight = stage.getViewport().getWorldHeight();
+
+    float x = (screenWidth - purchaseToast.getWidth()) / 2f;
+    float y = screenHeight - PURCHASE_TOAST_TOP_MARGIN - purchaseToast.getHeight();
+
+    purchaseToast.setPosition(x, y);
+  }
+
   /** Attempts to purchase an item. */
   private void buyItem(int catalogSlot) {
 
@@ -1065,6 +1460,7 @@ public class ShopDisplay extends UIComponent {
     }
 
     shopTable.setVisible(false);
+    hideUpgradePopup();
   }
 
   /** Positions the shop in the centre of the screen. */
@@ -1106,6 +1502,16 @@ public class ShopDisplay extends UIComponent {
     if (petAtlas != null) {
       petAtlas.dispose();
       petAtlas = null;
+    }
+
+    if (upgradePopup != null) {
+      upgradePopup.remove();
+      upgradePopup = null;
+    }
+
+    if (purchaseToast != null) {
+      purchaseToast.remove();
+      purchaseToast = null;
     }
 
     contentTable = null;
