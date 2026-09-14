@@ -4,6 +4,7 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.PetFactory;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.function.Function;
 
 /**
  * Manages the player's active companion pet.
@@ -12,6 +13,22 @@ import com.csse3200.game.services.ServiceLocator;
  */
 public class PetManagerComponent extends Component {
   private Entity activePet;
+  private final Function<Entity, Entity> petFactory;
+
+  /** Creates a pet manager using the normal game pet factory. */
+  public PetManagerComponent() {
+    this(PetFactory::createPet);
+  }
+
+  /**
+   * Creates a pet manager using the supplied pet factory.
+   *
+   * <p>This constructor is package-private so tests can provide a lightweight pet factory without
+   * loading game assets.
+   */
+  PetManagerComponent(Function<Entity, Entity> petFactory) {
+    this.petFactory = petFactory;
+  }
 
   /**
    * Creates and activates a pet for this player.
@@ -21,13 +38,18 @@ public class PetManagerComponent extends Component {
   public void activatePet() {
     removePet();
 
-    activePet = PetFactory.createPet(entity);
+    activePet = petFactory.apply(entity);
     ServiceLocator.getEntityService().register(activePet);
   }
 
   /** Returns the currently active pet, or null if there is no active pet. */
   public Entity getActivePet() {
     return activePet;
+  }
+
+  /** Returns whether this player currently has an active pet. */
+  public boolean hasActivePet() {
+    return activePet != null;
   }
 
   /** Removes the currently active pet. */
@@ -38,5 +60,11 @@ public class PetManagerComponent extends Component {
 
     activePet.dispose();
     activePet = null;
+  }
+
+  /** Removes the active pet when this component is disposed. */
+  @Override
+  public void dispose() {
+    removePet();
   }
 }
