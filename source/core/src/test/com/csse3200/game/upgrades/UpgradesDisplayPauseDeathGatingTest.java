@@ -21,6 +21,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import com.csse3200.game.services.GameTime;
 
 /**
  * Confirms UpgradesDisplay.draw() skips ticking active upgrades' countdowns entirely - never
@@ -46,6 +47,7 @@ class UpgradesDisplayPauseDeathGatingTest {
     renderService.setStage(mock(Stage.class));
     ServiceLocator.registerRenderService(renderService);
     ServiceLocator.registerResourceService(mock(ResourceService.class));
+    ServiceLocator.registerTimeSource(new GameTime());
 
     Gdx.graphics = mock(Graphics.class);
     when(Gdx.graphics.getDeltaTime()).thenReturn(1f); // deterministic 1s-per-draw() delta
