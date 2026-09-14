@@ -209,14 +209,14 @@ public class MainGameScreen extends ScreenAdapter {
     if (halfViewSize * 2f >= mapSize) {
       return mapSize / 2f;
     }
-    return Math.max(halfViewSize, Math.min(value, mapSize - halfViewSize));
+    return Math.clamp(value, halfViewSize, mapSize - halfViewSize);
   }
 
   private static float clampToRange(float value, float halfViewSize, float bottom, float height) {
     if (halfViewSize * 2f >= height) {
       return bottom + height / 2f;
     }
-    return Math.max(bottom + halfViewSize, Math.min(value, bottom + height - halfViewSize));
+    return Math.clamp(value, bottom + halfViewSize, bottom + height - halfViewSize);
   }
 
   @Override
