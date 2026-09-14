@@ -13,7 +13,6 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
-import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
@@ -111,13 +110,13 @@ public class PlayerActions extends Component {
   private void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
     if (animator.isFinished()
-            &! animator.getCurrentAnimation().equals("crouchidle")
-            &! animator.getCurrentAnimation().equals("Leftcrouchidle")
-            &! animator.getCurrentAnimation().equals("Run")
-            &! animator.getCurrentAnimation().equals("LeftRun")
+        & !animator.getCurrentAnimation().equals("crouchidle")
+        & !animator.getCurrentAnimation().equals("Leftcrouchidle")
+        & !animator.getCurrentAnimation().equals("Run")
+        & !animator.getCurrentAnimation().equals("LeftRun")) {
 
-    ) {
-      if (animator.getCurrentAnimation().equals("Jump") || animator.getCurrentAnimation().equals("LeftJump")) {
+      if (animator.getCurrentAnimation().equals("Jump")
+          || animator.getCurrentAnimation().equals("LeftJump")) {
         if (!walkDirection.isZero()) {
           entity.getEvents().trigger("run", direction);
         } else {
@@ -310,8 +309,10 @@ public class PlayerActions extends Component {
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(slidespeed);
     if (impulse.x != 0f) {
-      entity.getEvents().trigger("sliding",
-              entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
+      entity
+          .getEvents()
+          .trigger(
+              "sliding", entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
     }
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }

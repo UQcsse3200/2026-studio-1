@@ -4,11 +4,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.input.InputComponent;
-import com.csse3200.game.rendering.AnimationRenderComponent;
-import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * Input handler for the player for keyboard and touch (mouse) input. This input handler only uses
@@ -29,10 +25,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean sliding = false;
   private String direction = "Right";
 
-
-  public String getDirection(){
+  public String getDirection() {
     return this.direction;
   }
+
   /**
    * Triggers player events on specific keycodes.
    *
@@ -44,7 +40,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     entity.getEvents().trigger("idle", direction);
     switch (keycode) {
       case Keys.W:
-        jumpDirection.add(Vector2Utils.UP);// Adds to the y vector
+        jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
         triggerJumpEvent();
         entity.getEvents().trigger("jumping", direction);
         jumped = true;

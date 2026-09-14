@@ -18,9 +18,7 @@ import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
-import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.PlayerRenderComponent;
-import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
 /**
@@ -47,15 +45,15 @@ public class PlayerFactory {
     WeaponItem startingWeapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
 
     Entity player =
-            new Entity()
-                    .addComponent(new PhysicsComponent())
-                    .addComponent(new ColliderComponent())
-                    .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
-                    .addComponent(new PlayerActions())
-                    .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
+            .addComponent(new PlayerActions())
+            .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
 
-                    // Death State
-                    .addComponent(new DeathStateComponent())
+            // Death State
+            .addComponent(new DeathStateComponent())
 
             // Existing main/team features
             .addComponent(new ConsumableUseComponent(stats.health))
@@ -69,12 +67,10 @@ public class PlayerFactory {
             .addComponent(new WeaponAttackComponent(startingWeapon))
             .addComponent(new WeaponRenderComponent("images/sword.png"));
     PlayerRenderComponent animator =
-            new PlayerRenderComponent(
-                    ServiceLocator.getResourceService()
-                            .getAsset("images/knight.atlas", TextureAtlas.class),
-                    ServiceLocator.getResourceService()
-                            .getAsset("images/LeftKnight.atlas", TextureAtlas.class)
-            );
+        new PlayerRenderComponent(
+            ServiceLocator.getResourceService().getAsset("images/knight.atlas", TextureAtlas.class),
+            ServiceLocator.getResourceService()
+                .getAsset("images/LeftKnight.atlas", TextureAtlas.class));
 
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);
@@ -92,7 +88,7 @@ public class PlayerFactory {
     animator.addAnimation("LeftRun", 0.1f, Animation.PlayMode.LOOP);
     player.addComponent(animator).addComponent(new PlayerAnimationController());
 
-    player.setScale(0.75f, (float) size.getHeight()/size.getWidth());
+    player.setScale(0.75f, (float) size.getHeight() / size.getWidth());
     PhysicsUtils.setScaledCollider(player, 0.6f, 0.3f);
     player.getComponent(ColliderComponent.class).setDensity(1.5f);
     animator.startAnimation("Idle");
