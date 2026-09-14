@@ -75,8 +75,8 @@ class WeaponGeneratorTest {
   void shouldSetWindupDurationPerWeaponType() {
     WeaponGenerator generator = new WeaponGenerator();
 
-    assertEquals(3f, generator.generateWeapon(WeaponType.SWORD, 1).getWindupDuration());
-    assertEquals(2f, generator.generateWeapon(WeaponType.BOW, 1).getWindupDuration());
+    assertEquals(2f, generator.generateWeapon(WeaponType.SWORD, 1).getWindupDuration());
+    assertEquals(3f, generator.generateWeapon(WeaponType.BOW, 1).getWindupDuration());
     assertEquals(1f, generator.generateWeapon(WeaponType.DAGGER, 1).getWindupDuration());
   }
 

@@ -48,11 +48,11 @@ public enum WeaponTier {
       throw new IllegalArgumentException("WeaponType must not be null.");
     }
 
-    if (weaponType == WeaponType.SWORD) {
-      return new TierStats(tier, swordDamage, swordAttackSpeed, swordKnockback, swordRange);
-    }
-
-    return new TierStats(tier, bowDamage, bowAttackSpeed, bowKnockback, bowRange);
+    return switch(weaponType) {
+      case SWORD -> new TierStats(tier, swordDamage, swordAttackSpeed, swordKnockback, swordRange);
+      case BOW -> new TierStats(tier, bowDamage, bowAttackSpeed, bowKnockback, bowRange);
+      case DAGGER -> new TierStats(1, 3, 2,0.5f, 1);
+    };
   }
 
   private static class TierStats implements WeaponStats {

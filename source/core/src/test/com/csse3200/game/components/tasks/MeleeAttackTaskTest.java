@@ -311,7 +311,7 @@ class MeleeAttackTaskTest {
   // The real, currently-compiling WeaponItem computes damage as baseDamage * tier, so passing
   // tier = 1 for a DAGGER (base damage 3) deals 3 damage.
   WeaponItem createInstantWeapon() {
-    return new WeaponItem("Test Dagger", WeaponType.DAGGER, 0f, 1, 1, 1);
+    return new WeaponItem("Test Dagger", WeaponType.DAGGER, 1, 1, 1, 0f);
   }
 
   /**

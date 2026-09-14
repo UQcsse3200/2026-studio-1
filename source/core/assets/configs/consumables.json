@@ -14,12 +14,12 @@
     "name": "Speed Potion",
     "magnitude": 1.5,
     "durationSeconds": 10.0,
-    "maxQuantity": 9,
+    "maxQuantity": 9
   },
   "regeneration": {
     "name": "Regeneration Potion",
     "healAmount": 5,
-    "durationSeconds: 6.0,
+    "durationSeconds": 6.0,
     "maxQuantity": 9
   },
   "resistance": {

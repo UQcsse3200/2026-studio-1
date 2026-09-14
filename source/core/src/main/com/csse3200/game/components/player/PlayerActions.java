@@ -236,7 +236,7 @@ public class PlayerActions extends Component {
 
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
-    attackSound.play(AudioSettings.getEffectiveEffectsVolume());
+
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
@@ -244,10 +244,7 @@ public class PlayerActions extends Component {
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
         logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
-
-        Sound attackSound =
-            ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
-        attackSound.play();
+        attackSound.play(AudioSettings.getEffectiveEffectsVolume());
 
         // Check for death
         if (enemyStats.isDead()) {

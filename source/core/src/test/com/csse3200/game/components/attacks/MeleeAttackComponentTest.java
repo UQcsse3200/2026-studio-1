@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
@@ -25,9 +26,6 @@ class MeleeAttackComponentTest {
    * DAGGER (base damage 3) at tier 1 deals 3 damage.
    */
   private static final int DEFAULT_WEAPON_DAMAGE = 3;
-
-  /** Tier passed to {@link #createInstantWeapon()} to produce {@link #DEFAULT_WEAPON_DAMAGE}. */
-  private static final int DEFAULT_WEAPON_TIER = 1;
 
   @BeforeEach
   void beforeEach() {
@@ -121,7 +119,7 @@ class MeleeAttackComponentTest {
   // Constructor rejects a Bow weapon, since melee attacks cannot use ranged weapons.
   @Test
   void shouldThrowWhenConstructedWithBowWeapon() {
-    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, 0f, DEFAULT_WEAPON_TIER, 1, 1);
+    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, DEFAULT_WEAPON_DAMAGE, 1, 1);
     assertThrows(
         IllegalArgumentException.class,
         () -> new MeleeAttackComponent(1, 10, 5f, bow),
@@ -132,21 +130,21 @@ class MeleeAttackComponentTest {
   @Test
   void shouldRejectInvalidWindupDurations() {
     WeaponItem negativeWindup =
-        new WeaponItem("Test Dagger", WeaponType.DAGGER, -1f, DEFAULT_WEAPON_TIER, 1, 1);
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, 1, DEFAULT_WEAPON_DAMAGE, 1, -1);
     assertThrows(
         IllegalArgumentException.class,
         () -> new MeleeAttackComponent(1, 10, 5f, negativeWindup),
         "Expected a negative windupDuration to be rejected, but it was not.");
 
     WeaponItem windupEqualsCooldown =
-        new WeaponItem("Test Dagger", WeaponType.DAGGER, 10f, DEFAULT_WEAPON_TIER, 1, 1);
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, DEFAULT_WEAPON_DAMAGE, 1, 10,10);
     assertThrows(
         IllegalArgumentException.class,
         () -> new MeleeAttackComponent(1, 10, 5f, windupEqualsCooldown),
         "Expected windupDuration equal to cooldown to be rejected, but it was not.");
 
     WeaponItem windupExceedsCooldown =
-        new WeaponItem("Test Dagger", WeaponType.DAGGER, 11f, DEFAULT_WEAPON_TIER, 1, 1);
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, DEFAULT_WEAPON_DAMAGE, 1, 11,11);
     assertThrows(
         IllegalArgumentException.class,
         () -> new MeleeAttackComponent(1, 10, 5f, windupExceedsCooldown),
@@ -157,7 +155,7 @@ class MeleeAttackComponentTest {
   @Test
   void shouldAcceptWeaponWindupJustBelowCooldown() {
     WeaponItem weapon =
-        new WeaponItem("Test Dagger", WeaponType.DAGGER, 9.9f, DEFAULT_WEAPON_TIER, 1, 1);
+        new WeaponItem("Test Dagger", WeaponType.DAGGER, DEFAULT_WEAPON_DAMAGE, 1, 11, 9.9f);
     assertDoesNotThrow(
         () -> new MeleeAttackComponent(1, 10, 5f, weapon),
         "Expected windupDuration just below cooldown to be accepted as a valid boundary value.");
@@ -166,9 +164,8 @@ class MeleeAttackComponentTest {
   // getDamage() and a landed hit both scale as baseDamage * tier, not just baseDamage.
   @Test
   void shouldApplyTierScaledWeaponDamage() {
-    int tier = 2;
-    WeaponItem tierTwoSword = new WeaponItem("Test Sword", WeaponType.SWORD, 0f, tier, 1, 1);
-    int expectedDamage = WeaponType.SWORD.getBaseDamage() * tier; // 10 * 2 = 20
+    WeaponItem tierTwoSword = new WeaponItem("Test Sword", WeaponType.SWORD, WeaponTier.TIER_2, 1, 1, 0f);
+    int expectedDamage = WeaponTier.TIER_2.getStats(WeaponType.SWORD).getDamage(); // 10 * 2 = 20
 
     MeleeAttackComponent meleeAttack = new MeleeAttackComponent(2, 5, 0, tierTwoSword);
     assertEquals(
@@ -177,9 +174,9 @@ class MeleeAttackComponentTest {
         "Expected getDamage() to scale as baseDamage * tier, but got "
             + meleeAttack.getDamage()
             + " for tier "
-            + tier
+            + 2
             + " (baseDamage "
-            + WeaponType.SWORD.getBaseDamage()
+            + tierTwoSword.getDamage()
             + ").");
 
     Entity attacker =
@@ -733,7 +730,7 @@ class MeleeAttackComponentTest {
    * @return a fresh weapon item suitable for most tests
    */
   WeaponItem createInstantWeapon() {
-    return new WeaponItem("Test Dagger", WeaponType.DAGGER, 0f, DEFAULT_WEAPON_TIER, 1, 1);
+    return new WeaponItem("Test Dagger", WeaponType.DAGGER, DEFAULT_WEAPON_DAMAGE, 1, 1);
   }
 
   /**
