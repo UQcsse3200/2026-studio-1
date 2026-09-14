@@ -82,6 +82,7 @@ loadScripts(document, 'script');</script>
 <li><a href="com/csse3200/game/physics/package-tree.html">com.csse3200.game.physics</a>, </li>
 <li><a href="com/csse3200/game/physics/components/package-tree.html">com.csse3200.game.physics.components</a>, </li>
 <li><a href="com/csse3200/game/physics/raycast/package-tree.html">com.csse3200.game.physics.raycast</a>, </li>
+<li><a href="com/csse3200/game/Quests/package-tree.html">com.csse3200.game.Quests</a>, </li>
 <li><a href="com/csse3200/game/rendering/package-tree.html">com.csse3200.game.rendering</a>, </li>
 <li><a href="com/csse3200/game/screens/package-tree.html">com.csse3200.game.screens</a>, </li>
 <li><a href="com/csse3200/game/services/package-tree.html">com.csse3200.game.services</a>, </li>
@@ -162,6 +163,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerBuffComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">PlayerBuffComponent</a></li>
 <li class="circle">com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerRegenComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">PlayerRegenComponent</a></li>
 <li class="circle">com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ProjectileHitComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">ProjectileHitComponent</a></li>
+<li class="circle">com.csse3200.game.components.<a href="com/csse3200/game/components/QuestGiverComponent.html" class="type-name-link" title="class in com.csse3200.game.components">QuestGiverComponent</a></li>
 <li class="circle">com.csse3200.game.components.<a href="com/csse3200/game/components/RangedAttackComponent.html" class="type-name-link" title="class in com.csse3200.game.components">RangedAttackComponent</a></li>
 <li class="circle">com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/RenderComponent.html" class="type-name-link" title="class in com.csse3200.game.rendering">RenderComponent</a> (implements com.badlogic.gdx.utils.Disposable, com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/Renderable.html" title="interface in com.csse3200.game.rendering">Renderable</a>)
 <ul>
@@ -184,6 +186,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/PauseMenuDisplay.html" class="type-name-link" title="class in com.csse3200.game.pausemenu">PauseMenuDisplay</a></li>
 <li class="circle">com.csse3200.game.components.gamearea.<a href="com/csse3200/game/components/gamearea/PerformanceDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.gamearea">PerformanceDisplay</a></li>
 <li class="circle">com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></li>
+<li class="circle">com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/QuestDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.player">QuestDisplay</a></li>
 <li class="circle">com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.settingsmenu">SettingsMenuDisplay</a></li>
 <li class="circle">com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.player">ShopDisplay</a></li>
 <li class="circle">com.csse3200.game.components.gamearea.<a href="com/csse3200/game/components/gamearea/SubLevelTitleDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.gamearea">SubLevelTitleDisplay</a></li>
@@ -265,6 +268,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">com.csse3200.game.concurrency.<a href="com/csse3200/game/concurrency/JobSystem.html" class="type-name-link" title="class in com.csse3200.game.concurrency">JobSystem</a></li>
 <li class="circle">com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/JsonMapLoader.html" class="type-name-link" title="class in com.csse3200.game.areas.terrain.map">JsonMapLoader</a> (implements com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/MapLoader.html" title="interface in com.csse3200.game.areas.terrain.map">MapLoader</a>)</li>
+<li class="circle">com.csse3200.game.Quests.<a href="com/csse3200/game/Quests/JumpQuest.html" class="type-name-link" title="class in com.csse3200.game.Quests">JumpQuest</a></li>
 <li class="circle">com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" class="type-name-link" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></li>
 <li class="circle">com.csse3200.game.files.<a href="com/csse3200/game/files/LoadService.html" class="type-name-link" title="class in com.csse3200.game.files">LoadService</a></li>
 <li class="circle">com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/LootFactory.html" class="type-name-link" title="class in com.csse3200.game.entities.factories">LootFactory</a></li>
@@ -285,6 +289,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsService.html" class="type-name-link" title="class in com.csse3200.game.physics">PhysicsService</a></li>
 <li class="circle">com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsUtils.html" class="type-name-link" title="class in com.csse3200.game.physics">PhysicsUtils</a></li>
 <li class="circle">com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/PlayerFactory.html" class="type-name-link" title="class in com.csse3200.game.entities.factories">PlayerFactory</a></li>
+<li class="circle">com.csse3200.game.Quests.<a href="com/csse3200/game/Quests/Quest.html" class="type-name-link" title="class in com.csse3200.game.Quests">Quest</a></li>
 <li class="circle">com.csse3200.game.utils.math.<a href="com/csse3200/game/utils/math/RandomUtils.html" class="type-name-link" title="class in com.csse3200.game.utils.math">RandomUtils</a></li>
 <li class="circle">com.csse3200.game.entities.configs.attacks.<a href="com/csse3200/game/entities/configs/attacks/RangedAttackConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.attacks">RangedAttackConfig</a></li>
 <li class="circle">com.csse3200.game.physics.raycast.<a href="com/csse3200/game/physics/raycast/RaycastHit.html" class="type-name-link" title="class in com.csse3200.game.physics.raycast">RaycastHit</a></li>

@@ -29,6 +29,7 @@ com.csse3200.game.perks
 com.csse3200.game.physics
 com.csse3200.game.physics.components
 com.csse3200.game.physics.raycast
+com.csse3200.game.Quests
 com.csse3200.game.rendering
 com.csse3200.game.screens
 com.csse3200.game.services
