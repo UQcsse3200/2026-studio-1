@@ -27,8 +27,6 @@ public class BobbingTextureRenderComponent extends RenderComponent {
   /** Spreads entities out across the wave so they do not all rise and fall together. */
   private static final float PHASE_PER_ID = 0.7f;
 
-  private static final float DEFAULT_SCALE = 1f;
-
   private final Texture texture;
   private final float amplitude;
   private final float speed;
@@ -86,8 +84,7 @@ public class BobbingTextureRenderComponent extends RenderComponent {
     float maxDimension = Math.max(texture.getWidth(), texture.getHeight());
 
     entity.setScale(
-        scale * (float) texture.getWidth() / maxDimension,
-        scale * (float) texture.getHeight() / maxDimension);
+        scale * texture.getWidth() / maxDimension, scale * texture.getHeight() / maxDimension);
   }
 
   /**
