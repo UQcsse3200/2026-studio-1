@@ -11,6 +11,7 @@ import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedItem;
 import java.util.Map;
 import java.util.function.Supplier;
+import com.csse3200.game.components.loot.ConsumableItem;
 
 public class PauseMenuActions extends Component {
 
@@ -75,6 +76,9 @@ public class PauseMenuActions extends Component {
       if (item instanceof WeaponItem weapon) {
         saved.weaponType = weapon.getWeaponType().name();
         saved.damage = weapon.getDamage();
+      }
+       else if (item instanceof ConsumableItem consumable) {
+        saved.consumableType = consumable.getConsumableType().name();
       }
       data.items.add(saved);
     }

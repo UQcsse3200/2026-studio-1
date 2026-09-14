@@ -6,6 +6,8 @@ import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.entities.Entity;
 
 /** Applies saved game data to a newly created player. */
@@ -110,6 +112,17 @@ public class LoadService {
             savedItem.damage,
             savedItem.quantity,
             savedItem.maxQuantity);
+      } catch (IllegalArgumentException e) {
+        return null;
+      }
+    }
+
+    if (itemType == ItemType.CONSUMABLE && savedItem.consumableType != null) {
+      try {
+        ConsumableType consumableType = ConsumableType.valueOf(savedItem.consumableType);
+        // Tier isn't stored on ConsumableItem, so reload defaults to tier 1 —
+        // a known simplification, not a full fix.
+        return new ConsumableGenerator().generateConsumable(consumableType, 1);
       } catch (IllegalArgumentException e) {
         return null;
       }
