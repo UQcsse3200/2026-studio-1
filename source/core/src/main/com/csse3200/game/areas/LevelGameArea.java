@@ -25,6 +25,7 @@ import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
+import com.csse3200.game.events.EventHandler;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -92,6 +93,7 @@ public class LevelGameArea extends GameArea {
 
   private LevelMapData mapData;
   private Entity player;
+  private final EventHandler eventHandler = new EventHandler();
 
   /**
    * Create a level area using the default {@link JsonMapLoader}.
@@ -121,6 +123,7 @@ public class LevelGameArea extends GameArea {
   public void create() {
     mapData = mapLoader.load(mapPath);
     loadAssets();
+    eventHandler.addListener("debugSpawnEnemy", this::spawnEnemy);
 
     displayUI();
     spawnTerrain();
@@ -321,6 +324,19 @@ public class LevelGameArea extends GameArea {
         yield null;
       }
     };
+  }
+
+  /**
+   * Made for debug terminal to create enemies
+   *
+   * @param type type of enemy to spawn
+   * @param position world position to spawn enemy
+   */
+  private void spawnEnemy(String type, Vector2 position) {
+    System.out.println("Spawning Enemy");
+    Entity enemy = createEnemy(type);
+    enemy.setPosition(position);
+    spawnEntity(enemy);
   }
 
   /**

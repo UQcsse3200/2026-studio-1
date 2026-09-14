@@ -79,7 +79,6 @@ public class PlayerActions extends Component {
     platformerComponent = entity.getComponent(PlatformerComponent.class);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
-    platformerComponent = entity.getComponent(PlatformerComponent.class);
     textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
 
     entity.getEvents().addListener("walk", this::walk);
@@ -98,6 +97,9 @@ public class PlayerActions extends Component {
 
     // Death State
     entity.getEvents().addListener("death", this::onDeath);
+
+    // Tell Terminal the player's position
+    entity.getEvents().addListener("getPlayerPosition", this::getPlayerPosition);
   }
 
   @Override
@@ -368,5 +370,11 @@ public class PlayerActions extends Component {
 
   public boolean getDashing() {
     return dashing;
+  }
+
+  /** Sends player position to terminal */
+  private void getPlayerPosition() {
+    System.out.println("Sending PlayerPosition");
+    entity.getEvents().trigger("sendPlayerPosition", entity.getPosition());
   }
 }
