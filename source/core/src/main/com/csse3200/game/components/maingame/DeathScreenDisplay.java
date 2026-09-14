@@ -104,7 +104,7 @@ public class DeathScreenDisplay extends UIComponent {
   }
 
   private void onRetry() {
-    game.setScreen(ScreenType.MAIN_GAME);
+    game.setScreen(ScreenType.RESTART_GAME);
   }
 
   private void onMainMenu() {

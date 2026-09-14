@@ -58,9 +58,9 @@ public class PlayerActions extends Component {
   // Death State
   private boolean dead = false;
 
-  private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
-  private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
-  private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
+  private final String NORMAL_TEXTURE = "images/player/box_boy_leaf.png";
+  private final String CROUCH_TEXTURE = "images/player/box_boy_crouch.png";
+  private final String SLIDE_TEXTURE = "images/player/box_boy_slide.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";

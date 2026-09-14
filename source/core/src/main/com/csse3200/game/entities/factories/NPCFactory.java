@@ -59,7 +59,8 @@ public class NPCFactory {
 
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
-            ServiceLocator.getResourceService().getAsset("images/ghost.atlas", TextureAtlas.class));
+            ServiceLocator.getResourceService()
+                .getAsset("images/enemies/ghost.atlas", TextureAtlas.class));
     animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
 
@@ -86,7 +87,7 @@ public class NPCFactory {
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
-                .getAsset("images/ghostKing.atlas", TextureAtlas.class));
+                .getAsset("images/enemies/ghostKing.atlas", TextureAtlas.class));
     animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
 
@@ -106,8 +107,8 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createSkeleton(Entity target) {
-    float scale = 1.5f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    float scale = 1.0f;
+    Vector2 collisionScale = new Vector2(0.45f, 0.6f);
     Entity skeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     SkeletonConfig config = configs.skeleton;
 
@@ -172,8 +173,8 @@ public class NPCFactory {
    * @return entitys
    */
   public static Entity createRangedSkeleton(Entity target) {
-    float scale = 1.5f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    float scale = 1.0f;
+    Vector2 collisionScale = new Vector2(0.45f, 0.6f);
     Entity rangedSkeleton = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     RangedSkeletonConfig config = configs.rangedSkeleton;
 
@@ -507,6 +508,7 @@ public class NPCFactory {
     AITaskComponent aiComponent =
         new AITaskComponent()
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale))
+            .addTask(new ChaseTask(target, 10, 3f, 4f))
             .addTask(new MeleeAttackTask(target, 15, 1f));
     Entity npc =
         new Entity()
