@@ -594,17 +594,6 @@ public class LevelGameArea extends GameArea {
    * spawns falls back to a starter row beside the player.
    */
   private void spawnLoot() {
-<<<<<<< HEAD
-    if (!mapData.getSpawns().getLoot().isEmpty()) {
-      for (SpawnPoint spawn : mapData.getSpawns().getLoot()) {
-        Entity loot = createMapLoot(spawn.getType());
-        if ("item-olive-branch".equals(spawn.getType())) {
-          // This authored summit pickup already rests on the floor. Let its render component bob,
-          // but keep the physics body still so it cannot jitter against the marble tiles.
-          loot.getComponent(PhysicsComponent.class).setBodyType(BodyType.StaticBody);
-        }
-        spawnEntityAt(loot, spawn.getPosition(), true, true);
-=======
     List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();
     if (!lootSpawns.isEmpty()) {
       SpawnPoint shieldSpawn = lootSpawns.get(0);
@@ -618,7 +607,6 @@ public class LevelGameArea extends GameArea {
       LootTable table = LootTable.createDefault(LOOT_SEED);
       for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
         spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
->>>>>>> origin/main
       }
       return;
     }
@@ -655,23 +643,6 @@ public class LevelGameArea extends GameArea {
       spawnEntityAt(item, new GridPoint2(Math.min(x, maxX), start.y), true, true);
       x++;
     }
-  }
-
-  /** Creates the closest working equivalent for an authored loot placement. */
-  private Entity createMapLoot(String type) {
-    WeaponGenerator weapons = new WeaponGenerator();
-    ConsumableGenerator consumables = new ConsumableGenerator();
-    if ("item-bow-artemis".equals(type)) {
-      return LootFactory.createLoot(weapons.generateWeapon(WeaponType.BOW, 1));
-    }
-    if ("item-bronze-spear".equals(type)) {
-      return LootFactory.createLoot(weapons.generateWeapon(WeaponType.SWORD, 1));
-    }
-    if ("item-olive-branch".equals(type)) {
-      return LootFactory.createLoot(
-          consumables.generateConsumable(ConsumableType.HEALTH_POTION, 2));
-    }
-    return LootFactory.createLoot(consumables.generateConsumable(ConsumableType.SPEED_BUFF, 1));
   }
 
   /**
