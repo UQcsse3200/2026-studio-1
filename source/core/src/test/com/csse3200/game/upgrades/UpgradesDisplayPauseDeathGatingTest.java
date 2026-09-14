@@ -1,4 +1,4 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.upgrades;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
