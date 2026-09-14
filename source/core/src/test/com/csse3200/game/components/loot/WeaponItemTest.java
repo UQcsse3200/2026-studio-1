@@ -23,8 +23,7 @@ class WeaponItemTest {
 
   @Test
   void shouldCreateBow() {
-    WeaponItem bow = new WeaponItem("Basic Bow", WeaponType.BOW, WeaponTier.TIER_3,
-        1, 1,3);
+    WeaponItem bow = new WeaponItem("Basic Bow", WeaponType.BOW, WeaponTier.TIER_3, 1, 1, 3);
     assertEquals("Basic Bow", bow.getName());
     assertEquals(ItemType.WEAPON, bow.getItemType());
     assertEquals(WeaponType.BOW, bow.getWeaponType());
@@ -35,8 +34,8 @@ class WeaponItemTest {
   @Test
   void shouldRejectNullWeaponType() {
     assertThrows(
-        IllegalArgumentException.class, () -> new WeaponItem("Broken Weapon",
-            null, WeaponTier.TIER_1, 10, 1,1));
+        IllegalArgumentException.class,
+        () -> new WeaponItem("Broken Weapon", null, WeaponTier.TIER_1, 10, 1, 1));
   }
 
   @Test
@@ -51,8 +50,7 @@ class WeaponItemTest {
   // Creating a Dagger stores the correct type, windup, and damage (parity with Sword/Bow coverage).
   @Test
   void shouldCreateDagger() {
-    WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, 9,
-        3, 1, 1);
+    WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, 9, 3, 1, 1);
 
     assertEquals("Basic Dagger", dagger.getName());
     assertEquals(ItemType.WEAPON, dagger.getItemType());
@@ -65,8 +63,7 @@ class WeaponItemTest {
   @Test
   void shouldAcceptZeroWindupDuration() {
     assertDoesNotThrow(
-        () -> new WeaponItem("Fast Dagger", WeaponType.DAGGER, WeaponTier.TIER_1, 3,
-            1, 1),
+        () -> new WeaponItem("Fast Dagger", WeaponType.DAGGER, WeaponTier.TIER_1, 3, 1, 1),
         "Expected a windupDuration of exactly 0 to be accepted as a valid boundary value.");
   }
 

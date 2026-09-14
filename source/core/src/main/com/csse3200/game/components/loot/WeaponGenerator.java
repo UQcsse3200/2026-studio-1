@@ -19,7 +19,8 @@ public class WeaponGenerator {
     switch (weaponType) {
       case SWORD:
         WeaponItem sword =
-            new WeaponItem("Basic Sword", WeaponType.SWORD, WeaponTier.values()[tier - 1], 1, 10,2);
+            new WeaponItem(
+                "Basic Sword", WeaponType.SWORD, WeaponTier.values()[tier - 1], 1, 10, 2);
         sword.setSellPrice(10 * tier);
         return sword;
 

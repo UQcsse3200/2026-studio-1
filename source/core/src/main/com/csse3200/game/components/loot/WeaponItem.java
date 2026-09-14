@@ -9,8 +9,14 @@ public class WeaponItem extends Item {
    * Defaults to 0 if omitted. */
   private float windupDuration;
 
-  public WeaponItem(String name, WeaponType weaponType, int damage, int quantity,
-                    int maxQuantity, float windupDuration) throws IllegalArgumentException {
+  public WeaponItem(
+      String name,
+      WeaponType weaponType,
+      int damage,
+      int quantity,
+      int maxQuantity,
+      float windupDuration)
+      throws IllegalArgumentException {
     super(name, ItemType.WEAPON, quantity, maxQuantity);
     if (weaponType == null) {
       throw new IllegalArgumentException("WeaponType must not be null.");
@@ -40,8 +46,13 @@ public class WeaponItem extends Item {
   }
 
   public WeaponItem(
-      String name, WeaponType weaponType, WeaponTier weaponTier, int quantity,
-      int maxQuantity, float windupDuration) throws IllegalArgumentException {
+      String name,
+      WeaponType weaponType,
+      WeaponTier weaponTier,
+      int quantity,
+      int maxQuantity,
+      float windupDuration)
+      throws IllegalArgumentException {
     super(name, ItemType.WEAPON, quantity, maxQuantity);
 
     if (weaponType == null) {

@@ -237,7 +237,6 @@ public class PlayerActions extends Component {
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
 
-
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
       CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
