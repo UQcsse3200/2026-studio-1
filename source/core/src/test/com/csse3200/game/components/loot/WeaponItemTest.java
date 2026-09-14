@@ -9,7 +9,7 @@ class WeaponItemTest {
 
   @Test
   void shouldCreateSword() {
-    WeaponItem sword = new WeaponItem("Basic Sword", WeaponType.SWORD, 10, 1, 1);
+    WeaponItem sword = new WeaponItem("Basic Sword", WeaponType.SWORD, 1, 1, 1);
 
     assertEquals("Basic Sword", sword.getName());
     assertEquals(ItemType.WEAPON, sword.getItemType());
@@ -21,7 +21,7 @@ class WeaponItemTest {
 
   @Test
   void shouldCreateBow() {
-    WeaponItem bow = new WeaponItem("Basic Bow", WeaponType.BOW, 7, 1, 1);
+    WeaponItem bow = new WeaponItem("Basic Bow", WeaponType.BOW, 1, 1, 1);
 
     assertEquals("Basic Bow", bow.getName());
     assertEquals(ItemType.WEAPON, bow.getItemType());

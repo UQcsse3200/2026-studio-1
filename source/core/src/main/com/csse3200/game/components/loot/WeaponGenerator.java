@@ -6,7 +6,8 @@ import static com.csse3200.game.components.loot.WeaponType.*;
 
 public class WeaponGenerator {
 
-  public WeaponItem generateWeapon(WeaponType weaponType, int tier) throws IllegalArgumentException {
+  public WeaponItem generateWeapon(WeaponType weaponType, int tier)
+      throws IllegalArgumentException {
     if (weaponType == null) {
       throw new IllegalArgumentException("WeaponType must not be null.");
     }
@@ -15,19 +16,21 @@ public class WeaponGenerator {
       throw new IllegalArgumentException("Tier must be greater than 0.");
     }
 
-    String name = switch(weaponType) {
-      case SWORD -> "Basic Sword";
-      case BOW -> "Basic Bow";
-      case DAGGER -> "Basic Dagger";
-      default -> throw new IllegalArgumentException("Unsupported weapon type.");
-    };
+    String name =
+        switch (weaponType) {
+          case SWORD -> "Basic Sword";
+          case BOW -> "Basic Bow";
+          case DAGGER -> "Basic Dagger";
+          default -> throw new IllegalArgumentException("Unsupported weapon type.");
+        };
 
-   int max_Capacity = switch(weaponType) {
-     case SWORD -> 10;
-     case BOW -> 20;
-     case DAGGER -> 10;
-     default -> throw new IllegalArgumentException("Unsupported weapon type");
-    };
+    int max_Capacity =
+        switch (weaponType) {
+          case SWORD -> 10;
+          case BOW -> 20;
+          case DAGGER -> 10;
+          default -> throw new IllegalArgumentException("Unsupported weapon type");
+        };
     return new WeaponItem(name, weaponType, tier, 1, max_Capacity);
   }
 }

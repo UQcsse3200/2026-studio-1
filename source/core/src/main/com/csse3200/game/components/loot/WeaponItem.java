@@ -1,12 +1,10 @@
 package com.csse3200.game.components.loot;
 
 /**
- * Represents a weapon item that can be stored in any entity's inventory and usable to supply
- * an attack component's damage. Damage is computed from type + tier on demand.
- * A weapon has the common properties of an Item, as well as a weapon type
- * and damage value.
+ * Represents a weapon item that can be stored in any entity's inventory and usable to supply an
+ * attack component's damage. Damage is computed from type + tier on demand. A weapon has the common
+ * properties of an Item, as well as a weapon type and damage value.
  */
-
 public class WeaponItem extends Item {
 
   private final WeaponType weaponType;
