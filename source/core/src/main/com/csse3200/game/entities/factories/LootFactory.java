@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.factories;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -62,8 +63,7 @@ public class LootFactory {
     } else {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(
-              ServiceLocator.getResourceService()
-                  .getAsset("images/gold_coin/gold_coin.atlas", TextureAtlas.class));
+              new TextureAtlas(Gdx.files.internal("images/gold_coin/gold_coin.atlas")));
 
       animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
       animator.startAnimation("gold_coin");

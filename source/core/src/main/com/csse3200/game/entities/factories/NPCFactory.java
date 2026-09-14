@@ -1,5 +1,7 @@
 package com.csse3200.game.entities.factories;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
@@ -119,11 +121,8 @@ public class NPCFactory {
     }
 
     // Configure animation component
-
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -155,7 +154,7 @@ public class NPCFactory {
    * instead of approaching all the way up to its target.
    *
    * @param target entity to chase
-   * @return entity
+   * @return entitys
    */
   public static Entity createRangedSkeleton(Entity target) {
     float scale = 1.5f;
@@ -176,9 +175,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -239,9 +236,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO MINOTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -276,8 +271,7 @@ public class NPCFactory {
     minotaur
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
-        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius,
-            15, 10)));
+        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
 
     minotaur.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
@@ -311,9 +305,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -383,9 +375,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton.atlas", TextureAtlas.class));
+        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -424,6 +414,27 @@ public class NPCFactory {
     cyclops.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(cyclops, collisionScale.x, collisionScale.y);
     return cyclops;
+  }
+
+  /**
+   * Loads a fresh, independently-owned {@link TextureAtlas} from the given internal file path,
+   * bypassing {@code ResourceService}'s asset cache entirely.
+   *
+   * <p>Unlike {@code ServiceLocator.getResourceService().getAsset(path, TextureAtlas.class)}, which
+   * returns the same shared instance for a given path on every call, this method constructs a
+   * brand-new, independent {@code TextureAtlas} each time it is called — even for the same {@code
+   * path}. This guarantees that each entity's {@link AnimationRenderComponent} holds an atlas
+   * object no other entity references, so that entity's eventual disposal (which calls {@code
+   * atlas.dispose()}) cannot invalidate another still-living entity's sprite.
+   *
+   * @param path internal file path to the {@code .atlas} file, e.g. {@code "images/skeleton.atlas"}
+   * @return a new, independently-owned {@code TextureAtlas} loaded from that path
+   * @throws com.badlogic.gdx.utils.GdxRuntimeException if the file does not exist or cannot be
+   *     parsed as a texture atlas — same failure behaviour as libGDX's own atlas loading
+   */
+  private static TextureAtlas loadIndependentAtlas(String path) {
+    FileHandle fileHandle = Gdx.files.internal(path);
+    return new TextureAtlas(fileHandle);
   }
 
   /**
