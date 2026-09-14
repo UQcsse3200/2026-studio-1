@@ -2,16 +2,14 @@ package com.csse3200.game.entities.factories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
+import com.csse3200.game.components.player.PlayerProjectileHitComponent;
 import com.csse3200.game.components.projectile.ProjectileComponent;
 import com.csse3200.game.components.projectile.ProjectileHitComponent;
 import com.csse3200.game.components.projectile.StraightLineMovementStrategy;
-import com.csse3200.game.components.player.ProjectileHitComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
-import com.csse3200.game.physics.components.HitboxComponent;
-import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
@@ -25,14 +23,14 @@ public class ArrowFactory {
    * {@link #createRangedArrow} below - which enemies use, and which does have real physics-based
    * collision - since the two have different requirements entirely.
    */
-  public static Entity createArrow(Vector2 position, Vector2 direction) {
+  public static Entity createArrow(Vector2 position, Vector2 direction, int damage, Entity owner) {
     Entity arrow =
         new Entity()
             .addComponent(new TextureRenderComponent("images/items/arrow.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new HitboxComponent())
             .addComponent(new ArrowMovementComponent(direction))
-            .addComponent(new ProjectileHitComponent(damage, owner));
+            .addComponent(new PlayerProjectileHitComponent(damage, owner));
 
     arrow.setPosition(position);
     arrow.setScale(0.5f, 0.2f);
@@ -56,7 +54,8 @@ public class ArrowFactory {
    * @param movingRight true to fire in the +x direction (target is to the right), false for -x.
    * @param speed travel speed in world units/second.
    * @param maxRange maximum distance the arrow can travel before despawning; should normally match
-   *     the firing {@link com.csse3200.game.components.RangedAttackComponent}'s configured range.
+   *     the firing {@link com.csse3200.game.components.attacks.RangedAttackComponent}'s configured
+   *     range.
    * @param damage damage dealt to whatever the arrow hits on {@code targetLayer}.
    * @param knockback knockback magnitude applied on a successful hit; {@code 0f} disables it.
    * @param targetLayer the physics layer the arrow deals damage to on contact (e.g. {@link

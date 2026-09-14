@@ -2,7 +2,7 @@ package com.csse3200.game.entities.factories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.player.DaggerMovementComponent;
-import com.csse3200.game.components.player.ProjectileHitComponent;
+import com.csse3200.game.components.player.PlayerProjectileHitComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -47,7 +47,7 @@ public class DaggerFactory {
             .addComponent(new PhysicsComponent())
             .addComponent(new HitboxComponent())
             .addComponent(new DaggerMovementComponent(direction))
-            .addComponent(new ProjectileHitComponent(damage, owner));
+            .addComponent(new PlayerProjectileHitComponent(damage, owner));
 
     dagger.setPosition(position);
     dagger.setScale(0.35f, 0.2f);

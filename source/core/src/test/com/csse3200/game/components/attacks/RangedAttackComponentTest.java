@@ -1,4 +1,4 @@
-package com.csse3200.game.components;
+package com.csse3200.game.components.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,6 +9,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponTier;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
@@ -58,7 +62,8 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldStoreConstructorValuesCorrectly() {
-    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f);
+    RangedAttackComponent ranged =
+        new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon(), 8f);
     assertEquals(6f, ranged.getRange());
     assertEquals(2.5f, ranged.getCooldown());
     assertEquals(1f, ranged.getKnockback());
@@ -70,7 +75,8 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldRejectNonPositiveProjectileSpeed() {
-    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 0f);
+    RangedAttackComponent ranged =
+        new RangedAttackComponent(6f, 2.5f, 0f, createInstantWeapon(), 8f);
     assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(0f));
     assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(-1f));
   }
@@ -205,10 +211,22 @@ class RangedAttackComponentTest {
     return fired;
   }
 
+  /**
+   * Builds the default weapon used by {@link #createAttacker(float, float, float)}: a non-BOW type
+   * with zero windup, so an attack resolves on the very next {@code update()} call after being
+   * triggered. Deals {@link WeaponTier#TIER_1} (7) damage per hit.
+   *
+   * @return a fresh weapon item suitable for most tests
+   */
+  WeaponItem createInstantWeapon() {
+    return new WeaponItem("Test Bow", WeaponType.BOW, WeaponTier.TIER_1, 1, 1, 0f);
+  }
+
   private Entity createAttacker(float range, float cooldown, float knockback) {
     Entity attacker =
         new Entity()
-            .addComponent(new RangedAttackComponent(range, cooldown, knockback))
+            .addComponent(
+                new RangedAttackComponent(range, cooldown, knockback, createInstantWeapon(), 8f))
             .addComponent(new CombatStatsComponent(20, 5));
     attacker.create();
     return attacker;

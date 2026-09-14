@@ -66,7 +66,7 @@ public class LootFactory {
     } else {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(
-              new TextureAtlas(Gdx.files.internal("images/gold_coin/gold_coin.atlas")));
+              new TextureAtlas(Gdx.files.internal("images/items/gold_coin/gold_coin.atlas")));
 
       animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
       animator.startAnimation("gold_coin");

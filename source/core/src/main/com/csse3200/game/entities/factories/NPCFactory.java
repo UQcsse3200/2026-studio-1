@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
@@ -125,7 +126,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -191,7 +192,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -215,7 +216,8 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1)))
+                (WeaponItem) inventory.getItem(1),
+                8f))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -269,7 +271,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO MINOTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton  .atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -338,7 +340,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -352,7 +354,8 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1)))
+                (WeaponItem) inventory.getItem(1),
+                8f))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -408,7 +411,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -422,7 +425,8 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1)))
+                (WeaponItem) inventory.getItem(1),
+                8f))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,

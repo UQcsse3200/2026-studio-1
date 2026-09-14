@@ -1,7 +1,7 @@
 package com.csse3200.game.components.attacks;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
@@ -68,7 +68,8 @@ public class RangedAttackComponent extends Component {
    *     results in no knockback.
    * @param projectileSpeed speed, in world units/second, the fired arrow travels at.
    */
-  public RangedAttackComponent(float range, float cooldown, float knockback, WeaponItem weapon) {
+  public RangedAttackComponent(
+      float range, float cooldown, float knockback, WeaponItem weapon, float projectileSpeed) {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);

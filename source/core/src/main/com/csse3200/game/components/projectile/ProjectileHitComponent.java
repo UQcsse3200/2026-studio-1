@@ -5,8 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.components.MeleeAttackComponent;
-import com.csse3200.game.components.TouchAttackComponent;
+import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -39,7 +38,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
  * view. It fires a generic {@code "projectileHit"} event (payload: the entity that was hit) for
  * whoever spawned the projectile to react to - e.g. re-firing a {@code "rangedAttackHit"} event on
  * the shooter's own entity, to preserve that event for anything already listening for it (see
- * {@link com.csse3200.game.components.RangedAttackComponent}).
+ * {@link RangedAttackComponent}).
  */
 public class ProjectileHitComponent extends Component {
   private final short targetLayer;

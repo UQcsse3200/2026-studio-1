@@ -2,21 +2,21 @@ package com.csse3200.game.components.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.components.HitboxComponent;
 
 /** Handles projectile collisions and damage. */
-public class ProjectileHitComponent extends Component {
+public class PlayerProjectileHitComponent extends Component {
   private final int damage;
   private final Entity owner;
 
   private HitboxComponent hitboxComponent;
   private boolean collided;
 
-  public ProjectileHitComponent(int damage, Entity owner) {
+  public PlayerProjectileHitComponent(int damage, Entity owner) {
     if (damage < 0) {
       throw new IllegalArgumentException("Projectile damage must not be negative.");
     }
