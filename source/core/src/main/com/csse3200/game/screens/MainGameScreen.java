@@ -55,7 +55,7 @@ public class MainGameScreen extends ScreenAdapter {
     "images/heart-green.png",
     "images/heart-yellow.png"
   };
-  private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
+  private static final Vector2 CAMERA_POSITION = new Vector2(10f, 5f);
 
   private final GdxGame game;
   private final Renderer renderer;
@@ -99,7 +99,10 @@ public class MainGameScreen extends ScreenAdapter {
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
-      shopDisplay.setUpgradesDisplay(upgradesDisplay);
+      // TODO: ShopDisplay.setUpgradesDisplay(UpgradesDisplay) does not exist on
+      // ShopDisplay as of main - broken/incomplete Shop-Upgrades integration,
+      // commented out to unblock this PR. Needs fixing by the Shop feature owner.
+      // shopDisplay.setUpgradesDisplay(upgradesDisplay);
     }
 
     if (loadsave) {
