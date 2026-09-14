@@ -1,4 +1,4 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.upgrades;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;

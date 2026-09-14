@@ -17,9 +17,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.csse3200.game.components.loot.Item;
-import com.csse3200.game.perks.UpgradeNode;
-import com.csse3200.game.perks.UpgradesDisplay;
 import com.csse3200.game.ui.UIComponent;
+import com.csse3200.game.upgrades.UpgradeNode;
+import com.csse3200.game.upgrades.UpgradesDisplay;
+
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
