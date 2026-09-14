@@ -44,28 +44,29 @@ public class PauseMenuDisplay extends UIComponent {
   private long rightLastRepeat = 0;
 
   private static final String PREFS_NAME = "pause_menu_settings";
-  private static final String MASTER_VOLUME_KEY = "master";
-  private static final String MUSIC_VOLUME_KEY = "music";
-  private static final String EFFECTS_VOLUME_KEY = "effects";
+  private static final String MASTER_VOLUME_KEY = "masterVolume";
+  private static final String MUSIC_VOLUME_KEY = "musicVolume";
+  private static final String EFFECTS_VOLUME_KEY = "effectsVolume";
   private static final float DEFAULT_MASTER_VOL = 1f;
   private static final float DEFAULT_MUSIC_VOL = 0.8f;
   private static final float DEFAULT_EFFECTS_VOL = 1f;
 
-  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu", "Save"};
+  private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu"};
   private static final String[] SETTINGS_ITEMS = {"Audio", "Keybinds", "Back"};
   private static final String[] AUDIO_ITEMS = {
-    "Master", "Music", "Effects", "Back"
+    "Master Volume", "Music Volume", "Effects Volume", "Back"
   };
   private static final int AUDIO_BACK_INDEX = 3;
 
+  // NOTE: verify these against the actual KeyboardPlayerInputComponent bindings and correct
+  // any that don't match before shipping - this list is a best-effort reconstruction.
   private static final String[] KEYBIND_ITEMS = {
-    "Jump: W",
-    "Move Left: A",
-    "Move Right: D",
-    "Crouch: Left Shift",
+    "Move: W A S D",
+    "Jump: Space",
     "Dash: L",
-    "Attack: Space",
+    "Attack: Left Click",
     "Drop Item: Q",
+    "Pause: ESC",
     "Back"
   };
   private static final int KEYBINDS_BACK_INDEX = KEYBIND_ITEMS.length - 1;
@@ -84,6 +85,7 @@ public class PauseMenuDisplay extends UIComponent {
   private Table root;
   private Table mainPanel;
   private Table settingsPanel;
+  private Table detailSlot;
   private Table audioPanel;
   private Table keybindsPanel;
 
@@ -135,8 +137,8 @@ public class PauseMenuDisplay extends UIComponent {
     root.padLeft(60f);
     root.add(mainPanel).top();
     root.add(settingsPanel).top().padLeft(PANEL_GAP);
-    root.add(audioPanel).top().padLeft(PANEL_GAP);
-    root.add(keybindsPanel).top().padLeft(PANEL_GAP);
+    detailSlot = new Table();
+    root.add(detailSlot).top().padLeft(PANEL_GAP);
     root.setVisible(false);
     stage.addActor(root);
   }
@@ -178,6 +180,12 @@ public class PauseMenuDisplay extends UIComponent {
     return MenuState.SETTINGS;
   }
 
+  /**
+   * Makes a row respond to the mouse: hovering highlights it (mirrors keyboard nav), clicking
+   * selects and confirms it. Only wired for the panel's own state, so hovering/clicking a dimmed
+   * background panel does nothing. clickConfirms is false for slider rows, so a click there doesn't
+   * swallow the touch event the Slider itself needs for dragging.
+   */
   private void addRowInteraction(
       Table row, MenuState ownerState, int rowIndex, boolean clickConfirms) {
     row.addListener(
@@ -357,6 +365,7 @@ public class PauseMenuDisplay extends UIComponent {
     adjustCurrentSlider(VOLUME_STEP);
   }
 
+  /** Left/Right only do anything in the AUDIO panel, and only on a slider row (not Back). */
   private void adjustCurrentSlider(float delta) {
     if (state != MenuState.AUDIO) {
       return;
@@ -420,7 +429,6 @@ public class PauseMenuDisplay extends UIComponent {
         refreshPanels();
       }
       case 3 -> entity.getEvents().trigger("mainMenuClicked");
-      case 4 -> entity.getEvents().trigger("saveClicked");
       default -> {}
     }
   }
@@ -452,46 +460,6 @@ public class PauseMenuDisplay extends UIComponent {
     }
   }
 
-  private void handleEscape() {
-    switch (state) {
-      case MAIN -> entity.getEvents().trigger("resumeClicked");
-      case SETTINGS -> {
-        state = MenuState.MAIN;
-        refreshPanels();
-      }
-      case AUDIO -> {
-        state = MenuState.SETTINGS;
-        refreshPanels();
-      }
-    }
-  }
-
-  private void refreshPanels() {
-    settingsPanel.setVisible(state != MenuState.MAIN);
-    audioPanel.setVisible(state == MenuState.AUDIO);
-
-    mainPanel.getColor().a = (state == MenuState.MAIN) ? 1f : INACTIVE_PANEL_ALPHA;
-    settingsPanel.getColor().a = (state == MenuState.SETTINGS) ? 1f : INACTIVE_PANEL_ALPHA;
-    audioPanel.getColor().a = (state == MenuState.AUDIO) ? 1f : INACTIVE_PANEL_ALPHA;
-
-    refreshHighlights();
-  }
-
-  private void refreshHighlights() {
-    highlightPanel(mainLabels, mainIndex, state == MenuState.MAIN);
-    highlightPanel(settingsLabels, settingsIndex, state == MenuState.SETTINGS);
-    highlightPanel(audioLabels, audioIndex, state == MenuState.AUDIO);
-  }
-
-  private void highlightPanel(Label[] labels, int selectedIndex, boolean isActivePanel) {
-    for (int i = 0; i < labels.length; i++) {
-      boolean selected = isActivePanel && i == selectedIndex;
-      labels[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
-      Table row = (Table) labels[i].getParent();
-      row.setBackground(selected ? skin.newDrawable("button", SELECTED_BG) : null);
-    }
-  }
-
   /** Keybind rows are informational only - only "Back" actually does anything. */
   private void confirmKeybinds() {
     if (keybindsIndex == KEYBINDS_BACK_INDEX) {
@@ -516,13 +484,17 @@ public class PauseMenuDisplay extends UIComponent {
 
   private void refreshPanels() {
     settingsPanel.setVisible(state != MenuState.MAIN);
-    audioPanel.setVisible(state == MenuState.AUDIO);
-    keybindsPanel.setVisible(state == MenuState.KEYBINDS);
+
+    detailSlot.clearChildren();
+    if (state == MenuState.AUDIO) {
+      detailSlot.add(audioPanel);
+    } else if (state == MenuState.KEYBINDS) {
+      detailSlot.add(keybindsPanel);
+    }
+    detailSlot.invalidateHierarchy();
 
     mainPanel.getColor().a = (state == MenuState.MAIN) ? 1f : INACTIVE_PANEL_ALPHA;
     settingsPanel.getColor().a = (state == MenuState.SETTINGS) ? 1f : INACTIVE_PANEL_ALPHA;
-    audioPanel.getColor().a = (state == MenuState.AUDIO) ? 1f : INACTIVE_PANEL_ALPHA;
-    keybindsPanel.getColor().a = (state == MenuState.KEYBINDS) ? 1f : INACTIVE_PANEL_ALPHA;
 
     refreshHighlights();
   }
@@ -543,6 +515,10 @@ public class PauseMenuDisplay extends UIComponent {
     }
   }
 
+  /**
+   * Forces every row in a panel to share the widest row's own preferred width, so the highlight
+   * background doesn't resize (or overflow the panel) depending on which item is selected.
+   */
   private void applyUniformRowWidths(Table panel) {
     float maxWidth = 0f;
     for (Cell<?> cell : panel.getCells()) {
@@ -592,20 +568,6 @@ public class PauseMenuDisplay extends UIComponent {
       refreshPanels();
     }
     wasPaused = isPaused;
-  }
-
-  private void applyUniformRowWidths(Table panel) {
-    float maxWidth = 0f;
-    for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
-      Table row = (Table) cell.getActor();
-      if (row != null) {
-        maxWidth = Math.max(maxWidth, row.getPrefWidth());
-      }
-    }
-    for (com.badlogic.gdx.scenes.scene2d.ui.Cell<?> cell : panel.getCells()) {
-      cell.width(maxWidth);
-    }
-    panel.invalidateHierarchy();
   }
 
   @Override

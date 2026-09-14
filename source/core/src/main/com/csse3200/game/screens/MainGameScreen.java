@@ -100,14 +100,14 @@ public class MainGameScreen extends ScreenAdapter {
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
       shopDisplay.setUpgradesDisplay(upgradesDisplay);
-    if (loadsave) {
-      LoadService.load(
-          levelGameArea.getPlayer(),
-          levelGameArea.getMapWorldWidth(),
-          levelGameArea.getMapWorldHeight());
+      if (loadsave) {
+        LoadService.load(
+            levelGameArea.getPlayer(),
+            levelGameArea.getMapWorldWidth(),
+            levelGameArea.getMapWorldHeight());
+      }
+      fitCameraToMap(levelGameArea);
     }
-
-    fitCameraToMap(levelGameArea);
   }
 
   public Entity getPlayerEntity() {
@@ -229,17 +229,16 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
+        .addComponent(new PauseMenuActions())
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new DeathScreenInputComponent())
         .addComponent(winScreenDisplay)
         .addComponent(new WinScreenInputComponent())
         .addComponent(new MainGameActions(this.game))
-        .addComponent(new PauseMenuActions())
         .addComponent(upgradesMenuComponent)
         .addComponent(upgradesDisplay)
         .addComponent(new ActiveUpgradesHud());
-        .addComponent(new PauseMenuActions(this::getPlayerEntity));
     this.pauseMenu = pauseMenuComponent;
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
 
