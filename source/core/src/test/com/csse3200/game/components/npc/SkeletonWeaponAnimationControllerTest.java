@@ -25,7 +25,7 @@ class SkeletonWeaponAnimationControllerTest {
   void beforeEach() {
     entity = new Entity();
     controller = new SkeletonWeaponAnimationController();
-    
+
     lenient().when(weaponAnimator.getPrio()).thenReturn(ComponentPriority.LOW);
     lenient().when(weaponAnimator.hasAnimation("default_r")).thenReturn(true);
     lenient().when(weaponAnimator.hasAnimation("default_l")).thenReturn(true);
