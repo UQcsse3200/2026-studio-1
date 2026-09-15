@@ -212,7 +212,7 @@ public class ShopDisplay extends UIComponent {
     entity.getEvents().addListener("inventoryChanged", this::refreshShop);
     entity.getEvents().addListener("shopChanged", this::refreshShop);
     entity.getEvents().addListener("upgradePurchased", this::refreshShop);
-    entity.getEvents().addListener("petPurchased", this::refreshShop);
+    entity.getEvents().addListener("petPurchased", (ShopComponent.Pet pet) -> refreshShop());
 
     petAtlas = new TextureAtlas(Gdx.files.internal("images/pet.atlas"));
 
