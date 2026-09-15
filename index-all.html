@@ -3676,6 +3676,12 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Sets or clears an Upgrade catalog listing.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/ShopDisplay.html#setUpgradesDisplay(com.csse3200.game.upgrades.UpgradesDisplay)" class="member-name-link">setUpgradesDisplay(UpgradesDisplay)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopDisplay.html" title="class in com.csse3200.game.components.player">ShopDisplay</a></dt>
+<dd>
+<div class="block">Supplies the real upgrade system so the Upgrades tab can show real upgrades (name + current
+ next-tier cost) instead of ShopComponent's placeholder stubs, and so its popup can look up the
+ matching UpgradeNode to actually apply a purchase.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/loot/ItemType.html#SHIELD" class="member-name-link">SHIELD</a> - Enum constant in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ItemType.html" title="enum class in com.csse3200.game.components.loot">ItemType</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ShieldComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">ShieldComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
@@ -4297,7 +4303,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/upgrades/UpgradesDisplay.html" class="type-name-link" title="class in com.csse3200.game.upgrades">UpgradesDisplay</a> - Class in <a href="com/csse3200/game/upgrades/package-summary.html">com.csse3200.game.upgrades</a></dt>
 <dd>
 <div class="block">Displays the Upgrades screen: category tabs (Action / Defence), a row of upgrade nodes per
- category, and a detail panel for the selected node.</div>
+ category, and a detail panel for the selected node's name, description, current tier and
+ remaining time/kills.</div>
 </dd>
 <dt><a href="com/csse3200/game/upgrades/UpgradesDisplay.html#%3Cinit%3E()" class="member-name-link">UpgradesDisplay()</a> - Constructor for class com.csse3200.game.upgrades.<a href="com/csse3200/game/upgrades/UpgradesDisplay.html" title="class in com.csse3200.game.upgrades">UpgradesDisplay</a></dt>
 <dd>&nbsp;</dd>

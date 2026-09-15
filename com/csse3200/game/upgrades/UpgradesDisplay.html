@@ -102,14 +102,19 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">UpgradesDisplay</span>
 <span class="extends-implements">extends <a href="../ui/UIComponent.html" title="class in com.csse3200.game.ui">UIComponent</a></span></div>
 <div class="block">Displays the Upgrades screen: category tabs (Action / Defence), a row of upgrade nodes per
- category, and a detail panel for the selected node.
+ category, and a detail panel for the selected node's name, description, current tier and
+ remaining time/kills.
 
- <p>Every upgrade is temporary and repurchasable - Action upgrades expire after a number of kills,
- Defence upgrades expire after a duration. Buying the same upgrade again while active advances its
+ <p>View-only - there is no purchase action anywhere on this screen. It never calls <a href="UpgradeNode.html#purchaseNextTier()"><code>UpgradeNode.purchaseNextTier()</code></a> itself; the only way to actually buy an upgrade (deduct gold,
+ advance its tier) is through <code>ShopDisplay</code>'s real Upgrades-tab buy flow, which applies the
+ purchase to the exact same UpgradeNode instances this screen reads from. This screen used to have
+ its own Buy button that spent real gold directly, bypassing the shop entirely - that's been
+ removed so there is exactly one way to purchase an upgrade.
+
+ <p>Every upgrade is temporary - Action upgrades expire after a number of kills, Defence upgrades
+ expire after a duration. Buying the same upgrade again (via the shop) while active advances its
  tier and grants a longer expiry window. Once fully expired, it resets to Tier 0 and can be bought
- again from Tier 1.
-
- <p>Currency is currently mocked (MOCK_CURRENCY_START) until the real Currency System exists.</div>
+ again from Tier 1.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
