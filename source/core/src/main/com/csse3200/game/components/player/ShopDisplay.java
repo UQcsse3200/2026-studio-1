@@ -212,7 +212,7 @@ public class ShopDisplay extends UIComponent {
     entity.getEvents().addListener("inventoryChanged", this::refreshShop);
     entity.getEvents().addListener("shopChanged", this::refreshShop);
     entity.getEvents().addListener("upgradePurchased", this::refreshShop);
-    entity.getEvents().addListener("petPurchased", this::refreshShop);
+    entity.getEvents().addListener("petPurchased", (ShopComponent.Pet pet) -> refreshShop());
 
     petAtlas = new TextureAtlas(Gdx.files.internal("images/pet.atlas"));
 
@@ -740,11 +740,8 @@ public class ShopDisplay extends UIComponent {
        * Continue using the placeholder icon.
        */
       if (currentTab == ShopTab.PETS) {
-
-        card.add(createPetIconStack(rarity, catalogSlot)).size(40f, 40f).padBottom(4f);
-
+        card.add(createPetIconStack(rarity, name)).size(40f, 40f).padBottom(4f);
       } else {
-
         card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
       }
 
@@ -834,58 +831,33 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Creates the pet icon corresponding to the pet's catalog slot.
+   * Creates the pet icon corresponding to the pet's name.
    *
-   * <p>The catalog slot is converted to an atlas frame index:
-   *
-   * <pre>
-   * catalog slot 1 -> idle_right index 0
-   * catalog slot 2 -> idle_right index 1
-   * catalog slot 3 -> idle_right index 2
-   * catalog slot 4 -> idle_right index 3
-   * ...
-   * </pre>
-   *
-   * <p>If the atlas does not contain a matching frame, a fallback "P" icon is displayed.
+   * <p>The first right-facing animation frame is used as the shop icon.
    */
-  private Stack createPetIconStack(Rarity rarity, int catalogSlot) {
-
+  private Stack createPetIconStack(Rarity rarity, String petName) {
     Stack iconStack = new Stack();
 
     Image iconBackground = new Image(skin.getDrawable(BUTTON_BACKGROUND));
-
     iconBackground.setColor(rarity.color);
-
     iconStack.add(iconBackground);
 
-    if (petAtlas != null && catalogSlot > 0) {
+    if (petAtlas != null && petName != null && !petName.isBlank()) {
+      String regionName = petName.toLowerCase() + "_right";
 
-      int frameIndex = catalogSlot - 1;
-
-      AtlasRegion petRegion = petAtlas.findRegion("idle_right", frameIndex);
+      AtlasRegion petRegion = petAtlas.findRegion(regionName, 0);
 
       if (petRegion != null) {
-
         Image petImage = new Image(petRegion);
-
         petImage.setScaling(Scaling.fit);
-
         iconStack.add(petImage);
-
         return iconStack;
       }
     }
 
-    /*
-     * Fallback if:
-     * - the atlas is not loaded, or
-     * - the requested pet frame does not exist.
-     */
     Label fallbackLabel = new Label("P", whiteLabelStyle);
-
     fallbackLabel.setColor(Color.WHITE);
     fallbackLabel.setAlignment(Align.center);
-
     iconStack.add(fallbackLabel);
 
     return iconStack;
