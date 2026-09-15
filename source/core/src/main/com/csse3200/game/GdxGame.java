@@ -9,6 +9,7 @@ import com.csse3200.game.files.UserSettings;
 import com.csse3200.game.screens.DeathScreen;
 import com.csse3200.game.screens.MainGameScreen;
 import com.csse3200.game.screens.MainMenuScreen;
+import com.csse3200.game.screens.PerksScreen;
 import com.csse3200.game.screens.SettingsScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GdxGame extends Game {
   private static final Logger logger = LoggerFactory.getLogger(GdxGame.class);
+  private boolean screenChangePending;
 
   @Override
   public void create() {
@@ -53,6 +55,25 @@ public class GdxGame extends Game {
     setScreen(newScreen(screenType));
   }
 
+  /**
+   * Requests a screen replacement after the current frame's UI callbacks finish. Scene2D invokes
+   * button listeners while its stage is updating, so disposing that stage synchronously from a
+   * listener can crash the game.
+   *
+   * @param screenType screen to create on the next application cycle
+   */
+  public void setScreenDeferred(ScreenType screenType) {
+    if (screenChangePending) {
+      return;
+    }
+    screenChangePending = true;
+    Gdx.app.postRunnable(
+        () -> {
+          screenChangePending = false;
+          setScreen(screenType);
+        });
+  }
+
   @Override
   public void dispose() {
     logger.debug("Disposing of current screen");
@@ -75,6 +96,8 @@ public class GdxGame extends Game {
         return new MainGameScreen(this, false);
       case SETTINGS:
         return new SettingsScreen(this);
+      case PERKS:
+        return new PerksScreen(this);
       case DEATH_SCREEN:
         return new DeathScreen(this);
       default:
@@ -87,7 +110,8 @@ public class GdxGame extends Game {
     MAIN_GAME,
     RESTART_GAME,
     SETTINGS,
-    DEATH_SCREEN
+    DEATH_SCREEN,
+    PERKS
   }
 
   /** Exit the game. */

@@ -14,22 +14,22 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PetManagerComponentTest {
+class PetManagerComponentTest {
   private Entity owner;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     ServiceLocator.registerEntityService(new EntityService());
     owner = new Entity();
   }
 
   @AfterEach
-  public void tearDown() {
+  void tearDown() {
     ServiceLocator.clear();
   }
 
   @Test
-  public void shouldStartWithoutActivePet() {
+  void shouldStartWithoutActivePet() {
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     assertNull(manager.getActivePet());
@@ -37,7 +37,7 @@ public class PetManagerComponentTest {
   }
 
   @Test
-  public void shouldActivatePet() {
+  void shouldActivatePet() {
     Entity pet = new Entity();
 
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> pet);
@@ -51,7 +51,7 @@ public class PetManagerComponentTest {
   }
 
   @Test
-  public void shouldReplaceExistingPet() {
+  void shouldReplaceExistingPet() {
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);
@@ -68,7 +68,7 @@ public class PetManagerComponentTest {
   }
 
   @Test
-  public void shouldRemoveActivePet() {
+  void shouldRemoveActivePet() {
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);
@@ -81,7 +81,7 @@ public class PetManagerComponentTest {
   }
 
   @Test
-  public void shouldDisposeActivePet() {
+  void shouldDisposeActivePet() {
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);

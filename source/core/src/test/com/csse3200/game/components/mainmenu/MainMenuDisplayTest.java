@@ -27,7 +27,7 @@ class MainMenuDisplayTest {
 
     ResourceService resourceService = mock(ResourceService.class);
     Texture mockTexture = mock(Texture.class);
-    when(resourceService.getAsset(("images/box_boy_title.png"), (Texture.class)))
+    when(resourceService.getAsset(("images/ui/box_boy_title.png"), (Texture.class)))
         .thenReturn(mockTexture);
     ServiceLocator.registerResourceService(resourceService);
 
