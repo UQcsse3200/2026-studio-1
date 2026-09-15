@@ -56,7 +56,7 @@ public class NPCFactory {
       "images/skeleton_weapons/skeleton_sword.atlas";
   private static final String SKELETON_BOW_ATLAS_PATH =
       "images/skeleton_weapons/skeleton_bow.atlas";
-  private static final String MINOTOUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
+  private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
   private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
 
   private static final NPCConfigs configs =
@@ -278,7 +278,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(MINOTOUR_ATLAS_PATH), true);
+        new AnimationRenderComponent(loadIndependentAtlas(MINOTAUR_ATLAS_PATH), true);
     animator.addAnimation("minotaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
