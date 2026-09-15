@@ -49,7 +49,7 @@ public class CombatStatsComponent extends Component {
     } else {
       this.health = 0;
     }
-    
+
     if (entity != null) {
       entity.getEvents().trigger("updateHealth", this.health);
       if (this.health <= 0) {
@@ -69,7 +69,7 @@ public class CombatStatsComponent extends Component {
     } else {
       this.health = 0;
     }
-    
+
     if (entity != null) {
       entity.getEvents().trigger("updateHealth", this.health);
       if (this.health <= 0) {
