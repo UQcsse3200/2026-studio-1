@@ -72,7 +72,7 @@ public class ArrowFactory {
       short targetLayer) {
     Entity arrow =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/arrow.png"))
+            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
             .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
             // Not on any layer of its own - nothing in the game currently needs to detect the
             // arrow itself via collision filtering, only the other way around (below).
