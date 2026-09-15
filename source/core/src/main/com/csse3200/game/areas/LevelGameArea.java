@@ -18,8 +18,11 @@ import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.LootPlacement;
+import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
@@ -50,6 +53,12 @@ public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
 
+  /**
+   * Seed for loot rolls. Fixing it keeps a level's loot the same from run to run, so a bug found
+   * while playing can be reproduced.
+   */
+  private static final long LOOT_SEED = 2026L;
+
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
     "images/knight_default.png",
@@ -60,9 +69,13 @@ public class LevelGameArea extends GameArea {
     "images/sword.png",
     "images/bow.png",
     "images/arrow.png",
-    "images/Health.png",
-    "images/Poison.png",
-    "images/Strength.png"
+    "images/dagger.png",
+    "images/potions/health_potion.png",
+    "images/potions/strength_potion.png",
+    "images/potions/speed_potion.png",
+    "images/potions/regeneration_potion.png",
+    "images/potions/resistance_potion.png",
+    "images/Shield.png"
   };
 
   private static final String[] entitySounds = {
@@ -80,6 +93,8 @@ public class LevelGameArea extends GameArea {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
     "images/gold_coin/gold_coin.atlas",
+    "images/skeleton.atlas",
+    "images/pet.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas"
   };
@@ -296,6 +311,9 @@ public class LevelGameArea extends GameArea {
     }
 
     spawnEntityAt(newPlayer, spawn, true, true);
+
+    newPlayer.getComponent(PetManagerComponent.class).activatePet();
+
     return newPlayer;
   }
 
@@ -312,25 +330,61 @@ public class LevelGameArea extends GameArea {
     if (type == null) {
       return null;
     }
-    switch (type.toLowerCase()) {
-      case "ghost":
-        return NPCFactory.createGhost(player);
-      case "ghostking", "ghost_king":
-        return NPCFactory.createGhostKing(player);
-      default:
+    return switch (type.toLowerCase()) {
+      case "ghost" -> NPCFactory.createGhost(player);
+      case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
+      case "skeleton" -> NPCFactory.createSkeleton(player);
+      case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
+      default -> {
         logger.warn("Unknown enemy spawn type '{}' - skipped", type);
-        return null;
-    }
+        yield null;
+      }
+    };
   }
 
   /**
-   * Spawns pickup loot (weapons, consumables, and a gold coin) so the loot/inventory features work
-   * in this level, mirroring what {@code ForestGameArea} spawns. Items are laid out in a row
-   * anchored to the map's first loot spawn point (falling back to just right of the player), so
-   * they land on the loaded map regardless of its size.
+   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
+   * features work in this level, mirroring what {@code ForestGameArea} spawns.
+   *
+   * <p>The shield is guaranteed at the map's first declared loot spawn point, the same way the gold
+   * coin is always placed directly rather than rolled — with maps sometimes declaring only a
+   * handful of loot spawn points, leaving the shield to the weighted table risked it never
+   * appearing. Every remaining loot spawn point gets one item rolled from the weighted loot table,
+   * so loot lands on reachable ground and higher tiers stay rare. A map with no declared loot
+   * spawns falls back to a starter row beside the player.
    */
   private void spawnLoot() {
+    List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();
+    if (!lootSpawns.isEmpty()) {
+      SpawnPoint shieldSpawn = lootSpawns.get(0);
+      spawnEntityAt(
+          LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
+          shieldSpawn.getPosition(),
+          true,
+          true);
+
+      List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
+      LootTable table = LootTable.createDefault(LOOT_SEED);
+      for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
+        spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
+      }
+      logger.debug("Spawned {} pieces of loot from the loot table", lootSpawns.size());
+      return;
+    }
+
+    spawnStarterLootRow();
+  }
+
+  /**
+   * Lays one of everything out in a row next to the player.
+   *
+   * <p>Used for maps that declare no loot spawn points, so the loot and inventory features are
+   * still reachable while a map is being built.
+   */
+  private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
+
+    items.add(LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)));
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.BOW, 1)));
@@ -358,7 +412,7 @@ public class LevelGameArea extends GameArea {
    */
   private GridPoint2 lootRowStart() {
     if (!mapData.getSpawns().getLoot().isEmpty()) {
-      return mapData.getSpawns().getLoot().get(0).getPosition();
+      return mapData.getSpawns().getLoot().getFirst().getPosition();
     }
     GridPoint2 playerSpawn = mapData.getSpawns().getPlayer();
     if (playerSpawn != null) {

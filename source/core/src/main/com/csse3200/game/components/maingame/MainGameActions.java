@@ -25,7 +25,7 @@ public class MainGameActions extends Component {
 
   private void onRestart() {
     logger.info("Restarting game");
-    game.setScreen(GdxGame.ScreenType.MAIN_GAME);
+    game.setScreen(GdxGame.ScreenType.RESTART_GAME);
   }
 
   /** Swaps to the Main Menu screen. */

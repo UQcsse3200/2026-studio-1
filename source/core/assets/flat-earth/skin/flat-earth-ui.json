@@ -59,6 +59,12 @@ com.badlogic.gdx.graphics.Color: {
 		b: 1
 		a: 1
 	}
+	toast-charcoal-color: {
+		r: 0.12
+		g: 0.13
+		b: 0.18
+		a: 1
+	}
 	window: {
 		r: 0.76862746
 		g: 0.4509804
@@ -202,6 +208,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	black: {
 		name: white
 		color: black
+	}
+	toast-charcoal: {
+		name: white
+		color: toast-charcoal-color
 	}
 	button-close-p: {
 		name: button-close
