@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public class PlayerActions extends Component {
   // Thank you Lachlan, you beautiful, beautiful man
-  private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
   private float attackCooldownRemaining = 0f;
