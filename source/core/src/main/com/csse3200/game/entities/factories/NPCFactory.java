@@ -203,7 +203,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -278,7 +278,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(MINOTOUR_ATLAS_PATH));
+        new AnimationRenderComponent(loadIndependentAtlas(MINOTOUR_ATLAS_PATH), true);
     animator.addAnimation("minotaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
@@ -347,7 +347,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -418,7 +418,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH));
+        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
