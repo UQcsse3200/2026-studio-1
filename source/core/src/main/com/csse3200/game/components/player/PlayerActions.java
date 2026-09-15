@@ -263,12 +263,6 @@ public class PlayerActions extends Component {
         enemyStats.hit(combatStats);
         logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
         attackSound.play(AudioSettings.getEffectiveEffectsVolume());
-
-        // Check for death
-        if (enemyStats.isDead()) {
-          // event handles dropping loot and disposal of enemy
-          enemy.getEvents().trigger("death");
-        }
       }
     }
 
