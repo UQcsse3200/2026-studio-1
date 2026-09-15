@@ -56,10 +56,15 @@ public class LootFactory {
         texturePath = "images/items/sword.png";
       }
 
-      loot.addComponent(new BobbingTextureRenderComponent(texturePath));
+      BobbingTextureRenderComponent renderer = new BobbingTextureRenderComponent(texturePath);
+      loot.addComponent(renderer);
+      renderer.scaleEntity(0.6f);
     } else if (item instanceof ConsumableItem consumableItem) {
       // Consumables carry their own sprite, and bob gently so they read as collectable.
-      loot.addComponent(new BobbingTextureRenderComponent(consumableItem.getTexturePath()));
+      BobbingTextureRenderComponent renderer =
+          new BobbingTextureRenderComponent(consumableItem.getTexturePath());
+      loot.addComponent(renderer);
+      renderer.scaleEntity(0.6f);
     } else if (item.getItemType() == ItemType.SHIELD) {
       // Shield loot uses the shield sprite.
       loot.addComponent(new TextureRenderComponent("images/Shield.png"));

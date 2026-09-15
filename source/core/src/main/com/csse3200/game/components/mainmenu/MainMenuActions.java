@@ -23,6 +23,7 @@ public class MainMenuActions extends Component {
     entity.getEvents().addListener("load", this::onLoad);
     entity.getEvents().addListener("exit", this::onExit);
     entity.getEvents().addListener("settings", this::onSettings);
+    entity.getEvents().addListener("perks", this::onPerks);
   }
 
   /** Swaps to the Main Game screen. */
@@ -47,5 +48,11 @@ public class MainMenuActions extends Component {
   private void onSettings() {
     logger.info("Launching settings screen");
     game.setScreen(GdxGame.ScreenType.SETTINGS);
+  }
+
+  /** Swaps to the Perks screen. */
+  private void onPerks() {
+    logger.info("Launching perks screen");
+    game.setScreen(GdxGame.ScreenType.PERKS);
   }
 }

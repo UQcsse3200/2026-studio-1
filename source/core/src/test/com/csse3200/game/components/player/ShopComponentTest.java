@@ -181,15 +181,20 @@ class ShopComponentTest {
     assertEquals("Potion", shop.getItemListing(1).getProduct().getName());
     assertEquals(ItemType.CONSUMABLE, shop.getItemListing(1).getProduct().getItemType());
     assertEquals(10, shop.getItemListing(1).getBuyPrice());
+
     assertEquals("Sword", shop.getItemListing(2).getProduct().getName());
     assertEquals(ItemType.WEAPON, shop.getItemListing(2).getProduct().getItemType());
+
     assertEquals("Health Upgrade", shop.getUpgradeListing(1).getProduct().getName());
     assertEquals(15, shop.getUpgradeListing(1).getBuyPrice());
-    assertEquals("Wolf", shop.getPetListing(1).getProduct().getName());
-    assertEquals(20, shop.getPetListing(1).getBuyPrice());
+
+    assertEquals("Bird", shop.getPetListing(1).getProduct().getName());
+    assertEquals("Bat", shop.getPetListing(2).getProduct().getName());
+    assertEquals("Spirit", shop.getPetListing(3).getProduct().getName());
+
     assertEquals(2, shop.getItemCatalog().size());
     assertEquals(1, shop.getUpgradeCatalog().size());
-    assertEquals(1, shop.getPetCatalog().size());
+    assertEquals(3, shop.getPetCatalog().size());
   }
 
   @Test
@@ -324,9 +329,20 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+
+    ShopComponent.Pet dog = new ShopComponent.Pet("Dog");
+    shop.setPetListing(1, new ShopComponent.ShopListing<>(dog, 50));
+
     AtomicInteger eventCount = new AtomicInteger();
-    entity.getEvents().addListener("petPurchased", eventCount::incrementAndGet);
-    shop.setPetListing(1, petListing("Dog", 50));
+
+    entity
+        .getEvents()
+        .addListener(
+            "petPurchased",
+            (ShopComponent.Pet purchasedPet) -> {
+              assertSame(dog, purchasedPet);
+              eventCount.incrementAndGet();
+            });
 
     assertTrue(shop.buyPet(1));
     assertEquals(1, eventCount.get());

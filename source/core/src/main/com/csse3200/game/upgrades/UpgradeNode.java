@@ -1,4 +1,4 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.upgrades;
 
 /**
  * Represents a single purchasable, temporary, tiered upgrade.

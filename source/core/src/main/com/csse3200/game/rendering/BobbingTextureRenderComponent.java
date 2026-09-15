@@ -76,6 +76,18 @@ public class BobbingTextureRenderComponent extends RenderComponent {
   }
 
   /**
+   * Scales the entity so the largest texture dimension matches the requested scale.
+   *
+   * @param scale the desired maximum visual scale
+   */
+  public void scaleEntity(float scale) {
+    float maxDimension = Math.max(texture.getWidth(), texture.getHeight());
+
+    entity.setScale(
+        scale * texture.getWidth() / maxDimension, scale * texture.getHeight() / maxDimension);
+  }
+
+  /**
    * Returns how far the sprite is currently drawn above or below its resting position.
    *
    * @return vertical offset in world units, between {@code -amplitude} and {@code +amplitude}
@@ -90,6 +102,7 @@ public class BobbingTextureRenderComponent extends RenderComponent {
   protected void draw(SpriteBatch batch) {
     Vector2 position = entity.getPosition();
     Vector2 scale = entity.getScale();
+
     batch.draw(texture, position.x, position.y + getBobOffset(), scale.x, scale.y);
   }
 }
