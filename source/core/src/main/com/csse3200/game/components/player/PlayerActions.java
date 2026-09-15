@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
@@ -58,9 +59,9 @@ public class PlayerActions extends Component {
   // Death State
   private boolean dead = false;
 
-  private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
-  private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
-  private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
+  private final String NORMAL_TEXTURE = "images/player/box_boy_leaf.png";
+  private final String CROUCH_TEXTURE = "images/player/box_boy_crouch.png";
+  private final String SLIDE_TEXTURE = "images/player/box_boy_slide.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
@@ -172,6 +173,10 @@ public class PlayerActions extends Component {
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
 
+    // To track player global stats
+    if (platformerComponent.getJumpingBool()) {
+      Quest.incrementGlobalJumps();
+    }
     // For the jump portion
     platformerComponent.updateJump(MAX_SPEED);
   }

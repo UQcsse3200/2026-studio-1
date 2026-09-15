@@ -51,7 +51,9 @@ public class ShopComponent extends Component {
     setItemListing(1, new ShopListing<>(new Item("Potion", ItemType.CONSUMABLE, 1, 9), 10));
     setItemListing(2, new ShopListing<>(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
     setUpgradeListing(1, new ShopListing<>(new Upgrade("Health Upgrade"), 15));
-    setPetListing(1, new ShopListing<>(new Pet("Wolf"), 20));
+    setPetListing(1, new ShopListing<>(new Pet("Bird"), 20));
+    setPetListing(2, new ShopListing<>(new Pet("Bat"), 30));
+    setPetListing(3, new ShopListing<>(new Pet("Spirit"), 40));
     return this;
   }
 
@@ -292,7 +294,7 @@ public class ShopComponent extends Component {
     inventory.addGold(-listing.getBuyPrice());
     purchasedPets.add(listing.getProduct());
     if (entity != null) {
-      entity.getEvents().trigger("petPurchased");
+      entity.getEvents().trigger("petPurchased", listing.getProduct());
     }
     return true;
   }

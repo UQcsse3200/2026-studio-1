@@ -1,5 +1,6 @@
 package com.csse3200.game.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
@@ -7,13 +8,17 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
+import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
+import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -47,28 +52,40 @@ import org.slf4j.LoggerFactory;
 public class MainGameScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(MainGameScreen.class);
   private static final String[] mainGameTextures = {
-    "images/heart.png",
-    "images/heart-empty.png",
-    "images/heart-green-half.png",
-    "images/heart-yellow-half.png",
-    "images/heart-red-half.png",
-    "images/heart-green.png",
-    "images/heart-yellow.png"
+    "images/ui/heart.png",
+    "images/ui/heart-empty.png",
+    "images/ui/heart-green-half.png",
+    "images/ui/heart-yellow-half.png",
+    "images/ui/heart-red-half.png",
+    "images/ui/heart-green.png",
+    "images/ui/heart-yellow.png"
   };
-  private static final Vector2 CAMERA_POSITION = new Vector2(10f, 5f);
+  private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
+  private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
+  private static final String SECOND_ROOM_MAP = "maps/level2.json";
+  private static final float GAMEPLAY_ZOOM = 0.95f;
+
+  /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
+  private static final float SUB_LEVEL_BOUNDARY = 16f;
 
   private final GdxGame game;
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
+  private String currentRoomMapPath = FIRST_ROOM_MAP;
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
+  private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
+  private final TerrainFactory terrainFactory;
+  private Entity subLevelTravelPromptEntity;
 
   public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
+
+    Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 
     logger.debug("Initialising main game screen services");
     ServiceLocator.registerTimeSource(new GameTime());
@@ -91,11 +108,14 @@ public class MainGameScreen extends ScreenAdapter {
     createUI();
 
     logger.debug("Initialising main game screen entities");
-    TerrainFactory terrainFactory = new TerrainFactory(renderer.getCamera());
-    this.levelGameArea = new LevelGameArea(terrainFactory, "maps/demo.json");
+    terrainFactory = new TerrainFactory(renderer.getCamera());
+    this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
     Entity player = levelGameArea.getPlayer();
     upgradesDisplay.setPlayer(player);
+    ServiceLocator.getEntityService()
+        .register(new Entity().addComponent(new SubLevelTitleDisplay(player)));
+    createSubLevelTravelPrompt(player);
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
@@ -116,21 +136,89 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /**
-   * Centre the camera on the loaded map and zoom so the map fills the window. Uses the smaller of
-   * the two axis zoom factors so the map covers the whole viewport (no empty background), cropping
-   * a small strip on the longer axis. Swap {@code Math.min} for {@code Math.max} to fit the whole
-   * map inside instead (letterboxed).
+   * Set an approachable gameplay view that is close enough to read platforms and hazards without
+   * hiding the neighbouring routes that guide exploration. Small maps still use the smaller
+   * whole-map zoom when necessary.
    *
    * @param area the level area whose map the camera should frame
    */
   private void fitCameraToMap(LevelGameArea area) {
     OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
-    renderer.getCamera().getEntity().setPosition(area.getMapCenter());
-
-    float zoomForWidth = area.getMapWorldWidth() / cam.viewportWidth;
-    float zoomForHeight = area.getMapWorldHeight() / cam.viewportHeight;
-    cam.zoom = Math.min(zoomForWidth, zoomForHeight);
+    float zoomForWholeMap =
+        Math.min(
+            area.getMapWorldWidth() / cam.viewportWidth,
+            area.getMapWorldHeight() / cam.viewportHeight);
+    cam.zoom = Math.min(GAMEPLAY_ZOOM, zoomForWholeMap);
     cam.update();
+
+    followPlayer();
+  }
+
+  /**
+   * Moves the camera to track the player, clamping so the view never scrolls past the map's edges
+   * (left, right, top or bottom). If the map is smaller than the current viewport along an axis,
+   * the camera is centred on that axis instead of following.
+   */
+  private void followPlayer() {
+    Entity player = levelGameArea.getPlayer();
+    if (player == null) {
+      return;
+    }
+
+    OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
+    float halfViewWidth = (cam.viewportWidth * cam.zoom) / 2f;
+    float halfViewHeight = (cam.viewportHeight * cam.zoom) / 2f;
+
+    float mapWidth = levelGameArea.getMapWorldWidth();
+    Vector2 playerPosition = player.getPosition();
+    boolean inNether = player.getCenterPosition().y >= SUB_LEVEL_BOUNDARY;
+    SubLevelTravelComponent travel = player.getComponent(SubLevelTravelComponent.class);
+    if (playerInNether != null
+        && playerInNether != inNether
+        && (travel == null || !travel.isControlLocked())) {
+      String title = subLevelTitle(currentRoomMapPath, inNether);
+      if (title != null) {
+        player.getEvents().trigger("subLevelEntered", title);
+      }
+    }
+    playerInNether = inNether;
+    float subLevelBottom = inNether ? SUB_LEVEL_BOUNDARY : 0f;
+    float subLevelHeight =
+        inNether ? levelGameArea.getMapWorldHeight() - SUB_LEVEL_BOUNDARY : SUB_LEVEL_BOUNDARY;
+
+    float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
+    float y = clampToRange(playerPosition.y, halfViewHeight, subLevelBottom, subLevelHeight);
+
+    renderer.getCamera().getEntity().setPosition(x, y);
+  }
+
+  /** Selects a crossing title for the current room without relabelling other rooms. */
+  static String subLevelTitle(String mapPath, boolean upperSection) {
+    if (FIRST_ROOM_MAP.equals(mapPath)) {
+      return upperSection ? "NETHER" : "DUNGEON";
+    }
+    if (SECOND_ROOM_MAP.equals(mapPath)) {
+      return upperSection ? "SKIES" : "BASE";
+    }
+    return null;
+  }
+
+  /**
+   * Clamps a camera coordinate so the visible view stays within [0, mapSize] along one axis. When
+   * the view is wider than the map itself, the map is centred instead.
+   */
+  private static float clampToMap(float value, float halfViewSize, float mapSize) {
+    if (halfViewSize * 2f >= mapSize) {
+      return mapSize / 2f;
+    }
+    return Math.clamp(value, halfViewSize, mapSize - halfViewSize);
+  }
+
+  private static float clampToRange(float value, float halfViewSize, float bottom, float height) {
+    if (halfViewSize * 2f >= height) {
+      return bottom + height / 2f;
+    }
+    return Math.clamp(value, bottom + halfViewSize, bottom + height - halfViewSize);
   }
 
   @Override
@@ -157,7 +245,57 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
+    RoomTransition transition = levelGameArea.consumePendingTransition();
+    if (transition != null) {
+      transitionTo(transition);
+    }
+
+    followPlayer();
     renderer.render();
+  }
+
+  private void transitionTo(RoomTransition transition) {
+    logger.info(
+        "Entering '{}' through transition '{}'",
+        transition.getDestinationMap(),
+        transition.getId());
+
+    LevelGameArea previousArea = levelGameArea;
+    removeSubLevelTravelPrompt();
+    Entity player = previousArea.releasePlayer();
+    LevelGameArea nextArea =
+        new LevelGameArea(
+            terrainFactory,
+            transition.getDestinationMap(),
+            player,
+            transition.getDestinationSpawn());
+    nextArea.create();
+
+    previousArea.dispose();
+    nextArea.resumeMusic();
+    levelGameArea = nextArea;
+    currentRoomMapPath = transition.getDestinationMap();
+    playerInNether = null;
+    player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
+    if (FIRST_ROOM_MAP.equals(transition.getDestinationMap())) {
+      createSubLevelTravelPrompt(player);
+    }
+    fitCameraToMap(nextArea);
+  }
+
+  private void createSubLevelTravelPrompt(Entity player) {
+    subLevelTravelPromptEntity =
+        new Entity()
+            .addComponent(
+                new SubLevelTravelPromptDisplay(player, renderer.getCamera().getCamera()));
+    ServiceLocator.getEntityService().register(subLevelTravelPromptEntity);
+  }
+
+  private void removeSubLevelTravelPrompt() {
+    if (subLevelTravelPromptEntity != null) {
+      subLevelTravelPromptEntity.dispose();
+      subLevelTravelPromptEntity = null;
+    }
   }
 
   @Override
@@ -180,10 +318,13 @@ public class MainGameScreen extends ScreenAdapter {
   public void dispose() {
     logger.debug("Disposing main game screen");
 
-    renderer.dispose();
-    unloadAssets();
-
+    // Dispose components while their services and physics world are still alive. The entity
+    // service owns all active room and UI entities at screen shutdown; the resource service then
+    // releases every loaded asset once. Calling LevelGameArea.dispose()/unloadAssets() here as
+    // well would perform a second, overlapping cleanup pass.
     ServiceLocator.getEntityService().dispose();
+    physicsEngine.dispose();
+    renderer.dispose();
     ServiceLocator.getRenderService().dispose();
     ServiceLocator.getResourceService().dispose();
 
@@ -195,12 +336,6 @@ public class MainGameScreen extends ScreenAdapter {
     ResourceService resourceService = ServiceLocator.getResourceService();
     resourceService.loadTextures(mainGameTextures);
     ServiceLocator.getResourceService().loadAll();
-  }
-
-  private void unloadAssets() {
-    logger.debug("Unloading assets");
-    ResourceService resourceService = ServiceLocator.getResourceService();
-    resourceService.unloadAssets(mainGameTextures);
   }
 
   /**

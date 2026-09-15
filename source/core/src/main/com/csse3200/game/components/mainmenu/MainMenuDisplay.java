@@ -83,7 +83,7 @@ public class MainMenuDisplay extends UIComponent {
 
   private Table buildTitleStack() {
     Texture titleTexture =
-        ServiceLocator.getResourceService().getAsset("images/box_boy_title.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/box_boy_title.png", Texture.class);
 
     int splitX = (int) (titleTexture.getWidth() * TITLE_SPLIT_FRACTION);
     TextureRegion boxRegion =
