@@ -126,6 +126,17 @@ class AnimationRenderComponentTest {
     assertNull(animator.getCurrentAnimation());
   }
 
+  @Test
+  void shouldNotDisposeSharedAtlas() {
+    TextureAtlas atlas = mock(TextureAtlas.class);
+    ServiceLocator.registerRenderService(new RenderService());
+    AnimationRenderComponent animator = new AnimationRenderComponent(atlas);
+
+    animator.dispose();
+
+    verify(atlas, never()).dispose();
+  }
+
   static TextureAtlas createMockAtlas(String animationName, int numRegions) {
     TextureAtlas atlas = mock(TextureAtlas.class);
     Array<AtlasRegion> regions = new Array<>(numRegions);

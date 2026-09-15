@@ -5,28 +5,133 @@ filter: Nearest,Nearest
 repeat: none
 default
   rotate: false
-  xy: 0, 0
+  xy: 288, 320
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 0
-idle_right
+bird_left
   rotate: false
-  xy: 0, 0
+  xy: 288, 288
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 0
-idle_right
+bird_left
   rotate: false
-  xy: 32, 0
+  xy: 320, 288
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: 1
-idle_right
+bird_left
   rotate: false
-  xy: 64, 0
+  xy: 352, 288
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+bird_right
+  rotate: false
+  xy: 288, 320
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bird_right
+  rotate: false
+  xy: 320, 320
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bird_right
+  rotate: false
+  xy: 352, 320
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+bat_left
+  rotate: false
+  xy: 288, 416
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bat_left
+  rotate: false
+  xy: 320, 416
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bat_left
+  rotate: false
+  xy: 352, 416
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+bat_right
+  rotate: false
+  xy: 288, 448
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bat_right
+  rotate: false
+  xy: 320, 448
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bat_right
+  rotate: false
+  xy: 352, 448
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+spirit_left
+  rotate: false
+  xy: 384, 160
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+spirit_left
+  rotate: false
+  xy: 416, 160
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+spirit_left
+  rotate: false
+  xy: 448, 160
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+spirit_right
+  rotate: false
+  xy: 384, 192
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+spirit_right
+  rotate: false
+  xy: 416, 192
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+spirit_right
+  rotate: false
+  xy: 448, 192
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
