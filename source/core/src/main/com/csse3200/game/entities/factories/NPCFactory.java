@@ -161,7 +161,6 @@ public class NPCFactory {
         .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
         .addComponent(new SkeletonAnimationController())
-        .addComponent(new SkeletonAnimationController())
         .addComponent(weaponAnimator)
         .addComponent(new SkeletonWeaponAnimationController());
 
@@ -226,7 +225,6 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
-        .addComponent(new SkeletonAnimationController())
         .addComponent(new SkeletonAnimationController())
         .addComponent(weaponAnimator)
         .addComponent(new SkeletonWeaponAnimationController());
