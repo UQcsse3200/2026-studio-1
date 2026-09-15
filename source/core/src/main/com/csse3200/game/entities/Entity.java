@@ -34,6 +34,7 @@ public class Entity {
   private final EventHandler eventHandler;
   private boolean enabled = true;
   private boolean created = false;
+  private boolean disposed = false;
   private Vector2 position = Vector2.Zero.cpy();
   private Vector2 scale = new Vector2(1, 1);
   private Array<Component> createdComponents;
@@ -201,6 +202,15 @@ public class Entity {
 
   /** Dispose of the entity. This will dispose of all components on this entity. */
   public void dispose() {
+    // Disposal may be requested more than once. For example, collected loot unregisters itself but
+    // remains in its room's ownership list, which is disposed again during a room transition.
+    // Box2D bodies cannot be destroyed twice, so make the complete entity teardown idempotent. Set
+    // the flag first to protect against re-entrant disposal.
+    if (disposed) {
+      return;
+    }
+    disposed = true;
+
     for (Component component : createdComponents) {
       component.dispose();
     }
