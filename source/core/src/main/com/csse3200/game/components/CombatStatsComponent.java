@@ -49,6 +49,7 @@ public class CombatStatsComponent extends Component {
     } else {
       this.health = 0;
     }
+    
     if (entity != null) {
       entity.getEvents().trigger("updateHealth", this.health);
       if (this.health <= 0) {
@@ -63,7 +64,18 @@ public class CombatStatsComponent extends Component {
    * @param health health to add
    */
   public void addHealth(int health) {
-    setHealth(this.health + health);
+    if (this.health + health >= 0) {
+      this.health += health;
+    } else {
+      this.health = 0;
+    }
+    
+    if (entity != null) {
+      entity.getEvents().trigger("updateHealth", this.health);
+      if (this.health <= 0) {
+        entity.getEvents().trigger("death");
+      }
+    }
   }
 
   /**
