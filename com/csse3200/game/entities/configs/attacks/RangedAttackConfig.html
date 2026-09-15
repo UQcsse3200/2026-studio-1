@@ -91,13 +91,16 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">RangedAttackConfig</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Configuration for a ranged attack capability. Attached to any entity config that includes ranged
+<div class="block">Per-weider ranged attack settings, symmetric with MeleeAttackConfig. Reused across
+ RangedSkeletonConfig and CentaurConfig. Range/knockback stay here, same reasoning as melee - not
+ weapon properties.<br>
+ Configuration for a ranged attack capability. Attached to any entity config that includes ranged
  attacks.
 
- <p>Mechanically identical to <a href="MeleeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks"><code>MeleeAttackConfig</code></a> - ranged and melee attacks share the exact
- same underlying component logic (a distance + cooldown + knockback check), they just differ in
- how far the attacker can be from its target when it lands a hit. The default <code>range</code> here
- is deliberately much larger than <a href="MeleeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks"><code>MeleeAttackConfig</code></a>'s.</div>
+ <p>Unlike <a href="MeleeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks"><code>MeleeAttackConfig</code></a>, a ranged attack fires a real arrow projectile (see <a href="../../../components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a>) rather than resolving damage
+ instantly - <code>range</code> and <code>cooldown</code> still gate when a shot is <i>fired</i>, the same
+ as melee, but whether it actually lands is resolved later by the arrow itself. The default <code>
+ range</code> here is deliberately much larger than <a href="MeleeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks"><code>MeleeAttackConfig</code></a>'s.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -117,8 +120,11 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><code><a href="#knockback" class="member-name-link">knockback</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>float</code></div>
-<div class="col-second even-row-color"><code><a href="#range" class="member-name-link">range</a></code></div>
+<div class="col-second even-row-color"><code><a href="#projectileSpeed" class="member-name-link">projectileSpeed</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>float</code></div>
+<div class="col-second odd-row-color"><code><a href="#range" class="member-name-link">range</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -169,6 +175,12 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="knockback">
 <h3>knockback</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">knockback</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="projectileSpeed">
+<h3>projectileSpeed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">projectileSpeed</span></div>
 </section>
 </li>
 </ul>

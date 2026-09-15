@@ -5,6 +5,8 @@ com.csse3200.game.areas
 com.csse3200.game.areas.terrain
 com.csse3200.game.areas.terrain.map
 com.csse3200.game.components
+com.csse3200.game.components.attacks
+com.csse3200.game.components.effects
 com.csse3200.game.components.gamearea
 com.csse3200.game.components.loot
 com.csse3200.game.components.maingame
@@ -12,6 +14,7 @@ com.csse3200.game.components.mainmenu
 com.csse3200.game.components.npc
 com.csse3200.game.components.pet
 com.csse3200.game.components.player
+com.csse3200.game.components.projectile
 com.csse3200.game.components.room
 com.csse3200.game.components.settingsmenu
 com.csse3200.game.components.tasks
@@ -19,6 +22,7 @@ com.csse3200.game.concurrency
 com.csse3200.game.entities
 com.csse3200.game.entities.configs
 com.csse3200.game.entities.configs.attacks
+com.csse3200.game.entities.configs.enemies
 com.csse3200.game.entities.factories
 com.csse3200.game.events
 com.csse3200.game.events.listeners

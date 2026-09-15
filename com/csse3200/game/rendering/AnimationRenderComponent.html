@@ -139,6 +139,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Create the component for a given texture atlas.</div>
 </div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.badlogic.gdx.graphics.g2d.TextureAtlas,boolean)" class="member-name-link">AnimationRenderComponent</a><wbr>(com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;atlas,
+ boolean&nbsp;ownsAtlas)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Create the component for a given individual texture atlas.</div>
+</div>
 </div>
 </section>
 </li>
@@ -243,6 +248,16 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>atlas</code> - libGDX-supported texture atlas containing desired animations</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.badlogic.gdx.graphics.g2d.TextureAtlas,boolean)">
+<h3>AnimationRenderComponent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">AnimationRenderComponent</span><wbr><span class="parameters">(com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;atlas,
+ boolean&nbsp;ownsAtlas)</span></div>
+<div class="block">Create the component for a given individual texture atlas. Implements with
+ NPCFactory.loadIndependentAtlas(String) which ensures no shared atlases are disposed of when
+ one enemy dies.</div>
 </section>
 </li>
 </ul>

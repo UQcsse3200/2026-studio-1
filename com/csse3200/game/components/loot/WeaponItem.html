@@ -110,12 +110,20 @@ loadScripts(document, 'script');</script>
  int&nbsp;quantity,
  int&nbsp;maxQuantity)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,com.csse3200.game.components.loot.WeaponTier,int,int)" class="member-name-link">WeaponItem</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,int,int,int,float)" class="member-name-link">WeaponItem</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
+ int&nbsp;damage,
+ int&nbsp;quantity,
+ int&nbsp;maxQuantity,
+ float&nbsp;windupDuration)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,com.csse3200.game.components.loot.WeaponTier,int,int,float)" class="member-name-link">WeaponItem</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
  <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a>&nbsp;weaponTier,
  int&nbsp;quantity,
- int&nbsp;maxQuantity)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+ int&nbsp;maxQuantity,
+ float&nbsp;windupDuration)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -147,6 +155,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWeaponType()" class="member-name-link">getWeaponType</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the weapon type that has been created.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWindupDuration()" class="member-name-link">getWindupDuration</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWindupDuration(float)" class="member-name-link">setWindupDuration</a><wbr>(float&nbsp;windupDuration)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
@@ -169,6 +185,22 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="&lt;init&gt;(java.lang.String,com.csse3200.game.components.loot.WeaponType,int,int,int,float)">
+<h3>WeaponItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">WeaponItem</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
+ int&nbsp;damage,
+ int&nbsp;quantity,
+ int&nbsp;maxQuantity,
+ float&nbsp;windupDuration)</span>
+           throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="&lt;init&gt;(java.lang.String,com.csse3200.game.components.loot.WeaponType,int,int,int)">
 <h3>WeaponItem</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">WeaponItem</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
@@ -179,13 +211,19 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String,com.csse3200.game.components.loot.WeaponType,com.csse3200.game.components.loot.WeaponTier,int,int)">
+<section class="detail" id="&lt;init&gt;(java.lang.String,com.csse3200.game.components.loot.WeaponType,com.csse3200.game.components.loot.WeaponTier,int,int,float)">
 <h3>WeaponItem</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">WeaponItem</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
  <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a>&nbsp;weaponTier,
  int&nbsp;quantity,
- int&nbsp;maxQuantity)</span></div>
+ int&nbsp;maxQuantity,
+ float&nbsp;windupDuration)</span>
+           throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -200,12 +238,29 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getWeaponType()">
 <h3>getWeaponType</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></span>&nbsp;<span class="element-name">getWeaponType</span>()</div>
+<div class="block">Returns the weapon type that has been created.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>this item's weapon type - i.e bow, sword,</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getDamage()">
 <h3>getDamage</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getDamage</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getWindupDuration()">
+<h3>getWindupDuration</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getWindupDuration</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setWindupDuration(float)">
+<h3>setWindupDuration</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setWindupDuration</span><wbr><span class="parameters">(float&nbsp;windupDuration)</span></div>
 </section>
 </li>
 <li>

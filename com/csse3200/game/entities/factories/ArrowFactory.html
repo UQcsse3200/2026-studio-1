@@ -111,7 +111,21 @@ loadScripts(document, 'script');</script>
  com.badlogic.gdx.math.Vector2&nbsp;direction,
  int&nbsp;damage,
  <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a purely cosmetic arrow with no physics or collision, used by the player's bow weapon
+ (see <a href="../../components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player"><code>WeaponAttackComponent</code></a>).</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createRangedArrow(com.badlogic.gdx.math.Vector2,boolean,float,float,int,float,short)" class="member-name-link">createRangedArrow</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;position,
+ boolean&nbsp;movingRight,
+ float&nbsp;speed,
+ float&nbsp;maxRange,
+ int&nbsp;damage,
+ float&nbsp;knockback,
+ short&nbsp;targetLayer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates an arrow projectile for a ranged enemy attack (e.g.</div>
+</div>
 </div>
 </div>
 </div>
@@ -136,6 +150,46 @@ loadScripts(document, 'script');</script>
  com.badlogic.gdx.math.Vector2&nbsp;direction,
  int&nbsp;damage,
  <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</span></div>
+<div class="block">Creates a purely cosmetic arrow with no physics or collision, used by the player's bow weapon
+ (see <a href="../../components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player"><code>WeaponAttackComponent</code></a>). Kept separate from
+ <a href="#createRangedArrow(com.badlogic.gdx.math.Vector2,boolean,float,float,int,float,short)"><code>createRangedArrow(com.badlogic.gdx.math.Vector2, boolean, float, float, int, float, short)</code></a> below - which enemies use, and which does have real physics-based
+ collision - since the two have different requirements entirely.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="createRangedArrow(com.badlogic.gdx.math.Vector2,boolean,float,float,int,float,short)">
+<h3>createRangedArrow</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createRangedArrow</span><wbr><span class="parameters">(com.badlogic.gdx.math.Vector2&nbsp;position,
+ boolean&nbsp;movingRight,
+ float&nbsp;speed,
+ float&nbsp;maxRange,
+ int&nbsp;damage,
+ float&nbsp;knockback,
+ short&nbsp;targetLayer)</span></div>
+<div class="block">Creates an arrow projectile for a ranged enemy attack (e.g. a skeleton ranger): a real entity
+ that flies out, only deals damage on actual (Box2D) contact with <code>targetLayer</code>, is
+ blocked by anything on <a href="../../physics/PhysicsLayer.html#OBSTACLE"><code>PhysicsLayer.OBSTACLE</code></a> in its way, and despawns once it has
+ travelled <code>maxRange</code> world units without hitting anything.
+
+ <p>Movement is a straight horizontal line (x-axis only) at a constant speed by default, via
+ <a href="../../components/projectile/StraightLineMovementStrategy.html" title="class in com.csse3200.game.components.projectile"><code>StraightLineMovementStrategy</code></a> - see <a href="../../components/projectile/ProjectileComponent.html" title="class in com.csse3200.game.components.projectile"><code>ProjectileComponent</code></a> for how to swap in a
+ different movement type later (a slower "follow" arrow, a lobbed/bow-arc shot, ...) without
+ changing anything here.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>position</code> - spawn position (world units) - typically just in front of the shooter, not its
+     exact center, so the arrow doesn't spawn inside the shooter's own collider.</dd>
+<dd><code>movingRight</code> - true to fire in the +x direction (target is to the right), false for -x.</dd>
+<dd><code>speed</code> - travel speed in world units/second.</dd>
+<dd><code>maxRange</code> - maximum distance the arrow can travel before despawning; should normally match
+     the firing <a href="../../components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a>'s configured
+     range.</dd>
+<dd><code>damage</code> - damage dealt to whatever the arrow hits on <code>targetLayer</code>.</dd>
+<dd><code>knockback</code> - knockback magnitude applied on a successful hit; <code>0f</code> disables it.</dd>
+<dd><code>targetLayer</code> - the physics layer the arrow deals damage to on contact (e.g. <a href="../../physics/PhysicsLayer.html#PLAYER"><code>PhysicsLayer.PLAYER</code></a>).</dd>
+<dt>Returns:</dt>
+<dd>the arrow entity, not yet registered with the entity service.</dd>
+</dl>
 </section>
 </li>
 </ul>

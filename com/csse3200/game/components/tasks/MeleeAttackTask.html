@@ -102,7 +102,7 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
  against a target entity.
 
  <p>MeleeAttackTask does not perform the attack itself — it triggers the <code>"meleeAttack"</code>
- event on the owning entity, which <a href="../MeleeAttackComponent.html" title="class in com.csse3200.game.components"><code>MeleeAttackComponent</code></a> subscribes to and resolves. This
+ event on the owning entity, which <a href="../attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>MeleeAttackComponent</code></a> subscribes to and resolves. This
  keeps attack decision-making (this task) and attack execution (<code>MeleeAttackComponent</code>)
  decoupled.
 
@@ -115,7 +115,7 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">
-<li><a href="../MeleeAttackComponent.html" title="class in com.csse3200.game.components"><code>MeleeAttackComponent</code></a></li>
+<li><a href="../attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>MeleeAttackComponent</code></a></li>
 <li><a href="../../ai/tasks/PriorityTask.html" title="interface in com.csse3200.game.ai.tasks"><code>PriorityTask</code></a></li>
 <li><a href="../../ai/tasks/DefaultTask.html" title="class in com.csse3200.game.ai.tasks"><code>DefaultTask</code></a></li>
 </ul>
@@ -240,7 +240,7 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <h3>start</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">start</span>()</div>
 <div class="block">Called once when this task becomes the active task on the owning entity's AITaskComponent.
- Resolves this entity's MeleeAttackComponent for use in update(). Does not itself attempt an
+ Resolves this entity's MeleeAttackComponent for use in update(). Doses not itself attempt an
  attack — that only happens in update().</div>
 <dl class="notes">
 <dt>Specified by:</dt>
