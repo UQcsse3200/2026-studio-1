@@ -137,8 +137,7 @@ public class NPCFactory {
     // Configure weapon animation component
     EnemyWeaponAnimationComponent weaponAnimator =
         new EnemyWeaponAnimationComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton_weapons/skeleton_sword.atlas", TextureAtlas.class));
+            loadIndependentAtlas("images/skeleton_weapons/skeleton_sword.atlas"));
     weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("sword_l", 0.08f, Animation.PlayMode.NORMAL);
@@ -203,8 +202,7 @@ public class NPCFactory {
     // Configure weapon animation component
     EnemyWeaponAnimationComponent weaponAnimator =
         new EnemyWeaponAnimationComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton_weapons/skeleton_bow.atlas", TextureAtlas.class));
+            loadIndependentAtlas("images/skeleton_weapons/skeleton_bow.atlas"));
     weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("bow_l", 0.1f, Animation.PlayMode.NORMAL);
