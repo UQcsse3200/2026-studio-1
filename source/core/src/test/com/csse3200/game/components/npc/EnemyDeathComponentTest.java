@@ -2,6 +2,7 @@ package com.csse3200.game.components.npc;
 
 import static org.mockito.Mockito.*;
 
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
@@ -25,6 +26,7 @@ class EnemyDeathComponentTest {
   void shouldDropLootOnDeath() {
     Entity entity = new Entity();
     ItemDropComponent dropper = mock(ItemDropComponent.class);
+    when(dropper.getPrio()).thenReturn(ComponentPriority.LOW);
     when(dropper.dropFirstStack()).thenReturn(true, false); // one item, then stop
 
     entity.addComponent(dropper);
