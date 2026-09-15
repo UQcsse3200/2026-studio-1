@@ -717,87 +717,86 @@ public class ShopDisplay extends UIComponent {
     Table card = createCard();
 
     if (listing == null || listing.getProduct() == null) {
+
       addEmptyCardContent(card, catalogSlot);
+
     } else {
-      populateCatalogCard(card, listing, catalogSlot, nameExtractor, buyAction);
+
+      T product = listing.getProduct();
+
+      String name = nameExtractor.apply(product);
+
+      int price = listing.getBuyPrice();
+
+      Rarity rarity = getRarityForPrice(price);
+
+      addAccentStrip(card, rarity.color);
+
+      /*
+       * PETS:
+       * Use the real pet sprite from pet.atlas.
+       *
+       * ITEMS / UPGRADES:
+       * Continue using the placeholder icon.
+       */
+      if (currentTab == ShopTab.PETS) {
+
+        card.add(createPetIconStack(rarity, catalogSlot)).size(40f, 40f).padBottom(4f);
+
+      } else {
+
+        card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
+      }
+
+      card.row();
+
+      Label nameLabel = new Label(name, whiteLabelStyle);
+
+      nameLabel.setColor(Color.WHITE);
+      nameLabel.setAlignment(Align.center);
+
+      card.add(nameLabel).growX().center();
+
+      card.row();
+
+      Label priceLabel = new Label("Gold: " + price, whiteLabelStyle);
+
+      /*
+       * Show unaffordable purchase prices in red.
+       */
+      priceLabel.setColor(canAfford(price) ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
+
+      card.add(priceLabel).padTop(2f).center();
+
+      card.addListener(
+          new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+
+              if (currentTab == ShopTab.UPGRADES) {
+                UpgradeNode node = findUpgradeNodeByName(name);
+
+                if (node != null) {
+                  showUpgradePopup(node);
+                }
+
+                selectCard(
+                    card,
+                    upgradeDetailName(name, node),
+                    price,
+                    rarity,
+                    () -> attemptUpgradePurchase(catalogSlot, node),
+                    "BUY",
+                    true);
+              } else {
+                selectCard(
+                    card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
+              }
+            }
+          });
     }
 
     addCardToContent(card);
-  }
-
-  /** Fills a card with a real product's icon, name, price, and buy-click behaviour. */
-  private <T> void populateCatalogCard(
-      Table card,
-      ShopComponent.ShopListing<T> listing,
-      int catalogSlot,
-      Function<T, String> nameExtractor,
-      IntConsumer buyAction) {
-    T product = listing.getProduct();
-    String name = nameExtractor.apply(product);
-    int price = listing.getBuyPrice();
-    Rarity rarity = getRarityForPrice(price);
-
-    addAccentStrip(card, rarity.color);
-    addCardIcon(card, name, rarity, catalogSlot);
-    addCardLabels(card, name, price);
-    attachCardClickListener(card, catalogSlot, name, price, rarity, buyAction);
-  }
-
-  /**
-   * Adds the card's icon: the real pet sprite from pet.atlas on the Pets tab, or the placeholder
-   * initial-letter icon for Items/Upgrades.
-   */
-  private void addCardIcon(Table card, String name, Rarity rarity, int catalogSlot) {
-    if (currentTab == ShopTab.PETS) {
-      card.add(createPetIconStack(rarity, catalogSlot)).size(40f, 40f).padBottom(4f);
-    } else {
-      card.add(createIconStack(name, rarity)).size(40f, 40f).padBottom(4f);
-    }
-    card.row();
-  }
-
-  /** Adds the name and price labels to a card, colouring the price red if unaffordable. */
-  private void addCardLabels(Table card, String name, int price) {
-    Label nameLabel = new Label(name, whiteLabelStyle);
-    nameLabel.setColor(Color.WHITE);
-    nameLabel.setAlignment(Align.center);
-    card.add(nameLabel).growX().center();
-    card.row();
-
-    Label priceLabel = new Label("Gold: " + price, whiteLabelStyle);
-    priceLabel.setColor(canAfford(price) ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
-    card.add(priceLabel).padTop(2f).center();
-  }
-
-  /**
-   * Wires up what happens when a card is clicked: on the Upgrades tab this also opens the upgrade
-   * popup before showing the detail panel; every other tab just shows the detail panel.
-   */
-  private void attachCardClickListener(
-      Table card, int catalogSlot, String name, int price, Rarity rarity, IntConsumer buyAction) {
-    card.addListener(
-        new ClickListener() {
-          @Override
-          public void clicked(InputEvent event, float x, float y) {
-            if (currentTab == ShopTab.UPGRADES) {
-              UpgradeNode node = findUpgradeNodeByName(name);
-              if (node != null) {
-                showUpgradePopup(node);
-              }
-              selectCard(
-                  card,
-                  upgradeDetailName(name, node),
-                  price,
-                  rarity,
-                  () -> attemptUpgradePurchase(catalogSlot, node),
-                  "BUY",
-                  true);
-            } else {
-              selectCard(
-                  card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
-            }
-          }
-        });
   }
 
   /** Adds a rarity-colored strip to the top of a card. */
