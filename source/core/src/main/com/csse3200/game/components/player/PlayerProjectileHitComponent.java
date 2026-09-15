@@ -9,14 +9,14 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.components.HitboxComponent;
 
 /** Handles projectile collisions and damage. */
-public class ProjectileHitComponent extends Component {
+public class PlayerProjectileHitComponent extends Component {
   private final int damage;
   private final Entity owner;
 
   private HitboxComponent hitboxComponent;
   private boolean collided;
 
-  public ProjectileHitComponent(int damage, Entity owner) {
+  public PlayerProjectileHitComponent(int damage, Entity owner) {
     if (damage < 0) {
       throw new IllegalArgumentException("Projectile damage must not be negative.");
     }

@@ -115,6 +115,11 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
+    "images/ghost.atlas",
+    "images/ghostKing.atlas",
+    "images/skeleton.atlas",
+    "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/skeleton_weapons/skeleton_sword.atlas",
     "images/enemies/ghost.atlas",
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
@@ -586,8 +591,11 @@ public class LevelGameArea extends GameArea {
     return switch (type.toLowerCase()) {
       case "ghost" -> NPCFactory.createGhost(player);
       case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
-      case "skeleton" -> NPCFactory.createSkeleton(player);
+      case "skeleton", "enemy-skeleton-hoplite" -> NPCFactory.createSkeleton(player);
       case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
+      case "cyclops" -> NPCFactory.createCyclops(player);
+      case "minotaur" -> NPCFactory.createMinotaur(player);
+      case "enemy-centaur", "centaur" -> NPCFactory.createCentaur(player);
       default -> {
         logger.warn("Unknown enemy spawn type '{}' - skipped", type);
         yield null;

@@ -10,7 +10,7 @@ public class Item {
   private static int nextId = 0;
 
   private final int id;
-  private final String name;
+  String name;
   private final ItemType itemType;
   private int quantity;
   private final int maxQuantity;

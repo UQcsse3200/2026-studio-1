@@ -1,14 +1,16 @@
-package com.csse3200.game.components;
+package com.csse3200.game.components.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +32,7 @@ class TouchAttackComponentTest {
     Fixture targetFixture = target.getComponent(HitboxComponent.class).getFixture();
     entity.getEvents().trigger("collisionStart", entityFixture, targetFixture);
 
-    assertEquals(0, target.getComponent(CombatStatsComponent.class).getHealth());
+    Assertions.assertEquals(0, target.getComponent(CombatStatsComponent.class).getHealth());
   }
 
   @Test
