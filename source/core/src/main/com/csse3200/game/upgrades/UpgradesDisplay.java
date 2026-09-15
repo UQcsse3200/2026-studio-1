@@ -19,18 +19,22 @@ import java.util.List;
 
 /**
  * Displays the Upgrades screen: category tabs (Action / Defence), a row of upgrade nodes per
- * category, and a detail panel for the selected node.
+ * category, and a detail panel for the selected node's name, description, current tier and
+ * remaining time/kills.
  *
- * <p>Every upgrade is temporary and repurchasable - Action upgrades expire after a number of kills,
- * Defence upgrades expire after a duration. Buying the same upgrade again while active advances its
+ * <p>View-only - there is no purchase action anywhere on this screen. It never calls {@link
+ * UpgradeNode#purchaseNextTier()} itself; the only way to actually buy an upgrade (deduct gold,
+ * advance its tier) is through {@code ShopDisplay}'s real Upgrades-tab buy flow, which applies the
+ * purchase to the exact same UpgradeNode instances this screen reads from. This screen used to have
+ * its own Buy button that spent real gold directly, bypassing the shop entirely - that's been
+ * removed so there is exactly one way to purchase an upgrade.
+ *
+ * <p>Every upgrade is temporary - Action upgrades expire after a number of kills, Defence upgrades
+ * expire after a duration. Buying the same upgrade again (via the shop) while active advances its
  * tier and grants a longer expiry window. Once fully expired, it resets to Tier 0 and can be bought
  * again from Tier 1.
- *
- * <p>Currency is currently mocked (MOCK_CURRENCY_START) until the real Currency System exists.
  */
 public class UpgradesDisplay extends UIComponent {
-
-  private static final int MOCK_CURRENCY_START = 200; // TODO: replace with real currency system
 
   // Tier -> effect magnitude for the two upgrades with real gameplay effects wired up so far.
   // Index 0 = Tier 1, etc. Attack Speed / Shield Durability / Regen on Kill have no effect wired
@@ -47,15 +51,11 @@ public class UpgradesDisplay extends UIComponent {
 
   private Table root;
   private Table nodeRow;
-  private Label currencyLabel;
   private Label categoryHeaderLabel;
   private Label detailNameLabel;
   private Label detailDescriptionLabel;
-  private Label detailCostLabel;
   private Label detailStatusLabel;
-  private TextButton buyButton;
 
-  private int currency = MOCK_CURRENCY_START;
   private String activeCategory = null; // nothing selected until the player picks a tab
   private UpgradeNode selectedNode;
   private UpgradesMenuComponent upgradesMenu;
@@ -343,13 +343,9 @@ public class UpgradesDisplay extends UIComponent {
     root.setFillParent(true);
     root.top().pad(30f);
 
-    // --- Top bar: title + currency ---
-    Table topBar = new Table();
+    // --- Title ---
     Label title = new Label("UPGRADES", skin);
-    currencyLabel = new Label("Currency: " + currency, skin);
-    topBar.add(title).left().expandX();
-    topBar.add(currencyLabel).right();
-    root.add(topBar).growX();
+    root.add(title).left();
     root.row().padTop(20f);
 
     // --- Category tabs, centered ---
@@ -399,28 +395,16 @@ public class UpgradesDisplay extends UIComponent {
     root.add(nodeRow).center();
     root.row().padTop(30f);
 
-    // --- Detail panel ---
+    // --- Detail panel (view-only: name, description, tier/status) ---
     Table detailPanel = new Table();
     detailNameLabel = new Label("", skin);
     detailDescriptionLabel = new Label("", skin);
     detailDescriptionLabel.setWrap(true);
-    detailCostLabel = new Label("", skin);
     detailStatusLabel = new Label("", skin);
-    buyButton = new TextButton("Buy", skin);
-
-    buyButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            attemptPurchase();
-          }
-        });
 
     detailPanel.add(detailNameLabel).left().row();
     detailPanel.add(detailDescriptionLabel).width(400f).left().padTop(8f).row();
-    detailPanel.add(detailCostLabel).left().padTop(8f).row();
-    detailPanel.add(detailStatusLabel).left().padTop(4f).row();
-    detailPanel.add(buyButton).left().padTop(12f);
+    detailPanel.add(detailStatusLabel).left().padTop(4f);
 
     root.add(detailPanel).growX();
 
@@ -482,20 +466,6 @@ public class UpgradesDisplay extends UIComponent {
                 ? " (Tier " + node.getCurrentTier() + "/" + node.getMaxTier() + ")"
                 : ""));
     detailDescriptionLabel.setText(node.getDescription());
-
-    if (node.isMaxTier()) {
-      detailCostLabel.setText("Max tier reached");
-      buyButton.setVisible(false);
-    } else {
-      detailCostLabel.setText(
-          "Cost to "
-              + (node.isActive() ? "advance tier" : "activate")
-              + ": "
-              + node.getNextTierCost());
-      buyButton.setVisible(true);
-      buyButton.setText(node.isActive() ? "Upgrade Tier" : "Buy");
-    }
-
     detailStatusLabel.setText(
         node.isActive() ? "Active - " + node.getRemainingText() : "Not active");
   }
@@ -504,39 +474,7 @@ public class UpgradesDisplay extends UIComponent {
     detailNameLabel.setText(""); // the centered categoryHeaderLabel above the node row
     // handles the "Select an upgrade" prompt instead
     detailDescriptionLabel.setText("");
-    detailCostLabel.setText("");
     detailStatusLabel.setText("");
-    buyButton.setVisible(false);
-  }
-
-  private void attemptPurchase() {
-    if (selectedNode == null || selectedNode.isMaxTier()) {
-      return;
-    }
-    int cost = selectedNode.getNextTierCost();
-    if (currency < cost) {
-      // TODO: show a "can't afford" message instead of silently failing
-      return;
-    }
-
-    // Captured before refreshNodeRow() runs below - that call resets the selectedNode field to
-    // null as a side effect (needed for the tab-switch case it also handles), so relying on
-    // selectedNode directly after it would show the just-purchased node's own detail panel with
-    // a NullPointerException instead.
-    UpgradeNode purchasedNode = selectedNode;
-
-    currency -= cost;
-    purchasedNode.purchaseNextTier();
-    currencyLabel.setText("Currency: " + currency);
-
-    // TODO: call into the Core Upgrade System's apply logic here, e.g.
-    // upgradeManager.apply(selectedNode.getId(), selectedNode.getCurrentTier());
-    // and make sure enemy-kill events call selectedNode.onEnemyKilled()
-    // on every currently-active kill-count-based upgrade, not just this one.
-
-    refreshNodeRow();
-    selectedNode = purchasedNode;
-    showDetail(selectedNode);
   }
 
   @Override
