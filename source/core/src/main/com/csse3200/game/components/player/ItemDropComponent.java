@@ -93,7 +93,7 @@ public class ItemDropComponent extends Component {
     entity.getEvents().trigger("itemDropped", removed, loot);
     return true;
   }
-  
+
   /**
    * Drops the whole stack from the lowest-numbered occupied inventory slot.
    *
@@ -108,35 +108,35 @@ public class ItemDropComponent extends Component {
       logger.debug("Cannot drop an item, entity has no inventory");
       return false;
     }
-    
+
     int slot = findFirstOccupiedSlot(inventory);
     if (slot == -1) {
       logger.debug("Cannot drop an item, inventory is empty");
       return false;
     }
-    
+
     Item item = inventory.getItem(slot);
     Entity loot = lootFactory.apply(item, entity);
     if (loot == null) {
       logger.warn("Loot factory returned null for item {}", item.getName());
       return false;
     }
-    
+
     Item removed = inventory.removeItem(slot);
     if (removed == null) {
       return false;
     }
-    
+
     float dropX = entity.getPosition().x + entity.getScale().x + HORIZONTAL_DROP_GAP;
     loot.setPosition(dropX, entity.getPosition().y);
-    
+
     try {
       lootSpawner.accept(loot);
     } catch (RuntimeException exception) {
       inventory.addItem(removed);
       throw exception;
     }
-    
+
     logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
     entity.getEvents().trigger("itemDropped", removed, loot);
     return true;
