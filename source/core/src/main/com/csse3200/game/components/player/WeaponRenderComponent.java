@@ -71,6 +71,11 @@ public class WeaponRenderComponent extends RenderComponent {
     entity.getEvents().addListener("weaponAttack", this::handleWeaponAttack);
     entity.getEvents().addListener("walk", this::updateFacing);
     entity.getEvents().addListener("activeSlotChanged", this::updateWeapon);
+    entity
+        .getEvents()
+        .addListener(
+            "inventoryChanged",
+            () -> updateWeapon(entity.getComponent(InventoryComponent.class).getActiveSlot()));
 
     updateWeapon(entity.getComponent(InventoryComponent.class).getActiveSlot());
   }
