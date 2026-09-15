@@ -64,12 +64,13 @@ public class Component {
     return entity;
   }
 
-    /**
-     * Get the priority of which the component should be made
-     * @return ComponentPriority
-     */
+  /**
+   * Get the priority of which the component should be made
+   *
+   * @return ComponentPriority
+   */
   public ComponentPriority getPrio() {
-      return prio;
+    return prio;
   }
 
   /**

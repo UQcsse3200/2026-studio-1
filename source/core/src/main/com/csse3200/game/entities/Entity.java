@@ -7,10 +7,9 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.components.ComponentType;
 import com.csse3200.game.events.EventHandler;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Comparator;
 
 /**
  * Core entity class. Entities exist in the game and are updated each frame. All entities have a
@@ -231,9 +230,7 @@ public class Entity {
       return;
     }
     createdComponents = components.values().toArray();
-    createdComponents.sort(
-        Comparator.comparingInt(c -> c.getPrio().getValue())
-    );
+    createdComponents.sort(Comparator.comparingInt(c -> c.getPrio().getValue()));
     for (Component component : createdComponents) {
       component.create();
     }
