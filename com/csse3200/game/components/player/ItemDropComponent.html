@@ -135,12 +135,12 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Registers the temporary <code>Q</code>-drop event handler.</div>
+<div class="block">Registers the <code>Q</code>-drop event handler.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dropFirstStack()" class="member-name-link">dropFirstStack</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dropActiveStack()" class="member-name-link">dropActiveStack</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Drops the whole stack from the lowest-numbered occupied inventory slot.</div>
+<div class="block">Drops the whole stack from the currently selected inventory slot.</div>
 </div>
 </div>
 </div>
@@ -181,7 +181,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="create()">
 <h3>create</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">create</span>()</div>
-<div class="block">Registers the temporary <code>Q</code>-drop event handler.</div>
+<div class="block">Registers the <code>Q</code>-drop event handler.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../Component.html#create()">create</a></code>&nbsp;in class&nbsp;<code><a href="../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>
@@ -189,13 +189,13 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="dropFirstStack()">
-<h3>dropFirstStack</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">dropFirstStack</span>()</div>
-<div class="block">Drops the whole stack from the lowest-numbered occupied inventory slot.
+<section class="detail" id="dropActiveStack()">
+<h3>dropActiveStack</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">dropActiveStack</span>()</div>
+<div class="block">Drops the whole stack from the currently selected inventory slot.
 
- <p>This is intentionally a small temporary selection rule. It can be replaced with an explicit
- selected-slot event without changing loot creation or spawning.</div>
+ <p>Does nothing when the selected slot is empty. The selection stays on the same slot after
+ dropping.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> when a stack was removed and spawned</dd>
