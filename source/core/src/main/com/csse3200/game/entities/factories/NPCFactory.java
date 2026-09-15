@@ -51,6 +51,14 @@ import java.util.List;
  * similar characteristics.
  */
 public class NPCFactory {
+  private static final String SKELETON_ATLAS_PATH = "images/enemies/skeleton.atlas";
+  private static final String SKELETON_SWORD_ATLAS_PATH =
+      "images/skeleton_weapons/skeleton_sword.atlas";
+  private static final String SKELETON_BOW_ATLAS_PATH =
+      "images/skeleton_weapons/skeleton_bow.atlas";
+  private static final String MINOTOUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
+  private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
+
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
 
@@ -132,7 +140,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -140,8 +148,7 @@ public class NPCFactory {
 
     // Configure weapon animation component
     EnemyWeaponAnimationComponent weaponAnimator =
-        new EnemyWeaponAnimationComponent(
-            loadIndependentAtlas("images/skeleton_weapons/skeleton_sword.atlas"));
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(SKELETON_SWORD_ATLAS_PATH));
     weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("sword_l", 0.08f, Animation.PlayMode.NORMAL);
@@ -197,7 +204,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -205,8 +212,7 @@ public class NPCFactory {
 
     // Configure weapon animation component
     EnemyWeaponAnimationComponent weaponAnimator =
-        new EnemyWeaponAnimationComponent(
-            loadIndependentAtlas("images/skeleton_weapons/skeleton_bow.atlas"));
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(SKELETON_BOW_ATLAS_PATH));
     weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("bow_l", 0.1f, Animation.PlayMode.NORMAL);
@@ -274,7 +280,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/minotaur.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(MINOTOUR_ATLAS_PATH));
     animator.addAnimation("minotaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
@@ -343,7 +349,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -414,7 +420,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/cyclops.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH));
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
