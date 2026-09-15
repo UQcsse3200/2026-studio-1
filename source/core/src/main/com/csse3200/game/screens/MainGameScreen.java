@@ -119,10 +119,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
     if (shopDisplay != null) {
-      // TODO: ShopDisplay.setUpgradesDisplay(UpgradesDisplay) does not exist on
-      // ShopDisplay as of main - broken/incomplete Shop-Upgrades integration,
-      // commented out to unblock this PR. Needs fixing by the Shop feature owner.
-      // shopDisplay.setUpgradesDisplay(upgradesDisplay);
+      shopDisplay.setUpgradesDisplay(upgradesDisplay);
     }
 
     if (loadsave) {

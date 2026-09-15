@@ -2,7 +2,13 @@ package com.csse3200.game.components;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.physics.PhysicsEngine;
+import com.csse3200.game.physics.PhysicsLayer;
+import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.physics.raycast.RaycastHit;
+import com.csse3200.game.services.ServiceLocator;
+import java.util.Objects;
 
 public class PlatformerComponent extends Component {
   private Vector2 jumpDirection = Vector2.Zero.cpy();
@@ -19,6 +25,8 @@ public class PlatformerComponent extends Component {
   private int baseJumpScaler = 3;
 
   private PhysicsComponent physicsComponent;
+  private PhysicsEngine physics;
+  ColliderComponent collider;
 
   public PlatformerComponent(int baseJumpScaler) {
     this.baseJumpScaler = baseJumpScaler;
@@ -41,7 +49,9 @@ public class PlatformerComponent extends Component {
   @Override
   public void create() {
     physicsComponent = entity.getComponent(PhysicsComponent.class);
+    physics = ServiceLocator.getPhysicsService().getPhysics();
     entity.getEvents().addListener("jump", this::jump);
+    collider = entity.getComponent(ColliderComponent.class);
   }
 
   /*
@@ -110,7 +120,7 @@ public class PlatformerComponent extends Component {
       Vector2 desiredVelocity = jumpDirection.cpy().scl(MAX_SPEED);
       Vector2 jumpImpulse = desiredVelocity.scl(body.getMass());
       body.applyLinearImpulse(jumpImpulse, body.getWorldCenter(), true);
-      jumpDirection.y = 0;
+      jumpDirection = Vector2.Zero.cpy();
       jumping = false;
     }
   }
@@ -123,9 +133,66 @@ public class PlatformerComponent extends Component {
     return (body.getLinearVelocity().y == 0);
   }
 
+  // Will return LEFT if can wall jump from the left, return RIGHT if can wall
+  // jump from the right. Will return NONE if can not wall jump
+  public String canWallJump() {
+    RaycastHit leftHit = new RaycastHit();
+    RaycastHit rightHit = new RaycastHit();
+    // as well as the right part of the wall, so we give a boost to the distanceThreshold
+    float distanceThreshold = 5f; // The wall jump applies if the collider is X units away
+    Vector2 from = entity.getPosition();
+    from.y += 5;
+    Vector2 fromRight = from;
+    fromRight.x += 8; // Moving "fromRight" to the right since entity.getPosition()
+    // returns the Entity's position form the bottom left of the character
+    Vector2 fromLeft = from; // It's already on the left
+
+    Vector2 vectorToRight = new Vector2(fromRight.x + (distanceThreshold), fromRight.y);
+    Vector2 vectorToLeft = new Vector2(fromLeft.x - distanceThreshold, fromLeft.y);
+    float left = 100000;
+    float right = 100000;
+    physics.raycast(fromLeft, vectorToLeft, PhysicsLayer.OBSTACLE, leftHit);
+    if (leftHit.point != null) {
+      left = Math.abs(from.x - leftHit.point.x);
+    }
+    physics.raycast(fromRight, vectorToRight, PhysicsLayer.OBSTACLE, rightHit);
+    if (rightHit.point != null) {
+      right = Math.abs(from.x - rightHit.point.x);
+    }
+
+    if (left < right) {
+      if (left <= distanceThreshold && leftHit.point != null) {
+        return "LEFT";
+      }
+    } else {
+      if (right <= distanceThreshold && rightHit.point != null) {
+        return "RIGHT";
+      }
+    }
+    return "NONE"; // If neither then return NONE
+  }
+
   private void jump(Vector2 direction) {
-    if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
-      this.jumpDirection.y = direction.y;
+    // Wall jump takes priority over a normal jump (given the player is not grounded),
+    // you cannot normal jump and wall jump at the same time. Wall jump doesn't
+    // replenish double jumps
+    this.jumpDirection.y = direction.y;
+
+    // Wall jump code
+    if ((Objects.equals(canWallJump(), "RIGHT") || Objects.equals(canWallJump(), "LEFT"))
+        && !isGrounded()) {
+      if (Objects.equals(canWallJump(), "RIGHT")) {
+        this.jumpDirection.x = -1;
+      } else if (Objects.equals(canWallJump(), "LEFT")) {
+        this.jumpDirection.x = 1;
+      }
+      this.jumpDirection.x *= direction.y;
+      // Making sure that we are jumping off the wall with equal x and y forces
+      this.jumpDirection.scl(baseJumpScaler);
+      if (superJumpPowerup) this.jumpDirection.scl(superJumpScaler);
+      jumping = true;
+    } // Normal jump code
+    else if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
       this.jumpDirection.y *= baseJumpScaler;
       if (!isGrounded()) doubleJumpRemaining--;
       if (superJumpPowerup) this.jumpDirection.y *= superJumpScaler;

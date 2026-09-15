@@ -40,10 +40,58 @@ public class ItemDropComponent extends Component {
     this.lootSpawner = lootSpawner;
   }
 
-  /** Registers the temporary {@code Q}-drop event handler. */
+  /** Registers the {@code Q}-drop event handler. */
   @Override
   public void create() {
-    entity.getEvents().addListener("dropItem", this::dropFirstStack);
+    entity.getEvents().addListener("dropItem", this::dropActiveStack);
+  }
+
+  /**
+   * Drops the whole stack from the currently selected inventory slot.
+   *
+   * <p>Does nothing when the selected slot is empty. The selection stays on the same slot after
+   * dropping.
+   *
+   * @return {@code true} when a stack was removed and spawned
+   */
+  public boolean dropActiveStack() {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory == null) {
+      logger.debug("Cannot drop an item, entity has no inventory");
+      return false;
+    }
+
+    int slot = inventory.getActiveSlot();
+    Item item = inventory.getItem(slot);
+    if (item == null) {
+      logger.debug("Cannot drop an item, selected slot {} is empty", slot);
+      return false;
+    }
+
+    Entity loot = lootFactory.apply(item, entity);
+    if (loot == null) {
+      logger.warn("Loot factory returned null for item {}", item.getName());
+      return false;
+    }
+
+    Item removed = inventory.removeItem(slot);
+    if (removed == null) {
+      return false;
+    }
+
+    float dropX = entity.getPosition().x + entity.getScale().x + HORIZONTAL_DROP_GAP;
+    loot.setPosition(dropX, entity.getPosition().y);
+
+    try {
+      lootSpawner.accept(loot);
+    } catch (RuntimeException exception) {
+      inventory.addItem(removed);
+      throw exception;
+    }
+
+    logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
+    entity.getEvents().trigger("itemDropped", removed, loot);
+    return true;
   }
 
   /**
