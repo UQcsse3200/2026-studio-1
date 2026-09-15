@@ -40,34 +40,34 @@ public class ItemDropComponent extends Component {
     this.lootSpawner = lootSpawner;
   }
 
-  /** Registers the temporary {@code Q}-drop event handler. */
+  /** Registers the {@code Q}-drop event handler. */
   @Override
   public void create() {
-    entity.getEvents().addListener("dropItem", this::dropFirstStack);
+    entity.getEvents().addListener("dropItem", this::dropActiveStack);
   }
 
   /**
-   * Drops the whole stack from the lowest-numbered occupied inventory slot.
+   * Drops the whole stack from the currently selected inventory slot.
    *
-   * <p>This is intentionally a small temporary selection rule. It can be replaced with an explicit
-   * selected-slot event without changing loot creation or spawning.
+   * <p>Does nothing when the selected slot is empty. The selection stays on the same slot after
+   * dropping.
    *
    * @return {@code true} when a stack was removed and spawned
    */
-  public boolean dropFirstStack() {
+  public boolean dropActiveStack() {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
     if (inventory == null) {
       logger.debug("Cannot drop an item, entity has no inventory");
       return false;
     }
 
-    int slot = findFirstOccupiedSlot(inventory);
-    if (slot == -1) {
-      logger.debug("Cannot drop an item, inventory is empty");
+    int slot = inventory.getActiveSlot();
+    Item item = inventory.getItem(slot);
+    if (item == null) {
+      logger.debug("Cannot drop an item, selected slot {} is empty", slot);
       return false;
     }
 
-    Item item = inventory.getItem(slot);
     Entity loot = lootFactory.apply(item, entity);
     if (loot == null) {
       logger.warn("Loot factory returned null for item {}", item.getName());
