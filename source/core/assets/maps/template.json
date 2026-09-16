@@ -1,0 +1,80 @@
+{
+  "docs": {
+    "_": "Copy this file to start a new map. Every key below is explained here, and this block is ignored by the loader.",
+    "name": "Shown on the loading card and in logs.",
+    "tileSize": "World size of one tile. Every shipped map uses 0.5.",
+    "backgroundTexture": "Optional. One image stretched over the whole map, behind the tile layers. Draw it at 16 pixels per tile. Omit the key if the map has no composed art.",
+    "legend": "Tile symbols. type is FLOOR, WALL, PLATFORM, HAZARD, LADDER or DECORATIVE. Any other key, such as damage or hidden, is carried as a tile property and read back by the feature that wants it.",
+    "entityLegend": "Entity symbols, a SEPARATE namespace from legend, so the same letter can mean different things in the two. type is PLAYER, ENEMY, LOOT or MARKER.",
+    "marker": "A MARKER needs a kind, which groups it, and may have an id and any other keys. Read them back with getSpawns().getMarkers(kind). Use this to place anything the map system does not know about.",
+    "enemyType": "Must match a name registered with EntitySpawnRegistry. An unregistered name is logged and skipped, so you may place an entity before its code exists.",
+    "layers": "Drawn back to front in this order. background and foreground are art only; terrain also drives collision; entities is spawn data, not tiles.",
+    "rows": "Rows read top to bottom, but the loader flips them, so y = 0 is the BOTTOM row. A space is an empty cell.",
+    "transitions": "Doorways. x and y are on THIS map; destinationSpawn is a tile on the destination map."
+  },
+
+  "name": "Template",
+  "tileSize": 0.5,
+
+  "legend": {
+    "#": { "type": "WALL", "texture": "images/environment/dungeon-prototype/wall_px.png" },
+    "=": { "type": "PLATFORM", "texture": "images/environment/dungeon-prototype/platform_px.png" },
+    "^": { "type": "HAZARD", "texture": "images/environment/dungeon-prototype/hazard_px.png", "damage": "15" },
+    ".": { "type": "DECORATIVE", "texture": "images/environment/dungeon-prototype/bg_decor_px.png" }
+  },
+
+  "entityLegend": {
+    "P": { "type": "PLAYER" },
+    "S": { "type": "ENEMY", "enemyType": "skeleton" },
+    "L": { "type": "LOOT" },
+    "N": { "type": "MARKER", "kind": "npc", "id": "traveler" },
+    "T": { "type": "MARKER", "kind": "light", "radius": "6" }
+  },
+
+  "layers": {
+    "background": [
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+    ],
+    "terrain": [
+      "################",
+      "#              #",
+      "#      ==      #",
+      "#              #",
+      "#####^^#########",
+      "################"
+    ],
+    "foreground": [
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                "
+    ],
+    "entities": [
+      "                ",
+      "                ",
+      "                ",
+      " P   S    L   N ",
+      "                ",
+      "                "
+    ]
+  },
+
+  "transitions": [
+    {
+      "id": "template-exit",
+      "x": 14,
+      "y": 2,
+      "width": 1,
+      "height": 1,
+      "destinationMap": "maps/level3.json",
+      "destinationSpawn": { "x": 2, "y": 2 }
+    }
+  ]
+}

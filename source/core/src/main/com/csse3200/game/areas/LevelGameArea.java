@@ -32,6 +32,8 @@ import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
+import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -194,6 +196,7 @@ public class LevelGameArea extends GameArea {
 
   @Override
   public void create() {
+    DefaultEntitySpawns.registerAll();
     mapData = mapLoader.load(mapPath);
     loadAssets();
 
@@ -594,23 +597,15 @@ public class LevelGameArea extends GameArea {
     }
   }
 
+  /**
+   * Builds one spawn by name, through {@link EntitySpawnRegistry}, so this area holds no list of
+   * what the game can spawn. A name nobody registered is reported by the registry and skipped.
+   *
+   * @param type the spawn name from the map
+   * @return the new entity, or null if the name is unknown
+   */
   private Entity createEnemy(String type) {
-    if (type == null) {
-      return null;
-    }
-    return switch (type.toLowerCase()) {
-      case "ghost" -> NPCFactory.createGhost(player);
-      case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
-      case "skeleton", "enemy-skeleton-hoplite" -> NPCFactory.createSkeleton(player);
-      case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
-      case "cyclops" -> NPCFactory.createCyclops(player);
-      case "minotaur" -> NPCFactory.createMinotaur(player);
-      case "enemy-centaur", "centaur" -> NPCFactory.createCentaur(player);
-      default -> {
-        logger.warn("Unknown enemy spawn type '{}' - skipped", type);
-        yield null;
-      }
-    };
+    return EntitySpawnRegistry.create(type, player);
   }
 
   /**
