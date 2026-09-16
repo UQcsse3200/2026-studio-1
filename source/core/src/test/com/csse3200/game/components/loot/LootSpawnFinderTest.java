@@ -101,6 +101,60 @@ class LootSpawnFinderTest {
         LootSpawnFinder.findGroundSpots(map).isEmpty(), "a single open row has no ground under it");
   }
 
+  /**
+   * Bug #194: a gap inside a solid band of ground has floor below it but is sealed in above, so
+   * loot placed there is drawn inside the ground where nobody can reach it.
+   */
+  @Test
+  void shouldNotPlaceLootInAGapSealedInsideTheGround() {
+    LevelMapData map = map("###", "   ", "###");
+
+    assertTrue(
+        LootSpawnFinder.findGroundSpots(map).isEmpty(),
+        "a gap with solid ground above and below should not hold loot");
+  }
+
+  /** Bug #194: loot needs open space above it, so a tile under a ceiling is skipped. */
+  @Test
+  void shouldNotPlaceLootUnderALowCeiling() {
+    LevelMapData map = map("#  ", "   ", "###");
+
+    List<GridPoint2> spots = positions(LootSpawnFinder.findGroundSpots(map));
+
+    assertEquals(
+        List.of(new GridPoint2(1, 1), new GridPoint2(2, 1)),
+        spots,
+        "only the tiles with open space above them should be spots");
+  }
+
+  /**
+   * Bug #194: an open pocket walled off from the rest of the map can pass the ground and headroom
+   * checks, so a spot must also be reachable from where the player starts.
+   */
+  @Test
+  void shouldNotPlaceLootInAPocketThePlayerCannotReach() {
+    // Two rooms split by a wall. The player starts in the left room.
+    LevelMapData map = mapWithPlayer(1, 1, "#######", "#  #  #", "#  #  #", "#######");
+
+    List<GridPoint2> spots = positions(LootSpawnFinder.findGroundSpots(map));
+
+    assertEquals(
+        List.of(new GridPoint2(1, 1), new GridPoint2(2, 1)),
+        spots,
+        "only the floor of the room the player starts in should be used");
+  }
+
+  /** A map with no player spawn has no starting point, so every room is allowed. */
+  @Test
+  void shouldAllowEveryRoomWhenTheMapHasNoPlayerSpawn() {
+    LevelMapData map = map("#######", "#  #  #", "#  #  #", "#######");
+
+    assertEquals(
+        4,
+        LootSpawnFinder.findGroundSpots(map).size(),
+        "without a player spawn, the floor of both rooms should be used");
+  }
+
   @Test
   void shouldRejectAMissingMap() {
     assertThrows(
@@ -109,8 +163,18 @@ class LootSpawnFinderTest {
         "finding spots without a map should be rejected");
   }
 
-  /** Builds a map from text rows, top row first. */
+  /** Builds a map from text rows, top row first, with no player spawn. */
   private LevelMapData map(String... rows) {
+    return buildMap(null, rows);
+  }
+
+  /** Builds a map from text rows, top row first, with the player starting on tile (x, y). */
+  private LevelMapData mapWithPlayer(int playerX, int playerY, String... rows) {
+    return buildMap(
+        "\"spawns\": { \"player\": { \"x\": " + playerX + ", \"y\": " + playerY + " } }", rows);
+  }
+
+  private LevelMapData buildMap(String spawnsJson, String... rows) {
     StringBuilder json = new StringBuilder();
     json.append("{ \"legend\": {")
         .append("\"#\": { \"type\": \"WALL\" },")
@@ -124,7 +188,11 @@ class LootSpawnFinderTest {
         json.append(',');
       }
     }
-    json.append("] } }");
+    json.append("] }");
+    if (spawnsJson != null) {
+      json.append(", ").append(spawnsJson);
+    }
+    json.append(" }");
     return loader.parse(json.toString());
   }
 
