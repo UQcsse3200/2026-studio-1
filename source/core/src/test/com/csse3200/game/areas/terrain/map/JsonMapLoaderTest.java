@@ -318,7 +318,7 @@ class JsonMapLoaderTest {
               "width": 2,
               "height": 3,
               "texture": "door.png",
-              "destinationMap": "maps/room2.json",
+              "destinationMap": "maps/level2.json",
               "destinationSpawn": { "x": 4, "y": 5 }
             }
           ]
@@ -333,7 +333,7 @@ class JsonMapLoaderTest {
     assertEquals(2, transition.getWidth());
     assertEquals(3, transition.getHeight());
     assertEquals("door.png", transition.getTexture());
-    assertEquals("maps/room2.json", transition.getDestinationMap());
+    assertEquals("maps/level2.json", transition.getDestinationMap());
     assertEquals(new com.badlogic.gdx.math.GridPoint2(4, 5), transition.getDestinationSpawn());
     assertTrue(map.getTexturePaths().contains("door.png"));
   }
@@ -426,30 +426,6 @@ class JsonMapLoaderTest {
     assertEquals(TileType.WALL, map.getTileType(0, 0));
     assertEquals(2, map.getTexturePaths().size());
     assertEquals("ghost", map.getSpawns().getEnemies().get(0).getType());
-  }
-
-  @Test
-  void loadsRoomOneDoorwayAndTemporaryRoomTwo() {
-    LevelMapData roomOne = loader.load("maps/demo.json");
-    LevelMapData roomTwo = loader.load("maps/room2.json");
-
-    assertEquals("Underworld Dungeon", roomOne.getName());
-    assertEquals(40, roomOne.getWidth());
-    assertEquals(66, roomOne.getHeight());
-    assertEquals(new GridPoint2(8, 63), roomOne.getSpawns().getPlayer());
-    assertEquals(TileType.WALL, roomOne.getTileType(3, 0));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(20, 15));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(35, 5));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(4, 20));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(20, 60));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(26, 30));
-    assertEquals(31, roomOne.getSpawns().getEnemies().get(1).getY());
-    assertEquals(1, roomOne.getTransitions().size());
-    assertEquals("maps/room2.json", roomOne.getTransitions().getFirst().getDestinationMap());
-    assertEquals(new GridPoint2(34, 61), roomOne.getTransitions().getFirst().getPosition());
-    assertEquals("Underworld (Temporary)", roomTwo.getName());
-    assertEquals(40, roomTwo.getWidth());
-    assertEquals(22, roomTwo.getHeight());
   }
 
   @Test

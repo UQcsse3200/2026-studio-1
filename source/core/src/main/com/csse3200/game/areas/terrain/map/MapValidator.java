@@ -115,8 +115,7 @@ public final class MapValidator {
   private static void checkPlayerSpawn(LevelMapData map, String name, List<Problem> problems) {
     GridPoint2 spawn = map.getSpawns().getPlayer();
     if (spawn == null) {
-      problems.add(
-          new Problem(Severity.WARNING, "Map '" + name + "' defines no player spawn"));
+      problems.add(new Problem(Severity.WARNING, "Map '" + name + "' defines no player spawn"));
       return;
     }
     if (outOfBounds(map, spawn.x, spawn.y)) {
@@ -189,7 +188,13 @@ public final class MapValidator {
         problems.add(
             new Problem(
                 Severity.ERROR,
-                "Map '" + name + "' transition '" + id + "' at " + position + " is outside the map"));
+                "Map '"
+                    + name
+                    + "' transition '"
+                    + id
+                    + "' at "
+                    + position
+                    + " is outside the map"));
       }
 
       String destination = transition.getDestinationMap();
@@ -233,7 +238,8 @@ public final class MapValidator {
       if (!assetExists.test(texture)) {
         problems.add(
             new Problem(
-                Severity.ERROR, "Map '" + name + "' uses texture '" + texture + "', which is missing"));
+                Severity.ERROR,
+                "Map '" + name + "' uses texture '" + texture + "', which is missing"));
       }
     }
   }

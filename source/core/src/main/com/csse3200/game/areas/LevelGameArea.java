@@ -9,6 +9,8 @@ import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.LevelView;
+import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
@@ -213,8 +215,22 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the loaded map data (dimensions, layers, tile types, spawns) for other systems to use
+   * The supported way for other systems to read this level.
+   *
+   * <p>Prefer this to {@link #getMapData()}: {@link LevelView} is a stable contract, while the map
+   * data behind it is the map package's own structure and changes shape as the format evolves.
+   *
+   * @return a read-only view of the loaded level, or null before {@link #create()} runs
    */
+  public LevelView getLevel() {
+    return mapData == null ? null : new MapDataLevelView(mapData);
+  }
+
+  /**
+   * @return the loaded map data (dimensions, layers, tile types, spawns)
+   * @deprecated prefer {@link #getLevel()}, which does not couple callers to the map format
+   */
+  @Deprecated
   public LevelMapData getMapData() {
     return mapData;
   }

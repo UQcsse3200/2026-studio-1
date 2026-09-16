@@ -1,7 +1,9 @@
 package com.csse3200.game.components.loot;
 
-import com.csse3200.game.areas.terrain.TileType;
+import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.LevelView;
+import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,44 +33,29 @@ public class LootSpawnFinder {
     if (map == null) {
       throw new IllegalArgumentException("LevelMapData must not be null.");
     }
+    return findGroundSpots(new MapDataLevelView(map));
+  }
 
-    List<SpawnPoint> spots = new ArrayList<>();
-
-    // Row 0 has nothing beneath it, so the scan starts one row up.
-    for (int y = 1; y < map.getHeight(); y++) {
-      for (int x = 0; x < map.getWidth(); x++) {
-        TileType tile = map.getTileType(x, y);
-        TileType below = map.getTileType(x, y - 1);
-        if (isOpen(tile) && isGround(below)) {
-          spots.add(new SpawnPoint("loot", x, y));
-        }
-      }
+  /**
+   * Returns every tile that loot could be placed on.
+   *
+   * <p>Where a tile counts as ground is the level's own rule, so this asks the level rather than
+   * reading its layers.
+   *
+   * @param level level to search
+   * @return the usable tiles, empty when the level has no open ground
+   * @throws IllegalArgumentException if {@code level} is null
+   */
+  public static List<SpawnPoint> findGroundSpots(LevelView level) {
+    if (level == null) {
+      throw new IllegalArgumentException("LevelView must not be null.");
     }
 
+    List<SpawnPoint> spots = new ArrayList<>();
+    for (GridPoint2 tile : level.groundTiles()) {
+      spots.add(new SpawnPoint("loot", tile.x, tile.y));
+    }
     return spots;
-  }
-
-  /**
-   * Returns whether a tile is empty enough for loot to sit in.
-   *
-   * <p>Ladders are excluded even though they can be walked through, because loot dropped onto a
-   * ladder is awkward to pick up and looks out of place.
-   *
-   * @param tile tile to check, or {@code null} for an empty cell
-   * @return {@code true} for empty cells and purely decorative tiles
-   */
-  private static boolean isOpen(TileType tile) {
-    return tile == null || tile == TileType.DECORATIVE;
-  }
-
-  /**
-   * Returns whether a tile can hold loot up.
-   *
-   * @param tile tile to check, or {@code null} for an empty cell
-   * @return {@code true} for floors, walls and platforms
-   */
-  private static boolean isGround(TileType tile) {
-    return tile == TileType.FLOOR || tile == TileType.WALL || tile == TileType.PLATFORM;
   }
 
   private LootSpawnFinder() {

@@ -19,7 +19,7 @@ class RoomTransitionComponentTest {
     Entity player = new Entity();
     RoomTransition transition =
         new RoomTransition(
-            "door", new GridPoint2(1, 2), 1, 2, null, "maps/room2.json", new GridPoint2(3, 4));
+            "door", new GridPoint2(1, 2), 1, 2, null, "maps/level2.json", new GridPoint2(3, 4));
     AtomicInteger requestCount = new AtomicInteger();
     RoomTransitionComponent component =
         new RoomTransitionComponent(transition, player, ignored -> requestCount.incrementAndGet());
@@ -39,7 +39,7 @@ class RoomTransitionComponentTest {
     Entity player = new Entity();
     AtomicInteger requestCount = new AtomicInteger();
     RoomTransition transition =
-        new RoomTransition("door", new GridPoint2(), 1, 1, null, "maps/room2.json", null);
+        new RoomTransition("door", new GridPoint2(), 1, 1, null, "maps/level2.json", null);
     RoomTransitionComponent component =
         new RoomTransitionComponent(transition, player, ignored -> requestCount.incrementAndGet());
     Entity doorway = new Entity().addComponent(component);
