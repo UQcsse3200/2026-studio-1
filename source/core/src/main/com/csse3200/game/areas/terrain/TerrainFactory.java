@@ -61,31 +61,47 @@ public class TerrainFactory {
   public TerrainComponent createTerrain(TerrainType terrainType) {
     ResourceService resourceService = ServiceLocator.getResourceService();
     TextureRegion floor =
-        new TextureRegion(resourceService.getAsset("images/floor.png", Texture.class));
+        new TextureRegion(
+            resourceService.getAsset("images/environment/forest/floor.png", Texture.class));
     switch (terrainType) {
       case FOREST_DEMO:
         TextureRegion orthoGrass =
-            new TextureRegion(resourceService.getAsset("images/grass_1.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset("images/environment/forest/grass_1.png", Texture.class));
         TextureRegion orthoTuft =
-            new TextureRegion(resourceService.getAsset("images/grass_2.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset("images/environment/forest/grass_2.png", Texture.class));
         TextureRegion orthoRocks =
-            new TextureRegion(resourceService.getAsset("images/grass_3.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset("images/environment/forest/grass_3.png", Texture.class));
         return createForestDemoTerrain(0.5f, floor, orthoGrass, orthoTuft, orthoRocks);
       case FOREST_DEMO_ISO:
         TextureRegion isoGrass =
-            new TextureRegion(resourceService.getAsset("images/iso_grass_1.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset(
+                    "images/environment/forest/iso_grass_1.png", Texture.class));
         TextureRegion isoTuft =
-            new TextureRegion(resourceService.getAsset("images/iso_grass_2.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset(
+                    "images/environment/forest/iso_grass_2.png", Texture.class));
         TextureRegion isoRocks =
-            new TextureRegion(resourceService.getAsset("images/iso_grass_3.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset(
+                    "images/environment/forest/iso_grass_3.png", Texture.class));
         return createForestDemoTerrain(1f, floor, isoGrass, isoTuft, isoRocks);
       case FOREST_DEMO_HEX:
         TextureRegion hexGrass =
-            new TextureRegion(resourceService.getAsset("images/hexgrass_1.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset(
+                    "images/environment/forest/hex_grass_1.png", Texture.class));
         TextureRegion hexTuft =
-            new TextureRegion(resourceService.getAsset("images/hex_grass_2.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset(
+                    "images/environment/forest/hex_grass_2.png", Texture.class));
         TextureRegion hexRocks =
-            new TextureRegion(resourceService.getAsset("images/hex_grass_3.png", Texture.class));
+            new TextureRegion(
+                resourceService.getAsset(
+                    "images/environment/forest/hex_grass_3.png", Texture.class));
         return createForestDemoTerrain(1f, floor, hexGrass, hexTuft, hexRocks);
       default:
         return null;
@@ -118,12 +134,13 @@ public class TerrainFactory {
             continue;
           }
           Texture texture = resourceService.getAsset(def.texture(), Texture.class);
-          if (texture != null) {
-            TerrainTile tile = new TerrainTile(new TextureRegion(texture), def.type());
-            Cell cell = new Cell();
-            cell.setTile(tile);
-            layer.setCell(x, y, cell);
+          if (texture == null) {
+            continue;
           }
+          TerrainTile tile = new TerrainTile(new TextureRegion(texture), def.type());
+          Cell cell = new Cell();
+          cell.setTile(tile);
+          layer.setCell(x, y, cell);
         }
       }
       tiledMap.getLayers().add(layer);
@@ -139,16 +156,20 @@ public class TerrainFactory {
    * Falls back to {@link #DEFAULT_TILE_PX} if the map has no textures (e.g. an empty map).
    */
   private GridPoint2 resolveTilePixelSize(LevelMapData map, ResourceService resourceService) {
+    GridPoint2 smallest = null;
     for (TileDefinition def : map.getLegend().values()) {
       if (def.texture() == null) {
         continue;
       }
       Texture texture = resourceService.getAsset(def.texture(), Texture.class);
       if (texture != null) {
-        return new GridPoint2(texture.getWidth(), texture.getHeight());
+        GridPoint2 candidate = new GridPoint2(texture.getWidth(), texture.getHeight());
+        if (smallest == null || candidate.x * candidate.y < smallest.x * smallest.y) {
+          smallest = candidate;
+        }
       }
     }
-    return new GridPoint2(DEFAULT_TILE_PX, DEFAULT_TILE_PX);
+    return smallest == null ? new GridPoint2(DEFAULT_TILE_PX, DEFAULT_TILE_PX) : smallest;
   }
 
   private TerrainComponent createForestDemoTerrain(

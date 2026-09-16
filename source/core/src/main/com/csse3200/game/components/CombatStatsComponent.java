@@ -13,6 +13,7 @@ public class CombatStatsComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(CombatStatsComponent.class);
   private int health;
   private int baseAttack;
+  private int shieldHits;
 
   public CombatStatsComponent(int health, int baseAttack) {
     setHealth(health);
@@ -48,8 +49,12 @@ public class CombatStatsComponent extends Component {
     } else {
       this.health = 0;
     }
+
     if (entity != null) {
       entity.getEvents().trigger("updateHealth", this.health);
+      if (this.health <= 0) {
+        entity.getEvents().trigger("death");
+      }
     }
   }
 
@@ -59,7 +64,18 @@ public class CombatStatsComponent extends Component {
    * @param health health to add
    */
   public void addHealth(int health) {
-    setHealth(this.health + health);
+    if (this.health + health >= 0) {
+      this.health += health;
+    } else {
+      this.health = 0;
+    }
+
+    if (entity != null) {
+      entity.getEvents().trigger("updateHealth", this.health);
+      if (this.health <= 0) {
+        entity.getEvents().trigger("death");
+      }
+    }
   }
 
   /**
@@ -69,6 +85,14 @@ public class CombatStatsComponent extends Component {
    */
   public int getBaseAttack() {
     return baseAttack;
+  }
+
+  public int getShieldHits() {
+    return shieldHits;
+  }
+
+  public void setShieldHits(int shieldHits) {
+    this.shieldHits = Math.max(0, shieldHits);
   }
 
   /**
@@ -85,7 +109,18 @@ public class CombatStatsComponent extends Component {
   }
 
   public void hit(CombatStatsComponent attacker) {
+    if (shieldHits > 0) {
+      shieldHits--;
+      return;
+    }
+
+    boolean wasAlive = !isDead();
+
     int newHealth = getHealth() - attacker.getBaseAttack();
     setHealth(newHealth);
+
+    if (wasAlive && isDead() && attacker.getEntity() != null) {
+      attacker.getEntity().getEvents().trigger("enemyKilled");
+    }
   }
 }

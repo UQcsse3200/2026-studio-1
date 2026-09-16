@@ -2,8 +2,9 @@ package com.csse3200.game.components.loot;
 
 // Represents the different types of weapons available in the game.
 
+/** The set of weapon stypes avaliable in the game. */
 public enum WeaponType {
   SWORD,
   BOW,
-  DAGGER
+  DAGGER;
 }

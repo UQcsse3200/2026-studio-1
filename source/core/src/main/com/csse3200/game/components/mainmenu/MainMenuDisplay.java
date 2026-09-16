@@ -31,7 +31,7 @@ public class MainMenuDisplay extends UIComponent {
   private static final float MENU_ITEM_FONT_SCALE = 1.6f;
   private static final float OPTIONS_WIDTH_FRACTION = 0.75f;
 
-  private static final String[] MENU_ITEMS = {"Start", "Load", "Settings", "Exit"};
+  private static final String[] MENU_ITEMS = {"Start", "Load", "Settings", "Perks", "Exit"};
 
   Label[] buttons;
   int selectedIndex = 0;
@@ -83,7 +83,7 @@ public class MainMenuDisplay extends UIComponent {
 
   private Table buildTitleStack() {
     Texture titleTexture =
-        ServiceLocator.getResourceService().getAsset("images/box_boy_title.png", Texture.class);
+        ServiceLocator.getResourceService().getAsset("images/ui/box_boy_title.png", Texture.class);
 
     int splitX = (int) (titleTexture.getWidth() * TITLE_SPLIT_FRACTION);
     TextureRegion boxRegion =
@@ -163,7 +163,8 @@ public class MainMenuDisplay extends UIComponent {
       case 0 -> entity.getEvents().trigger("start");
       case 1 -> entity.getEvents().trigger("load");
       case 2 -> entity.getEvents().trigger("settings");
-      case 3 -> entity.getEvents().trigger("exit");
+      case 3 -> entity.getEvents().trigger("perks");
+      case 4 -> entity.getEvents().trigger("exit");
       default -> {}
     }
   }

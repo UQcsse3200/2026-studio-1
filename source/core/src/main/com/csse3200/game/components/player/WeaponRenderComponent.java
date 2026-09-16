@@ -71,6 +71,11 @@ public class WeaponRenderComponent extends RenderComponent {
     entity.getEvents().addListener("weaponAttack", this::handleWeaponAttack);
     entity.getEvents().addListener("walk", this::updateFacing);
     entity.getEvents().addListener("activeSlotChanged", this::updateWeapon);
+    entity
+        .getEvents()
+        .addListener(
+            "inventoryChanged",
+            () -> updateWeapon(entity.getComponent(InventoryComponent.class).getActiveSlot()));
 
     updateWeapon(entity.getComponent(InventoryComponent.class).getActiveSlot());
   }
@@ -86,13 +91,14 @@ public class WeaponRenderComponent extends RenderComponent {
     }
 
     if (weaponItem.getWeaponType() == WeaponType.BOW) {
-      texture = ServiceLocator.getResourceService().getAsset("images/bow.png", Texture.class);
+      texture = ServiceLocator.getResourceService().getAsset("images/items/bow.png", Texture.class);
       isBow = true;
     } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
       texture = ServiceLocator.getResourceService().getAsset("images/dagger.png", Texture.class);
       isBow = false;
     } else {
-      texture = ServiceLocator.getResourceService().getAsset("images/sword.png", Texture.class);
+      texture =
+          ServiceLocator.getResourceService().getAsset("images/items/sword.png", Texture.class);
       isBow = false;
     }
   }
