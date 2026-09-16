@@ -18,7 +18,7 @@ public class EnemyDeathComponent extends Component {
     Gdx.app.postRunnable(this::onDeath);
   }
 
-  public void onDeath() {
+  private void onDeath() {
     ItemDropComponent dropper = entity.getComponent(ItemDropComponent.class);
     if (dropper != null) {
       // Drop gold
