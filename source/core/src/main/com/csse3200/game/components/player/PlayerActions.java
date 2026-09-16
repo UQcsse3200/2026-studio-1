@@ -15,6 +15,7 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.HashMap;
@@ -62,9 +63,6 @@ public class PlayerActions extends Component {
   // Death State
   private boolean dead = false;
 
-  private final String NORMAL_TEXTURE = "images/player/box_boy_leaf.png";
-  private final String CROUCH_TEXTURE = "images/player/box_boy_crouch.png";
-  private final String SLIDE_TEXTURE = "images/player/box_boy_slide.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
@@ -118,6 +116,29 @@ public class PlayerActions extends Component {
       updateSpeed();
     }
     timerforslide();
+    String direction = entity.getComponent(KeyboardPlayerInputComponent.class).getDirection();
+    animationtimer(direction);
+  }
+
+  private void animationtimer(String direction) {
+    PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
+    if (animator.isFinished()
+        & !animator.getCurrentAnimation().equals("crouchidle")
+        & !animator.getCurrentAnimation().equals("Leftcrouchidle")
+        & !animator.getCurrentAnimation().equals("Run")
+        & !animator.getCurrentAnimation().equals("LeftRun")) {
+
+      if (animator.getCurrentAnimation().equals("Jump")
+          || animator.getCurrentAnimation().equals("LeftJump")) {
+        if (!walkDirection.isZero()) {
+          entity.getEvents().trigger("run", direction);
+        } else {
+          entity.getEvents().trigger("idle", direction);
+        }
+      } else {
+        entity.getEvents().trigger("idle", direction);
+      }
+    }
   }
 
   public void playMovementSound() {
@@ -289,12 +310,10 @@ public class PlayerActions extends Component {
     }
 
     if (pressed) {
-      textureRenderComponent.setTexture(CROUCH_TEXTURE);
       sneaking = true;
       crouching = true;
       updateSpeed();
     } else {
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
       sneaking = false;
       crouching = false;
       updateSpeed();
@@ -305,18 +324,21 @@ public class PlayerActions extends Component {
     if (pressed) {
       sliding = true;
       SlideTimer = 0;
-      textureRenderComponent.setTexture(SLIDE_TEXTURE);
       slidingAction(walkDirection.cpy());
-
     } else {
       sliding = false;
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
   }
 
   private void slidingAction(Vector2 direction) {
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(slidespeed);
+    if (impulse.x != 0f) {
+      entity
+          .getEvents()
+          .trigger(
+              "sliding", entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
+    }
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 
@@ -326,7 +348,6 @@ public class PlayerActions extends Component {
     SlideTimer += Gdx.graphics.getDeltaTime();
     if (SlideTimer >= SlideMaxTime) { // finish slide
       sliding = false;
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
   }
 
