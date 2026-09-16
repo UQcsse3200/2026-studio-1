@@ -123,10 +123,10 @@ public class PlayerActions extends Component {
   private void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
     if (animator.isFinished()
-        & !animator.getCurrentAnimation().equals("crouchidle")
-        & !animator.getCurrentAnimation().equals("Leftcrouchidle")
-        & !animator.getCurrentAnimation().equals("Run")
-        & !animator.getCurrentAnimation().equals("LeftRun")) {
+        && !animator.getCurrentAnimation().equals("crouchidle")
+        && !animator.getCurrentAnimation().equals("Leftcrouchidle")
+        && !animator.getCurrentAnimation().equals("Run")
+        && !animator.getCurrentAnimation().equals("LeftRun")) {
 
       if (animator.getCurrentAnimation().equals("Jump")
           || animator.getCurrentAnimation().equals("LeftJump")) {

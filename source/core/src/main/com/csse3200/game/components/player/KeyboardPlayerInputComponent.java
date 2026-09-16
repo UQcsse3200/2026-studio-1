@@ -22,7 +22,6 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
-  private boolean sliding = false;
   private String direction = "Right";
 
   public String getDirection() {
