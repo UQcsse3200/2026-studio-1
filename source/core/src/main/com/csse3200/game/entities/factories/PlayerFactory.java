@@ -97,8 +97,8 @@ public class PlayerFactory {
             .addComponent(new WeaponAttackComponent(startingWeapon))
             .addComponent(new WeaponRenderComponent())
             .addComponent(new ShopComponent().seedDefaultCatalog())
-            .addComponent(new ShopDisplay());
-            .addComponent(new WeaponRenderComponent("images/sword.png"));
+            .addComponent(new ShopDisplay())
+            .addComponent(new WeaponRenderComponent());
     PlayerRenderComponent animator =
         new PlayerRenderComponent(
             ServiceLocator.getResourceService().getAsset("images/knight.atlas", TextureAtlas.class),
