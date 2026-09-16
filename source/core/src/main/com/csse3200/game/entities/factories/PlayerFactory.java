@@ -9,6 +9,7 @@ import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.*;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -25,7 +26,6 @@ import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
-import com.csse3200.game.components.player.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.PlayerConfig;
 import com.csse3200.game.files.FileLoader;
@@ -101,8 +101,7 @@ public class PlayerFactory {
             .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay())
             .addComponent(new WeaponRenderComponent());
-    PlayerRenderComponent animator =
-        new PlayerRenderComponent(rightAtlas, leftAtlas);
+    PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas);
 
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);
