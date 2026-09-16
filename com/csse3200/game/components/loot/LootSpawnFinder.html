@@ -94,13 +94,26 @@ loadScripts(document, 'script');</script>
 <div class="block">Finds the tiles on a map where a piece of loot can rest on the ground.
 
  <p>Most maps do not declare loot spawn points, so loot needs somewhere sensible to go without a
- map author placing it by hand. A tile qualifies when it is open space and the tile directly below
- it is something you can stand on. That one rule keeps loot out of walls, stops it floating in the
- air, and keeps it off hazards.
+ map author placing it by hand. A tile qualifies when all three of these hold:
 
- <p>This only checks the tiles immediately around each spot, so a tile inside a sealed pocket of
- wall can still qualify. Maps that need tighter control can declare their own loot spawn points,
- which are always used first.</div>
+ <ol>
+   <li><b>Open:</b> the tile itself is empty space, so loot is never placed inside a wall.
+   <li><b>Standing on ground:</b> the tile below is a floor, wall or platform, so loot does not
+       float and is not left on a hazard.
+   <li><b>Room above:</b> the tile above is not a floor or wall. Without this, a gap sealed inside
+       a thick band of ground passed the first two checks and loot was drawn inside the ground
+       (bug #194).
+ </ol>
+
+ <p>On top of that, a tile must be <b>reachable</b>: starting from the player's spawn, the finder
+ visits every tile the player can move through, one neighbour at a time, and only tiles it visited
+ are used. That rules out open pockets walled off from the rest of the map, which can still pass
+ the three checks above. A map with no player spawn has no starting point, so this check is
+ skipped for it.
+
+ <p>Reachability only follows open tiles, not jumps, so a ledge that needs a jump the player
+ cannot make can still be chosen. Maps that need exact control can declare their own loot spawn
+ points, which are always used first.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -146,7 +159,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>map</code> - map to search</dd>
 <dt>Returns:</dt>
-<dd>the usable tiles, empty when the map has no open ground</dd>
+<dd>the usable tiles, empty when the map has no open, reachable ground</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>map</code> is null</dd>
 </dl>
