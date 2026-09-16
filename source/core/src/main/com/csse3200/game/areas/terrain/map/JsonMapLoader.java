@@ -20,22 +20,20 @@ import org.slf4j.LoggerFactory;
  * <p>The format uses human-editable rows of characters per layer, resolved against a legend:
  *
  * <pre>{@code
- * {
- *   "name": "Demo Level",
- *   "tileSize": 0.5,
- *   "legend": {
- *     "#": { "type": "WALL",  "texture": "images/environment/forest/grass_3.png" },
- *     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" }
- *   },
- *   "layers": {
- *     "background": ["....", "...."],
- *     "terrain":    ["####", "#..#"]
- *   },
- *   "spawns": {
- *     "player":  { "x": 1, "y": 1 },
- *     "enemies": [ { "type": "ghost", "x": 2, "y": 1 } ],
- *     "loot":    [ { "x": 3, "y": 1 } ]
- *   }
+ * "spawnLegend": {
+ *   "P": { "type": "PLAYER" },
+ *   "S": { "type": "ENEMY", "enemyType": "skeleton" },
+ *   "L": { "type": "LOOT" }
+ * },
+ * "layers": {
+ *   "background": ["....", "...."],
+ *   "terrain": ["####", "#..#"],
+ *   "entities": [
+ *     "        ",
+ *     "    S   ",
+ *     "        ",
+ *     "  P     "
+ *   ]
  * }
  * }</pre>
  *
@@ -103,6 +101,8 @@ public class JsonMapLoader implements MapLoader {
 
     // parse entity legend
     Map<String, JsonValue> entityLegend = parseEntityLegend(root.get("entityLegend"));
+
+    logger.info("Entity legend: {}", entityLegend.keySet());
 
     JsonValue layersJson = root.get("layers");
     if (layersJson == null) {
