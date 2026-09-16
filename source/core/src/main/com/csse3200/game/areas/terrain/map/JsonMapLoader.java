@@ -45,6 +45,10 @@ import org.slf4j.LoggerFactory;
  * the bottom row (matching world coordinates). A space, or any character absent from the legend,
  * means an empty cell. Spawn coordinates use world tile coordinates (bottom-left origin, y up).
  *
+ * <p>The {@code entities} layer resolves against {@code entityLegend}, a separate namespace from
+ * the tile legend, so the same character can mean different things in each. An entry's {@code type}
+ * is PLAYER, ENEMY, LOOT, or MARKER; see {@link Marker} for placing anything else.
+ *
  * <p>A legend entry may carry any number of extra keys beyond {@code type} and {@code texture}.
  * They are read as text into {@link TileDefinition#properties()} and never interpreted here, so a
  * feature can add per-tile data without changing this loader. See {@link TileDefinition}.
@@ -372,8 +376,33 @@ public class JsonMapLoader implements MapLoader {
       case "ENEMY" ->
           spawns.addEnemy(new SpawnPoint(definition.getString("enemyType", null), x, y));
       case "LOOT" -> spawns.addLoot(new SpawnPoint(definition.getString("lootType", null), x, y));
+      case "MARKER" -> placeMarker(definition, symbol, x, y, spawns);
       default -> logger.warn("Unknown entity type '{}' for symbol '{}'", type, symbol);
     }
+  }
+
+  /**
+   * Records one marker. Everything on the legend entry except {@code type}, {@code kind} and {@code
+   * id} becomes a marker property, so a team can attach whatever its feature needs.
+   */
+  private void placeMarker(JsonValue definition, String symbol, int x, int y, MapSpawns spawns) {
+    String kind = definition.getString("kind", null);
+    if (kind == null || kind.isBlank()) {
+      logger.warn("Marker symbol '{}' has no 'kind' - ignored", symbol);
+      return;
+    }
+
+    Map<String, String> properties = new LinkedHashMap<>();
+    for (JsonValue field = definition.child; field != null; field = field.next) {
+      String key = field.name;
+      if (key == null || key.equals("type") || key.equals("kind") || key.equals("id")) {
+        continue;
+      }
+      properties.put(key, field.asString());
+    }
+
+    spawns.addMarker(
+        new Marker(kind, definition.getString("id", null), new GridPoint2(x, y), properties));
   }
 
   private void placePlayerSpawn(int x, int y, MapSpawns spawns) {
@@ -503,6 +532,15 @@ public class JsonMapLoader implements MapLoader {
     for (SpawnPoint sp : spawns.getLoot()) {
       if (outOfBounds(sp.getX(), sp.getY(), width, height)) {
         logger.warn("Loot spawn {} is out of bounds in map '{}'", sp, mapName);
+      }
+    }
+    for (Marker marker : spawns.getAllMarkers()) {
+      if (outOfBounds(marker.position().x, marker.position().y, width, height)) {
+        logger.warn(
+            "Marker of kind '{}' is out of bounds at {} in map '{}'",
+            marker.kind(),
+            marker.position(),
+            mapName);
       }
     }
   }

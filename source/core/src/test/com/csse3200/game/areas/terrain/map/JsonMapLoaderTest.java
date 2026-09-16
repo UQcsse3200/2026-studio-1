@@ -113,6 +113,77 @@ class JsonMapLoaderTest {
   }
 
   @Test
+  void placesMarkersFromTheEntitiesLayer() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "N": { "type": "MARKER", "kind": "npc", "id": "traveler" },
+            "T": { "type": "MARKER", "kind": "light", "radius": "6" },
+            "C": { "type": "MARKER", "kind": "CHECKPOINT" }
+          },
+          "layers": {
+            "terrain":  ["####", "####"],
+            "entities": ["T  C", "N   "]
+          }
+        }
+        """;
+    MapSpawns spawns = loader.parse(json).getSpawns();
+
+    Marker npc = spawns.getMarkers("npc").getFirst();
+    assertEquals("traveler", npc.id());
+    assertEquals(new GridPoint2(0, 0), npc.position());
+
+    Marker light = spawns.getMarkers("light").getFirst();
+    assertEquals(6, light.getInt("radius", 0));
+    assertNull(light.id());
+    // kind, id and type stay out of the property bag.
+    assertFalse(light.properties().containsKey("kind"));
+    assertFalse(light.properties().containsKey("type"));
+
+    // Kinds are matched ignoring case, so map authors can write them however they like.
+    assertEquals(1, spawns.getMarkers("checkpoint").size());
+    assertEquals(3, spawns.getAllMarkers().size());
+  }
+
+  @Test
+  void ignoresAMarkerWithNoKind() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": { "X": { "type": "MARKER", "id": "nameless" } },
+          "layers": { "terrain": ["##"], "entities": ["X "] }
+        }
+        """;
+    assertTrue(loader.parse(json).getSpawns().getAllMarkers().isEmpty());
+  }
+
+  @Test
+  void markersDoNotDisturbPlayerEnemyOrLootSpawns() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "P": { "type": "PLAYER" },
+            "S": { "type": "ENEMY", "enemyType": "skeleton" },
+            "L": { "type": "LOOT" },
+            "N": { "type": "MARKER", "kind": "npc" }
+          },
+          "layers": { "terrain": ["####"], "entities": ["PSLN"] }
+        }
+        """;
+    MapSpawns spawns = loader.parse(json).getSpawns();
+
+    assertEquals(new GridPoint2(0, 0), spawns.getPlayer());
+    assertEquals(1, spawns.getEnemies().size());
+    assertEquals(1, spawns.getLoot().size());
+    assertEquals(1, spawns.getMarkers("npc").size());
+  }
+
+  @Test
   void usesDefaultsWhenNameAndTileSizeMissing() {
     String json =
         """
