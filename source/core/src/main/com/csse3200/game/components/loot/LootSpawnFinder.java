@@ -7,6 +7,7 @@ import com.csse3200.game.areas.terrain.map.MapSpawns;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class LootSpawnFinder {
 
         boolean restsOnGround = isOpen(tile) && isGround(below);
         boolean hasRoomAbove = !isSolid(above);
-        boolean playerCanReach = reachable == null || reachable[x][y];
+        boolean playerCanReach = reachable[x][y];
 
         if (restsOnGround && hasRoomAbove && playerCanReach) {
           spots.add(new SpawnPoint("loot", x, y));
@@ -80,17 +81,22 @@ public class LootSpawnFinder {
    * through. When the queue is empty, every connected tile has been visited.
    *
    * @param map map to search
-   * @return {@code reachable[x][y]} for each tile, or {@code null} when the map has no usable
-   *     player spawn, meaning every tile should be treated as reachable
+   * @return {@code reachable[x][y]} for each tile; when the map has no usable player spawn, every
+   *     tile is marked reachable
    */
   private static boolean[][] findReachableTiles(LevelMapData map) {
+    boolean[][] reached = new boolean[map.getWidth()][map.getHeight()];
+
     MapSpawns spawns = map.getSpawns();
     GridPoint2 start = spawns == null ? null : spawns.getPlayer();
     if (start == null || !isInside(map, start.x, start.y)) {
-      return null;
+      // No starting point to search from, so every tile is allowed.
+      for (boolean[] column : reached) {
+        Arrays.fill(column, true);
+      }
+      return reached;
     }
 
-    boolean[][] reached = new boolean[map.getWidth()][map.getHeight()];
     Deque<GridPoint2> toVisit = new ArrayDeque<>();
     reached[start.x][start.y] = true;
     toVisit.add(start);
