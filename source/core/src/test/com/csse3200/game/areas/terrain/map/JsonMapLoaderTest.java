@@ -43,6 +43,52 @@ class JsonMapLoaderTest {
   }
 
   @Test
+  void placesSpawnsFromTheEntitiesLayer() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "P": { "type": "PLAYER" },
+            "S": { "type": "ENEMY", "enemyType": "skeleton" },
+            "L": { "type": "LOOT" }
+          },
+          "layers": {
+            "terrain":  ["####", "####"],
+            "entities": ["  S ", "P  L"]
+          }
+        }
+        """;
+    LevelMapData map = loader.parse(json);
+
+    // Rows are flipped, so the bottom row of the entities layer is y = 0.
+    assertEquals(new GridPoint2(0, 0), map.getSpawns().getPlayer());
+    assertEquals(1, map.getSpawns().getEnemies().size());
+    assertEquals("skeleton", map.getSpawns().getEnemies().getFirst().getType());
+    assertEquals(new GridPoint2(2, 1), map.getSpawns().getEnemies().getFirst().getPosition());
+    assertEquals(new GridPoint2(3, 0), map.getSpawns().getLoot().getFirst().getPosition());
+    // The entities layer is spawn data, not a tile layer.
+    assertNull(map.getLayer("entities"));
+    assertEquals(1, map.getLayers().size());
+  }
+
+  @Test
+  void throwsWhenEntitiesLayerDoesNotMatchTheMapGrid() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": { "P": { "type": "PLAYER" } },
+          "layers": {
+            "terrain":  ["####", "####", "####"],
+            "entities": ["P   "]
+          }
+        }
+        """;
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
+  }
+
+  @Test
   void usesDefaultsWhenNameAndTileSizeMissing() {
     String json =
         """
@@ -343,10 +389,13 @@ class JsonMapLoaderTest {
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
     assertEquals(1, levelOne.getTransitions().size());
     assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+    // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
+    // map still loads and renders from its tile layers.
+    assertNull(levelOne.getBackgroundTexture());
   }
 
   @Test
-  void loadsTheAuthoredLevelTwoMountainAndItsSummitExit() {
+  void loadsLevelTwoMountainAndItsSummitExit() {
     LevelMapData levelTwo = loader.load("maps/level2.json");
 
     assertEquals("Level 2 — Climb Mount Olympus", levelTwo.getName());
@@ -355,11 +404,13 @@ class JsonMapLoaderTest {
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());
     assertEquals(TileType.WALL, levelTwo.getTileType(1, 1));
     assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 155));
-    assertNull(levelTwo.getLayer("hazards").get(27, 155));
-    assertNull(levelTwo.getLayer("hazards").get(27, 143));
-    assertNull(levelTwo.getLayer("hazards").get(31, 131));
-    assertNull(levelTwo.getLayer("hazards").get(42, 75));
-    assertEquals(TileType.HAZARD, levelTwo.getLayer("hazards").get(13, 45).type());
+    // Storm clouds stay walkable; only explicitly authored hazards damage the player.
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 143));
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(31, 131));
+    assertNull(levelTwo.getTileType(42, 75));
+    // Hazards live in the collision layer, as they do in level 1.
+    assertNull(levelTwo.getLayer("hazards"));
+    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 45));
     assertEquals(TileType.DECORATIVE, levelTwo.getTileType(59, 173));
     assertEquals(TileType.WALL, levelTwo.getTileType(59, 165));
     assertTrue(
