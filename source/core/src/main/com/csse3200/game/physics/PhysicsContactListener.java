@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PhysicsContactListener implements ContactListener {
   private static final Logger logger = LoggerFactory.getLogger(PhysicsContactListener.class);
+  private static final float PLATFORM_SURFACE_TOLERANCE = 0.05f;
 
   @Override
   public void beginContact(Contact contact) {
@@ -31,12 +32,48 @@ public class PhysicsContactListener implements ContactListener {
 
   @Override
   public void preSolve(Contact contact, Manifold oldManifold) {
-    // Nothing to do before resolving contact
+    Fixture fixtureA = contact.getFixtureA();
+    Fixture fixtureB = contact.getFixtureB();
+
+    if (shouldDisablePlatformContact(fixtureA, fixtureB)
+        || shouldDisablePlatformContact(fixtureB, fixtureA)) {
+      contact.setEnabled(false);
+    }
   }
 
   @Override
   public void postSolve(Contact contact, ContactImpulse impulse) {
     // Nothing to do after resolving contact
+  }
+
+  /**
+   * Returns whether contact between a one-way platform and another fixture should be ignored.
+   * Contact is disabled while the other body moves upward or remains below the platform surface.
+   */
+  static boolean shouldDisablePlatformContact(Fixture platform, Fixture other) {
+    if (!isOnLayer(platform, PhysicsLayer.PLATFORM) || other.isSensor()) {
+      return false;
+    }
+
+    Body platformBody = platform.getBody();
+    Body otherBody = other.getBody();
+    float platformTop = platformBody.getPosition().y + entityHeight(platformBody);
+    float otherBottom = otherBody.getPosition().y;
+
+    return otherBody.getLinearVelocity().y > 0f
+        || otherBottom < platformTop - PLATFORM_SURFACE_TOLERANCE;
+  }
+
+  private static boolean isOnLayer(Fixture fixture, short layer) {
+    return PhysicsLayer.contains(layer, fixture.getFilterData().categoryBits);
+  }
+
+  private static float entityHeight(Body body) {
+    Object data = body.getUserData();
+    if (data instanceof BodyUserData bodyData && bodyData.entity != null) {
+      return bodyData.entity.getScale().y;
+    }
+    return 0f;
   }
 
   private void triggerEventOn(Fixture fixture, String evt, Fixture otherFixture) {

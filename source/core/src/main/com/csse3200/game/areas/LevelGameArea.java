@@ -457,7 +457,7 @@ public class LevelGameArea extends GameArea {
 
   private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize) {
     float width = tileCount * tileSize;
-    Entity collider = ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
+    Entity collider = ObstacleFactory.createOneWayPlatform(width, COLLIDER_HEIGHT);
 
     Vector2 position = terrain.tileToWorldPosition(startX, y);
 

@@ -34,4 +34,17 @@ class ObstacleFactoryTest {
     assertTrue(collider.getFixture().isSensor());
     assertEquals(BodyType.StaticBody, physics.getBody().getType());
   }
+
+  @Test
+  void shouldCreateOneWayPlatformAsAnObstacle() {
+    Entity platform = ObstacleFactory.createOneWayPlatform(3f, 0.1f);
+
+    platform.create();
+
+    ColliderComponent collider = platform.getComponent(ColliderComponent.class);
+    PhysicsComponent physics = platform.getComponent(PhysicsComponent.class);
+    assertTrue(PhysicsLayer.contains(PhysicsLayer.PLATFORM, collider.getLayer()));
+    assertTrue(PhysicsLayer.contains(PhysicsLayer.OBSTACLE, collider.getLayer()));
+    assertEquals(BodyType.StaticBody, physics.getBody().getType());
+  }
 }
