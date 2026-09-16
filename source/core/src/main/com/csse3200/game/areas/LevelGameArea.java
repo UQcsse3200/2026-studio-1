@@ -120,7 +120,7 @@ public class LevelGameArea extends GameArea {
     "images/skeleton.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
     "images/knight.atlas",
-    "images/LeftKnight.atlas"
+    "images/LeftKnight.atlas",
     "images/skeleton_weapons/skeleton_sword.atlas",
     "images/enemies/ghost.atlas",
     "images/enemies/ghostKing.atlas",
