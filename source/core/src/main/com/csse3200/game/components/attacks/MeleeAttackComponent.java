@@ -39,6 +39,7 @@ public class MeleeAttackComponent extends Component {
   private float range;
   private float cooldown;
   private float knockback;
+  private float damage;
   private WeaponItem weapon;
   /* This is set in the {@link WeaponItem} creation rather than here as animation is per weapon
    * Adjustments can be made as public setter and getter for the value is avaliable.
@@ -78,6 +79,30 @@ public class MeleeAttackComponent extends Component {
     }
     this.windupDuration = weapon.getWindupDuration();
     this.timeSinceLastAttack = cooldown;
+  }
+
+  /**
+   * Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+   * for any attacks i.e. the rocks where no weapons are in the inventory.
+   *
+   * @param range attack reach, checked as a direct distance calculation between this entity's and
+   *     the target's positions; also used as the fired arrow's maximum flight distance.
+   * @param cooldown minimum time, in seconds, between successive shots being fired.
+   * @param knockback knockback magnitude applied to the target on a successful hit; {@code 0f}
+   *     results in no knockback.
+   */
+  public MeleeAttackComponent(float range, float cooldown, float knockback) {
+    setRange(range);
+    setKnockback(knockback);
+    setCooldown(cooldown);
+    if (weapon.getWindupDuration() < 0) {
+      throw new IllegalArgumentException("windupDuration must not be negative.");
+    }
+    if (weapon.getWindupDuration() >= this.getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown");
+    }
+    this.timeSinceLastAttack = cooldown;
+    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**
@@ -176,15 +201,15 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
-   * Returns the equipped weapon's damage. The only stat this component reads from the weapon —
-   * range and knockback are this wielder's own properties, not the weapon's.
+   * Returns the damage for this attack, either the configured base attack from the config file or
+   * the equipped weapon's damage. The only stat this component reads from the weapon — range and
+   * knockback are this wielder's own properties, not the weapon's.
    *
    * @return the equipped weapon's damage, sourced from {@code weapon.getDamage()}
-   * @throws NullPointerException if no weapon has been set
    */
-  public float getDamage() throws NullPointerException {
+  public int getDamage() {
     if (this.weapon == null) {
-      throw new NullPointerException("weapon cannot be null");
+      return this.combatStats.getBaseAttack();
     }
     return this.weapon.getDamage();
   }
@@ -265,8 +290,9 @@ public class MeleeAttackComponent extends Component {
     if (distance > this.getRange()) {
       return;
     }
-    int finalDamage = weapon.getDamage();
     // retrieve damage stats from weapon
+    int finalDamage = this.getDamage();
+
     ChargeComponent chargeComponent = entity.getComponent(ChargeComponent.class);
     if (chargeComponent != null) {
       // if not charging then 1.0f is the mutiplier
