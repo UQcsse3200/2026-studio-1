@@ -426,8 +426,33 @@ class JsonMapLoaderTest {
     assertEquals("images/level2/level2-map.png", levelTwo.getBackgroundTexture());
 
     LevelMapData levelThree = loader.load("maps/level3.json");
-    assertEquals("Level 3 (Coming Soon)", levelThree.getName());
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
+  }
+
+  @Test
+  void loadsLevelThreeThroneRoomWithASingleBoss() {
+    LevelMapData levelThree = loader.load("maps/level3.json");
+
+    assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
+    assertEquals(40, levelThree.getWidth());
+    assertEquals(16, levelThree.getHeight());
+    // The player arrives on the spawn level 2's summit exit sends them to.
+    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
+    assertEquals(1, levelThree.getSpawns().getEnemies().size());
+    assertEquals("ghostking", levelThree.getSpawns().getEnemies().getFirst().getType());
+    assertEquals(
+        new GridPoint2(32, 2), levelThree.getSpawns().getEnemies().getFirst().getPosition());
+    // Only the shell collides: the throne room's furniture is all walk-through decoration.
+    for (MapLayerData layer : levelThree.getLayers()) {
+      for (int x = 0; x < levelThree.getWidth(); x++) {
+        for (int y = 0; y < levelThree.getHeight(); y++) {
+          TileDefinition tile = layer.get(x, y);
+          if (tile != null && tile.type() != TileType.WALL) {
+            assertEquals(TileType.DECORATIVE, tile.type());
+          }
+        }
+      }
+    }
   }
 
   @Test
