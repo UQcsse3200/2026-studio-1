@@ -73,7 +73,6 @@ public class MainGameScreen extends ScreenAdapter {
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
-  private String currentRoomMapPath = FIRST_ROOM_MAP;
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
@@ -286,7 +285,6 @@ public class MainGameScreen extends ScreenAdapter {
     previousArea.dispose();
     nextArea.resumeMusic();
     levelGameArea = nextArea;
-    currentRoomMapPath = transition.getDestinationMap();
     playerInNether = null;
     player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
     // The lift prompt belongs to any map split into sub-levels, not to one named file.

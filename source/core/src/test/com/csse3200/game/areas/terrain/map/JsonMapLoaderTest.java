@@ -12,8 +12,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(GameExtension.class)
 class JsonMapLoaderTest {
@@ -71,22 +75,6 @@ class JsonMapLoaderTest {
     // The entities layer is spawn data, not a tile layer.
     assertNull(map.getLayer("entities"));
     assertEquals(1, map.getLayers().size());
-  }
-
-  @Test
-  void throwsWhenEntitiesLayerDoesNotMatchTheMapGrid() {
-    String json =
-        """
-        {
-          "legend": { "#": { "type": "WALL" } },
-          "entityLegend": { "P": { "type": "PLAYER" } },
-          "layers": {
-            "terrain":  ["####", "####", "####"],
-            "entities": ["P   "]
-          }
-        }
-        """;
-    assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
   @Test
@@ -339,20 +327,6 @@ class JsonMapLoaderTest {
   }
 
   @Test
-  void rejectsTransitionWithoutDestinationMap() {
-    String json =
-        """
-        {
-          "legend": {},
-          "layers": { "terrain": [" "] },
-          "transitions": [ { "x": 0, "y": 0 } ]
-        }
-        """;
-
-    assertThrows(MapLoadException.class, () -> loader.parse(json));
-  }
-
-  @Test
   void allowsOutOfBoundsSpawnsWithoutThrowing() {
     String json =
         """
@@ -405,12 +379,39 @@ class JsonMapLoaderTest {
         () -> loader.parse("{ \"layers\": { \"terrain\": { \"a\": 1 } } }"));
   }
 
-  @Test
-  void throwsOnUnknownTileType() {
-    String json =
-        """
-        { "legend": { "#": { "type": "NONSENSE" } }, "layers": { "terrain": ["#"] } }
-        """;
+  static Stream<Arguments> structurallyInvalidMaps() {
+    return Stream.of(
+        Arguments.of(
+            "entities layer does not match the map grid",
+            """
+            {
+              "legend": { "#": { "type": "WALL" } },
+              "entityLegend": { "P": { "type": "PLAYER" } },
+              "layers": {
+                "terrain":  ["####", "####", "####"],
+                "entities": ["P   "]
+              }
+            }
+            """),
+        Arguments.of(
+            "transition has no destination map",
+            """
+            {
+              "legend": {},
+              "layers": { "terrain": [" "] },
+              "transitions": [ { "x": 0, "y": 0 } ]
+            }
+            """),
+        Arguments.of(
+            "legend uses an unknown tile type",
+            """
+            { "legend": { "#": { "type": "NONSENSE" } }, "layers": { "terrain": ["#"] } }
+            """));
+  }
+
+  @ParameterizedTest(name = "rejects a map where the {0}")
+  @MethodSource("structurallyInvalidMaps")
+  void rejectsStructurallyInvalidMaps(String problem, String json) {
     assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 

@@ -26,8 +26,19 @@ import java.util.function.Predicate;
  * when {@link #validate(LevelMapData, Predicate)} is given a way to test for a file.
  */
 public final class MapValidator {
+  private static final String OUTSIDE_THE_MAP = " is outside the map";
 
   private MapValidator() {}
+
+  /** The start of every message about a map: {@code Map 'name' }. */
+  private static String about(String mapName) {
+    return "Map '" + mapName + "' ";
+  }
+
+  /** The start of every message about one doorway: {@code Map 'name' transition 'id'}. */
+  private static String aboutTransition(String mapName, String id) {
+    return about(mapName) + "transition '" + id + "'";
+  }
 
   /** How sure the validator is that a problem is a mistake. */
   public enum Severity {
@@ -76,7 +87,7 @@ public final class MapValidator {
 
     String name = map.getName();
     if (map.isEmpty()) {
-      problems.add(new Problem(Severity.ERROR, "Map '" + name + "' has no layers"));
+      problems.add(new Problem(Severity.ERROR, about(name) + "has no layers"));
       return problems;
     }
 
@@ -102,9 +113,8 @@ public final class MapValidator {
       problems.add(
           new Problem(
               Severity.ERROR,
-              "Map '"
-                  + name
-                  + "' has no '"
+              about(name)
+                  + "has no '"
                   + LevelMapData.COLLISION_LAYER
                   + "' or '"
                   + LevelMapData.TERRAIN_LAYER
@@ -115,13 +125,12 @@ public final class MapValidator {
   private static void checkPlayerSpawn(LevelMapData map, String name, List<Problem> problems) {
     GridPoint2 spawn = map.getSpawns().getPlayer();
     if (spawn == null) {
-      problems.add(new Problem(Severity.WARNING, "Map '" + name + "' defines no player spawn"));
+      problems.add(new Problem(Severity.WARNING, about(name) + "defines no player spawn"));
       return;
     }
     if (outOfBounds(map, spawn.x, spawn.y)) {
       problems.add(
-          new Problem(
-              Severity.ERROR, "Map '" + name + "' player spawn " + spawn + " is outside the map"));
+          new Problem(Severity.ERROR, about(name) + "player spawn " + spawn + OUTSIDE_THE_MAP));
       return;
     }
     describeFooting(map, spawn, "player spawn", name, problems);
@@ -133,14 +142,12 @@ public final class MapValidator {
     if (isSolid(map, tile.x, tile.y)) {
       problems.add(
           new Problem(
-              Severity.WARNING,
-              "Map '" + name + "' " + what + " " + tile + " is inside a solid tile"));
+              Severity.WARNING, about(name) + what + " " + tile + " is inside a solid tile"));
     }
     if (tile.y > 0 && !isSupporting(map, tile.x, tile.y - 1)) {
       problems.add(
           new Problem(
-              Severity.WARNING,
-              "Map '" + name + "' " + what + " " + tile + " has no ground beneath it"));
+              Severity.WARNING, about(name) + what + " " + tile + " has no ground beneath it"));
     }
   }
 
@@ -151,7 +158,7 @@ public final class MapValidator {
         problems.add(
             new Problem(
                 Severity.ERROR,
-                "Map '" + name + "' enemy spawn " + spawn.getPosition() + " is outside the map"));
+                about(name) + "enemy spawn " + spawn.getPosition() + OUTSIDE_THE_MAP));
       }
     }
     for (SpawnPoint spawn : spawns.getLoot()) {
@@ -159,7 +166,7 @@ public final class MapValidator {
         problems.add(
             new Problem(
                 Severity.ERROR,
-                "Map '" + name + "' loot spawn " + spawn.getPosition() + " is outside the map"));
+                about(name) + "loot spawn " + spawn.getPosition() + OUTSIDE_THE_MAP));
       }
     }
     for (Marker marker : spawns.getAllMarkers()) {
@@ -167,13 +174,12 @@ public final class MapValidator {
         problems.add(
             new Problem(
                 Severity.ERROR,
-                "Map '"
-                    + name
-                    + "' marker of kind '"
+                about(name)
+                    + "marker of kind '"
                     + marker.kind()
                     + "' at "
                     + marker.position()
-                    + " is outside the map"));
+                    + OUTSIDE_THE_MAP));
       }
     }
   }
@@ -181,49 +187,28 @@ public final class MapValidator {
   private static void checkTransitions(
       LevelMapData map, String name, Predicate<String> assetExists, List<Problem> problems) {
     for (RoomTransition transition : map.getTransitions()) {
-      String id = transition.getId();
+      String doorway = aboutTransition(name, transition.getId());
       GridPoint2 position = transition.getPosition();
 
       if (outOfBounds(map, position.x, position.y)) {
-        problems.add(
-            new Problem(
-                Severity.ERROR,
-                "Map '"
-                    + name
-                    + "' transition '"
-                    + id
-                    + "' at "
-                    + position
-                    + " is outside the map"));
+        problems.add(new Problem(Severity.ERROR, doorway + " at " + position + OUTSIDE_THE_MAP));
       }
 
       String destination = transition.getDestinationMap();
       if (destination == null || destination.isBlank()) {
-        problems.add(
-            new Problem(
-                Severity.ERROR, "Map '" + name + "' transition '" + id + "' has no destination"));
+        problems.add(new Problem(Severity.ERROR, doorway + " has no destination"));
       } else if (assetExists != null && !assetExists.test(destination)) {
         problems.add(
             new Problem(
-                Severity.ERROR,
-                "Map '"
-                    + name
-                    + "' transition '"
-                    + id
-                    + "' leads to '"
-                    + destination
-                    + "', which does not exist"));
+                Severity.ERROR, doorway + " leads to '" + destination + "', which does not exist"));
       }
 
       if (transition.getDestinationSpawn() == null) {
         problems.add(
             new Problem(
                 Severity.WARNING,
-                "Map '"
-                    + name
-                    + "' transition '"
-                    + id
-                    + "' names no arrival tile, so the player lands on the destination's own"
+                doorway
+                    + " names no arrival tile, so the player lands on the destination's own"
                     + " player spawn"));
       }
     }
@@ -238,8 +223,7 @@ public final class MapValidator {
       if (!assetExists.test(texture)) {
         problems.add(
             new Problem(
-                Severity.ERROR,
-                "Map '" + name + "' uses texture '" + texture + "', which is missing"));
+                Severity.ERROR, about(name) + "uses texture '" + texture + "', which is missing"));
       }
     }
   }

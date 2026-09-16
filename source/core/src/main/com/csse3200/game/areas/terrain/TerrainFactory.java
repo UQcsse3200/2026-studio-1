@@ -18,6 +18,10 @@ import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CameraComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,24 +106,15 @@ public class TerrainFactory {
    * textures, such as one drawn entirely from a composed background image.
    */
   private GridPoint2 resolveTilePixelSize(LevelMapData map, ResourceService resourceService) {
-    GridPoint2 smallest = null;
-    GridPoint2 largest = null;
-    for (TileDefinition def : map.getLegend().values()) {
-      if (def.texture() == null) {
-        continue;
-      }
-      Texture texture = resourceService.getAsset(def.texture(), Texture.class);
-      if (texture != null) {
-        GridPoint2 candidate = new GridPoint2(texture.getWidth(), texture.getHeight());
-        if (smallest == null || candidate.x * candidate.y < smallest.x * smallest.y) {
-          smallest = candidate;
-        }
-        if (largest == null || candidate.x * candidate.y > largest.x * largest.y) {
-          largest = candidate;
-        }
-      }
+    List<GridPoint2> sizes = legendTextureSizes(map, resourceService);
+    if (sizes.isEmpty()) {
+      return new GridPoint2(DEFAULT_TILE_PX, DEFAULT_TILE_PX);
     }
-    if (smallest != null && !smallest.equals(largest)) {
+
+    Comparator<GridPoint2> byArea = Comparator.comparingInt(size -> size.x * size.y);
+    GridPoint2 smallest = Collections.min(sizes, byArea);
+    GridPoint2 largest = Collections.max(sizes, byArea);
+    if (!smallest.equals(largest)) {
       logger.warn(
           "Map '{}' mixes tile textures of {}x{} and {}x{}. The whole map is drawn at the smallest"
               + " of these, so the larger art is scaled down. Use one tile size per map.",
@@ -129,7 +124,21 @@ public class TerrainFactory {
           largest.x,
           largest.y);
     }
-    return smallest == null ? new GridPoint2(DEFAULT_TILE_PX, DEFAULT_TILE_PX) : smallest;
+    return smallest;
+  }
+
+  /** The pixel size of every loaded texture the map's legend uses. */
+  private static List<GridPoint2> legendTextureSizes(
+      LevelMapData map, ResourceService resourceService) {
+    List<GridPoint2> sizes = new ArrayList<>();
+    for (TileDefinition def : map.getLegend().values()) {
+      Texture texture =
+          def.texture() == null ? null : resourceService.getAsset(def.texture(), Texture.class);
+      if (texture != null) {
+        sizes.add(new GridPoint2(texture.getWidth(), texture.getHeight()));
+      }
+    }
+    return sizes;
   }
 
   private TiledMapRenderer createRenderer(TiledMap tiledMap, float tileScale) {

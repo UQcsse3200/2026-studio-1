@@ -230,7 +230,7 @@ public class LevelGameArea extends GameArea {
    * @return the loaded map data (dimensions, layers, tile types, spawns)
    * @deprecated prefer {@link #getLevel()}, which does not couple callers to the map format
    */
-  @Deprecated
+  @Deprecated(since = "1.0")
   public LevelMapData getMapData() {
     return mapData;
   }

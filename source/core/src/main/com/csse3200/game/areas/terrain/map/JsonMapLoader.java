@@ -59,6 +59,8 @@ import org.slf4j.LoggerFactory;
  * read. Every level map uses this one format; there is no per-level parsing path.
  */
 public class JsonMapLoader implements MapLoader {
+  private static final String TYPE_KEY = "type";
+  private static final String TEXTURE_KEY = "texture";
   private static final Logger logger = LoggerFactory.getLogger(JsonMapLoader.class);
   private static final float DEFAULT_TILE_SIZE = 0.5f;
   private static final char EMPTY_CELL = ' ';
@@ -140,17 +142,16 @@ public class JsonMapLoader implements MapLoader {
     validateSpawns(spawns, width, height, name);
     validateTransitions(transitions, width, height, name);
 
-    return new LevelMapData(
-        name,
-        tileSize,
-        width,
-        height,
-        legend,
-        split.layers(),
-        spawns,
-        transitions,
-        resolveBackgroundTexture(root, name),
-        parseSubLevels(root.get("subLevels"), name));
+    return LevelMapData.builder(name)
+        .tileSize(tileSize)
+        .size(width, height)
+        .legend(legend)
+        .layers(split.layers())
+        .spawns(spawns)
+        .transitions(transitions)
+        .backgroundTexture(resolveBackgroundTexture(root, name))
+        .subLevels(parseSubLevels(root.get("subLevels"), name))
+        .build();
   }
 
   /**
@@ -215,19 +216,6 @@ public class JsonMapLoader implements MapLoader {
   private record SplitLayers(List<MapLayerData> layers, String[] entityRows) {}
 
   /**
-   * Checks the entities layer lines up with the map grid.
-   *
-   * <p>The entities layer is excluded from the map's dimensions, so an entities grid that is
-   * shorter than the map would otherwise load without complaint and silently place every spawn in
-   * the wrong row, since rows are flipped against the map height rather than their own length.
-   *
-   * @param rows the raw entities-layer rows, or null when the map has no entities layer
-   * @param width the map width in tiles
-   * @param height the map height in tiles
-   * @param mapName the map's name, for the error message
-   * @throws MapLoadException if the entities layer does not match the map grid
-   */
-  /**
    * Reads the optional {@code subLevels} block: named sections of one map that the game treats as
    * separate places, such as level 1's dungeon and Nether.
    *
@@ -278,6 +266,19 @@ public class JsonMapLoader implements MapLoader {
     return json == null ? null : new GridPoint2(json.getInt("x", 0), json.getInt("y", 0));
   }
 
+  /**
+   * Checks the entities layer lines up with the map grid.
+   *
+   * <p>The entities layer is excluded from the map's dimensions, so an entities grid that is
+   * shorter than the map would otherwise load without complaint and silently place every spawn in
+   * the wrong row, since rows are flipped against the map height rather than their own length.
+   *
+   * @param rows the raw entities-layer rows, or null when the map has no entities layer
+   * @param width the map width in tiles
+   * @param height the map height in tiles
+   * @param mapName the map's name, for the error message
+   * @throws MapLoadException if the entities layer does not match the map grid
+   */
   private void validateEntityLayer(String[] rows, int width, int height, String mapName) {
     if (rows == null) {
       return;
@@ -341,8 +342,8 @@ public class JsonMapLoader implements MapLoader {
     }
     for (JsonValue entry = legendJson.child; entry != null; entry = entry.next) {
       String symbol = entry.name;
-      String typeStr = entry.getString("type", "DECORATIVE");
-      String texture = entry.getString("texture", null);
+      String typeStr = entry.getString(TYPE_KEY, "DECORATIVE");
+      String texture = entry.getString(TEXTURE_KEY, null);
       TileType type;
       try {
         type = TileType.valueOf(typeStr.trim().toUpperCase(Locale.ROOT));
@@ -373,7 +374,7 @@ public class JsonMapLoader implements MapLoader {
     Map<String, String> properties = new LinkedHashMap<>();
     for (JsonValue field = entry.child; field != null; field = field.next) {
       String key = field.name;
-      if (key == null || key.equals("type") || key.equals("texture")) {
+      if (key == null || key.equals(TYPE_KEY) || key.equals(TEXTURE_KEY)) {
         continue;
       }
       properties.put(key, field.asString());
@@ -422,7 +423,7 @@ public class JsonMapLoader implements MapLoader {
       return;
     }
 
-    String type = definition.getString("type", "").trim().toUpperCase(Locale.ROOT);
+    String type = definition.getString(TYPE_KEY, "").trim().toUpperCase(Locale.ROOT);
     switch (type) {
       case "PLAYER" -> placePlayerSpawn(x, y, spawns);
       case "ENEMY" ->
@@ -447,7 +448,7 @@ public class JsonMapLoader implements MapLoader {
     Map<String, String> properties = new LinkedHashMap<>();
     for (JsonValue field = definition.child; field != null; field = field.next) {
       String key = field.name;
-      if (key == null || key.equals("type") || key.equals("kind") || key.equals("id")) {
+      if (key == null || key.equals(TYPE_KEY) || key.equals("kind") || key.equals("id")) {
         continue;
       }
       properties.put(key, field.asString());
@@ -505,7 +506,7 @@ public class JsonMapLoader implements MapLoader {
         for (JsonValue e = enemies.child; e != null; e = e.next) {
 
           spawns.addEnemy(
-              new SpawnPoint(e.getString("type", null), e.getInt("x", 0), e.getInt("y", 0)));
+              new SpawnPoint(e.getString(TYPE_KEY, null), e.getInt("x", 0), e.getInt("y", 0)));
         }
       }
 
@@ -515,7 +516,7 @@ public class JsonMapLoader implements MapLoader {
         for (JsonValue l = loot.child; l != null; l = l.next) {
 
           spawns.addLoot(
-              new SpawnPoint(l.getString("type", null), l.getInt("x", 0), l.getInt("y", 0)));
+              new SpawnPoint(l.getString(TYPE_KEY, null), l.getInt("x", 0), l.getInt("y", 0)));
         }
       }
     }
@@ -559,7 +560,7 @@ public class JsonMapLoader implements MapLoader {
               new GridPoint2(doorway.getInt("x", 0), doorway.getInt("y", 0)),
               Math.max(1, doorway.getInt("width", 1)),
               Math.max(1, doorway.getInt("height", 1)),
-              doorway.getString("texture", null),
+              doorway.getString(TEXTURE_KEY, null),
               destinationMap,
               destinationSpawn));
       index++;
