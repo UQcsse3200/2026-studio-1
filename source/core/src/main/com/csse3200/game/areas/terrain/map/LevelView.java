@@ -124,4 +124,20 @@ public interface LevelView {
    * @return the doorways leading out of this level
    */
   List<RoomTransition> transitions();
+
+  /**
+   * The named sections of this level the game treats as separate places, such as level 1's dungeon
+   * and Nether. Empty for a level that is one place.
+   *
+   * @return the sub-levels in file order
+   */
+  List<SubLevel> subLevels();
+
+  /**
+   * Finds the sub-level a tile row falls in.
+   *
+   * @param tileY tile y
+   * @return the sub-level containing that row, or null if the level has none or none match
+   */
+  SubLevel subLevelAt(int tileY);
 }

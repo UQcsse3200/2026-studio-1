@@ -569,7 +569,7 @@
         "x": 0,
         "y": 0,
         "width": 56,
-        "height": 16
+        "height": 32
       },
       "door": {
         "x": 26,
@@ -586,9 +586,9 @@
       "id": "nether",
       "bounds": {
         "x": 0,
-        "y": 16,
+        "y": 32,
         "width": 56,
-        "height": 16
+        "height": 32
       },
       "door": {
         "x": 26,

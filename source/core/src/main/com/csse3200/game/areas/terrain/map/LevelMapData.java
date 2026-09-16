@@ -32,6 +32,7 @@ public class LevelMapData {
   private final MapSpawns spawns;
   private final List<RoomTransition> transitions;
   private final String backgroundTexture;
+  private final List<SubLevel> subLevels;
 
   public LevelMapData(
       String name,
@@ -72,6 +73,37 @@ public class LevelMapData {
       MapSpawns spawns,
       List<RoomTransition> transitions,
       String backgroundTexture) {
+    this(
+        name,
+        tileSize,
+        width,
+        height,
+        legend,
+        layers,
+        spawns,
+        transitions,
+        backgroundTexture,
+        Collections.emptyList());
+  }
+
+  /**
+   * Creates map data that also declares sub-levels: named sections of the one map the game treats
+   * as separate places.
+   *
+   * @param subLevels the map's sub-levels, empty if it has none
+   */
+  public LevelMapData(
+      String name,
+      float tileSize,
+      int width,
+      int height,
+      Map<String, TileDefinition> legend,
+      List<MapLayerData> layers,
+      MapSpawns spawns,
+      List<RoomTransition> transitions,
+      String backgroundTexture,
+      List<SubLevel> subLevels) {
+    this.subLevels = subLevels == null ? Collections.emptyList() : subLevels;
     this.name = name;
     this.tileSize = tileSize;
     this.width = width;
@@ -166,6 +198,31 @@ public class LevelMapData {
    */
   public List<RoomTransition> getTransitions() {
     return Collections.unmodifiableList(transitions);
+  }
+
+  /**
+   * The named sections of this map the game treats as separate places, such as level 1's dungeon
+   * and Nether. Empty for a map that is one place.
+   *
+   * @return the sub-levels in file order (unmodifiable)
+   */
+  public List<SubLevel> getSubLevels() {
+    return Collections.unmodifiableList(subLevels);
+  }
+
+  /**
+   * Finds the sub-level a tile row falls in.
+   *
+   * @param tileY tile y
+   * @return the sub-level containing that row, or null if the map has none or none match
+   */
+  public SubLevel getSubLevelAt(int tileY) {
+    for (SubLevel subLevel : subLevels) {
+      if (subLevel.containsRow(tileY)) {
+        return subLevel;
+      }
+    }
+    return null;
   }
 
   /**

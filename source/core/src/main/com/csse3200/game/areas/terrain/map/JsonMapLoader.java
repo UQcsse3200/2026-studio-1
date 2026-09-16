@@ -149,7 +149,8 @@ public class JsonMapLoader implements MapLoader {
         split.layers(),
         spawns,
         transitions,
-        resolveBackgroundTexture(root, name));
+        resolveBackgroundTexture(root, name),
+        parseSubLevels(root.get("subLevels"), name));
   }
 
   /**
@@ -226,6 +227,57 @@ public class JsonMapLoader implements MapLoader {
    * @param mapName the map's name, for the error message
    * @throws MapLoadException if the entities layer does not match the map grid
    */
+  /**
+   * Reads the optional {@code subLevels} block: named sections of one map that the game treats as
+   * separate places, such as level 1's dungeon and Nether.
+   *
+   * @param subLevelsJson the block, or null if the map has none
+   * @param mapName the map's name, for error messages
+   * @return the sub-levels in file order, empty if the map declares none
+   */
+  private List<SubLevel> parseSubLevels(JsonValue subLevelsJson, String mapName) {
+    if (subLevelsJson == null) {
+      return List.of();
+    }
+    if (!subLevelsJson.isArray()) {
+      throw new MapLoadException("Map '" + mapName + "' 'subLevels' must be an array");
+    }
+
+    List<SubLevel> subLevels = new ArrayList<>();
+    int index = 0;
+    for (JsonValue entry = subLevelsJson.child; entry != null; entry = entry.next) {
+      String id = entry.getString("id", null);
+      if (id == null || id.isBlank()) {
+        throw new MapLoadException("Sub-level " + index + " in map '" + mapName + "' has no id");
+      }
+
+      JsonValue boundsJson = entry.get("bounds");
+      if (boundsJson == null) {
+        throw new MapLoadException("Sub-level '" + id + "' in map '" + mapName + "' has no bounds");
+      }
+
+      subLevels.add(
+          new SubLevel(
+              id,
+              entry.getString("title", null),
+              new SubLevel.Bounds(
+                  boundsJson.getInt("x", 0),
+                  boundsJson.getInt("y", 0),
+                  boundsJson.getInt("width", 0),
+                  boundsJson.getInt("height", 0)),
+              readTile(entry.get("door")),
+              entry.getString("destination", null),
+              readTile(entry.get("destinationSpawn"))));
+      index++;
+    }
+    return subLevels;
+  }
+
+  /** Reads an optional {x, y} object as a tile position. */
+  private static GridPoint2 readTile(JsonValue json) {
+    return json == null ? null : new GridPoint2(json.getInt("x", 0), json.getInt("y", 0));
+  }
+
   private void validateEntityLayer(String[] rows, int width, int height, String mapName) {
     if (rows == null) {
       return;

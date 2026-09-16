@@ -116,6 +116,16 @@ public class MapDataLevelView implements LevelView {
     return map.getTransitions();
   }
 
+  @Override
+  public List<SubLevel> subLevels() {
+    return map.getSubLevels();
+  }
+
+  @Override
+  public SubLevel subLevelAt(int tileY) {
+    return map.getSubLevelAt(tileY);
+  }
+
   /**
    * Open space something can occupy while resting on the tile below. Ladders are excluded: they are
    * walkable, but an object left on one is awkward to reach and looks out of place.
