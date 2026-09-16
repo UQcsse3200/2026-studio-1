@@ -277,8 +277,8 @@ public class JsonMapLoader implements MapLoader {
         case "enemy-skeleton-hoplite" -> spawns.addEnemy(new SpawnPoint("skeleton", x, y));
         // The current combat roster has no centaur/cyclops classes. These map to the existing
         // ranged skeleton and boss respectively, retaining working combat at authored locations.
-        case "enemy-centaur" -> spawns.addEnemy(new SpawnPoint("ranged-skeleton", x, y));
-        case "enemy-cyclops" -> spawns.addEnemy(new SpawnPoint("ghostKing", x, y));
+        case "enemy-minotaur" -> spawns.addEnemy(new SpawnPoint("minotaur", x, y));
+        case "enemy-cyclops" -> spawns.addEnemy(new SpawnPoint("cyclops", x, y));
         case "item-bow-artemis",
             "item-bronze-spear",
             "item-cloud-flask",
