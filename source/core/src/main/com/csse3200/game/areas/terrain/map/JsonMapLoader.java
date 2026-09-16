@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.areas.terrain.TileType;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +26,8 @@ import org.slf4j.LoggerFactory;
  *   "tileSize": 0.5,
  *   "legend": {
  *     "#": { "type": "WALL",  "texture": "images/environment/forest/grass_3.png" },
- *     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" }
+ *     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" },
+ *     "~": { "type": "HAZARD", "texture": "lava.png", "damage": "15" }
  *   },
  *   "layers": {
  *     "background": ["....", "...."],
@@ -42,6 +44,10 @@ import org.slf4j.LoggerFactory;
  * <p>Rows are listed top-to-bottom for readability; the loader flips them so that {@code y = 0} is
  * the bottom row (matching world coordinates). A space, or any character absent from the legend,
  * means an empty cell. Spawn coordinates use world tile coordinates (bottom-left origin, y up).
+ *
+ * <p>A legend entry may carry any number of extra keys beyond {@code type} and {@code texture}.
+ * They are read as text into {@link TileDefinition#properties()} and never interpreted here, so a
+ * feature can add per-tile data without changing this loader. See {@link TileDefinition}.
  *
  * <p>An optional {@code backgroundTexture} renders one composed image behind the tile layers, for
  * maps whose art is authored as a single scene rather than per-tile. Unknown top-level keys are
@@ -295,9 +301,28 @@ public class JsonMapLoader implements MapLoader {
                 + "'",
             e);
       }
-      legend.put(symbol, new TileDefinition(type, texture));
+      legend.put(symbol, new TileDefinition(type, texture, parseTileProperties(entry)));
     }
     return legend;
+  }
+
+  /**
+   * Collects the author-supplied properties of a legend entry: every key except {@code type} and
+   * {@code texture}, kept as text so the map system never has to know what a feature means by it.
+   *
+   * @param entry one legend entry
+   * @return the properties, empty if the entry has none
+   */
+  private Map<String, String> parseTileProperties(JsonValue entry) {
+    Map<String, String> properties = new LinkedHashMap<>();
+    for (JsonValue field = entry.child; field != null; field = field.next) {
+      String key = field.name;
+      if (key == null || key.equals("type") || key.equals("texture")) {
+        continue;
+      }
+      properties.put(key, field.asString());
+    }
+    return properties;
   }
 
   private Map<String, JsonValue> parseEntityLegend(JsonValue entityLegendJson) {

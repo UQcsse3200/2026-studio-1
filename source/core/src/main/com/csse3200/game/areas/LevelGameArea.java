@@ -15,6 +15,7 @@ import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
@@ -68,6 +69,8 @@ public class LevelGameArea extends GameArea {
   // wander-range comment for the full margin math.
   private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
+
+  /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
   private static final int HAZARD_DAMAGE = 10;
 
   /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
@@ -439,7 +442,9 @@ public class LevelGameArea extends GameArea {
           continue;
         }
 
-        Entity collider = ObstacleFactory.createHazardTile(tileSize, tileSize);
+        Entity collider =
+            ObstacleFactory.createHazardTile(tileSize, tileSize)
+                .addComponent(new HazardDamageComponent(def.getInt("damage", HAZARD_DAMAGE)));
 
         Vector2 position = terrain.tileToWorldPosition(x, y);
 
@@ -544,7 +549,12 @@ public class LevelGameArea extends GameArea {
                       CombatStatsComponent stats =
                           newPlayer.getComponent(CombatStatsComponent.class);
 
-                      stats.addHealth(-HAZARD_DAMAGE);
+                      // Hazards carry their own damage; older maps that set none use the default.
+                      HazardDamageComponent hazard =
+                          other.getComponent(HazardDamageComponent.class);
+                      int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
+
+                      stats.addHealth(-damage);
 
                       lastHazardDamageTime[0] = currentTime;
 

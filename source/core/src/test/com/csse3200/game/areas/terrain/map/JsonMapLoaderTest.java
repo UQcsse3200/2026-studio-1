@@ -1,6 +1,7 @@
 package com.csse3200.game.areas.terrain.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -86,6 +87,29 @@ class JsonMapLoaderTest {
         }
         """;
     assertThrows(MapLoadException.class, () -> loader.parse(json));
+  }
+
+  @Test
+  void carriesExtraLegendKeysAsTileProperties() {
+    String json =
+        """
+        {
+          "legend": {
+            "~": { "type": "HAZARD", "texture": "lava.png", "damage": "15", "hidden": "true" },
+            "#": { "type": "WALL", "texture": "wall.png" }
+          },
+          "layers": { "terrain": ["~#"] }
+        }
+        """;
+    LevelMapData map = loader.parse(json);
+
+    TileDefinition hazard = map.getLegend().get("~");
+    assertEquals(15, hazard.getInt("damage", 0));
+    assertTrue(hazard.flag("hidden"));
+    // type and texture stay out of the property bag.
+    assertFalse(hazard.has("type"));
+    assertFalse(hazard.has("texture"));
+    assertTrue(map.getLegend().get("#").properties().isEmpty());
   }
 
   @Test
