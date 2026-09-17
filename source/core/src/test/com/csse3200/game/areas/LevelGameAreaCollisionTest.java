@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 class LevelGameAreaCollisionTest {
   private static final TileDefinition WALL = new TileDefinition(TileType.WALL, null);
   private static final TileDefinition PLATFORM = new TileDefinition(TileType.PLATFORM, null);
+  private static final TileDefinition ONE_WAY_PLATFORM =
+      new TileDefinition(TileType.ONE_WAY_PLATFORM, null);
 
   @Test
   void mergesStraightWallIntoOneRectangle() {
@@ -65,9 +67,17 @@ class LevelGameAreaCollisionTest {
   }
 
   @Test
-  void leavesPlatformsForOneWayPlatformCollisionGeneration() {
+  void leavesPlatformsForThinPlatformCollisionGeneration() {
     MapLayerData collisionLayer = new MapLayerData("collision", 3, 1);
     fill(collisionLayer, 0, 0, 3, 1, PLATFORM);
+
+    assertTrue(LevelGameArea.findSolidRectangles(collisionLayer).isEmpty());
+  }
+
+  @Test
+  void leavesOneWayPlatformsForOneWayCollisionGeneration() {
+    MapLayerData collisionLayer = new MapLayerData("collision", 3, 1);
+    fill(collisionLayer, 0, 0, 3, 1, ONE_WAY_PLATFORM);
 
     assertTrue(LevelGameArea.findSolidRectangles(collisionLayer).isEmpty());
   }

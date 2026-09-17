@@ -313,7 +313,8 @@ public class LevelGameArea extends GameArea {
       spawnSolidRectangle(rectangle, tileSize);
     }
 
-    spawnPlatformCollisions(collisionLayer, tileSize);
+    spawnPlatformCollisions(collisionLayer, tileSize, CollisionType.PLATFORM, false);
+    spawnPlatformCollisions(collisionLayer, tileSize, CollisionType.ONE_WAY_PLATFORM, true);
 
     // Hazards remain individual.
     spawnHazardCollisions(collisionLayer, tileSize);
@@ -323,14 +324,15 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  private void spawnPlatformCollisions(MapLayerData collisionLayer, float tileSize) {
+  private void spawnPlatformCollisions(
+      MapLayerData collisionLayer, float tileSize, CollisionType collisionType, boolean oneWay) {
     for (int y = 0; y < collisionLayer.getHeight(); y++) {
       int x = 0;
 
       while (x < collisionLayer.getWidth()) {
         TileDefinition def = collisionLayer.get(x, y);
 
-        if (def == null || def.type().getCollisionType() != CollisionType.PLATFORM) {
+        if (def == null || def.type().getCollisionType() != collisionType) {
           x++;
           continue;
         }
@@ -339,13 +341,13 @@ public class LevelGameArea extends GameArea {
         while (x + 1 < collisionLayer.getWidth()) {
           TileDefinition next = collisionLayer.get(x + 1, y);
 
-          if (next == null || next.type().getCollisionType() != CollisionType.PLATFORM) {
+          if (next == null || next.type().getCollisionType() != collisionType) {
             break;
           }
           x++;
         }
 
-        spawnPlatformRow(startX, y, x - startX + 1, tileSize);
+        spawnPlatformRow(startX, y, x - startX + 1, tileSize, oneWay);
         x++;
       }
     }
@@ -455,9 +457,12 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize) {
+  private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize, boolean oneWay) {
     float width = tileCount * tileSize;
-    Entity collider = ObstacleFactory.createOneWayPlatform(width, COLLIDER_HEIGHT);
+    Entity collider =
+        oneWay
+            ? ObstacleFactory.createOneWayPlatform(width, COLLIDER_HEIGHT)
+            : ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
 
     Vector2 position = terrain.tileToWorldPosition(startX, y);
 

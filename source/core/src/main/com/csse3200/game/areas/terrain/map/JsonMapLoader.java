@@ -243,13 +243,14 @@ public class JsonMapLoader implements MapLoader {
 
   private static Map<String, TileDefinition> authoredLegend() {
     Map<String, TileDefinition> legend = new HashMap<>();
-    // Soil, marble, granite, and the summit are solid mountain geometry. Shelves and clouds are
-    // one-way surfaces, so the authored three-cell jumps remain reachable from below.
+    // Soil, marble, granite, and the summit are solid mountain geometry. Stone shelves remain
+    // ordinary platforms, while clouds are one-way so they remain reachable from below.
     for (String symbol : List.of("O", "E", "Q", "R", "g", "S", "I")) {
       legend.put(symbol, new TileDefinition(TileType.WALL, null));
     }
-    for (String symbol : List.of("K", "c", "d", "f", "t", "m")) {
-      legend.put(symbol, new TileDefinition(TileType.PLATFORM, null));
+    legend.put("K", new TileDefinition(TileType.PLATFORM, null));
+    for (String symbol : List.of("c", "d", "f", "t", "m")) {
+      legend.put(symbol, new TileDefinition(TileType.ONE_WAY_PLATFORM, null));
     }
     legend.put("P", new TileDefinition(TileType.DECORATIVE, null));
     legend.put("V", new TileDefinition(TileType.DECORATIVE, null));

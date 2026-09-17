@@ -354,7 +354,8 @@ class JsonMapLoaderTest {
     assertEquals(180, levelTwo.getHeight());
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());
     assertEquals(TileType.WALL, levelTwo.getTileType(1, 1));
-    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 155));
+    assertEquals(TileType.ONE_WAY_PLATFORM, levelTwo.getTileType(27, 155));
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(55, 162));
     assertNull(levelTwo.getLayer("hazards").get(27, 155));
     assertNull(levelTwo.getLayer("hazards").get(27, 143));
     assertNull(levelTwo.getLayer("hazards").get(31, 131));
