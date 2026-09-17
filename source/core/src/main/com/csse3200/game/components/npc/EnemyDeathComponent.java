@@ -19,6 +19,10 @@ public class EnemyDeathComponent extends Component {
   }
 
   private void onDeath() {
+    if (entity.isDisposed()) {
+      logger.info("Enemy {} already died.", entity);
+      return;
+    }
     ItemDropComponent dropper = entity.getComponent(ItemDropComponent.class);
     if (dropper != null) {
       // Drop gold
