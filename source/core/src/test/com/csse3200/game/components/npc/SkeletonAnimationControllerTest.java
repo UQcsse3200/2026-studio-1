@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
@@ -31,6 +32,8 @@ class SkeletonAnimationControllerTest {
     controller = new SkeletonAnimationController();
 
     // Stub physics component to return a mock body
+    lenient().when(physicsComponent.getPrio()).thenReturn(ComponentPriority.LOW);
+    lenient().when(animationRenderComponent.getPrio()).thenReturn(ComponentPriority.LOW);
     lenient().when(physicsComponent.getBody()).thenReturn(body);
 
     entity
