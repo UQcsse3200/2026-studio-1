@@ -555,6 +555,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/Component.html#%3Cinit%3E()" class="member-name-link">Component()</a> - Constructor for class com.csse3200.game.components.<a href="com/csse3200/game/components/Component.html" title="class in com.csse3200.game.components">Component</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/ComponentPriority.html" class="type-name-link" title="enum class in com.csse3200.game.components">ComponentPriority</a> - Enum Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/ComponentType.html" class="type-name-link" title="class in com.csse3200.game.components">ComponentType</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
 <dd>
 <div class="block">Internal type system for components.</div>
@@ -1914,6 +1916,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Get the entity's game position.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/Component.html#getPrio()" class="member-name-link">getPrio()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/Component.html" title="class in com.csse3200.game.components">Component</a></dt>
+<dd>
+<div class="block">Get the priority of which the component should be made</div>
+</dd>
 <dt><a href="com/csse3200/game/ai/tasks/PriorityTask.html#getPriority()" class="member-name-link">getPriority()</a> - Method in interface com.csse3200.game.ai.tasks.<a href="com/csse3200/game/ai/tasks/PriorityTask.html" title="interface in com.csse3200.game.ai.tasks">PriorityTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/tasks/ChargeTask.html#getPriority()" class="member-name-link">getPriority()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/ChargeTask.html" title="class in com.csse3200.game.components.tasks">ChargeTask</a></dt>
@@ -2113,6 +2119,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the Upgrade listing in a catalog slot.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/ComponentPriority.html#getValue()" class="member-name-link">getValue()</a> - Method in enum class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentPriority.html" title="enum class in com.csse3200.game.components">ComponentPriority</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponAttackComponent.html#getWeapon()" class="member-name-link">getWeapon()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player">WeaponAttackComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponItem.html#getWeaponType()" class="member-name-link">getWeaponType()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
@@ -2276,6 +2284,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainComponent.TerrainOrientation.html#HEXAGONAL" class="member-name-link">HEXAGONAL</a> - Enum constant in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainComponent.TerrainOrientation.html" title="enum class in com.csse3200.game.areas.terrain">TerrainComponent.TerrainOrientation</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/ComponentPriority.html#HIGH" class="member-name-link">HIGH</a> - Enum constant in enum class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentPriority.html" title="enum class in com.csse3200.game.components">ComponentPriority</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/raycast/SingleHitCallback.html#hit" class="member-name-link">hit</a> - Variable in class com.csse3200.game.physics.raycast.<a href="com/csse3200/game/physics/raycast/SingleHitCallback.html" title="class in com.csse3200.game.physics.raycast">SingleHitCallback</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/CombatStatsComponent.html#hit(com.csse3200.game.components.CombatStatsComponent)" class="member-name-link">hit(CombatStatsComponent)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
@@ -2370,6 +2380,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/DeathStateComponent.html#isDead()" class="member-name-link">isDead()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathStateComponent.html" title="class in com.csse3200.game.components.player">DeathStateComponent</a></dt>
 <dd>
 <div class="block">Returns whether the player has entered the death state.</div>
+</dd>
+<dt><a href="com/csse3200/game/entities/Entity.html#isDisposed()" class="member-name-link">isDisposed()</a> - Method in class com.csse3200.game.entities.<a href="com/csse3200/game/entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></dt>
+<dd>
+<div class="block">Gets whether the event has already been disposed.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>&nbsp;</dd>
@@ -2760,6 +2774,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates an empty table with an explicitly supplied random source.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/ComponentPriority.html#LOW" class="member-name-link">LOW</a> - Enum constant in enum class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentPriority.html" title="enum class in com.csse3200.game.components">ComponentPriority</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:M">M</h2>
 <dl class="index">
@@ -2851,6 +2867,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Maximum stack size of the generated item.</div>
 </dd>
 <dt><a href="com/csse3200/game/files/SavedItem.html#maxQuantity" class="member-name-link">maxQuantity</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/SavedItem.html" title="class in com.csse3200.game.files">SavedItem</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/ComponentPriority.html#MEDIUM" class="member-name-link">MEDIUM</a> - Enum constant in enum class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentPriority.html" title="enum class in com.csse3200.game.components">ComponentPriority</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/enemies/CyclopsConfig.html#melee" class="member-name-link">melee</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/CyclopsConfig.html" title="class in com.csse3200.game.entities.configs.enemies">CyclopsConfig</a></dt>
 <dd>&nbsp;</dd>
@@ -3241,6 +3259,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/physics/PhysicsContactListener.html#preSolve(com.badlogic.gdx.physics.box2d.Contact,com.badlogic.gdx.physics.box2d.Manifold)" class="member-name-link">preSolve(Contact, Manifold)</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsContactListener.html" title="class in com.csse3200.game.physics">PhysicsContactListener</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/utils/StringDecorator.html#printFn" class="member-name-link">printFn</a> - Variable in class com.csse3200.game.utils.<a href="com/csse3200/game/utils/StringDecorator.html" title="class in com.csse3200.game.utils">StringDecorator</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/Component.html#prio" class="member-name-link">prio</a> - Variable in class com.csse3200.game.components.<a href="com/csse3200/game/components/Component.html" title="class in com.csse3200.game.components">Component</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/input/InputComponent.html#priority" class="member-name-link">priority</a> - Variable in class com.csse3200.game.input.<a href="com/csse3200/game/input/InputComponent.html" title="class in com.csse3200.game.input">InputComponent</a></dt>
 <dd>
@@ -4704,6 +4724,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/ComponentPriority.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentPriority.html" title="enum class in com.csse3200.game.components">ComponentPriority</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/loot/ConsumableType.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
@@ -4769,6 +4793,11 @@ the order they are declared.</div>
 the order they are declared.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/TileType.html#values()" class="member-name-link">values()</a> - Static method in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TileType.html" title="enum class in com.csse3200.game.areas.terrain">TileType</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/ComponentPriority.html#values()" class="member-name-link">values()</a> - Static method in enum class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentPriority.html" title="enum class in com.csse3200.game.components">ComponentPriority</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
