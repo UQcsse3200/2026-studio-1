@@ -21,13 +21,14 @@ public class QuestDisplay extends UIComponent {
 
   private final Set<JumpQuest> completedQuests = new HashSet<>();
 
+  // Only proof of concept for now delete later
   int NPCID = 1;
 
   @Override
   public void create() {
     super.create();
 
-
+    // Only proof of concept for now delete later
     NPCID = Quest.giveOutUniqueNPCID();
     Quest.logJumpQuest(NPCID, 5);
     jumpQuestsToDisplay = Quest.getJumpQuests();
