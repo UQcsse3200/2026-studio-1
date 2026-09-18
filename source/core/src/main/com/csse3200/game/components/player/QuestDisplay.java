@@ -107,8 +107,7 @@ public class QuestDisplay extends UIComponent {
           } else {
             hasRemainingQuests = true;
 
-            Label questToDisplay =
-                new Label("• Jump Quest - " + progress + "%", skin);
+            Label questToDisplay = new Label("• Jump Quest - " + progress + "%", skin);
 
             questTable.add(questToDisplay).left().row();
           }
