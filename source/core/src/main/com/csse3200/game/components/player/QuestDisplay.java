@@ -1,5 +1,7 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -7,6 +9,8 @@ import com.csse3200.game.Quests.JumpQuest;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.ui.UIComponent;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /** UI component for displaying the player's current quests. */
 public class QuestDisplay extends UIComponent {
@@ -14,19 +18,20 @@ public class QuestDisplay extends UIComponent {
   private Table rootTable;
   private Table questTable;
   private ArrayList<JumpQuest> jumpQuestsToDisplay;
-  // Only proof of concept for now delete later
-  int NPCID = 1;
 
-  // Only proof of concept for now delete later
+  private final Set<JumpQuest> completedQuests = new HashSet<>();
+
+  int NPCID = 1;
 
   @Override
   public void create() {
     super.create();
-    // Only proof of concept for now delete later
+
+
     NPCID = Quest.giveOutUniqueNPCID();
     Quest.logJumpQuest(NPCID, 5);
     jumpQuestsToDisplay = Quest.getJumpQuests();
-    // Only proof of concept for now delete later
+
     addActors();
   }
 
@@ -42,28 +47,77 @@ public class QuestDisplay extends UIComponent {
     questTable.pad(14f);
 
     Label title = new Label("QUEST", skin, "large");
-    questTable.add(title).left().padBottom(8f).row();
+    questTable.add(title).left().padBottom(10f).row();
 
     rootTable.add(questTable).width(400f);
 
     stage.addActor(rootTable);
   }
 
+  /** Updates the quest list and handles the quest menu toggle. */
   @Override
   public void update() {
+    // Press Q to show/hide the quest menu.
+    if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+      rootTable.setVisible(!rootTable.isVisible());
+    }
+
     jumpQuestsToDisplay = Quest.getJumpQuests();
+
+    refreshQuestTable();
+  }
+
+  /** Refreshes the completed and remaining quest sections. */
+  private void refreshQuestTable() {
     questTable.clear();
-    addActors();
+
+    Label title = new Label("QUEST", skin, "large");
+    questTable.add(title).left().padBottom(10f).row();
+
+    // Completed quests section
+    Label completedTitle = new Label("COMPLETED", skin);
+    questTable.add(completedTitle).left().padBottom(5f).row();
+
+    if (!completedQuests.isEmpty()) {
+      for (JumpQuest quest : completedQuests) {
+        Label completedQuest = new Label("✓ Jump Quest", skin);
+        questTable.add(completedQuest).left().row();
+      }
+    } else {
+      Label noCompleted = new Label("No completed quests", skin);
+      questTable.add(noCompleted).left().row();
+    }
+
+    // Remaining quests section
+    Label remainingTitle = new Label("REMAINING", skin);
+    questTable.add(remainingTitle).left().padTop(10f).padBottom(5f).row();
+
+    boolean hasRemainingQuests = false;
+
     if (jumpQuestsToDisplay != null) {
-      for (int i = 0; i < jumpQuestsToDisplay.size(); i++) {
-        if (jumpQuestsToDisplay.get(i) != null) {
-          jumpQuestsToDisplay.get(i).checkGlobalJumps();
-          Label questToDisplay =
-              new Label(
-                  "Jump Quest: " + jumpQuestsToDisplay.get(i).checkQuestProgress() + "%", skin);
-          questTable.add(questToDisplay).left().padTop(i * 5).row();
+      for (JumpQuest quest : jumpQuestsToDisplay) {
+        if (quest != null) {
+          quest.checkGlobalJumps();
+
+          int progress = quest.checkQuestProgress();
+
+          if (progress >= 100) {
+            completedQuests.add(quest);
+          } else {
+            hasRemainingQuests = true;
+
+            Label questToDisplay =
+                new Label("• Jump Quest - " + progress + "%", skin);
+
+            questTable.add(questToDisplay).left().row();
+          }
         }
       }
+    }
+
+    if (!hasRemainingQuests) {
+      Label noRemaining = new Label("No remaining quests", skin);
+      questTable.add(noRemaining).left().row();
     }
   }
 
