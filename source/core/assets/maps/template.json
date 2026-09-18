@@ -26,6 +26,7 @@
   "entityLegend": {
     "P": { "type": "PLAYER" },
     "S": { "type": "ENEMY", "enemyType": "skeleton" },
+    "R": { "type": "ENEMY", "enemyType": "ranged-skeleton" },
     "L": { "type": "LOOT" },
     "N": { "type": "MARKER", "kind": "npc", "id": "traveler" },
     "T": { "type": "MARKER", "kind": "light", "radius": "6" }
@@ -60,7 +61,7 @@
       "                ",
       "                ",
       "                ",
-      " P   S    L   N ",
+      " P   S  R L   N ",
       "                ",
       "                "
     ]

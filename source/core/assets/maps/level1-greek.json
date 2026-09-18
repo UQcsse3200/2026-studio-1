@@ -288,10 +288,6 @@
       "type": "ENEMY",
       "enemyType": "ranged-skeleton"
     },
-    "G": {
-      "type": "ENEMY",
-      "enemyType": "ghost"
-    },
     "L": {
       "type": "LOOT"
     }
