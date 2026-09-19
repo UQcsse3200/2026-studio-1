@@ -30,6 +30,7 @@ loadScripts(document, 'script');</script>
 <li><a href="package-summary.html">Package</a></li>
 <li class="nav-bar-cell1-rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../../index-all.html">Index</a></li>
 <li><a href="../../../../../help-doc.html#class">Help</a></li>
 </ul>
@@ -175,12 +176,17 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMap()" class="member-name-link">getMap</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.badlogic.gdx.math.GridPoint2</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMapBounds(int)" class="member-name-link">getMapBounds</a><wbr>(int&nbsp;layer)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMapBounds()" class="member-name-link">getMapBounds</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">The size of the rendered map in tiles.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTile(int,int)" class="member-name-link">getTile</a><wbr>(int&nbsp;x,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTile(java.lang.String,int,int)" class="member-name-link">getTile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;layerName,
+ int&nbsp;x,
  int&nbsp;y)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">The tile drawn at a position in a named layer.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTileSize()" class="member-name-link">getTileSize</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -251,10 +257,25 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getTile(int,int)">
+<section class="detail" id="getTile(java.lang.String,int,int)">
 <h3>getTile</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></span>&nbsp;<span class="element-name">getTile</span><wbr><span class="parameters">(int&nbsp;x,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></span>&nbsp;<span class="element-name">getTile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;layerName,
+ int&nbsp;x,
  int&nbsp;y)</span></div>
+<div class="block">The tile drawn at a position in a named layer.
+
+ <p>Rendered tiles are not the same thing as gameplay tiles: this returns whatever the renderer
+ holds, which for a decorative layer is decoration. To ask what the level is like at a position,
+ use <code>LevelView</code> instead, which reads the collision layer and answers in terms of
+ behaviour.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>layerName</code> - the layer to read, such as "terrain" or "background"</dd>
+<dd><code>x</code> - tile x</dd>
+<dd><code>y</code> - tile y</dd>
+<dt>Returns:</dt>
+<dd>the tile, or null if that layer or cell is empty</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -264,9 +285,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getMapBounds(int)">
+<section class="detail" id="getMapBounds()">
 <h3>getMapBounds</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.badlogic.gdx.math.GridPoint2</span>&nbsp;<span class="element-name">getMapBounds</span><wbr><span class="parameters">(int&nbsp;layer)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.badlogic.gdx.math.GridPoint2</span>&nbsp;<span class="element-name">getMapBounds</span>()</div>
+<div class="block">The size of the rendered map in tiles.
+
+ <p>Every layer of a map shares its dimensions, so this reads the first one.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>width and height in tiles, or (0, 0) for a map with no tile layers</dd>
+</dl>
 </section>
 </li>
 <li>

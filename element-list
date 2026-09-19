@@ -24,6 +24,7 @@ com.csse3200.game.entities.configs
 com.csse3200.game.entities.configs.attacks
 com.csse3200.game.entities.configs.enemies
 com.csse3200.game.entities.factories
+com.csse3200.game.entities.spawn
 com.csse3200.game.events
 com.csse3200.game.events.listeners
 com.csse3200.game.files

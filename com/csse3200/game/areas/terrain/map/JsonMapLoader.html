@@ -30,6 +30,7 @@ loadScripts(document, 'script');</script>
 <li><a href="package-summary.html">Package</a></li>
 <li class="nav-bar-cell1-rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../../../index-all.html">Index</a></li>
 <li><a href="../../../../../../help-doc.html#class">Help</a></li>
 </ul>
@@ -106,7 +107,8 @@ implements <a href="MapLoader.html" title="interface in com.csse3200.game.areas.
    "tileSize": 0.5,
    "legend": {
      "#": { "type": "WALL",  "texture": "images/environment/forest/grass_3.png" },
-     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" }
+     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" },
+     "~": { "type": "HAZARD", "texture": "lava.png", "damage": "15" }
    },
    "layers": {
      "background": ["....", "...."],
@@ -122,7 +124,20 @@ implements <a href="MapLoader.html" title="interface in com.csse3200.game.areas.
 
  <p>Rows are listed top-to-bottom for readability; the loader flips them so that <code>y = 0</code> is
  the bottom row (matching world coordinates). A space, or any character absent from the legend,
- means an empty cell. Spawn coordinates use world tile coordinates (bottom-left origin, y up).</div>
+ means an empty cell. Spawn coordinates use world tile coordinates (bottom-left origin, y up).
+
+ <p>The <code>entities</code> layer resolves against <code>entityLegend</code>, a separate namespace from
+ the tile legend, so the same character can mean different things in each. An entry's <code>type</code>
+ is PLAYER, ENEMY, LOOT, or MARKER; see <a href="Marker.html" title="class in com.csse3200.game.areas.terrain.map"><code>Marker</code></a> for placing anything else.
+
+ <p>A legend entry may carry any number of extra keys beyond <code>type</code> and <code>texture</code>.
+ They are read as text into <a href="TileDefinition.html#properties()"><code>TileDefinition.properties()</code></a> and never interpreted here, so a
+ feature can add per-tile data without changing this loader. See <a href="TileDefinition.html" title="class in com.csse3200.game.areas.terrain.map"><code>TileDefinition</code></a>.
+
+ <p>An optional <code>backgroundTexture</code> renders one composed image behind the tile layers, for
+ maps whose art is authored as a single scene rather than per-tile. Unknown top-level keys are
+ ignored, so maps may carry an <code>authoring</code> block of design-time data the runtime does not
+ read. Every level map uses this one format; there is no per-level parsing path.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

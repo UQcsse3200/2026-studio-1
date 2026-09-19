@@ -30,6 +30,7 @@ loadScripts(document, 'script');</script>
 <li><a href="package-summary.html">Package</a></li>
 <li class="nav-bar-cell1-rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../../index-all.html">Index</a></li>
 <li><a href="../../../../../help-doc.html#class">Help</a></li>
 </ul>
@@ -113,7 +114,10 @@ loadScripts(document, 'script');</script>
 
  <p>Reachability only follows open tiles, not jumps, so a ledge that needs a jump the player
  cannot make can still be chosen. Maps that need exact control can declare their own loot spawn
- points, which are always used first.</div>
+ points, which are always used first.
+
+ <p>What counts as open, ground, solid or a hazard is the level's own rule, read through <a href="../../areas/terrain/map/LevelView.html" title="interface in com.csse3200.game.areas.terrain.map"><code>LevelView</code></a>, so it stays correct when new tile types are added. Only the loot specific rules, room
+ above and reachability, live here.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -132,6 +136,11 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#findGroundSpots(com.csse3200.game.areas.terrain.map.LevelMapData)" class="member-name-link">findGroundSpots</a><wbr>(<a href="../../areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a>&nbsp;map)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns every tile that loot could be placed on, scanning from the bottom of the map up.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="../../areas/terrain/map/SpawnPoint.html" title="class in com.csse3200.game.areas.terrain.map">SpawnPoint</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#findGroundSpots(com.csse3200.game.areas.terrain.map.LevelView)" class="member-name-link">findGroundSpots</a><wbr>(<a href="../../areas/terrain/map/LevelView.html" title="interface in com.csse3200.game.areas.terrain.map">LevelView</a>&nbsp;level)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Returns every tile that loot could be placed on, scanning from the bottom of the level up.</div>
 </div>
 </div>
 </div>
@@ -162,6 +171,21 @@ loadScripts(document, 'script');</script>
 <dd>the usable tiles, empty when the map has no open, reachable ground</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>map</code> is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="findGroundSpots(com.csse3200.game.areas.terrain.map.LevelView)">
+<h3>findGroundSpots</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../areas/terrain/map/SpawnPoint.html" title="class in com.csse3200.game.areas.terrain.map">SpawnPoint</a>&gt;</span>&nbsp;<span class="element-name">findGroundSpots</span><wbr><span class="parameters">(<a href="../../areas/terrain/map/LevelView.html" title="interface in com.csse3200.game.areas.terrain.map">LevelView</a>&nbsp;level)</span></div>
+<div class="block">Returns every tile that loot could be placed on, scanning from the bottom of the level up.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>level</code> - level to search</dd>
+<dt>Returns:</dt>
+<dd>the usable tiles, empty when the level has no open, reachable ground</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>level</code> is null</dd>
 </dl>
 </section>
 </li>
