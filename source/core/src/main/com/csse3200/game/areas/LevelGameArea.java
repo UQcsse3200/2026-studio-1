@@ -9,12 +9,15 @@ import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.LevelView;
+import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
@@ -31,6 +34,8 @@ import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
+import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -68,6 +73,8 @@ public class LevelGameArea extends GameArea {
   // wander-range comment for the full margin math.
   private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
+
+  /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
   private static final int HAZARD_DAMAGE = 10;
 
   /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
@@ -191,6 +198,7 @@ public class LevelGameArea extends GameArea {
 
   @Override
   public void create() {
+    DefaultEntitySpawns.registerAll();
     mapData = mapLoader.load(mapPath);
     loadAssets();
 
@@ -207,8 +215,22 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the loaded map data (dimensions, layers, tile types, spawns) for other systems to use
+   * The supported way for other systems to read this level.
+   *
+   * <p>Prefer this to {@link #getMapData()}: {@link LevelView} is a stable contract, while the map
+   * data behind it is the map package's own structure and changes shape as the format evolves.
+   *
+   * @return a read-only view of the loaded level, or null before {@link #create()} runs
    */
+  public LevelView getLevel() {
+    return mapData == null ? null : new MapDataLevelView(mapData);
+  }
+
+  /**
+   * @return the loaded map data (dimensions, layers, tile types, spawns)
+   * @deprecated prefer {@link #getLevel()}, which does not couple callers to the map format
+   */
+  @Deprecated(since = "1.0")
   public LevelMapData getMapData() {
     return mapData;
   }
@@ -439,7 +461,9 @@ public class LevelGameArea extends GameArea {
           continue;
         }
 
-        Entity collider = ObstacleFactory.createHazardTile(tileSize, tileSize);
+        Entity collider =
+            ObstacleFactory.createHazardTile(tileSize, tileSize)
+                .addComponent(new HazardDamageComponent(def.getInt("damage", HAZARD_DAMAGE)));
 
         Vector2 position = terrain.tileToWorldPosition(x, y);
 
@@ -544,7 +568,12 @@ public class LevelGameArea extends GameArea {
                       CombatStatsComponent stats =
                           newPlayer.getComponent(CombatStatsComponent.class);
 
-                      stats.addHealth(-HAZARD_DAMAGE);
+                      // Hazards carry their own damage; older maps that set none use the default.
+                      HazardDamageComponent hazard =
+                          other.getComponent(HazardDamageComponent.class);
+                      int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
+
+                      stats.addHealth(-damage);
 
                       lastHazardDamageTime[0] = currentTime;
 
@@ -584,23 +613,15 @@ public class LevelGameArea extends GameArea {
     }
   }
 
+  /**
+   * Builds one spawn by name, through {@link EntitySpawnRegistry}, so this area holds no list of
+   * what the game can spawn. A name nobody registered is reported by the registry and skipped.
+   *
+   * @param type the spawn name from the map
+   * @return the new entity, or null if the name is unknown
+   */
   private Entity createEnemy(String type) {
-    if (type == null) {
-      return null;
-    }
-    return switch (type.toLowerCase()) {
-      case "ghost" -> NPCFactory.createGhost(player);
-      case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
-      case "skeleton", "enemy-skeleton-hoplite" -> NPCFactory.createSkeleton(player);
-      case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
-      case "cyclops" -> NPCFactory.createCyclops(player);
-      case "minotaur" -> NPCFactory.createMinotaur(player);
-      case "enemy-centaur", "centaur" -> NPCFactory.createCentaur(player);
-      default -> {
-        logger.warn("Unknown enemy spawn type '{}' - skipped", type);
-        yield null;
-      }
-    };
+    return EntitySpawnRegistry.create(type, player);
   }
 
   /**

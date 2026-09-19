@@ -1,6 +1,7 @@
 package com.csse3200.game.areas.terrain.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,8 +12,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(GameExtension.class)
 class JsonMapLoaderTest {
@@ -40,6 +45,130 @@ class JsonMapLoaderTest {
     assertEquals(2, map.getHeight());
     assertEquals(1, map.getLayers().size());
     assertEquals(TileType.WALL, map.getTileType(0, 0));
+  }
+
+  @Test
+  void placesSpawnsFromTheEntitiesLayer() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "P": { "type": "PLAYER" },
+            "S": { "type": "ENEMY", "enemyType": "skeleton" },
+            "L": { "type": "LOOT" }
+          },
+          "layers": {
+            "terrain":  ["####", "####"],
+            "entities": ["  S ", "P  L"]
+          }
+        }
+        """;
+    LevelMapData map = loader.parse(json);
+
+    // Rows are flipped, so the bottom row of the entities layer is y = 0.
+    assertEquals(new GridPoint2(0, 0), map.getSpawns().getPlayer());
+    assertEquals(1, map.getSpawns().getEnemies().size());
+    assertEquals("skeleton", map.getSpawns().getEnemies().getFirst().getType());
+    assertEquals(new GridPoint2(2, 1), map.getSpawns().getEnemies().getFirst().getPosition());
+    assertEquals(new GridPoint2(3, 0), map.getSpawns().getLoot().getFirst().getPosition());
+    // The entities layer is spawn data, not a tile layer.
+    assertNull(map.getLayer("entities"));
+    assertEquals(1, map.getLayers().size());
+  }
+
+  @Test
+  void carriesExtraLegendKeysAsTileProperties() {
+    String json =
+        """
+        {
+          "legend": {
+            "~": { "type": "HAZARD", "texture": "lava.png", "damage": "15", "hidden": "true" },
+            "#": { "type": "WALL", "texture": "wall.png" }
+          },
+          "layers": { "terrain": ["~#"] }
+        }
+        """;
+    LevelMapData map = loader.parse(json);
+
+    TileDefinition hazard = map.getLegend().get("~");
+    assertEquals(15, hazard.getInt("damage", 0));
+    assertTrue(hazard.flag("hidden"));
+    // type and texture stay out of the property bag.
+    assertFalse(hazard.has("type"));
+    assertFalse(hazard.has("texture"));
+    assertTrue(map.getLegend().get("#").properties().isEmpty());
+  }
+
+  @Test
+  void placesMarkersFromTheEntitiesLayer() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "N": { "type": "MARKER", "kind": "npc", "id": "traveler" },
+            "T": { "type": "MARKER", "kind": "light", "radius": "6" },
+            "C": { "type": "MARKER", "kind": "CHECKPOINT" }
+          },
+          "layers": {
+            "terrain":  ["####", "####"],
+            "entities": ["T  C", "N   "]
+          }
+        }
+        """;
+    MapSpawns spawns = loader.parse(json).getSpawns();
+
+    Marker npc = spawns.getMarkers("npc").getFirst();
+    assertEquals("traveler", npc.id());
+    assertEquals(new GridPoint2(0, 0), npc.position());
+
+    Marker light = spawns.getMarkers("light").getFirst();
+    assertEquals(6, light.getInt("radius", 0));
+    assertNull(light.id());
+    // kind, id and type stay out of the property bag.
+    assertFalse(light.properties().containsKey("kind"));
+    assertFalse(light.properties().containsKey("type"));
+
+    // Kinds are matched ignoring case, so map authors can write them however they like.
+    assertEquals(1, spawns.getMarkers("checkpoint").size());
+    assertEquals(3, spawns.getAllMarkers().size());
+  }
+
+  @Test
+  void ignoresAMarkerWithNoKind() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": { "X": { "type": "MARKER", "id": "nameless" } },
+          "layers": { "terrain": ["##"], "entities": ["X "] }
+        }
+        """;
+    assertTrue(loader.parse(json).getSpawns().getAllMarkers().isEmpty());
+  }
+
+  @Test
+  void markersDoNotDisturbPlayerEnemyOrLootSpawns() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "P": { "type": "PLAYER" },
+            "S": { "type": "ENEMY", "enemyType": "skeleton" },
+            "L": { "type": "LOOT" },
+            "N": { "type": "MARKER", "kind": "npc" }
+          },
+          "layers": { "terrain": ["####"], "entities": ["PSLN"] }
+        }
+        """;
+    MapSpawns spawns = loader.parse(json).getSpawns();
+
+    assertEquals(new GridPoint2(0, 0), spawns.getPlayer());
+    assertEquals(1, spawns.getEnemies().size());
+    assertEquals(1, spawns.getLoot().size());
+    assertEquals(1, spawns.getMarkers("npc").size());
   }
 
   @Test
@@ -177,7 +306,7 @@ class JsonMapLoaderTest {
               "width": 2,
               "height": 3,
               "texture": "door.png",
-              "destinationMap": "maps/room2.json",
+              "destinationMap": "maps/level2.json",
               "destinationSpawn": { "x": 4, "y": 5 }
             }
           ]
@@ -192,23 +321,9 @@ class JsonMapLoaderTest {
     assertEquals(2, transition.getWidth());
     assertEquals(3, transition.getHeight());
     assertEquals("door.png", transition.getTexture());
-    assertEquals("maps/room2.json", transition.getDestinationMap());
+    assertEquals("maps/level2.json", transition.getDestinationMap());
     assertEquals(new com.badlogic.gdx.math.GridPoint2(4, 5), transition.getDestinationSpawn());
     assertTrue(map.getTexturePaths().contains("door.png"));
-  }
-
-  @Test
-  void rejectsTransitionWithoutDestinationMap() {
-    String json =
-        """
-        {
-          "legend": {},
-          "layers": { "terrain": [" "] },
-          "transitions": [ { "x": 0, "y": 0 } ]
-        }
-        """;
-
-    assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
   @Test
@@ -264,12 +379,39 @@ class JsonMapLoaderTest {
         () -> loader.parse("{ \"layers\": { \"terrain\": { \"a\": 1 } } }"));
   }
 
-  @Test
-  void throwsOnUnknownTileType() {
-    String json =
-        """
-        { "legend": { "#": { "type": "NONSENSE" } }, "layers": { "terrain": ["#"] } }
-        """;
+  static Stream<Arguments> structurallyInvalidMaps() {
+    return Stream.of(
+        Arguments.of(
+            "entities layer does not match the map grid",
+            """
+            {
+              "legend": { "#": { "type": "WALL" } },
+              "entityLegend": { "P": { "type": "PLAYER" } },
+              "layers": {
+                "terrain":  ["####", "####", "####"],
+                "entities": ["P   "]
+              }
+            }
+            """),
+        Arguments.of(
+            "transition has no destination map",
+            """
+            {
+              "legend": {},
+              "layers": { "terrain": [" "] },
+              "transitions": [ { "x": 0, "y": 0 } ]
+            }
+            """),
+        Arguments.of(
+            "legend uses an unknown tile type",
+            """
+            { "legend": { "#": { "type": "NONSENSE" } }, "layers": { "terrain": ["#"] } }
+            """));
+  }
+
+  @ParameterizedTest(name = "rejects a map where the {0}")
+  @MethodSource("structurallyInvalidMaps")
+  void rejectsStructurallyInvalidMaps(String problem, String json) {
     assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
@@ -285,30 +427,6 @@ class JsonMapLoaderTest {
     assertEquals(TileType.WALL, map.getTileType(0, 0));
     assertEquals(2, map.getTexturePaths().size());
     assertEquals("ghost", map.getSpawns().getEnemies().get(0).getType());
-  }
-
-  @Test
-  void loadsRoomOneDoorwayAndTemporaryRoomTwo() {
-    LevelMapData roomOne = loader.load("maps/demo.json");
-    LevelMapData roomTwo = loader.load("maps/room2.json");
-
-    assertEquals("Underworld Dungeon", roomOne.getName());
-    assertEquals(40, roomOne.getWidth());
-    assertEquals(66, roomOne.getHeight());
-    assertEquals(new GridPoint2(8, 63), roomOne.getSpawns().getPlayer());
-    assertEquals(TileType.WALL, roomOne.getTileType(3, 0));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(20, 15));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(35, 5));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(4, 20));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(20, 60));
-    assertEquals(TileType.PLATFORM, roomOne.getTileType(26, 30));
-    assertEquals(31, roomOne.getSpawns().getEnemies().get(1).getY());
-    assertEquals(1, roomOne.getTransitions().size());
-    assertEquals("maps/room2.json", roomOne.getTransitions().getFirst().getDestinationMap());
-    assertEquals(new GridPoint2(34, 61), roomOne.getTransitions().getFirst().getPosition());
-    assertEquals("Underworld (Temporary)", roomTwo.getName());
-    assertEquals(40, roomTwo.getWidth());
-    assertEquals(22, roomTwo.getHeight());
   }
 
   @Test
@@ -343,10 +461,13 @@ class JsonMapLoaderTest {
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
     assertEquals(1, levelOne.getTransitions().size());
     assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+    // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
+    // map still loads and renders from its tile layers.
+    assertNull(levelOne.getBackgroundTexture());
   }
 
   @Test
-  void loadsTheAuthoredLevelTwoMountainAndItsSummitExit() {
+  void loadsLevelTwoMountainAndItsSummitExit() {
     LevelMapData levelTwo = loader.load("maps/level2.json");
 
     assertEquals("Level 2 — Climb Mount Olympus", levelTwo.getName());
@@ -355,11 +476,13 @@ class JsonMapLoaderTest {
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());
     assertEquals(TileType.WALL, levelTwo.getTileType(1, 1));
     assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 155));
-    assertNull(levelTwo.getLayer("hazards").get(27, 155));
-    assertNull(levelTwo.getLayer("hazards").get(27, 143));
-    assertNull(levelTwo.getLayer("hazards").get(31, 131));
-    assertNull(levelTwo.getLayer("hazards").get(42, 75));
-    assertEquals(TileType.HAZARD, levelTwo.getLayer("hazards").get(13, 45).type());
+    // Storm clouds stay walkable; only explicitly authored hazards damage the player.
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 143));
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(31, 131));
+    assertNull(levelTwo.getTileType(42, 75));
+    // Hazards live in the collision layer, as they do in level 1.
+    assertNull(levelTwo.getLayer("hazards"));
+    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 45));
     assertEquals(TileType.DECORATIVE, levelTwo.getTileType(59, 173));
     assertEquals(TileType.WALL, levelTwo.getTileType(59, 165));
     assertTrue(
@@ -375,8 +498,33 @@ class JsonMapLoaderTest {
     assertEquals("images/level2/level2-map.png", levelTwo.getBackgroundTexture());
 
     LevelMapData levelThree = loader.load("maps/level3.json");
-    assertEquals("Level 3 (Coming Soon)", levelThree.getName());
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
+  }
+
+  @Test
+  void loadsLevelThreeThroneRoomWithASingleBoss() {
+    LevelMapData levelThree = loader.load("maps/level3.json");
+
+    assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
+    assertEquals(40, levelThree.getWidth());
+    assertEquals(16, levelThree.getHeight());
+    // The player arrives on the spawn level 2's summit exit sends them to.
+    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
+    assertEquals(1, levelThree.getSpawns().getEnemies().size());
+    assertEquals("ghostking", levelThree.getSpawns().getEnemies().getFirst().getType());
+    assertEquals(
+        new GridPoint2(32, 2), levelThree.getSpawns().getEnemies().getFirst().getPosition());
+    // Only the shell collides: the throne room's furniture is all walk-through decoration.
+    for (MapLayerData layer : levelThree.getLayers()) {
+      for (int x = 0; x < levelThree.getWidth(); x++) {
+        for (int y = 0; y < levelThree.getHeight(); y++) {
+          TileDefinition tile = layer.get(x, y);
+          if (tile != null && tile.type() != TileType.WALL) {
+            assertEquals(TileType.DECORATIVE, tile.type());
+          }
+        }
+      }
+    }
   }
 
   @Test
