@@ -54,8 +54,23 @@ public class TerrainComponent extends RenderComponent {
     }
   }
 
-  public TerrainTile getTile(int x, int y) {
-    TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+  /**
+   * The tile drawn at a position in a named layer.
+   *
+   * <p>Rendered tiles are not the same thing as gameplay tiles: this returns whatever the renderer
+   * holds, which for a decorative layer is decoration. To ask what the level is like at a position,
+   * use {@code LevelView} instead, which reads the collision layer and answers in terms of
+   * behaviour.
+   *
+   * @param layerName the layer to read, such as "terrain" or "background"
+   * @param x tile x
+   * @param y tile y
+   * @return the tile, or null if that layer or cell is empty
+   */
+  public TerrainTile getTile(String layerName, int x, int y) {
+    if (!(tiledMap.getLayers().get(layerName) instanceof TiledMapTileLayer layer)) {
+      return null;
+    }
 
     TiledMapTileLayer.Cell cell = layer.getCell(x, y);
 
@@ -70,9 +85,20 @@ public class TerrainComponent extends RenderComponent {
     return tileSize;
   }
 
-  public GridPoint2 getMapBounds(int layer) {
-    TiledMapTileLayer terrainLayer = (TiledMapTileLayer) tiledMap.getLayers().get(layer);
-    return new GridPoint2(terrainLayer.getWidth(), terrainLayer.getHeight());
+  /**
+   * The size of the rendered map in tiles.
+   *
+   * <p>Every layer of a map shares its dimensions, so this reads the first one.
+   *
+   * @return width and height in tiles, or (0, 0) for a map with no tile layers
+   */
+  public GridPoint2 getMapBounds() {
+    for (int i = 0; i < tiledMap.getLayers().getCount(); i++) {
+      if (tiledMap.getLayers().get(i) instanceof TiledMapTileLayer layer) {
+        return new GridPoint2(layer.getWidth(), layer.getHeight());
+      }
+    }
+    return new GridPoint2();
   }
 
   public TiledMap getMap() {

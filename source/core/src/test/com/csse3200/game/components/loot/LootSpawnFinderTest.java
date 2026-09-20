@@ -159,7 +159,7 @@ class LootSpawnFinderTest {
   void shouldRejectAMissingMap() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> LootSpawnFinder.findGroundSpots(null),
+        () -> LootSpawnFinder.findGroundSpots((LevelMapData) null),
         "finding spots without a map should be rejected");
   }
 
