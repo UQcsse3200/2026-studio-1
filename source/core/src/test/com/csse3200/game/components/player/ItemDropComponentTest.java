@@ -21,7 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class ItemDropComponentTest {
 
   @Test
-  void shouldDropWholeStackFromLowestOccupiedSlot() {
+  void shouldDropWholeStackFromSelectedSlot() {
     List<Entity> spawned = new ArrayList<>();
     AtomicReference<Item> factoryItem = new AtomicReference<>();
     AtomicReference<Entity> factoryOwner = new AtomicReference<>();
@@ -41,20 +41,23 @@ class ItemDropComponentTest {
     player.create();
 
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
-    WeaponItem sword = new WeaponItem("Sword", WeaponType.SWORD, 10, 1, 1);
+    WeaponItem sword = new WeaponItem("Sword", WeaponType.SWORD, 2, 10, 1, 1);
     Item potion = new Item("Potion", ItemType.CONSUMABLE, 3, 9);
     inventory.addItem(sword);
     inventory.addItem(potion);
+    inventory.setActiveSlot(2);
 
-    assertTrue(dropComponent.dropFirstStack());
+    assertTrue(dropComponent.dropActiveStack());
 
-    assertFalse(inventory.containsItem(1));
-    assertSame(potion, inventory.getItem(2));
-    assertSame(sword, factoryItem.get());
+    assertSame(sword, inventory.getItem(1));
+    assertFalse(inventory.containsItem(2));
+    assertEquals(2, inventory.getActiveSlot());
+    assertSame(potion, factoryItem.get());
+    assertEquals(3, factoryItem.get().getQuantity());
     assertSame(player, factoryOwner.get());
     assertEquals(1, spawned.size());
-    assertEquals(3.25f, spawned.get(0).getPosition().x, 0.001f);
-    assertEquals(3f, spawned.get(0).getPosition().y, 0.001f);
+    assertEquals(3.25f, spawned.getFirst().getPosition().x, 0.001f);
+    assertEquals(3f, spawned.getFirst().getPosition().y, 0.001f);
   }
 
   @Test
@@ -84,7 +87,75 @@ class ItemDropComponentTest {
         new Entity().addComponent(new InventoryComponent(0, 2)).addComponent(dropComponent);
     player.create();
 
-    assertFalse(dropComponent.dropFirstStack());
+    assertFalse(dropComponent.dropActiveStack());
+    assertTrue(spawned.isEmpty());
+  }
+
+  @Test
+  void shouldNotDropOtherItemsWhenSelectedSlotIsEmpty() {
+    List<Entity> spawned = new ArrayList<>();
+    ItemDropComponent dropComponent =
+        new ItemDropComponent((item, owner) -> new Entity(), spawned::add);
+    Entity player =
+        new Entity().addComponent(new InventoryComponent(0, 3)).addComponent(dropComponent);
+    player.create();
+    InventoryComponent inventory = player.getComponent(InventoryComponent.class);
+    Item potion = new Item("Potion", ItemType.CONSUMABLE, 2, 9);
+    inventory.addItem(potion);
+    inventory.setActiveSlot(3);
+
+    assertFalse(dropComponent.dropActiveStack());
+
+    assertSame(potion, inventory.getItem(1));
+    assertEquals(3, inventory.getActiveSlot());
+    assertTrue(spawned.isEmpty());
+  }
+
+  @Test
+  void shouldDropGold() {
+    List<Entity> spawned = new ArrayList<>();
+    AtomicReference<Item> factoryItem = new AtomicReference<>();
+    AtomicReference<Entity> factoryOwner = new AtomicReference<>();
+
+    int numGold = 3;
+
+    ItemDropComponent dropComponent =
+        new ItemDropComponent(
+            (item, owner) -> {
+              factoryItem.set(item);
+              factoryOwner.set(owner);
+              return new Entity();
+            },
+            spawned::add);
+
+    Entity player =
+        new Entity().addComponent(new InventoryComponent(numGold, 3)).addComponent(dropComponent);
+    player.setPosition(2f, 3f);
+    player.create();
+
+    InventoryComponent inventory = player.getComponent(InventoryComponent.class);
+
+    assertTrue(dropComponent.dropGold());
+
+    assertFalse(inventory.hasGold(1));
+    assertSame(ItemType.CURRENCY, factoryItem.get().getItemType());
+    assertEquals(numGold, factoryItem.get().getQuantity());
+    assertSame(player, factoryOwner.get());
+    assertEquals(1, spawned.size());
+    assertEquals(3.25f, spawned.getFirst().getPosition().x, 0.001f);
+    assertEquals(3f, spawned.getFirst().getPosition().y, 0.001f);
+  }
+
+  @Test
+  void shouldNotDropZeroGold() {
+    List<Entity> spawned = new ArrayList<>();
+    ItemDropComponent dropComponent =
+        new ItemDropComponent((item, owner) -> new Entity(), spawned::add);
+    Entity player =
+        new Entity().addComponent(new InventoryComponent(0, 2)).addComponent(dropComponent);
+    player.create();
+
+    assertFalse(dropComponent.dropGold());
     assertTrue(spawned.isEmpty());
   }
 }

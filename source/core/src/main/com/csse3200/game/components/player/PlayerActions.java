@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Action component for interacting with the player.
@@ -29,8 +31,9 @@ import java.util.Set;
  * is triggered.
  */
 public class PlayerActions extends Component {
+  private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
   // Thank you Lachlan, you beautiful, beautiful man
-  private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
   private float attackCooldownRemaining = 0f;
@@ -99,7 +102,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
     entity.getEvents().addListener("collisionEnd", this::onCollisionEnd);
 
-    // Death State
+    // Death State for player
     entity.getEvents().addListener("death", this::onDeath);
   }
 
@@ -252,13 +255,14 @@ public class PlayerActions extends Component {
 
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
-    attackSound.play(AudioSettings.getEffectiveEffectsVolume());
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
       CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
+        logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+        attackSound.play(AudioSettings.getEffectiveEffectsVolume());
       }
     }
 
