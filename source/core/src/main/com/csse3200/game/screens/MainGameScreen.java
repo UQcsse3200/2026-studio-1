@@ -12,6 +12,7 @@ import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
+import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.maingame.DeathScreenDisplay;
 import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
@@ -22,7 +23,9 @@ import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
+import com.csse3200.game.files.SaveService;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
@@ -41,6 +44,9 @@ import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +79,7 @@ public class MainGameScreen extends ScreenAdapter {
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
   private String currentRoomMapPath = FIRST_ROOM_MAP;
+  private Map<String, Long> lootSeedsByRoom = new HashMap<>();
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
@@ -109,8 +116,22 @@ public class MainGameScreen extends ScreenAdapter {
 
     logger.debug("Initialising main game screen entities");
     terrainFactory = new TerrainFactory(renderer.getCamera());
-    this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
+    Long savedSeed = null;
+    if (loadsave) {
+      GameSaveData saveData = SaveService.load();
+      LootRegistry.loadFrom(saveData.collectedLootIds);
+      lootSeedsByRoom = saveData.lootSeedsByRoom;
+      savedSeed = saveData.lootSeedsByRoom.get(FIRST_ROOM_MAP);
+    } else {
+      LootRegistry.loadFrom(new ArrayList<>());
+    }
+
+    this.levelGameArea =
+        savedSeed != null
+            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed)
+            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
     levelGameArea.create();
+    lootSeedsByRoom.put(FIRST_ROOM_MAP, levelGameArea.getLootSeed());
     Entity player = levelGameArea.getPlayer();
     upgradesDisplay.setPlayer(player);
     ServiceLocator.getEntityService()
@@ -133,6 +154,18 @@ public class MainGameScreen extends ScreenAdapter {
 
   public Entity getPlayerEntity() {
     return levelGameArea != null ? levelGameArea.getPlayer() : null;
+  }
+
+  public String getCurrentRoomMapPath() {
+    return currentRoomMapPath;
+  }
+
+  public long getCurrentLootSeed() {
+    return levelGameArea != null ? levelGameArea.getLootSeed() : 0L;
+  }
+
+  public Map<String, Long> getLootSeedsByRoom() {
+    return new HashMap<>(lootSeedsByRoom);
   }
 
   /**
@@ -263,13 +296,17 @@ public class MainGameScreen extends ScreenAdapter {
     LevelGameArea previousArea = levelGameArea;
     removeSubLevelTravelPrompt();
     Entity player = previousArea.releasePlayer();
+    Long savedSeed = lootSeedsByRoom.get(transition.getDestinationMap());
     LevelGameArea nextArea =
         new LevelGameArea(
             terrainFactory,
             transition.getDestinationMap(),
             player,
-            transition.getDestinationSpawn());
+            transition.getDestinationSpawn(),
+            savedSeed);
     nextArea.create();
+
+    lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
 
     previousArea.dispose();
     nextArea.resumeMusic();
@@ -365,7 +402,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
-        .addComponent(new PauseMenuActions(this::getPlayerEntity))
+        .addComponent(new PauseMenuActions(this::getPlayerEntity, this::getLootSeedsByRoom))
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new DeathScreenInputComponent())

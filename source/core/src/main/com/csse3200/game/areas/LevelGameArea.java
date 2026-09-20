@@ -20,9 +20,12 @@ import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.LootId;
 import com.csse3200.game.components.loot.LootPlacement;
+import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.LootSpawnFinder;
 import com.csse3200.game.components.loot.LootTable;
+import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.room.RoomTransitionComponent;
@@ -77,7 +80,7 @@ public class LevelGameArea extends GameArea {
    * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
    * it is logged when loot spawns so a run with a bug in it can be replayed from that seed.
    */
-  private final long lootSeed = new Random().nextLong();
+  private final long lootSeed;
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
@@ -158,7 +161,7 @@ public class LevelGameArea extends GameArea {
    * @param mapLoader loader used to parse the map file
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
-    this(terrainFactory, mapPath, mapLoader, null, null);
+    this(terrainFactory, mapPath, mapLoader, null, null, null);
   }
 
   /**
@@ -172,7 +175,22 @@ public class LevelGameArea extends GameArea {
    */
   public LevelGameArea(
       TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
-    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn);
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null);
+  }
+
+  /**
+   * Create a level while retaining an existing player, placing it at a specified entrance, and
+   * using a previously-saved loot seed so this room's loot layout matches what it was when saved.
+   *
+   * @param savedLootSeed the loot seed to reuse, from a save file
+   */
+  public LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, savedLootSeed);
   }
 
   private LevelGameArea(
@@ -180,13 +198,15 @@ public class LevelGameArea extends GameArea {
       String mapPath,
       MapLoader mapLoader,
       Entity existingPlayer,
-      GridPoint2 entrySpawn) {
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
     this.mapLoader = mapLoader;
     this.existingPlayer = existingPlayer;
     this.entrySpawn = entrySpawn == null ? null : new GridPoint2(entrySpawn);
+    this.lootSeed = savedLootSeed != null ? savedLootSeed : new Random().nextLong();
   }
 
   @Override
@@ -211,6 +231,13 @@ public class LevelGameArea extends GameArea {
    */
   public LevelMapData getMapData() {
     return mapData;
+  }
+
+  /**
+   * @return the loot seed used by this level instance
+   */
+  public long getLootSeed() {
+    return lootSeed;
   }
 
   /**
@@ -621,16 +648,23 @@ public class LevelGameArea extends GameArea {
     }
 
     SpawnPoint shieldSpawn = lootSpawns.get(0);
-    spawnEntityAt(
-        LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
-        shieldSpawn.getPosition(),
-        true,
-        true);
+    String shieldId = LootId.of(mapData.getName(), shieldSpawn.getPosition());
+    if (!LootRegistry.isCollected(shieldId)) {
+      Entity shieldEntity = LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1));
+      shieldEntity.addComponent(new PersistentLootIdComponent(shieldId));
+      spawnEntityAt(shieldEntity, shieldSpawn.getPosition(), true, true);
+    }
 
     List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
     LootTable table = LootTable.createDefault(lootSeed);
     for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
-      spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
+      String id = LootId.of(mapData.getName(), placed.getPosition());
+      if (LootRegistry.isCollected(id)) {
+        continue;
+      }
+      Entity lootEntity = LootFactory.createLoot(placed.getItem());
+      lootEntity.addComponent(new PersistentLootIdComponent(id));
+      spawnEntityAt(lootEntity, placed.getPosition(), true, true);
     }
   }
 

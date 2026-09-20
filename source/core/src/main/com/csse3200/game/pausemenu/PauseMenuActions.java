@@ -4,6 +4,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
@@ -17,9 +18,12 @@ public class PauseMenuActions extends Component {
 
   private PauseMenuComponent pauseMenu;
   private final Supplier<Entity> playerSupplier;
+  private final Supplier<Map<String, Long>> lootSeedsSupplier;
 
-  public PauseMenuActions(Supplier<Entity> playerSupplier) {
+  public PauseMenuActions(
+      Supplier<Entity> playerSupplier, Supplier<Map<String, Long>> lootSeedsSupplier) {
     this.playerSupplier = playerSupplier;
+    this.lootSeedsSupplier = lootSeedsSupplier;
   }
 
   @Override
@@ -63,6 +67,8 @@ public class PauseMenuActions extends Component {
     data.gold = inventory.getGold();
     data.posX = player.getPosition().x;
     data.posY = player.getPosition().y;
+    data.lootSeedsByRoom = lootSeedsSupplier.get();
+    data.collectedLootIds = LootRegistry.exportAll();
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();
