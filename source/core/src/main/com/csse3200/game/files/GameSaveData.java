@@ -9,4 +9,5 @@ public class GameSaveData {
   public List<SavedItem> items = new ArrayList<>();
   public float posX;
   public float posY;
+  public String level;
 }
