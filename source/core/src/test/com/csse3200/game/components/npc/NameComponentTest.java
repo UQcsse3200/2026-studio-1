@@ -7,29 +7,29 @@ import org.junit.jupiter.api.Test;
 
 class NameComponentTest {
 
-    @Test
-    void shouldStoreName() {
-        NameComponent component = new NameComponent("Grimfang");
+  @Test
+  void shouldStoreName() {
+    NameComponent component = new NameComponent("Grimfang");
 
-        assertEquals("Grimfang", component.getName());
-    }
+    assertEquals("Grimfang", component.getName());
+  }
 
-    @Test
-    void shouldUpdateName() {
-        NameComponent component = new NameComponent("Grimfang");
+  @Test
+  void shouldUpdateName() {
+    NameComponent component = new NameComponent("Grimfang");
 
-        component.setName("Ashbane");
+    component.setName("Ashbane");
 
-        assertEquals("Ashbane", component.getName());
-    }
+    assertEquals("Ashbane", component.getName());
+  }
 
-    @Test
-    void shouldRejectNullName() {
-        assertThrows(IllegalArgumentException.class, () -> new NameComponent(null));
-    }
+  @Test
+  void shouldRejectNullName() {
+    assertThrows(IllegalArgumentException.class, () -> new NameComponent(null));
+  }
 
-    @Test
-    void shouldRejectBlankName() {
-        assertThrows(IllegalArgumentException.class, () -> new NameComponent("   "));
-    }
+  @Test
+  void shouldRejectBlankName() {
+    assertThrows(IllegalArgumentException.class, () -> new NameComponent("   "));
+  }
 }
