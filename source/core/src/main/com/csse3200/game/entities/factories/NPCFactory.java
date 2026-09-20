@@ -494,7 +494,6 @@ public class NPCFactory {
         new AITaskComponent()
             .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
             .addTask(new ChaseTask(target, 10, 3f, 4f));
-    String generatedName = nameGenerator.generateName();
 
     Entity npc =
             new Entity()
@@ -502,8 +501,7 @@ public class NPCFactory {
                     .addComponent(new PhysicsMovementComponent())
                     .addComponent(new ColliderComponent())
                     .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-                    .addComponent(aiComponent)
-                    .addComponent(new NameComponent(generatedName));
+                    .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.4f);
     // Let gravity pull the NPC down instead of the wander/chase AI flying it directly toward
@@ -526,13 +524,15 @@ public class NPCFactory {
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale))
             .addTask(new ChaseTask(target, 10, 3f, 4f))
             .addTask(new MeleeAttackTask(target, 15, 1f));
+    String generatedName = nameGenerator.generateName();
     Entity npc =
         new Entity()
             .addComponent(new PhysicsComponent())
             .addComponent(new PhysicsMovementComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(aiComponent);
+            .addComponent(aiComponent)
+    .addComponent(new NameComponent(generatedName));
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
