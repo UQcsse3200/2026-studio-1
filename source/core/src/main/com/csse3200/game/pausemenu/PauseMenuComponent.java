@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 public class PauseMenuComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PauseMenuComponent.class);
   static final String BACKGROUND_MUSIC =
-      "sounds/BGM_03_mp3.mp3"; // change the background music file name here if you want to change
-  // the music
+      "sounds/BGM_03_mp3.mp3"; // change the background music file name here if you want to change the music
   private boolean isPaused = false;
 
   public boolean isPaused() {

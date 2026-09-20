@@ -58,14 +58,16 @@ public class PauseMenuDisplay extends UIComponent {
   };
   private static final int AUDIO_BACK_INDEX = 3;
 
-  // NOTE: verify these against the actual KeyboardPlayerInputComponent bindings and correct
-  // any that don't match before shipping - this list is a best-effort reconstruction.
   private static final String[] KEYBIND_ITEMS = {
-    "Move: W A S D",
-    "Jump: Space",
+    "Move left:  A",
+    "Move right:  D",
+    "Move down:  S",
+    "Jump: W",
     "Dash: L",
-    "Attack: Left Click",
+    "Slide: LShift",
+    "Attack: Space",
     "Drop Item: Q",
+    "Equip Shield: B",
     "Pause: ESC",
     "Back"
   };
