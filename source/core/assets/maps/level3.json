@@ -1,27 +1,132 @@
 {
-  "name": "Level 3 (Coming Soon)",
+  "name": "Level 3 — Zeus's Palace",
   "tileSize": 0.5,
   "legend": {
-    "#": { "type": "WALL", "texture": "images/environment/dungeon-prototype/wall_px.png" },
-    "=": { "type": "PLATFORM", "texture": "images/environment/dungeon-prototype/platform_px.png" }
+    "#": {
+      "type": "WALL",
+      "texture": "images/level2/summit-marble-512px.png"
+    },
+    "G": {
+      "type": "WALL",
+      "texture": "images/level2/summit-gold-inlay-512px.png"
+    },
+    "F": {
+      "type": "WALL",
+      "texture": "images/level1/floor-marble-512px.png"
+    },
+    "b": {
+      "type": "DECORATIVE",
+      "texture": "images/level2/bg-sky-summit-512px.png"
+    },
+    "|": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-column-doric-512px.png"
+    },
+    "q": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-gorgoneion-512px.png"
+    },
+    "t": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-tripod-512px.png"
+    },
+    "o": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-oil-lamp-512px.png"
+    },
+    "v": {
+      "type": "DECORATIVE",
+      "texture": "images/level2/decor-shrine-votive-512px.png"
+    },
+    "^": {
+      "type": "DECORATIVE",
+      "texture": "images/level2/cloud-storm-512px.png"
+    }
+  },
+  "entityLegend": {
+    "P": {
+      "type": "PLAYER"
+    },
+    "Z": {
+      "type": "ENEMY",
+      "enemyType": "ghostking"
+    },
+    "L": {
+      "type": "LOOT"
+    }
   },
   "layers": {
+    "background": [
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    ],
     "terrain": [
-      "################################",
-      "#                              #",
-      "#                              #",
-      "#                              #",
-      "#                              #",
-      "#          ========            #",
-      "#                              #",
-      "#   ========                   #",
-      "#                              #",
-      "################################"
+      "########################################",
+      "#GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG#",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF#",
+      "########################################"
+    ],
+    "foreground": [
+      "                                        ",
+      "                                        ",
+      "          ^         ^         ^         ",
+      "                   q                    ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "        |     |           |             ",
+      "        |     |           |             ",
+      "     o  |   t |         t |   o     v   ",
+      "                                        ",
+      "                                        "
+    ],
+    "entities": [
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "  P                 L           Z       ",
+      "                                        ",
+      "                                        "
     ]
-  },
-  "spawns": {
-    "player": { "x": 2, "y": 2 },
-    "enemies": [],
-    "loot": []
   }
 }

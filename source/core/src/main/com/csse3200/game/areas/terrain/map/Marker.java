@@ -1,37 +1,45 @@
 package com.csse3200.game.areas.terrain.map;
 
-import com.csse3200.game.areas.terrain.TileType;
+import com.badlogic.gdx.math.GridPoint2;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * An entry in a map's legend: the pairing of a tile {@link TileType} with the texture used to draw
- * it, plus any extra properties the map author attached to that symbol. A single symbol in a map
- * file resolves to one {@code TileDefinition}, shared by every cell that uses the symbol.
+ * A named point placed on a map by its author, for a system outside the map package to act on.
  *
- * <p>Properties are how a feature adds per-tile data without changing this record, the loader, or
- * {@link TileType}. Any key in a legend entry other than {@code type} and {@code texture} is
- * carried here unchanged, and the map system never interprets it. For example:
+ * <p>Markers are how a team puts something on a map without the map system knowing what it is. The
+ * loader parses a marker, checks its position is inside the map, and serves it on request; it never
+ * interprets the {@code kind}, the {@code id}, or the properties. A team declares one in the entity
+ * legend and places its symbol in the entities layer:
  *
  * <pre>{@code
- * "~": { "type": "HAZARD", "texture": "river-styx.png", "damage": "15" },
- * "W": { "type": "WALL",   "texture": "wall.png",       "hidden": "true" },
- * "o": { "type": "DECORATIVE", "texture": "lamp.png",   "light": "4.5" }
+ * "entityLegend": {
+ *   "N": { "type": "MARKER", "kind": "npc",        "id": "traveler" },
+ *   "T": { "type": "MARKER", "kind": "light",      "radius": "6" },
+ *   "C": { "type": "MARKER", "kind": "checkpoint", "id": "quarry" }
+ * }
  * }</pre>
  *
- * <p>which the owning feature reads back as {@code getInt("damage", 10)}, {@code flag("hidden")}
- * and {@code getFloat("light", 0f)}.
+ * then reads them back with {@link MapSpawns#getMarkers(String)}:
  *
- * @param type the gameplay category of the tile
- * @param texture the asset path of the tile's texture (may be null for non-visual tiles)
+ * <pre>{@code
+ * for (Marker marker : mapData.getSpawns().getMarkers("npc")) {
+ *   spawnNpc(marker.id(), marker.position());
+ * }
+ * }</pre>
+ *
+ * @param kind the group this marker belongs to, lower-cased, used to look it up (e.g. "npc")
+ * @param id which one it is within that kind, or null if the kind alone is enough
+ * @param position the marker's tile, in world tile coordinates (origin bottom-left, y up)
  * @param properties extra author-supplied values, keyed by name (never null, never modifiable)
  */
-public record TileDefinition(TileType type, String texture, Map<String, String> properties) {
+public record Marker(String kind, String id, GridPoint2 position, Map<String, String> properties) {
 
-  /** Normalises {@code properties} so callers never have to null-check it. */
-  public TileDefinition {
+  /** Normalises the kind and properties so callers do not have to. */
+  public Marker {
+    kind = kind == null ? "" : kind.trim().toLowerCase(Locale.ROOT);
     properties =
         properties == null || properties.isEmpty()
             ? Collections.emptyMap()
@@ -39,21 +47,14 @@ public record TileDefinition(TileType type, String texture, Map<String, String> 
   }
 
   /**
-   * Creates a definition with no extra properties.
+   * Creates a marker with no extra properties.
    *
-   * @param type the gameplay category of the tile
-   * @param texture the asset path of the tile's texture, or null
+   * @param kind the group this marker belongs to
+   * @param id which one it is within that kind, or null
+   * @param position the marker's tile
    */
-  public TileDefinition(TileType type, String texture) {
-    this(type, texture, Collections.emptyMap());
-  }
-
-  /**
-   * @param key the property name
-   * @return true if the map author set this property at all
-   */
-  public boolean has(String key) {
-    return properties.containsKey(key);
+  public Marker(String kind, String id, GridPoint2 position) {
+    this(kind, id, position, Collections.emptyMap());
   }
 
   /**
@@ -75,9 +76,6 @@ public record TileDefinition(TileType type, String texture, Map<String, String> 
   }
 
   /**
-   * Reads a property as a boolean flag. Anything other than {@code "true"} (ignoring case) is
-   * false, including an absent property, so a flag is safe to read on any tile.
-   *
    * @param key the property name
    * @return true if the property is present and reads as true
    */
@@ -87,8 +85,6 @@ public record TileDefinition(TileType type, String texture, Map<String, String> 
   }
 
   /**
-   * Reads a property as a whole number.
-   *
    * @param key the property name
    * @param fallback the value to use when the property is absent or not a number
    * @return the parsed value, or {@code fallback}
@@ -106,8 +102,6 @@ public record TileDefinition(TileType type, String texture, Map<String, String> 
   }
 
   /**
-   * Reads a property as a decimal number.
-   *
    * @param key the property name
    * @param fallback the value to use when the property is absent or not a number
    * @return the parsed value, or {@code fallback}

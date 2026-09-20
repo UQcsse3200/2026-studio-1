@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.areas.terrain.TileType;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +26,8 @@ import org.slf4j.LoggerFactory;
  *   "tileSize": 0.5,
  *   "legend": {
  *     "#": { "type": "WALL",  "texture": "images/environment/forest/grass_3.png" },
- *     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" }
+ *     ".": { "type": "FLOOR", "texture": "images/environment/forest/grass_1.png" },
+ *     "~": { "type": "HAZARD", "texture": "lava.png", "damage": "15" }
  *   },
  *   "layers": {
  *     "background": ["....", "...."],
@@ -42,12 +44,26 @@ import org.slf4j.LoggerFactory;
  * <p>Rows are listed top-to-bottom for readability; the loader flips them so that {@code y = 0} is
  * the bottom row (matching world coordinates). A space, or any character absent from the legend,
  * means an empty cell. Spawn coordinates use world tile coordinates (bottom-left origin, y up).
+ *
+ * <p>The {@code entities} layer resolves against {@code entityLegend}, a separate namespace from
+ * the tile legend, so the same character can mean different things in each. An entry's {@code type}
+ * is PLAYER, ENEMY, LOOT, or MARKER; see {@link Marker} for placing anything else.
+ *
+ * <p>A legend entry may carry any number of extra keys beyond {@code type} and {@code texture}.
+ * They are read as text into {@link TileDefinition#properties()} and never interpreted here, so a
+ * feature can add per-tile data without changing this loader. See {@link TileDefinition}.
+ *
+ * <p>An optional {@code backgroundTexture} renders one composed image behind the tile layers, for
+ * maps whose art is authored as a single scene rather than per-tile. Unknown top-level keys are
+ * ignored, so maps may carry an {@code authoring} block of design-time data the runtime does not
+ * read. Every level map uses this one format; there is no per-level parsing path.
  */
 public class JsonMapLoader implements MapLoader {
+  private static final String TYPE_KEY = "type";
+  private static final String TEXTURE_KEY = "texture";
   private static final Logger logger = LoggerFactory.getLogger(JsonMapLoader.class);
   private static final float DEFAULT_TILE_SIZE = 0.5f;
   private static final char EMPTY_CELL = ' ';
-  private static final String LEVEL_TWO_BACKGROUND = "images/level2/level2-map.png";
 
   @Override
   public LevelMapData load(String path) {
@@ -106,9 +122,6 @@ public class JsonMapLoader implements MapLoader {
 
     JsonValue layersJson = root.get("layers");
     if (layersJson == null) {
-      if (root.get("tiles") != null) {
-        return parseAuthoredLevel(root);
-      }
       throw new MapLoadException("Map '" + name + "' has no 'layers' section");
     }
     if (!layersJson.isObject()) {
@@ -120,6 +133,8 @@ public class JsonMapLoader implements MapLoader {
     int width = collected.width();
     int height = collected.height();
 
+    validateEntityLayer(split.entityRows(), width, height, name);
+
     MapSpawns spawns = parseSpawns(root.get("spawns"), split.entityRows(), entityLegend, height);
 
     List<RoomTransition> transitions = parseTransitions(root.get("transitions"), name);
@@ -127,8 +142,16 @@ public class JsonMapLoader implements MapLoader {
     validateSpawns(spawns, width, height, name);
     validateTransitions(transitions, width, height, name);
 
-    return new LevelMapData(
-        name, tileSize, width, height, legend, split.layers(), spawns, transitions);
+    return LevelMapData.builder(name)
+        .tileSize(tileSize)
+        .size(width, height)
+        .legend(legend)
+        .layers(split.layers())
+        .spawns(spawns)
+        .transitions(transitions)
+        .backgroundTexture(resolveBackgroundTexture(root, name))
+        .subLevels(parseSubLevels(root.get("subLevels"), name))
+        .build();
   }
 
   /**
@@ -193,127 +216,123 @@ public class JsonMapLoader implements MapLoader {
   private record SplitLayers(List<MapLayerData> layers, String[] entityRows) {}
 
   /**
-   * Adapts the Level 2 art team's concise blueprint format to the runtime map representation. Its
-   * {@code tiles} rows are still used directly for collision; the provided composed artwork is
-   * rendered as a single background so the intended mountain scene is preserved exactly.
+   * Reads the optional {@code subLevels} block: named sections of one map that the game treats as
+   * separate places, such as level 1's dungeon and Nether.
+   *
+   * @param subLevelsJson the block, or null if the map has none
+   * @param mapName the map's name, for error messages
+   * @return the sub-levels in file order, empty if the map declares none
    */
-  private LevelMapData parseAuthoredLevel(JsonValue root) {
-    String name = root.getString("name", "unnamed");
-    JsonValue tilesJson = root.get("tiles");
-    if (!tilesJson.isArray()) {
-      throw new MapLoadException("Authored map '" + name + "' tiles must be an array of strings");
-    }
-
-    String[] rows = tilesJson.asStringArray();
-    int width = root.getInt("width", widestRow(rows));
-    int height = root.getInt("height", rows.length);
-    if (width <= 0 || height <= 0 || rows.length != height || widestRow(rows) > width) {
-      throw new MapLoadException("Authored map '" + name + "' has inconsistent dimensions");
-    }
-
-    Map<String, TileDefinition> legend = authoredLegend();
-    MapLayerData collision = buildLayer("collision", rows, legend, width, height);
-    // Storm-cloud artwork does not currently show an active/danger state. Keep these clouds
-    // walkable without invisible damage; only explicitly placed hazards belong in this layer.
-    MapLayerData hazards = new MapLayerData("hazards", width, height);
-    MapSpawns spawns = parseAuthoredSpawns(root.get("entry"), root.get("objects"), hazards, height);
-    List<RoomTransition> transitions = parseAuthoredTransitions(root.get("exit"), height);
-
-    validateSpawns(spawns, width, height, name);
-    validateTransitions(transitions, width, height, name);
-    return new LevelMapData(
-        name,
-        DEFAULT_TILE_SIZE,
-        width,
-        height,
-        legend,
-        List.of(collision, hazards),
-        spawns,
-        transitions,
-        root.getString("backgroundTexture", LEVEL_TWO_BACKGROUND));
-  }
-
-  private static int widestRow(String[] rows) {
-    int width = 0;
-    for (String row : rows) {
-      width = Math.max(width, row.length());
-    }
-    return width;
-  }
-
-  private static Map<String, TileDefinition> authoredLegend() {
-    Map<String, TileDefinition> legend = new HashMap<>();
-    // Soil, marble, granite, and the summit are solid mountain geometry. Shelves and clouds are
-    // one-way surfaces, so the authored three-cell jumps remain reachable from below.
-    for (String symbol : List.of("O", "E", "Q", "R", "g", "S", "I")) {
-      legend.put(symbol, new TileDefinition(TileType.WALL, null));
-    }
-    for (String symbol : List.of("K", "c", "d", "f", "t", "m")) {
-      legend.put(symbol, new TileDefinition(TileType.PLATFORM, null));
-    }
-    legend.put("P", new TileDefinition(TileType.DECORATIVE, null));
-    legend.put("V", new TileDefinition(TileType.DECORATIVE, null));
-    return legend;
-  }
-
-  private static MapSpawns parseAuthoredSpawns(
-      JsonValue entryJson, JsonValue objectsJson, MapLayerData hazards, int height) {
-    MapSpawns spawns = new MapSpawns();
-    if (entryJson != null) {
-      spawns.setPlayer(
-          new GridPoint2(
-              entryJson.getInt("x", 0), authoredYToWorld(entryJson.getInt("y", 0), height)));
-    }
-    if (objectsJson == null) {
-      return spawns;
-    }
-
-    TileDefinition hazard = new TileDefinition(TileType.HAZARD, null);
-    for (JsonValue object = objectsJson.child; object != null; object = object.next) {
-      String id = object.getString("id", "");
-      int x = object.getInt("x", 0);
-      int y = authoredYToWorld(object.getInt("y", 0), height);
-      switch (id) {
-        case "enemy-skeleton-hoplite" -> spawns.addEnemy(new SpawnPoint("skeleton", x, y));
-        // The current combat roster has no centaur/cyclops classes. These map to the existing
-        // ranged skeleton and boss respectively, retaining working combat at authored locations.
-        case "enemy-centaur" -> spawns.addEnemy(new SpawnPoint("ranged-skeleton", x, y));
-        case "enemy-cyclops" -> spawns.addEnemy(new SpawnPoint("ghostKing", x, y));
-        case "item-bow-artemis",
-            "item-bronze-spear",
-            "item-cloud-flask",
-            "item-aegis-fragment",
-            "item-olive-branch",
-            "item-laurel" ->
-            spawns.addLoot(new SpawnPoint(id, x, y));
-        case "hazard-rockslide", "hazard-falling-column" -> hazards.set(x, y, hazard);
-        default -> {
-          // Decorative authored objects are represented by the composed map artwork.
-        }
-      }
-    }
-    return spawns;
-  }
-
-  private static List<RoomTransition> parseAuthoredTransitions(JsonValue exitJson, int height) {
-    if (exitJson == null) {
+  private List<SubLevel> parseSubLevels(JsonValue subLevelsJson, String mapName) {
+    if (subLevelsJson == null) {
       return List.of();
     }
-    return List.of(
-        new RoomTransition(
-            "mountain-summit-to-level-3",
-            new GridPoint2(
-                exitJson.getInt("x", 0), authoredYToWorld(exitJson.getInt("y", 0), height)),
-            2,
-            2,
-            null,
-            "maps/level3.json",
-            new GridPoint2(2, 2)));
+    if (!subLevelsJson.isArray()) {
+      throw new MapLoadException("Map '" + mapName + "' 'subLevels' must be an array");
+    }
+
+    List<SubLevel> subLevels = new ArrayList<>();
+    int index = 0;
+    for (JsonValue entry = subLevelsJson.child; entry != null; entry = entry.next) {
+      String id = entry.getString("id", null);
+      if (id == null || id.isBlank()) {
+        throw new MapLoadException("Sub-level " + index + " in map '" + mapName + "' has no id");
+      }
+
+      JsonValue boundsJson = entry.get("bounds");
+      if (boundsJson == null) {
+        throw new MapLoadException("Sub-level '" + id + "' in map '" + mapName + "' has no bounds");
+      }
+
+      subLevels.add(
+          new SubLevel(
+              id,
+              entry.getString("title", null),
+              new SubLevel.Bounds(
+                  boundsJson.getInt("x", 0),
+                  boundsJson.getInt("y", 0),
+                  boundsJson.getInt("width", 0),
+                  boundsJson.getInt("height", 0)),
+              readTile(entry.get("door")),
+              entry.getString("destination", null),
+              readTile(entry.get("destinationSpawn"))));
+      index++;
+    }
+    return subLevels;
   }
 
-  /** The art blueprint uses image coordinates (top-left origin); runtime maps use bottom-left. */
-  private static int authoredYToWorld(int authoredY, int height) {
-    return height - 1 - authoredY;
+  /** Reads an optional {x, y} object as a tile position. */
+  private static GridPoint2 readTile(JsonValue json) {
+    return json == null ? null : new GridPoint2(json.getInt("x", 0), json.getInt("y", 0));
+  }
+
+  /**
+   * Checks the entities layer lines up with the map grid.
+   *
+   * <p>The entities layer is excluded from the map's dimensions, so an entities grid that is
+   * shorter than the map would otherwise load without complaint and silently place every spawn in
+   * the wrong row, since rows are flipped against the map height rather than their own length.
+   *
+   * @param rows the raw entities-layer rows, or null when the map has no entities layer
+   * @param width the map width in tiles
+   * @param height the map height in tiles
+   * @param mapName the map's name, for the error message
+   * @throws MapLoadException if the entities layer does not match the map grid
+   */
+  private void validateEntityLayer(String[] rows, int width, int height, String mapName) {
+    if (rows == null) {
+      return;
+    }
+    if (rows.length != height) {
+      throw new MapLoadException(
+          "Map '"
+              + mapName
+              + "' entities layer has "
+              + rows.length
+              + " rows but the map is "
+              + height
+              + " tiles tall");
+    }
+    for (String row : rows) {
+      if (row.length() > width) {
+        throw new MapLoadException(
+            "Map '"
+                + mapName
+                + "' entities layer has a row of "
+                + row.length()
+                + " characters but the map is "
+                + width
+                + " tiles wide");
+      }
+    }
+  }
+
+  /**
+   * Resolves the optional composed background image, which is stretched over the whole map behind
+   * the tile layers.
+   *
+   * <p>A map may name its artwork before the image lands in assets. Loading a texture that is not
+   * there fails the level, so a declared-but-missing background is warned about and dropped,
+   * leaving the map to render from its tile layers alone.
+   *
+   * @param root the parsed map object
+   * @param mapName the map's name, for logging
+   * @return the background texture path, or null if absent or not yet supplied
+   */
+  private String resolveBackgroundTexture(JsonValue root, String mapName) {
+    String path = root.getString("backgroundTexture", null);
+    if (path == null || path.isBlank()) {
+      return null;
+    }
+    if (Gdx.files != null && !Gdx.files.internal(path).exists()) {
+      logger.warn(
+          "Map '{}' declares background image '{}', which does not exist yet - rendering the map"
+              + " without it",
+          mapName,
+          path);
+      return null;
+    }
+    return path;
   }
 
   private Map<String, TileDefinition> parseLegend(JsonValue legendJson, String mapName) {
@@ -323,8 +342,8 @@ public class JsonMapLoader implements MapLoader {
     }
     for (JsonValue entry = legendJson.child; entry != null; entry = entry.next) {
       String symbol = entry.name;
-      String typeStr = entry.getString("type", "DECORATIVE");
-      String texture = entry.getString("texture", null);
+      String typeStr = entry.getString(TYPE_KEY, "DECORATIVE");
+      String texture = entry.getString(TEXTURE_KEY, null);
       TileType type;
       try {
         type = TileType.valueOf(typeStr.trim().toUpperCase(Locale.ROOT));
@@ -339,9 +358,28 @@ public class JsonMapLoader implements MapLoader {
                 + "'",
             e);
       }
-      legend.put(symbol, new TileDefinition(type, texture));
+      legend.put(symbol, new TileDefinition(type, texture, parseTileProperties(entry)));
     }
     return legend;
+  }
+
+  /**
+   * Collects the author-supplied properties of a legend entry: every key except {@code type} and
+   * {@code texture}, kept as text so the map system never has to know what a feature means by it.
+   *
+   * @param entry one legend entry
+   * @return the properties, empty if the entry has none
+   */
+  private Map<String, String> parseTileProperties(JsonValue entry) {
+    Map<String, String> properties = new LinkedHashMap<>();
+    for (JsonValue field = entry.child; field != null; field = field.next) {
+      String key = field.name;
+      if (key == null || key.equals(TYPE_KEY) || key.equals(TEXTURE_KEY)) {
+        continue;
+      }
+      properties.put(key, field.asString());
+    }
+    return properties;
   }
 
   private Map<String, JsonValue> parseEntityLegend(JsonValue entityLegendJson) {
@@ -385,14 +423,39 @@ public class JsonMapLoader implements MapLoader {
       return;
     }
 
-    String type = definition.getString("type", "").trim().toUpperCase(Locale.ROOT);
+    String type = definition.getString(TYPE_KEY, "").trim().toUpperCase(Locale.ROOT);
     switch (type) {
       case "PLAYER" -> placePlayerSpawn(x, y, spawns);
       case "ENEMY" ->
           spawns.addEnemy(new SpawnPoint(definition.getString("enemyType", null), x, y));
       case "LOOT" -> spawns.addLoot(new SpawnPoint(definition.getString("lootType", null), x, y));
+      case "MARKER" -> placeMarker(definition, symbol, x, y, spawns);
       default -> logger.warn("Unknown entity type '{}' for symbol '{}'", type, symbol);
     }
+  }
+
+  /**
+   * Records one marker. Everything on the legend entry except {@code type}, {@code kind} and {@code
+   * id} becomes a marker property, so a team can attach whatever its feature needs.
+   */
+  private void placeMarker(JsonValue definition, String symbol, int x, int y, MapSpawns spawns) {
+    String kind = definition.getString("kind", null);
+    if (kind == null || kind.isBlank()) {
+      logger.warn("Marker symbol '{}' has no 'kind' - ignored", symbol);
+      return;
+    }
+
+    Map<String, String> properties = new LinkedHashMap<>();
+    for (JsonValue field = definition.child; field != null; field = field.next) {
+      String key = field.name;
+      if (key == null || key.equals(TYPE_KEY) || key.equals("kind") || key.equals("id")) {
+        continue;
+      }
+      properties.put(key, field.asString());
+    }
+
+    spawns.addMarker(
+        new Marker(kind, definition.getString("id", null), new GridPoint2(x, y), properties));
   }
 
   private void placePlayerSpawn(int x, int y, MapSpawns spawns) {
@@ -443,7 +506,7 @@ public class JsonMapLoader implements MapLoader {
         for (JsonValue e = enemies.child; e != null; e = e.next) {
 
           spawns.addEnemy(
-              new SpawnPoint(e.getString("type", null), e.getInt("x", 0), e.getInt("y", 0)));
+              new SpawnPoint(e.getString(TYPE_KEY, null), e.getInt("x", 0), e.getInt("y", 0)));
         }
       }
 
@@ -453,7 +516,7 @@ public class JsonMapLoader implements MapLoader {
         for (JsonValue l = loot.child; l != null; l = l.next) {
 
           spawns.addLoot(
-              new SpawnPoint(l.getString("type", null), l.getInt("x", 0), l.getInt("y", 0)));
+              new SpawnPoint(l.getString(TYPE_KEY, null), l.getInt("x", 0), l.getInt("y", 0)));
         }
       }
     }
@@ -497,7 +560,7 @@ public class JsonMapLoader implements MapLoader {
               new GridPoint2(doorway.getInt("x", 0), doorway.getInt("y", 0)),
               Math.max(1, doorway.getInt("width", 1)),
               Math.max(1, doorway.getInt("height", 1)),
-              doorway.getString("texture", null),
+              doorway.getString(TEXTURE_KEY, null),
               destinationMap,
               destinationSpawn));
       index++;
@@ -522,6 +585,15 @@ public class JsonMapLoader implements MapLoader {
     for (SpawnPoint sp : spawns.getLoot()) {
       if (outOfBounds(sp.getX(), sp.getY(), width, height)) {
         logger.warn("Loot spawn {} is out of bounds in map '{}'", sp, mapName);
+      }
+    }
+    for (Marker marker : spawns.getAllMarkers()) {
+      if (outOfBounds(marker.position().x, marker.position().y, width, height)) {
+        logger.warn(
+            "Marker of kind '{}' is out of bounds at {} in map '{}'",
+            marker.kind(),
+            marker.position(),
+            mapName);
       }
     }
   }

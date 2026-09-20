@@ -13,4 +13,5 @@ public class GameSaveData {
   public float posY;
   public Map<String, Long> lootSeedsByRoom = new HashMap<>();
   public List<String> collectedLootIds = new ArrayList<>();
+  public String level;
 }

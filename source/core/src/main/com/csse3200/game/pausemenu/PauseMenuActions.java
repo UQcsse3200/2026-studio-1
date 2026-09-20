@@ -19,11 +19,15 @@ public class PauseMenuActions extends Component {
   private PauseMenuComponent pauseMenu;
   private final Supplier<Entity> playerSupplier;
   private final Supplier<Map<String, Long>> lootSeedsSupplier;
+  private final Supplier<String> levelSupplier;
 
   public PauseMenuActions(
-      Supplier<Entity> playerSupplier, Supplier<Map<String, Long>> lootSeedsSupplier) {
+      Supplier<Entity> playerSupplier,
+      Supplier<Map<String, Long>> lootSeedsSupplier,
+      Supplier<String> levelSupplier) {
     this.playerSupplier = playerSupplier;
     this.lootSeedsSupplier = lootSeedsSupplier;
+    this.levelSupplier = levelSupplier;
   }
 
   @Override
@@ -69,6 +73,7 @@ public class PauseMenuActions extends Component {
     data.posY = player.getPosition().y;
     data.lootSeedsByRoom = lootSeedsSupplier.get();
     data.collectedLootIds = LootRegistry.exportAll();
+    data.level = levelSupplier.get();
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();
