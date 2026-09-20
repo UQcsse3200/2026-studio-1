@@ -22,7 +22,8 @@ public class PauseMenuDisplay extends UIComponent {
     MAIN,
     SETTINGS,
     AUDIO,
-    KEYBINDS
+    KEYBINDS,
+    RESTART_CONFIRM
   }
 
   private static final Color PANEL_COLOR = new Color(0.03f, 0.06f, 0.04f, 0.95f);
@@ -99,6 +100,13 @@ public class PauseMenuDisplay extends UIComponent {
   private Label masterValueLabel;
   private Label musicValueLabel;
   private Label effectsValueLabel;
+  // Restart confirmation
+  private Label restartConfirmLabel;
+  private Label restartConfirmMessageLabel;
+  private Label restartYesLabel;
+  private Label restartNoLabel;
+  private Table restartConfirmPanel;
+  private int restartConfirmIndex = 0;
 
   private PauseMenuComponent pauseMenu;
   MenuState state = MenuState.MAIN;
@@ -131,6 +139,28 @@ public class PauseMenuDisplay extends UIComponent {
     keybindsLabels = new Label[KEYBIND_ITEMS.length];
     keybindsPanel = buildPanel(KEYBIND_ITEMS, keybindsLabels);
 
+    restartConfirmLabel = createLabel("ABANDON THIS JOURNEY?");
+    restartConfirmMessageLabel =
+        createLabel("The path behind you shall be erased. Only the beginning shall remain.");
+
+    Label.LabelStyle italicStyle = new Label.LabelStyle(restartConfirmMessageLabel.getStyle());
+
+    restartConfirmMessageLabel.setStyle(italicStyle);
+
+    restartYesLabel = createLabel("YES");
+    restartNoLabel = createLabel("NO");
+
+    restartConfirmPanel = new Table();
+
+    restartConfirmPanel.setBackground(skin.newDrawable("white", Color.BLACK));
+
+    restartConfirmPanel.pad(30f);
+
+    restartConfirmPanel.add(restartConfirmLabel).center().row();
+    restartConfirmPanel.add(restartConfirmMessageLabel).center().row();
+    restartConfirmPanel.add(restartYesLabel).center().row();
+    restartConfirmPanel.add(restartNoLabel).center().row();
+
     root = new Table();
     root.setFillParent(true);
     root.left();
@@ -139,6 +169,8 @@ public class PauseMenuDisplay extends UIComponent {
     root.add(settingsPanel).top().padLeft(PANEL_GAP);
     detailSlot = new Table();
     root.add(detailSlot).top().padLeft(PANEL_GAP);
+    root.add(restartConfirmPanel).top().padLeft(PANEL_GAP);
+    restartConfirmPanel.setVisible(false);
     root.setVisible(false);
     stage.addActor(root);
   }
@@ -388,6 +420,7 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> SETTINGS_ITEMS.length;
       case AUDIO -> AUDIO_ITEMS.length;
       case KEYBINDS -> KEYBIND_ITEMS.length;
+      case RESTART_CONFIRM -> 2;
     };
   }
 
@@ -397,6 +430,7 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> settingsIndex;
       case AUDIO -> audioIndex;
       case KEYBINDS -> keybindsIndex;
+      case RESTART_CONFIRM -> restartConfirmIndex;
     };
   }
 
@@ -406,6 +440,7 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> settingsIndex = index;
       case AUDIO -> audioIndex = index;
       case KEYBINDS -> keybindsIndex = index;
+      case RESTART_CONFIRM -> restartConfirmIndex = index;
     }
     refreshHighlights();
   }
@@ -416,13 +451,25 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> confirmSettings();
       case AUDIO -> confirmAudio();
       case KEYBINDS -> confirmKeybinds();
+      case RESTART_CONFIRM -> confirmRestart();
+    }
+  }
+
+  private void confirmRestart() {
+    if (restartConfirmIndex == 0) {
+      entity.getEvents().trigger("restartClicked");
+    } else {
+      state = MenuState.MAIN;
+      restartConfirmPanel.setVisible(false);
+      mainPanel.setVisible(true);
+      refreshPanels();
     }
   }
 
   private void confirmMain() {
     switch (mainIndex) {
       case 0 -> entity.getEvents().trigger("resumeClicked");
-      case 1 -> entity.getEvents().trigger("restartClicked");
+      case 1 -> showRestartConfirmation();
       case 2 -> {
         state = MenuState.SETTINGS;
         settingsIndex = 0;
@@ -432,6 +479,14 @@ public class PauseMenuDisplay extends UIComponent {
       case 4 -> entity.getEvents().trigger("saveClicked");
       default -> {}
     }
+  }
+
+  private void showRestartConfirmation() {
+    state = MenuState.RESTART_CONFIRM;
+    restartConfirmIndex = 0;
+    restartConfirmPanel.setVisible(true);
+    mainPanel.setVisible(false);
+    refreshPanels();
   }
 
   private void confirmSettings() {
@@ -484,9 +539,13 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void refreshPanels() {
-    settingsPanel.setVisible(state != MenuState.MAIN);
+    restartConfirmPanel.setVisible(state == MenuState.RESTART_CONFIRM);
+    settingsPanel.setVisible(state != MenuState.MAIN && state != MenuState.RESTART_CONFIRM);
+
+    settingsPanel.setVisible(state != MenuState.MAIN && state != MenuState.RESTART_CONFIRM);
 
     detailSlot.clearChildren();
+    detailSlot.setVisible(state != MenuState.RESTART_CONFIRM);
     if (state == MenuState.AUDIO) {
       detailSlot.add(audioPanel);
     } else if (state == MenuState.KEYBINDS) {
@@ -505,6 +564,19 @@ public class PauseMenuDisplay extends UIComponent {
     highlightPanel(settingsLabels, settingsIndex, state == MenuState.SETTINGS);
     highlightPanel(audioLabels, audioIndex, state == MenuState.AUDIO);
     highlightPanel(keybindsLabels, keybindsIndex, state == MenuState.KEYBINDS);
+    highlightRestartOptions();
+  }
+
+  private void highlightRestartOptions() {
+    restartYesLabel.getStyle().fontColor =
+        restartConfirmIndex == 0 && state == MenuState.RESTART_CONFIRM
+            ? SELECTED_TEXT
+            : UNSELECTED_TEXT;
+
+    restartNoLabel.getStyle().fontColor =
+        restartConfirmIndex == 1 && state == MenuState.RESTART_CONFIRM
+            ? SELECTED_TEXT
+            : UNSELECTED_TEXT;
   }
 
   private void highlightPanel(Label[] labels, int selectedIndex, boolean isActivePanel) {
