@@ -1,5 +1,7 @@
 package com.csse3200.game.entities.factories;
 
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameGenerator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -61,6 +63,7 @@ public class NPCFactory {
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
+  private static final NameGenerator nameGenerator = new NameGenerator();
 
   /**
    * Creates a ghost entity.
@@ -491,14 +494,16 @@ public class NPCFactory {
         new AITaskComponent()
             .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
             .addTask(new ChaseTask(target, 10, 3f, 4f));
+    String generatedName = nameGenerator.generateName();
+
     Entity npc =
-        new Entity()
-            .addComponent(new PhysicsComponent())
-            .addComponent(new PhysicsMovementComponent())
-            .addComponent(new ColliderComponent())
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(new TouchAttackComponent(PhysicsLayer.PLAYER, 1.5f))
-            .addComponent(aiComponent);
+            new Entity()
+                    .addComponent(new PhysicsComponent())
+                    .addComponent(new PhysicsMovementComponent())
+                    .addComponent(new ColliderComponent())
+                    .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+                    .addComponent(aiComponent)
+                    .addComponent(new NameComponent(generatedName));
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.4f);
     // Let gravity pull the NPC down instead of the wander/chase AI flying it directly toward
