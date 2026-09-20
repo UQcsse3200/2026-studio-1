@@ -19,8 +19,7 @@ public class PauseMenuActions extends Component {
   private final Supplier<Entity> playerSupplier;
   private final Supplier<String> levelSupplier;
 
-  public PauseMenuActions(
-          Supplier<Entity> playerSupplier, Supplier<String> levelSupplier) {
+  public PauseMenuActions(Supplier<Entity> playerSupplier, Supplier<String> levelSupplier) {
     this.playerSupplier = playerSupplier;
     this.levelSupplier = levelSupplier;
   }
