@@ -14,15 +14,11 @@ public final class PerkDefinitions {
 
   public static void registerAll() {
     PerkService.register(
-        new Perk("dash_novice", "Dash Novice", "Use dash 10 times", "dashUsed", 10));
-    PerkService.register(
-        new Perk("dash_master", "Dash Master", "Use dash 100 times", "dashUsed", 100));
-
-    PerkService.register(
-        new Perk("wall_jumper", "Wall Jumper", "Perform 25 wall jumps", "wallJumpUsed", 25));
-
-    PerkService.register(new Perk("slayer", "Slayer", "Defeat 50 enemies", "enemyKilled", 50));
-    PerkService.register(
-        new Perk("boss_hunter", "Boss Hunter", "Defeat 5 bosses", "bossDefeated", 5));
+        new Perk(
+            "shieldMaster",
+            "Shield Enhancement",
+            "Activate your shield 15 times",
+            "shieldActivated",
+            15));
   }
 }

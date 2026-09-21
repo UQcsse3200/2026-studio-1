@@ -102,4 +102,28 @@ public final class PerkService {
       prefs.flush();
     }
   }
+
+  /**
+   * Debug/testing hook - locks a single perk back to zero progress, in memory and on disk. Safe to
+   * call for an unregistered id - it's simply a no-op.
+   *
+   * <p>Note this only resets the perk's own tracked progress. It does not revert any gameplay
+   * reward already applied to a live entity this session (e.g. a shield's extended duration) - that
+   * reward was applied directly to that component's state when the perk first unlocked, so a fresh
+   * unlock is needed (a new entity, e.g. after a respawn) to see the reward reapplied.
+   *
+   * @param id the perk's id, as passed to its {@link Perk} constructor
+   */
+  public static void resetPerk(String id) {
+    Perk perk = perksById.get(id);
+    if (perk == null) {
+      return;
+    }
+    perk.restoreState(0, false);
+    if (prefs != null) {
+      prefs.remove(id + PREFS_PROGRESS_SUFFIX);
+      prefs.remove(id + PREFS_UNLOCKED_SUFFIX);
+      prefs.flush();
+    }
+  }
 }

@@ -38,6 +38,7 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.PerkCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
@@ -365,6 +366,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     Terminal terminal = new Terminal();
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
+    terminal.addCommand("perk", new PerkCommand());
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
     upgradesDisplay = new UpgradesDisplay();

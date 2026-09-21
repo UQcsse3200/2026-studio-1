@@ -1,4 +1,4 @@
-package com.csse3200.game.screens;
+/*package com.csse3200.game.screens;
 
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -9,7 +9,6 @@ import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.perks.PerkDefinitions;
-import com.csse3200.game.perks.PerksMenuDisplay;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.GameTime;
@@ -18,7 +17,7 @@ import com.csse3200.game.services.ServiceLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** The game screen containing the full-screen Perks tracker. */
+/** The game screen containing the full-screen Perks tracker.
 public class PerksScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(PerksScreen.class);
 
@@ -65,7 +64,7 @@ public class PerksScreen extends ScreenAdapter {
   /**
    * Creates the perks screen's ui including components for rendering ui elements to the screen and
    * capturing and handling ui input.
-   */
+
   private void createUI() {
     logger.debug("Creating ui");
     Stage stage = ServiceLocator.getRenderService().getStage();
@@ -73,4 +72,4 @@ public class PerksScreen extends ScreenAdapter {
     ui.addComponent(new PerksMenuDisplay(game)).addComponent(new InputDecorator(stage, 10));
     ServiceLocator.getEntityService().register(ui);
   }
-}
+}*/
