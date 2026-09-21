@@ -23,8 +23,12 @@ public class PlayerAnimationController extends Component {
     entity.getEvents().addListener("rolling", this::animateRoll);
   }
 
+  boolean facingRight(String direction) {
+    return "Right".equals(direction);
+  }
+
   void animateIdle(String direction) {
-    if ("Right".equals(direction)) {
+    if (facingRight(direction)) {
       animator.startAnimation("Idle");
     } else {
       animator.startAnimation("LeftIdle");
@@ -32,7 +36,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateRun(String direction) {
-    if ("Right".equals(direction)) {
+    if (facingRight(direction)) {
       animator.startAnimation("Run");
     } else {
       animator.startAnimation("LeftRun");
@@ -40,7 +44,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateAttack(String direction) {
-    if ("Right".equals(direction)) {
+    if (facingRight(direction)) {
       animator.startAnimation("Attacks");
     } else {
       animator.startAnimation("LeftAttacks");
@@ -48,7 +52,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateSlide(String direction) {
-    if ("Right".equals(direction)) {
+    if (facingRight(direction)) {
       animator.startAnimation("Slide");
     } else {
       animator.startAnimation("LeftSlide");
@@ -56,7 +60,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateCrouch(String direction) {
-    if ("Right".equals(direction)) {
+    if (facingRight(direction)) {
       animator.startAnimation("crouchidle");
     } else {
       animator.startAnimation("Leftcrouchidle");
@@ -64,7 +68,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateJump(String direction) {
-    if ("Right".equals(direction)) {
+    if (facingRight(direction)) {
       animator.startAnimation("Jump");
     } else {
       animator.startAnimation("LeftJump");
@@ -72,7 +76,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateRoll(String direction) {
-    if ("Right".equals(direction)) {
+    if (facingRight(direction)) {
       animator.startAnimation("Roll");
     } else {
       animator.startAnimation("LeftRoll");
