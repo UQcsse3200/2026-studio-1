@@ -22,9 +22,9 @@ public class PauseMenuActions extends Component {
   private final Supplier<String> levelSupplier;
 
   public PauseMenuActions(
-          Supplier<Entity> playerSupplier,
-          Supplier<Map<String, Long>> lootSeedsSupplier,
-          Supplier<String> levelSupplier) {
+      Supplier<Entity> playerSupplier,
+      Supplier<Map<String, Long>> lootSeedsSupplier,
+      Supplier<String> levelSupplier) {
     this.playerSupplier = playerSupplier;
     this.lootSeedsSupplier = lootSeedsSupplier;
     this.levelSupplier = levelSupplier;

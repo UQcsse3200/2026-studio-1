@@ -464,8 +464,8 @@ public class MainGameScreen extends ScreenAdapter {
     upgradesDisplay = new UpgradesDisplay();
 
     PauseMenuActions pauseMenuActions =
-            new PauseMenuActions(
-                    this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
+        new PauseMenuActions(
+            this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
 
     this.pauseMenuActions = pauseMenuActions;
 
@@ -477,7 +477,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
-            .addComponent(pauseMenuActions)
+        .addComponent(pauseMenuActions)
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new DeathScreenInputComponent())

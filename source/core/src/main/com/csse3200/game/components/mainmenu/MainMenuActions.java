@@ -35,7 +35,7 @@ public class MainMenuActions extends Component {
   /** Intended for loading a saved game state. Load functionality is not actually implemented. */
   private void onLoad() {
     logger.info("Load game");
-    game.setScreen(GdxGame.ScreenType.MAIN_GAME);
+    game.setScreen(GdxGame.ScreenType.LOAD_GAME);
   }
 
   /** Exits the game. */
