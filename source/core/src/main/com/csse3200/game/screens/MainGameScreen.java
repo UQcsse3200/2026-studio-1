@@ -364,6 +364,8 @@ public class MainGameScreen extends ScreenAdapter {
      */
     currentRoomMapPath = transition.getDestinationMap();
 
+    pauseMenuActions.saveCheckpoint();
+
     playerInNether = null;
 
     player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
