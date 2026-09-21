@@ -55,7 +55,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         jumped = true;
         return true;
       case Keys.L:
-        dashing(); //makes player dash
+        dashing(); // makes player dash
         return true;
       case Keys.A:
         walking('a'); // makes player walk left
@@ -69,7 +69,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         triggerWalkEvent();
         return true;
       case Keys.D:
-        walking('d'); //makes player walk right
+        walking('d'); // makes player walk right
         return true;
       case Keys.SPACE:
         entity.getEvents().trigger("attack");
@@ -192,7 +192,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     triggerWalkEvent();
   }
 
-  private void dashing(){
+  private void dashing() {
     if (direction.equals("Left")) {
       dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
     } else {
