@@ -54,6 +54,7 @@ public class PauseMenuActions extends Component {
   }
 
   private void goToMainMenu() {
+    saveCheckpoint();
     entity.getEvents().trigger("exit");
   }
 
