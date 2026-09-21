@@ -348,9 +348,6 @@ public class MainGameScreen extends ScreenAdapter {
     nextArea.create();
 
     lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
-    nextArea.create();
-
-    lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
 
     previousArea.dispose();
     nextArea.resumeMusic();
