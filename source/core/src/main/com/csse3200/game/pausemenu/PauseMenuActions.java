@@ -54,7 +54,18 @@ public class PauseMenuActions extends Component {
   }
 
   private void goToMainMenu() {
+    saveCheckpoint();
     entity.getEvents().trigger("exit");
+  }
+
+  public void saveCheckpoint() {
+    Entity player = playerSupplier.get();
+    if (player == null) {
+      return;
+    }
+
+    GameSaveData data = createSaveData(player);
+    SaveService.save(data);
   }
 
   private void save() {
@@ -63,6 +74,12 @@ public class PauseMenuActions extends Component {
       return;
     }
 
+    GameSaveData data = createSaveData(player);
+    SaveService.save(data);
+    entity.getEvents().trigger("mainMenuClicked");
+  }
+
+  public GameSaveData createSaveData(Entity player) {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
 
@@ -77,6 +94,7 @@ public class PauseMenuActions extends Component {
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();
+
       SavedItem saved = new SavedItem();
       saved.slot = entry.getKey();
       saved.name = item.getName();
@@ -90,10 +108,10 @@ public class PauseMenuActions extends Component {
       } else if (item instanceof ConsumableItem consumable) {
         saved.consumableType = consumable.getConsumableType().name();
       }
+
       data.items.add(saved);
     }
 
-    SaveService.save(data);
-    entity.getEvents().trigger("mainMenuClicked");
+    return data;
   }
 }

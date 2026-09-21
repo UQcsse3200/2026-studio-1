@@ -84,6 +84,8 @@ public class MainGameScreen extends ScreenAdapter {
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
   private String currentRoomMapPath = FIRST_ROOM_MAP;
+  private GameSaveData levelCheckpoint;
+  private PauseMenuActions pauseMenuActions;
   private Map<String, Long> lootSeedsByRoom = new HashMap<>();
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
@@ -359,6 +361,8 @@ public class MainGameScreen extends ScreenAdapter {
      */
     currentRoomMapPath = transition.getDestinationMap();
 
+    pauseMenuActions.saveCheckpoint();
+
     playerInNether = null;
 
     player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
@@ -456,6 +460,12 @@ public class MainGameScreen extends ScreenAdapter {
 
     upgradesDisplay = new UpgradesDisplay();
 
+    PauseMenuActions pauseMenuActions =
+        new PauseMenuActions(
+            this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
+
+    this.pauseMenuActions = pauseMenuActions;
+
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
         .addComponent(terminal)
@@ -464,9 +474,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
         .addComponent(new PauseMenuDisplay())
-        .addComponent(
-            new PauseMenuActions(
-                this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath))
+        .addComponent(pauseMenuActions)
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
         .addComponent(new DeathScreenInputComponent())
