@@ -55,24 +55,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         jumped = true;
         return true;
       case Keys.L:
-        if (direction.equals("Left")) {
-          dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
-        } else {
-          dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
-        }
-        triggerDashEvent();
-        entity.getEvents().trigger("rolling", direction);
-        dashed = true;
+        dashing(); //makes player dash
         return true;
       case Keys.A:
-        direction = "Left";
-        walkDirection.add(Vector2Utils.LEFT);
-        if (crouch) {
-          entity.getEvents().trigger("crouchidle", direction);
-        } else {
-          entity.getEvents().trigger("run", direction);
-        }
-        triggerWalkEvent();
+        walking('a'); // makes player walk left
         return true;
       case Keys.S:
         LadderComponent ladderDown = entity.getComponent(LadderComponent.class);
@@ -83,19 +69,11 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         triggerWalkEvent();
         return true;
       case Keys.D:
-        direction = "Right";
-        walkDirection.add(Vector2Utils.RIGHT);
-        if (crouch) {
-          entity.getEvents().trigger("crouchidle", direction);
-        } else {
-          entity.getEvents().trigger("run", direction);
-        }
-        triggerWalkEvent();
+        walking('d'); //makes player walk right
         return true;
       case Keys.SPACE:
         entity.getEvents().trigger("attack");
         entity.getEvents().trigger("attacking", direction);
-
         return true;
       case Keys.Q:
         entity.getEvents().trigger("dropItem");
@@ -196,6 +174,33 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     if (ladder != null) {
       ladder.stopClimbing();
     }
+  }
+
+  private void walking(char key) {
+    if (key == 'd') {
+      direction = "Right";
+      walkDirection.add(Vector2Utils.RIGHT);
+    } else if (key == 'a') {
+      direction = "Left";
+      walkDirection.add(Vector2Utils.LEFT);
+    }
+    if (crouch) {
+      entity.getEvents().trigger("crouchidle", direction);
+    } else {
+      entity.getEvents().trigger("run", direction);
+    }
+    triggerWalkEvent();
+  }
+
+  private void dashing(){
+    if (direction.equals("Left")) {
+      dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
+    } else {
+      dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
+    }
+    triggerDashEvent();
+    entity.getEvents().trigger("rolling", direction);
+    dashed = true;
   }
 
   private void triggerWalkEvent() {

@@ -68,7 +68,6 @@ public class PlayerActions extends Component {
   private final String DASH_SE = "sounds/dash.mp3";
   private final String SNEAK_SE = "sounds/sneaking1.mp3";
   private final String SLIDE_SE = "sounds/slide.mp3";
-  private TextureRenderComponent textureRenderComponent;
 
   private final Set<Entity> enemiesInRange = new HashSet<>();
 
@@ -84,7 +83,6 @@ public class PlayerActions extends Component {
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
     platformerComponent = entity.getComponent(PlatformerComponent.class);
-    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
@@ -93,7 +91,6 @@ public class PlayerActions extends Component {
     // Existing movement features
     entity.getEvents().addListener("dash", this::dash);
     entity.getEvents().addListener("slide", this::slide);
-    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
     entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
 
     // Existing combat features from main
