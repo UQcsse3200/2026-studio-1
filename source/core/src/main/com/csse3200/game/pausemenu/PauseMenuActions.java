@@ -68,7 +68,7 @@ public class PauseMenuActions extends Component {
     entity.getEvents().trigger("mainMenuClicked");
   }
 
-  private GameSaveData createSaveData(Entity player) {
+  public GameSaveData createSaveData(Entity player) {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
 
