@@ -84,6 +84,7 @@ public class MainGameScreen extends ScreenAdapter {
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
   private String currentRoomMapPath = FIRST_ROOM_MAP;
+  private GameSaveData levelCheckpoint;
   private Map<String, Long> lootSeedsByRoom = new HashMap<>();
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
