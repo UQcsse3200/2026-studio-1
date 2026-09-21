@@ -157,4 +157,92 @@ class UpgradesDisplayTest {
 
     assertEquals(1f, playerActions.getEffectiveSpeedMultiplier(), 0.0001f);
   }
+
+  // --- Kill-count countdown, driven by the player's real "enemyKilled" event ---
+  //
+  // Regression tests for a bug where kill-count upgrades (Sword Damage, Attack Speed) never
+  // counted down: CombatStatsComponent.hit() fires "enemyKilled" on the attacker, but
+  // UpgradesDisplay's listener only handled Regen on Kill and never called
+  // UpgradeNode.onEnemyKilled(), so remainingKills never dropped and the upgrade never expired.
+  // These fire the real event on the player's EventHandler instead of calling
+  // node.onEnemyKilled() directly, so they exercise the listener wiring itself.
+
+  private void killEnemies(Entity player, int times) {
+    for (int i = 0; i < times; i++) {
+      player.getEvents().trigger("enemyKilled");
+    }
+  }
+
+  @Test
+  void killsCountDownASwordDamageUpgradeAndItExpiresAtZero() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    swordDamage.purchaseNextTier(); // Tier 1: 2 kills, base 10 + 5
+    swordDamage.purchaseNextTier(); // Tier 2: 5 kills (overwrites, not adds), base 10 + 10
+    assertEquals("5 kills left", swordDamage.getRemainingText());
+
+    killEnemies(player, 3); // N = 3
+
+    assertEquals("2 kills left", swordDamage.getRemainingText()); // dropped by exactly N
+    assertEquals(2, swordDamage.getCurrentTier()); // still active - tier untouched mid-countdown
+    assertEquals(20, stats.getBaseAttack()); // effect still applied
+
+    killEnemies(player, 2); // reaches 0
+
+    assertEquals(0, swordDamage.getCurrentTier()); // expired
+    assertEquals(10, stats.getBaseAttack()); // effect removed, original attack restored
+  }
+
+  @Test
+  void killsCountDownAnAttackSpeedUpgradeAndItExpiresAtZero() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+
+    UpgradeNode attackSpeed = getActionUpgrades().get(1); // "attack_speed"
+    attackSpeed.purchaseNextTier(); // Tier 1: 5 kills (tierKillCounts = {5, 8, 12})
+    assertEquals("5 kills left", attackSpeed.getRemainingText());
+
+    killEnemies(player, 4);
+
+    assertEquals("1 kills left", attackSpeed.getRemainingText());
+    assertEquals(1, attackSpeed.getCurrentTier());
+
+    killEnemies(player, 1);
+
+    assertEquals(0, attackSpeed.getCurrentTier());
+  }
+
+  @Test
+  void killsBeforeAKillCountUpgradeIsBoughtDoNotUseUpItsKills() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+
+    // Nothing active, and Regen on Kill also inactive - this is the path through the handler's
+    // early return, so it also guards that the countdown runs BEFORE that return.
+    killEnemies(player, 3);
+    swordDamage.purchaseNextTier();
+
+    assertEquals("2 kills left", swordDamage.getRemainingText()); // full Tier 1 allowance intact
+  }
+
+  @Test
+  void killsDoNotAffectATimeBasedUpgradesTimer() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    PlayerActions playerActions = player.getComponent(PlayerActions.class);
+
+    UpgradeNode playerSpeed = getMovementUpgrades().get(0); // "player_speed" - TIME based
+    playerSpeed.purchaseNextTier(); // Tier 1: 10s remaining
+    assertEquals("10s left", playerSpeed.getRemainingText());
+
+    killEnemies(player, 5);
+
+    assertEquals("10s left", playerSpeed.getRemainingText()); // timer untouched by kills
+    assertEquals(1, playerSpeed.getCurrentTier());
+    assertEquals(1.15f, playerActions.getEffectiveSpeedMultiplier(), 0.0001f); // still active
+  }
 }

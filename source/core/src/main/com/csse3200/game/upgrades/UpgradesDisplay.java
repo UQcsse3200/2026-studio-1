@@ -109,6 +109,15 @@ public class UpgradesDisplay extends UIComponent {
       return;
     }
 
+    // Count this kill against every kill-count upgrade (Sword Damage, Attack Speed). Must run
+    // before the Regen logic below, which returns early whenever Regen on Kill isn't active - that
+    // would otherwise skip this loop for the common case. UpgradeNode.onEnemyKilled() is already a
+    // no-op for inactive and time-based nodes, so no filtering is needed here; it also expires the
+    // upgrade (firing its onExpired effect removal) when the last kill is used up.
+    for (UpgradeNode node : getAllUpgrades()) {
+      node.onEnemyKilled();
+    }
+
     UpgradeNode regenOnKill = null;
     for (UpgradeNode node : defenceUpgrades) {
       if (node.getId().equals("regen_on_kill")) {
