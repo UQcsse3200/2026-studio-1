@@ -22,9 +22,9 @@ public class PauseMenuActions extends Component {
   private final Supplier<String> levelSupplier;
 
   public PauseMenuActions(
-      Supplier<Entity> playerSupplier,
-      Supplier<Map<String, Long>> lootSeedsSupplier,
-      Supplier<String> levelSupplier) {
+          Supplier<Entity> playerSupplier,
+          Supplier<Map<String, Long>> lootSeedsSupplier,
+          Supplier<String> levelSupplier) {
     this.playerSupplier = playerSupplier;
     this.lootSeedsSupplier = lootSeedsSupplier;
     this.levelSupplier = levelSupplier;
@@ -63,6 +63,12 @@ public class PauseMenuActions extends Component {
       return;
     }
 
+    GameSaveData data = createSaveData(player);
+    SaveService.save(data);
+    entity.getEvents().trigger("mainMenuClicked");
+  }
+
+  private GameSaveData createSaveData(Entity player) {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
 
@@ -77,6 +83,7 @@ public class PauseMenuActions extends Component {
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();
+
       SavedItem saved = new SavedItem();
       saved.slot = entry.getKey();
       saved.name = item.getName();
@@ -90,10 +97,10 @@ public class PauseMenuActions extends Component {
       } else if (item instanceof ConsumableItem consumable) {
         saved.consumableType = consumable.getConsumableType().name();
       }
+
       data.items.add(saved);
     }
 
-    SaveService.save(data);
-    entity.getEvents().trigger("mainMenuClicked");
+    return data;
   }
 }
