@@ -57,6 +57,16 @@ public class PauseMenuActions extends Component {
     entity.getEvents().trigger("exit");
   }
 
+  public void saveCheckpoint() {
+    Entity player = playerSupplier.get();
+    if (player == null) {
+      return;
+    }
+
+    GameSaveData data = createSaveData(player);
+    SaveService.save(data);
+  }
+
   private void save() {
     Entity player = playerSupplier.get();
     if (player == null) {
