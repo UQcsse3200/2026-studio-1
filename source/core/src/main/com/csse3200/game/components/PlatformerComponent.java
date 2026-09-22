@@ -2,6 +2,7 @@ package com.csse3200.game.components;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -27,6 +28,7 @@ public class PlatformerComponent extends Component {
   private PhysicsComponent physicsComponent;
   private PhysicsEngine physics;
   ColliderComponent collider;
+  private StaminaComponent staminaComponent;
 
   public PlatformerComponent(int baseJumpScaler) {
     this.baseJumpScaler = baseJumpScaler;
@@ -52,6 +54,7 @@ public class PlatformerComponent extends Component {
     physics = ServiceLocator.getPhysicsService().getPhysics();
     entity.getEvents().addListener("jump", this::jump);
     collider = entity.getComponent(ColliderComponent.class);
+    staminaComponent = entity.getComponent(StaminaComponent.class);
   }
 
   /*
@@ -190,12 +193,24 @@ public class PlatformerComponent extends Component {
       // Making sure that we are jumping off the wall with equal x and y forces
       this.jumpDirection.scl(baseJumpScaler);
       if (superJumpPowerup) this.jumpDirection.scl(superJumpScaler);
+      if (staminaComponent == null
+              || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
+        return;
+      }
+
+      staminaComponent.useStamina(staminaComponent.getJumpCost());
       jumping = true;
     } // Normal jump code
     else if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
       this.jumpDirection.y *= baseJumpScaler;
       if (!isGrounded()) doubleJumpRemaining--;
       if (superJumpPowerup) this.jumpDirection.y *= superJumpScaler;
+      if (staminaComponent == null
+              || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
+        return;
+      }
+
+      staminaComponent.useStamina(staminaComponent.getJumpCost());
       jumping = true;
     }
     if (doubleJumpPowerup && isGrounded()) {
