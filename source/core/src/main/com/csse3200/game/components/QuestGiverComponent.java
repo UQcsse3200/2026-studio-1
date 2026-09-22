@@ -54,4 +54,23 @@ public class QuestGiverComponent extends Component {
       return Quest.checkEnemiesKilledQuest(uniqueNPCID);
     }
   }
+  public boolean logGoldSpentQuest(String reward, int amountToSpend){
+    if(Quest.logGoldSpentQuest(uniqueNPCID,amountToSpend)){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  public int checkGoldSpentQuestComplete(){
+    if (Quest.checkGoldSpentQuest(uniqueNPCID) == -1) {
+      throw new NullPointerException(
+              "A QuestGiver component tried to call checkGoldSpentQuest when "
+                      + "there isn't a quest to check the progress of i.e. it returned null");
+    } else {
+      return Quest.checkGoldSpentQuest(uniqueNPCID);
+    }
+  }
+  public void clearGoldSpentQuest(){
+    Quest.clearGoldSpentQuest(uniqueNPCID);
+  }
 }

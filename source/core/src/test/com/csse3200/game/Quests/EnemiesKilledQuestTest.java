@@ -126,7 +126,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testCheckJumpQuestCompleteWhenNoQuestWasMade() {
+  public void testCheckGoldSpentCompleteWhenNoQuestWasMade() {
     questGiverComponent.clearEnemiesKilledQuest();
     assertThrows(
         NullPointerException.class,

@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
@@ -184,6 +185,7 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
+    Quest.addGlobalGoldSpent(listing.getBuyPrice());
     itemCatalog.remove(catalogSlot);
     notifyShopChanged();
     return true;

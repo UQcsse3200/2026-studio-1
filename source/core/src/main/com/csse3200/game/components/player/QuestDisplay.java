@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.Quests.EnemiesKilledQuest;
+import com.csse3200.game.Quests.GoldSpentQuest;
 import com.csse3200.game.Quests.JumpQuest;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.ui.UIComponent;
@@ -18,18 +19,18 @@ public class QuestDisplay extends UIComponent {
   private Table questTable;
   private ArrayList<JumpQuest> jumpQuestsToDisplay;
   private ArrayList<EnemiesKilledQuest> enemiesKilledQuestsToDisplay;
+  private ArrayList<GoldSpentQuest> goldSpentQuestsToDisplay;
 
   private final Set<JumpQuest> completedJumpQuests = new HashSet<>();
   private final Set<EnemiesKilledQuest> completedEnemiesKilledQuest = new HashSet<>();
-
-  // Only proof of concept for now delete later
-  int NPCID = 1;
+  private final Set<GoldSpentQuest> completedGoldSpentQuest = new HashSet<>();
 
   @Override
   public void create() {
     super.create();
     jumpQuestsToDisplay = Quest.getJumpQuests();
     enemiesKilledQuestsToDisplay = Quest.getEnemiesKilledQuests();
+    Quest.logGoldSpentQuest(Quest.giveOutUniqueNPCID(),20);
 
     addActors();
 
@@ -67,6 +68,7 @@ public class QuestDisplay extends UIComponent {
 
     jumpQuestsToDisplay = Quest.getJumpQuests();
     enemiesKilledQuestsToDisplay = Quest.getEnemiesKilledQuests();
+    goldSpentQuestsToDisplay = Quest.getGoldSpentQuests();
 
     refreshQuestTable();
   }
@@ -94,7 +96,13 @@ public class QuestDisplay extends UIComponent {
         questTable.add(completedQuest).left().row();
       }
     }
-    if (completedEnemiesKilledQuest.isEmpty() && completedJumpQuests.isEmpty()) {
+    if(!completedGoldSpentQuest.isEmpty()){
+      for (GoldSpentQuest quest : completedGoldSpentQuest) {
+        Label completedQuest = new Label("✓ Gold Spent Quest", skin);
+        questTable.add(completedQuest).left().row();
+      }
+    }
+    if (completedEnemiesKilledQuest.isEmpty() && completedJumpQuests.isEmpty()&&completedGoldSpentQuest.isEmpty()) {
       Label noCompleted = new Label("No completed quests", skin);
       questTable.add(noCompleted).left().row();
     }
@@ -134,6 +142,23 @@ public class QuestDisplay extends UIComponent {
           } else {
             hasRemainingQuests = true;
             Label questToDisplay = new Label("• Enemies Killed Quest - " + progress + "%", skin);
+
+            questTable.add(questToDisplay).left().row();
+          }
+        }
+      }
+    }
+    if (goldSpentQuestsToDisplay != null) {
+      for (GoldSpentQuest quest : goldSpentQuestsToDisplay) {
+        if (quest != null) {
+
+          int progress = quest.checkQuestProgress();
+
+          if (progress >= 100) {
+            completedGoldSpentQuest.add(quest);
+          } else {
+            hasRemainingQuests = true;
+            Label questToDisplay = new Label("• Gold Spent Quest - " + progress + "%", skin);
 
             questTable.add(questToDisplay).left().row();
           }

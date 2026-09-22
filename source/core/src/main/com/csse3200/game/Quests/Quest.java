@@ -11,9 +11,11 @@ public class Quest {
   private static ArrayList<JumpQuest> jumpQuestTracker = new ArrayList<JumpQuest>();
   private static ArrayList<EnemiesKilledQuest> enemiesKilledQuestTracker =
       new ArrayList<EnemiesKilledQuest>();
+  private static ArrayList<GoldSpentQuest> goldSpentQuestTracker = new ArrayList<GoldSpentQuest>();
   // Statistics tracker
   private static float globalJumps = 0;
   private static float globalEnemiesKilled = 0;
+  private static float globalGoldSpent = 0;
 
   public static int giveOutUniqueNPCID() {
     int uniqueID = uniqueNPCID.size();
@@ -22,6 +24,7 @@ public class Quest {
     // Add space for a possible jump quest later on.
     jumpQuestTracker.add(uniqueID, null);
     enemiesKilledQuestTracker.add(uniqueID, null);
+    goldSpentQuestTracker.add(uniqueID,null);
     return uniqueID;
   }
 
@@ -77,12 +80,39 @@ public class Quest {
   }
 
   // EnemiesKilledQuest functions end
+  // GoldSpentQuest function start
+  public static boolean logGoldSpentQuest(int NPCId, int amountOfGoldToSpend){
+    if(questActiveForNPCID.get(NPCId)){
+      return false;
+    }else{
+      goldSpentQuestTracker.set(NPCId,new GoldSpentQuest(amountOfGoldToSpend));
+      questActiveForNPCID.set(NPCId,true);
+      return true;
+    }
+  }
+  public static int checkGoldSpentQuest(int NPCId){
+    if(goldSpentQuestTracker.get(NPCId)!= null){
+      return goldSpentQuestTracker.get(NPCId).checkQuestProgress();
+    }else{
+      //There is no quest created for that NPCId
+      return -1;
+    }
+  }
+  public static void clearGoldSpentQuest(int NPCId){
+    goldSpentQuestTracker.set(NPCId,null);
+    questActiveForNPCID.set(NPCId,false);
+  }
+  //GoldSpentQuest functions end
   public static ArrayList<JumpQuest> getJumpQuests() {
     return jumpQuestTracker;
   }
 
   public static ArrayList<EnemiesKilledQuest> getEnemiesKilledQuests() {
     return enemiesKilledQuestTracker;
+  }
+
+  public static ArrayList<GoldSpentQuest> getGoldSpentQuests(){
+    return goldSpentQuestTracker;
   }
 
   public static void incrementGlobalJumps() {
@@ -93,12 +123,20 @@ public class Quest {
     globalEnemiesKilled++;
   }
 
+  public static void addGlobalGoldSpent(int amount){
+    globalGoldSpent+=amount;
+  }
+
   public static float getGlobalJumps() {
     return globalJumps;
   }
 
   public static float getGlobalEnemiesKilled() {
     return globalEnemiesKilled;
+  }
+
+  public static float getGlobalGoldSpent(){
+    return globalGoldSpent;
   }
 
   public static ArrayList<Integer> getUniqueNPCIDArrayList() {
