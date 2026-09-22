@@ -9,8 +9,10 @@ public class Quest {
 
   // Quest trackers
   private static ArrayList<JumpQuest> jumpQuestTracker = new ArrayList<JumpQuest>();
+  private static ArrayList<EnemiesKilledQuest> enemiesKilledQuestArrayList = new ArrayList<EnemiesKilledQuest>();
   // Statistics tracker
   private static int globalJumps = 1;
+  private static int enemiesKilled = 1;
 
   public static int giveOutUniqueNPCID() {
     int uniqueID = uniqueNPCID.size();
@@ -18,9 +20,10 @@ public class Quest {
     questActiveForNPCID.add(false);
     // Add space for a possible jump quest later on.
     jumpQuestTracker.add(uniqueID, null);
+    enemiesKilledQuestArrayList.add(uniqueID,null);
     return uniqueID;
   }
-
+  //Jump quest functions start
   public static boolean logJumpQuest(int NPCId, int jumpsToDo) {
     if (questActiveForNPCID.get(NPCId)) {
       return false;
@@ -44,6 +47,7 @@ public class Quest {
     jumpQuestTracker.set(NPCId, null);
     questActiveForNPCID.set(NPCId, false);
   }
+  //Jump Quest functions end
 
   public static ArrayList<JumpQuest> getJumpQuests() {
     return jumpQuestTracker;
@@ -52,9 +56,13 @@ public class Quest {
   public static void incrementGlobalJumps() {
     globalJumps++;
   }
+  public static void incrementEnemiesKilled(){enemiesKilled++;}
 
   public static int getGlobalJumps() {
     return globalJumps;
+  }
+  public static int getEnemiesKilled(){
+    return enemiesKilled;
   }
 
   public static ArrayList<Integer> getUniqueNPCIDArrayList() {
