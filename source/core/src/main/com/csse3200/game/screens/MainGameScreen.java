@@ -8,7 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
+import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
+import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
@@ -41,6 +43,7 @@ import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,17 +65,14 @@ public class MainGameScreen extends ScreenAdapter {
   };
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
-  private static final String SECOND_ROOM_MAP = "maps/level2.json";
   private static final float GAMEPLAY_ZOOM = 0.95f;
 
   /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
-  private static final float SUB_LEVEL_BOUNDARY = 16f;
-
   private final GdxGame game;
+
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
-  private String currentRoomMapPath = FIRST_ROOM_MAP;
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
@@ -171,20 +171,27 @@ public class MainGameScreen extends ScreenAdapter {
 
     float mapWidth = levelGameArea.getMapWorldWidth();
     Vector2 playerPosition = player.getPosition();
-    boolean inNether = player.getCenterPosition().y >= SUB_LEVEL_BOUNDARY;
+
+    // Which named section of this map the player is standing in, read from the map file.
+    LevelView level = levelGameArea.getLevel();
+    float tileSize = level.tileSize();
+    int playerRow = (int) Math.floor(player.getCenterPosition().y / tileSize);
+    SubLevel section = level.subLevelAt(playerRow);
+
+    boolean inNether = section != null && section != level.subLevels().getFirst();
     SubLevelTravelComponent travel = player.getComponent(SubLevelTravelComponent.class);
     if (playerInNether != null
         && playerInNether != inNether
-        && (travel == null || !travel.isControlLocked())) {
-      String title = subLevelTitle(currentRoomMapPath, inNether);
-      if (title != null) {
-        player.getEvents().trigger("subLevelEntered", title);
-      }
+        && (travel == null || !travel.isControlLocked())
+        && section != null
+        && section.title() != null) {
+      player.getEvents().trigger("subLevelEntered", section.title());
     }
     playerInNether = inNether;
-    float subLevelBottom = inNether ? SUB_LEVEL_BOUNDARY : 0f;
+
+    float subLevelBottom = section == null ? 0f : section.bounds().bottom() * tileSize;
     float subLevelHeight =
-        inNether ? levelGameArea.getMapWorldHeight() - SUB_LEVEL_BOUNDARY : SUB_LEVEL_BOUNDARY;
+        section == null ? levelGameArea.getMapWorldHeight() : section.bounds().height() * tileSize;
 
     float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
     float y = clampToRange(playerPosition.y, halfViewHeight, subLevelBottom, subLevelHeight);
@@ -192,15 +199,19 @@ public class MainGameScreen extends ScreenAdapter {
     renderer.getCamera().getEntity().setPosition(x, y);
   }
 
-  /** Selects a crossing title for the current room without relabelling other rooms. */
-  static String subLevelTitle(String mapPath, boolean upperSection) {
-    if (FIRST_ROOM_MAP.equals(mapPath)) {
-      return upperSection ? "NETHER" : "DUNGEON";
+  /**
+   * The crossing title for a section of a map, taken from the map's own {@code subLevels} block.
+   *
+   * @param level the level being played
+   * @param upperSection true for the section above the split, false for the one below
+   * @return the title to show, or null if the map names none
+   */
+  static String subLevelTitle(LevelView level, boolean upperSection) {
+    List<SubLevel> sections = level == null ? List.of() : level.subLevels();
+    if (sections.size() < 2) {
+      return null;
     }
-    if (SECOND_ROOM_MAP.equals(mapPath)) {
-      return upperSection ? "SKIES" : "BASE";
-    }
-    return null;
+    return upperSection ? sections.get(1).title() : sections.getFirst().title();
   }
 
   /**
@@ -274,10 +285,10 @@ public class MainGameScreen extends ScreenAdapter {
     previousArea.dispose();
     nextArea.resumeMusic();
     levelGameArea = nextArea;
-    currentRoomMapPath = transition.getDestinationMap();
     playerInNether = null;
     player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
-    if (FIRST_ROOM_MAP.equals(transition.getDestinationMap())) {
+    // The lift prompt belongs to any map split into sub-levels, not to one named file.
+    if (!nextArea.getLevel().subLevels().isEmpty()) {
       createSubLevelTravelPrompt(player);
     }
     fitCameraToMap(nextArea);

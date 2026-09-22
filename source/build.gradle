@@ -17,7 +17,7 @@ plugins {
 sonarqube {
     properties {
         property "sonar.projectKey", "UQcsse3200_2026-studio-1"
-    	property "sonar.organization", "uqcsse3200"
+        property "sonar.organization", "uqcsse3200"
         property "sonar.host.url", "https://sonarcloud.io"
     }
 }
@@ -120,6 +120,7 @@ project(":core") {
 
         // Unit Testing
         testImplementation "org.junit.jupiter:junit-jupiter-api:$junit5Version"
+        testImplementation "org.junit.jupiter:junit-jupiter-params:$junit5Version"
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:$junit5Version'
         testImplementation("org.junit.vintage:junit-vintage-engine:$junit5Version") {
             because 'Allows JUnit 3 and JUnit 4 tests to run'

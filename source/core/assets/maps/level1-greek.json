@@ -1,6 +1,7 @@
 {
   "name": "Level 1 - Out of the Underworld",
   "tileSize": 0.5,
+  "backgroundTexture": "images/level1/level1-map.png",
   "legend": {
     "b": {
       "type": "DECORATIVE",
@@ -287,10 +288,6 @@
       "type": "ENEMY",
       "enemyType": "ranged-skeleton"
     },
-    "G": {
-      "type": "ENEMY",
-      "enemyType": "ghost"
-    },
     "L": {
       "type": "LOOT"
     }
@@ -394,7 +391,7 @@
       "#vvvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
       "#vv~~~~~~evvvvvvvvvvvvvvvvvivvvvvvvvvvvvvvvvvvvvvvvvrvvV",
       "##________________________rP________%%%%%%%%%%%_______##",
-      "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "#vvvvvvvvvvvvvvvvvvvvvvvvvrivvvvvvvvvvvvvvvvvvvvvvvvvvVV",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWrimWWWWWWWWWmWWWWWWWWWWWWWWwWW",
@@ -568,7 +565,7 @@
         "x": 0,
         "y": 0,
         "width": 56,
-        "height": 16
+        "height": 32
       },
       "door": {
         "x": 26,
@@ -585,9 +582,9 @@
       "id": "nether",
       "bounds": {
         "x": 0,
-        "y": 16,
+        "y": 32,
         "width": 56,
-        "height": 16
+        "height": 32
       },
       "door": {
         "x": 26,

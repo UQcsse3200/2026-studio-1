@@ -25,6 +25,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean walkingDown = false;
   private String direction = "Right";
 
+  public String getDirection() {
+    return this.direction;
+  }
+
   /**
    * Triggers player events on specific keycodes.
    *
@@ -33,6 +37,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyDown(int keycode) {
+    entity.getEvents().trigger("idle", direction);
     SubLevelTravelComponent travel = entity.getComponent(SubLevelTravelComponent.class);
     if (travel != null && travel.isControlLocked()) {
       return true;
@@ -48,22 +53,15 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         stopClimbing();
         jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
         triggerJumpEvent();
+        entity.getEvents().trigger("jumping", direction);
         jumped = true;
         return true;
       case Keys.L:
-        if (direction.equals("Left")) {
-          dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
-        } else {
-          dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
-        }
-        triggerDashEvent();
-        dashed = true;
+        dashing(); // makes player dash
         return true;
       case Keys.A:
         stopClimbing();
-        walkDirection.add(Vector2Utils.LEFT);
-        direction = "Left";
-        triggerWalkEvent();
+        walking('a'); // makes player walk left
         return true;
       case Keys.S:
         LadderComponent ladderDown = entity.getComponent(LadderComponent.class);
@@ -79,12 +77,11 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.D:
         stopClimbing();
-        walkDirection.add(Vector2Utils.RIGHT);
-        direction = "Right";
-        triggerWalkEvent();
+        walking('d'); // makes player walk right
         return true;
       case Keys.SPACE:
         entity.getEvents().trigger("attack");
+        entity.getEvents().trigger("attacking", direction);
         return true;
       case Keys.Q:
         entity.getEvents().trigger("dropItem");
@@ -92,8 +89,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.B:
         entity.getEvents().trigger("activateShield");
         return true;
+      case Keys.J:
+        entity.getEvents().trigger("toggleQuestMenu");
+        return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
+        entity.getEvents().trigger("crouchidle", direction);
+        crouch = true;
         return true;
       case Keys.SHIFT_LEFT: // for slide
         entity.getEvents().trigger("slide", true);
@@ -149,6 +151,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.A:
         walkDirection.sub(Vector2Utils.LEFT);
+        if (walkDirection.isZero()) {
+          entity.getEvents().trigger("idle", direction);
+        }
         triggerWalkEvent();
         return true;
       case Keys.S:
@@ -164,13 +169,17 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.D:
         walkDirection.sub(Vector2Utils.RIGHT);
+        if (walkDirection.isZero()) {
+          entity.getEvents().trigger("idle", direction);
+        }
         triggerWalkEvent();
         return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", false);
+        entity.getEvents().trigger("idle", direction);
+        crouch = false;
         return true;
       case Keys.SHIFT_LEFT: // for slide
-        entity.getEvents().trigger("slide", false);
         return true;
       default:
         return false;
@@ -182,6 +191,33 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     if (ladder != null) {
       ladder.stopClimbing();
     }
+  }
+
+  private void walking(char key) {
+    if (key == 'd') {
+      direction = "Right";
+      walkDirection.add(Vector2Utils.RIGHT);
+    } else if (key == 'a') {
+      direction = "Left";
+      walkDirection.add(Vector2Utils.LEFT);
+    }
+    if (crouch) {
+      entity.getEvents().trigger("crouchidle", direction);
+    } else {
+      entity.getEvents().trigger("run", direction);
+    }
+    triggerWalkEvent();
+  }
+
+  private void dashing() {
+    if (direction.equals("Left")) {
+      dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
+    } else {
+      dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
+    }
+    triggerDashEvent();
+    entity.getEvents().trigger("rolling", direction);
+    dashed = true;
   }
 
   private void triggerWalkEvent() {
