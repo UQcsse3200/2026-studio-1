@@ -138,12 +138,18 @@ public class UpgradesDisplay extends UIComponent {
       return;
     }
 
-    int maxHealth =
-        player
-            .getComponent(com.csse3200.game.components.player.ConsumableUseComponent.class)
-            .getMaxHealth();
+    // The real player factory always adds a ConsumableUseComponent, but nothing enforces that -
+    // if it's ever missing, still apply the heal (uncapped) rather than throwing or silently
+    // skipping it, so Regen keeps working even without the max-health cap.
+    com.csse3200.game.components.player.ConsumableUseComponent consumableUse =
+        player.getComponent(com.csse3200.game.components.player.ConsumableUseComponent.class);
 
-    combatStats.setHealth(Math.min(combatStats.getHealth() + healAmount, maxHealth));
+    int newHealth = combatStats.getHealth() + healAmount;
+    if (consumableUse != null) {
+      newHealth = Math.min(newHealth, consumableUse.getMaxHealth());
+    }
+
+    combatStats.setHealth(newHealth);
   }
 
   /**
