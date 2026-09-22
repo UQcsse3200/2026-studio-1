@@ -81,6 +81,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.B:
         entity.getEvents().trigger("activateShield");
         return true;
+      case Keys.J:
+        entity.getEvents().trigger("toggleQuestMenu");
+        return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
         entity.getEvents().trigger("crouchidle", direction);
