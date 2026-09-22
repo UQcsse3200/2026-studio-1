@@ -20,7 +20,7 @@ public class EnemyDeathComponent extends Component {
   }
 
   private void onDeath() {
-    Quest.incrementEnemiesKilled();
+    Quest.incrementGlobalEnemiesKilled();
     if (entity.isDisposed()) {
       logger.info("Enemy {} already died.", entity);
       return;

@@ -9,10 +9,11 @@ public class Quest {
 
   // Quest trackers
   private static ArrayList<JumpQuest> jumpQuestTracker = new ArrayList<JumpQuest>();
-  private static ArrayList<EnemiesKilledQuest> enemiesKilledQuestArrayList = new ArrayList<EnemiesKilledQuest>();
+  private static ArrayList<EnemiesKilledQuest> enemiesKilledQuestTracker =
+      new ArrayList<EnemiesKilledQuest>();
   // Statistics tracker
-  private static int globalJumps = 1;
-  private static int enemiesKilled = 1;
+  private static float globalJumps = 0;
+  private static float globalEnemiesKilled = 0;
 
   public static int giveOutUniqueNPCID() {
     int uniqueID = uniqueNPCID.size();
@@ -20,15 +21,16 @@ public class Quest {
     questActiveForNPCID.add(false);
     // Add space for a possible jump quest later on.
     jumpQuestTracker.add(uniqueID, null);
-    enemiesKilledQuestArrayList.add(uniqueID,null);
+    enemiesKilledQuestTracker.add(uniqueID, null);
     return uniqueID;
   }
-  //Jump quest functions start
+
+  // Jump quest functions start
   public static boolean logJumpQuest(int NPCId, int jumpsToDo) {
     if (questActiveForNPCID.get(NPCId)) {
       return false;
     } else {
-      jumpQuestTracker.set(NPCId, new JumpQuest(globalJumps, jumpsToDo));
+      jumpQuestTracker.set(NPCId, new JumpQuest(jumpsToDo));
       questActiveForNPCID.set(NPCId, true);
       return true;
     }
@@ -47,22 +49,56 @@ public class Quest {
     jumpQuestTracker.set(NPCId, null);
     questActiveForNPCID.set(NPCId, false);
   }
-  //Jump Quest functions end
 
+  // Jump Quest functions end
+  // EnemiesKilledQuest functions start
+  public static boolean logEnemiesKilledQuest(int NPCId, int enemiesToKill) {
+    if (questActiveForNPCID.get(NPCId)) {
+      return false;
+    } else {
+      enemiesKilledQuestTracker.set(NPCId, new EnemiesKilledQuest(enemiesToKill));
+      questActiveForNPCID.set(NPCId, true);
+      return true;
+    }
+  }
+
+  public static int checkEnemiesKilledQuest(int NPCId) {
+    if (enemiesKilledQuestTracker.get(NPCId) != null) {
+      return enemiesKilledQuestTracker.get(NPCId).checkQuestProgress();
+    } else {
+      // No EnemiesKilledQuest was set for the NPC in the enemiesKilledQuestTracker
+      return -1;
+    }
+  }
+
+  public static void clearEnemiesKilledQuest(int NPCId) {
+    enemiesKilledQuestTracker.set(NPCId, null);
+    questActiveForNPCID.set(NPCId, false);
+  }
+
+  // EnemiesKilledQuest functions end
   public static ArrayList<JumpQuest> getJumpQuests() {
     return jumpQuestTracker;
+  }
+
+  public static ArrayList<EnemiesKilledQuest> getEnemiesKilledQuests() {
+    return enemiesKilledQuestTracker;
   }
 
   public static void incrementGlobalJumps() {
     globalJumps++;
   }
-  public static void incrementEnemiesKilled(){enemiesKilled++;}
 
-  public static int getGlobalJumps() {
+  public static void incrementGlobalEnemiesKilled() {
+    globalEnemiesKilled++;
+  }
+
+  public static float getGlobalJumps() {
     return globalJumps;
   }
-  public static int getEnemiesKilled(){
-    return enemiesKilled;
+
+  public static float getGlobalEnemiesKilled() {
+    return globalEnemiesKilled;
   }
 
   public static ArrayList<Integer> getUniqueNPCIDArrayList() {

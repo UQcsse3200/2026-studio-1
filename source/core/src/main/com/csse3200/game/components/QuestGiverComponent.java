@@ -9,6 +9,7 @@ public class QuestGiverComponent extends Component {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
   }
 
+  // Jump quest functions start here
   public boolean logJumpQuest(String Reward, int jumpsToDo) {
     if (Quest.logJumpQuest(uniqueNPCID, jumpsToDo)) {
       return true;
@@ -28,6 +29,29 @@ public class QuestGiverComponent extends Component {
               + "there isn't a quest to check the progress of i.e. it returned null");
     } else {
       return Quest.checkJumpQuestComplete(uniqueNPCID);
+    }
+  }
+
+  // Jump quest functions end here
+  public boolean logEnemiesKilledQuest(String Reward, int enemiesToKill) {
+    if (Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public void clearEnemiesKilledQuest() {
+    Quest.clearEnemiesKilledQuest(uniqueNPCID);
+  }
+
+  public int checkEnemiesKilledQuestComplete() {
+    if (Quest.checkEnemiesKilledQuest(uniqueNPCID) == -1) {
+      throw new NullPointerException(
+          "A QuestGiver component tried to call checkEnemiesKilledQuest when "
+              + "there isn't a quest to check the progress of i.e. it returned null");
+    } else {
+      return Quest.checkEnemiesKilledQuest(uniqueNPCID);
     }
   }
 }
