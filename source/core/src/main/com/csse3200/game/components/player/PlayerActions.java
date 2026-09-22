@@ -16,6 +16,7 @@ import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.PlayerRenderComponent;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +44,8 @@ public class PlayerActions extends Component {
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
   private PlatformerComponent platformerComponent;
+  private StaminaComponent staminaComponent;
+  private TextureRenderComponent textureRenderComponent;
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
@@ -81,7 +84,8 @@ public class PlayerActions extends Component {
     platformerComponent = entity.getComponent(PlatformerComponent.class);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
-    platformerComponent = entity.getComponent(PlatformerComponent.class);
+    staminaComponent = entity.getComponent(StaminaComponent.class);
+    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
@@ -102,6 +106,15 @@ public class PlayerActions extends Component {
 
   @Override
   public void update() {
+
+    StaminaComponent staminaComponent = entity.getComponent(StaminaComponent.class);
+
+    if (staminaComponent != null) {
+      staminaComponent.regenerate(
+              staminaComponent.getRegenRate() * ServiceLocator.getTimeSource().getDeltaTime()
+      );
+    }
+
     if (attackCooldownRemaining > 0f) {
       attackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
       attackCooldownRemaining = Math.max(0f, attackCooldownRemaining);
@@ -293,6 +306,12 @@ public class PlayerActions extends Component {
     if (dead) {
       return;
     }
+
+    if (!staminaComponent.hasEnoughStamina(staminaComponent.getDashCost())) {
+      return;
+    }
+
+    staminaComponent.useStamina(staminaComponent.getDashCost());
 
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(dashspeed);
