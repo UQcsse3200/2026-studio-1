@@ -200,6 +200,20 @@ public class RangedAttackComponent extends Component {
   }
 
   /**
+   * Returns the damage for this attack, either the configured base attack from the config file or
+   * the equipped weapon's damage. The only stat this component reads from the weapon — range and
+   * knockback are this wielder's own properties, not the weapon's.
+   *
+   * @return the equipped weapon's damage, sourced from {@code weapon.getDamage()}
+   */
+  public int getDamage() {
+    if (this.weapon == null) {
+      return this.combatStats.getBaseAttack();
+    }
+    return this.weapon.getDamage();
+  }
+
+  /**
    * Returns the configured projectile speed.
    *
    * @return projectile speed, in world units/second

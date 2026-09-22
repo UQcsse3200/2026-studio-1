@@ -286,7 +286,9 @@ public class MeleeAttackComponent extends Component {
                 entity.getPosition().x,
                 entity.getPosition().y,
                 target.getPosition().x,
-                target.getPosition().y);
+                target.getPosition().y
+            );
+
     if (distance > this.getRange()) {
       return;
     }
@@ -299,6 +301,7 @@ public class MeleeAttackComponent extends Component {
       finalDamage = (int) (finalDamage * chargeComponent.getDamageMultiplier());
     }
     combatStats.setBaseAttack(finalDamage);
+
     targetStats.hit(combatStats);
     // announce a successful hit - useful for triggering special effects
     entity.getEvents().trigger("meleeAttackHit", target);
