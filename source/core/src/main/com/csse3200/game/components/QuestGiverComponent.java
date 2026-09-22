@@ -33,6 +33,7 @@ public class QuestGiverComponent extends Component {
   }
 
   // Jump quest functions end here
+  // EnemiesKilledQuest functions start here
   public boolean logEnemiesKilledQuest(String Reward, int enemiesToKill) {
     if (Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill)) {
       return true;
@@ -54,6 +55,8 @@ public class QuestGiverComponent extends Component {
       return Quest.checkEnemiesKilledQuest(uniqueNPCID);
     }
   }
+  //EnemiesKilledQuest functions end here
+  //GoldSpentQuest functions start here
   public boolean logGoldSpentQuest(String reward, int amountToSpend){
     if(Quest.logGoldSpentQuest(uniqueNPCID,amountToSpend)){
       return true;
@@ -73,4 +76,26 @@ public class QuestGiverComponent extends Component {
   public void clearGoldSpentQuest(){
     Quest.clearGoldSpentQuest(uniqueNPCID);
   }
+  //GoldSpentQuest functions end here
+  //ShieldsCollectedQuest functions start here
+  public boolean logShieldsCollectedQuest(String reward, int shieldsToCollect){
+    if(Quest.logShieldsCollectedQuest(uniqueNPCID,shieldsToCollect)){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  public void clearShieldsCollectedQuest(){
+    Quest.clearShieldsCollectedQuest(uniqueNPCID);
+  }
+  public int checkShieldsCollectedQuestComplete(){
+    if(Quest.checkShieldsCollectedQuest(uniqueNPCID)==-1){
+      throw new NullPointerException(
+              "A QuestGiver component tried to call checkShieldsCollectedQuest when "
+                      + "there isn't a quest to check the progress of i.e. it returned null");
+    }else{
+      return Quest.checkShieldsCollectedQuest(uniqueNPCID);
+    }
+  }
+  //ShieldsCollectedQuest functions end here
 }

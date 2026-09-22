@@ -12,10 +12,12 @@ public class Quest {
   private static ArrayList<EnemiesKilledQuest> enemiesKilledQuestTracker =
       new ArrayList<EnemiesKilledQuest>();
   private static ArrayList<GoldSpentQuest> goldSpentQuestTracker = new ArrayList<GoldSpentQuest>();
+  private static ArrayList<ShieldsCollectedQuest> shieldsCollectedQuestTracker = new ArrayList<ShieldsCollectedQuest>();
   // Statistics tracker
   private static float globalJumps = 0;
   private static float globalEnemiesKilled = 0;
   private static float globalGoldSpent = 0;
+  private static float globalShieldsCollected = 0;
 
   public static int giveOutUniqueNPCID() {
     int uniqueID = uniqueNPCID.size();
@@ -25,6 +27,7 @@ public class Quest {
     jumpQuestTracker.add(uniqueID, null);
     enemiesKilledQuestTracker.add(uniqueID, null);
     goldSpentQuestTracker.add(uniqueID,null);
+    shieldsCollectedQuestTracker.add(uniqueID,null);
     return uniqueID;
   }
 
@@ -103,6 +106,30 @@ public class Quest {
     questActiveForNPCID.set(NPCId,false);
   }
   //GoldSpentQuest functions end
+  //ShieldsCollectedQuest functions start
+  public static boolean logShieldsCollectedQuest(int NPCId, int amountOfShieldsToCollect){
+    if(questActiveForNPCID.get(NPCId)){
+      return false;
+    }else{
+      shieldsCollectedQuestTracker.set(NPCId, new ShieldsCollectedQuest(amountOfShieldsToCollect));
+      questActiveForNPCID.set(NPCId,true);
+      return true;
+    }
+  }
+
+  public static int checkShieldsCollectedQuest(int NPCId){
+    if(shieldsCollectedQuestTracker.get(NPCId)!=null){
+      return getShieldsCollectedQuests().get(NPCId).checkQuestProgress();
+    }else{
+      //No shieldCollectedQuest was created for that NPC
+      return -1;
+    }
+  }
+  public static void clearShieldsCollectedQuest(int NPCId){
+    shieldsCollectedQuestTracker.set(NPCId,null);
+    questActiveForNPCID.set(NPCId,false);
+  }
+  //ShieldsCollectedQuest functions end
   public static ArrayList<JumpQuest> getJumpQuests() {
     return jumpQuestTracker;
   }
@@ -113,6 +140,10 @@ public class Quest {
 
   public static ArrayList<GoldSpentQuest> getGoldSpentQuests(){
     return goldSpentQuestTracker;
+  }
+
+  public static ArrayList<ShieldsCollectedQuest> getShieldsCollectedQuests(){
+    return shieldsCollectedQuestTracker;
   }
 
   public static void incrementGlobalJumps() {
@@ -126,6 +157,9 @@ public class Quest {
   public static void addGlobalGoldSpent(int amount){
     globalGoldSpent+=amount;
   }
+  public static void incrementGlobalShieldsCollected(){
+    globalShieldsCollected++;
+  }
 
   public static float getGlobalJumps() {
     return globalJumps;
@@ -137,6 +171,10 @@ public class Quest {
 
   public static float getGlobalGoldSpent(){
     return globalGoldSpent;
+  }
+
+  public static float getGlobalShieldsCollected(){
+    return globalShieldsCollected;
   }
 
   public static ArrayList<Integer> getUniqueNPCIDArrayList() {
