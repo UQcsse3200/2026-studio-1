@@ -62,8 +62,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldStoreConstructorValuesCorrectly() {
-    RangedAttackComponent ranged =
-        new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon(), 8f);
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
     assertEquals(6f, ranged.getRange());
     assertEquals(2.5f, ranged.getCooldown());
     assertEquals(1f, ranged.getKnockback());
@@ -75,8 +74,7 @@ class RangedAttackComponentTest {
 
   @Test
   void shouldRejectNonPositiveProjectileSpeed() {
-    RangedAttackComponent ranged =
-        new RangedAttackComponent(6f, 2.5f, 0f, createInstantWeapon(), 8f);
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 0f, createInstantWeapon());
     assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(0f));
     assertThrows(IllegalArgumentException.class, () -> ranged.setProjectileSpeed(-1f));
   }
@@ -226,7 +224,7 @@ class RangedAttackComponentTest {
     Entity attacker =
         new Entity()
             .addComponent(
-                new RangedAttackComponent(range, cooldown, knockback, createInstantWeapon(), 8f))
+                new RangedAttackComponent(range, cooldown, knockback, createInstantWeapon()))
             .addComponent(new CombatStatsComponent(20, 5));
     attacker.create();
     return attacker;

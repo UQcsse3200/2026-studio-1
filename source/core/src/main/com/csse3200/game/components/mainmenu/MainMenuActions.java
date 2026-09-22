@@ -23,18 +23,19 @@ public class MainMenuActions extends Component {
     entity.getEvents().addListener("load", this::onLoad);
     entity.getEvents().addListener("exit", this::onExit);
     entity.getEvents().addListener("settings", this::onSettings);
+    entity.getEvents().addListener("perks", this::onPerks);
   }
 
   /** Swaps to the Main Game screen. */
   private void onStart() {
     logger.info("Start game");
-    game.setScreen(GdxGame.ScreenType.RESTART_GAME);
+    game.setScreen(GdxGame.ScreenType.MAIN_GAME);
   }
 
   /** Intended for loading a saved game state. Load functionality is not actually implemented. */
   private void onLoad() {
     logger.info("Load game");
-    game.setScreen(GdxGame.ScreenType.MAIN_GAME);
+    game.setScreen(GdxGame.ScreenType.LOAD_GAME);
   }
 
   /** Exits the game. */
@@ -47,5 +48,11 @@ public class MainMenuActions extends Component {
   private void onSettings() {
     logger.info("Launching settings screen");
     game.setScreen(GdxGame.ScreenType.SETTINGS);
+  }
+
+  /** Swaps to the Perks screen. */
+  private void onPerks() {
+    logger.info("Launching perks screen");
+    game.setScreen(GdxGame.ScreenType.PERKS);
   }
 }

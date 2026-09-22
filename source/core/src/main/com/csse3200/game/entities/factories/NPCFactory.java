@@ -10,6 +10,9 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.CyclopsAnimationController;
+import com.csse3200.game.components.npc.DialogueComponent;
+import com.csse3200.game.components.npc.DialogueProximityComponent;
+import com.csse3200.game.components.npc.DisplayDialogue;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.MinotaurAnimationController;
@@ -32,6 +35,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +51,14 @@ import java.util.List;
  * similar characteristics.
  */
 public class NPCFactory {
+  private static final String SKELETON_ATLAS_PATH = "images/enemies/skeleton.atlas";
+  private static final String SKELETON_SWORD_ATLAS_PATH =
+      "images/skeleton_weapons/skeleton_sword.atlas";
+  private static final String SKELETON_BOW_ATLAS_PATH =
+      "images/skeleton_weapons/skeleton_bow.atlas";
+  private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
+  private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
+
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
 
@@ -128,7 +140,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH));
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -136,9 +148,7 @@ public class NPCFactory {
 
     // Configure weapon animation component
     EnemyWeaponAnimationComponent weaponAnimator =
-        new EnemyWeaponAnimationComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton_weapons/skeleton_sword.atlas", TextureAtlas.class));
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(SKELETON_SWORD_ATLAS_PATH));
     weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("sword_l", 0.08f, Animation.PlayMode.NORMAL);
@@ -157,7 +167,6 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
-        .addComponent(new SkeletonAnimationController())
         .addComponent(new SkeletonAnimationController())
         .addComponent(weaponAnimator)
         .addComponent(new SkeletonWeaponAnimationController());
@@ -194,7 +203,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -202,9 +211,7 @@ public class NPCFactory {
 
     // Configure weapon animation component
     EnemyWeaponAnimationComponent weaponAnimator =
-        new EnemyWeaponAnimationComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/skeleton_weapons/skeleton_bow.atlas", TextureAtlas.class));
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(SKELETON_BOW_ATLAS_PATH));
     weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
     weaponAnimator.addAnimation("bow_l", 0.1f, Animation.PlayMode.NORMAL);
@@ -218,13 +225,11 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1),
-                8f))
+                (WeaponItem) inventory.getItem(1)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
-        .addComponent(new SkeletonAnimationController())
         .addComponent(new SkeletonAnimationController())
         .addComponent(weaponAnimator)
         .addComponent(new SkeletonWeaponAnimationController());
@@ -254,8 +259,8 @@ public class NPCFactory {
    * @return minotaur entity that charges at target to attack
    */
   public static Entity createMinotaur(Entity target) {
-    float scale = 2f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    float scale = 2.0f;
+    Vector2 collisionScale = new Vector2(0.8f, 0.7f);
     Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     MinotaurConfig config = configs.minotaur;
 
@@ -272,7 +277,7 @@ public class NPCFactory {
 
     // Configure animation component
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/minotaur.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(MINOTAUR_ATLAS_PATH), true);
     animator.addAnimation("minotaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
@@ -287,6 +292,12 @@ public class NPCFactory {
                 config.melee.cooldown,
                 config.melee.knockback,
                 (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new ChargeComponent(
+                config.charge.duration,
+                config.charge.cooldown,
+                config.charge.damageMultiplier,
+                config.charge.speedMultiplier))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
@@ -295,19 +306,18 @@ public class NPCFactory {
 
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    ChargeComponent chargeComponent =
-        new ChargeComponent(
-            config.charge.duration,
-            config.charge.cooldown,
-            config.charge.damageMultiplier,
-            config.charge.speedMultiplier);
-
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
     minotaur
         .getComponent(AITaskComponent.class)
-        .addTask(new MeleeAttackTask(target, 10, config.melee.range))
-        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
+        .addTask(new MeleeAttackTask(target, 15, config.melee.range))
+        .addTask(
+            (new ChargeTask(
+                target,
+                minotaur.getComponent(ChargeComponent.class),
+                config.charge.aggroRadius,
+                15,
+                10)));
 
     minotaur.setScale(scale, scale * (80f / 96f));
     PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
@@ -322,7 +332,7 @@ public class NPCFactory {
    * @return centaur entity that charges at target to attack from a distance.
    */
   public static Entity createCentaur(Entity target) {
-    float scale = 2f;
+    float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity centaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CentaurConfig config = configs.centaur;
@@ -341,7 +351,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/skeleton.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
@@ -355,8 +365,13 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1),
-                8f))
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new ChargeComponent(
+                config.charge.duration,
+                config.charge.cooldown,
+                config.charge.damageMultiplier,
+                config.charge.speedMultiplier))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -365,19 +380,18 @@ public class NPCFactory {
 
     centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    ChargeComponent chargeComponent =
-        new ChargeComponent(
-            config.charge.duration,
-            config.charge.cooldown,
-            config.charge.damageMultiplier,
-            config.charge.speedMultiplier);
-
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
     centaur
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 10, config.ranged.range))
-        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
+        .addTask(
+            (new ChargeTask(
+                target,
+                centaur.getComponent(ChargeComponent.class),
+                config.charge.aggroRadius,
+                15,
+                10)));
 
     centaur.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
@@ -392,7 +406,7 @@ public class NPCFactory {
    * @return Cyclops entity as a mini boss enemy
    */
   public static Entity createCyclops(Entity target) {
-    float scale = 2f;
+    float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CyclopsConfig config = configs.cyclops;
@@ -412,7 +426,7 @@ public class NPCFactory {
     // Configure animation component
     // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas("images/enemies/cyclops.atlas"));
+        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
@@ -423,17 +437,10 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range,
-                config.melee.cooldown,
-                config.melee.knockback,
-                (WeaponItem) inventory.getItem(1)))
+                config.melee.range, config.melee.cooldown, config.melee.knockback))
         .addComponent(
             new RangedAttackComponent(
-                config.ranged.range,
-                config.ranged.cooldown,
-                config.ranged.knockback,
-                (WeaponItem) inventory.getItem(2),
-                8f))
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
@@ -525,6 +532,54 @@ public class NPCFactory {
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
+    return npc;
+  }
+
+  /**
+   * Creates a passive traveler NPC that wanders but cannot attack the player.
+   *
+   * @return entity
+   */
+  public static Entity createTravelerNPC(Entity player) {
+    final float colliderWidthFraction = 0.9f;
+    // Matches the player's rendered height: PlayerFactory scales box_boy_leaf.png (792x1000) to
+    // width 1, height 1000/792 via TextureRenderComponent.scaleEntity().
+    final float playerHeight = 1000f / 792f;
+    String[] dialoguetext = {"Hello", "Good luck"};
+    Entity npc =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(new CombatStatsComponent(50, 0))
+            .addComponent(new TextureRenderComponent("images/enemies/npc_traveler.png"))
+            // npc dialogue
+            .addComponent(new DialogueComponent(dialoguetext))
+            .addComponent(new DisplayDialogue("Traveler"))
+            .addComponent(new DialogueProximityComponent(player, 2f));
+
+    npc.getComponent(TextureRenderComponent.class).scaleEntity();
+    npc.scaleHeight(playerHeight);
+
+    // rayCastPositionScale is a fraction of the entity's own width (0 = sprite edge, 0.5 =
+    // centre), so the fraction that lines the raycast up with the collider's edge is
+    // 0.5 - colliderWidthFraction / 2, independent of the entity's absolute scale.
+    float floorCollisionScale = 0.5f - colliderWidthFraction / 2f;
+    // Wander range is a hard guarantee, not just a low-probability-of-falling value: at spawn
+    // TRAVELER_NPC_SPAWN=(4, 13) in level1-greek.json, the entity's left edge (position.x) is
+    // 1.782, on a floor patch spanning world x=[1.0, 3.0] (wall to the left, a non-solid ladder
+    // tile from x=3.0). With this entity's width (0.937) and 0.9-fraction collider (0.843 wide,
+    // 0.047 margin each side of the sprite), the tightest constraint is the ladder side: the
+    // largest half-range that still keeps the collider's right edge >=0.05 inside the floor at
+    // the worst-case wander target is (3.0 - 0.05 - 1.782 - 0.937 + 0.047) = 0.279. Using 0.25
+    // (half-range) keeps a comfortable ~0.08 margin from the ladder edge, and an even larger
+    // ~0.58 margin from the wall on the left, at the furthest wander position on either side.
+    npc.addComponent(
+        new AITaskComponent()
+            .addTask(new PlatformWanderTask(new Vector2(0.5f, 0.5f), 2f, floorCollisionScale)));
+
+    PhysicsUtils.setScaledCollider(npc, colliderWidthFraction, 0.7f);
     return npc;
   }
 

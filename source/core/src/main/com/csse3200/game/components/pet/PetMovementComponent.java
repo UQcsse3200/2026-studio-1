@@ -3,6 +3,7 @@ package com.csse3200.game.components.pet;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -18,17 +19,24 @@ public class PetMovementComponent extends Component {
   private Entity owner;
   private float previousOwnerX;
   private float facingDirection = 1f;
+  private AnimationRenderComponent animator;
+  private final String animationPrefix;
 
   /** Creates pet movement using the game's time source. */
-  public PetMovementComponent() {
-    this(ServiceLocator.getTimeSource());
+  public PetMovementComponent(String animationPrefix) {
+    this(ServiceLocator.getTimeSource(), animationPrefix);
   }
 
-  PetMovementComponent(GameTime timeSource) {
+  PetMovementComponent(GameTime timeSource, String animationPrefix) {
     if (timeSource == null) {
       throw new IllegalArgumentException("Pet movement requires a time source");
     }
+    if (animationPrefix == null || animationPrefix.isBlank()) {
+      throw new IllegalArgumentException("Animation prefix cannot be null or blank");
+    }
+
     this.timeSource = timeSource;
+    this.animationPrefix = animationPrefix;
   }
 
   @Override
@@ -39,6 +47,7 @@ public class PetMovementComponent extends Component {
     }
 
     owner = petComponent.getOwner();
+    animator = entity.getComponent(AnimationRenderComponent.class);
     previousOwnerX = owner.getPosition().x;
     entity.setPosition(getFollowPosition());
   }
@@ -65,8 +74,21 @@ public class PetMovementComponent extends Component {
     float horizontalMovement = ownerX - previousOwnerX;
 
     if (Math.abs(horizontalMovement) > DIRECTION_EPSILON) {
-      facingDirection = Math.signum(horizontalMovement);
+      float newDirection = Math.signum(horizontalMovement);
+
+      if (newDirection != facingDirection) {
+        facingDirection = newDirection;
+
+        if (animator != null) {
+          if (facingDirection > 0f) {
+            animator.startAnimation(animationPrefix + "_right");
+          } else {
+            animator.startAnimation(animationPrefix + "_left");
+          }
+        }
+      }
     }
+
     previousOwnerX = ownerX;
   }
 

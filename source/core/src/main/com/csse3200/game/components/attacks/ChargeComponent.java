@@ -108,9 +108,11 @@ public class ChargeComponent extends Component {
       return;
     }
     chargeTimeRemaining = chargeDuration;
-    entity.getComponent(PhysicsMovementComponent.class).setTarget(targetPosition);
-    entity.getComponent(PhysicsMovementComponent.class).setSpeedMultiplier(this.speedMultiplier);
-    entity.getEvents().trigger("chargeStart");
+    this.getEntity().getComponent(PhysicsMovementComponent.class).setTarget(targetPosition);
+    this.getEntity()
+        .getComponent(PhysicsMovementComponent.class)
+        .setSpeedMultiplier(this.speedMultiplier);
+    this.getEntity().getEvents().trigger("chargeStart");
   }
 
   /**

@@ -1,5 +1,8 @@
 package com.csse3200.game.entities.factories;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.PlatformerComponent;
@@ -7,6 +10,7 @@ import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.*;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -17,6 +21,7 @@ import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
+import com.csse3200.game.components.player.QuestDisplay;
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShieldRenderComponent;
 import com.csse3200.game.components.player.ShopComponent;
@@ -34,7 +39,7 @@ import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
-import com.csse3200.game.rendering.TextureRenderComponent;
+import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
 /**
@@ -44,6 +49,9 @@ import com.csse3200.game.services.ServiceLocator;
  * the properties stores in 'PlayerConfig'.
  */
 public class PlayerFactory {
+  static Texture size = new Texture("images/knight_default.png");
+  static TextureAtlas rightAtlas = new TextureAtlas("images/knight.atlas");
+  static TextureAtlas leftAtlas = new TextureAtlas("images/LeftKnight.atlas");
   private static final PlayerConfig stats =
       FileLoader.readClass(PlayerConfig.class, "configs/player.json");
 
@@ -74,7 +82,6 @@ public class PlayerFactory {
 
     Entity player =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/player/box_boy_leaf.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
@@ -96,13 +103,34 @@ public class PlayerFactory {
             .addComponent(new PetManagerComponent())
             .addComponent(new PlatformerComponent(5, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
+            .addComponent(new QuestDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
             .addComponent(new WeaponRenderComponent())
             .addComponent(new ShopComponent().seedDefaultCatalog())
-            .addComponent(new ShopDisplay());
+            .addComponent(new ShopDisplay())
+            .addComponent(new WeaponRenderComponent());
+    PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas);
 
+    animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Attacks", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("crouchidle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("Roll", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Slide", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Run", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("LeftIdle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("LeftJump", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("LeftAttacks", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("Leftcrouchidle", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("LeftRoll", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("LeftSlide", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("LeftRun", 0.1f, Animation.PlayMode.LOOP);
+    player.addComponent(animator).addComponent(new PlayerAnimationController());
+
+    player.setScale(0.75f, (float) size.getHeight() / size.getWidth());
+    animator.startAnimation("Idle");
     if (mapData != null) {
       player.addComponent(new LadderComponent(mapData));
       player.addComponent(new SubLevelTravelComponent());
@@ -110,7 +138,6 @@ public class PlayerFactory {
 
     // The map uses 0.5 world units per tile. Keep the player just over one tile wide and under
     // two tiles tall so doorway and ladder clearances match the authored layout.
-    player.getComponent(TextureRenderComponent.class).scaleEntity();
     // The box-boy sprite has a much denser silhouette than the skeleton atlas, so use a slightly
     // smaller rendered body to make both characters occupy the same visual footprint.
     player.setScale(0.75f, 0.75f);

@@ -1,6 +1,5 @@
 package com.csse3200.game.entities.factories;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -17,6 +16,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.BobbingTextureRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
+import com.csse3200.game.services.ServiceLocator;
 
 /** Factory for creating loot entities that can be picked up by the player. */
 public class LootFactory {
@@ -56,17 +56,23 @@ public class LootFactory {
         texturePath = "images/items/sword.png";
       }
 
-      loot.addComponent(new BobbingTextureRenderComponent(texturePath));
+      BobbingTextureRenderComponent renderer = new BobbingTextureRenderComponent(texturePath);
+      loot.addComponent(renderer);
+      renderer.scaleEntity(0.6f);
     } else if (item instanceof ConsumableItem consumableItem) {
       // Consumables carry their own sprite, and bob gently so they read as collectable.
-      loot.addComponent(new BobbingTextureRenderComponent(consumableItem.getTexturePath()));
+      BobbingTextureRenderComponent renderer =
+          new BobbingTextureRenderComponent(consumableItem.getTexturePath());
+      loot.addComponent(renderer);
+      renderer.scaleEntity(0.6f);
     } else if (item.getItemType() == ItemType.SHIELD) {
       // Shield loot uses the shield sprite.
       loot.addComponent(new TextureRenderComponent("images/Shield.png"));
     } else {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(
-              new TextureAtlas(Gdx.files.internal("images/items/gold_coin/gold_coin.atlas")));
+              ServiceLocator.getResourceService()
+                  .getAsset("images/items/gold_coin/gold_coin.atlas", TextureAtlas.class));
 
       animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
       animator.startAnimation("gold_coin");

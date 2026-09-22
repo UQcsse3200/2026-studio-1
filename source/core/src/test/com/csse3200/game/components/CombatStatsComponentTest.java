@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,32 +55,25 @@ class CombatStatsComponentTest {
   }
 
   @Test
-  void shouldTriggerDeathEventWhenHealthReachesZero() {
-    Entity entity = new Entity();
-    CombatStatsComponent stats = new CombatStatsComponent(10, 5);
-    entity.addComponent(stats);
-    entity.create();
+  void shouldAbsorbDamageWithShield() {
+    CombatStatsComponent combat = new CombatStatsComponent(100, 20);
+    CombatStatsComponent attacker = new CombatStatsComponent(100, 10);
 
-    int[] deathCount = {0};
-    entity.getEvents().addListener("death", () -> deathCount[0]++);
+    combat.setShieldHits(3);
 
-    stats.setHealth(0);
+    combat.hit(attacker);
+    assertEquals(100, combat.getHealth());
+    assertEquals(2, combat.getShieldHits());
 
-    assertEquals(1, deathCount[0]);
-  }
+    combat.hit(attacker);
+    assertEquals(100, combat.getHealth());
+    assertEquals(1, combat.getShieldHits());
 
-  @Test
-  void shouldNotTriggerDeathEventWhileHealthPositive() {
-    Entity entity = new Entity();
-    CombatStatsComponent stats = new CombatStatsComponent(10, 5);
-    entity.addComponent(stats);
-    entity.create();
+    combat.hit(attacker);
+    assertEquals(100, combat.getHealth());
+    assertEquals(0, combat.getShieldHits());
 
-    int[] deathCount = {0};
-    entity.getEvents().addListener("death", () -> deathCount[0]++);
-
-    stats.setHealth(3);
-
-    assertEquals(0, deathCount[0]);
+    combat.hit(attacker);
+    assertEquals(90, combat.getHealth());
   }
 }

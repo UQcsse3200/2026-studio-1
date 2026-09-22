@@ -9,28 +9,36 @@ import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.LevelView;
+import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.LootId;
 import com.csse3200.game.components.loot.LootPlacement;
+import com.csse3200.game.components.loot.LootRegistry;
+import com.csse3200.game.components.loot.LootSpawnFinder;
 import com.csse3200.game.components.loot.LootTable;
+import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
+import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -44,6 +52,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,18 +69,30 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+  // Left side of the dungeon floor, next to the doric column decoration at (5, 14)
+  // (level1-greek.json foreground layer) and the platform above it where the key item sits.
+  // x=4 (rather than 5) centers the NPC's collider within the floor patch (world x=[1.0,3.0])
+  // instead of overhanging onto the ladder tile at x=[3.0,3.5) - see createTravelerNPC()'s
+  // wander-range comment for the full margin math.
+  private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
+
+  /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
   private static final int HAZARD_DAMAGE = 10;
 
+  /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
+  private static final int RANDOM_LOOT_COUNT = 8;
+
   /**
-   * Seed for loot rolls. Fixing it keeps a level's loot the same from run to run, so a bug found
-   * while playing can be reproduced.
+   * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
+   * it is logged when loot spawns so a run with a bug in it can be replayed from that seed.
    */
-  private static final long LOOT_SEED = 2026L;
+  private final long lootSeed;
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/player/box_boy_leaf.png",
+    "images/enemies/npc_traveler.png",
+    "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
     "images/enemies/ghost_king.png",
@@ -106,13 +127,16 @@ public class LevelGameArea extends GameArea {
   private static final String[] entityAtlases = {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
-    "images/skeleton.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/knight.atlas",
+    "images/LeftKnight.atlas",
     "images/skeleton_weapons/skeleton_sword.atlas",
     "images/enemies/ghost.atlas",
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
+    "images/enemies/cyclops.atlas",
+    "images/enemies/minotaur.atlas",
     "images/pet.atlas"
   };
 
@@ -147,7 +171,7 @@ public class LevelGameArea extends GameArea {
    * @param mapLoader loader used to parse the map file
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
-    this(terrainFactory, mapPath, mapLoader, null, null);
+    this(terrainFactory, mapPath, mapLoader, null, null, null);
   }
 
   /**
@@ -161,7 +185,22 @@ public class LevelGameArea extends GameArea {
    */
   public LevelGameArea(
       TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
-    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn);
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null);
+  }
+
+  /**
+   * Create a level while retaining an existing player, placing it at a specified entrance, and
+   * using a previously-saved loot seed so this room's loot layout matches what it was when saved.
+   *
+   * @param savedLootSeed the loot seed to reuse, from a save file
+   */
+  public LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, savedLootSeed);
   }
 
   private LevelGameArea(
@@ -169,17 +208,20 @@ public class LevelGameArea extends GameArea {
       String mapPath,
       MapLoader mapLoader,
       Entity existingPlayer,
-      GridPoint2 entrySpawn) {
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
     this.mapLoader = mapLoader;
     this.existingPlayer = existingPlayer;
     this.entrySpawn = entrySpawn == null ? null : new GridPoint2(entrySpawn);
+    this.lootSeed = savedLootSeed != null ? savedLootSeed : new Random().nextLong();
   }
 
   @Override
   public void create() {
+    DefaultEntitySpawns.registerAll();
     mapData = mapLoader.load(mapPath);
     loadAssets();
 
@@ -191,14 +233,36 @@ public class LevelGameArea extends GameArea {
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
+    spawnTravelerNPC();
     playMusic();
   }
 
   /**
-   * @return the loaded map data (dimensions, layers, tile types, spawns) for other systems to use
+   * The supported way for other systems to read this level.
+   *
+   * <p>Prefer this to {@link #getMapData()}: {@link LevelView} is a stable contract, while the map
+   * data behind it is the map package's own structure and changes shape as the format evolves.
+   *
+   * @return a read-only view of the loaded level, or null before {@link #create()} runs
    */
+  public LevelView getLevel() {
+    return mapData == null ? null : new MapDataLevelView(mapData);
+  }
+
+  /**
+   * @return the loaded map data (dimensions, layers, tile types, spawns)
+   * @deprecated prefer {@link #getLevel()}, which does not couple callers to the map format
+   */
+  @Deprecated(since = "1.0")
   public LevelMapData getMapData() {
     return mapData;
+  }
+
+  /**
+   * @return the loot seed used by this level instance
+   */
+  public long getLootSeed() {
+    return lootSeed;
   }
 
   /**
@@ -427,7 +491,9 @@ public class LevelGameArea extends GameArea {
           continue;
         }
 
-        Entity collider = ObstacleFactory.createHazardTile(tileSize, tileSize);
+        Entity collider =
+            ObstacleFactory.createHazardTile(tileSize, tileSize)
+                .addComponent(new HazardDamageComponent(def.getInt("damage", HAZARD_DAMAGE)));
 
         Vector2 position = terrain.tileToWorldPosition(x, y);
 
@@ -498,7 +564,6 @@ public class LevelGameArea extends GameArea {
       spawn = new GridPoint2(0, 0);
     }
     spawnEntityAt(newPlayer, spawn, true, true);
-    newPlayer.getComponent(PetManagerComponent.class).activatePet();
   }
 
   private static void addHazardCollisionListener(Entity newPlayer) {
@@ -533,7 +598,12 @@ public class LevelGameArea extends GameArea {
                       CombatStatsComponent stats =
                           newPlayer.getComponent(CombatStatsComponent.class);
 
-                      stats.addHealth(-HAZARD_DAMAGE);
+                      // Hazards carry their own damage; older maps that set none use the default.
+                      HazardDamageComponent hazard =
+                          other.getComponent(HazardDamageComponent.class);
+                      int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
+
+                      stats.addHealth(-damage);
 
                       lastHazardDamageTime[0] = currentTime;
 
@@ -573,61 +643,81 @@ public class LevelGameArea extends GameArea {
     }
   }
 
+  /**
+   * Builds one spawn by name, through {@link EntitySpawnRegistry}, so this area holds no list of
+   * what the game can spawn. A name nobody registered is reported by the registry and skipped.
+   *
+   * @param type the spawn name from the map
+   * @return the new entity, or null if the name is unknown
+   */
   private Entity createEnemy(String type) {
-    if (type == null) {
-      return null;
-    }
-    return switch (type.toLowerCase()) {
-      case "ghost" -> NPCFactory.createGhost(player);
-      case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
-      case "skeleton" -> NPCFactory.createSkeleton(player);
-      case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
-      case "cyclops" -> NPCFactory.createCyclops(player);
-      case "minotaur" -> NPCFactory.createMinotaur(player);
-      default -> {
-        logger.warn("Unknown enemy spawn type '{}' - skipped", type);
-        yield null;
-      }
-    };
+    return EntitySpawnRegistry.create(type, player);
   }
 
   /**
    * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
-   * features work in this level, mirroring what {@code ForestGameArea} spawns.
+   * features work in this level.
    *
-   * <p>The shield is guaranteed at the map's first declared loot spawn point, the same way the gold
-   * coin is always placed directly rather than rolled — with maps sometimes declaring only a
-   * handful of loot spawn points, leaving the shield to the weighted table risked it never
-   * appearing. Every remaining loot spawn point gets one item rolled from the weighted loot table,
-   * so loot lands on reachable ground and higher tiers stay rare. A map with no declared loot
-   * spawns falls back to a starter row beside the player.
+   * <p>Loot goes on the spots chosen by {@link #chooseLootSpawns()}. The shield is guaranteed on
+   * the first spot, the same way the gold coin is always placed directly rather than rolled, since
+   * leaving the shield to the weighted table risked it never appearing. Every remaining spot gets
+   * one item rolled from the weighted loot table, so higher tiers stay rare. A map with no usable
+   * ground at all falls back to a starter row beside the player.
    */
   private void spawnLoot() {
-    List<SpawnPoint> lootSpawns = mapData.getSpawns().getLoot();
-    if (!lootSpawns.isEmpty()) {
-      SpawnPoint shieldSpawn = lootSpawns.get(0);
-      spawnEntityAt(
-          LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
-          shieldSpawn.getPosition(),
-          true,
-          true);
-
-      List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
-      LootTable table = LootTable.createDefault(LOOT_SEED);
-      for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
-        spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
-      }
+    List<SpawnPoint> lootSpawns = chooseLootSpawns();
+    if (lootSpawns.isEmpty()) {
+      spawnStarterLootRow();
       return;
     }
 
-    spawnStarterLootRow();
+    SpawnPoint shieldSpawn = lootSpawns.get(0);
+    String shieldId = LootId.of(mapData.getName(), shieldSpawn.getPosition());
+    if (!LootRegistry.isCollected(shieldId)) {
+      Entity shieldEntity = LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1));
+      shieldEntity.addComponent(new PersistentLootIdComponent(shieldId));
+      spawnEntityAt(shieldEntity, shieldSpawn.getPosition(), true, true);
+    }
+
+    List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
+    LootTable table = LootTable.createDefault(lootSeed);
+    for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
+      String id = LootId.of(mapData.getName(), placed.getPosition());
+      if (LootRegistry.isCollected(id)) {
+        continue;
+      }
+      Entity lootEntity = LootFactory.createLoot(placed.getItem());
+      lootEntity.addComponent(new PersistentLootIdComponent(id));
+      spawnEntityAt(lootEntity, placed.getPosition(), true, true);
+    }
+  }
+
+  /**
+   * Chooses the tiles this level's loot goes on.
+   *
+   * <p>A map's own loot spawn points always win, so a map author can place loot by hand. Most maps
+   * declare none, so otherwise {@link #RANDOM_LOOT_COUNT} distinct tiles are picked at random from
+   * the open ground, which spreads the loot out and changes it every run.
+   *
+   * @return the chosen tiles, empty only when the map has no open ground at all
+   */
+  private List<SpawnPoint> chooseLootSpawns() {
+    logger.info("Loot seed for {}: {}", mapData.getName(), lootSeed);
+
+    List<SpawnPoint> declared = mapData.getSpawns().getLoot();
+    if (!declared.isEmpty()) {
+      return declared;
+    }
+
+    List<SpawnPoint> ground = LootSpawnFinder.findGroundSpots(mapData);
+    return LootPlacement.pickRandomSpots(ground, RANDOM_LOOT_COUNT, new Random(lootSeed));
   }
 
   /**
    * Lays one of everything out in a row next to the player.
    *
-   * <p>Used for maps that declare no loot spawn points, so the loot and inventory features are
-   * still reachable while a map is being built.
+   * <p>A last resort for a map with no open ground to scatter loot over, so the loot and inventory
+   * features are still reachable while a map is being built.
    */
   private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
@@ -714,5 +804,10 @@ public class LevelGameArea extends GameArea {
     super.dispose();
     ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class).stop();
     unloadAssets();
+  }
+
+  private void spawnTravelerNPC() {
+    Entity travelerNPC = NPCFactory.createTravelerNPC(player);
+    spawnEntityAt(travelerNPC, TRAVELER_NPC_SPAWN, true, true);
   }
 }

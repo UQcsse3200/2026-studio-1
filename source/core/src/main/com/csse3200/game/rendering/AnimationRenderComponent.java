@@ -34,13 +34,14 @@ import org.slf4j.LoggerFactory;
  * - other third-party tools, e.g. https://www.codeandweb.com/texturepacker <br>
  */
 public class AnimationRenderComponent extends RenderComponent {
-  private static final Logger logger = LoggerFactory.getLogger(AnimationRenderComponent.class);
-  private final GameTime timeSource;
+  protected static final Logger logger = LoggerFactory.getLogger(AnimationRenderComponent.class);
+  protected final GameTime timeSource;
   private final TextureAtlas atlas;
-  private final Map<String, Animation<TextureRegion>> animations;
-  private Animation<TextureRegion> currentAnimation;
+  protected final Map<String, Animation<TextureRegion>> animations;
+  protected Animation<TextureRegion> currentAnimation;
   private String currentAnimationName;
-  private float animationPlayTime;
+  protected float animationPlayTime;
+  private boolean ownsAtlas;
 
   /**
    * Create the component for a given texture atlas.
@@ -49,6 +50,18 @@ public class AnimationRenderComponent extends RenderComponent {
    */
   public AnimationRenderComponent(TextureAtlas atlas) {
     this.atlas = atlas;
+    this.animations = new HashMap<>(4);
+    timeSource = ServiceLocator.getTimeSource();
+  }
+
+  /**
+   * Create the component for a given individual texture atlas. Implements with
+   * NPCFactory.loadIndependentAtlas(String) which ensures no shared atlases are disposed of when
+   * one enemy dies.
+   */
+  public AnimationRenderComponent(TextureAtlas atlas, boolean ownsAtlas) {
+    this.atlas = atlas;
+    this.ownsAtlas = ownsAtlas;
     this.animations = new HashMap<>(4);
     timeSource = ServiceLocator.getTimeSource();
   }
@@ -189,5 +202,8 @@ public class AnimationRenderComponent extends RenderComponent {
   @Override
   public void dispose() {
     super.dispose();
+    if (ownsAtlas) {
+      atlas.dispose();
+    }
   }
 }

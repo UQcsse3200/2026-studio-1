@@ -1,6 +1,7 @@
 {
   "name": "Level 1 - Out of the Underworld",
   "tileSize": 0.5,
+  "backgroundTexture": "images/level1/level1-map.png",
   "legend": {
     "b": {
       "type": "DECORATIVE",
@@ -275,6 +276,23 @@
       "texture": "images/level1/lift-winch-512px.png"
     }
   },
+  "entityLegend": {
+    "P": {
+      "type": "PLAYER"
+    },
+    "S": {
+      "type": "ENEMY",
+      "enemyType": "skeleton"
+    },
+    "R": {
+      "type": "ENEMY",
+      "enemyType": "ranged-skeleton"
+    },
+
+    "L": {
+      "type": "LOOT"
+    }
+  },
   "layers": {
     "background": [
       "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
@@ -481,28 +499,85 @@
       "y": 3
     },
     "enemies": [
-      {
-        "type": "skeleton",
-        "x": 23,
-        "y": 3
-      },
-      {
-        "type": "skeleton",
-        "x": 41,
-        "y": 3
-      },
-      {
-        "type": "skeleton",
-        "x": 20,
-        "y": 13
-      },
-      {
-        "type": "skeleton",
-        "x": 21,
-        "y": 23
-      }
+      { "type": "skeleton", "x": 23, "y": 3 },
+      { "type": "skeleton", "x": 41, "y": 3 },
+      { "type": "skeleton", "x": 20, "y": 13 },
+      { "type": "skeleton", "x": 21, "y": 23 },
+      { "type": "skeleton", "x": 4,  "y": 22 },
+      { "type": "skeleton", "x": 10, "y": 22 },
+      { "type": "skeleton", "x": 16, "y": 22 },
+      { "type": "skeleton", "x": 34, "y": 22 },
+      { "type": "skeleton", "x": 46, "y": 55 },
+      { "type": "minotaur", "x": 52, "y": 55 },
+      { "type": "minotaur", "x": 52, "y": 32 },
+      { "type": "minotaur", "x": 35, "y": 42 }
     ],
-    "loot": []
+    "entities": [
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                     S                                  ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                    S                                   ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "   P                   S                 S              ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        "
+    ]
   },
   "subLevels": [
     {
@@ -511,7 +586,7 @@
         "x": 0,
         "y": 0,
         "width": 56,
-        "height": 16
+        "height": 32
       },
       "door": {
         "x": 26,
@@ -528,9 +603,9 @@
       "id": "nether",
       "bounds": {
         "x": 0,
-        "y": 16,
+        "y": 32,
         "width": 56,
-        "height": 16
+        "height": 32
       },
       "door": {
         "x": 26,
