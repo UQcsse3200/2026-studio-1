@@ -1,7 +1,5 @@
 package com.csse3200.game.components.player;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -34,6 +32,14 @@ public class QuestDisplay extends UIComponent {
     jumpQuestsToDisplay = Quest.getJumpQuests();
 
     addActors();
+
+    entity
+        .getEvents()
+        .addListener(
+            "toggleQuestMenu",
+            () -> {
+              rootTable.setVisible(!rootTable.isVisible());
+            });
   }
 
   /** Creates and positions the quest box. */
@@ -58,10 +64,6 @@ public class QuestDisplay extends UIComponent {
   /** Updates the quest list and handles the quest menu toggle. */
   @Override
   public void update() {
-    // Press Q to show/hide the quest menu.
-    if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-      rootTable.setVisible(!rootTable.isVisible());
-    }
 
     jumpQuestsToDisplay = Quest.getJumpQuests();
 
