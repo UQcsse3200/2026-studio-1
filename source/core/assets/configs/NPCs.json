@@ -34,6 +34,13 @@
       "range": 5,
       "cooldown": 5,
       "knockback": 2
+    },
+    "charge": {
+      "speedMultiplier": 1.5,
+      "duration": 4,
+      "cooldown": 3,
+      "damageMultiplier": 1.5,
+      "aggroRadius": 10
     }
   },
   "centaur": {
@@ -44,6 +51,13 @@
       "cooldown": 5,
       "projectileSpeed": 8,
       "knockback": 2
+    },
+    "charge": {
+      "speedMultiplier": 2,
+      "duration": 4,
+      "cooldown": 3,
+      "damageMultiplier": 1.5,
+      "aggroRadius": 10
     }
   },
   "cyclops": {
