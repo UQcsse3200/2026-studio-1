@@ -26,10 +26,11 @@ public class LadderComponent extends Component {
 
   /** Starts moving up ({@code 1}) or down ({@code -1}) when the player is at a ladder. */
   public boolean beginClimb(float newDirection) {
-    if (!isAtLadder()) {
+    float requestedDirection = Math.signum(newDirection);
+    if (requestedDirection == 0f || !isAtLadder(requestedDirection)) {
       return false;
     }
-    direction = Math.signum(newDirection);
+    direction = requestedDirection;
     climbing = true;
     return true;
   }
@@ -46,7 +47,7 @@ public class LadderComponent extends Component {
     if (!climbing) {
       return;
     }
-    if (!isAtLadder()) {
+    if (!isAtLadder(direction)) {
       stopClimbing();
       return;
     }
@@ -56,15 +57,21 @@ public class LadderComponent extends Component {
     physics.getBody().setLinearVelocity(xVelocity, direction * CLIMB_SPEED);
   }
 
-  private boolean isAtLadder() {
+  private boolean isAtLadder(float climbDirection) {
     Vector2 centre = entity.getCenterPosition();
+    Vector2 position = entity.getPosition();
+    Vector2 scale = entity.getScale();
     float tileSize = mapData.getTileSize();
     int x = (int) Math.floor(centre.x / tileSize);
-    int y = (int) Math.floor(centre.y / tileSize);
+    int bottomRow = (int) Math.floor(position.y / tileSize);
+    int topRow = (int) Math.floor((position.y + scale.y - 0.001f) / tileSize);
 
-    // Require the player's centre to be in the ladder column so an adjacent tile cannot activate
-    // climbing. Keep the vertical tolerance so climbing can start and finish smoothly at landings.
-    for (int row = y - 2; row <= y + 2; row++) {
+    // Include one tile in the requested climb direction so the player can enter a ladder from a
+    // landing. Do not check behind the player: doing so keeps climbing active past the end of a
+    // ladder and leaves gravity disabled while the player moves away.
+    int firstRow = climbDirection < 0f ? bottomRow - 1 : bottomRow;
+    int lastRow = climbDirection > 0f ? topRow + 1 : topRow;
+    for (int row = firstRow; row <= lastRow; row++) {
       if (isLadder(x, row)) {
         return true;
       }

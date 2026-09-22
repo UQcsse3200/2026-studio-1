@@ -104,6 +104,10 @@ public class SubLevelTravelComponent extends Component {
   }
 
   private void startTravel(Vector2 target) {
+    LadderComponent ladder = entity.getComponent(LadderComponent.class);
+    if (ladder != null) {
+      ladder.stopClimbing();
+    }
     start = entity.getCenterPosition();
     destination = target;
     elapsed = 0f;

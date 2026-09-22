@@ -22,6 +22,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
+  private boolean walkingDown = false;
   private String direction = "Right";
 
   /**
@@ -44,6 +45,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         if (ladderUp != null && ladderUp.beginClimb(1f)) {
           return true;
         }
+        stopClimbing();
         jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
         triggerJumpEvent();
         jumped = true;
@@ -58,6 +60,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         dashed = true;
         return true;
       case Keys.A:
+        stopClimbing();
         walkDirection.add(Vector2Utils.LEFT);
         direction = "Left";
         triggerWalkEvent();
@@ -67,10 +70,15 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         if (ladderDown != null && ladderDown.beginClimb(-1f)) {
           return true;
         }
-        walkDirection.add(Vector2Utils.DOWN);
+        stopClimbing();
+        if (!walkingDown) {
+          walkDirection.add(Vector2Utils.DOWN);
+          walkingDown = true;
+        }
         triggerWalkEvent();
         return true;
       case Keys.D:
+        stopClimbing();
         walkDirection.add(Vector2Utils.RIGHT);
         direction = "Right";
         triggerWalkEvent();
@@ -145,8 +153,14 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.S:
         stopClimbing();
-        walkDirection.sub(Vector2Utils.DOWN);
-        triggerWalkEvent();
+        // Pressing S on a ladder starts climbing and does not add DOWN to walkDirection. Only
+        // remove DOWN when this key press actually started ordinary walking; otherwise subtracting
+        // from zero creates a persistent upward movement vector after leaving the ladder.
+        if (walkingDown) {
+          walkDirection.sub(Vector2Utils.DOWN);
+          walkingDown = false;
+          triggerWalkEvent();
+        }
         return true;
       case Keys.D:
         walkDirection.sub(Vector2Utils.RIGHT);
