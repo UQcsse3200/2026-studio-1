@@ -90,7 +90,6 @@ public class MainGameScreen extends ScreenAdapter {
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
-  private boolean storyCutsceneActive = true;
   private boolean deathScreenShown = false;
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
@@ -298,42 +297,37 @@ public class MainGameScreen extends ScreenAdapter {
   public void render(float delta) {
 
     /*
-     * Keep the normal game loop running so that the UI and Scene2D stage
-     * continue to update and render while the opening story is displayed.
+     * If the player has died, stop updating the game world,
+     * but keep rendering the game and death popup.
+     */
+    if (deathScreenShown) {
+      renderer.render();
+      return;
+    }
+
+    /*
+     * Only update physics and entities when the pause menu is not active.
      */
     if (pauseMenu == null || !pauseMenu.isPaused()) {
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
     }
 
-    if (deathScreenShown) {
-      renderer.render();
-      return;
-    }
-
-    if (!storyCutsceneActive && levelGameArea.isPlayerDead()) {
+    if (levelGameArea.isPlayerDead()) {
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
       renderer.render();
       return;
     }
 
-    if (!storyCutsceneActive) {
-      RoomTransition transition = levelGameArea.consumePendingTransition();
+    RoomTransition transition = levelGameArea.consumePendingTransition();
 
-      if (transition != null) {
-        transitionTo(transition);
-      }
-
-      followPlayer();
+    if (transition != null) {
+      transitionTo(transition);
     }
 
+    followPlayer();
     renderer.render();
-  }
-
-  /** Called when the opening story cutscene has finished. Gameplay can resume after this point. */
-  private void finishOpeningStory() {
-    storyCutsceneActive = false;
   }
 
   private void transitionTo(RoomTransition transition) {
@@ -478,8 +472,6 @@ public class MainGameScreen extends ScreenAdapter {
             this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
 
     this.pauseMenuActions = pauseMenuActions;
-
-    ui.getEvents().addListener("storyFinished", this::finishOpeningStory);
 
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
