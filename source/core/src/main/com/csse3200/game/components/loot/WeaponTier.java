@@ -73,7 +73,8 @@ public enum WeaponTier {
     return switch (weaponType) {
       case SWORD -> new TierStats(tier, swordDamage, swordAttackSpeed, swordKnockback, swordRange);
       case BOW -> new TierStats(tier, bowDamage, bowAttackSpeed, bowKnockback, bowRange);
-      case DAGGER -> new TierStats(tier, daggerDamage, daggerAttackSpeed, daggerKnockback, daggerRange);
+      case DAGGER ->
+          new TierStats(tier, daggerDamage, daggerAttackSpeed, daggerKnockback, daggerRange);
     };
   }
 

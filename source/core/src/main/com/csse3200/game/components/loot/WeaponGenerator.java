@@ -18,20 +18,17 @@ public class WeaponGenerator {
 
     switch (weaponType) {
       case SWORD:
-        WeaponItem sword =
-            new WeaponItem("Basic Sword", WeaponType.SWORD, weaponTier, 1, 10, 2);
+        WeaponItem sword = new WeaponItem("Basic Sword", WeaponType.SWORD, weaponTier, 1, 10, 2);
         sword.setSellPrice(10 * tier);
         return sword;
 
       case BOW:
-        WeaponItem bow =
-            new WeaponItem("Basic Bow", WeaponType.BOW, weaponTier, 1, 10, 3);
+        WeaponItem bow = new WeaponItem("Basic Bow", WeaponType.BOW, weaponTier, 1, 10, 3);
         bow.setSellPrice(8 * tier);
         return bow;
 
       case DAGGER:
-        WeaponItem dagger =
-            new WeaponItem("Basic Dagger", WeaponType.DAGGER, weaponTier, 1, 20, 1);
+        WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, weaponTier, 1, 20, 1);
         dagger.setSellPrice(6 * tier);
         return dagger;
 
