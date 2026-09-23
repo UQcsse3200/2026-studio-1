@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.math.GridPoint2;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class MapSpawnsTest {
@@ -37,5 +38,37 @@ class MapSpawnsTest {
     SpawnPoint sp = new SpawnPoint("ghost", 0, 0);
     assertThrows(UnsupportedOperationException.class, () -> spawns.getEnemies().add(sp));
     assertThrows(UnsupportedOperationException.class, () -> spawns.getLoot().add(sp));
+  }
+
+  @Test
+  void hasNoMarkersUntilSomeAreAdded() {
+    MapSpawns spawns = new MapSpawns();
+
+    assertTrue(spawns.getMarkers("npc").isEmpty());
+    assertTrue(spawns.getAllMarkers().isEmpty());
+    assertTrue(spawns.getMarkerKinds().isEmpty());
+  }
+
+  @Test
+  void groupsMarkersByKind() {
+    MapSpawns spawns = new MapSpawns();
+    spawns.addMarker(new Marker("npc", "traveler", new GridPoint2(4, 13)));
+    spawns.addMarker(new Marker("npc", "trader", new GridPoint2(9, 13)));
+    spawns.addMarker(new Marker("light", null, new GridPoint2(2, 20)));
+
+    assertEquals(2, spawns.getMarkers("npc").size());
+    assertEquals(1, spawns.getMarkers("light").size());
+    assertEquals(3, spawns.getAllMarkers().size());
+    assertEquals(Set.of("npc", "light"), spawns.getMarkerKinds());
+  }
+
+  @Test
+  void looksUpMarkersIgnoringCaseAndUnknownKinds() {
+    MapSpawns spawns = new MapSpawns();
+    spawns.addMarker(new Marker("checkpoint", "quarry", new GridPoint2(1, 1)));
+
+    assertEquals(1, spawns.getMarkers("CHECKPOINT").size());
+    assertTrue(spawns.getMarkers("pet").isEmpty());
+    assertTrue(spawns.getMarkers(null).isEmpty());
   }
 }

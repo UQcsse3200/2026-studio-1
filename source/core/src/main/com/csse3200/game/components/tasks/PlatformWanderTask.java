@@ -51,9 +51,7 @@ public class PlatformWanderTask extends WanderTask {
     Vector2 groundCheckPosition = new Vector2(ownerPosition.x, ownerPosition.y - 0.15f);
     boolean grounded =
         physics.raycast(ownerPosition, groundCheckPosition, PhysicsLayer.OBSTACLE, hit);
-    if (grounded) {
-      debugRenderer.drawLine(ownerPosition, hit.point);
-    } else {
+    if (!grounded) {
       debugRenderer.drawLine(ownerPosition, groundCheckPosition);
     }
     return grounded;
@@ -65,9 +63,32 @@ public class PlatformWanderTask extends WanderTask {
     boolean leftGrounded = getGroundRaycast(0 + rayCastPositionScale, leftFloorHit);
     boolean rightGrounded = getGroundRaycast(1 - rayCastPositionScale, rightFloorHit);
 
+    // Try to stay on the platform
+    if (leftGrounded && !rightGrounded) {
+      // At right edge
+      startPos.x = owner.getEntity().getPosition().x - (wanderRange.x / 2);
+      debugRenderer.drawLine(
+          owner.getEntity().getCenterPosition(),
+          owner.getEntity().getCenterPosition().cpy().sub(wanderRange.x / 2, 0),
+          Color.LIME,
+          5f);
+      startMoving();
+    } else if (rightGrounded && !leftGrounded) {
+      // At left edge
+      startPos.x = owner.getEntity().getPosition().x + (wanderRange.x / 2);
+      debugRenderer.drawLine(
+          owner.getEntity().getCenterPosition(),
+          owner.getEntity().getCenterPosition().cpy().add(wanderRange.x / 2, 0),
+          Color.LIME,
+          5f);
+      startMoving();
+    }
+
     if (!leftGrounded && !rightGrounded) {
+      // airborne
       updateStartPos();
     } else if (currentTask.getStatus() != Status.ACTIVE) {
+      // grounded
       if (currentTask == movementTask) {
         startWaiting();
       } else {
@@ -79,7 +100,11 @@ public class PlatformWanderTask extends WanderTask {
     }
     currentTask.update();
 
-    debugRenderer.drawRectangle(startPos, new Vector2(0.05f, 0.05f), Color.MAGENTA, 1f);
+    debugRenderer.drawRectangle(
+        startPos.cpy().sub((wanderRange.x - owner.getEntity().getScale().x) / 2, 0),
+        new Vector2(wanderRange.x, 0.05f),
+        Color.MAGENTA,
+        1f);
   }
 
   @Override
@@ -88,7 +113,11 @@ public class PlatformWanderTask extends WanderTask {
     Vector2 min = startPos.cpy().sub(halfRange);
     Vector2 max = startPos.cpy().add(halfRange);
     float randomXPosInRange = MathUtils.random(min.x, max.x);
-    debugRenderer.drawLine(startPos, new Vector2(randomXPosInRange, startPos.y));
+    debugRenderer.drawLine(
+        owner.getEntity().getCenterPosition(),
+        new Vector2(
+            (owner.getEntity().getScale().x / 2) + randomXPosInRange,
+            owner.getEntity().getCenterPosition().y));
 
     return new Vector2(randomXPosInRange, startPos.y);
   }
