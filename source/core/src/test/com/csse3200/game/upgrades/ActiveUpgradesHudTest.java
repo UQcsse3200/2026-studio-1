@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.SnapshotArray;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.rendering.RenderService;
@@ -154,6 +155,53 @@ class ActiveUpgradesHudTest {
     hud.draw(null);
 
     assertEquals(0, getHudPanel().getChildren().size);
+  }
+
+  // --- Shield hits indicator ---
+  //
+  // Shield hits live on CombatStatsComponent, not UpgradeNode, so they need the sibling
+  // UpgradesDisplay.getShieldHitsRemaining() rather than node.getRemainingText().
+
+  @Test
+  void hudShowsShieldHitsRemainingAfterSomeAreConsumed() throws Exception {
+    Entity player = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    upgradesDisplay.setPlayer(player);
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    CombatStatsComponent attacker = new CombatStatsComponent(1, 20);
+
+    UpgradeNode shield = getField("defenceUpgrades").get(0); // "shield_durability"
+    shield.purchaseNextTier(); // Tier 1: 3 shield hits
+
+    stats.hit(attacker); // 1 hit consumed, 2 left
+
+    hud.draw(null);
+
+    assertEquals(
+        "Shield Durability - Tier 1 - " + shield.getRemainingText() + " - 2 hits left",
+        ((Label) getHudPanel().getChildren().get(0)).getText().toString());
+  }
+
+  @Test
+  void hudUpdatesShieldHitsRemainingLiveAsHitsAreAbsorbed() throws Exception {
+    Entity player = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    upgradesDisplay.setPlayer(player);
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    CombatStatsComponent attacker = new CombatStatsComponent(1, 20);
+
+    UpgradeNode shield = getField("defenceUpgrades").get(0);
+    shield.purchaseNextTier(); // Tier 1: 3 shield hits
+
+    hud.draw(null);
+    assertEquals(
+        "Shield Durability - Tier 1 - " + shield.getRemainingText() + " - 3 hits left",
+        ((Label) getHudPanel().getChildren().get(0)).getText().toString());
+
+    stats.hit(attacker);
+    hud.draw(null);
+
+    assertEquals(
+        "Shield Durability - Tier 1 - " + shield.getRemainingText() + " - 2 hits left",
+        ((Label) getHudPanel().getChildren().get(0)).getText().toString());
   }
 
   // --- Charcoal panel ---

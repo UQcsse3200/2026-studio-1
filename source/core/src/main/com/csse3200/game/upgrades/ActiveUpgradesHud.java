@@ -9,44 +9,39 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Small always-on HUD, in the bottom-right corner, listing every currently-active upgrade (name,
- * tier, remaining time/kills) on a dark charcoal panel. Unlike UpgradesDisplay's own root table,
- * this is NOT gated by UpgradesMenuComponent.isOpen() - it stays visible during normal gameplay so
- * the player can see what's currently buffed without opening the Upgrades screen.
+ * Small always-on HUD, bottom-right, listing every active upgrade (name, tier, remaining
+ * time/kills, plus hits left for Shield Durability) on a dark charcoal panel. Unlike
+ * UpgradesDisplay's own root table, this is NOT gated by UpgradesMenuComponent.isOpen() - it stays
+ * visible during normal gameplay.
  *
- * <p>Reads the sibling UpgradesDisplay component's upgrade lists directly (same entity, same
- * pattern PauseMenuInputComponent uses to reach PauseMenuComponent) rather than owning any upgrade
- * state itself.
+ * <p>Reads the sibling UpgradesDisplay component directly, rather than owning any upgrade state.
  *
- * <p>Layout is root (fill-parent, anchored bottom-right) -> panel (charcoal background, hidden
- * whenever nothing is active so no empty box shows) -> one Label per active upgrade.
+ * <p>Layout: root (fill-parent, bottom-right) -> panel (charcoal background, hidden when nothing is
+ * active) -> one Label per active upgrade.
  *
- * <p>Rendering-safety: nothing here ever calls setColor() on the panel, root or any Label, and
- * there is no alpha/fade or toFront(). The panel's colour comes from a drawable whose tint is baked
- * in at skin-load time, and the label text colour is set on the Label STYLE (fontColor), not on the
- * actor - the same approach ShopDisplay's toast uses, so nothing can leave a stray tint in the
- * shared SpriteBatch.
+ * <p>Rendering-safety: no setColor() on the panel, root or any Label, no alpha/fade or toFront().
+ * The panel's tint is baked into its drawable at skin-load time, and label text colour is set on
+ * the Label STYLE, not the actor - the same approach ShopDisplay's toast uses - so nothing here can
+ * leave a stray tint in the shared SpriteBatch.
  */
 public class ActiveUpgradesHud extends UIComponent {
-  // Reuses the shop purchase toast's baked charcoal drawable (ShopDisplay.TOAST_BACKGROUND): a
-  // Skin$TintedDrawable defined in flat-earth-ui.json, so the colour is fixed at skin-load time
-  // rather than applied at runtime via setColor().
+  // Reuses the shop toast's baked charcoal drawable (ShopDisplay.TOAST_BACKGROUND) - tint is
+  // fixed at skin-load time, not applied via setColor().
   private static final String PANEL_BACKGROUND = "toast-charcoal";
   private static final float PANEL_PADDING = 8f;
   private static final String LABEL_STYLE = "small";
+  private static final String SHIELD_DURABILITY_ID = "shield_durability";
 
   private Table root;
   private Table panel;
   private UpgradesDisplay upgradesDisplay;
 
-  // The skin's "small" style with ONLY fontColor changed to white (same font, so text size is
-  // unchanged) - the skin's own style is black, which would be unreadable on the charcoal panel.
-  // Same pattern as ShopDisplay's whiteLabelStyle.
+  // Skin's "small" style with only fontColor changed to white - same font/size, but the skin's
+  // own black text would be unreadable on the charcoal panel.
   private Label.LabelStyle whiteLabelStyle;
 
-  // One Label reused per node across frames (rather than allocating new Labels every frame) -
-  // created lazily the first time a node is seen active, and left in this map (just re-parented
-  // into/out of the panel) for the rest of the upgrade's lifetime.
+  // One Label reused per node across frames - created lazily, then just re-parented in/out of
+  // the panel rather than recreated.
   private final Map<UpgradeNode, Label> labelsByNode = new HashMap<>();
 
   @Override
@@ -99,7 +94,16 @@ public class ActiveUpgradesHud extends UIComponent {
   }
 
   private String describe(UpgradeNode node) {
-    return node.getName() + " - Tier " + node.getCurrentTier() + " - " + node.getRemainingText();
+    String text =
+        node.getName() + " - Tier " + node.getCurrentTier() + " - " + node.getRemainingText();
+
+    if (node.getId().equals(SHIELD_DURABILITY_ID)) {
+      // Shield hits live on CombatStatsComponent, not UpgradeNode, so getRemainingText() (the
+      // shield's time-based duration) doesn't include them - append separately.
+      text += " - " + upgradesDisplay.getShieldHitsRemaining() + " hits left";
+    }
+
+    return text;
   }
 
   @Override
