@@ -90,6 +90,7 @@ public class MainGameScreen extends ScreenAdapter {
   private DeathScreenDisplay deathScreenDisplay;
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
+  private boolean storyCutsceneActive = true;
   private boolean deathScreenShown = false;
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
@@ -135,6 +136,7 @@ public class MainGameScreen extends ScreenAdapter {
       if (saveData.level != null && !saveData.level.isBlank()) {
         initialRoomMap = saveData.level;
       }
+
       savedSeed = lootSeedsByRoom.get(initialRoomMap);
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
@@ -146,6 +148,7 @@ public class MainGameScreen extends ScreenAdapter {
         savedSeed != null
             ? new LevelGameArea(terrainFactory, initialRoomMap, null, null, savedSeed)
             : new LevelGameArea(terrainFactory, initialRoomMap);
+
     levelGameArea.create();
     lootSeedsByRoom.put(initialRoomMap, levelGameArea.getLootSeed());
     Entity player = levelGameArea.getPlayer();
@@ -295,37 +298,42 @@ public class MainGameScreen extends ScreenAdapter {
   public void render(float delta) {
 
     /*
-     * If the player has died, stop updating the game world,
-     * but keep rendering the game and death popup.
-     */
-    if (deathScreenShown) {
-      renderer.render();
-      return;
-    }
-
-    /*
-     * Only update physics and entities when the pause menu is not active.
+     * Keep the normal game loop running so that the UI and Scene2D stage
+     * continue to update and render while the opening story is displayed.
      */
     if (pauseMenu == null || !pauseMenu.isPaused()) {
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
     }
 
-    if (levelGameArea.isPlayerDead()) {
+    if (deathScreenShown) {
+      renderer.render();
+      return;
+    }
+
+    if (!storyCutsceneActive && levelGameArea.isPlayerDead()) {
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
       renderer.render();
       return;
     }
 
-    RoomTransition transition = levelGameArea.consumePendingTransition();
+    if (!storyCutsceneActive) {
+      RoomTransition transition = levelGameArea.consumePendingTransition();
 
-    if (transition != null) {
-      transitionTo(transition);
+      if (transition != null) {
+        transitionTo(transition);
+      }
+
+      followPlayer();
     }
 
-    followPlayer();
     renderer.render();
+  }
+
+  /** Called when the opening story cutscene has finished. Gameplay can resume after this point. */
+  private void finishOpeningStory() {
+    storyCutsceneActive = false;
   }
 
   private void transitionTo(RoomTransition transition) {
@@ -340,6 +348,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity player = previousArea.releasePlayer();
     Long savedSeed = lootSeedsByRoom.get(transition.getDestinationMap());
+
     LevelGameArea nextArea =
         new LevelGameArea(
             terrainFactory,
@@ -347,6 +356,7 @@ public class MainGameScreen extends ScreenAdapter {
             player,
             transition.getDestinationSpawn(),
             savedSeed);
+
     nextArea.create();
 
     lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
@@ -468,6 +478,8 @@ public class MainGameScreen extends ScreenAdapter {
             this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
 
     this.pauseMenuActions = pauseMenuActions;
+
+    ui.getEvents().addListener("storyFinished", this::finishOpeningStory);
 
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
