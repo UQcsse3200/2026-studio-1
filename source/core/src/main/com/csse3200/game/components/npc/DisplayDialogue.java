@@ -1,5 +1,6 @@
 package com.csse3200.game.components.npc;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -55,11 +56,14 @@ public class DisplayDialogue extends UIComponent {
         new TextureRegionDrawable(new TextureRegion(backgroundTexture));
     dialogueTable.setBackground(background);
 
-    speakerLabel = new Label(speakerName, skin);
+    Label.LabelStyle textColor = new Label.LabelStyle(skin.get(Label.LabelStyle.class));
 
-    dialogueLabel = new Label("", skin);
+    textColor.fontColor = Color.WHITE; //make the words in dialogue box clear by white words
 
-    continueLabel = new Label("[E] Next", skin);
+
+    speakerLabel = new Label(speakerName, textColor);
+    dialogueLabel = new Label("", textColor);
+    continueLabel = new Label("[E] Next", textColor);
 
     dialogueLabel.setWrap(true);
 
