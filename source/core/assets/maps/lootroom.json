@@ -1,0 +1,106 @@
+{
+  "name": "Loot Room - Small",
+  "tileSize": 0.5,
+  "backgroundTexture": "images/level1/level1-map.png",
+
+  "legend": {
+    "b": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/bg-catacomb-512px.png"
+    },
+    "#": {
+      "type": "WALL",
+      "texture": "images/level1/cavern-rock-512px.png"
+    },
+    "_": {
+      "type": "FLOOR",
+      "texture": "images/level1/cavern-floor-ash-512px.png"
+    },
+    "M": {
+      "type": "FLOOR",
+      "texture": "images/level1/floor-marble-512px.png"
+    },
+    "P": {
+      "type": "PLATFORM",
+      "texture": "images/level1/platform-marble-512px.png"
+    }
+  },
+
+  "entityLegend": {
+    "P": {
+      "type": "PLAYER"
+    },
+    "L": {
+      "type": "LOOT"
+    }
+  },
+
+  "layers": {
+    "background": [
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbb"
+    ],
+
+    "terrain": [
+      "################",
+      "################",
+      "##            ##",
+      "##            ##",
+      "##     P      ##",
+      "##            ##",
+      "##            ##",
+      "##            ##",
+      "##____________##",
+      "################"
+    ],
+
+    "foreground": [
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                "
+    ],
+
+    "entities": [
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                ",
+      "                "
+    ]
+  },
+  "transitions": [
+    {
+      "id": "loot-room-to-room1",
+      "x": 10,
+      "y": 2,
+      "width": 1,
+      "height": 1,
+      "texture": "images/level1/loot-room-door.png",
+      "destinationMap": "maps/level1-greek.json",
+      "destinationSpawn": {
+        "x": 5,
+        "y": 4
+      }
+    }
+  ]
+}

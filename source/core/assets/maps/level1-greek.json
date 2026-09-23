@@ -611,6 +611,19 @@
         "x": 2,
         "y": 2
       }
+    },
+    {
+      "id": "room1-to-loot-room",
+      "x": 8,
+      "y": 3,
+      "width": 1,
+      "height": 1,
+      "texture": "images/level1/loot-room-door.png",
+      "destinationMap": "maps/lootroom.json",
+      "destinationSpawn": {
+        "x": 8,
+        "y": 2
+      }
     }
   ]
 }
