@@ -58,8 +58,7 @@ public class DisplayDialogue extends UIComponent {
 
     Label.LabelStyle textColor = new Label.LabelStyle(skin.get(Label.LabelStyle.class));
 
-    textColor.fontColor = Color.WHITE; //make the words in dialogue box clear by white words
-
+    textColor.fontColor = Color.WHITE; // make the words in dialogue box clear by white words
 
     speakerLabel = new Label(speakerName, textColor);
     dialogueLabel = new Label("", textColor);
