@@ -8,8 +8,10 @@ public class StaminaComponent extends Component {
   private static final float DASH_COST = 20f;
   private static final float JUMP_COST = 10f;
   private static final float REGEN_RATE = 5f;
+  private static final float REGEN_DELAY = 3f;
 
   private float stamina = MAX_STAMINA;
+  private float regenDelayRemaining = 0f;
 
   public float getStamina() {
     return stamina;
@@ -25,11 +27,17 @@ public class StaminaComponent extends Component {
 
   public void useStamina(float amount) {
     stamina = Math.max(0f, stamina - amount);
+    regenDelayRemaining = REGEN_DELAY;
     entity.getEvents().trigger("updateStamina", stamina);
   }
 
   public void regenerate(float delta) {
-    stamina = Math.min(MAX_STAMINA, stamina + delta);
+    if (regenDelayRemaining > 0f) {
+      regenDelayRemaining = Math.max(0f, regenDelayRemaining - delta);
+      return;
+    }
+
+    stamina = Math.min(MAX_STAMINA, stamina + REGEN_RATE * delta);
     entity.getEvents().trigger("updateStamina", stamina);
   }
 

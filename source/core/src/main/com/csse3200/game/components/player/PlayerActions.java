@@ -111,7 +111,7 @@ public class PlayerActions extends Component {
 
     if (staminaComponent != null) {
       staminaComponent.regenerate(
-          staminaComponent.getRegenRate() * ServiceLocator.getTimeSource().getDeltaTime());
+              ServiceLocator.getTimeSource().getDeltaTime());
     }
 
     if (attackCooldownRemaining > 0f) {
