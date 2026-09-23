@@ -36,23 +36,23 @@
       "name": "cliff-shelf"
     },
     "c": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-solid"
     },
     "d": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-drift"
     },
     "f": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-fade"
     },
     "t": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-thermal"
     },
     "m": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-storm"
     },
     "P": {

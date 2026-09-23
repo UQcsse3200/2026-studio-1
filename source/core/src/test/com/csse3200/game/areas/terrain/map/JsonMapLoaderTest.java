@@ -475,10 +475,11 @@ class JsonMapLoaderTest {
     assertEquals(180, levelTwo.getHeight());
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());
     assertEquals(TileType.WALL, levelTwo.getTileType(1, 1));
-    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 155));
-    // Storm clouds stay walkable; only explicitly authored hazards damage the player.
-    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 143));
-    assertEquals(TileType.PLATFORM, levelTwo.getTileType(31, 131));
+    assertEquals(TileType.ONE_WAY_PLATFORM, levelTwo.getTileType(27, 155));
+    // Clouds use one-way physics, while stone shelves remain ordinary solid platforms.
+    assertEquals(TileType.ONE_WAY_PLATFORM, levelTwo.getTileType(27, 143));
+    assertEquals(TileType.ONE_WAY_PLATFORM, levelTwo.getTileType(31, 131));
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(55, 162));
     assertNull(levelTwo.getTileType(42, 75));
     // Hazards live in the collision layer, as they do in level 1.
     assertNull(levelTwo.getLayer("hazards"));
