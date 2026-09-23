@@ -50,7 +50,7 @@ class StaminaComponentTest {
   @Test
   void testRegenerateStamina() {
     staminaComponent.useStamina(40f);
-    staminaComponent.regenerate(1f);
+    staminaComponent.regenerate(3f);
     staminaComponent.regenerate(4f);
 
     assertEquals(80f, staminaComponent.getStamina());

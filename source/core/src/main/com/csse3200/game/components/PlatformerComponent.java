@@ -205,7 +205,7 @@ public class PlatformerComponent extends Component {
     else if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
 
       if (staminaComponent == null
-              || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
+          || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
         return;
       }
 
