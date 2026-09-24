@@ -13,6 +13,8 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -887,5 +889,221 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     assertSame(shop, shop.seedDefaultCatalog());
     assertNotNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldLeaveGamblingCatalogsUnsetUntilSeed() {
+    ShopComponent shop = new ShopComponent();
+
+    assertNull(shop.getGamblingCatalogs());
+    assertNull(shop.getStandardCatalog());
+    assertNull(shop.getPremiumCatalog());
+    assertEquals(0, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(0, shop.getSpinPrice(null));
+    assertTrue(shop.getPrizes(null).isEmpty());
+    assertTrue(shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).isEmpty());
+    assertNull(shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 1));
+  }
+
+  @Test
+  void shouldSeedStandardAndPremiumGamblingCatalogs() {
+    ShopComponent shop = new ShopComponent();
+
+    assertSame(shop, shop.seedDefaultCatalog());
+    assertSame(shop.getGamblingCatalogs().getStandard(), shop.getStandardCatalog());
+    assertSame(shop.getGamblingCatalogs().getPremium(), shop.getPremiumCatalog());
+    assertEquals(20, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(50, shop.getSpinPrice(GamblingCatalogs.CatalogId.PREMIUM));
+
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.STANDARD, 1, "Gamble Potion", ItemType.CONSUMABLE, 40);
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.STANDARD, 2, "Gamble Sword", ItemType.WEAPON, 25);
+    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.STANDARD, 3, "Gamble Health", 15);
+    assertSeededPet(shop, GamblingCatalogs.CatalogId.STANDARD, 4, "Gamble Bird", 12);
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.STANDARD, 5, "Gamble Herb", ItemType.CONSUMABLE, 8);
+
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.PREMIUM, 1, "Premium Potion", ItemType.CONSUMABLE, 20);
+    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 2, "Premium Health", 20);
+    assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 3, "Premium Spirit", 20);
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Premium Sword", ItemType.WEAPON, 25);
+    assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 5, "Premium Bat", 15);
+
+    assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).size());
+    assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).size());
+    assertNull(shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 0));
+    assertNull(shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 6));
+  }
+
+  @Test
+  void shouldRejectMutatingReturnedPrizeMap() {
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    GamblingCatalogs.PrizeEntry<?> replacement =
+        new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Other"), 1);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).put(1, replacement));
+    assertEquals(
+        "Gamble Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getName());
+  }
+
+  @Test
+  void shouldNotRollOrMutateWhenBuySpinIsStub() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    shop.seedDefaultCatalog();
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+    GamblingCatalogs.PrizeEntry<?> standardPrize =
+        shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 1);
+
+    assertNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertNull(shop.buySpin(GamblingCatalogs.CatalogId.PREMIUM));
+    assertNull(shop.buySpin(null));
+
+    assertEquals(100, inventory.getGold());
+    assertEquals(0, inventory.getOccupiedSlots());
+    assertTrue(shop.getPurchasedUpgrades().isEmpty());
+    assertTrue(shop.getPurchasedPets().isEmpty());
+    assertSame(standardPrize, shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 1));
+    assertEquals(0, shopEvents.get());
+  }
+
+  @Test
+  void shouldNotifyShopChangedWhenSeededOnAttachedShop() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    shop.seedDefaultCatalog();
+
+    assertNotNull(shop.getStandardCatalog());
+    assertNotNull(shop.getPremiumCatalog());
+    // Six existing listing setters plus one gambling install.
+    assertEquals(7, shopEvents.get());
+  }
+
+  @Test
+  void shouldNotifyShopChangedWhenGamblingPriceOrPrizeChanges() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    shop.seedDefaultCatalog();
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    assertTrue(shop.setSpinPrice(GamblingCatalogs.CatalogId.STANDARD, 20));
+    assertEquals(0, shopEvents.get());
+
+    assertTrue(shop.setSpinPrice(GamblingCatalogs.CatalogId.STANDARD, 30));
+    assertEquals(1, shopEvents.get());
+    assertEquals(30, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+
+    GamblingCatalogs.PrizeEntry<?> current = shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 5);
+    assertTrue(shop.setPrize(GamblingCatalogs.CatalogId.PREMIUM, 5, current));
+    assertEquals(1, shopEvents.get());
+
+    GamblingCatalogs.PrizeEntry<?> replacement =
+        new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Premium Owl"), 3);
+    assertTrue(shop.setPrize(GamblingCatalogs.CatalogId.PREMIUM, 5, replacement));
+    assertEquals(2, shopEvents.get());
+    assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).size());
+    assertSame(replacement, shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 5));
+  }
+
+  @Test
+  void shouldNotNotifyWhenGamblingReplaceIsInvalid() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+    GamblingCatalogs.PrizeEntry<?> prize =
+        new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Upgrade("Nope"), 1);
+
+    assertFalse(shop.setSpinPrice(GamblingCatalogs.CatalogId.STANDARD, 10));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 1, prize));
+    assertEquals(0, shopEvents.get());
+
+    shop.seedDefaultCatalog();
+    shopEvents.set(0);
+
+    assertFalse(shop.setSpinPrice(null, 10));
+    assertFalse(shop.setSpinPrice(GamblingCatalogs.CatalogId.PREMIUM, -1));
+    assertFalse(shop.setPrize(null, 1, prize));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 1, null));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 0, prize));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 6, prize));
+    assertEquals(
+        "Gamble Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getName());
+    assertEquals(20, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(0, shopEvents.get());
+  }
+
+  @Test
+  void shouldRejectGamblingCatalogsThatAreNotFiveSlots() {
+    assertThrows(
+        IllegalArgumentException.class, () -> new GamblingCatalogs.PrizeEntry<Item>(null, 1));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 0));
+
+    Map<Integer, GamblingCatalogs.PrizeEntry<?>> four = new HashMap<>();
+    four.put(1, new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 1));
+    assertThrows(IllegalArgumentException.class, () -> new GamblingCatalogs.SpinCatalog(0, four));
+    assertThrows(
+        IllegalArgumentException.class, () -> new GamblingCatalogs.SpinCatalog(-1, fivePrizes()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new GamblingCatalogs(null, new GamblingCatalogs.SpinCatalog(0, fivePrizes())));
+  }
+
+  private static Map<Integer, GamblingCatalogs.PrizeEntry<?>> fivePrizes() {
+    Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
+    for (int slot = 1; slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT; slot++) {
+      prizes.put(slot, new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 1));
+    }
+    return prizes;
+  }
+
+  private static void assertSeededPrize(
+      ShopComponent shop,
+      GamblingCatalogs.CatalogId catalogId,
+      int slot,
+      String name,
+      ItemType itemType,
+      int weight) {
+    GamblingCatalogs.PrizeEntry<?> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.getWeight());
+    assertTrue(entry.getWeight() > 0);
+    Item item = (Item) entry.getProduct();
+    assertEquals(name, item.getName());
+    assertEquals(itemType, item.getItemType());
+  }
+
+  private static void assertSeededUpgrade(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, String name, int weight) {
+    GamblingCatalogs.PrizeEntry<?> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.getWeight());
+    assertEquals(name, ((ShopComponent.Upgrade) entry.getProduct()).getName());
+  }
+
+  private static void assertSeededPet(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, String name, int weight) {
+    GamblingCatalogs.PrizeEntry<?> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.getWeight());
+    assertEquals(name, ((ShopComponent.Pet) entry.getProduct()).getName());
+  }
+
+  private static Item itemPrize(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot) {
+    return (Item) shop.getPrize(catalogId, slot).getProduct();
   }
 }
