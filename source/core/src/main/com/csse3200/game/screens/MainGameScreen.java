@@ -109,7 +109,8 @@ public class MainGameScreen extends ScreenAdapter {
 
     logger.debug("Initialising main game screen entities");
     terrainFactory = new TerrainFactory(renderer.getCamera());
-    this.levelGameArea = new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
+    this.levelGameArea =
+        new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, renderer.getCamera().getCamera());
     levelGameArea.create();
     Entity player = levelGameArea.getPlayer();
     upgradesDisplay.setPlayer(player);
@@ -279,7 +280,8 @@ public class MainGameScreen extends ScreenAdapter {
             terrainFactory,
             transition.getDestinationMap(),
             player,
-            transition.getDestinationSpawn());
+            transition.getDestinationSpawn(),
+            renderer.getCamera().getCamera());
     nextArea.create();
 
     previousArea.dispose();

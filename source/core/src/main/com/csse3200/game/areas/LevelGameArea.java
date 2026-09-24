@@ -1,6 +1,7 @@
 package com.csse3200.game.areas;
 
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -28,6 +29,8 @@ import com.csse3200.game.components.loot.LootSpawnFinder;
 import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameDisplay;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -139,6 +142,7 @@ public class LevelGameArea extends GameArea {
 
   private final TerrainFactory terrainFactory;
   private final MapLoader mapLoader;
+  private final com.badlogic.gdx.graphics.Camera worldCamera;
   private final String mapPath;
   private final Entity existingPlayer;
   private final GridPoint2 entrySpawn;
@@ -154,7 +158,7 @@ public class LevelGameArea extends GameArea {
    * @param mapPath asset path of the map file to load
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath) {
-    this(terrainFactory, mapPath, new JsonMapLoader());
+    this(terrainFactory, mapPath, new JsonMapLoader(), null, null, null);
   }
 
   /**
@@ -165,7 +169,7 @@ public class LevelGameArea extends GameArea {
    * @param mapLoader loader used to parse the map file
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
-    this(terrainFactory, mapPath, mapLoader, null, null);
+    this(terrainFactory, mapPath, mapLoader, null, null, null);
   }
 
   /**
@@ -179,7 +183,29 @@ public class LevelGameArea extends GameArea {
    */
   public LevelGameArea(
       TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
-    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn);
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null);
+  }
+
+  /**
+   * Create a level while retaining an existing player and placing it at a specified entrance.
+   *
+   * @param terrainFactory factory used to build the terrain
+   * @param mapPath asset path of the map file to load
+   * @param existingPlayer already registered player entity to retain
+   * @param entrySpawn destination entrance tile
+   * @param worldCamera camera used to position NPC name displays
+   */
+  public LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Camera worldCamera) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, worldCamera);
+  }
+
+  public LevelGameArea(TerrainFactory terrainFactory, String mapPath, Camera worldCamera) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), null, null, worldCamera);
   }
 
   private LevelGameArea(
@@ -187,12 +213,14 @@ public class LevelGameArea extends GameArea {
       String mapPath,
       MapLoader mapLoader,
       Entity existingPlayer,
-      GridPoint2 entrySpawn) {
+      GridPoint2 entrySpawn,
+      Camera worldCamera) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
     this.mapLoader = mapLoader;
     this.existingPlayer = existingPlayer;
+    this.worldCamera = worldCamera;
     this.entrySpawn = entrySpawn == null ? null : new GridPoint2(entrySpawn);
   }
 
@@ -607,7 +635,12 @@ public class LevelGameArea extends GameArea {
   private void spawnEnemies() {
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
       Entity enemy = createEnemy(spawn.getType());
+
       if (enemy != null) {
+        if (enemy.getComponent(NameComponent.class) != null) {
+          enemy.addComponent(new NameDisplay(enemy, worldCamera));
+        }
+
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
       }
     }
