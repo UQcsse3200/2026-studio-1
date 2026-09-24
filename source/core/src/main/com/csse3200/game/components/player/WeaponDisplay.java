@@ -37,7 +37,7 @@ public class WeaponDisplay extends UIComponent {
     table = new Table();
     table.top().left();
     table.setFillParent(true);
-    table.padTop(100f).padLeft(10f);
+    table.padTop(125f).padLeft(10f);
 
     String imagePath =
         weapon.getWeaponType() == WeaponType.BOW
@@ -66,7 +66,7 @@ public class WeaponDisplay extends UIComponent {
             "Weapon: %s\nType: %s\nTier: %d\nDamage: %d",
             weapon.getName(), weapon.getWeaponType(), weapon.getTier(), weapon.getDamage());
 
-    weaponLabel = new Label(text, skin, "large");
+    weaponLabel = new Label(text, skin, "subtitle");
 
     table.add(weaponImage).size(45f).padRight(10f);
     table.add(weaponLabel).left();

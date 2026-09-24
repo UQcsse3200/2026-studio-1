@@ -39,14 +39,18 @@ public class SubLevelTitleDisplay extends UIComponent {
   @Override
   public void create() {
     super.create();
-    Label.LabelStyle style = new Label.LabelStyle(skin.get("large", Label.LabelStyle.class));
+    Label.LabelStyle style = new Label.LabelStyle(skin.get("title", Label.LabelStyle.class));
     style.fontColor = Color.GOLD;
 
     blurredBackground = new Image();
     blurredBackground.setTouchable(Touchable.disabled);
     stage.addActor(blurredBackground);
 
-    backgroundVeil = new Image(skin.getRegion("scrollbar-android"));
+    Pixmap veilPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+    veilPixmap.setColor(Color.WHITE);
+    veilPixmap.fill();
+    backgroundVeil = new Image(new Texture(veilPixmap));
+    veilPixmap.dispose();
     backgroundVeil.setColor(0f, 0f, 0f, 0f);
     backgroundVeil.setTouchable(Touchable.disabled);
     stage.addActor(backgroundVeil);

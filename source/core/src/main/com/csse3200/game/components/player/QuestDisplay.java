@@ -50,13 +50,13 @@ public class QuestDisplay extends UIComponent {
     rootTable.padTop(75f).padRight(20f);
 
     questTable = new Table();
-    questTable.setBackground(skin.getDrawable("window-w"));
-    questTable.pad(14f);
+    questTable.setBackground(skin.getDrawable("window"));
+    questTable.pad(10f);
 
-    Label title = new Label("QUEST", skin, "large");
-    questTable.add(title).left().padBottom(10f).row();
+    Label title = new Label("QUEST", skin, "subtitle");
+    questTable.add(title).left().padBottom(6f).row();
 
-    rootTable.add(questTable).width(400f);
+    rootTable.add(questTable).width(300f);
 
     stage.addActor(rootTable);
   }
@@ -74,8 +74,8 @@ public class QuestDisplay extends UIComponent {
   private void refreshQuestTable() {
     questTable.clear();
 
-    Label title = new Label("QUEST", skin, "large");
-    questTable.add(title).left().padBottom(10f).row();
+    Label title = new Label("QUEST", skin, "subtitle");
+    questTable.add(title).left().padBottom(6f).row();
 
     // Completed quests section
     Label completedTitle = new Label("COMPLETED", skin);
@@ -93,7 +93,7 @@ public class QuestDisplay extends UIComponent {
 
     // Remaining quests section
     Label remainingTitle = new Label("REMAINING", skin);
-    questTable.add(remainingTitle).left().padTop(10f).padBottom(5f).row();
+    questTable.add(remainingTitle).left().padTop(8f).padBottom(4f).row();
 
     boolean hasRemainingQuests = false;
 

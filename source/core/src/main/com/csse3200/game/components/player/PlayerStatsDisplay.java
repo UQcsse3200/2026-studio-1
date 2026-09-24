@@ -97,9 +97,10 @@ public class PlayerStatsDisplay extends UIComponent {
     // Move to the next row so the health number appears under the hearts
     table.row();
 
-    healthLabel = new Label("Health = 100", skin, "large");
+    healthLabel = new Label("Health = 100", skin, "title");
+    healthLabel.setFontScale(0.35f);
 
-    table.add(healthLabel).colspan(MAX_HEARTS).padTop(5f).left();
+    table.add(healthLabel).colspan(MAX_HEARTS).padTop(0f).padBottom(16f).left();
 
     stage.addActor(table);
 

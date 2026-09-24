@@ -61,24 +61,24 @@ public class ShopDisplay extends UIComponent {
   private static final int ITEM_SLOT_COUNT = 10;
   private static final int SELL_SLOT_COUNT = 5;
 
-  private static final String LABEL_STYLE = "small";
+  private static final String LABEL_STYLE = "default";
 
-  private static final String WINDOW_BACKGROUND = "window-w";
+  private static final String WINDOW_BACKGROUND = "window";
 
   // Used only by the Upgrades-tab popup and purchase toast, to visually match the shop's dark
   // green look - "window-c" is a Skin$TintedDrawable (name: window, color: color) with its green
   // baked in at skin-load time, the same safe mechanism as the skin's "black" drawable, NOT a
   // live Actor.setColor() tint. Kept distinct from WINDOW_BACKGROUND ("window-w", baked orange)
   // since shopTable itself is unaffected by this change.
-  private static final String ACCENT_PANEL_BACKGROUND = "window-c";
+  private static final String ACCENT_PANEL_BACKGROUND = "stone";
 
   // Used only by the purchase-confirmation toast - "toast-charcoal" is a Skin$TintedDrawable
   // (name: white, color: toast-charcoal-color) added to flat-earth-ui.json using the identical
   // config-time-baked mechanism as the skin's existing "black" entry, just with CARD_TINT's exact
   // RGB (0.12, 0.13, 0.18) baked in instead, so the toast matches the shop's own card color
   // precisely. No live setColor() call involved either way.
-  private static final String TOAST_BACKGROUND = "toast-charcoal";
-  private static final String BUTTON_BACKGROUND = "button-c";
+  private static final String TOAST_BACKGROUND = "shadow";
+  private static final String BUTTON_BACKGROUND = "button";
 
   private static final float ICON_SIZE = 48f;
   private static final float ICON_MARGIN = 10f;
@@ -223,7 +223,7 @@ public class ShopDisplay extends UIComponent {
   /** Creates the persistent icon/button used to open the shop. */
   private void createShopIcon() {
     shopIconButton = new TextButton("Shop", skin);
-    shopIconButton.setSize(ICON_SIZE * 1.6f, ICON_SIZE);
+    shopIconButton.setSize(120f, 52f);
 
     positionShopIcon();
 
@@ -250,7 +250,8 @@ public class ShopDisplay extends UIComponent {
     float iconWidth = shopIconButton.getWidth();
 
     shopIconButton.setPosition(
-        screenWidth - iconWidth - ICON_MARGIN, screenHeight - ICON_SIZE - ICON_MARGIN);
+        screenWidth - iconWidth - ICON_MARGIN,
+        screenHeight - shopIconButton.getHeight() - ICON_MARGIN);
   }
 
   /**

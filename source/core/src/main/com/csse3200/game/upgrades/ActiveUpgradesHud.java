@@ -54,7 +54,7 @@ public class ActiveUpgradesHud extends UIComponent {
 
       Label label = labelsByNode.get(node);
       if (label == null) {
-        label = new Label("", skin, "small");
+        label = new Label("", skin, "default");
         labelsByNode.put(node, label);
       }
       label.setText(describe(node));

@@ -29,7 +29,7 @@ public class SubLevelTravelPromptDisplay extends UIComponent {
   @Override
   public void create() {
     super.create();
-    Label.LabelStyle style = new Label.LabelStyle(skin.get("large", Label.LabelStyle.class));
+    Label.LabelStyle style = new Label.LabelStyle(skin.get("subtitle", Label.LabelStyle.class));
     style.fontColor = Color.WHITE;
     prompt = new Label(PROMPT_TEXT, style);
     prompt.setTouchable(Touchable.disabled);
