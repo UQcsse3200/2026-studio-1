@@ -25,6 +25,7 @@ import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
 import com.csse3200.game.files.SaveService;
@@ -130,6 +131,7 @@ public class MainGameScreen extends ScreenAdapter {
     if (loadsave) {
       GameSaveData saveData = SaveService.load();
       LootRegistry.loadFrom(saveData.collectedLootIds);
+      EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
       if (saveData.level != null && !saveData.level.isBlank()) {
@@ -138,6 +140,7 @@ public class MainGameScreen extends ScreenAdapter {
       savedSeed = lootSeedsByRoom.get(initialRoomMap);
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
+      EnemyRegistry.loadFrom(new ArrayList<>());
     }
 
     currentRoomMapPath = initialRoomMap;
@@ -347,9 +350,6 @@ public class MainGameScreen extends ScreenAdapter {
             player,
             transition.getDestinationSpawn(),
             savedSeed);
-    nextArea.create();
-
-    lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
     nextArea.create();
 
     lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
