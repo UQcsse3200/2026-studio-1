@@ -32,9 +32,6 @@ public final class DefaultEntitySpawns {
     registered = true;
 
     // Enemy team.
-    EntitySpawnRegistry.registerIfAbsent("ghost", NPCFactory::createGhost);
-    EntitySpawnRegistry.registerIfAbsent("ghostking", NPCFactory::createGhostKing);
-    EntitySpawnRegistry.registerIfAbsent("ghost_king", NPCFactory::createGhostKing);
     EntitySpawnRegistry.registerIfAbsent("skeleton", NPCFactory::createSkeleton);
     EntitySpawnRegistry.registerIfAbsent("enemy-skeleton-hoplite", NPCFactory::createSkeleton);
     EntitySpawnRegistry.registerIfAbsent("rangedskeleton", NPCFactory::createRangedSkeleton);
