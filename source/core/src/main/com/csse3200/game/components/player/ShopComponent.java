@@ -316,8 +316,14 @@ public class ShopComponent extends Component {
    * <p>On success the prize is chosen by weight ({@code P = weight / sum(weights)}, see {@link
    * GamblingRoller}), delivered, and then the spin price is deducted, matching {@link
    * #buyItem(int)}. An {@link GamblingCatalogs.ItemPrize} adds a new typed item to the inventory; a
-   * {@link GamblingCatalogs.GoldPrize} adds gold. The shop UI animates the wheel to the returned
-   * prize; the animation does not choose it.
+   * {@link GamblingCatalogs.GoldPrize} adds gold; a {@link Pet} or {@link Upgrade} is recorded like
+   * a purchase and triggers {@code petPurchased} or {@code upgradePurchased} without charging its
+   * shop price. These events fire after the spin price is deducted, so listeners see the final
+   * gold.
+   *
+   * <p>Finally {@code gamblingSpun} is triggered with the {@link GamblingCatalogs.CatalogId} and
+   * the rolled slot ({@code 1}..{@code 5}) so the shop UI can animate the wheel to that slot; the
+   * animation does not choose the prize. A rejected spin triggers no events.
    *
    * @param catalogId Standard or Premium
    * @return the chosen prize entry, or {@code null} if the spin was rejected
@@ -334,13 +340,17 @@ public class ShopComponent extends Component {
       return null;
     }
 
-    GamblingCatalogs.PrizeEntry<?> prize =
-        catalog.getPrize(GamblingRoller.rollSlot(catalog, random));
+    int slot = GamblingRoller.rollSlot(catalog, random);
+    GamblingCatalogs.PrizeEntry<?> prize = catalog.getPrize(slot);
     if (!deliverPrize(prize.getProduct(), inventory)) {
       return null;
     }
 
     inventory.addGold(-spinPrice);
+    notifyPrizeDelivered(prize.getProduct());
+    if (entity != null) {
+      entity.getEvents().trigger("gamblingSpun", catalogId, slot);
+    }
     return prize;
   }
 
@@ -455,9 +465,7 @@ public class ShopComponent extends Component {
 
     inventory.addGold(-listing.getBuyPrice());
     purchasedUpgrades.add(listing.getProduct());
-    if (entity != null) {
-      entity.getEvents().trigger("upgradePurchased");
-    }
+    notifyUpgradePurchased();
     return true;
   }
 
@@ -487,9 +495,7 @@ public class ShopComponent extends Component {
 
     inventory.addGold(-listing.getBuyPrice());
     purchasedPets.add(listing.getProduct());
-    if (entity != null) {
-      entity.getEvents().trigger("petPurchased", listing.getProduct());
-    }
+    notifyPetPurchased(listing.getProduct());
     return true;
   }
 
@@ -563,13 +569,15 @@ public class ShopComponent extends Component {
    * Returns whether every prize in a catalog is a product {@link #buySpin} can deliver.
    *
    * @param catalog catalog to check
-   * @return {@code true} if every product is an item or gold prize
+   * @return {@code true} if every product is an item, gold, pet or Upgrade prize
    */
   private static boolean hasOnlySupportedPrizes(GamblingCatalogs.SpinCatalog catalog) {
     for (GamblingCatalogs.PrizeEntry<?> prize : catalog.getPrizes().values()) {
       Object product = prize.getProduct();
       if (!(product instanceof GamblingCatalogs.ItemPrize)
-          && !(product instanceof GamblingCatalogs.GoldPrize)) {
+          && !(product instanceof GamblingCatalogs.GoldPrize)
+          && !(product instanceof Pet)
+          && !(product instanceof Upgrade)) {
         return false;
       }
     }
@@ -596,13 +604,22 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Awards one prize product.
+   * Awards one prize product. Does not trigger pet or Upgrade events; see {@link
+   * #notifyPrizeDelivered}.
    *
    * @param product rolled prize product; already checked by {@link #hasOnlySupportedPrizes}
    * @param inventory inventory that receives items and gold
    * @return {@code true} if the product was delivered in full
    */
-  private static boolean deliverPrize(Object product, InventoryComponent inventory) {
+  private boolean deliverPrize(Object product, InventoryComponent inventory) {
+    if (product instanceof Pet pet) {
+      purchasedPets.add(pet);
+      return true;
+    }
+    if (product instanceof Upgrade upgrade) {
+      purchasedUpgrades.add(upgrade);
+      return true;
+    }
     if (product instanceof GamblingCatalogs.ItemPrize itemPrize) {
       int leftover = inventory.addItem(itemPrize.create());
       if (leftover != 0) {
@@ -614,6 +631,38 @@ public class ShopComponent extends Component {
     }
     GamblingCatalogs.GoldPrize goldPrize = (GamblingCatalogs.GoldPrize) product;
     return inventory.addGold(goldPrize.getAmount());
+  }
+
+  /**
+   * Triggers the purchase event for a delivered pet or Upgrade prize. Items and gold already
+   * trigger {@code inventoryChanged} from the inventory.
+   *
+   * @param product delivered prize product
+   */
+  private void notifyPrizeDelivered(Object product) {
+    if (product instanceof Pet pet) {
+      notifyPetPurchased(pet);
+    } else if (product instanceof Upgrade) {
+      notifyUpgradePurchased();
+    }
+  }
+
+  /** Triggers {@code upgradePurchased} when this component is attached to an entity. */
+  private void notifyUpgradePurchased() {
+    if (entity != null) {
+      entity.getEvents().trigger("upgradePurchased");
+    }
+  }
+
+  /**
+   * Triggers {@code petPurchased} when this component is attached to an entity.
+   *
+   * @param pet pet to activate
+   */
+  private void notifyPetPurchased(Pet pet) {
+    if (entity != null) {
+      entity.getEvents().trigger("petPurchased", pet);
+    }
   }
 
   /**

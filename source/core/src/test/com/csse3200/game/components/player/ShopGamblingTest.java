@@ -15,10 +15,15 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * Tests {@link ShopComponent#buySpin}. Every shop uses the same Standard test catalog, priced at
@@ -39,6 +44,8 @@ class ShopGamblingTest {
   private static final int POTION_DRAW = 0;
   private static final int GOLD_15_DRAW = 40;
   private static final int SWORD_DRAW = 65;
+  private static final int SLOT_4_DRAW = 85;
+  private static final int SLOT_5_DRAW = 95;
 
   @Test
   void shouldChargeSpinPriceWhenPrizeIsItem() {
@@ -222,6 +229,141 @@ class ShopGamblingTest {
     ShopComponent shop = new ShopComponent(new FixedRandom(POTION_DRAW)).seedDefaultCatalog();
 
     assertNull(shop.buySpin(STANDARD), "an unattached shop has no inventory");
+  }
+
+  @Test
+  void shouldRecordWonPet() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(SLOT_5_DRAW));
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    shop.setPrize(STANDARD, 5, new GamblingCatalogs.PrizeEntry<>(bird, 5));
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(List.of(bird), shop.getPurchasedPets(), "a won pet is owned like a bought one");
+  }
+
+  @Test
+  void shouldTriggerPetPurchasedWithWonPet() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(SLOT_5_DRAW));
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    shop.setPrize(STANDARD, 5, new GamblingCatalogs.PrizeEntry<>(bird, 5));
+    List<ShopComponent.Pet> activated = new ArrayList<>();
+    shop.getEntity()
+        .getEvents()
+        .addListener("petPurchased", (ShopComponent.Pet pet) -> activated.add(pet));
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(
+        List.of(bird), activated, "PetManagerComponent listens to petPurchased to spawn the pet");
+  }
+
+  @Test
+  void shouldChargeOnlySpinPriceForPetPrize() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = newShop(inventory, new FixedRandom(SLOT_5_DRAW));
+    shop.setPrize(STANDARD, 5, new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 5));
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(80, inventory.getGold(), "a won pet must not also charge its shop price");
+  }
+
+  /** Listeners such as the shop gold label must see gold after the spin price is paid. */
+  @Test
+  void shouldTriggerPetPurchasedAfterChargingSpinPrice() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = newShop(inventory, new FixedRandom(SLOT_5_DRAW));
+    shop.setPrize(STANDARD, 5, new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 5));
+    AtomicInteger goldSeen = new AtomicInteger(-1);
+    shop.getEntity()
+        .getEvents()
+        .addListener("petPurchased", (ShopComponent.Pet pet) -> goldSeen.set(inventory.getGold()));
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(80, goldSeen.get(), "petPurchased should fire after the spin price is deducted");
+  }
+
+  @Test
+  void shouldRecordWonUpgrade() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(SLOT_4_DRAW));
+    ShopComponent.Upgrade health = new ShopComponent.Upgrade("Premium Health");
+    shop.setPrize(STANDARD, 4, new GamblingCatalogs.PrizeEntry<>(health, 10));
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(
+        List.of(health), shop.getPurchasedUpgrades(), "a won Upgrade is owned like a bought one");
+  }
+
+  @Test
+  void shouldTriggerUpgradePurchasedOnceForWonUpgrade() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(SLOT_4_DRAW));
+    shop.setPrize(
+        STANDARD, 4, new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Upgrade("Health"), 10));
+    AtomicInteger events = new AtomicInteger();
+    shop.getEntity().getEvents().addListener("upgradePurchased", events::incrementAndGet);
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(1, events.get(), "upgradePurchased should fire exactly once");
+  }
+
+  @Test
+  void shouldTriggerGamblingSpunWithCatalogAndRolledSlot() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(SWORD_DRAW));
+    List<String> spins = new ArrayList<>();
+    shop.getEntity()
+        .getEvents()
+        .addListener(
+            "gamblingSpun",
+            (GamblingCatalogs.CatalogId id, Integer slot) -> spins.add(id + " " + slot));
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(
+        List.of("STANDARD 3"), spins, "the wheel needs the ticket and the slot to land on");
+  }
+
+  @Test
+  void shouldNotTriggerGamblingSpunWhenSpinIsRejected() {
+    ShopComponent shop = newShop(new InventoryComponent(0), new FixedRandom(POTION_DRAW));
+    AtomicInteger events = new AtomicInteger();
+    shop.getEntity()
+        .getEvents()
+        .addListener(
+            "gamblingSpun",
+            (GamblingCatalogs.CatalogId id, Integer slot) -> events.incrementAndGet());
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(0, events.get(), "a rejected spin must not start the wheel");
+  }
+
+  @Test
+  void shouldNotTriggerShopChangedWhenSpinning() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(POTION_DRAW));
+    AtomicInteger events = new AtomicInteger();
+    shop.getEntity().getEvents().addListener("shopChanged", events::incrementAndGet);
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(0, events.get(), "a spin does not change the catalogs");
+  }
+
+  /** The real seeded tickets contain pets and Upgrades, so they only work once those deliver. */
+  @ParameterizedTest
+  @EnumSource(GamblingCatalogs.CatalogId.class)
+  void shouldSpinSeededTicketUpToItsRarestPrize(GamblingCatalogs.CatalogId catalogId) {
+    ShopComponent shop = new ShopComponent(new FixedRandom(99));
+    new Entity().addComponent(new InventoryComponent(100)).addComponent(shop);
+    shop.seedDefaultCatalog();
+
+    assertInstanceOf(
+        ShopComponent.Pet.class,
+        shop.buySpin(catalogId).getProduct(),
+        catalogId + " ticket's rarest slot should be its pet");
   }
 
   @Test
