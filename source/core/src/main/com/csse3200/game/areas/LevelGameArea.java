@@ -92,7 +92,7 @@ public class LevelGameArea extends GameArea {
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
     "images/enemies/npc_traveler.png",
-    "images/player/box_boy_leaf.png",
+    "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
     "images/enemies/ghost_king.png",
@@ -129,6 +129,8 @@ public class LevelGameArea extends GameArea {
     "images/ghostKing.atlas",
     "images/skeleton.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/knight.atlas",
+    "images/LeftKnight.atlas",
     "images/skeleton_weapons/skeleton_sword.atlas",
     "images/enemies/ghost.atlas",
     "images/enemies/ghostKing.atlas",
