@@ -53,7 +53,15 @@ public class PlayerProjectileHitComponent extends Component {
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
 
     if (targetStats != null) {
+      // Mirrors CombatStatsComponent.hit()'s kill-detection so bow/dagger kills fire
+      // "enemyKilled" too - but without calling hit(owner's stats) itself, since that would
+      // substitute the projectile's damage with the owner's baseAttack and let the owner's
+      // Shield Durability absorb the target's death.
+      boolean wasAlive = !targetStats.isDead();
       targetStats.addHealth(-damage);
+      if (wasAlive && targetStats.isDead() && owner != null) {
+        owner.getEvents().trigger("enemyKilled");
+      }
     }
 
     removeProjectile();
