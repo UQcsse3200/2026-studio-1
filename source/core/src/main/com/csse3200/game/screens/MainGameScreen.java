@@ -298,7 +298,7 @@ public class MainGameScreen extends ScreenAdapter {
      * If the player has died, stop updating the game world,
      * but keep rendering the game and death popup.
      */
-    if (deathScreenShown) {
+    if (deathScreenShown || winScreenDisplay.isVisible()) {
       renderer.render();
       return;
     }
