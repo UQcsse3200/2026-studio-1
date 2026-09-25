@@ -20,6 +20,11 @@ import java.util.Map;
  * listing (one-use offer), and triggers {@code shopChanged}. Selling uses the player inventory and
  * refunds {@link Item#getSellPrice()}. Upgrade and pet purchases trigger {@code upgradePurchased}
  * and {@code petPurchased} and leave those listings in place.
+ *
+ * <p>Gambling catalogs (Standard and Premium) are structure for the shop UI: a spin price and five
+ * weighted prize entries, installed by {@link #seedDefaultCatalog()}. {@link #buySpin} is a stub
+ * and does not roll, charge gold, or award a prize. Replacing a spin price or prize on an attached
+ * shop triggers {@code shopChanged}.
  */
 public class ShopComponent extends Component {
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
@@ -30,6 +35,7 @@ public class ShopComponent extends Component {
   private final Map<Integer, ShopListing<Pet>> petCatalog;
   private final List<Upgrade> purchasedUpgrades;
   private final List<Pet> purchasedPets;
+  private GamblingCatalogs gamblingCatalogs;
 
   /** Creates a shop with empty item, Upgrade, and pet catalogs. */
   public ShopComponent() {
@@ -54,6 +60,8 @@ public class ShopComponent extends Component {
     setPetListing(1, new ShopListing<>(new Pet("Bird"), 20));
     setPetListing(2, new ShopListing<>(new Pet("Bat"), 30));
     setPetListing(3, new ShopListing<>(new Pet("Spirit"), 40));
+    this.gamblingCatalogs = new GamblingCatalogs(standardSpinCatalog(), premiumSpinCatalog());
+    notifyShopChanged();
     return this;
   }
 
@@ -148,6 +156,145 @@ public class ShopComponent extends Component {
    */
   public Map<Integer, ShopListing<Pet>> getPetCatalog() {
     return Collections.unmodifiableMap(petCatalog);
+  }
+
+  /**
+   * Returns the Standard and Premium spin catalogs.
+   *
+   * @return gambling catalogs, or {@code null} if {@link #seedDefaultCatalog()} has not run
+   */
+  public GamblingCatalogs getGamblingCatalogs() {
+    return gamblingCatalogs;
+  }
+
+  /**
+   * Returns the Standard spin catalog.
+   *
+   * @return Standard catalog, or {@code null} if the shop is not seeded
+   */
+  public GamblingCatalogs.SpinCatalog getStandardCatalog() {
+    if (gamblingCatalogs == null) {
+      return null;
+    }
+    return gamblingCatalogs.getStandard();
+  }
+
+  /**
+   * Returns the Premium spin catalog.
+   *
+   * @return Premium catalog, or {@code null} if the shop is not seeded
+   */
+  public GamblingCatalogs.SpinCatalog getPremiumCatalog() {
+    if (gamblingCatalogs == null) {
+      return null;
+    }
+    return gamblingCatalogs.getPremium();
+  }
+
+  /**
+   * Returns the spin price for a catalog.
+   *
+   * @param catalogId Standard or Premium; {@code null} is invalid
+   * @return spin price, or {@code 0} if {@code catalogId} is null or the shop is not seeded
+   */
+  public int getSpinPrice(GamblingCatalogs.CatalogId catalogId) {
+    GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
+    if (catalog == null) {
+      return 0;
+    }
+    return catalog.getSpinPrice();
+  }
+
+  /**
+   * Returns the prize map for a catalog.
+   *
+   * @param catalogId Standard or Premium; {@code null} is invalid
+   * @return unmodifiable prize map, or an empty unmodifiable map if {@code catalogId} is null or
+   *     the shop is not seeded
+   */
+  public Map<Integer, GamblingCatalogs.PrizeEntry<?>> getPrizes(
+      GamblingCatalogs.CatalogId catalogId) {
+    GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
+    if (catalog == null) {
+      return Collections.emptyMap();
+    }
+    return catalog.getPrizes();
+  }
+
+  /**
+   * Returns one prize entry.
+   *
+   * @param catalogId Standard or Premium; {@code null} is invalid
+   * @param slot prize slot
+   * @return the entry, or {@code null} if the shop is not seeded, {@code catalogId} is null, or
+   *     {@code slot} is outside {@code 1}..{@code 5}
+   */
+  public GamblingCatalogs.PrizeEntry<?> getPrize(GamblingCatalogs.CatalogId catalogId, int slot) {
+    GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
+    if (catalog == null) {
+      return null;
+    }
+    return catalog.getPrize(slot);
+  }
+
+  /**
+   * Replaces the spin price of a seeded catalog.
+   *
+   * @param catalogId Standard or Premium
+   * @param spinPrice new price; must be {@code >= 0}
+   * @return {@code false} if the shop is not seeded, {@code catalogId} is null, or {@code
+   *     spinPrice} is negative; {@code true} if the price is stored
+   */
+  public boolean setSpinPrice(GamblingCatalogs.CatalogId catalogId, int spinPrice) {
+    GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
+    if (catalog == null || spinPrice < 0) {
+      return false;
+    }
+    if (catalog.replaceSpinPrice(spinPrice)) {
+      notifyShopChanged();
+    }
+    return true;
+  }
+
+  /**
+   * Replaces one prize in a seeded catalog. The catalog still has five prizes.
+   *
+   * @param catalogId Standard or Premium
+   * @param slot prize slot; must be {@code 1}..{@code 5}
+   * @param prize replacement entry; must be non-null
+   * @return {@code false} if the shop is not seeded, {@code catalogId} or {@code prize} is null, or
+   *     the slot is invalid; {@code true} if the slot still holds a prize
+   */
+  public boolean setPrize(
+      GamblingCatalogs.CatalogId catalogId, int slot, GamblingCatalogs.PrizeEntry<?> prize) {
+    GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
+    if (catalog == null || prize == null || !isPrizeSlot(slot)) {
+      return false;
+    }
+    if (catalog.replacePrize(slot, prize)) {
+      notifyShopChanged();
+    }
+    return true;
+  }
+
+  /**
+   * Buys one spin from the Standard or Premium gambling catalog.
+   *
+   * <p>Current body is a structure stub: always returns {@code null} and does not choose a prize,
+   * deduct gold, or award anything.
+   *
+   * <p>Intended behaviour: validate gold against that catalog's {@code spinPrice}; choose one of
+   * the five {@link GamblingCatalogs.PrizeEntry} values by weight ({@code P = weight /
+   * sum(weights)}); on success deduct gold, award the product, and return that entry; on failure
+   * leave gold and inventory unchanged and return {@code null}. The shop UI may animate a wheel to
+   * the returned prize; the animation does not choose the prize.
+   *
+   * @param catalogId Standard or Premium
+   * @return the chosen prize entry, or {@code null} on failure (and always {@code null} in this
+   *     stub)
+   */
+  public GamblingCatalogs.PrizeEntry<?> buySpin(GamblingCatalogs.CatalogId catalogId) {
+    return null;
   }
 
   /**
@@ -345,6 +492,76 @@ public class ShopComponent extends Component {
     if (entity != null) {
       entity.getEvents().trigger("shopChanged");
     }
+  }
+
+  /**
+   * Looks up the Standard or Premium {@link GamblingCatalogs.SpinCatalog} after {@link
+   * #seedDefaultCatalog()} has installed {@link #gamblingCatalogs}.
+   *
+   * <p>Read-only helper for getters and prize/price updates. Does not choose a prize or run a
+   * transaction.
+   *
+   * @param catalogId Standard or Premium
+   * @return that catalog, or {@code null} if gambling catalogs are not installed yet or {@code
+   *     catalogId} is null
+   */
+  private GamblingCatalogs.SpinCatalog spinCatalog(GamblingCatalogs.CatalogId catalogId) {
+    if (gamblingCatalogs == null || catalogId == null) {
+      return null;
+    }
+    return gamblingCatalogs.get(catalogId);
+  }
+
+  /**
+   * Returns whether {@code slot} is a gambling prize index.
+   *
+   * @param slot prize slot
+   * @return {@code true} if the slot is {@code 1}..{@code 5}
+   */
+  private static boolean isPrizeSlot(int slot) {
+    return slot >= 1 && slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT;
+  }
+
+  /**
+   * Builds the Standard placeholder ticket. Weights are stored only.
+   *
+   * @return Standard catalog at spin price 20
+   */
+  private static GamblingCatalogs.SpinCatalog standardSpinCatalog() {
+    Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
+    prizes.put(1, prize(new Item("Gamble Potion", ItemType.CONSUMABLE, 1, 9), 40));
+    prizes.put(2, prize(new Item("Gamble Sword", ItemType.WEAPON, 1, 1), 25));
+    prizes.put(3, prize(new Upgrade("Gamble Health"), 15));
+    prizes.put(4, prize(new Pet("Gamble Bird"), 12));
+    prizes.put(5, prize(new Item("Gamble Herb", ItemType.CONSUMABLE, 1, 9), 8));
+    return new GamblingCatalogs.SpinCatalog(20, prizes);
+  }
+
+  /**
+   * Builds the Premium placeholder ticket. Weights are stored only.
+   *
+   * @return Premium catalog at spin price 50
+   */
+  private static GamblingCatalogs.SpinCatalog premiumSpinCatalog() {
+    Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
+    prizes.put(1, prize(new Item("Premium Potion", ItemType.CONSUMABLE, 1, 9), 20));
+    prizes.put(2, prize(new Upgrade("Premium Health"), 20));
+    prizes.put(3, prize(new Pet("Premium Spirit"), 20));
+    prizes.put(4, prize(new Item("Premium Sword", ItemType.WEAPON, 1, 1), 25));
+    prizes.put(5, prize(new Pet("Premium Bat"), 15));
+    return new GamblingCatalogs.SpinCatalog(50, prizes);
+  }
+
+  /**
+   * Creates a weighted prize placeholder.
+   *
+   * @param product prize product
+   * @param weight probability weight
+   * @param <T> product type
+   * @return prize entry
+   */
+  private static <T> GamblingCatalogs.PrizeEntry<T> prize(T product, int weight) {
+    return new GamblingCatalogs.PrizeEntry<>(product, weight);
   }
 
   /**
