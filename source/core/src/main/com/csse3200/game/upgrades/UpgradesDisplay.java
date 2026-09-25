@@ -36,6 +36,9 @@ public class UpgradesDisplay extends UIComponent {
   // Fired on the player whenever Sword Damage's bonus changes (including to 0 on expiry), so
   // WeaponDisplay etc. can react without a direct reference to this class.
   private static final String SWORD_DAMAGE_BONUS_EVENT = "swordDamageBonusChanged";
+  // Fired on the player whenever any upgrade activates (purchase or tier-up), so
+  // UpgradeActivationFlashComponent can flash the player sprite without a direct reference here.
+  private static final String UPGRADE_ACTIVATED_EVENT = "upgradeActivated";
 
   private Table root;
   private Table nodeRow;
@@ -219,6 +222,11 @@ public class UpgradesDisplay extends UIComponent {
    * only removes this upgrade's contribution.
    */
   private void applyPlayerSpeedEffect(UpgradeNode node) {
+    if (player == null) {
+      return;
+    }
+    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
       return;
@@ -235,6 +243,11 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyShieldEffect(UpgradeNode node) {
+    if (player == null) {
+      return;
+    }
+    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+
     CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
     if (combatStats == null) {
       return;
@@ -254,7 +267,12 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyRegenEffect(UpgradeNode node) {
-    // No-op: Regen's heal fires from onEnemyKilled(), not from a tier-changed effect.
+    // Regen's heal itself fires from onEnemyKilled(), not from here - but the flash still needs
+    // to fire on activation, same as every other upgrade.
+    if (player == null) {
+      return;
+    }
+    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
   }
 
   private void removeRegenEffect() {
@@ -262,6 +280,11 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyAttackSpeedEffect(UpgradeNode node) {
+    if (player == null) {
+      return;
+    }
+    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
       return;
@@ -284,6 +307,11 @@ public class UpgradesDisplay extends UIComponent {
    * bonus each time - so a later tier replaces the bonus rather than stacking on top of it.
    */
   private void applySwordDamageEffect(UpgradeNode node) {
+    if (player == null) {
+      return;
+    }
+    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+
     CombatStatsComponent combatStats = getCombatStats();
     if (combatStats == null) {
       return;

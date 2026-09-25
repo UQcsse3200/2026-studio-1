@@ -15,6 +15,7 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -465,5 +466,25 @@ class UpgradesDisplayTest {
     assertEquals(1, attackSpeed.getCurrentTier()); // still active
     assertEquals("3 kills left", attackSpeed.getRemainingText()); // 5 - 2, untouched by the other
     assertEquals(0.8f, playerActions.getAttackSpeedMultiplier(), 0.0001f); // effect still applied
+  }
+
+  // --- "upgradeActivated" event, fired by every apply*Effect() so
+  // UpgradeActivationFlashComponent can flash the player sprite on activation ---
+
+  @Test
+  void everyApplyEffectMethodFiresUpgradeActivatedOnThePlayer() throws Exception {
+    Entity player = newPlayerEntityWithMaxHealth(50, 100); // Regen needs a max health to heal into
+    display.setPlayer(player);
+
+    List<Object> fired = new ArrayList<>();
+    player.getEvents().addListener("upgradeActivated", () -> fired.add(new Object()));
+
+    getActionUpgrades().get(0).purchaseNextTier(); // sword_damage -> applySwordDamageEffect()
+    getActionUpgrades().get(1).purchaseNextTier(); // attack_speed -> applyAttackSpeedEffect()
+    getDefenceUpgrades().get(0).purchaseNextTier(); // shield_durability -> applyShieldEffect()
+    getDefenceUpgrades().get(1).purchaseNextTier(); // regen_on_kill -> applyRegenEffect()
+    getMovementUpgrades().get(0).purchaseNextTier(); // player_speed -> applyPlayerSpeedEffect()
+
+    assertEquals(5, fired.size());
   }
 }
