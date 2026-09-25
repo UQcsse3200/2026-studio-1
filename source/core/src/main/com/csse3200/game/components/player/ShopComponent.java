@@ -693,6 +693,9 @@ public class ShopComponent extends Component {
   /**
    * Builds the Premium ticket. Weights sum to 100, so each weight reads as a percentage.
    *
+   * <p>Weights fall as value rises: Upgrade (shop price 15), Bow tier 3 (sells for 24), 30 gold,
+   * then the Spirit pet (shop price 40) as the rarest prize.
+   *
    * @return Premium catalog at spin price 60
    */
   private GamblingCatalogs.SpinCatalog premiumSpinCatalog() {
@@ -700,9 +703,9 @@ public class ShopComponent extends Component {
     prizes.put(
         1,
         prize(consumablePrize("Regeneration Potion (Tier 2)", ConsumableType.REGENERATION, 2), 35));
-    prizes.put(2, prize(new GamblingCatalogs.GoldPrize(50), 25));
+    prizes.put(2, prize(new GamblingCatalogs.GoldPrize(30), 15));
     prizes.put(3, prize(weaponPrize("Basic Bow", WeaponType.BOW, 3), 20));
-    prizes.put(4, prize(new Upgrade("Premium Health"), 15));
+    prizes.put(4, prize(new Upgrade("Premium Health"), 25));
     prizes.put(5, prize(new Pet("Spirit"), 5));
     return new GamblingCatalogs.SpinCatalog(60, prizes);
   }

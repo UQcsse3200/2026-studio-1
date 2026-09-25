@@ -933,10 +933,10 @@ class ShopComponentTest {
         "Regeneration Potion (Tier 2)",
         ItemType.CONSUMABLE,
         35);
-    assertSeededGold(shop, GamblingCatalogs.CatalogId.PREMIUM, 2, 50, 25);
+    assertSeededGold(shop, GamblingCatalogs.CatalogId.PREMIUM, 2, 30, 15);
     assertSeededPrize(
         shop, GamblingCatalogs.CatalogId.PREMIUM, 3, "Basic Bow", ItemType.WEAPON, 20);
-    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Premium Health", 15);
+    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Premium Health", 25);
     assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 5, "Spirit", 5);
     assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).size());
     assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).size());
