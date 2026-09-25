@@ -25,7 +25,7 @@ public class MainGameActions extends Component {
 
   private void onRestart() {
     logger.info("Restarting game");
-    game.setScreenDeferred(GdxGame.ScreenType.MAIN_GAME);
+    game.setScreenDeferred(GdxGame.ScreenType.RESTART_GAME);
   }
 
   /** Swaps to the Main Menu screen. */

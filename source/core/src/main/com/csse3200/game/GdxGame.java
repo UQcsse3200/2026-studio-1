@@ -90,6 +90,8 @@ public class GdxGame extends Game {
       case MAIN_MENU:
         return new MainMenuScreen(this);
       case MAIN_GAME:
+        return new MainGameScreen(this, false);
+      case LOAD_GAME:
         return new MainGameScreen(this, true);
       case RESTART_GAME:
         return new MainGameScreen(this, false);
@@ -105,6 +107,7 @@ public class GdxGame extends Game {
   public enum ScreenType {
     MAIN_MENU,
     MAIN_GAME,
+    LOAD_GAME,
     RESTART_GAME,
     SETTINGS,
     DEATH_SCREEN,
