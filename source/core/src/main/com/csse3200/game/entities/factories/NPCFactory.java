@@ -14,7 +14,6 @@ import com.csse3200.game.components.npc.DialogueComponent;
 import com.csse3200.game.components.npc.DialogueProximityComponent;
 import com.csse3200.game.components.npc.DisplayDialogue;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
-import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.MinotaurAnimationController;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.npc.SkeletonWeaponAnimationController;
@@ -22,8 +21,6 @@ import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.tasks.*;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.configs.BaseEntityConfig;
-import com.csse3200.game.entities.configs.GhostKingConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
 import com.csse3200.game.entities.configs.enemies.*;
 import com.csse3200.game.files.FileLoader;
@@ -36,7 +33,7 @@ import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
-import com.csse3200.game.services.ServiceLocator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,59 +58,6 @@ public class NPCFactory {
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
-
-  /**
-   * Creates a ghost entity.
-   *
-   * @param target entity to chase
-   * @return entity
-   */
-  public static Entity createGhost(Entity target) {
-    Entity ghost = createBaseNPC(target);
-    BaseEntityConfig config = configs.ghost;
-
-    AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/enemies/ghost.atlas", TextureAtlas.class));
-    animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
-
-    ghost
-        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
-        .addComponent(animator)
-        .addComponent(new GhostAnimationController());
-
-    ghost.getComponent(AnimationRenderComponent.class).scaleEntity();
-
-    return ghost;
-  }
-
-  /**
-   * Creates a ghost king entity.
-   *
-   * @param target entity to chase
-   * @return entity
-   */
-  public static Entity createGhostKing(Entity target) {
-    Entity ghostKing = createBaseNPC(target);
-    GhostKingConfig config = configs.ghostKing;
-
-    AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/enemies/ghostKing.atlas", TextureAtlas.class));
-    animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
-
-    ghostKing
-        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
-        .addComponent(animator)
-        .addComponent(new GhostAnimationController());
-
-    ghostKing.getComponent(AnimationRenderComponent.class).scaleEntity();
-    return ghostKing;
-  }
 
   /**
    * Creates a skeleton entity.
@@ -259,8 +203,8 @@ public class NPCFactory {
    * @return minotaur entity that charges at target to attack
    */
   public static Entity createMinotaur(Entity target) {
-    float scale = 2.0f;
-    Vector2 collisionScale = new Vector2(0.8f, 0.7f);
+    float scale = 4.0f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.7f);
     Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     MinotaurConfig config = configs.minotaur;
 
@@ -332,7 +276,7 @@ public class NPCFactory {
    * @return centaur entity that charges at target to attack from a distance.
    */
   public static Entity createCentaur(Entity target) {
-    float scale = 2.0f;
+    float scale = 4.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity centaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CentaurConfig config = configs.centaur;
@@ -406,7 +350,7 @@ public class NPCFactory {
    * @return Cyclops entity as a mini boss enemy
    */
   public static Entity createCyclops(Entity target) {
-    float scale = 2.0f;
+    float scale = 4.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CyclopsConfig config = configs.cyclops;
