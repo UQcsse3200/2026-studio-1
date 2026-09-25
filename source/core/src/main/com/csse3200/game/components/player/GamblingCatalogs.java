@@ -1,15 +1,22 @@
 package com.csse3200.game.components.player;
 
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Standard and Premium spin catalogs held by the player's {@link ShopComponent}.
  *
  * <p>Not a {@link com.csse3200.game.components.Component} and not a wallet. Each catalog stores a
  * spin price and five weighted prizes. Later probability for a slot is {@code weight / sum(weights
- * in that catalog)}. This class stores weights and does not compute or roll them.
+ * in that catalog)}. This class stores weights and does not compute or roll them; see {@link
+ * GamblingRoller}.
+ *
+ * <p>A prize product is one of {@link ItemPrize}, {@link GoldPrize}, {@link ShopComponent.Pet} or
+ * {@link ShopComponent.Upgrade}.
  */
 public class GamblingCatalogs {
   private final SpinCatalog standard;
@@ -219,6 +226,100 @@ public class GamblingCatalogs {
      */
     public int getWeight() {
       return weight;
+    }
+  }
+
+  /**
+   * An item prize. Holds a factory rather than an {@link Item} so every win gets a new typed item
+   * (for example a {@code WeaponItem} or {@code ConsumableItem}) and the catalog never shares an
+   * instance with the player's inventory.
+   */
+  public static final class ItemPrize {
+    private final String displayName;
+    private final ItemType itemType;
+    private final Supplier<? extends Item> factory;
+
+    /**
+     * Creates an item prize.
+     *
+     * @param displayName name shown on the wheel; must not be null or blank
+     * @param itemType type of the item the factory creates; must not be null or {@link
+     *     ItemType#CURRENCY} (use {@link GoldPrize} for gold)
+     * @param factory creates a new item for each win; must be non-null
+     * @throws IllegalArgumentException if any argument is invalid
+     */
+    public ItemPrize(String displayName, ItemType itemType, Supplier<? extends Item> factory) {
+      if (displayName == null || displayName.isBlank()) {
+        throw new IllegalArgumentException("displayName must not be null or blank");
+      }
+      if (itemType == null || itemType == ItemType.CURRENCY) {
+        throw new IllegalArgumentException("itemType must be non-null and not CURRENCY");
+      }
+      if (factory == null) {
+        throw new IllegalArgumentException("factory must not be null");
+      }
+      this.displayName = displayName;
+      this.itemType = itemType;
+      this.factory = factory;
+    }
+
+    /**
+     * Returns the name shown on the wheel.
+     *
+     * @return display name
+     */
+    public String getDisplayName() {
+      return displayName;
+    }
+
+    /**
+     * Returns the type of the item this prize creates.
+     *
+     * @return item type
+     */
+    public ItemType getItemType() {
+      return itemType;
+    }
+
+    /**
+     * Creates a new item for one win.
+     *
+     * @return a new item instance
+     * @throws IllegalStateException if the factory returns null or an item of another type
+     */
+    public Item create() {
+      Item item = factory.get();
+      if (item == null || item.getItemType() != itemType) {
+        throw new IllegalStateException("factory must create a new " + itemType + " item");
+      }
+      return item;
+    }
+  }
+
+  /** A gold prize added straight to the player's wallet. */
+  public static final class GoldPrize {
+    private final int amount;
+
+    /**
+     * Creates a gold prize.
+     *
+     * @param amount gold awarded; must be {@code > 0}
+     * @throws IllegalArgumentException if {@code amount} is not positive
+     */
+    public GoldPrize(int amount) {
+      if (amount <= 0) {
+        throw new IllegalArgumentException("amount must be > 0");
+      }
+      this.amount = amount;
+    }
+
+    /**
+     * Returns the gold awarded.
+     *
+     * @return amount
+     */
+    public int getAmount() {
+      return amount;
     }
   }
 }

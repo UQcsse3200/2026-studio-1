@@ -1,13 +1,20 @@
 package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A player component that owns shop catalogs and buy/sell transactions.
@@ -21,12 +28,15 @@ import java.util.Map;
  * refunds {@link Item#getSellPrice()}. Upgrade and pet purchases trigger {@code upgradePurchased}
  * and {@code petPurchased} and leave those listings in place.
  *
- * <p>Gambling catalogs (Standard and Premium) are structure for the shop UI: a spin price and five
- * weighted prize entries, installed by {@link #seedDefaultCatalog()}. {@link #buySpin} is a stub
- * and does not roll, charge gold, or award a prize. Replacing a spin price or prize on an attached
- * shop triggers {@code shopChanged}.
+ * <p>Gambling catalogs (Standard and Premium) hold a spin price and five weighted prize entries,
+ * installed by {@link #seedDefaultCatalog()}. Item prizes are {@link GamblingCatalogs.ItemPrize}
+ * factories backed by the loot generators, so each win is a new typed item. {@link #buySpin} rolls
+ * a prize by weight, delivers it, and charges the spin price, or changes nothing if the spin is
+ * rejected. Replacing a spin price or prize on an attached shop triggers {@code shopChanged}.
  */
 public class ShopComponent extends Component {
+  private static final Logger logger = LoggerFactory.getLogger(ShopComponent.class);
+
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
   public static final int MAX_CATALOG_SLOTS = 10;
 
@@ -36,9 +46,26 @@ public class ShopComponent extends Component {
   private final List<Upgrade> purchasedUpgrades;
   private final List<Pet> purchasedPets;
   private GamblingCatalogs gamblingCatalogs;
+  private ConsumableGenerator consumableGenerator;
+  private WeaponGenerator weaponGenerator;
+  private final Random random;
 
   /** Creates a shop with empty item, Upgrade, and pet catalogs. */
   public ShopComponent() {
+    this(new Random());
+  }
+
+  /**
+   * Creates a shop with empty catalogs that rolls gambling spins with the given random source.
+   *
+   * @param random random source for {@link #buySpin}; must be non-null
+   * @throws IllegalArgumentException if {@code random} is null
+   */
+  public ShopComponent(Random random) {
+    if (random == null) {
+      throw new IllegalArgumentException("Random must not be null.");
+    }
+    this.random = random;
     this.itemCatalog = new HashMap<>();
     this.upgradeCatalog = new HashMap<>();
     this.petCatalog = new HashMap<>();
@@ -280,21 +307,51 @@ public class ShopComponent extends Component {
   /**
    * Buys one spin from the Standard or Premium gambling catalog.
    *
-   * <p>Current body is a structure stub: always returns {@code null} and does not choose a prize,
-   * deduct gold, or award anything.
+   * <p>Every check runs before the roll, so a failed spin changes nothing: the inventory must
+   * exist, the catalog must be seeded, every prize must be a supported product, the player must
+   * afford {@code spinPrice}, and <em>every</em> item prize in the catalog must fit in the
+   * inventory. Checking all item prizes, not just the rolled one, stops a full inventory from being
+   * used to cancel item results for free.
    *
-   * <p>Intended behaviour: validate gold against that catalog's {@code spinPrice}; choose one of
-   * the five {@link GamblingCatalogs.PrizeEntry} values by weight ({@code P = weight /
-   * sum(weights)}); on success deduct gold, award the product, and return that entry; on failure
-   * leave gold and inventory unchanged and return {@code null}. The shop UI may animate a wheel to
-   * the returned prize; the animation does not choose the prize.
+   * <p>On success the prize is chosen by weight ({@code P = weight / sum(weights)}, see {@link
+   * GamblingRoller}), delivered, and then the spin price is deducted, matching {@link
+   * #buyItem(int)}. An {@link GamblingCatalogs.ItemPrize} adds a new typed item to the inventory; a
+   * {@link GamblingCatalogs.GoldPrize} adds gold; a {@link Pet} or {@link Upgrade} is recorded like
+   * a purchase and triggers {@code petPurchased} or {@code upgradePurchased} without charging its
+   * shop price. These events fire after the spin price is deducted, so listeners see the final
+   * gold.
+   *
+   * <p>Finally {@code gamblingSpun} is triggered with the {@link GamblingCatalogs.CatalogId} and
+   * the rolled slot ({@code 1}..{@code 5}) so the shop UI can animate the wheel to that slot; the
+   * animation does not choose the prize. A rejected spin triggers no events.
    *
    * @param catalogId Standard or Premium
-   * @return the chosen prize entry, or {@code null} on failure (and always {@code null} in this
-   *     stub)
+   * @return the chosen prize entry, or {@code null} if the spin was rejected
    */
   public GamblingCatalogs.PrizeEntry<?> buySpin(GamblingCatalogs.CatalogId catalogId) {
-    return null;
+    InventoryComponent inventory = getInventory();
+    GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
+    if (inventory == null || catalog == null || !hasOnlySupportedPrizes(catalog)) {
+      return null;
+    }
+
+    int spinPrice = catalog.getSpinPrice();
+    if (!inventory.hasGold(spinPrice) || !canReceiveAllItemPrizes(catalog, inventory)) {
+      return null;
+    }
+
+    int slot = GamblingRoller.rollSlot(catalog, random);
+    GamblingCatalogs.PrizeEntry<?> prize = catalog.getPrize(slot);
+    if (!deliverPrize(prize.getProduct(), inventory)) {
+      return null;
+    }
+
+    inventory.addGold(-spinPrice);
+    notifyPrizeDelivered(prize.getProduct());
+    if (entity != null) {
+      entity.getEvents().trigger("gamblingSpun", catalogId, slot);
+    }
+    return prize;
   }
 
   /**
@@ -408,9 +465,7 @@ public class ShopComponent extends Component {
 
     inventory.addGold(-listing.getBuyPrice());
     purchasedUpgrades.add(listing.getProduct());
-    if (entity != null) {
-      entity.getEvents().trigger("upgradePurchased");
-    }
+    notifyUpgradePurchased();
     return true;
   }
 
@@ -440,9 +495,7 @@ public class ShopComponent extends Component {
 
     inventory.addGold(-listing.getBuyPrice());
     purchasedPets.add(listing.getProduct());
-    if (entity != null) {
-      entity.getEvents().trigger("petPurchased", listing.getProduct());
-    }
+    notifyPetPurchased(listing.getProduct());
     return true;
   }
 
@@ -513,6 +566,106 @@ public class ShopComponent extends Component {
   }
 
   /**
+   * Returns whether every prize in a catalog is a product {@link #buySpin} can deliver.
+   *
+   * @param catalog catalog to check
+   * @return {@code true} if every product is an item, gold, pet or Upgrade prize
+   */
+  private static boolean hasOnlySupportedPrizes(GamblingCatalogs.SpinCatalog catalog) {
+    for (GamblingCatalogs.PrizeEntry<?> prize : catalog.getPrizes().values()) {
+      Object product = prize.getProduct();
+      if (!(product instanceof GamblingCatalogs.ItemPrize)
+          && !(product instanceof GamblingCatalogs.GoldPrize)
+          && !(product instanceof Pet)
+          && !(product instanceof Upgrade)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Returns whether every item prize in a catalog would fit in the inventory. Each prize is checked
+   * on its own because one spin awards exactly one prize.
+   *
+   * @param catalog catalog to check
+   * @param inventory inventory that would receive the prize
+   * @return {@code true} if any item prize could be rolled and fully added
+   */
+  private static boolean canReceiveAllItemPrizes(
+      GamblingCatalogs.SpinCatalog catalog, InventoryComponent inventory) {
+    for (GamblingCatalogs.PrizeEntry<?> prize : catalog.getPrizes().values()) {
+      if (prize.getProduct() instanceof GamblingCatalogs.ItemPrize itemPrize
+          && !inventory.canFullyAdd(itemPrize.create())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Awards one prize product. Does not trigger pet or Upgrade events; see {@link
+   * #notifyPrizeDelivered}.
+   *
+   * @param product rolled prize product; already checked by {@link #hasOnlySupportedPrizes}
+   * @param inventory inventory that receives items and gold
+   * @return {@code true} if the product was delivered in full
+   */
+  private boolean deliverPrize(Object product, InventoryComponent inventory) {
+    if (product instanceof Pet pet) {
+      purchasedPets.add(pet);
+      return true;
+    }
+    if (product instanceof Upgrade upgrade) {
+      purchasedUpgrades.add(upgrade);
+      return true;
+    }
+    if (product instanceof GamblingCatalogs.ItemPrize itemPrize) {
+      int leftover = inventory.addItem(itemPrize.create());
+      if (leftover != 0) {
+        // Not expected: canReceiveAllItemPrizes checked this prize before the roll.
+        logger.warn("Gambling item prize did not fit after pre-flight; spin not charged");
+        return false;
+      }
+      return true;
+    }
+    GamblingCatalogs.GoldPrize goldPrize = (GamblingCatalogs.GoldPrize) product;
+    return inventory.addGold(goldPrize.getAmount());
+  }
+
+  /**
+   * Triggers the purchase event for a delivered pet or Upgrade prize. Items and gold already
+   * trigger {@code inventoryChanged} from the inventory.
+   *
+   * @param product delivered prize product
+   */
+  private void notifyPrizeDelivered(Object product) {
+    if (product instanceof Pet pet) {
+      notifyPetPurchased(pet);
+    } else if (product instanceof Upgrade) {
+      notifyUpgradePurchased();
+    }
+  }
+
+  /** Triggers {@code upgradePurchased} when this component is attached to an entity. */
+  private void notifyUpgradePurchased() {
+    if (entity != null) {
+      entity.getEvents().trigger("upgradePurchased");
+    }
+  }
+
+  /**
+   * Triggers {@code petPurchased} when this component is attached to an entity.
+   *
+   * @param pet pet to activate
+   */
+  private void notifyPetPurchased(Pet pet) {
+    if (entity != null) {
+      entity.getEvents().trigger("petPurchased", pet);
+    }
+  }
+
+  /**
    * Returns whether {@code slot} is a gambling prize index.
    *
    * @param slot prize slot
@@ -523,33 +676,91 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Builds the Standard placeholder ticket. Weights are stored only.
+   * Builds the Standard ticket. Weights sum to 100, so each weight reads as a percentage.
    *
    * @return Standard catalog at spin price 20
    */
-  private static GamblingCatalogs.SpinCatalog standardSpinCatalog() {
+  private GamblingCatalogs.SpinCatalog standardSpinCatalog() {
     Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
-    prizes.put(1, prize(new Item("Gamble Potion", ItemType.CONSUMABLE, 1, 9), 40));
-    prizes.put(2, prize(new Item("Gamble Sword", ItemType.WEAPON, 1, 1), 25));
-    prizes.put(3, prize(new Upgrade("Gamble Health"), 15));
-    prizes.put(4, prize(new Pet("Gamble Bird"), 12));
-    prizes.put(5, prize(new Item("Gamble Herb", ItemType.CONSUMABLE, 1, 9), 8));
+    prizes.put(1, prize(consumablePrize("Health Potion", ConsumableType.HEALTH_POTION, 1), 40));
+    prizes.put(2, prize(consumablePrize("Speed Potion", ConsumableType.SPEED_BUFF, 1), 25));
+    prizes.put(3, prize(new GamblingCatalogs.GoldPrize(15), 20));
+    prizes.put(4, prize(weaponPrize("Basic Sword", WeaponType.SWORD, 1), 10));
+    prizes.put(5, prize(new Pet("Bird"), 5));
     return new GamblingCatalogs.SpinCatalog(20, prizes);
   }
 
   /**
-   * Builds the Premium placeholder ticket. Weights are stored only.
+   * Builds the Premium ticket. Weights sum to 100, so each weight reads as a percentage.
    *
-   * @return Premium catalog at spin price 50
+   * <p>Weights fall as value rises: Upgrade (shop price 15), Bow tier 3 (sells for 24), 30 gold,
+   * then the Spirit pet (shop price 40) as the rarest prize.
+   *
+   * @return Premium catalog at spin price 60
    */
-  private static GamblingCatalogs.SpinCatalog premiumSpinCatalog() {
+  private GamblingCatalogs.SpinCatalog premiumSpinCatalog() {
     Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
-    prizes.put(1, prize(new Item("Premium Potion", ItemType.CONSUMABLE, 1, 9), 20));
-    prizes.put(2, prize(new Upgrade("Premium Health"), 20));
-    prizes.put(3, prize(new Pet("Premium Spirit"), 20));
-    prizes.put(4, prize(new Item("Premium Sword", ItemType.WEAPON, 1, 1), 25));
-    prizes.put(5, prize(new Pet("Premium Bat"), 15));
-    return new GamblingCatalogs.SpinCatalog(50, prizes);
+    prizes.put(
+        1,
+        prize(consumablePrize("Regeneration Potion (Tier 2)", ConsumableType.REGENERATION, 2), 35));
+    prizes.put(2, prize(new GamblingCatalogs.GoldPrize(30), 15));
+    prizes.put(3, prize(weaponPrize("Basic Bow", WeaponType.BOW, 3), 20));
+    prizes.put(4, prize(new Upgrade("Premium Health"), 25));
+    prizes.put(5, prize(new Pet("Spirit"), 5));
+    return new GamblingCatalogs.SpinCatalog(60, prizes);
+  }
+
+  /**
+   * Creates an item prize that generates a new consumable for every win.
+   *
+   * @param displayName name shown on the wheel
+   * @param type consumable to generate
+   * @param tier loot tier
+   * @return item prize
+   */
+  private GamblingCatalogs.ItemPrize consumablePrize(
+      String displayName, ConsumableType type, int tier) {
+    return new GamblingCatalogs.ItemPrize(
+        displayName,
+        ItemType.CONSUMABLE,
+        () -> consumableGenerator().generateConsumable(type, tier));
+  }
+
+  /**
+   * Creates an item prize that generates a new weapon for every win.
+   *
+   * @param displayName name shown on the wheel
+   * @param type weapon to generate
+   * @param tier loot tier
+   * @return item prize
+   */
+  private GamblingCatalogs.ItemPrize weaponPrize(String displayName, WeaponType type, int tier) {
+    return new GamblingCatalogs.ItemPrize(
+        displayName, ItemType.WEAPON, () -> weaponGenerator().generateWeapon(type, tier));
+  }
+
+  /**
+   * Returns the shared consumable generator, reading its configs on first use rather than at seed.
+   *
+   * @return consumable generator
+   */
+  private ConsumableGenerator consumableGenerator() {
+    if (consumableGenerator == null) {
+      consumableGenerator = new ConsumableGenerator();
+    }
+    return consumableGenerator;
+  }
+
+  /**
+   * Returns the shared weapon generator.
+   *
+   * @return weapon generator
+   */
+  private WeaponGenerator weaponGenerator() {
+    if (weaponGenerator == null) {
+      weaponGenerator = new WeaponGenerator();
+    }
+    return weaponGenerator;
   }
 
   /**
