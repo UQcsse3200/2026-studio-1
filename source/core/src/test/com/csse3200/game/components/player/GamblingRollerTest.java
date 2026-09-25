@@ -5,33 +5,36 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.csse3200.game.extensions.GameExtension;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(GameExtension.class)
 class GamblingRollerTest {
+  /** Cumulative ranges: slot 1 = 0..39, 2 = 40..64, 3 = 65..84, 4 = 85..94, 5 = 95..99. */
   private static final int[] WEIGHTS = {40, 25, 20, 10, 5};
 
   @Test
   void shouldSumEveryPrizeWeight() {
-    assertEquals(100, GamblingRoller.totalWeight(catalog(WEIGHTS)));
-    assertEquals(5, GamblingRoller.totalWeight(catalog(1, 1, 1, 1, 1)));
+    assertEquals(
+        100, GamblingRoller.totalWeight(catalog(WEIGHTS)), "total should add all five weights");
   }
 
-  @Test
-  void shouldReturnWeightOverTotalAsProbability() {
-    GamblingCatalogs.SpinCatalog catalog = catalog(WEIGHTS);
-
-    assertEquals(0.40f, GamblingRoller.probability(catalog, 1), 1e-6f);
-    assertEquals(0.25f, GamblingRoller.probability(catalog, 2), 1e-6f);
-    assertEquals(0.20f, GamblingRoller.probability(catalog, 3), 1e-6f);
-    assertEquals(0.10f, GamblingRoller.probability(catalog, 4), 1e-6f);
-    assertEquals(0.05f, GamblingRoller.probability(catalog, 5), 1e-6f);
+  @ParameterizedTest
+  @CsvSource({"1, 0.40", "2, 0.25", "3, 0.20", "4, 0.10", "5, 0.05"})
+  void shouldReturnWeightOverTotalAsProbability(int slot, float expected) {
+    assertEquals(
+        expected,
+        GamblingRoller.probability(catalog(WEIGHTS), slot),
+        1e-6f,
+        "slot " + slot + " should have probability weight / total");
   }
 
   @Test
@@ -42,36 +45,38 @@ class GamblingRollerTest {
     for (int slot = 1; slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT; slot++) {
       sum += GamblingRoller.probability(catalog, slot);
     }
-    assertEquals(1f, sum, 1e-6f);
+
+    assertEquals(1f, sum, 1e-6f, "probabilities of all slots should sum to 1");
   }
 
-  @Test
-  void shouldReturnZeroProbabilityForInvalidSlot() {
-    GamblingCatalogs.SpinCatalog catalog = catalog(WEIGHTS);
-
-    assertEquals(0f, GamblingRoller.probability(catalog, 0));
-    assertEquals(0f, GamblingRoller.probability(catalog, 6));
+  @ParameterizedTest
+  @ValueSource(ints = {0, 6})
+  void shouldReturnZeroProbabilityForSlotOutsideCatalog(int slot) {
+    assertEquals(
+        0f,
+        GamblingRoller.probability(catalog(WEIGHTS), slot),
+        "slot " + slot + " is not a prize slot, so it can never be rolled");
   }
 
-  /** Every draw in {@code [0, total)} maps to the slot whose weight range contains it. */
+  /** Each draw lands on the slot whose weight range contains it, including both range edges. */
   @ParameterizedTest
   @CsvSource({
     "0, 1", "39, 1", "40, 2", "64, 2", "65, 3", "84, 3", "85, 4", "94, 4", "95, 5", "99, 5"
   })
   void shouldMapDrawToSlotAtWeightBoundaries(int draw, int expectedSlot) {
-    FixedRandom random = new FixedRandom(draw);
-
-    assertEquals(expectedSlot, GamblingRoller.rollSlot(catalog(WEIGHTS), random));
+    assertEquals(
+        expectedSlot,
+        GamblingRoller.rollSlot(catalog(WEIGHTS), new FixedRandom(draw)),
+        "draw " + draw + " should fall in slot " + expectedSlot + "'s weight range");
   }
 
   @Test
-  void shouldDrawOnceWithTotalWeightAsBound() {
+  void shouldDrawWithTotalWeightAsBound() {
     FixedRandom random = new FixedRandom(0);
 
     GamblingRoller.rollSlot(catalog(WEIGHTS), random);
 
-    assertEquals(1, random.calls);
-    assertEquals(100, random.lastBound);
+    assertEquals(List.of(100), random.bounds, "roll should draw once in [0, totalWeight)");
   }
 
   @Test
@@ -97,24 +102,44 @@ class GamblingRollerTest {
   @Test
   void shouldRollTheSameSlotsForTheSameSeed() {
     GamblingCatalogs.SpinCatalog catalog = catalog(WEIGHTS);
-    Random first = new Random(7L);
-    Random second = new Random(7L);
 
-    for (int i = 0; i < 50; i++) {
-      assertEquals(
-          GamblingRoller.rollSlot(catalog, first), GamblingRoller.rollSlot(catalog, second));
-    }
+    assertEquals(
+        rollSequence(catalog, new Random(7L), 50),
+        rollSequence(catalog, new Random(7L), 50),
+        "the same seed should roll the same slots in the same order");
   }
 
   @Test
-  void shouldRejectNullArguments() {
-    GamblingCatalogs.SpinCatalog catalog = catalog(WEIGHTS);
+  void shouldRejectNullCatalogForTotalWeight() {
+    assertThrows(IllegalArgumentException.class, () -> GamblingRoller.totalWeight(null));
+  }
+
+  @Test
+  void shouldRejectNullCatalogForProbability() {
+    assertThrows(IllegalArgumentException.class, () -> GamblingRoller.probability(null, 1));
+  }
+
+  @Test
+  void shouldRejectNullCatalogForRoll() {
     Random random = new Random();
 
-    assertThrows(IllegalArgumentException.class, () -> GamblingRoller.totalWeight(null));
-    assertThrows(IllegalArgumentException.class, () -> GamblingRoller.probability(null, 1));
     assertThrows(IllegalArgumentException.class, () -> GamblingRoller.rollSlot(null, random));
+  }
+
+  @Test
+  void shouldRejectNullRandomForRoll() {
+    GamblingCatalogs.SpinCatalog catalog = catalog(WEIGHTS);
+
     assertThrows(IllegalArgumentException.class, () -> GamblingRoller.rollSlot(catalog, null));
+  }
+
+  private static List<Integer> rollSequence(
+      GamblingCatalogs.SpinCatalog catalog, Random random, int rolls) {
+    List<Integer> slots = new ArrayList<>();
+    for (int i = 0; i < rolls; i++) {
+      slots.add(GamblingRoller.rollSlot(catalog, random));
+    }
+    return slots;
   }
 
   private static GamblingCatalogs.SpinCatalog catalog(int... weights) {
@@ -125,11 +150,10 @@ class GamblingRollerTest {
     return new GamblingCatalogs.SpinCatalog(0, prizes);
   }
 
-  /** Random stub that always draws the same value and records how it was called. */
+  /** Random stub that always draws the same value and records every bound it was asked for. */
   private static class FixedRandom extends Random {
     private final int value;
-    private int calls;
-    private int lastBound;
+    private final List<Integer> bounds = new ArrayList<>();
 
     private FixedRandom(int value) {
       this.value = value;
@@ -137,8 +161,7 @@ class GamblingRollerTest {
 
     @Override
     public int nextInt(int bound) {
-      calls++;
-      lastBound = bound;
+      bounds.add(bound);
       return value;
     }
   }
