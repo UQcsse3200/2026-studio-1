@@ -165,7 +165,7 @@ public class ShieldComponent extends Component {
     active = true;
     activeUntil = timeSource != null ? timeSource.getTime() + durationMillis : 0L;
     logger.info("Shield activated for {}ms", durationMillis);
-    PerkService.recordEvent(shield_perk_id, 1);
+    PerkService.recordEvent(shield_perk_id, 1); // added line for perk
     entity.getEvents().trigger("shieldActivated", durationMillis);
   }
 
