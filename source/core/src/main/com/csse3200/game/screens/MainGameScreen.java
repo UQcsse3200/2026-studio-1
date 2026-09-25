@@ -366,7 +366,6 @@ public class MainGameScreen extends ScreenAdapter {
 
     Terminal terminal = new Terminal();
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
-    terminal.addCommand("perk", new PerkCommand());
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
     UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
     upgradesDisplay = new UpgradesDisplay();
