@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 @ExtendWith(GameExtension.class)
 class ShopComponentTest {
@@ -913,29 +915,61 @@ class ShopComponentTest {
     assertSame(shop.getGamblingCatalogs().getStandard(), shop.getStandardCatalog());
     assertSame(shop.getGamblingCatalogs().getPremium(), shop.getPremiumCatalog());
     assertEquals(20, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
-    assertEquals(50, shop.getSpinPrice(GamblingCatalogs.CatalogId.PREMIUM));
+    assertEquals(60, shop.getSpinPrice(GamblingCatalogs.CatalogId.PREMIUM));
 
     assertSeededPrize(
-        shop, GamblingCatalogs.CatalogId.STANDARD, 1, "Gamble Potion", ItemType.CONSUMABLE, 40);
+        shop, GamblingCatalogs.CatalogId.STANDARD, 1, "Health Potion", ItemType.CONSUMABLE, 40);
     assertSeededPrize(
-        shop, GamblingCatalogs.CatalogId.STANDARD, 2, "Gamble Sword", ItemType.WEAPON, 25);
-    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.STANDARD, 3, "Gamble Health", 15);
-    assertSeededPet(shop, GamblingCatalogs.CatalogId.STANDARD, 4, "Gamble Bird", 12);
+        shop, GamblingCatalogs.CatalogId.STANDARD, 2, "Speed Potion", ItemType.CONSUMABLE, 25);
+    assertSeededGold(shop, GamblingCatalogs.CatalogId.STANDARD, 3, 15, 20);
     assertSeededPrize(
-        shop, GamblingCatalogs.CatalogId.STANDARD, 5, "Gamble Herb", ItemType.CONSUMABLE, 8);
+        shop, GamblingCatalogs.CatalogId.STANDARD, 4, "Basic Sword", ItemType.WEAPON, 10);
+    assertSeededPet(shop, GamblingCatalogs.CatalogId.STANDARD, 5, "Bird", 5);
 
     assertSeededPrize(
-        shop, GamblingCatalogs.CatalogId.PREMIUM, 1, "Premium Potion", ItemType.CONSUMABLE, 20);
-    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 2, "Premium Health", 20);
-    assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 3, "Premium Spirit", 20);
+        shop,
+        GamblingCatalogs.CatalogId.PREMIUM,
+        1,
+        "Regeneration Potion (Tier 2)",
+        ItemType.CONSUMABLE,
+        35);
+    assertSeededGold(shop, GamblingCatalogs.CatalogId.PREMIUM, 2, 50, 25);
     assertSeededPrize(
-        shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Premium Sword", ItemType.WEAPON, 25);
-    assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 5, "Premium Bat", 15);
-
+        shop, GamblingCatalogs.CatalogId.PREMIUM, 3, "Basic Bow", ItemType.WEAPON, 20);
+    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Premium Health", 15);
+    assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 5, "Spirit", 5);
     assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).size());
     assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).size());
     assertNull(shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 0));
     assertNull(shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 6));
+  }
+
+  /** Weights summing to 100 let each weight read directly as a percentage. */
+  @ParameterizedTest
+  @EnumSource(GamblingCatalogs.CatalogId.class)
+  void shouldSeedTicketWeightsThatSumToOneHundred(GamblingCatalogs.CatalogId catalogId) {
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+
+    assertEquals(
+        100,
+        GamblingRoller.totalWeight(shop.getGamblingCatalogs().get(catalogId)),
+        catalogId + " weights should sum to 100");
+  }
+
+  /** The wheel shows the display name, so it must match the item the player actually receives. */
+  @ParameterizedTest
+  @EnumSource(GamblingCatalogs.CatalogId.class)
+  void shouldSeedItemPrizesThatCreateTheNamedItem(GamblingCatalogs.CatalogId catalogId) {
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+
+    for (GamblingCatalogs.PrizeEntry<?> entry : shop.getPrizes(catalogId).values()) {
+      if (entry.getProduct() instanceof GamblingCatalogs.ItemPrize prize) {
+        assertEquals(
+            prize.getDisplayName(),
+            prize.create().getName(),
+            catalogId + " prize '" + prize.getDisplayName() + "' should create that item");
+      }
+    }
   }
 
   @Test
@@ -948,7 +982,7 @@ class ShopComponentTest {
         UnsupportedOperationException.class,
         () -> shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).put(1, replacement));
     assertEquals(
-        "Gamble Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getName());
+        "Health Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getDisplayName());
   }
 
   @Test
@@ -1039,7 +1073,7 @@ class ShopComponentTest {
     assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 0, prize));
     assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 6, prize));
     assertEquals(
-        "Gamble Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getName());
+        "Health Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getDisplayName());
     assertEquals(20, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
     assertEquals(0, shopEvents.get());
   }
@@ -1080,10 +1114,20 @@ class ShopComponentTest {
     GamblingCatalogs.PrizeEntry<?> entry = shop.getPrize(catalogId, slot);
     assertNotNull(entry);
     assertEquals(weight, entry.getWeight());
-    assertTrue(entry.getWeight() > 0);
-    Item item = (Item) entry.getProduct();
-    assertEquals(name, item.getName());
-    assertEquals(itemType, item.getItemType());
+    GamblingCatalogs.ItemPrize prize = (GamblingCatalogs.ItemPrize) entry.getProduct();
+    assertEquals(name, prize.getDisplayName(), catalogId + " slot " + slot + " display name");
+    assertEquals(itemType, prize.getItemType(), catalogId + " slot " + slot + " item type");
+  }
+
+  private static void assertSeededGold(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, int amount, int weight) {
+    GamblingCatalogs.PrizeEntry<?> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.getWeight());
+    assertEquals(
+        amount,
+        ((GamblingCatalogs.GoldPrize) entry.getProduct()).getAmount(),
+        catalogId + " slot " + slot + " gold amount");
   }
 
   private static void assertSeededUpgrade(
@@ -1102,8 +1146,8 @@ class ShopComponentTest {
     assertEquals(name, ((ShopComponent.Pet) entry.getProduct()).getName());
   }
 
-  private static Item itemPrize(
+  private static GamblingCatalogs.ItemPrize itemPrize(
       ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot) {
-    return (Item) shop.getPrize(catalogId, slot).getProduct();
+    return (GamblingCatalogs.ItemPrize) shop.getPrize(catalogId, slot).getProduct();
   }
 }

@@ -1,8 +1,12 @@
 package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,10 +25,11 @@ import java.util.Map;
  * refunds {@link Item#getSellPrice()}. Upgrade and pet purchases trigger {@code upgradePurchased}
  * and {@code petPurchased} and leave those listings in place.
  *
- * <p>Gambling catalogs (Standard and Premium) are structure for the shop UI: a spin price and five
- * weighted prize entries, installed by {@link #seedDefaultCatalog()}. {@link #buySpin} is a stub
- * and does not roll, charge gold, or award a prize. Replacing a spin price or prize on an attached
- * shop triggers {@code shopChanged}.
+ * <p>Gambling catalogs (Standard and Premium) hold a spin price and five weighted prize entries,
+ * installed by {@link #seedDefaultCatalog()}. Item prizes are {@link GamblingCatalogs.ItemPrize}
+ * factories backed by the loot generators, so each win is a new typed item. {@link #buySpin} is a
+ * stub and does not roll, charge gold, or award a prize. Replacing a spin price or prize on an
+ * attached shop triggers {@code shopChanged}.
  */
 public class ShopComponent extends Component {
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
@@ -36,6 +41,8 @@ public class ShopComponent extends Component {
   private final List<Upgrade> purchasedUpgrades;
   private final List<Pet> purchasedPets;
   private GamblingCatalogs gamblingCatalogs;
+  private ConsumableGenerator consumableGenerator;
+  private WeaponGenerator weaponGenerator;
 
   /** Creates a shop with empty item, Upgrade, and pet catalogs. */
   public ShopComponent() {
@@ -523,33 +530,88 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Builds the Standard placeholder ticket. Weights are stored only.
+   * Builds the Standard ticket. Weights sum to 100, so each weight reads as a percentage.
    *
    * @return Standard catalog at spin price 20
    */
-  private static GamblingCatalogs.SpinCatalog standardSpinCatalog() {
+  private GamblingCatalogs.SpinCatalog standardSpinCatalog() {
     Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
-    prizes.put(1, prize(new Item("Gamble Potion", ItemType.CONSUMABLE, 1, 9), 40));
-    prizes.put(2, prize(new Item("Gamble Sword", ItemType.WEAPON, 1, 1), 25));
-    prizes.put(3, prize(new Upgrade("Gamble Health"), 15));
-    prizes.put(4, prize(new Pet("Gamble Bird"), 12));
-    prizes.put(5, prize(new Item("Gamble Herb", ItemType.CONSUMABLE, 1, 9), 8));
+    prizes.put(1, prize(consumablePrize("Health Potion", ConsumableType.HEALTH_POTION, 1), 40));
+    prizes.put(2, prize(consumablePrize("Speed Potion", ConsumableType.SPEED_BUFF, 1), 25));
+    prizes.put(3, prize(new GamblingCatalogs.GoldPrize(15), 20));
+    prizes.put(4, prize(weaponPrize("Basic Sword", WeaponType.SWORD, 1), 10));
+    prizes.put(5, prize(new Pet("Bird"), 5));
     return new GamblingCatalogs.SpinCatalog(20, prizes);
   }
 
   /**
-   * Builds the Premium placeholder ticket. Weights are stored only.
+   * Builds the Premium ticket. Weights sum to 100, so each weight reads as a percentage.
    *
-   * @return Premium catalog at spin price 50
+   * @return Premium catalog at spin price 60
    */
-  private static GamblingCatalogs.SpinCatalog premiumSpinCatalog() {
+  private GamblingCatalogs.SpinCatalog premiumSpinCatalog() {
     Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
-    prizes.put(1, prize(new Item("Premium Potion", ItemType.CONSUMABLE, 1, 9), 20));
-    prizes.put(2, prize(new Upgrade("Premium Health"), 20));
-    prizes.put(3, prize(new Pet("Premium Spirit"), 20));
-    prizes.put(4, prize(new Item("Premium Sword", ItemType.WEAPON, 1, 1), 25));
-    prizes.put(5, prize(new Pet("Premium Bat"), 15));
-    return new GamblingCatalogs.SpinCatalog(50, prizes);
+    prizes.put(
+        1,
+        prize(consumablePrize("Regeneration Potion (Tier 2)", ConsumableType.REGENERATION, 2), 35));
+    prizes.put(2, prize(new GamblingCatalogs.GoldPrize(50), 25));
+    prizes.put(3, prize(weaponPrize("Basic Bow", WeaponType.BOW, 3), 20));
+    prizes.put(4, prize(new Upgrade("Premium Health"), 15));
+    prizes.put(5, prize(new Pet("Spirit"), 5));
+    return new GamblingCatalogs.SpinCatalog(60, prizes);
+  }
+
+  /**
+   * Creates an item prize that generates a new consumable for every win.
+   *
+   * @param displayName name shown on the wheel
+   * @param type consumable to generate
+   * @param tier loot tier
+   * @return item prize
+   */
+  private GamblingCatalogs.ItemPrize consumablePrize(
+      String displayName, ConsumableType type, int tier) {
+    return new GamblingCatalogs.ItemPrize(
+        displayName,
+        ItemType.CONSUMABLE,
+        () -> consumableGenerator().generateConsumable(type, tier));
+  }
+
+  /**
+   * Creates an item prize that generates a new weapon for every win.
+   *
+   * @param displayName name shown on the wheel
+   * @param type weapon to generate
+   * @param tier loot tier
+   * @return item prize
+   */
+  private GamblingCatalogs.ItemPrize weaponPrize(String displayName, WeaponType type, int tier) {
+    return new GamblingCatalogs.ItemPrize(
+        displayName, ItemType.WEAPON, () -> weaponGenerator().generateWeapon(type, tier));
+  }
+
+  /**
+   * Returns the shared consumable generator, reading its configs on first use rather than at seed.
+   *
+   * @return consumable generator
+   */
+  private ConsumableGenerator consumableGenerator() {
+    if (consumableGenerator == null) {
+      consumableGenerator = new ConsumableGenerator();
+    }
+    return consumableGenerator;
+  }
+
+  /**
+   * Returns the shared weapon generator.
+   *
+   * @return weapon generator
+   */
+  private WeaponGenerator weaponGenerator() {
+    if (weaponGenerator == null) {
+      weaponGenerator = new WeaponGenerator();
+    }
+    return weaponGenerator;
   }
 
   /**
