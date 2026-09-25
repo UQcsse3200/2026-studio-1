@@ -89,6 +89,7 @@ public class PauseMenuDisplay extends UIComponent {
   private Table detailSlot;
   private Table audioPanel;
   private Table keybindsPanel;
+  private Table restartOverlay;
 
   private Label[] mainLabels;
   private Label[] settingsLabels;
@@ -150,6 +151,38 @@ public class PauseMenuDisplay extends UIComponent {
     restartYesLabel = createLabel("YES");
     restartNoLabel = createLabel("NO");
 
+    restartYesLabel.addListener(
+            new InputListener() {
+              @Override
+              public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                restartConfirmIndex = 0;
+                refreshHighlights();
+              }
+
+              @Override
+              public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                restartConfirmIndex = 0;
+                confirmRestart();
+                return true;
+              }
+            });
+
+    restartNoLabel.addListener(
+            new InputListener() {
+              @Override
+              public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                restartConfirmIndex = 1;
+                refreshHighlights();
+              }
+
+              @Override
+              public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                restartConfirmIndex = 1;
+                confirmRestart();
+                return true;
+              }
+            });
+
     restartConfirmPanel = new Table();
 
     restartConfirmPanel.setBackground(skin.newDrawable("white", Color.BLACK));
@@ -169,10 +202,18 @@ public class PauseMenuDisplay extends UIComponent {
     root.add(settingsPanel).top().padLeft(PANEL_GAP);
     detailSlot = new Table();
     root.add(detailSlot).top().padLeft(PANEL_GAP);
-    root.add(restartConfirmPanel).top().padLeft(PANEL_GAP);
+
     restartConfirmPanel.setVisible(false);
     root.setVisible(false);
     stage.addActor(root);
+
+    restartOverlay = new Table();
+    restartOverlay.setFillParent(true);
+    restartOverlay.center();
+    restartOverlay.add(restartConfirmPanel).center();
+    restartOverlay.setVisible(false);
+
+    stage.addActor(restartOverlay);
   }
 
   private Label createLabel(String text) {
@@ -539,6 +580,7 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void refreshPanels() {
+    restartOverlay.setVisible(state == MenuState.RESTART_CONFIRM);
     restartConfirmPanel.setVisible(state == MenuState.RESTART_CONFIRM);
     settingsPanel.setVisible(state != MenuState.MAIN && state != MenuState.RESTART_CONFIRM);
 
