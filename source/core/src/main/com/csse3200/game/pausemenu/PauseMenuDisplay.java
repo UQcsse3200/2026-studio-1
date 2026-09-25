@@ -152,36 +152,36 @@ public class PauseMenuDisplay extends UIComponent {
     restartNoLabel = createLabel("NO");
 
     restartYesLabel.addListener(
-            new InputListener() {
-              @Override
-              public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                restartConfirmIndex = 0;
-                refreshHighlights();
-              }
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            restartConfirmIndex = 0;
+            refreshHighlights();
+          }
 
-              @Override
-              public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                restartConfirmIndex = 0;
-                confirmRestart();
-                return true;
-              }
-            });
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            restartConfirmIndex = 0;
+            confirmRestart();
+            return true;
+          }
+        });
 
     restartNoLabel.addListener(
-            new InputListener() {
-              @Override
-              public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                restartConfirmIndex = 1;
-                refreshHighlights();
-              }
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            restartConfirmIndex = 1;
+            refreshHighlights();
+          }
 
-              @Override
-              public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                restartConfirmIndex = 1;
-                confirmRestart();
-                return true;
-              }
-            });
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            restartConfirmIndex = 1;
+            confirmRestart();
+            return true;
+          }
+        });
 
     restartConfirmPanel = new Table();
 
