@@ -576,6 +576,11 @@ public class PauseMenuDisplay extends UIComponent {
         state = MenuState.SETTINGS;
         refreshPanels();
       }
+      case RESTART_CONFIRM -> {
+        state = MenuState.MAIN;
+        mainPanel.setVisible(true);
+        refreshPanels();
+      }
     }
   }
 

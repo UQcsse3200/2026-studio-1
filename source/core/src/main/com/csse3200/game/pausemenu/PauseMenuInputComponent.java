@@ -27,6 +27,11 @@ public class PauseMenuInputComponent extends InputComponent {
       return false;
     }
 
+    if (keycode == Input.Keys.ESCAPE) {
+      entity.getEvents().trigger("escapePressed");
+      return true;
+    }
+
     if (keycode == Input.Keys.UP) {
       entity.getEvents().trigger("navigateUp");
       return true;
