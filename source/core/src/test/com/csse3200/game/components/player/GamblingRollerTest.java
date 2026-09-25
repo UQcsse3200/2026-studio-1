@@ -149,20 +149,4 @@ class GamblingRollerTest {
     }
     return new GamblingCatalogs.SpinCatalog(0, prizes);
   }
-
-  /** Random stub that always draws the same value and records every bound it was asked for. */
-  private static class FixedRandom extends Random {
-    private final int value;
-    private final List<Integer> bounds = new ArrayList<>();
-
-    private FixedRandom(int value) {
-      this.value = value;
-    }
-
-    @Override
-    public int nextInt(int bound) {
-      bounds.add(bound);
-      return value;
-    }
-  }
 }

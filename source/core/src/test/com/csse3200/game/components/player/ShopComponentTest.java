@@ -986,29 +986,6 @@ class ShopComponentTest {
   }
 
   @Test
-  void shouldNotRollOrMutateWhenBuySpinIsStub() {
-    InventoryComponent inventory = new InventoryComponent(100);
-    ShopComponent shop = new ShopComponent();
-    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    shop.seedDefaultCatalog();
-    AtomicInteger shopEvents = new AtomicInteger();
-    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
-    GamblingCatalogs.PrizeEntry<?> standardPrize =
-        shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 1);
-
-    assertNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
-    assertNull(shop.buySpin(GamblingCatalogs.CatalogId.PREMIUM));
-    assertNull(shop.buySpin(null));
-
-    assertEquals(100, inventory.getGold());
-    assertEquals(0, inventory.getOccupiedSlots());
-    assertTrue(shop.getPurchasedUpgrades().isEmpty());
-    assertTrue(shop.getPurchasedPets().isEmpty());
-    assertSame(standardPrize, shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 1));
-    assertEquals(0, shopEvents.get());
-  }
-
-  @Test
   void shouldNotifyShopChangedWhenSeededOnAttachedShop() {
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(shop);

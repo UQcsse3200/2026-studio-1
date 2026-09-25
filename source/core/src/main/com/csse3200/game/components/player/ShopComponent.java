@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A player component that owns shop catalogs and buy/sell transactions.
@@ -27,11 +30,13 @@ import java.util.Map;
  *
  * <p>Gambling catalogs (Standard and Premium) hold a spin price and five weighted prize entries,
  * installed by {@link #seedDefaultCatalog()}. Item prizes are {@link GamblingCatalogs.ItemPrize}
- * factories backed by the loot generators, so each win is a new typed item. {@link #buySpin} is a
- * stub and does not roll, charge gold, or award a prize. Replacing a spin price or prize on an
- * attached shop triggers {@code shopChanged}.
+ * factories backed by the loot generators, so each win is a new typed item. {@link #buySpin} rolls
+ * a prize by weight, delivers it, and charges the spin price, or changes nothing if the spin is
+ * rejected. Replacing a spin price or prize on an attached shop triggers {@code shopChanged}.
  */
 public class ShopComponent extends Component {
+  private static final Logger logger = LoggerFactory.getLogger(ShopComponent.class);
+
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
   public static final int MAX_CATALOG_SLOTS = 10;
 
@@ -43,9 +48,24 @@ public class ShopComponent extends Component {
   private GamblingCatalogs gamblingCatalogs;
   private ConsumableGenerator consumableGenerator;
   private WeaponGenerator weaponGenerator;
+  private final Random random;
 
   /** Creates a shop with empty item, Upgrade, and pet catalogs. */
   public ShopComponent() {
+    this(new Random());
+  }
+
+  /**
+   * Creates a shop with empty catalogs that rolls gambling spins with the given random source.
+   *
+   * @param random random source for {@link #buySpin}; must be non-null
+   * @throws IllegalArgumentException if {@code random} is null
+   */
+  public ShopComponent(Random random) {
+    if (random == null) {
+      throw new IllegalArgumentException("Random must not be null.");
+    }
+    this.random = random;
     this.itemCatalog = new HashMap<>();
     this.upgradeCatalog = new HashMap<>();
     this.petCatalog = new HashMap<>();
@@ -287,21 +307,41 @@ public class ShopComponent extends Component {
   /**
    * Buys one spin from the Standard or Premium gambling catalog.
    *
-   * <p>Current body is a structure stub: always returns {@code null} and does not choose a prize,
-   * deduct gold, or award anything.
+   * <p>Every check runs before the roll, so a failed spin changes nothing: the inventory must
+   * exist, the catalog must be seeded, every prize must be a supported product, the player must
+   * afford {@code spinPrice}, and <em>every</em> item prize in the catalog must fit in the
+   * inventory. Checking all item prizes, not just the rolled one, stops a full inventory from being
+   * used to cancel item results for free.
    *
-   * <p>Intended behaviour: validate gold against that catalog's {@code spinPrice}; choose one of
-   * the five {@link GamblingCatalogs.PrizeEntry} values by weight ({@code P = weight /
-   * sum(weights)}); on success deduct gold, award the product, and return that entry; on failure
-   * leave gold and inventory unchanged and return {@code null}. The shop UI may animate a wheel to
-   * the returned prize; the animation does not choose the prize.
+   * <p>On success the prize is chosen by weight ({@code P = weight / sum(weights)}, see {@link
+   * GamblingRoller}), delivered, and then the spin price is deducted, matching {@link
+   * #buyItem(int)}. An {@link GamblingCatalogs.ItemPrize} adds a new typed item to the inventory; a
+   * {@link GamblingCatalogs.GoldPrize} adds gold. The shop UI animates the wheel to the returned
+   * prize; the animation does not choose it.
    *
    * @param catalogId Standard or Premium
-   * @return the chosen prize entry, or {@code null} on failure (and always {@code null} in this
-   *     stub)
+   * @return the chosen prize entry, or {@code null} if the spin was rejected
    */
   public GamblingCatalogs.PrizeEntry<?> buySpin(GamblingCatalogs.CatalogId catalogId) {
-    return null;
+    InventoryComponent inventory = getInventory();
+    GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
+    if (inventory == null || catalog == null || !hasOnlySupportedPrizes(catalog)) {
+      return null;
+    }
+
+    int spinPrice = catalog.getSpinPrice();
+    if (!inventory.hasGold(spinPrice) || !canReceiveAllItemPrizes(catalog, inventory)) {
+      return null;
+    }
+
+    GamblingCatalogs.PrizeEntry<?> prize =
+        catalog.getPrize(GamblingRoller.rollSlot(catalog, random));
+    if (!deliverPrize(prize.getProduct(), inventory)) {
+      return null;
+    }
+
+    inventory.addGold(-spinPrice);
+    return prize;
   }
 
   /**
@@ -517,6 +557,63 @@ public class ShopComponent extends Component {
       return null;
     }
     return gamblingCatalogs.get(catalogId);
+  }
+
+  /**
+   * Returns whether every prize in a catalog is a product {@link #buySpin} can deliver.
+   *
+   * @param catalog catalog to check
+   * @return {@code true} if every product is an item or gold prize
+   */
+  private static boolean hasOnlySupportedPrizes(GamblingCatalogs.SpinCatalog catalog) {
+    for (GamblingCatalogs.PrizeEntry<?> prize : catalog.getPrizes().values()) {
+      Object product = prize.getProduct();
+      if (!(product instanceof GamblingCatalogs.ItemPrize)
+          && !(product instanceof GamblingCatalogs.GoldPrize)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Returns whether every item prize in a catalog would fit in the inventory. Each prize is checked
+   * on its own because one spin awards exactly one prize.
+   *
+   * @param catalog catalog to check
+   * @param inventory inventory that would receive the prize
+   * @return {@code true} if any item prize could be rolled and fully added
+   */
+  private static boolean canReceiveAllItemPrizes(
+      GamblingCatalogs.SpinCatalog catalog, InventoryComponent inventory) {
+    for (GamblingCatalogs.PrizeEntry<?> prize : catalog.getPrizes().values()) {
+      if (prize.getProduct() instanceof GamblingCatalogs.ItemPrize itemPrize
+          && !inventory.canFullyAdd(itemPrize.create())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Awards one prize product.
+   *
+   * @param product rolled prize product; already checked by {@link #hasOnlySupportedPrizes}
+   * @param inventory inventory that receives items and gold
+   * @return {@code true} if the product was delivered in full
+   */
+  private static boolean deliverPrize(Object product, InventoryComponent inventory) {
+    if (product instanceof GamblingCatalogs.ItemPrize itemPrize) {
+      int leftover = inventory.addItem(itemPrize.create());
+      if (leftover != 0) {
+        // Not expected: canReceiveAllItemPrizes checked this prize before the roll.
+        logger.warn("Gambling item prize did not fit after pre-flight; spin not charged");
+        return false;
+      }
+      return true;
+    }
+    GamblingCatalogs.GoldPrize goldPrize = (GamblingCatalogs.GoldPrize) product;
+    return inventory.addGold(goldPrize.getAmount());
   }
 
   /**
