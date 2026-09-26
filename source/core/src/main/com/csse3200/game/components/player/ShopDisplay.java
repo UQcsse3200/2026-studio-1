@@ -135,7 +135,8 @@ public class ShopDisplay extends UIComponent {
   private enum ShopTab {
     ITEMS,
     UPGRADES,
-    PETS
+    PETS,
+    GAMBLING
   }
 
   private Table shopTable;
@@ -152,6 +153,15 @@ public class ShopDisplay extends UIComponent {
 
   private ShopTab currentTab = ShopTab.ITEMS;
 
+  // Gambling tab.
+  private GamblingWheel gamblingWheel;
+  private TextButton standardGamblingButton;
+  private TextButton premiumGamblingButton;
+  private TextButton spinButton;
+  private Label gamblingPriceLabel;
+  private Label gamblingResultLabel;
+
+  private GamblingCatalogs.CatalogId currentGamblingCatalog = GamblingCatalogs.CatalogId.STANDARD;
   // Items tab: BUY vs SELL.
   private boolean sellMode = false;
   private TextButton buySubButton;
@@ -416,6 +426,7 @@ public class ShopDisplay extends UIComponent {
     addTabButton(tabTable, "ITEMS", ShopTab.ITEMS);
     addTabButton(tabTable, "UPGRADES", ShopTab.UPGRADES);
     addTabButton(tabTable, "PETS", ShopTab.PETS);
+    addTabButton(tabTable, "GAMBLING", ShopTab.GAMBLING);
 
     shopTable.add(tabTable).growX().height(48f).padBottom(8f);
 
@@ -517,6 +528,9 @@ public class ShopDisplay extends UIComponent {
 
       case PETS:
         createPetsTab();
+        break;
+      case GAMBLING:
+        createGamblingTab();
         break;
 
       default:
@@ -1494,5 +1508,286 @@ public class ShopDisplay extends UIComponent {
     pendingAction = null;
 
     super.dispose();
+  }
+
+  private void createGamblingTab() {
+    ShopComponent shop = entity.getComponent(ShopComponent.class);
+
+    if (shop == null) {
+      return;
+    }
+
+    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
+
+    if (catalogs == null) {
+      Label unavailable = new Label("Gambling is not available.", whiteLabelStyle);
+
+      unavailable.setColor(TEXT_MUTED);
+
+      activeGrid.add(unavailable).expand().center();
+
+      return;
+    }
+
+    Table gamblingRoot = new Table();
+
+    gamblingRoot.defaults().pad(4f);
+
+    /*
+     * STANDARD / PREMIUM selector.
+     */
+    Table modeRow = new Table();
+
+    standardGamblingButton = new TextButton("STANDARD", skin);
+
+    premiumGamblingButton = new TextButton("PREMIUM", skin);
+
+    standardGamblingButton.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+
+            if (gamblingWheel != null && gamblingWheel.isSpinning()) {
+              return;
+            }
+
+            currentGamblingCatalog = GamblingCatalogs.CatalogId.STANDARD;
+
+            refreshGamblingWheel();
+          }
+        });
+
+    premiumGamblingButton.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+
+            if (gamblingWheel != null && gamblingWheel.isSpinning()) {
+              return;
+            }
+
+            currentGamblingCatalog = GamblingCatalogs.CatalogId.PREMIUM;
+
+            refreshGamblingWheel();
+          }
+        });
+
+    modeRow.add(standardGamblingButton).width(120f).height(32f).padRight(6f);
+
+    modeRow.add(premiumGamblingButton).width(120f).height(32f);
+
+    gamblingRoot.add(modeRow).center().row();
+
+    /*
+     * Wheel.
+     */
+    gamblingWheel = new GamblingWheel(whiteLabelStyle);
+
+    gamblingRoot.add(gamblingWheel).size(300f, 300f).center().padTop(4f).row();
+
+    /*
+     * Spin price.
+     */
+    gamblingPriceLabel = new Label("", whiteLabelStyle);
+
+    gamblingPriceLabel.setColor(GOLD_COLOR);
+
+    gamblingRoot.add(gamblingPriceLabel).center().padTop(2f).row();
+
+    /*
+     * Spin button.
+     */
+    spinButton = new TextButton("SPIN", skin);
+
+    spinButton.setColor(new Color(0.22f, 0.24f, 0.30f, 1f));
+
+    spinButton.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+
+            spinGamblingWheel();
+          }
+        });
+
+    gamblingRoot.add(spinButton).width(150f).height(40f).center().padTop(4f).row();
+
+    /*
+     * Result text.
+     */
+    gamblingResultLabel = new Label("Choose a wheel and spin!", whiteLabelStyle);
+
+    gamblingResultLabel.setColor(TEXT_MUTED);
+    gamblingResultLabel.setAlignment(Align.center);
+
+    gamblingRoot.add(gamblingResultLabel).center().padTop(2f);
+
+    activeGrid.add(gamblingRoot).grow().center();
+
+    refreshGamblingWheel();
+  }
+
+  private void refreshGamblingWheel() {
+    ShopComponent shop = entity.getComponent(ShopComponent.class);
+
+    if (shop == null || gamblingWheel == null) {
+      return;
+    }
+
+    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
+
+    if (catalogs == null) {
+      return;
+    }
+
+    GamblingCatalogs.SpinCatalog catalog = catalogs.get(currentGamblingCatalog);
+
+    if (catalog == null) {
+      return;
+    }
+
+    gamblingWheel.setCatalog(currentGamblingCatalog, catalog);
+
+    gamblingPriceLabel.setText("Spin Cost: " + catalog.getSpinPrice() + " Gold");
+
+    boolean canAfford = canAfford(catalog.getSpinPrice());
+
+    spinButton.setDisabled(!canAfford);
+
+    spinButton.setTouchable(canAfford ? Touchable.enabled : Touchable.disabled);
+
+    gamblingPriceLabel.setColor(canAfford ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
+
+    updateGamblingModeButtons();
+  }
+
+  private void updateGamblingModeButtons() {
+    if (standardGamblingButton == null || premiumGamblingButton == null) {
+      return;
+    }
+
+    boolean standard = currentGamblingCatalog == GamblingCatalogs.CatalogId.STANDARD;
+
+    standardGamblingButton.setColor(standard ? TAB_TINT_ACTIVE : TAB_TINT_INACTIVE);
+
+    premiumGamblingButton.setColor(!standard ? TAB_TINT_ACTIVE : TAB_TINT_INACTIVE);
+
+    standardGamblingButton.getLabel().setColor(standard ? TAB_TEXT_ACTIVE : TEXT_MUTED);
+
+    premiumGamblingButton.getLabel().setColor(!standard ? TAB_TEXT_ACTIVE : TEXT_MUTED);
+  }
+
+  private void spinGamblingWheel() {
+    ShopComponent shop = entity.getComponent(ShopComponent.class);
+
+    if (shop == null || gamblingWheel == null || gamblingWheel.isSpinning()) {
+      return;
+    }
+
+    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
+
+    if (catalogs == null) {
+      return;
+    }
+
+    GamblingCatalogs.SpinCatalog catalog = catalogs.get(currentGamblingCatalog);
+
+    if (catalog == null) {
+      return;
+    }
+
+    if (!canAfford(catalog.getSpinPrice())) {
+      gamblingResultLabel.setText("Not enough gold.");
+
+      gamblingResultLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
+
+      return;
+    }
+
+    /*
+     * IMPORTANT:
+     *
+     * buySpin() is the authority that chooses the prize.
+     * The UI must NOT call GamblingRoller.rollSlot()
+     * to independently decide the result.
+     */
+    GamblingCatalogs.PrizeEntry<?> result = shop.buySpin(currentGamblingCatalog);
+
+    if (result == null) {
+      gamblingResultLabel.setText("Spin failed.");
+
+      gamblingResultLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
+
+      refreshGamblingWheel();
+
+      return;
+    }
+
+    int winningSlot = findPrizeSlot(catalog, result);
+
+    if (winningSlot < 1) {
+      gamblingResultLabel.setText("Prize received.");
+
+      gamblingResultLabel.setColor(GOLD_COLOR);
+
+      refreshGamblingWheel();
+
+      return;
+    }
+
+    spinButton.setDisabled(true);
+    spinButton.setTouchable(Touchable.disabled);
+
+    gamblingWheel.spinToSlot(
+        winningSlot,
+        () -> {
+          gamblingResultLabel.setText("You won: " + getPrizeName(result));
+
+          gamblingResultLabel.setColor(GOLD_COLOR);
+
+          refreshGamblingWheel();
+        });
+  }
+
+  private int findPrizeSlot(
+      GamblingCatalogs.SpinCatalog catalog, GamblingCatalogs.PrizeEntry<?> result) {
+
+    for (int slot = 1; slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT; slot++) {
+
+      GamblingCatalogs.PrizeEntry<?> prize = catalog.getPrize(slot);
+
+      if (prize == result) {
+        return slot;
+      }
+    }
+
+    return -1;
+  }
+
+  private String getPrizeName(GamblingCatalogs.PrizeEntry<?> prize) {
+
+    if (prize == null) {
+      return "?";
+    }
+
+    Object product = prize.getProduct();
+
+    if (product instanceof GamblingCatalogs.ItemPrize) {
+      return ((GamblingCatalogs.ItemPrize) product).getDisplayName();
+    }
+
+    if (product instanceof GamblingCatalogs.GoldPrize) {
+      return ((GamblingCatalogs.GoldPrize) product).getAmount() + " Gold";
+    }
+
+    if (product instanceof ShopComponent.Pet) {
+      return ((ShopComponent.Pet) product).getName();
+    }
+
+    if (product instanceof ShopComponent.Upgrade) {
+      return ((ShopComponent.Upgrade) product).getName();
+    }
+
+    return "Unknown Prize";
   }
 }
