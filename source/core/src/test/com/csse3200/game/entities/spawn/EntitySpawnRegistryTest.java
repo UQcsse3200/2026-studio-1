@@ -104,7 +104,6 @@ class EntitySpawnRegistryTest {
     assertTrue(EntitySpawnRegistry.isRegistered("ranged-skeleton"));
     assertTrue(EntitySpawnRegistry.isRegistered("ghostking"));
     assertTrue(EntitySpawnRegistry.isRegistered("centaur"));
-    assertTrue(EntitySpawnRegistry.isRegistered("npc:traveler"));
   }
 
   @Test

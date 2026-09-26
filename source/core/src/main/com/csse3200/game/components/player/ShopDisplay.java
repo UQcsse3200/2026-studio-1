@@ -213,6 +213,8 @@ public class ShopDisplay extends UIComponent {
     entity.getEvents().addListener("shopChanged", this::refreshShop);
     entity.getEvents().addListener("upgradePurchased", this::refreshShop);
     entity.getEvents().addListener("petPurchased", (ShopComponent.Pet pet) -> refreshShop());
+    // Lets other components (e.g. the shopkeeper NPC) open the shop.
+    entity.getEvents().addListener("openShop", this::openShop);
 
     petAtlas = new TextureAtlas(Gdx.files.internal("images/pet.atlas"));
 

@@ -82,6 +82,16 @@
     },
     "L": {
       "type": "LOOT"
+    },
+    "1": {
+      "type": "MARKER",
+      "kind": "npc",
+      "id": "npc:philosopher"
+    },
+    "3": {
+      "type": "MARKER",
+      "kind": "npc",
+      "id": "npc:satyr"
     }
   },
   "layers": {
@@ -664,7 +674,7 @@
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
-      "                                           S    L  L                            ",
+      "                                           S    L 3L                            ",
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
@@ -784,7 +794,7 @@
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
-      "                                                                                ",
+      "                                     1                                          ",
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
