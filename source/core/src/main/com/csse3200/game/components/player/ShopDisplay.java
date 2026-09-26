@@ -966,12 +966,10 @@ public class ShopDisplay extends UIComponent {
 
     upgradePopup = new Table();
     upgradePopup.setBackground(skin.getDrawable(ACCENT_PANEL_BACKGROUND));
-    upgradePopup.setColor(PANEL_TINT);
     upgradePopup.pad(PANEL_PADDING);
     upgradePopup.setSize(UPGRADE_POPUP_WIDTH, UPGRADE_POPUP_HEIGHT);
 
     upgradePopupCloseButton = new TextButton("X", skin);
-    upgradePopupCloseButton.setColor(SELL_MODE_TINT);
     upgradePopupCloseButton.addListener(
         new ClickListener() {
           @Override
@@ -1041,7 +1039,6 @@ public class ShopDisplay extends UIComponent {
 
     purchaseToast = new Table();
     purchaseToast.setBackground(skin.getDrawable(TOAST_BACKGROUND));
-    purchaseToast.setColor(CARD_TINT);
     purchaseToast.pad(PANEL_PADDING);
 
     purchaseToastLabel = new Label("", whiteLabelStyle);
