@@ -31,7 +31,9 @@ public class MainMenuDisplay extends UIComponent {
   private static final float MENU_ITEM_FONT_SCALE = 1.6f;
   private static final float OPTIONS_WIDTH_FRACTION = 0.75f;
 
-  private static final String[] MENU_ITEMS = {"Start", "Load", "Settings", "Perks", "Exit"};
+  private static final String[] MENU_ITEMS = {
+    "Start", "Load", "After-Death Cutscene", "Settings", "Perks", "Exit"
+  };
 
   Label[] buttons;
   int selectedIndex = 0;
@@ -159,12 +161,14 @@ public class MainMenuDisplay extends UIComponent {
 
   private void confirmSelection() {
     updateHighlight();
+
     switch (selectedIndex) {
       case 0 -> entity.getEvents().trigger("start");
       case 1 -> entity.getEvents().trigger("load");
-      case 2 -> entity.getEvents().trigger("settings");
-      case 3 -> entity.getEvents().trigger("perks");
-      case 4 -> entity.getEvents().trigger("exit");
+      case 2 -> entity.getEvents().trigger("afterDeathCutscene");
+      case 3 -> entity.getEvents().trigger("settings");
+      case 4 -> entity.getEvents().trigger("perks");
+      case 5 -> entity.getEvents().trigger("exit");
       default -> {}
     }
   }

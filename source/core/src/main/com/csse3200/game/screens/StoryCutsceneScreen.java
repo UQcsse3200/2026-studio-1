@@ -36,6 +36,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   private final GdxGame game;
   private final StoryCutscene cutscene;
+  private final GdxGame.ScreenType destinationScreen;
 
   private Stage stage;
 
@@ -58,14 +59,27 @@ public class StoryCutsceneScreen extends ScreenAdapter {
   private boolean textFullyRevealed = false;
 
   /**
-   * Creates the story cutscene screen.
+   * Creates the story cutscene screen and returns to the main game when finished.
    *
-   * @param game game instance used to transition to the main game
+   * @param game game instance used to transition between screens
    * @param cutscene story cutscene to display
    */
   public StoryCutsceneScreen(GdxGame game, StoryCutscene cutscene) {
+    this(game, cutscene, GdxGame.ScreenType.MAIN_GAME);
+  }
+
+  /**
+   * Creates the story cutscene screen with a specified destination.
+   *
+   * @param game game instance used to transition between screens
+   * @param cutscene story cutscene to display
+   * @param destinationScreen screen to show after the cutscene finishes
+   */
+  public StoryCutsceneScreen(
+      GdxGame game, StoryCutscene cutscene, GdxGame.ScreenType destinationScreen) {
     this.game = game;
     this.cutscene = cutscene;
+    this.destinationScreen = destinationScreen;
   }
 
   @Override
@@ -272,7 +286,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
     boolean finished = cutscene.advance();
 
     if (finished) {
-      game.setScreen(GdxGame.ScreenType.MAIN_GAME);
+      game.setScreen(destinationScreen);
       return;
     }
 

@@ -62,4 +62,40 @@ class StoryCutsceneTest {
   void rejectsEmptyCutscene() {
     assertThrows(IllegalArgumentException.class, () -> new StoryCutscene(List.of()));
   }
+
+  @Test
+  void afterDeathCutsceneContainsFourScenes() {
+    StoryCutscene cutscene = StoryCutscene.createAfterDeathCutscene();
+
+    assertEquals(4, cutscene.getSceneCount());
+  }
+
+  @Test
+  void afterDeathCutsceneStartsAtTheFall() {
+    StoryCutscene cutscene = StoryCutscene.createAfterDeathCutscene();
+
+    assertEquals("THE FALL", cutscene.getCurrentScene().getTitle());
+  }
+
+  @Test
+  void afterDeathCutsceneContainsExpectedScenesInOrder() {
+    StoryCutscene cutscene = StoryCutscene.createAfterDeathCutscene();
+
+    assertEquals("THE FALL", cutscene.getScenes().get(0).getTitle());
+    assertEquals("THE LEGEND", cutscene.getScenes().get(1).getTitle());
+    assertEquals("THE NEXT HERO", cutscene.getScenes().get(2).getTitle());
+    assertEquals("THE JOURNEY CONTINUES", cutscene.getScenes().get(3).getTitle());
+  }
+
+  @Test
+  void afterDeathCutsceneAdvancesToFinalScene() {
+    StoryCutscene cutscene = StoryCutscene.createAfterDeathCutscene();
+
+    assertFalse(cutscene.advance());
+    assertFalse(cutscene.advance());
+    assertFalse(cutscene.advance());
+
+    assertTrue(cutscene.isFinished());
+    assertEquals("THE JOURNEY CONTINUES", cutscene.getCurrentScene().getTitle());
+  }
 }

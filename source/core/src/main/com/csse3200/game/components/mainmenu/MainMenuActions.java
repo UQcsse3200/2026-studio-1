@@ -21,6 +21,7 @@ public class MainMenuActions extends Component {
   public void create() {
     entity.getEvents().addListener("start", this::onStart);
     entity.getEvents().addListener("load", this::onLoad);
+    entity.getEvents().addListener("afterDeathCutscene", this::onAfterDeathCutscene);
     entity.getEvents().addListener("exit", this::onExit);
     entity.getEvents().addListener("settings", this::onSettings);
     entity.getEvents().addListener("perks", this::onPerks);
@@ -30,6 +31,12 @@ public class MainMenuActions extends Component {
   private void onStart() {
     logger.info("Start game");
     game.setScreen(GdxGame.ScreenType.STORY_CUTSCENE);
+  }
+
+  /** Launches the after-death story cutscene for testing. */
+  private void onAfterDeathCutscene() {
+    logger.info("Launching after-death story cutscene");
+    game.setScreen(GdxGame.ScreenType.AFTER_DEATH_CUTSCENE);
   }
 
   /** Intended for loading a saved game state. Load functionality is not actually implemented. */

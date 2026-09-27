@@ -7,8 +7,8 @@ import java.util.List;
 /**
  * Stores and controls the sequence of scenes that make up the story cutscene.
  *
- * <p>The cutscene contains five scenes that introduce the hero, show the journey into the dungeon,
- * the hero's defeat, and the beginning of a new hero's journey.
+ * <p>The default cutscene contains five scenes that introduce the hero, show the journey into the
+ * dungeon, the hero's defeat, and the beginning of a new hero's journey.
  */
 public class StoryCutscene {
 
@@ -16,7 +16,7 @@ public class StoryCutscene {
   private int currentSceneIndex;
 
   /**
-   * Creates the default story cutscene.
+   * Creates the default opening story cutscene.
    *
    * <p>Each scene contains its own title, story text and background image.
    */
@@ -55,6 +55,43 @@ public class StoryCutscene {
 
     this.scenes = Collections.unmodifiableList(storyScenes);
     this.currentSceneIndex = 0;
+  }
+
+  /**
+   * Creates the after-death story cutscene.
+   *
+   * <p>This cutscene explains what happens after the first hero falls and introduces the next hero.
+   *
+   * @return a new after-death story cutscene
+   */
+  public static StoryCutscene createAfterDeathCutscene() {
+    List<StoryScene> storyScenes = new ArrayList<>();
+
+    storyScenes.add(
+        new StoryScene(
+            "THE FALL",
+            "The dungeon claimed its first hero.",
+            "images/cutscenes/death_scene1.jpeg"));
+
+    storyScenes.add(
+        new StoryScene(
+            "THE LEGEND",
+            "But the hero's courage became a story that others would remember.",
+            "images/cutscenes/death_scene2.jpeg"));
+
+    storyScenes.add(
+        new StoryScene(
+            "THE NEXT HERO",
+            "Inspired by the legend, another hero takes up the journey.",
+            "images/cutscenes/death_scene3.jpeg"));
+
+    storyScenes.add(
+        new StoryScene(
+            "THE JOURNEY CONTINUES",
+            "The path remains unfinished. Someone must continue where the first hero fell.",
+            "images/cutscenes/death_scene4.jpeg"));
+
+    return new StoryCutscene(storyScenes);
   }
 
   /**
