@@ -109,7 +109,9 @@ public class WeaponDisplay extends UIComponent {
     }
   }
 
-  /** Called whenever UpgradesDisplay's Sword Damage effect changes (including back to 0 on expiry). */
+  /**
+   * Called whenever UpgradesDisplay's Sword Damage effect changes (including back to 0 on expiry).
+   */
   private void onSwordDamageBonusChanged(int bonus) {
     swordDamageBonus = bonus;
     weaponLabel.setText(buildLabelText());
