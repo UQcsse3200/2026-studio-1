@@ -210,13 +210,18 @@ public class PlatformerComponent extends Component {
       }
 
       this.jumpDirection.y *= baseJumpScaler;
+if (!isGrounded()) {
+  doubleJumpRemaining--;
+}
 
-      if (!isGrounded()) {
-        doubleJumpRemaining--;
-      }
+if (superJumpPowerup) {
+  this.jumpDirection.y *= superJumpScaler;
+}
 
-      if (superJumpPowerup) {
-        this.jumpDirection.y *= superJumpScaler;
+if (staminaComponent == null
+    || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
+  return;
+}
       }
 
       staminaComponent.useStamina(staminaComponent.getJumpCost());
