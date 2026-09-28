@@ -21,58 +21,57 @@ import org.slf4j.LoggerFactory;
 
 /** Screen shown after pressing Start, where the player picks Easy, Normal or Hard. */
 public class DifficultySelectScreen extends ScreenAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(DifficultySelectScreen.class);
-    private final GdxGame game;
-    private final Renderer renderer;
+  private static final Logger logger = LoggerFactory.getLogger(DifficultySelectScreen.class);
+  private final GdxGame game;
+  private final Renderer renderer;
 
-    public DifficultySelectScreen(GdxGame game) {
-        this.game = game;
+  public DifficultySelectScreen(GdxGame game) {
+    this.game = game;
 
-        logger.debug("Initialising difficulty select screen services");
-        ServiceLocator.registerInputService(new InputService());
-        ServiceLocator.registerResourceService(new ResourceService());
-        ServiceLocator.registerEntityService(new EntityService());
-        ServiceLocator.registerRenderService(new RenderService());
+    logger.debug("Initialising difficulty select screen services");
+    ServiceLocator.registerInputService(new InputService());
+    ServiceLocator.registerResourceService(new ResourceService());
+    ServiceLocator.registerEntityService(new EntityService());
+    ServiceLocator.registerRenderService(new RenderService());
 
-        renderer = RenderFactory.createRenderer();
+    renderer = RenderFactory.createRenderer();
 
-        createUI();
-    }
+    createUI();
+  }
 
-    @Override
-    public void show() {
-        // Same light-yellow background as the main menu
-        Gdx.gl.glClearColor(248f / 255f, 249f / 255f, 178f / 255f, 1f);
-    }
+  @Override
+  public void show() {
+    // Same light-yellow background as the main menu
+    Gdx.gl.glClearColor(248f / 255f, 249f / 255f, 178f / 255f, 1f);
+  }
 
-    @Override
-    public void render(float delta) {
-        ServiceLocator.getEntityService().update();
-        renderer.render();
-    }
+  @Override
+  public void render(float delta) {
+    ServiceLocator.getEntityService().update();
+    renderer.render();
+  }
 
-    @Override
-    public void resize(int width, int height) {
-        renderer.resize(width, height);
-    }
+  @Override
+  public void resize(int width, int height) {
+    renderer.resize(width, height);
+  }
 
-    @Override
-    public void dispose() {
-        logger.debug("Disposing difficulty select screen");
-        renderer.dispose();
-        ServiceLocator.getRenderService().dispose();
-        ServiceLocator.getEntityService().dispose();
-        ServiceLocator.clear();
-    }
+  @Override
+  public void dispose() {
+    logger.debug("Disposing difficulty select screen");
+    renderer.dispose();
+    ServiceLocator.getRenderService().dispose();
+    ServiceLocator.getEntityService().dispose();
+    ServiceLocator.clear();
+  }
 
-
-    private void createUI() {
-        Stage stage = ServiceLocator.getRenderService().getStage();
-        Entity ui = new Entity();
-        ui.addComponent(new DifficultySelectDisplay())
-                .addComponent(new InputDecorator(stage, 10))
-                .addComponent(new DifficultySelectInputComponent())
-                .addComponent(new DifficultySelectActions(game));
-        ServiceLocator.getEntityService().register(ui);
-    }
+  private void createUI() {
+    Stage stage = ServiceLocator.getRenderService().getStage();
+    Entity ui = new Entity();
+    ui.addComponent(new DifficultySelectDisplay())
+        .addComponent(new InputDecorator(stage, 10))
+        .addComponent(new DifficultySelectInputComponent())
+        .addComponent(new DifficultySelectActions(game));
+    ServiceLocator.getEntityService().register(ui);
+  }
 }
