@@ -55,47 +55,53 @@ public class QuestGiverComponent extends Component {
       return Quest.checkEnemiesKilledQuest(uniqueNPCID);
     }
   }
-  //EnemiesKilledQuest functions end here
-  //GoldSpentQuest functions start here
-  public boolean logGoldSpentQuest(String reward, int amountToSpend){
-    if(Quest.logGoldSpentQuest(uniqueNPCID,amountToSpend)){
+
+  // EnemiesKilledQuest functions end here
+  // GoldSpentQuest functions start here
+  public boolean logGoldSpentQuest(String reward, int amountToSpend) {
+    if (Quest.logGoldSpentQuest(uniqueNPCID, amountToSpend)) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
-  public int checkGoldSpentQuestComplete(){
+
+  public int checkGoldSpentQuestComplete() {
     if (Quest.checkGoldSpentQuest(uniqueNPCID) == -1) {
       throw new NullPointerException(
-              "A QuestGiver component tried to call checkGoldSpentQuest when "
-                      + "there isn't a quest to check the progress of i.e. it returned null");
+          "A QuestGiver component tried to call checkGoldSpentQuest when "
+              + "there isn't a quest to check the progress of i.e. it returned null");
     } else {
       return Quest.checkGoldSpentQuest(uniqueNPCID);
     }
   }
-  public void clearGoldSpentQuest(){
+
+  public void clearGoldSpentQuest() {
     Quest.clearGoldSpentQuest(uniqueNPCID);
   }
-  //GoldSpentQuest functions end here
-  //ShieldsCollectedQuest functions start here
-  public boolean logShieldsCollectedQuest(String reward, int shieldsToCollect){
-    if(Quest.logShieldsCollectedQuest(uniqueNPCID,shieldsToCollect)){
+
+  // GoldSpentQuest functions end here
+  // ShieldsCollectedQuest functions start here
+  public boolean logShieldsCollectedQuest(String reward, int shieldsToCollect) {
+    if (Quest.logShieldsCollectedQuest(uniqueNPCID, shieldsToCollect)) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
-  public void clearShieldsCollectedQuest(){
+
+  public void clearShieldsCollectedQuest() {
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
   }
-  public int checkShieldsCollectedQuestComplete(){
-    if(Quest.checkShieldsCollectedQuest(uniqueNPCID)==-1){
+
+  public int checkShieldsCollectedQuestComplete() {
+    if (Quest.checkShieldsCollectedQuest(uniqueNPCID) == -1) {
       throw new NullPointerException(
-              "A QuestGiver component tried to call checkShieldsCollectedQuest when "
-                      + "there isn't a quest to check the progress of i.e. it returned null");
-    }else{
+          "A QuestGiver component tried to call checkShieldsCollectedQuest when "
+              + "there isn't a quest to check the progress of i.e. it returned null");
+    } else {
       return Quest.checkShieldsCollectedQuest(uniqueNPCID);
     }
   }
-  //ShieldsCollectedQuest functions end here
+  // ShieldsCollectedQuest functions end here
 }

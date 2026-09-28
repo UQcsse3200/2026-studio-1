@@ -12,7 +12,8 @@ public class Quest {
   private static ArrayList<EnemiesKilledQuest> enemiesKilledQuestTracker =
       new ArrayList<EnemiesKilledQuest>();
   private static ArrayList<GoldSpentQuest> goldSpentQuestTracker = new ArrayList<GoldSpentQuest>();
-  private static ArrayList<ShieldsCollectedQuest> shieldsCollectedQuestTracker = new ArrayList<ShieldsCollectedQuest>();
+  private static ArrayList<ShieldsCollectedQuest> shieldsCollectedQuestTracker =
+      new ArrayList<ShieldsCollectedQuest>();
   // Statistics tracker
   private static float globalJumps = 0;
   private static float globalEnemiesKilled = 0;
@@ -26,8 +27,8 @@ public class Quest {
     // Add space for a possible jump quest later on.
     jumpQuestTracker.add(uniqueID, null);
     enemiesKilledQuestTracker.add(uniqueID, null);
-    goldSpentQuestTracker.add(uniqueID,null);
-    shieldsCollectedQuestTracker.add(uniqueID,null);
+    goldSpentQuestTracker.add(uniqueID, null);
+    shieldsCollectedQuestTracker.add(uniqueID, null);
     return uniqueID;
   }
 
@@ -84,52 +85,57 @@ public class Quest {
 
   // EnemiesKilledQuest functions end
   // GoldSpentQuest function start
-  public static boolean logGoldSpentQuest(int NPCId, int amountOfGoldToSpend){
-    if(questActiveForNPCID.get(NPCId)){
+  public static boolean logGoldSpentQuest(int NPCId, int amountOfGoldToSpend) {
+    if (questActiveForNPCID.get(NPCId)) {
       return false;
-    }else{
-      goldSpentQuestTracker.set(NPCId,new GoldSpentQuest(amountOfGoldToSpend));
-      questActiveForNPCID.set(NPCId,true);
-      return true;
-    }
-  }
-  public static int checkGoldSpentQuest(int NPCId){
-    if(goldSpentQuestTracker.get(NPCId)!= null){
-      return goldSpentQuestTracker.get(NPCId).checkQuestProgress();
-    }else{
-      //There is no quest created for that NPCId
-      return -1;
-    }
-  }
-  public static void clearGoldSpentQuest(int NPCId){
-    goldSpentQuestTracker.set(NPCId,null);
-    questActiveForNPCID.set(NPCId,false);
-  }
-  //GoldSpentQuest functions end
-  //ShieldsCollectedQuest functions start
-  public static boolean logShieldsCollectedQuest(int NPCId, int amountOfShieldsToCollect){
-    if(questActiveForNPCID.get(NPCId)){
-      return false;
-    }else{
-      shieldsCollectedQuestTracker.set(NPCId, new ShieldsCollectedQuest(amountOfShieldsToCollect));
-      questActiveForNPCID.set(NPCId,true);
+    } else {
+      goldSpentQuestTracker.set(NPCId, new GoldSpentQuest(amountOfGoldToSpend));
+      questActiveForNPCID.set(NPCId, true);
       return true;
     }
   }
 
-  public static int checkShieldsCollectedQuest(int NPCId){
-    if(shieldsCollectedQuestTracker.get(NPCId)!=null){
-      return getShieldsCollectedQuests().get(NPCId).checkQuestProgress();
-    }else{
-      //No shieldCollectedQuest was created for that NPC
+  public static int checkGoldSpentQuest(int NPCId) {
+    if (goldSpentQuestTracker.get(NPCId) != null) {
+      return goldSpentQuestTracker.get(NPCId).checkQuestProgress();
+    } else {
+      // There is no quest created for that NPCId
       return -1;
     }
   }
-  public static void clearShieldsCollectedQuest(int NPCId){
-    shieldsCollectedQuestTracker.set(NPCId,null);
-    questActiveForNPCID.set(NPCId,false);
+
+  public static void clearGoldSpentQuest(int NPCId) {
+    goldSpentQuestTracker.set(NPCId, null);
+    questActiveForNPCID.set(NPCId, false);
   }
-  //ShieldsCollectedQuest functions end
+
+  // GoldSpentQuest functions end
+  // ShieldsCollectedQuest functions start
+  public static boolean logShieldsCollectedQuest(int NPCId, int amountOfShieldsToCollect) {
+    if (questActiveForNPCID.get(NPCId)) {
+      return false;
+    } else {
+      shieldsCollectedQuestTracker.set(NPCId, new ShieldsCollectedQuest(amountOfShieldsToCollect));
+      questActiveForNPCID.set(NPCId, true);
+      return true;
+    }
+  }
+
+  public static int checkShieldsCollectedQuest(int NPCId) {
+    if (shieldsCollectedQuestTracker.get(NPCId) != null) {
+      return getShieldsCollectedQuests().get(NPCId).checkQuestProgress();
+    } else {
+      // No shieldCollectedQuest was created for that NPC
+      return -1;
+    }
+  }
+
+  public static void clearShieldsCollectedQuest(int NPCId) {
+    shieldsCollectedQuestTracker.set(NPCId, null);
+    questActiveForNPCID.set(NPCId, false);
+  }
+
+  // ShieldsCollectedQuest functions end
   public static ArrayList<JumpQuest> getJumpQuests() {
     return jumpQuestTracker;
   }
@@ -138,11 +144,11 @@ public class Quest {
     return enemiesKilledQuestTracker;
   }
 
-  public static ArrayList<GoldSpentQuest> getGoldSpentQuests(){
+  public static ArrayList<GoldSpentQuest> getGoldSpentQuests() {
     return goldSpentQuestTracker;
   }
 
-  public static ArrayList<ShieldsCollectedQuest> getShieldsCollectedQuests(){
+  public static ArrayList<ShieldsCollectedQuest> getShieldsCollectedQuests() {
     return shieldsCollectedQuestTracker;
   }
 
@@ -154,10 +160,11 @@ public class Quest {
     globalEnemiesKilled++;
   }
 
-  public static void addGlobalGoldSpent(int amount){
-    globalGoldSpent+=amount;
+  public static void addGlobalGoldSpent(int amount) {
+    globalGoldSpent += amount;
   }
-  public static void incrementGlobalShieldsCollected(){
+
+  public static void incrementGlobalShieldsCollected() {
     globalShieldsCollected++;
   }
 
@@ -169,11 +176,11 @@ public class Quest {
     return globalEnemiesKilled;
   }
 
-  public static float getGlobalGoldSpent(){
+  public static float getGlobalGoldSpent() {
     return globalGoldSpent;
   }
 
-  public static float getGlobalShieldsCollected(){
+  public static float getGlobalShieldsCollected() {
     return globalShieldsCollected;
   }
 

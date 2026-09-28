@@ -31,7 +31,7 @@ public class QuestDisplay extends UIComponent {
     enemiesKilledQuestsToDisplay = Quest.getEnemiesKilledQuests();
     goldSpentQuestsToDisplay = Quest.getGoldSpentQuests();
     shieldsCollectedQuestsToDisplay = Quest.getShieldsCollectedQuests();
-    Quest.logShieldsCollectedQuest(Quest.giveOutUniqueNPCID(),2);
+    Quest.logShieldsCollectedQuest(Quest.giveOutUniqueNPCID(), 2);
 
     addActors();
 
@@ -98,20 +98,22 @@ public class QuestDisplay extends UIComponent {
         questTable.add(completedQuest).left().row();
       }
     }
-    if(!completedGoldSpentQuest.isEmpty()){
+    if (!completedGoldSpentQuest.isEmpty()) {
       for (GoldSpentQuest quest : completedGoldSpentQuest) {
         Label completedQuest = new Label("✓ Gold Spent Quest", skin);
         questTable.add(completedQuest).left().row();
       }
     }
-    if(!completedShieldsCollectedQuest.isEmpty()){
+    if (!completedShieldsCollectedQuest.isEmpty()) {
       for (ShieldsCollectedQuest quest : completedShieldsCollectedQuest) {
         Label completedQuest = new Label("✓ Shields Collected Quest", skin);
         questTable.add(completedQuest).left().row();
       }
     }
-    if (completedEnemiesKilledQuest.isEmpty() && completedJumpQuests.isEmpty()&&completedGoldSpentQuest.isEmpty() &&
-            completedShieldsCollectedQuest.isEmpty()) {
+    if (completedEnemiesKilledQuest.isEmpty()
+        && completedJumpQuests.isEmpty()
+        && completedGoldSpentQuest.isEmpty()
+        && completedShieldsCollectedQuest.isEmpty()) {
       Label noCompleted = new Label("No completed quests", skin);
       questTable.add(noCompleted).left().row();
     }
