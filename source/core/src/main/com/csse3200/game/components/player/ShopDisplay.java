@@ -1184,29 +1184,57 @@ public class ShopDisplay extends UIComponent {
   /** Builds the gambling wheel tab with mode selections. */
   private void createGamblingTab() {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
-    if (shop == null) return;
-
-    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
-    if (catalogs == null) {
-      Label unavailable = new Label("Gambling is not available.", whiteLabelStyle);
-      unavailable.setColor(TEXT_MUTED);
-      activeGrid.add(unavailable).expand().center();
+    if (shop == null) {
       return;
     }
 
-    Table gamblingRoot = new Table();
-    gamblingRoot.defaults().pad(4f);
+    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
 
+    if (catalogs == null) {
+      Label unavailable = new Label("Gambling is not available.", whiteLabelStyle);
+
+      unavailable.setColor(TEXT_MUTED);
+      unavailable.setAlignment(Align.center);
+
+      activeGrid.add(unavailable).grow().center();
+
+      return;
+    }
+
+    /*
+     * Root container for the gambling tab.
+     *
+     * The root itself fills the available shop area and is explicitly
+     * centred so every gambling element is positioned relative to the
+     * middle of the tab.
+     */
+    Table gamblingRoot = new Table();
+    gamblingRoot.setFillParent(false);
+    gamblingRoot.defaults().pad(4f);
+    gamblingRoot.center();
+
+    /*
+     * ------------------------------------------------------------
+     * STANDARD / PREMIUM
+     * ------------------------------------------------------------
+     */
     Table modeRow = new Table();
+    modeRow.defaults().pad(0f);
+
     standardGamblingButton = new TextButton("STANDARD", skin);
+
     premiumGamblingButton = new TextButton("PREMIUM", skin);
 
     standardGamblingButton.addListener(
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            if (gamblingWheel != null && gamblingWheel.isSpinning()) return;
+            if (gamblingWheel != null && gamblingWheel.isSpinning()) {
+              return;
+            }
+
             currentGamblingCatalog = GamblingCatalogs.CatalogId.STANDARD;
+
             refreshGamblingWheel();
           }
         });
@@ -1215,25 +1243,56 @@ public class ShopDisplay extends UIComponent {
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            if (gamblingWheel != null && gamblingWheel.isSpinning()) return;
+            if (gamblingWheel != null && gamblingWheel.isSpinning()) {
+              return;
+            }
+
             currentGamblingCatalog = GamblingCatalogs.CatalogId.PREMIUM;
+
             refreshGamblingWheel();
           }
         });
 
     modeRow.add(standardGamblingButton).width(120f).height(32f).padRight(8f);
+
     modeRow.add(premiumGamblingButton).width(120f).height(32f);
-    gamblingRoot.add(modeRow).center().row();
 
+    gamblingRoot.add(modeRow).center().padBottom(8f).row();
+
+    /*
+     * ------------------------------------------------------------
+     * LOTTERY BOX
+     * ------------------------------------------------------------
+     *
+     * GamblingWheel is still the existing class/API.
+     * It now displays the square lottery animation rather than
+     * a rotating wheel.
+     */
     gamblingWheel = new GamblingWheel(whiteLabelStyle);
-    gamblingRoot.add(gamblingWheel).size(300f, 300f).center().padTop(4f).row();
 
+    gamblingRoot.add(gamblingWheel).size(300f, 300f).center().padTop(4f).padBottom(8f).row();
+
+    /*
+     * ------------------------------------------------------------
+     * PRICE
+     * ------------------------------------------------------------
+     */
     gamblingPriceLabel = new Label("", whiteLabelStyle);
-    gamblingPriceLabel.setColor(GOLD_COLOR);
-    gamblingRoot.add(gamblingPriceLabel).center().padTop(2f).row();
 
+    gamblingPriceLabel.setColor(GOLD_COLOR);
+    gamblingPriceLabel.setAlignment(Align.center);
+
+    gamblingRoot.add(gamblingPriceLabel).center().padTop(2f).padBottom(6f).row();
+
+    /*
+     * ------------------------------------------------------------
+     * SPIN BUTTON
+     * ------------------------------------------------------------
+     */
     spinButton = new TextButton("SPIN", skin);
+
     spinButton.setColor(SPIN_BUTTON_TINT);
+
     spinButton.addListener(
         new ClickListener() {
           @Override
@@ -1242,14 +1301,33 @@ public class ShopDisplay extends UIComponent {
           }
         });
 
-    gamblingRoot.add(spinButton).width(150f).height(40f).center().padTop(4f).row();
+    gamblingRoot.add(spinButton).width(150f).height(40f).center().padTop(2f).padBottom(6f).row();
 
-    gamblingResultLabel = new Label("Choose a wheel and spin!", whiteLabelStyle);
+    /*
+     * ------------------------------------------------------------
+     * RESULT MESSAGE
+     * ------------------------------------------------------------
+     */
+    gamblingResultLabel = new Label("Choose a catalogue and spin!", whiteLabelStyle);
+
     gamblingResultLabel.setColor(TEXT_PRIMARY);
     gamblingResultLabel.setAlignment(Align.center);
-    gamblingRoot.add(gamblingResultLabel).center().padTop(2f);
 
+    gamblingRoot.add(gamblingResultLabel).center().padTop(2f).row();
+
+    /*
+     * ------------------------------------------------------------
+     * ADD GAMBLING CONTENT TO SHOP
+     * ------------------------------------------------------------
+     *
+     * grow() allows gamblingRoot to occupy the available tab
+     * area, while center() keeps its contents centred.
+     */
     activeGrid.add(gamblingRoot).grow().center();
+
+    /*
+     * Load the currently selected catalogue.
+     */
     refreshGamblingWheel();
   }
 
@@ -1367,14 +1445,16 @@ public class ShopDisplay extends UIComponent {
       selectionArrow.setColor(SELECTION_ARROW_COLOR);
       selectionArrow.setAlignment(Align.center);
       selectionArrow.setFontScale(1.4f);
+      selectionArrow.setSize(24f, 24f);
       selectionArrow.setTouchable(Touchable.disabled);
       stage.addActor(selectionArrow);
     }
 
+    selectionArrow.pack(); // Ensure size is calculated before positioning
     selectionArrow.setVisible(true);
     selectionArrow.clearActions();
 
-    // Calculate position in stage coordinates
+    // Map the top center of the card to stage coordinates
     com.badlogic.gdx.math.Vector2 cardStagePos =
         targetCard.localToStageCoordinates(
             new com.badlogic.gdx.math.Vector2(targetCard.getWidth() / 2f, targetCard.getHeight()));
@@ -1387,6 +1467,6 @@ public class ShopDisplay extends UIComponent {
     // Continuous bobbing animation (moves up & down by 5px)
     selectionArrow.addAction(
         Actions.forever(
-            Actions.sequence(Actions.moveBy(0f, 6f, 0.3f), Actions.moveBy(0f, -6f, 0.3f))));
+            Actions.sequence(Actions.moveBy(0f, 5f, 0.25f), Actions.moveBy(0f, -5f, 0.25f))));
   }
 }
