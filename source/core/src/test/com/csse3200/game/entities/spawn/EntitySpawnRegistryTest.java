@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.spawn;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,6 +61,15 @@ class EntitySpawnRegistryTest {
   void skipsAnUnknownNameInsteadOfFailing() {
     assertNull(EntitySpawnRegistry.create("centaur", null));
     assertFalse(EntitySpawnRegistry.isRegistered("centaur"));
+  }
+
+  @Test
+  void createDoesNotThrowWhenNoFactoryIsRegisteredForAName() {
+    // create() now runs every built entity through DifficultyScaler.apply() before returning it -
+    // this confirms the "no factory registered" path still short-circuits to null before ever
+    // reaching that call, rather than passing null into it and relying on DifficultyScaler's own
+    // null-check.
+    assertDoesNotThrow(() -> assertNull(EntitySpawnRegistry.create("no-such-spawn", null)));
   }
 
   @Test
