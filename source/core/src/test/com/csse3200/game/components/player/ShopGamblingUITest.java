@@ -2,16 +2,16 @@ package com.csse3200.game.components.player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,137 +25,181 @@ class ShopGamblingUITest {
   @BeforeEach
   void setUp() {
     labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+
     ShopComponent shop = new ShopComponent().seedDefaultCatalog();
     catalogs = shop.getGamblingCatalogs();
   }
 
-  /**
-   * Helper method to simulate advancing time in discrete frame steps, ensuring all Scene2D actions,
-   * rotations, and sequences complete properly.
-   */
+  /** Advances Scene2D actions so the blind-box animation can complete. */
   private static void advanceTime(Actor actor, float totalSeconds) {
     float step = 0.1f;
     float elapsed = 0f;
+
     while (elapsed < totalSeconds) {
       actor.act(step);
       elapsed += step;
     }
   }
 
-  @Test
-  void shouldInitializeGamblingWheelWithCorrectChildActors() {
-    GamblingWheel wheel = new GamblingWheel(labelStyle);
-
-    // Stack should contain: 1 Group (wheelGroup) and 1 Table (pointerOverlay)
-    assertEquals(
-        2, wheel.getChildren().size, "GamblingWheel stack must hold wheelGroup and pointerOverlay");
-    assertTrue(
-        wheel.getChildren().get(0) instanceof Group, "First child must be the rotating wheelGroup");
-    assertTrue(
-        wheel.getChildren().get(1) instanceof Table, "Second child must be the pointer overlay");
+  private GamblingWheel newWheel() {
+    GamblingWheel gamblingWheel = new GamblingWheel(labelStyle);
+    gamblingWheel.setCatalog(GamblingCatalogs.CatalogId.STANDARD, catalogs.getStandard());
+    return gamblingWheel;
   }
 
   @Test
-  void shouldBuildFivePrizeLabelsOnCatalogSet() {
-    GamblingWheel wheel = new GamblingWheel(labelStyle);
-    wheel.setCatalog(GamblingCatalogs.CatalogId.STANDARD, catalogs.getStandard());
+  void shouldCreateGamblingWheel() {
+    GamblingWheel gamblingWheel = new GamblingWheel(labelStyle);
 
-    Group wheelGroup = (Group) wheel.getChildren().get(0);
-    Group labelsGroup = (Group) wheelGroup.getChildren().get(1);
-
-    assertEquals(
-        GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT,
-        labelsGroup.getChildren().size,
-        "Wheel must populate exactly 5 prize labels");
-
-    Label firstLabel = (Label) labelsGroup.getChildren().get(0);
-    assertEquals("Health Potion", firstLabel.getText().toString());
+    assertTrue(
+        gamblingWheel.getChildren().size > 0, "GamblingWheel should contain its blind box UI");
   }
 
   @Test
-  void shouldCalculateTargetRotationAccuratelyForTargetSlot() {
-    GamblingWheel wheel = new GamblingWheel(labelStyle);
-    wheel.setCatalog(GamblingCatalogs.CatalogId.STANDARD, catalogs.getStandard());
+  void shouldDisplayCatalogWhenSet() {
+    GamblingWheel gamblingWheel = newWheel();
 
-    Group wheelGroup = (Group) wheel.getChildren().get(0);
+    assertNotNull(gamblingWheel.getCatalog(), "GamblingWheel should store the selected catalog");
+    assertEquals(
+        GamblingCatalogs.CatalogId.STANDARD,
+        gamblingWheel.getCatalogId(),
+        "GamblingWheel should store the selected catalog ID");
+  }
 
-    // Test spinning to slot 2 (Speed Potion)
-    // Sector size = 72 deg. Target rotation = (2 - 0.5) * 72 = 108 deg.
+  @Test
+  void shouldStartBlindBoxAnimation() {
+    GamblingWheel gamblingWheel = newWheel();
+
+    gamblingWheel.spinToSlot(1, null);
+
+    assertTrue(
+        gamblingWheel.isSpinning(),
+        "GamblingWheel should be spinning immediately after spin starts");
+    assertFalse(gamblingWheel.isAwaitingClick(), "Result should not be waiting yet");
+  }
+
+  @Test
+  void shouldHoldResultUntilPlayerClicks() {
+    GamblingWheel gamblingWheel = newWheel();
+
     AtomicBoolean completed = new AtomicBoolean(false);
-    wheel.spinToSlot(2, () -> completed.set(true));
+    gamblingWheel.spinToSlot(1, () -> completed.set(true));
 
-    assertTrue(wheel.isSpinning(), "Wheel should mark state as spinning immediately");
+    // Animation and lock delay are long finished, but nobody has clicked yet.
+    advanceTime(gamblingWheel, 10.0f);
 
-    // Advance time through multiple steps so all actions and callbacks execute
-    advanceTime(wheel, 3.5f);
+    assertTrue(gamblingWheel.isAwaitingClick(), "Result should wait for the player to click");
+    assertTrue(gamblingWheel.isSpinning(), "Display stays busy while the result is held");
+    assertFalse(completed.get(), "Callback must not run before the player clicks");
 
-    assertTrue(completed.get(), "Callback must execute upon spin finish");
-    assertFalse(wheel.isSpinning(), "Wheel state should reset to idle when finished");
-
-    // Final rotation modulo 360 should equal 108 degrees
-    float normalizedRotation = (wheelGroup.getRotation() % 360f + 360f) % 360f;
-    assertEquals(108f, normalizedRotation, 0.5f, "Target slot 2 must align at 108 degrees");
+    // Time passing must never dismiss the result on its own.
+    advanceTime(gamblingWheel, 30.0f);
+    assertTrue(gamblingWheel.isAwaitingClick());
+    assertFalse(completed.get());
   }
 
   @Test
-  void shouldOrientLabelUprightWhenSlotLandsOnTopPointer() {
-    GamblingWheel wheel = new GamblingWheel(labelStyle);
-    wheel.setCatalog(GamblingCatalogs.CatalogId.STANDARD, catalogs.getStandard());
+  void shouldFinishAfterPlayerClicks() {
+    GamblingWheel gamblingWheel = newWheel();
 
-    Group wheelGroup = (Group) wheel.getChildren().get(0);
-    Group labelsGroup = (Group) wheelGroup.getChildren().get(1);
+    AtomicBoolean completed = new AtomicBoolean(false);
+    gamblingWheel.spinToSlot(1, () -> completed.set(true));
 
-    // Slot 3 (15 Gold): Target rotation = (3 - 0.5) * 72 = 180 deg
-    Label slot3Label = (Label) labelsGroup.getChildren().get(2);
-    assertEquals(
-        -180f, slot3Label.getRotation(), 0.1f, "Pre-rotation must be negative target rotation");
+    advanceTime(gamblingWheel, 10.0f);
+    gamblingWheel.confirmResult();
 
-    wheel.spinToSlot(3, null);
-    advanceTime(wheel, 3.5f);
-
-    // Normalize group rotation to [0, 360)
-    float groupRot = (wheelGroup.getRotation() % 360f + 360f) % 360f;
-    float labelRot = (slot3Label.getRotation() % 360f + 360f) % 360f;
-
-    // Combined net orientation when resting under top pointer
-    float netRotation = (groupRot + labelRot) % 360f;
-
-    // 0 deg and 360 deg are equivalent upright angles
-    boolean isUpright = Math.abs(netRotation) < 0.5f || Math.abs(netRotation - 360f) < 0.5f;
-    assertTrue(
-        isUpright,
-        "Label must be oriented upright (0 degrees) when under top pointer, got: " + netRotation);
+    assertTrue(completed.get(), "Completion callback should execute after the player clicks");
+    assertFalse(gamblingWheel.isSpinning(), "GamblingWheel should return to idle after the click");
+    assertFalse(gamblingWheel.isAwaitingClick());
   }
 
   @Test
-  void shouldIgnoreSubsequentSpinsWhileWheelIsSpinning() {
-    GamblingWheel wheel = new GamblingWheel(labelStyle);
-    wheel.setCatalog(GamblingCatalogs.CatalogId.STANDARD, catalogs.getStandard());
+  void shouldIgnoreClickBeforeResultIsRevealed() {
+    GamblingWheel gamblingWheel = newWheel();
+
+    AtomicInteger calls = new AtomicInteger();
+    gamblingWheel.spinToSlot(1, calls::incrementAndGet);
+
+    // Click while the bag is still shaking.
+    advanceTime(gamblingWheel, 0.5f);
+    gamblingWheel.confirmResult();
+
+    assertTrue(gamblingWheel.isSpinning(), "Early click must not cancel the animation");
+    assertEquals(0, calls.get());
+
+    advanceTime(gamblingWheel, 10.0f);
+    gamblingWheel.confirmResult();
+    gamblingWheel.confirmResult(); // second click must not run the callback again
+
+    assertEquals(1, calls.get(), "Callback should run exactly once");
+  }
+
+  @Test
+  void shouldIgnoreSubsequentSpinsWhileAnimating() {
+    GamblingWheel gamblingWheel = newWheel();
 
     AtomicBoolean firstFinished = new AtomicBoolean(false);
     AtomicBoolean secondFinished = new AtomicBoolean(false);
 
-    wheel.spinToSlot(1, () -> firstFinished.set(true));
-    assertTrue(wheel.isSpinning());
+    gamblingWheel.spinToSlot(1, () -> firstFinished.set(true));
 
-    // Attempt second spin call during active animation
-    wheel.spinToSlot(4, () -> secondFinished.set(true));
+    assertTrue(gamblingWheel.isSpinning());
 
-    advanceTime(wheel, 3.5f);
+    gamblingWheel.spinToSlot(4, () -> secondFinished.set(true));
 
-    assertTrue(firstFinished.get(), "First spin must complete");
-    assertFalse(secondFinished.get(), "Second spin call during spin must be ignored");
+    advanceTime(gamblingWheel, 10.0f);
+
+    // Still held on the first result, so a new spin must still be ignored.
+    gamblingWheel.spinToSlot(4, () -> secondFinished.set(true));
+
+    gamblingWheel.confirmResult();
+    advanceTime(gamblingWheel, 10.0f);
+
+    assertTrue(firstFinished.get(), "First spin should complete after the click");
+    assertFalse(secondFinished.get(), "Second spin should be ignored while first spin is active");
   }
 
   @Test
-  void shouldRejectSpinToInvalidSlots() {
-    GamblingWheel wheel = new GamblingWheel(labelStyle);
-    wheel.setCatalog(GamblingCatalogs.CatalogId.STANDARD, catalogs.getStandard());
+  void shouldRejectInvalidSlots() {
+    GamblingWheel gamblingWheel = newWheel();
 
-    wheel.spinToSlot(0, null);
-    assertFalse(wheel.isSpinning(), "Slot index 0 is invalid");
+    gamblingWheel.spinToSlot(0, null);
 
-    wheel.spinToSlot(6, null);
-    assertFalse(wheel.isSpinning(), "Slot index 6 is invalid");
+    assertFalse(gamblingWheel.isSpinning(), "Slot 0 should be rejected");
+
+    gamblingWheel.spinToSlot(GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT + 1, null);
+
+    assertFalse(gamblingWheel.isSpinning(), "Slot after the final prize slot should be rejected");
+  }
+
+  @Test
+  void shouldResetBlindBoxState() {
+    GamblingWheel gamblingWheel = newWheel();
+
+    gamblingWheel.spinToSlot(1, null);
+
+    assertTrue(gamblingWheel.isSpinning());
+
+    gamblingWheel.reset();
+
+    assertFalse(gamblingWheel.isSpinning(), "Reset should stop the animation");
+    assertFalse(gamblingWheel.isAwaitingClick());
+  }
+
+  @Test
+  void shouldResetWhileWaitingForClick() {
+    GamblingWheel gamblingWheel = newWheel();
+
+    AtomicBoolean completed = new AtomicBoolean(false);
+    gamblingWheel.spinToSlot(1, () -> completed.set(true));
+    advanceTime(gamblingWheel, 10.0f);
+
+    gamblingWheel.reset();
+
+    assertFalse(gamblingWheel.isAwaitingClick(), "Reset should drop the held result");
+    assertFalse(gamblingWheel.isSpinning());
+
+    gamblingWheel.confirmResult();
+    assertFalse(completed.get(), "Callback should not run after the result was reset");
   }
 }
