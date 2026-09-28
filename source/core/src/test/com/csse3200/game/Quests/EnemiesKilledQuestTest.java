@@ -43,7 +43,7 @@ public class EnemiesKilledQuestTest {
           "The test testIfCompletingAEnemiesKilledQuestWorks failed because Quest.getQuestActiveForNPCID() "
               + "returned false when it should have returned true");
     }
-    Quest.clearEnemiesKilledQuest(questGiverComponent.uniqueNPCID);
+    questGiverComponent.clearEnemiesKilledQuest();
     if (Quest.getQuestActiveForNPCID().get(questGiverComponent.uniqueNPCID)) {
       fail(
           "The test testIfCompletingAEnemiesKilledQuestWorks failed because Quest.getQuestActiveForNPCID()"
@@ -71,24 +71,24 @@ public class EnemiesKilledQuestTest {
               + "Quest.getQuestActiveForNPCID returned true even though no "
               + "quest was created for that NPC");
     }
-    if (!Quest.logEnemiesKilledQuest(questGiverComponent1.uniqueNPCID, 5)
-        || !Quest.logEnemiesKilledQuest(questGiverComponent2.uniqueNPCID, 6)
-        || !Quest.logEnemiesKilledQuest(questGiverComponent3.uniqueNPCID, 7)) {
+    if (!questGiverComponent1.logEnemiesKilledQuest("", 5)
+        || !questGiverComponent2.logEnemiesKilledQuest("", 6)
+        || !questGiverComponent3.logEnemiesKilledQuest("", 7)) {
       fail(
           "The test testMultipleSettingOfEnemiesKilledQuest failed because "
-              + "Quest.logEnemiesKilledQuest returned false when it should have returned "
+              + "logEnemiesKilledQuest returned false when it should have returned "
               + "true");
     }
-    if (Quest.logEnemiesKilledQuest(questGiverComponent1.uniqueNPCID, 5)) {
+    if (questGiverComponent1.logEnemiesKilledQuest("", 5)) {
       fail(
           "The test testMultipleSettingOfEnemiesKilledQuest failed because "
-              + "Quest.logEnemiesKilledQuest returned true when it shouldn't have "
+              + "logEnemiesKilledQuest returned true when it shouldn't have "
               + "because a quest was already set");
     }
     assertEquals(
         0,
-        Quest.checkEnemiesKilledQuest(questGiverComponent1.uniqueNPCID),
-        "Quest.checkEnemiesKilledQuest returned a value other than 0 even "
+        questGiverComponent1.checkEnemiesKilledQuestComplete(),
+        "checkEnemiesKilledQuest returned a value other than 0 even "
             + "though no progress was made");
     questGiverComponent1.clearEnemiesKilledQuest();
     questGiverComponent2.clearEnemiesKilledQuest();
