@@ -26,7 +26,7 @@ public class DifficultySelectDisplay extends UIComponent {
     static final String[] EVENTS = {"easy", "normal", "hard", "back"};
     private static final String[] DESCRIPTIONS = {
             "A gentler run. Enemies are weaker and go down faster.",
-            "The intended Box Forest experience.",
+            "The standard experience, as the game is meant to be played.",
             "For experienced players. Enemies hit harder and take more hits to beat.",
             "Return to the main menu."
     };
