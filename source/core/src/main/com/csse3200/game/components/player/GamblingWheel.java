@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -23,16 +24,21 @@ import com.csse3200.game.components.player.GamblingCatalogs.PrizeEntry;
 import com.csse3200.game.components.player.GamblingCatalogs.SpinCatalog;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * Scene2D blind-box display used by ShopDisplay.
+ * Scene2D MOBA-style chest opening display used by ShopDisplay.
  *
  * <p>The class keeps the existing GamblingWheel name and public API for compatibility with
  * ShopDisplay.
  *
- * <p>The display shows the five possible prizes together with their drop rate (weight / sum of
- * weights). When a spin starts, a mystery bag shakes with growing intensity, bursts open with a
- * flash and confetti, and reveals the prize card. The winning slot below is then highlighted.
+ * <p>Layout: a gold-framed panel with a header banner, an animation stage, and five inventory-style
+ * slots (rarity-coloured frame, icon, name, drop rate text and a drop rate bar).
+ *
+ * <p>Opening sequence: the hex orb charges up and its glow turns into the colour of the prize
+ * rarity, energy sparks are pulled into the orb and light rays fan out. The orb then bursts with a
+ * flash and shockwaves, and a prize card slides in with a rarity banner. The result stays on screen
+ * until the player clicks.
  *
  * <p>This class is presentation-only. It does not select, grant, or re-roll prizes.
  */
@@ -42,34 +48,44 @@ public class GamblingWheel extends Stack {
   private static final float DISPLAY_HEIGHT = 300f;
 
   private static final float STAGE_WIDTH = 420f;
-  private static final float STAGE_HEIGHT = 115f;
+  private static final float STAGE_HEIGHT = 118f;
 
-  private static final float BAG_SIZE = 76f;
-  private static final float CARD_WIDTH = 220f;
-  private static final float CARD_HEIGHT = 78f;
+  private static final float ORB_SIZE = 76f;
+  private static final float GLOW_SIZE = 190f;
+  private static final float CARD_WIDTH = 240f;
+  private static final float CARD_HEIGHT = 86f;
+  private static final float CARD_Y = 26f;
 
   private static final float SLOT_WIDTH = 80f;
-  private static final float SLOT_HEIGHT = 96f;
+  private static final float SLOT_HEIGHT = 100f;
   private static final float SLOT_GAP = 4f;
+  private static final float BAR_WIDTH = SLOT_WIDTH - 16f;
 
+  private static final int RAY_COUNT = 16;
   private static final int SHAKE_COUNT = 10;
   private static final float SLOT_DIM_ALPHA = 0.45f;
   private static final float CLICK_LOCK_DELAY = 0.6f;
 
-  private static final Color PANEL_COLOR = new Color(0.06f, 0.08f, 0.14f, 1f);
-  private static final Color SLOT_COLOR = new Color(0.12f, 0.15f, 0.23f, 1f);
-  private static final Color HIGHLIGHT_COLOR = new Color(1.0f, 0.72f, 0.18f, 1f);
+  private static final String FX_NAME = "fx";
+
+  // MOBA style palette: dark navy panel, hextech gold trim.
+  private static final Color PANEL_COLOR = new Color(0.03f, 0.05f, 0.09f, 1f);
+  private static final Color HEADER_COLOR = new Color(0.10f, 0.09f, 0.06f, 1f);
+  private static final Color GOLD_TRIM = new Color(0.78f, 0.62f, 0.28f, 1f);
+  private static final Color SLOT_COLOR = new Color(0.07f, 0.10f, 0.16f, 1f);
+  private static final Color BAR_BG_COLOR = new Color(0.02f, 0.03f, 0.05f, 1f);
+  private static final Color HIGHLIGHT_COLOR = new Color(1.0f, 0.82f, 0.30f, 1f);
   private static final Color TEXT_COLOR = new Color(1f, 1f, 1f, 1f);
   private static final Color MUTED_TEXT_COLOR = new Color(0.70f, 0.70f, 0.75f, 1f);
   private static final Color WIN_TEXT_COLOR = new Color(1.0f, 0.84f, 0.25f, 1f);
 
-  private static final Color BAG_STANDARD = new Color(0.90f, 0.55f, 0.22f, 1f);
-  private static final Color BAG_PREMIUM = new Color(0.65f, 0.35f, 0.95f, 1f);
+  private static final Color ORB_STANDARD = new Color(0.30f, 0.65f, 1.00f, 1f);
+  private static final Color ORB_PREMIUM = new Color(0.75f, 0.40f, 1.00f, 1f);
 
-  private static final Color RARITY_COMMON = new Color(0.45f, 0.52f, 0.62f, 1f);
-  private static final Color RARITY_RARE = new Color(0.18f, 0.55f, 0.90f, 1f);
-  private static final Color RARITY_EPIC = new Color(0.62f, 0.28f, 0.88f, 1f);
-  private static final Color RARITY_LEGENDARY = new Color(0.95f, 0.65f, 0.08f, 1f);
+  private static final Color RARITY_COMMON = new Color(0.55f, 0.62f, 0.72f, 1f);
+  private static final Color RARITY_RARE = new Color(0.20f, 0.60f, 0.95f, 1f);
+  private static final Color RARITY_EPIC = new Color(0.68f, 0.30f, 0.92f, 1f);
+  private static final Color RARITY_LEGENDARY = new Color(1.00f, 0.70f, 0.10f, 1f);
 
   private static final Color[] CONFETTI_COLORS = {
     new Color(1f, 0.35f, 0.35f, 1f),
@@ -83,23 +99,35 @@ public class GamblingWheel extends Stack {
 
   private final List<Stack> slotStacks = new ArrayList<>();
   private final List<Image> slotHighlights = new ArrayList<>();
-  private final List<Image> slotAccents = new ArrayList<>();
+  private final List<Image> slotFrames = new ArrayList<>();
+  private final List<Image> slotIconBgs = new ArrayList<>();
+  private final List<Label> slotIconLabels = new ArrayList<>();
   private final List<Label> slotNameLabels = new ArrayList<>();
   private final List<Label> slotRateLabels = new ArrayList<>();
+  private final List<Image> slotBarFills = new ArrayList<>();
   private final List<Texture> textures = new ArrayList<>();
 
   private TextureRegionDrawable whiteDrawable;
+  private TextureRegionDrawable glowDrawable;
+  private TextureRegionDrawable shockDrawable;
+  private TextureRegionDrawable rayDrawable;
 
   private Table root;
   private Table slotsTable;
 
   private Group stageGroup;
-  private Group bagGroup;
-  private Image bagImage;
-  private Table card;
+  private Group raysGroup;
+  private Image glow;
+  private Group orbGroup;
+  private Image orbCore;
+  private Stack card;
+  private Image cardBorder;
+  private Image cardBanner;
+  private Label cardRarityLabel;
   private Label cardNameLabel;
   private Label cardRateLabel;
   private Image flash;
+  private Label hintLabel;
 
   private Label statusLabel;
   private Label resultLabel;
@@ -107,14 +135,12 @@ public class GamblingWheel extends Stack {
   private SpinCatalog catalog;
   private CatalogId catalogId;
 
-  private Label hintLabel;
   private Runnable pendingFinish;
   private boolean awaitingClick;
-
   private boolean spinning;
 
   /**
-   * Creates the blind-box display.
+   * Creates the chest opening display.
    *
    * @param labelStyle style used for all labels
    */
@@ -139,49 +165,168 @@ public class GamblingWheel extends Stack {
 
   private void build() {
     whiteDrawable = drawableOf(createTexture(2, 2, Color.WHITE));
+    glowDrawable = drawableOf(createRadialTexture(128));
+    shockDrawable = drawableOf(createRingTexture(128, 4));
+    rayDrawable = drawableOf(createRayTexture(16, 128));
 
-    Image panelBackground = new Image(drawableOf(createTexture(2, 2, PANEL_COLOR)));
+    Image panelBackground = new Image(whiteDrawable);
+    panelBackground.setColor(PANEL_COLOR);
     add(panelBackground);
 
     root = new Table();
     root.setFillParent(true);
     add(root);
 
-    statusLabel = new Label("BLIND BOX", labelStyle);
+    Image frame =
+        new Image(
+            drawableOf(
+                createBorderTexture((int) DISPLAY_WIDTH, (int) DISPLAY_HEIGHT, Color.WHITE, 3)));
+    frame.setColor(GOLD_TRIM);
+    frame.setTouchable(Touchable.disabled);
+    add(frame);
+
+    // Header banner.
+    Stack header = new Stack();
+    Image headerBar = new Image(whiteDrawable);
+    headerBar.setColor(HEADER_COLOR);
+    statusLabel = new Label("HEXTECH CHEST", labelStyle);
     statusLabel.setAlignment(Align.center);
-    statusLabel.setColor(MUTED_TEXT_COLOR);
+    statusLabel.setColor(GOLD_TRIM);
     statusLabel.setFontScale(1.0f);
-    root.add(statusLabel).width(DISPLAY_WIDTH).height(26f).center().top().row();
+    header.add(headerBar);
+    header.add(statusLabel);
+    root.add(header).width(DISPLAY_WIDTH - 6f).height(28f).padTop(3f).row();
+
+    Image divider = new Image(whiteDrawable);
+    divider.setColor(GOLD_TRIM);
+    root.add(divider).width(DISPLAY_WIDTH - 6f).height(2f).row();
 
     buildStage();
-    root.add(stageGroup).size(STAGE_WIDTH, STAGE_HEIGHT).center().padTop(2f).row();
+    // Group has no clipping of its own, so wrap the stage in a clipping Table. This keeps rays,
+    // sparks and confetti inside the stage area.
+    Table stageClip = new Table();
+    stageClip.setClip(true);
+    stageClip.add(stageGroup).size(STAGE_WIDTH, STAGE_HEIGHT);
+    root.add(stageClip).size(STAGE_WIDTH, STAGE_HEIGHT).center().padTop(2f).row();
 
     buildSlots();
-    root.add(slotsTable).center().padTop(6f).row();
+    root.add(slotsTable).center().padTop(4f).row();
 
     resultLabel = new Label("Choose a catalogue and spin!", labelStyle);
     resultLabel.setAlignment(Align.center);
     resultLabel.setColor(TEXT_COLOR);
     resultLabel.setFontScale(1.0f);
     resultLabel.setWrap(true);
-    root.add(resultLabel).width(DISPLAY_WIDTH - 20f).height(34f).center().padTop(6f);
+    root.add(resultLabel).width(DISPLAY_WIDTH - 20f).height(30f).center().padTop(3f);
   }
 
-  /** Builds the animated area: prize card (hidden), mystery bag and flash overlay. */
+  /** Builds the animated stage: rays, glow, hint, prize card, orb and flash overlay. */
   private void buildStage() {
     stageGroup = new Group();
     stageGroup.setSize(STAGE_WIDTH, STAGE_HEIGHT);
     stageGroup.setTouchable(Touchable.disabled);
 
-    // Prize card, revealed after the bag bursts.
-    card = new Table();
-    card.setBackground(whiteDrawable);
+    float cx = STAGE_WIDTH / 2f;
+    float cy = STAGE_HEIGHT / 2f;
+
+    // Light rays fanning out from the centre.
+    raysGroup = new Group();
+    raysGroup.setPosition(cx, cy);
+    for (int i = 0; i < RAY_COUNT; i++) {
+      Image ray = new Image(rayDrawable);
+      ray.setSize(14f, 150f);
+      ray.setOrigin(7f, 0f);
+      ray.setPosition(-7f, 0f);
+      ray.setRotation(i * (360f / RAY_COUNT));
+      raysGroup.addActor(ray);
+    }
+
+    glow = new Image(glowDrawable);
+    glow.setSize(GLOW_SIZE, GLOW_SIZE);
+    glow.setOrigin(GLOW_SIZE / 2f, GLOW_SIZE / 2f);
+    glow.setPosition(cx - GLOW_SIZE / 2f, cy - GLOW_SIZE / 2f);
+
+    hintLabel = new Label("- Click to continue -", labelStyle);
+    hintLabel.setAlignment(Align.center);
+    hintLabel.setColor(MUTED_TEXT_COLOR);
+    hintLabel.setFontScale(0.85f);
+    hintLabel.setSize(STAGE_WIDTH, 20f);
+    hintLabel.setPosition(0f, 2f);
+    hintLabel.setVisible(false);
+
+    buildCard();
+
+    // Hex orb (the "chest").
+    orbGroup = new Group();
+    orbGroup.setSize(ORB_SIZE, ORB_SIZE);
+    orbGroup.setOrigin(ORB_SIZE / 2f, ORB_SIZE / 2f);
+
+    orbCore = new Image(drawableOf(createCircleTexture(64)));
+    orbCore.setSize(ORB_SIZE - 8f, ORB_SIZE - 8f);
+    orbCore.setPosition(4f, 4f);
+
+    Image shine = new Image(glowDrawable);
+    shine.setSize(34f, 34f);
+    shine.setPosition(14f, ORB_SIZE - 14f - 34f + 4f);
+
+    Image ring = new Image(shockDrawable);
+    ring.setSize(ORB_SIZE, ORB_SIZE);
+    ring.setColor(GOLD_TRIM);
+
+    Label questionMark = new Label("?", labelStyle);
+    questionMark.setAlignment(Align.center);
+    questionMark.setColor(Color.WHITE);
+    questionMark.setFontScale(2.2f);
+    questionMark.setSize(ORB_SIZE, ORB_SIZE * 0.85f);
+
+    orbGroup.addActor(orbCore);
+    orbGroup.addActor(shine);
+    orbGroup.addActor(ring);
+    orbGroup.addActor(questionMark);
+
+    flash = new Image(whiteDrawable);
+    flash.setSize(STAGE_WIDTH, STAGE_HEIGHT);
+    flash.setColor(1f, 1f, 1f, 0f);
+    flash.setVisible(false);
+    flash.setTouchable(Touchable.disabled);
+
+    stageGroup.addActor(raysGroup);
+    stageGroup.addActor(glow);
+    stageGroup.addActor(hintLabel);
+    stageGroup.addActor(card);
+    stageGroup.addActor(orbGroup);
+    stageGroup.addActor(flash);
+
+    resetStageFx();
+  }
+
+  /** Builds the prize card: dark body, rarity border, rarity banner, name and drop rate. */
+  private void buildCard() {
+    card = new Stack();
     card.setTransform(true);
-    card.pad(6f);
     card.setSize(CARD_WIDTH, CARD_HEIGHT);
     card.setOrigin(CARD_WIDTH / 2f, CARD_HEIGHT / 2f);
-    card.setPosition((STAGE_WIDTH - CARD_WIDTH) / 2f, 24f);
+    card.setPosition((STAGE_WIDTH - CARD_WIDTH) / 2f, CARD_Y);
     card.setVisible(false);
+
+    Image cardBg = new Image(whiteDrawable);
+    cardBg.setColor(new Color(0.05f, 0.07f, 0.12f, 1f));
+
+    cardBorder =
+        new Image(
+            drawableOf(createBorderTexture((int) CARD_WIDTH, (int) CARD_HEIGHT, Color.WHITE, 3)));
+
+    Table content = new Table();
+    content.pad(3f);
+
+    Stack banner = new Stack();
+    cardBanner = new Image(whiteDrawable);
+    cardRarityLabel = new Label("", labelStyle);
+    cardRarityLabel.setAlignment(Align.center);
+    cardRarityLabel.setColor(Color.WHITE);
+    cardRarityLabel.setFontScale(0.9f);
+    banner.add(cardBanner);
+    banner.add(cardRarityLabel);
 
     cardNameLabel = new Label("", labelStyle);
     cardNameLabel.setAlignment(Align.center);
@@ -192,80 +337,54 @@ public class GamblingWheel extends Stack {
     cardRateLabel = new Label("", labelStyle);
     cardRateLabel.setAlignment(Align.center);
     cardRateLabel.setColor(WIN_TEXT_COLOR);
-    cardRateLabel.setFontScale(0.95f);
+    cardRateLabel.setFontScale(0.9f);
 
-    card.add(cardNameLabel).width(CARD_WIDTH - 20f).expandY().center().row();
-    card.add(cardRateLabel).center().padBottom(2f);
+    content.add(banner).growX().height(22f).row();
+    content.add(cardNameLabel).width(CARD_WIDTH - 24f).expandY().center().row();
+    content.add(cardRateLabel).center().padBottom(4f);
 
-    // Mystery bag.
-    bagGroup = new Group();
-    bagGroup.setSize(BAG_SIZE, BAG_SIZE);
-    bagGroup.setOrigin(BAG_SIZE / 2f, BAG_SIZE / 2f);
-
-    bagImage = new Image(drawableOf(createBagTexture()));
-    bagImage.setSize(BAG_SIZE, BAG_SIZE);
-    bagImage.setColor(BAG_STANDARD);
-
-    Label questionMark = new Label("?", labelStyle);
-    questionMark.setAlignment(Align.center);
-    questionMark.setColor(Color.WHITE);
-    questionMark.setFontScale(2.2f);
-    questionMark.setSize(BAG_SIZE, BAG_SIZE * 0.85f);
-
-    bagGroup.addActor(bagImage);
-    bagGroup.addActor(questionMark);
-
-    // White flash used when the bag bursts open.
-    flash = new Image(whiteDrawable);
-    flash.setSize(STAGE_WIDTH, STAGE_HEIGHT);
-    flash.setColor(1f, 1f, 1f, 0f);
-    flash.setVisible(false);
-    flash.setTouchable(Touchable.disabled);
-
-    hintLabel = new Label("- Click to continue -", labelStyle);
-    hintLabel.setAlignment(Align.center);
-    hintLabel.setColor(MUTED_TEXT_COLOR);
-    hintLabel.setFontScale(0.85f);
-    hintLabel.setSize(STAGE_WIDTH, 20f);
-    hintLabel.setPosition(0f, 0f);
-    hintLabel.setVisible(false);
-
-    stageGroup.addActor(hintLabel);
-    stageGroup.addActor(card);
-    stageGroup.addActor(bagGroup);
-    stageGroup.addActor(flash);
-
-    resetBag();
+    card.add(cardBg);
+    card.add(content);
+    card.add(cardBorder);
   }
 
-  /** Builds the five slots showing prize name and drop rate. */
+  /** Builds the five inventory-style slots. */
   private void buildSlots() {
     slotsTable = new Table();
     slotsTable.defaults().pad(SLOT_GAP / 2f);
 
-    Texture slotTexture = createTexture(2, 2, SLOT_COLOR);
-    Texture borderTexture =
-        createBorderTexture((int) SLOT_WIDTH, (int) SLOT_HEIGHT, HIGHLIGHT_COLOR, 3);
+    Texture frameTexture = createBorderTexture((int) SLOT_WIDTH, (int) SLOT_HEIGHT, Color.WHITE, 2);
+    Texture highlightTexture =
+        createBorderTexture((int) SLOT_WIDTH, (int) SLOT_HEIGHT, HIGHLIGHT_COLOR, 4);
 
     for (int i = 0; i < SpinCatalog.PRIZE_SLOT_COUNT; i++) {
       Stack slot = new Stack();
       slot.setSize(SLOT_WIDTH, SLOT_HEIGHT);
 
-      Image background = new Image(drawableOf(slotTexture));
+      Image background = new Image(whiteDrawable);
+      background.setColor(SLOT_COLOR);
 
-      Image highlight = new Image(drawableOf(borderTexture));
-      highlight.setVisible(false);
+      Image frame = new Image(drawableOf(frameTexture));
+      frame.setColor(RARITY_COMMON);
 
       Table content = new Table();
 
-      Image accent = new Image(whiteDrawable);
-      accent.setColor(RARITY_COMMON);
-      content.add(accent).width(SLOT_WIDTH).height(4f).top().row();
+      // Icon badge with the prize initial.
+      Stack iconStack = new Stack();
+      Image iconBg = new Image(whiteDrawable);
+      iconBg.setColor(RARITY_COMMON);
+      Label iconLabel = new Label("?", labelStyle);
+      iconLabel.setAlignment(Align.center);
+      iconLabel.setColor(Color.WHITE);
+      iconLabel.setFontScale(1.0f);
+      iconStack.add(iconBg);
+      iconStack.add(iconLabel);
+      content.add(iconStack).size(30f, 30f).padTop(6f).row();
 
       Label nameLabel = new Label("?", labelStyle);
       nameLabel.setAlignment(Align.center);
       nameLabel.setColor(TEXT_COLOR);
-      nameLabel.setFontScale(0.85f);
+      nameLabel.setFontScale(0.8f);
       nameLabel.setWrap(true);
       content.add(nameLabel).width(SLOT_WIDTH - 8f).expandY().center().row();
 
@@ -273,19 +392,39 @@ public class GamblingWheel extends Stack {
       rateLabel.setAlignment(Align.center);
       rateLabel.setColor(WIN_TEXT_COLOR);
       rateLabel.setFontScale(1.05f);
-      content.add(rateLabel).center().padBottom(4f);
+      content.add(rateLabel).center().row();
+
+      // Drop rate bar.
+      Group barGroup = new Group();
+      barGroup.setSize(BAR_WIDTH, 4f);
+      Image barBg = new Image(whiteDrawable);
+      barBg.setColor(BAR_BG_COLOR);
+      barBg.setSize(BAR_WIDTH, 4f);
+      Image barFill = new Image(whiteDrawable);
+      barFill.setColor(RARITY_COMMON);
+      barFill.setSize(0f, 4f);
+      barGroup.addActor(barBg);
+      barGroup.addActor(barFill);
+      content.add(barGroup).size(BAR_WIDTH, 4f).padTop(2f).padBottom(6f);
+
+      Image highlight = new Image(drawableOf(highlightTexture));
+      highlight.setVisible(false);
 
       slot.add(background);
-      slot.add(highlight);
+      slot.add(frame);
       slot.add(content);
+      slot.add(highlight);
 
       slotsTable.add(slot).size(SLOT_WIDTH, SLOT_HEIGHT);
 
       slotStacks.add(slot);
+      slotFrames.add(frame);
       slotHighlights.add(highlight);
-      slotAccents.add(accent);
+      slotIconBgs.add(iconBg);
+      slotIconLabels.add(iconLabel);
       slotNameLabels.add(nameLabel);
       slotRateLabels.add(rateLabel);
+      slotBarFills.add(barFill);
     }
   }
 
@@ -306,12 +445,12 @@ public class GamblingWheel extends Stack {
   }
 
   /**
-   * Plays the blind-box opening animation for the predetermined prize.
+   * Plays the chest opening animation for the predetermined prize.
    *
    * <p>The winning prize has already been selected by ShopComponent. This method only animates.
    *
    * @param prizeSlot predetermined winning slot, one-based
-   * @param onFinished callback executed after the reveal animation
+   * @param onFinished callback executed after the player confirms the revealed result
    */
   public void spinToSlot(int prizeSlot, Runnable onFinished) {
     if (spinning || catalog == null) {
@@ -326,26 +465,22 @@ public class GamblingWheel extends Stack {
     }
 
     spinning = true;
+    awaitingClick = false;
 
     clearActions();
     clearHighlights();
-    setSlotsAlpha(1f);
-    card.clearActions();
-    card.setVisible(false);
-    resetBag();
-    bagGroup.clearActions();
+    setSlotsAlpha(SLOT_DIM_ALPHA + 0.25f);
+    resetStageFx();
 
     resultLabel.setColor(TEXT_COLOR);
     resultLabel.setFontScale(1.0f);
-    resultLabel.setText("Opening blind box...");
+    resultLabel.setText("Opening chest...");
     statusLabel.setText("OPENING...");
 
-    dimSlots();
-
-    bagGroup.addAction(buildBagSequence(prizeSlot, winningPrize, onFinished));
+    startCharge(prizeSlot, winningPrize, onFinished);
   }
 
-  /** Returns whether the animation is currently running. */
+  /** Returns whether the animation is currently running (or a result is waiting for a click). */
   public boolean isSpinning() {
     return spinning;
   }
@@ -360,6 +495,26 @@ public class GamblingWheel extends Stack {
     return catalogId;
   }
 
+  /**
+   * Confirms the revealed result (what a click on the display does). Returns the display to idle
+   * and runs the completion callback. Ignored unless the result is currently waiting for a click.
+   */
+  public void confirmResult() {
+    if (!awaitingClick) {
+      return;
+    }
+    Runnable callback = pendingFinish;
+    reset();
+    if (callback != null) {
+      callback.run();
+    }
+  }
+
+  /** Returns whether the result is revealed and waiting for the player to click. */
+  public boolean isAwaitingClick() {
+    return awaitingClick;
+  }
+
   /** Resets the display to its idle state. */
   public void reset() {
     clearActions();
@@ -367,33 +522,31 @@ public class GamblingWheel extends Stack {
       slot.clearActions();
       slot.setScale(1f);
     }
-    card.clearActions();
-    card.setVisible(false);
-    flash.clearActions();
-    flash.setVisible(false);
 
     spinning = false;
     awaitingClick = false;
     pendingFinish = null;
-    hintLabel.clearActions();
-    hintLabel.setVisible(false);
+
     clearHighlights();
     setSlotsAlpha(1f);
-    resetBag();
-    startBagIdle();
+    resetStageFx();
+    startIdle();
 
     resultLabel.setColor(TEXT_COLOR);
     resultLabel.setFontScale(1.0f);
 
     boolean premium = catalogId == CatalogId.PREMIUM;
-    statusLabel.setText(premium ? "PREMIUM BLIND BOX" : "STANDARD BLIND BOX");
-    bagImage.setColor(premium ? BAG_PREMIUM : BAG_STANDARD);
+    statusLabel.setText(premium ? "PREMIUM HEXTECH CHEST" : "STANDARD HEXTECH CHEST");
 
     if (catalog == null) {
       for (int i = 0; i < slotNameLabels.size(); i++) {
         slotNameLabels.get(i).setText("?");
+        slotIconLabels.get(i).setText("?");
         slotRateLabels.get(i).setText("");
-        slotAccents.get(i).setColor(RARITY_COMMON);
+        slotFrames.get(i).setColor(RARITY_COMMON);
+        slotIconBgs.get(i).setColor(RARITY_COMMON);
+        slotBarFills.get(i).setColor(RARITY_COMMON);
+        slotBarFills.get(i).setWidth(0f);
       }
       resultLabel.setText(catalogId == null ? "Choose a catalogue and spin!" : "No prizes.");
       return;
@@ -417,63 +570,197 @@ public class GamblingWheel extends Stack {
   // Animation
   // ---------------------------------------------------------------------------------------------
 
-  /** Shake (getting stronger) -> swell -> burst -> reveal. */
-  private Action buildBagSequence(int prizeSlot, PrizeEntry<?> prize, Runnable onFinished) {
+  /** Removes all transient effects and puts every stage actor in its static start state. */
+  private void resetStageFx() {
+    stageGroup.clearActions();
+
+    // Remove leftover sparks, confetti and shockwaves.
+    for (int i = stageGroup.getChildren().size - 1; i >= 0; i--) {
+      Actor child = stageGroup.getChildren().get(i);
+      if (FX_NAME.equals(child.getName())) {
+        child.remove();
+      }
+    }
+
+    float cx = STAGE_WIDTH / 2f;
+    float cy = STAGE_HEIGHT / 2f;
+
+    raysGroup.clearActions();
+    raysGroup.setVisible(false);
+    raysGroup.setRotation(0f);
+    raysGroup.getColor().a = 0f;
+
+    glow.clearActions();
+    glow.setVisible(true);
+    glow.setScale(1f);
+    Color base = baseColor();
+    glow.setColor(base.r, base.g, base.b, 0.35f);
+
+    orbGroup.clearActions();
+    orbGroup.setVisible(true);
+    orbGroup.setScale(1f);
+    orbGroup.setRotation(0f);
+    orbGroup.getColor().a = 1f;
+    orbGroup.setPosition(cx - ORB_SIZE / 2f, cy - ORB_SIZE / 2f);
+    orbCore.clearActions();
+    orbCore.setColor(base);
+
+    card.clearActions();
+    card.setVisible(false);
+    card.setScale(1f);
+    card.setRotation(0f);
+    card.getColor().a = 1f;
+    card.setPosition((STAGE_WIDTH - CARD_WIDTH) / 2f, CARD_Y);
+    cardBorder.clearActions();
+
+    flash.clearActions();
+    flash.setVisible(false);
+
+    hintLabel.clearActions();
+    hintLabel.setVisible(false);
+  }
+
+  private Color baseColor() {
+    return catalogId == CatalogId.PREMIUM ? ORB_PREMIUM : ORB_STANDARD;
+  }
+
+  /** Idle: the orb sways and its glow breathes. */
+  private void startIdle() {
+    orbGroup.addAction(
+        Actions.forever(
+            Actions.sequence(
+                Actions.rotateTo(4f, 0.5f, Interpolation.sine),
+                Actions.rotateTo(-4f, 1.0f, Interpolation.sine),
+                Actions.rotateTo(0f, 0.5f, Interpolation.sine))));
+    glow.addAction(
+        Actions.forever(
+            Actions.sequence(
+                Actions.alpha(0.20f, 0.9f, Interpolation.sine),
+                Actions.alpha(0.45f, 0.9f, Interpolation.sine))));
+  }
+
+  /**
+   * Charge phase: the glow shifts to the rarity colour of the prize, rays fade in, sparks are
+   * pulled into the orb and the orb shakes harder and harder. Ends with the burst and reveal.
+   */
+  private void startCharge(int prizeSlot, PrizeEntry<?> prize, Runnable onFinished) {
+    float percent = percentOf(prize);
+    Color rarity = rarityColor(percent);
+
+    // Glow + core turn into the rarity colour (the tell-tale of MOBA chests).
+    glow.clearActions();
+    glow.addAction(
+        Actions.parallel(
+            Actions.color(new Color(rarity.r, rarity.g, rarity.b, 0.85f), 1.3f),
+            Actions.scaleTo(1.5f, 1.5f, 1.3f, Interpolation.pow2Out)));
+    orbCore.addAction(Actions.color(rarity, 1.3f));
+
+    // Rays.
+    for (Actor ray : raysGroup.getChildren()) {
+      ray.setColor(rarity.r, rarity.g, rarity.b, 0.85f);
+    }
+    raysGroup.setVisible(true);
+    raysGroup.getColor().a = 0f;
+    raysGroup.addAction(Actions.alpha(0.7f, 1.3f));
+    raysGroup.addAction(Actions.forever(Actions.rotateBy(-360f, 7f)));
+
+    // Sparks converge on the orb.
+    stageGroup.addAction(
+        Actions.repeat(
+            22, Actions.sequence(Actions.run(() -> spawnSpark(rarity)), Actions.delay(0.06f))));
+
+    orbGroup.clearActions();
+    orbGroup.addAction(buildOrbSequence(prizeSlot, prize, onFinished));
+  }
+
+  /** Hop -> shake (getting stronger) -> swell -> burst -> reveal. */
+  private Action buildOrbSequence(int prizeSlot, PrizeEntry<?> prize, Runnable onFinished) {
     List<Action> a = new ArrayList<>();
 
-    // Small hop + grow to start.
     a.add(
         Actions.parallel(
             Actions.moveBy(0f, 8f, 0.15f, Interpolation.pow2Out),
             Actions.scaleTo(1.1f, 1.1f, 0.15f)));
 
-    // Shake: amplitude increases, each swing gets faster.
     for (int i = 0; i < SHAKE_COUNT; i++) {
-      float angle = (i % 2 == 0 ? 1f : -1f) * (8f + i * 2.5f);
+      float angle = (i % 2 == 0 ? 1f : -1f) * (6f + i * 2f);
       float duration = Math.max(0.045f, 0.10f - i * 0.006f);
       a.add(Actions.rotateTo(angle, duration));
     }
     a.add(Actions.rotateTo(0f, 0.06f));
 
-    // Swell right before bursting.
     a.add(Actions.scaleTo(1.4f, 1.4f, 0.2f, Interpolation.swingOut));
     a.add(Actions.delay(0.08f));
 
-    // Burst.
     a.add(Actions.parallel(Actions.scaleTo(2.0f, 2.0f, 0.14f), Actions.alpha(0f, 0.14f)));
     a.add(Actions.run(() -> revealPrize(prizeSlot, prize, onFinished)));
 
     return Actions.sequence(a.toArray(new Action[0]));
   }
 
-  /** Flash + confetti + prize card pop, then highlight the winning slot. */
+  /** Flash + shockwaves + confetti + card slide-in, then highlight the winning slot. */
   private void revealPrize(int prizeSlot, PrizeEntry<?> prize, Runnable onFinished) {
     int winnerIndex = prizeSlot - 1;
     float percent = percentOf(prize);
     Color rarity = rarityColor(percent);
+    boolean rare = percent <= 15f;
+    boolean legendary = percent <= 5f;
 
-    bagGroup.setVisible(false);
+    orbGroup.setVisible(false);
 
+    // Flash.
     flash.clearActions();
     flash.setColor(1f, 1f, 1f, 0.95f);
     flash.setVisible(true);
-    flash.addAction(Actions.sequence(Actions.fadeOut(0.4f), Actions.visible(false)));
+    flash.addAction(Actions.sequence(Actions.fadeOut(0.45f), Actions.visible(false)));
 
+    // Shockwaves (two for rare prizes, a third for legendary).
+    spawnShockwave(rarity, 0f);
+    if (rare) {
+      spawnShockwave(rarity, 0.12f);
+    }
+    if (legendary) {
+      spawnShockwave(Color.WHITE, 0.24f);
+    }
+
+    // Backglow and rays stay behind the card until the player clicks.
+    glow.clearActions();
+    glow.setColor(rarity.r, rarity.g, rarity.b, 0.7f);
+    glow.setScale(1.6f);
+    glow.addAction(
+        Actions.forever(
+            Actions.sequence(
+                Actions.alpha(0.45f, 0.7f, Interpolation.sine),
+                Actions.alpha(0.8f, 0.7f, Interpolation.sine))));
+    raysGroup.addAction(Actions.alpha(legendary ? 0.6f : 0.4f, 0.3f));
+
+    // Prize card slides in with a rarity banner.
+    cardBanner.setColor(rarity);
+    cardBorder.setColor(rarity);
+    cardRarityLabel.setText(rarityName(percent));
     cardNameLabel.setText(getPrizeShortName(prize));
     cardRateLabel.setText(formatRate(percent) + " chance");
-    card.setColor(rarity);
     card.clearActions();
     card.setVisible(true);
-    card.setScale(0f);
-    card.setRotation(-15f);
+    card.getColor().a = 0f;
+    card.setScale(0.6f);
+    card.setPosition(-CARD_WIDTH, CARD_Y);
     card.addAction(
         Actions.parallel(
+            Actions.moveTo((STAGE_WIDTH - CARD_WIDTH) / 2f, CARD_Y, 0.5f, Interpolation.swingOut),
             Actions.scaleTo(1f, 1f, 0.5f, Interpolation.swingOut),
-            Actions.rotateTo(0f, 0.5f, Interpolation.pow2Out)));
+            Actions.alpha(1f, 0.25f)));
+    if (rare) {
+      cardBorder.addAction(
+          Actions.forever(
+              Actions.sequence(
+                  Actions.alpha(0.5f, 0.45f, Interpolation.sine),
+                  Actions.alpha(1f, 0.45f, Interpolation.sine))));
+    }
 
-    // Rarer prize -> more confetti.
-    spawnConfetti(rarity, percent <= 15f ? 44 : 26);
+    spawnConfetti(rarity, legendary ? 60 : rare ? 44 : 24);
 
+    // Inventory slots: highlight the winner, dim the rest.
     highlightSlot(winnerIndex);
     dimSlotsExcept(winnerIndex);
 
@@ -490,8 +777,7 @@ public class GamblingWheel extends Stack {
             Actions.scaleTo(1.15f, 1.15f, 0.15f, Interpolation.pow2Out),
             Actions.scaleTo(1f, 1f, 0.15f)));
 
-    // Hold the result on screen. After a short lock (so the reveal animation is not skipped by
-    // an accidental double click) the display waits for the player to click.
+    // Hold the result. After a short lock the display waits for the player to click.
     pendingFinish = onFinished;
     addAction(
         Actions.sequence(
@@ -509,45 +795,76 @@ public class GamblingWheel extends Stack {
                 })));
   }
 
-  /**
-   * Confirms the revealed result (what a click on the display does). Returns the display to idle
-   * and runs the completion callback. Ignored unless the result is currently waiting for a click.
-   */
-  public void confirmResult() {
-    if (!awaitingClick) {
-      return;
-    }
-    Runnable callback = pendingFinish;
-    reset();
-    if (callback != null) {
-      callback.run();
-    }
+  /** A small light that flies into the orb. */
+  private void spawnSpark(Color color) {
+    float cx = STAGE_WIDTH / 2f;
+    float cy = STAGE_HEIGHT / 2f;
+    float angle = MathUtils.random(360f);
+    float radius = MathUtils.random(80f, 130f);
+    float size = MathUtils.random(8f, 14f);
+
+    Image spark = new Image(glowDrawable);
+    spark.setName(FX_NAME);
+    spark.setTouchable(Touchable.disabled);
+    spark.setSize(size, size);
+    spark.setOrigin(size / 2f, size / 2f);
+    spark.setColor(color);
+    spark.setPosition(
+        cx + MathUtils.cosDeg(angle) * radius - size / 2f,
+        cy + MathUtils.sinDeg(angle) * radius - size / 2f);
+    spark.addAction(
+        Actions.sequence(
+            Actions.parallel(
+                Actions.moveTo(cx - size / 2f, cy - size / 2f, 0.45f, Interpolation.pow2In),
+                Actions.scaleTo(0.2f, 0.2f, 0.45f)),
+            Actions.removeActor()));
+    stageGroup.addActor(spark);
   }
 
-  /** Returns whether the result is revealed and waiting for the player to click. */
-  public boolean isAwaitingClick() {
-    return awaitingClick;
+  /** An expanding ring from the orb position. */
+  private void spawnShockwave(Color color, float delay) {
+    float cx = STAGE_WIDTH / 2f;
+    float cy = STAGE_HEIGHT / 2f;
+    float size = 40f;
+
+    Image ring = new Image(shockDrawable);
+    ring.setName(FX_NAME);
+    ring.setTouchable(Touchable.disabled);
+    ring.setSize(size, size);
+    ring.setOrigin(size / 2f, size / 2f);
+    ring.setPosition(cx - size / 2f, cy - size / 2f);
+    ring.setColor(color.r, color.g, color.b, 0.9f);
+    ring.setVisible(false);
+    ring.addAction(
+        Actions.sequence(
+            Actions.delay(delay),
+            Actions.visible(true),
+            Actions.parallel(
+                Actions.scaleTo(9f, 9f, 0.7f, Interpolation.pow2Out), Actions.fadeOut(0.7f)),
+            Actions.removeActor()));
+    stageGroup.addActor(ring);
   }
 
-  /** Bursts small coloured squares out of the bag position. */
+  /** Bursts small coloured squares out of the orb position. */
   private void spawnConfetti(Color accent, int count) {
     float cx = STAGE_WIDTH / 2f;
     float cy = STAGE_HEIGHT / 2f;
 
     for (int i = 0; i < count; i++) {
       Image piece = new Image(whiteDrawable);
+      piece.setName(FX_NAME);
+      piece.setTouchable(Touchable.disabled);
       float size = MathUtils.random(4f, 8f);
       piece.setSize(size, size);
       piece.setOrigin(size / 2f, size / 2f);
       piece.setPosition(cx - size / 2f, cy - size / 2f);
-      piece.setTouchable(Touchable.disabled);
       piece.setColor(
-          MathUtils.randomBoolean(0.3f)
+          MathUtils.randomBoolean(0.35f)
               ? accent
               : CONFETTI_COLORS[MathUtils.random(CONFETTI_COLORS.length - 1)]);
 
-      float dx = MathUtils.random(-130f, 130f);
-      float rise = MathUtils.random(25f, 75f);
+      float dx = MathUtils.random(-190f, 190f);
+      float rise = MathUtils.random(15f, 55f);
       float fall = rise + MathUtils.random(40f, 90f);
       float upTime = MathUtils.random(0.25f, 0.4f);
       float downTime = MathUtils.random(0.45f, 0.7f);
@@ -567,47 +884,33 @@ public class GamblingWheel extends Stack {
     }
   }
 
-  /** Resets the bag to its start transform (does not start any action). */
-  private void resetBag() {
-    if (bagGroup == null) {
-      return;
-    }
-    bagGroup.clearActions();
-    bagGroup.setVisible(true);
-    bagGroup.setScale(1f);
-    bagGroup.setRotation(0f);
-    bagGroup.getColor().a = 1f;
-    bagGroup.setPosition((STAGE_WIDTH - BAG_SIZE) / 2f, (STAGE_HEIGHT - BAG_SIZE) / 2f);
-  }
-
-  /** Gentle sway while waiting for the player to spin. */
-  private void startBagIdle() {
-    bagGroup.addAction(
-        Actions.forever(
-            Actions.sequence(
-                Actions.rotateTo(4f, 0.5f, Interpolation.sine),
-                Actions.rotateTo(-4f, 1.0f, Interpolation.sine),
-                Actions.rotateTo(0f, 0.5f, Interpolation.sine))));
-  }
-
   // ---------------------------------------------------------------------------------------------
   // Slot helpers
   // ---------------------------------------------------------------------------------------------
 
-  /** Writes prize name, drop rate and rarity colour into every slot. */
+  /** Writes prize name, icon, drop rate, rate bar and rarity colour into every slot. */
   private void updatePrizeLabels() {
     for (int i = 0; i < SpinCatalog.PRIZE_SLOT_COUNT; i++) {
       PrizeEntry<?> prize = catalog.getPrize(i + 1);
       if (prize == null) {
         slotNameLabels.get(i).setText("?");
+        slotIconLabels.get(i).setText("?");
         slotRateLabels.get(i).setText("");
-        slotAccents.get(i).setColor(RARITY_COMMON);
+        slotFrames.get(i).setColor(RARITY_COMMON);
+        slotIconBgs.get(i).setColor(RARITY_COMMON);
+        slotBarFills.get(i).setColor(RARITY_COMMON);
+        slotBarFills.get(i).setWidth(0f);
         continue;
       }
       float percent = percentOf(prize);
+      Color rarity = rarityColor(percent);
       slotNameLabels.get(i).setText(getPrizeShortName(prize));
+      slotIconLabels.get(i).setText(getPrizeInitial(prize));
       slotRateLabels.get(i).setText(formatRate(percent));
-      slotAccents.get(i).setColor(rarityColor(percent));
+      slotFrames.get(i).setColor(rarity);
+      slotIconBgs.get(i).setColor(rarity);
+      slotBarFills.get(i).setColor(rarity);
+      slotBarFills.get(i).setWidth(BAR_WIDTH * MathUtils.clamp(percent / 100f, 0f, 1f));
     }
   }
 
@@ -616,19 +919,24 @@ public class GamblingWheel extends Stack {
       return;
     }
     clearHighlights();
-    slotHighlights.get(slotIndex).setVisible(true);
+    Image highlight = slotHighlights.get(slotIndex);
+    highlight.setVisible(true);
+    highlight.addAction(
+        Actions.forever(
+            Actions.sequence(
+                Actions.alpha(0.45f, 0.4f, Interpolation.sine),
+                Actions.alpha(1f, 0.4f, Interpolation.sine))));
     slotNameLabels.get(slotIndex).setColor(WIN_TEXT_COLOR);
   }
 
   private void clearHighlights() {
     for (int i = 0; i < slotHighlights.size(); i++) {
-      slotHighlights.get(i).setVisible(false);
+      Image highlight = slotHighlights.get(i);
+      highlight.clearActions();
+      highlight.getColor().a = 1f;
+      highlight.setVisible(false);
       slotNameLabels.get(i).setColor(TEXT_COLOR);
     }
-  }
-
-  private void dimSlots() {
-    setSlotsAlpha(SLOT_DIM_ALPHA + 0.25f);
   }
 
   private void dimSlotsExcept(int keepIndex) {
@@ -670,7 +978,7 @@ public class GamblingWheel extends Stack {
     if (Math.abs(percent - Math.round(percent)) < 0.05f) {
       return Math.round(percent) + "%";
     }
-    return String.format(java.util.Locale.ROOT, "%.1f%%", percent);
+    return String.format(Locale.ROOT, "%.1f%%", percent);
   }
 
   private static Color rarityColor(float percent) {
@@ -678,6 +986,13 @@ public class GamblingWheel extends Stack {
     if (percent <= 15f) return RARITY_EPIC;
     if (percent <= 25f) return RARITY_RARE;
     return RARITY_COMMON;
+  }
+
+  private static String rarityName(float percent) {
+    if (percent <= 5f) return "LEGENDARY";
+    if (percent <= 15f) return "EPIC";
+    if (percent <= 25f) return "RARE";
+    return "COMMON";
   }
 
   /** Converts a prize into a short display name suitable for a small slot. */
@@ -703,6 +1018,15 @@ public class GamblingWheel extends Stack {
     return "?";
   }
 
+  /** One character shown in the slot icon badge. */
+  private String getPrizeInitial(PrizeEntry<?> prize) {
+    if (prize != null && prize.getProduct() instanceof GamblingCatalogs.GoldPrize) {
+      return "G";
+    }
+    String name = getPrizeShortName(prize);
+    return name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase(Locale.ROOT);
+  }
+
   // ---------------------------------------------------------------------------------------------
   // Textures
   // ---------------------------------------------------------------------------------------------
@@ -711,17 +1035,21 @@ public class GamblingWheel extends Stack {
     return new TextureRegionDrawable(new TextureRegion(texture));
   }
 
-  private Texture createTexture(int width, int height, Color color) {
-    Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
-    pixmap.setColor(color);
-    pixmap.fill();
+  private Texture register(Pixmap pixmap) {
     Texture texture = new Texture(pixmap);
     pixmap.dispose();
     textures.add(texture);
     return texture;
   }
 
-  /** Transparent rectangle with a coloured outline. */
+  private Texture createTexture(int width, int height, Color color) {
+    Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+    pixmap.setColor(color);
+    pixmap.fill();
+    return register(pixmap);
+  }
+
+  /** Transparent rectangle with an outline. */
   private Texture createBorderTexture(int width, int height, Color color, int thickness) {
     Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
     pixmap.setColor(0f, 0f, 0f, 0f);
@@ -731,34 +1059,68 @@ public class GamblingWheel extends Stack {
     pixmap.fillRectangle(0, height - thickness, width, thickness);
     pixmap.fillRectangle(0, 0, thickness, height);
     pixmap.fillRectangle(width - thickness, 0, thickness, height);
-    Texture texture = new Texture(pixmap);
-    pixmap.dispose();
-    textures.add(texture);
-    return texture;
+    return register(pixmap);
   }
 
-  /** Grey-scale bag drawing so it can be tinted per catalogue (standard / premium). */
-  private Texture createBagTexture() {
-    Pixmap pixmap = new Pixmap(64, 64, Pixmap.Format.RGBA8888);
+  /** Solid white disc (tinted at use). */
+  private Texture createCircleTexture(int size) {
+    Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
     pixmap.setColor(0f, 0f, 0f, 0f);
     pixmap.fill();
-
-    // Body.
-    pixmap.setColor(0.88f, 0.88f, 0.88f, 1f);
-    pixmap.fillCircle(32, 38, 25);
-    // Neck.
-    pixmap.setColor(0.65f, 0.65f, 0.65f, 1f);
-    pixmap.fillRectangle(23, 6, 18, 16);
-    // Tie.
     pixmap.setColor(1f, 1f, 1f, 1f);
-    pixmap.fillRectangle(18, 16, 28, 5);
-    // Shine.
-    pixmap.setColor(1f, 1f, 1f, 0.55f);
-    pixmap.fillCircle(22, 32, 6);
+    pixmap.fillCircle(size / 2, size / 2, size / 2 - 1);
+    return register(pixmap);
+  }
 
-    Texture texture = new Texture(pixmap);
-    pixmap.dispose();
-    textures.add(texture);
-    return texture;
+  /** White circle outline (tinted at use). */
+  private Texture createRingTexture(int size, int thickness) {
+    Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+    pixmap.setColor(0f, 0f, 0f, 0f);
+    pixmap.fill();
+    pixmap.setColor(1f, 1f, 1f, 1f);
+    for (int t = 0; t < thickness; t++) {
+      pixmap.drawCircle(size / 2, size / 2, size / 2 - 2 - t);
+    }
+    return register(pixmap);
+  }
+
+  /** Soft white radial glow: opaque in the centre, transparent at the edge. */
+  private Texture createRadialTexture(int size) {
+    Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+    pixmap.setBlending(Pixmap.Blending.None);
+    pixmap.setColor(0f, 0f, 0f, 0f);
+    pixmap.fill();
+    float half = size / 2f;
+    for (int y = 0; y < size; y++) {
+      for (int x = 0; x < size; x++) {
+        float dx = (x + 0.5f - half) / half;
+        float dy = (y + 0.5f - half) / half;
+        float d = (float) Math.sqrt(dx * dx + dy * dy);
+        if (d < 1f) {
+          float a = (1f - d) * (1f - d);
+          pixmap.setColor(1f, 1f, 1f, a);
+          pixmap.drawPixel(x, y);
+        }
+      }
+    }
+    return register(pixmap);
+  }
+
+  /** Light ray: opaque at the bottom (centre of the burst), fading out towards the top. */
+  private Texture createRayTexture(int width, int height) {
+    Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+    pixmap.setBlending(Pixmap.Blending.None);
+    pixmap.setColor(0f, 0f, 0f, 0f);
+    pixmap.fill();
+    float half = width / 2f;
+    for (int y = 0; y < height; y++) {
+      float along = y / (float) (height - 1);
+      for (int x = 0; x < width; x++) {
+        float across = 1f - Math.abs(x + 0.5f - half) / half;
+        pixmap.setColor(1f, 1f, 1f, along * along * across);
+        pixmap.drawPixel(x, y);
+      }
+    }
+    return register(pixmap);
   }
 }
