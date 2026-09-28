@@ -44,7 +44,7 @@ public class ConsumableUseComponent extends Component {
   @Override
   public void create() {
     entity.getEvents().addListener("useItem", this::useItem);
-    
+
     Perk ThickSkinPerk = PerkService.getPerk(perk_ID);
     if (ThickSkinPerk != null) {
       if (ThickSkinPerk.isUnlocked()) {
@@ -60,7 +60,7 @@ public class ConsumableUseComponent extends Component {
     }
     maxHealth += amount;
     logger.info("Max health increased by {}, now {}", amount, maxHealth);
- 
+
     CombatStatsComponent stats =
         entity == null ? null : entity.getComponent(CombatStatsComponent.class);
     if (stats != null) {
