@@ -128,9 +128,7 @@ public class GamblingWheel extends Stack {
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            if (awaitingClick) {
-              dismissResult();
-            }
+            confirmResult();
           }
         });
   }
@@ -511,13 +509,24 @@ public class GamblingWheel extends Stack {
                 })));
   }
 
-  /** Player clicked after the reveal: return to idle and notify the caller. */
-  private void dismissResult() {
+  /**
+   * Confirms the revealed result (what a click on the display does). Returns the display to idle
+   * and runs the completion callback. Ignored unless the result is currently waiting for a click.
+   */
+  public void confirmResult() {
+    if (!awaitingClick) {
+      return;
+    }
     Runnable callback = pendingFinish;
     reset();
     if (callback != null) {
       callback.run();
     }
+  }
+
+  /** Returns whether the result is revealed and waiting for the player to click. */
+  public boolean isAwaitingClick() {
+    return awaitingClick;
   }
 
   /** Bursts small coloured squares out of the bag position. */
