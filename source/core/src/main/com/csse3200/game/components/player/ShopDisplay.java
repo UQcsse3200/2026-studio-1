@@ -1270,7 +1270,7 @@ public class ShopDisplay extends UIComponent {
      */
     gamblingWheel = new GamblingWheel(whiteLabelStyle);
 
-    gamblingRoot.add(gamblingWheel).size(300f, 300f).center().padTop(4f).padBottom(8f).row();
+    gamblingRoot.add(gamblingWheel).size(500f, 300f).center().padTop(4f).padBottom(8f).row();
 
     /*
      * ------------------------------------------------------------
