@@ -262,7 +262,16 @@ public class NPCFactory {
                 10)));
 
     minotaur.setScale(scale, scale * (80f / 96f));
-    PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
+
+    // 16 pixels shorter from below to make the minotaur's feet align with the floor.
+    // The sprite frame is 80px high, so 16px is (16f / 80f) of the entity's height.
+    float pixelHeight = minotaur.getScale().y / 80f;
+    float bottomOffset = 16f * pixelHeight;
+    float boxWidth = minotaur.getScale().x * collisionScale.x;
+    float boxHeight = (minotaur.getScale().y * collisionScale.y) - bottomOffset;
+    Vector2 boxSize = new Vector2(boxWidth, boxHeight);
+    Vector2 boxPosition = new Vector2(minotaur.getScale().x / 2f, bottomOffset + (boxHeight / 2f));
+    minotaur.getComponent(ColliderComponent.class).setAsBox(boxSize, boxPosition);
     return minotaur;
   }
 
