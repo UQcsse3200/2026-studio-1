@@ -1,6 +1,9 @@
 package com.csse3200.game.components;
 
 import com.csse3200.game.Quests.Quest;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 import org.slf4j.Logger;
@@ -9,6 +12,7 @@ import org.slf4j.LoggerFactory;
 public class QuestGiverComponent extends Component {
   public int uniqueNPCID;
   public int goldToGive = 0;
+  public Item itemToGive = null;
   private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
   private Entity player;
   public QuestGiverComponent(Entity player){
@@ -18,6 +22,11 @@ public class QuestGiverComponent extends Component {
   public QuestGiverComponent(Entity player, int goldToGive) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
     this.goldToGive = goldToGive;
+    this.player = player;
+  }
+  public QuestGiverComponent(Entity player, Item itemToGive){
+    uniqueNPCID = Quest.giveOutUniqueNPCID();
+    this.itemToGive = itemToGive;
     this.player = player;
   }
 
@@ -34,6 +43,7 @@ public class QuestGiverComponent extends Component {
     try {
       if (checkJumpQuestComplete() == 1) {
         rewardGold();
+        rewardItem();
       }
     } catch (Exception e) {
       logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
@@ -65,6 +75,7 @@ public class QuestGiverComponent extends Component {
     try {
       if (checkEnemiesKilledQuestComplete() == 1) {
         rewardGold();
+        rewardItem();
       }
     } catch (Exception e) {
       logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
@@ -106,6 +117,7 @@ public class QuestGiverComponent extends Component {
     try {
       if (checkGoldSpentQuestComplete() == 1) {
         rewardGold();
+        rewardItem();
       }
     }catch(Exception e){
       logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
@@ -127,6 +139,7 @@ public class QuestGiverComponent extends Component {
     try {
       if (checkShieldsCollectedQuestComplete() >= 100) {
         rewardGold();
+        rewardItem();
       }
     } catch (Exception e) {
         logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
@@ -145,12 +158,14 @@ public class QuestGiverComponent extends Component {
   }
   // ShieldsCollectedQuest functions end here
   private void rewardGold() {
-    if (goldToGive >= 0) {
-      if (player != null) {
+    if (goldToGive >= 0&&player != null) {
         player.getComponent(InventoryComponent.class).addGold(goldToGive);
-      } else {
-        logger.error("Player is null when QuestGiverComponent is trying to give them gold");
+    }
+    }
+    private void rewardItem(){
+      if(itemToGive!= null && player != null){
+        //May cause issues if the inventory is full
+        player.getComponent(InventoryComponent.class).addItem(itemToGive);
       }
     }
   }
-}
