@@ -15,7 +15,7 @@ public class QuestTest {
   public void testIfNPCIDWorks() {
     Entity entity = new Entity();
     boolean foundID = false;
-    QuestGiverComponent questGiverComponent = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
     int NPCID = questGiverComponent.uniqueNPCID;
     ArrayList<Integer> arrayList = Quest.getUniqueNPCIDArrayList();
@@ -36,9 +36,9 @@ public class QuestTest {
   public void testIfQuestActiveForNPCWorks() {
     Entity entity = new Entity();
     boolean foundBoolean = false;
-    QuestGiverComponent questGiverComponent = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
-    questGiverComponent.logJumpQuest("", 5);
+    questGiverComponent.logJumpQuest(5);
 
     ArrayList<Boolean> arrayList = Quest.getQuestActiveForNPCID();
     if (arrayList.get(questGiverComponent.uniqueNPCID)) {

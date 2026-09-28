@@ -14,7 +14,7 @@ public class ShieldsCollectedQuestTest {
   @BeforeAll
   public static void createAQuestEntity() {
     entity = new Entity();
-    questGiverComponent = new QuestGiverComponent();
+    questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
   }
 
@@ -33,7 +33,7 @@ public class ShieldsCollectedQuestTest {
               + "when it checked the goldSpentQuestTracker even though no "
               + "quest was created");
     }
-    if (!questGiverComponent.logShieldsCollectedQuest("", 6)) {
+    if (!questGiverComponent.logShieldsCollectedQuest(6)) {
       fail(
           "The test testIfCompletingAShieldsCollectedQuestWorks failed because "
               + "logShieldsCollectedQuest returned false when it shouldn't have");
@@ -57,9 +57,9 @@ public class ShieldsCollectedQuestTest {
     Entity entity1 = new Entity();
     Entity entity2 = new Entity();
     Entity entity3 = new Entity();
-    QuestGiverComponent questGiverComponent1 = new QuestGiverComponent();
-    QuestGiverComponent questGiverComponent2 = new QuestGiverComponent();
-    QuestGiverComponent questGiverComponent3 = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent1 = new QuestGiverComponent(null, 0);
+    QuestGiverComponent questGiverComponent2 = new QuestGiverComponent(null, 0);
+    QuestGiverComponent questGiverComponent3 = new QuestGiverComponent(null, 0);
     entity1.addComponent(questGiverComponent1);
     entity2.addComponent(questGiverComponent2);
     entity3.addComponent(questGiverComponent3);
@@ -71,15 +71,15 @@ public class ShieldsCollectedQuestTest {
               + "Quest.getQuestActiveForNPCID returned true even though no "
               + "quest was created for that NPC");
     }
-    if (!questGiverComponent1.logShieldsCollectedQuest("", 6)
-        || !questGiverComponent2.logShieldsCollectedQuest("", 7)
-        || !questGiverComponent3.logShieldsCollectedQuest("", 8)) {
+    if (!questGiverComponent1.logShieldsCollectedQuest(6)
+        || !questGiverComponent2.logShieldsCollectedQuest(7)
+        || !questGiverComponent3.logShieldsCollectedQuest(8)) {
       fail(
           "The test testMultipleSettingOfShieldsCollectedQuest failed because "
               + "logShieldsCollectedQuest returned false when it should have returned "
               + "true");
     }
-    if (questGiverComponent1.logShieldsCollectedQuest("", 6)) {
+    if (questGiverComponent1.logShieldsCollectedQuest(6)) {
       fail(
           "The test testMultipleSettingOfShieldsCollectedQuest failed because "
               + "logShieldsCollectedQuest returned true when it shouldn't have "
@@ -101,7 +101,7 @@ public class ShieldsCollectedQuestTest {
               + "false since the quest was cleared");
     }
     // Logging the ShieldsCollectedQuest
-    if (!questGiverComponent1.logShieldsCollectedQuest("", 9)) {
+    if (!questGiverComponent1.logShieldsCollectedQuest(9)) {
       fail(
           "questGiverComponent1.logShieldsCollectedQuest returned false when it should "
               + "have returned true");

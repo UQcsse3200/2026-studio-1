@@ -14,7 +14,7 @@ public class GoldSpentQuestTest {
   @BeforeAll
   public static void createAQuestEntity() {
     entity = new Entity();
-    questGiverComponent = new QuestGiverComponent();
+    questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
   }
 
@@ -33,7 +33,7 @@ public class GoldSpentQuestTest {
               + "when it checked the goldSpentQuestTracker even though no "
               + "quest was created");
     }
-    if (!questGiverComponent.logGoldSpentQuest("", 10)) {
+    if (!questGiverComponent.logGoldSpentQuest(10)) {
       fail(
           "The test testIfCompletingAGoldSpentQuestWorks failed because "
               + "logGoldSpentQuest returned false when it shouldn't have");
@@ -57,9 +57,9 @@ public class GoldSpentQuestTest {
     Entity entity1 = new Entity();
     Entity entity2 = new Entity();
     Entity entity3 = new Entity();
-    QuestGiverComponent questGiverComponent1 = new QuestGiverComponent();
-    QuestGiverComponent questGiverComponent2 = new QuestGiverComponent();
-    QuestGiverComponent questGiverComponent3 = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent1 = new QuestGiverComponent(null, 0);
+    QuestGiverComponent questGiverComponent2 = new QuestGiverComponent(null, 0);
+    QuestGiverComponent questGiverComponent3 = new QuestGiverComponent(null, 0);
     entity1.addComponent(questGiverComponent1);
     entity2.addComponent(questGiverComponent2);
     entity3.addComponent(questGiverComponent3);
@@ -71,15 +71,15 @@ public class GoldSpentQuestTest {
               + "Quest.getQuestActiveForNPCID returned true even though no "
               + "quest was created for that NPC");
     }
-    if (!questGiverComponent1.logGoldSpentQuest("", 5)
-        || !questGiverComponent2.logGoldSpentQuest("", 6)
-        || !questGiverComponent3.logGoldSpentQuest("", 7)) {
+    if (!questGiverComponent1.logGoldSpentQuest(5)
+        || !questGiverComponent2.logGoldSpentQuest(6)
+        || !questGiverComponent3.logGoldSpentQuest(7)) {
       fail(
           "The test testMultipleSettingOfGoldSpentQuest failed because "
               + "logGoldSpentQuest returned false when it should have returned "
               + "true");
     }
-    if (questGiverComponent3.logGoldSpentQuest("", 6)) {
+    if (questGiverComponent3.logGoldSpentQuest(6)) {
       fail(
           "The test testMultipleSettingOfGoldSpentQuest failed because "
               + "Quest.logGoldSpentQuest returned true when it shouldn't have "
@@ -101,7 +101,7 @@ public class GoldSpentQuestTest {
               + "false since the quest was cleared");
     }
     // Logging the EnemiesKilledQuest
-    if (!questGiverComponent1.logGoldSpentQuest("", 9)) {
+    if (!questGiverComponent1.logGoldSpentQuest(9)) {
       fail(
           "questGiverComponent1.logGoldSpentQuest returned false when it should "
               + "have returned true");

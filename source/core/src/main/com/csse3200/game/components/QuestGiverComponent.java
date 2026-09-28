@@ -1,16 +1,28 @@
 package com.csse3200.game.components;
 
 import com.csse3200.game.Quests.Quest;
+import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.entities.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuestGiverComponent extends Component {
   public int uniqueNPCID;
-
-  public QuestGiverComponent() {
+  public int goldToGive = 0;
+  private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
+  private Entity player;
+  public QuestGiverComponent(Entity player){
     uniqueNPCID = Quest.giveOutUniqueNPCID();
+    this.player = player;
+  }
+  public QuestGiverComponent(Entity player, int goldToGive) {
+    uniqueNPCID = Quest.giveOutUniqueNPCID();
+    this.goldToGive = goldToGive;
+    this.player = player;
   }
 
   // Jump quest functions start here
-  public boolean logJumpQuest(String Reward, int jumpsToDo) {
+  public boolean logJumpQuest(int jumpsToDo) {
     if (Quest.logJumpQuest(uniqueNPCID, jumpsToDo)) {
       return true;
     } else {
@@ -19,6 +31,13 @@ public class QuestGiverComponent extends Component {
   }
 
   public void clearJumpQuest() {
+    try {
+      if (checkJumpQuestComplete() == 1) {
+        rewardGold();
+      }
+    } catch (Exception e) {
+      logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+    }
     Quest.clearJumpQuest(uniqueNPCID);
   }
 
@@ -34,7 +53,7 @@ public class QuestGiverComponent extends Component {
 
   // Jump quest functions end here
   // EnemiesKilledQuest functions start here
-  public boolean logEnemiesKilledQuest(String Reward, int enemiesToKill) {
+  public boolean logEnemiesKilledQuest(int enemiesToKill) {
     if (Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill)) {
       return true;
     } else {
@@ -43,6 +62,13 @@ public class QuestGiverComponent extends Component {
   }
 
   public void clearEnemiesKilledQuest() {
+    try {
+      if (checkEnemiesKilledQuestComplete() == 1) {
+        rewardGold();
+      }
+    } catch (Exception e) {
+      logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+    }
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
   }
 
@@ -58,7 +84,7 @@ public class QuestGiverComponent extends Component {
 
   // EnemiesKilledQuest functions end here
   // GoldSpentQuest functions start here
-  public boolean logGoldSpentQuest(String reward, int amountToSpend) {
+  public boolean logGoldSpentQuest(int amountToSpend) {
     if (Quest.logGoldSpentQuest(uniqueNPCID, amountToSpend)) {
       return true;
     } else {
@@ -77,12 +103,19 @@ public class QuestGiverComponent extends Component {
   }
 
   public void clearGoldSpentQuest() {
+    try {
+      if (checkGoldSpentQuestComplete() == 1) {
+        rewardGold();
+      }
+    }catch(Exception e){
+      logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+    }
     Quest.clearGoldSpentQuest(uniqueNPCID);
   }
 
   // GoldSpentQuest functions end here
   // ShieldsCollectedQuest functions start here
-  public boolean logShieldsCollectedQuest(String reward, int shieldsToCollect) {
+  public boolean logShieldsCollectedQuest(int shieldsToCollect) {
     if (Quest.logShieldsCollectedQuest(uniqueNPCID, shieldsToCollect)) {
       return true;
     } else {
@@ -91,6 +124,13 @@ public class QuestGiverComponent extends Component {
   }
 
   public void clearShieldsCollectedQuest() {
+    try {
+      if (checkShieldsCollectedQuestComplete() >= 100) {
+        rewardGold();
+      }
+    } catch (Exception e) {
+        logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+    }
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
   }
 
@@ -104,4 +144,13 @@ public class QuestGiverComponent extends Component {
     }
   }
   // ShieldsCollectedQuest functions end here
+  private void rewardGold() {
+    if (goldToGive >= 0) {
+      if (player != null) {
+        player.getComponent(InventoryComponent.class).addGold(goldToGive);
+      } else {
+        logger.error("Player is null when QuestGiverComponent is trying to give them gold");
+      }
+    }
+  }
 }

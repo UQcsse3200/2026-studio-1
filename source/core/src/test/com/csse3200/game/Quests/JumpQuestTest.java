@@ -11,12 +11,12 @@ public class JumpQuestTest {
   @Test
   public void testIfCompletingAJumpQuestWorks() {
     Entity entity = new Entity();
-    QuestGiverComponent questGiverComponent = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
     if (Quest.getJumpQuests().get(questGiverComponent.uniqueNPCID) != null) {
       fail("The test testIfCompletingAJumpQuestWorks did not return null when it should have");
     }
-    questGiverComponent.logJumpQuest("", 5);
+    questGiverComponent.logJumpQuest(5);
     if (Quest.getJumpQuests().get(questGiverComponent.uniqueNPCID) == null) {
       fail("The test testIfCompletingAJumpQuestWorks returned null when it shouldn't have");
     }
@@ -31,15 +31,15 @@ public class JumpQuestTest {
     Entity entity1 = new Entity();
     Entity entity2 = new Entity();
     Entity entity3 = new Entity();
-    QuestGiverComponent questGiverComponent1 = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent1 = new QuestGiverComponent(null, 0);
     entity1.addComponent(questGiverComponent1);
-    QuestGiverComponent questGiverComponent2 = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent2 = new QuestGiverComponent(null, 0);
     entity2.addComponent(questGiverComponent2);
-    QuestGiverComponent questGiverComponent3 = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent3 = new QuestGiverComponent(null, 0);
     entity3.addComponent(questGiverComponent3);
-    questGiverComponent1.logJumpQuest("", 5);
-    questGiverComponent2.logJumpQuest("", 6);
-    questGiverComponent3.logJumpQuest("", 7);
+    questGiverComponent1.logJumpQuest(5);
+    questGiverComponent2.logJumpQuest(6);
+    questGiverComponent3.logJumpQuest(7);
     if (Quest.getJumpQuests().get(questGiverComponent1.uniqueNPCID) == null
         || Quest.getJumpQuests().get(questGiverComponent2.uniqueNPCID) == null
         || Quest.getJumpQuests().get(questGiverComponent3.uniqueNPCID) == null) {
@@ -47,7 +47,7 @@ public class JumpQuestTest {
           "The quest class returns null on the JumpQuest arraylist when "
               + "it should have returned the quest");
     }
-    if (questGiverComponent1.logJumpQuest("", 5)) {
+    if (questGiverComponent1.logJumpQuest(5)) {
       fail(
           "The Quest class doesn't recognise that questGiverComponent1 has already "
               + "logged a quest");
@@ -55,7 +55,7 @@ public class JumpQuestTest {
     questGiverComponent3.clearJumpQuest();
     questGiverComponent2.clearJumpQuest();
     questGiverComponent1.clearJumpQuest();
-    questGiverComponent1.logJumpQuest("", 5);
+    questGiverComponent1.logJumpQuest(5);
     if (Quest.getJumpQuests().get(questGiverComponent1.uniqueNPCID) == null) {
       fail(
           "The Quest class doesn't allow a questGiverComponent to log another quest "
@@ -74,7 +74,7 @@ public class JumpQuestTest {
   @Test
   public void testCheckJumpQuestCompleteWhenNoQuestWasMade() {
     Entity entity = new Entity();
-    QuestGiverComponent questGiverComponent = new QuestGiverComponent();
+    QuestGiverComponent questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
     questGiverComponent.clearJumpQuest();
     assertThrows(
