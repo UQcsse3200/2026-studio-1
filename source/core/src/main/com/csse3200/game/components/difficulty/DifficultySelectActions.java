@@ -2,6 +2,8 @@ package com.csse3200.game.components.difficulty;
 
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.difficulty.Difficulty;
+import com.csse3200.game.difficulty.DifficultyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +30,7 @@ public class DifficultySelectActions extends Component {
    */
   private void startGame(String difficulty) {
     logger.info("Difficulty selected: {}", difficulty);
-    // DifficultyService.setDifficulty(Difficulty.valueOf(difficulty));
+    DifficultyService.setCurrent(Difficulty.valueOf(difficulty));
     game.setScreenDeferred(GdxGame.ScreenType.MAIN_GAME);
   }
 
