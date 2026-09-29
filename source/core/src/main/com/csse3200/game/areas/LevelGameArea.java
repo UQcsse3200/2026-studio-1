@@ -3,37 +3,56 @@ package com.csse3200.game.areas;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.LevelView;
+import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
+import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.LootId;
+import com.csse3200.game.components.loot.LootPlacement;
+import com.csse3200.game.components.loot.LootRegistry;
+import com.csse3200.game.components.loot.LootSpawnFinder;
+import com.csse3200.game.components.loot.LootTable;
+import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
-import com.csse3200.game.events.EventHandler;
+import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
+import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.MapBackgroundRenderComponent;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,20 +69,48 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+  // Left side of the dungeon floor, next to the doric column decoration at (5, 14)
+  // (level1-greek.json foreground layer) and the platform above it where the key item sits.
+  // x=4 (rather than 5) centers the NPC's collider within the floor patch (world x=[1.0,3.0])
+  // instead of overhanging onto the ladder tile at x=[3.0,3.5) - see createTravelerNPC()'s
+  // wander-range comment for the full margin math.
+  private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
+  private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
+
+  /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
+  private static final int HAZARD_DAMAGE = 10;
+
+  /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
+  private static final int RANDOM_LOOT_COUNT = 8;
+
+  /**
+   * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
+   * it is logged when loot spawns so a run with a bug in it can be replayed from that seed.
+   */
+  private final long lootSeed;
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/box_boy_leaf.png",
-    "images/box_boy_crouch.png",
-    "images/box_boy_slide.png",
-    "images/ghost_king.png",
-    "images/ghost_1.png",
+    "images/enemies/npc_traveler.png",
+    "images/knight_default.png",
+    "images/player/box_boy_crouch.png",
+    "images/player/box_boy_slide.png",
+    "images/enemies/ghost_king.png",
+    "images/enemies/ghost_1.png",
+    "images/items/sword.png",
     "images/sword.png",
-    "images/bow.png",
-    "images/arrow.png",
-    "images/Health.png",
-    "images/Poison.png",
-    "images/Strength.png"
+    "images/items/bow.png",
+    "images/items/arrow.png",
+    "images/dagger.png",
+    "images/ui/Health.png",
+    "images/ui/Poison.png",
+    "images/ui/Strength.png",
+    "images/potions/health_potion.png",
+    "images/potions/strength_potion.png",
+    "images/potions/speed_potion.png",
+    "images/potions/regeneration_potion.png",
+    "images/potions/resistance_potion.png",
+    "images/Shield.png"
   };
 
   private static final String[] entitySounds = {
@@ -80,20 +127,31 @@ public class LevelGameArea extends GameArea {
   private static final String[] entityAtlases = {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
-    "images/gold_coin/gold_coin.atlas",
-    "images/skeleton.atlas"
+    "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/knight.atlas",
+    "images/LeftKnight.atlas",
+    "images/skeleton_weapons/skeleton_sword.atlas",
+    "images/enemies/ghost.atlas",
+    "images/enemies/ghostKing.atlas",
+    "images/items/gold_coin/gold_coin.atlas",
+    "images/enemies/skeleton.atlas",
+    "images/enemies/cyclops.atlas",
+    "images/enemies/minotaur.atlas",
+    "images/pet.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
-  private static final String[] ENTITY_MUSIC = {BACKGROUND_MUSIC};
+  private static final String[] entityMusic = {BACKGROUND_MUSIC};
 
   private final TerrainFactory terrainFactory;
   private final MapLoader mapLoader;
   private final String mapPath;
+  private final Entity existingPlayer;
+  private final GridPoint2 entrySpawn;
 
   private LevelMapData mapData;
   private Entity player;
-  private final EventHandler eventHandler = new EventHandler();
+  private RoomTransition pendingTransition;
 
   /**
    * Create a level area using the default {@link JsonMapLoader}.
@@ -113,32 +171,98 @@ public class LevelGameArea extends GameArea {
    * @param mapLoader loader used to parse the map file
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
+    this(terrainFactory, mapPath, mapLoader, null, null, null);
+  }
+
+  /**
+   * Create a level while retaining an existing player and placing it at a specified entrance.
+   * Reusing the entity preserves all player component state, including health and inventory.
+   *
+   * @param terrainFactory factory used to build the terrain
+   * @param mapPath asset path of the map file to load
+   * @param existingPlayer already registered player entity to retain
+   * @param entrySpawn destination entrance tile, or {@code null} for the map's player spawn
+   */
+  public LevelGameArea(
+      TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null);
+  }
+
+  /**
+   * Create a level while retaining an existing player, placing it at a specified entrance, and
+   * using a previously-saved loot seed so this room's loot layout matches what it was when saved.
+   *
+   * @param savedLootSeed the loot seed to reuse, from a save file
+   */
+  public LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, savedLootSeed);
+  }
+
+  private LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      MapLoader mapLoader,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
     this.mapLoader = mapLoader;
+    this.existingPlayer = existingPlayer;
+    this.entrySpawn = entrySpawn == null ? null : new GridPoint2(entrySpawn);
+    this.lootSeed = savedLootSeed != null ? savedLootSeed : new Random().nextLong();
   }
 
   @Override
   public void create() {
+    DefaultEntitySpawns.registerAll();
     mapData = mapLoader.load(mapPath);
     loadAssets();
-    eventHandler.addListener("debugSpawnEnemy", this::spawnEnemy);
 
     displayUI();
+    spawnBackdrop();
     spawnTerrain();
     spawnCollisions();
-    player = spawnPlayer();
+    player = existingPlayer == null ? spawnPlayer() : adoptPlayer(existingPlayer);
+    spawnTransitions();
     spawnEnemies();
     spawnLoot();
+    spawnTravelerNPC();
     playMusic();
   }
 
   /**
-   * @return the loaded map data (dimensions, layers, tile types, spawns) for other systems to use
+   * The supported way for other systems to read this level.
+   *
+   * <p>Prefer this to {@link #getMapData()}: {@link LevelView} is a stable contract, while the map
+   * data behind it is the map package's own structure and changes shape as the format evolves.
+   *
+   * @return a read-only view of the loaded level, or null before {@link #create()} runs
    */
+  public LevelView getLevel() {
+    return mapData == null ? null : new MapDataLevelView(mapData);
+  }
+
+  /**
+   * @return the loaded map data (dimensions, layers, tile types, spawns)
+   * @deprecated prefer {@link #getLevel()}, which does not couple callers to the map format
+   */
+  @Deprecated(since = "1.0")
   public LevelMapData getMapData() {
     return mapData;
+  }
+
+  /**
+   * @return the loot seed used by this level instance
+   */
+  public long getLootSeed() {
+    return lootSeed;
   }
 
   /**
@@ -146,6 +270,28 @@ public class LevelGameArea extends GameArea {
    */
   public Entity getPlayer() {
     return player;
+  }
+
+  /**
+   * Remove ownership of the persistent player before this room is disposed.
+   *
+   * @return the player entity to adopt into the next room
+   */
+  public Entity releasePlayer() {
+    areaEntities.remove(player);
+    return player;
+  }
+
+  /**
+   * Return and clear a doorway request. The screen consumes this after the physics update so the
+   * Box2D world is not modified from inside a contact callback.
+   *
+   * @return pending transition, or {@code null}
+   */
+  public RoomTransition consumePendingTransition() {
+    RoomTransition transition = pendingTransition;
+    pendingTransition = null;
+    return transition;
   }
 
   /**
@@ -191,12 +337,19 @@ public class LevelGameArea extends GameArea {
     spawnEntity(new Entity().addComponent(terrain));
   }
 
-  /**
-   * Build a static collider for every solid tile in the map's collision layer so the player and
-   * other physics bodies rest on floors and platforms instead of falling through. Reads the
-   * collision layer ({@link LevelMapData#getCollisionLayer()}), not layer 0, so the visual
-   * background layer never produces colliders.
-   */
+  /** Adds a supplied full-map image behind the collision-driven terrain, when the map has one. */
+  private void spawnBackdrop() {
+    String backgroundTexture = mapData.getBackgroundTexture();
+    if (backgroundTexture == null) {
+      return;
+    }
+    Entity backdrop =
+        new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
+    backdrop.setScale(getMapWorldWidth(), getMapWorldHeight());
+    spawnEntity(backdrop);
+  }
+
+  /** Spawns collision bodies from the map's collision layer. */
   private void spawnCollisions() {
     MapLayerData collisionLayer = mapData.getCollisionLayer();
 
@@ -206,61 +359,215 @@ public class LevelGameArea extends GameArea {
 
     float tileSize = terrain.getTileSize();
 
-    for (int x = 0; x < collisionLayer.getWidth(); x++) {
-      for (int y = 0; y < collisionLayer.getHeight(); y++) {
+    // Merge solid tiles both horizontally and vertically. A straight wall must be one continuous
+    // Box2D fixture; stacked row fixtures create internal edges that can catch the player.
+    for (SolidRectangle rectangle : findSolidRectangles(collisionLayer)) {
+      spawnSolidRectangle(rectangle, tileSize);
+    }
+
+    spawnPlatformCollisions(collisionLayer, tileSize);
+
+    // Hazards remain individual.
+    spawnHazardCollisions(collisionLayer, tileSize);
+    MapLayerData hazardLayer = mapData.getLayer("hazards");
+    if (hazardLayer != null && hazardLayer != collisionLayer) {
+      spawnHazardCollisions(hazardLayer, tileSize);
+    }
+  }
+
+  private void spawnPlatformCollisions(MapLayerData collisionLayer, float tileSize) {
+    for (int y = 0; y < collisionLayer.getHeight(); y++) {
+      int x = 0;
+
+      while (x < collisionLayer.getWidth()) {
         TileDefinition def = collisionLayer.get(x, y);
 
-        if (def == null) {
+        if (def == null || def.type().getCollisionType() != CollisionType.PLATFORM) {
+          x++;
           continue;
         }
 
-        CollisionType collisionType = def.type().getCollisionType();
+        int startX = x;
+        while (x + 1 < collisionLayer.getWidth()) {
+          TileDefinition next = collisionLayer.get(x + 1, y);
 
-        spawnCollisionTile(collisionType, x, y, tileSize);
+          if (next == null || next.type().getCollisionType() != CollisionType.PLATFORM) {
+            break;
+          }
+          x++;
+        }
+
+        spawnPlatformRow(startX, y, x - startX + 1, tileSize);
+        x++;
       }
     }
   }
 
-  /**
-   * Spawns the collision type at the x y coordinates from the relevant ObstacleFactory method
-   *
-   * @param collisionType the type of collision to spawn
-   * @param x the x coordinate of the collision
-   * @param y the y coordinate of the collision
-   * @param tileSize the width/height of the tile
-   */
-  private void spawnCollisionTile(CollisionType collisionType, int x, int y, float tileSize) {
+  static List<SolidRectangle> findSolidRectangles(MapLayerData collisionLayer) {
+    List<SolidRectangle> rectangles = new ArrayList<>();
+    Map<SolidRun, SolidRectangle> activeRectangles = new LinkedHashMap<>();
 
-    Entity collider;
+    for (int y = 0; y < collisionLayer.getHeight(); y++) {
+      Map<SolidRun, SolidRectangle> nextActiveRectangles = new LinkedHashMap<>();
 
-    switch (collisionType) {
-      case SOLID, PLATFORM:
-        collider = ObstacleFactory.createFloorTile(tileSize, COLLIDER_HEIGHT);
-        break;
+      for (SolidRun run : findSolidRuns(collisionLayer, y)) {
+        SolidRectangle previousRectangle = activeRectangles.remove(run);
+        if (previousRectangle == null) {
+          nextActiveRectangles.put(run, new SolidRectangle(run.x(), y, run.width(), 1));
+        } else {
+          nextActiveRectangles.put(
+              run,
+              new SolidRectangle(
+                  previousRectangle.x(),
+                  previousRectangle.y(),
+                  previousRectangle.width(),
+                  previousRectangle.height() + 1));
+        }
+      }
 
-      case HAZARD:
-        collider = ObstacleFactory.createHazardTile(tileSize, tileSize);
-        break;
-
-      case NONE:
-      default:
-        return;
+      // Runs which did not continue into this row are now complete.
+      rectangles.addAll(activeRectangles.values());
+      activeRectangles = nextActiveRectangles;
     }
 
-    // tileToWorldPosition gives the bottom-left corner of the tile (null for unsupported
-    // orientations). Entity positions represent the centre of the entity.
-    Vector2 position = terrain.tileToWorldPosition(x, y);
+    rectangles.addAll(activeRectangles.values());
+    return rectangles;
+  }
+
+  private static List<SolidRun> findSolidRuns(MapLayerData collisionLayer, int y) {
+    List<SolidRun> runs = new ArrayList<>();
+    int x = 0;
+
+    while (x < collisionLayer.getWidth()) {
+      if (!isSolidTile(collisionLayer, x, y)) {
+        x++;
+        continue;
+      }
+
+      int startX = x;
+      while (x + 1 < collisionLayer.getWidth() && isSolidTile(collisionLayer, x + 1, y)) {
+        x++;
+      }
+      runs.add(new SolidRun(startX, x - startX + 1));
+      x++;
+    }
+
+    return runs;
+  }
+
+  private static boolean isSolidTile(MapLayerData collisionLayer, int x, int y) {
+    TileDefinition definition = collisionLayer.get(x, y);
+    return definition != null && definition.type().getCollisionType() == CollisionType.SOLID;
+  }
+
+  private void spawnSolidRectangle(SolidRectangle rectangle, float tileSize) {
+    Entity collider =
+        ObstacleFactory.createSolidTile(
+            rectangle.width() * tileSize, rectangle.height() * tileSize);
+    Vector2 position = terrain.tileToWorldPosition(rectangle.x(), rectangle.y());
+
     if (position == null) {
       return;
     }
-    position.add(tileSize / 2f, tileSize / 2f);
 
     collider.setPosition(position);
     spawnEntity(collider);
   }
 
+  /**
+   * Spawns a hazard tile collision layer which will deal damage to the player.
+   *
+   * @param collisionLayer the collisionLayer to add the hazard to
+   * @param tileSize the size of each tile
+   */
+  private void spawnHazardCollisions(MapLayerData collisionLayer, float tileSize) {
+
+    for (int x = 0; x < collisionLayer.getWidth(); x++) {
+      for (int y = 0; y < collisionLayer.getHeight(); y++) {
+
+        TileDefinition def = collisionLayer.get(x, y);
+
+        if (def == null || def.type().getCollisionType() != CollisionType.HAZARD) {
+          continue;
+        }
+
+        Entity collider =
+            ObstacleFactory.createHazardTile(tileSize, tileSize)
+                .addComponent(new HazardDamageComponent(def.getInt("damage", HAZARD_DAMAGE)));
+
+        Vector2 position = terrain.tileToWorldPosition(x, y);
+
+        if (position == null) {
+          continue;
+        }
+
+        position.add(0, tileSize / 2f);
+
+        collider.setPosition(position);
+        spawnEntity(collider);
+      }
+    }
+  }
+
+  private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize) {
+    float width = tileCount * tileSize;
+    Entity collider = ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
+
+    Vector2 position = terrain.tileToWorldPosition(startX, y);
+
+    if (position == null) {
+      return;
+    }
+
+    // tileToWorldPosition is the tile's bottom-left corner; platforms use a thin collider at the
+    // tile's top.
+    position.y += tileSize - COLLIDER_HEIGHT;
+
+    collider.setPosition(position);
+    spawnEntity(collider);
+  }
+
+  static record SolidRectangle(int x, int y, int width, int height) {}
+
+  private record SolidRun(int x, int width) {}
+
   private Entity spawnPlayer() {
-    Entity newPlayer = PlayerFactory.createPlayer();
+    Entity newPlayer = PlayerFactory.createPlayer(mapData);
+
+    addHazardCollisionListener(newPlayer);
+    positionAndSpawnPlayer(newPlayer, mapData.getSpawns().getPlayer());
+    return newPlayer;
+  }
+
+  private Entity adoptPlayer(Entity retainedPlayer) {
+    GridPoint2 spawn = entrySpawn != null ? entrySpawn : mapData.getSpawns().getPlayer();
+    if (spawn == null) {
+      spawn = new GridPoint2(0, 0);
+    }
+    positionEntityAt(retainedPlayer, spawn, true, true);
+    PhysicsComponent physics = retainedPlayer.getComponent(PhysicsComponent.class);
+    if (physics != null) {
+      // A room entrance is a teleport, so momentum from the source doorway must not carry over.
+      // Resetting it also prevents a dash/fall from crossing the destination floor on the load
+      // frame.
+      physics.getBody().setLinearVelocity(0f, 0f);
+      physics.getBody().setAngularVelocity(0f);
+      physics.getBody().setAwake(true);
+    }
+    areaEntities.add(retainedPlayer);
+    return retainedPlayer;
+  }
+
+  private void positionAndSpawnPlayer(Entity newPlayer, GridPoint2 spawn) {
+    if (spawn == null) {
+      logger.warn("Map '{}' has no player spawn; defaulting to (0, 0)", mapData.getName());
+      spawn = new GridPoint2(0, 0);
+    }
+    spawnEntityAt(newPlayer, spawn, true, true);
+  }
+
+  private static void addHazardCollisionListener(Entity newPlayer) {
+    final long[] lastHazardDamageTime = {0L};
 
     newPlayer
         .getEvents()
@@ -269,6 +576,7 @@ public class LevelGameArea extends GameArea {
             (EventListener2<Fixture, Fixture>)
                 (fixtureA, fixtureB) -> {
                   Entity entityA = ((BodyUserData) fixtureA.getBody().getUserData()).entity;
+
                   Entity entityB = ((BodyUserData) fixtureB.getBody().getUserData()).entity;
 
                   Entity other;
@@ -282,23 +590,48 @@ public class LevelGameArea extends GameArea {
                   ColliderComponent collider = other.getComponent(ColliderComponent.class);
 
                   if (collider != null && collider.getLayer() == PhysicsLayer.HAZARD) {
-                    CombatStatsComponent stats = newPlayer.getComponent(CombatStatsComponent.class);
 
-                    stats.addHealth(-10);
+                    long currentTime = System.currentTimeMillis();
 
-                    logger.info("Player hit hazard! Health: {}", stats.getHealth());
+                    if (currentTime - lastHazardDamageTime[0] >= HAZARD_DAMAGE_COOLDOWN_MS) {
+
+                      CombatStatsComponent stats =
+                          newPlayer.getComponent(CombatStatsComponent.class);
+
+                      // Hazards carry their own damage; older maps that set none use the default.
+                      HazardDamageComponent hazard =
+                          other.getComponent(HazardDamageComponent.class);
+                      int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
+
+                      stats.addHealth(-damage);
+
+                      lastHazardDamageTime[0] = currentTime;
+
+                      logger.info("Player hit hazard! Health: {}", stats.getHealth());
+                    }
                   }
                 });
+  }
 
-    GridPoint2 spawn = mapData.getSpawns().getPlayer();
+  private void spawnTransitions() {
+    float tileSize = terrain.getTileSize();
+    for (RoomTransition transition : mapData.getTransitions()) {
+      Entity doorway =
+          new Entity()
+              .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+              .addComponent(new ColliderComponent().setSensor(true))
+              .addComponent(
+                  new RoomTransitionComponent(
+                      transition, player, requested -> pendingTransition = requested));
 
-    if (spawn == null) {
-      logger.warn("Map '{}' has no player spawn; defaulting to (0, 0)", mapData.getName());
-      spawn = new GridPoint2(0, 0);
+      if (transition.getTexture() != null) {
+        doorway.addComponent(new TextureRenderComponent(transition.getTexture()));
+      }
+
+      doorway.setScale(transition.getWidth() * tileSize, transition.getHeight() * tileSize);
+      doorway.setPosition(terrain.tileToWorldPosition(transition.getPosition()));
+      spawnEntity(doorway);
     }
-
-    spawnEntityAt(newPlayer, spawn, true, true);
-    return newPlayer;
   }
 
   private void spawnEnemies() {
@@ -310,43 +643,86 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  private Entity createEnemy(String type) {
-    if (type == null) {
-      return null;
-    }
-    return switch (type.toLowerCase()) {
-      case "ghost" -> NPCFactory.createGhost(player);
-      case "ghostking", "ghost_king" -> NPCFactory.createGhostKing(player);
-      case "skeleton" -> NPCFactory.createSkeleton(player);
-      case "rangedskeleton", "ranged-skeleton" -> NPCFactory.createRangedSkeleton(player);
-      default -> {
-        logger.warn("Unknown enemy spawn type '{}' - skipped", type);
-        yield null;
-      }
-    };
-  }
-
   /**
-   * Made for debug terminal to create enemies
+   * Builds one spawn by name, through {@link EntitySpawnRegistry}, so this area holds no list of
+   * what the game can spawn. A name nobody registered is reported by the registry and skipped.
    *
-   * @param type type of enemy to spawn
-   * @param position world position to spawn enemy
+   * @param type the spawn name from the map
+   * @return the new entity, or null if the name is unknown
    */
-  private void spawnEnemy(String type, Vector2 position) {
-    System.out.println("Spawning Enemy");
-    Entity enemy = createEnemy(type);
-    enemy.setPosition(position);
-    spawnEntity(enemy);
+  private Entity createEnemy(String type) {
+    return EntitySpawnRegistry.create(type, player);
   }
 
   /**
-   * Spawns pickup loot (weapons, consumables, and a gold coin) so the loot/inventory features work
-   * in this level, mirroring what {@code ForestGameArea} spawns. Items are laid out in a row
-   * anchored to the map's first loot spawn point (falling back to just right of the player), so
-   * they land on the loaded map regardless of its size.
+   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
+   * features work in this level.
+   *
+   * <p>Loot goes on the spots chosen by {@link #chooseLootSpawns()}. The shield is guaranteed on
+   * the first spot, the same way the gold coin is always placed directly rather than rolled, since
+   * leaving the shield to the weighted table risked it never appearing. Every remaining spot gets
+   * one item rolled from the weighted loot table, so higher tiers stay rare. A map with no usable
+   * ground at all falls back to a starter row beside the player.
    */
   private void spawnLoot() {
+    List<SpawnPoint> lootSpawns = chooseLootSpawns();
+    if (lootSpawns.isEmpty()) {
+      spawnStarterLootRow();
+      return;
+    }
+
+    SpawnPoint shieldSpawn = lootSpawns.get(0);
+    String shieldId = LootId.of(mapData.getName(), shieldSpawn.getPosition());
+    if (!LootRegistry.isCollected(shieldId)) {
+      Entity shieldEntity = LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1));
+      shieldEntity.addComponent(new PersistentLootIdComponent(shieldId));
+      spawnEntityAt(shieldEntity, shieldSpawn.getPosition(), true, true);
+    }
+
+    List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
+    LootTable table = LootTable.createDefault(lootSeed);
+    for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
+      String id = LootId.of(mapData.getName(), placed.getPosition());
+      if (LootRegistry.isCollected(id)) {
+        continue;
+      }
+      Entity lootEntity = LootFactory.createLoot(placed.getItem());
+      lootEntity.addComponent(new PersistentLootIdComponent(id));
+      spawnEntityAt(lootEntity, placed.getPosition(), true, true);
+    }
+  }
+
+  /**
+   * Chooses the tiles this level's loot goes on.
+   *
+   * <p>A map's own loot spawn points always win, so a map author can place loot by hand. Most maps
+   * declare none, so otherwise {@link #RANDOM_LOOT_COUNT} distinct tiles are picked at random from
+   * the open ground, which spreads the loot out and changes it every run.
+   *
+   * @return the chosen tiles, empty only when the map has no open ground at all
+   */
+  private List<SpawnPoint> chooseLootSpawns() {
+    logger.info("Loot seed for {}: {}", mapData.getName(), lootSeed);
+
+    List<SpawnPoint> declared = mapData.getSpawns().getLoot();
+    if (!declared.isEmpty()) {
+      return declared;
+    }
+
+    List<SpawnPoint> ground = LootSpawnFinder.findGroundSpots(mapData);
+    return LootPlacement.pickRandomSpots(ground, RANDOM_LOOT_COUNT, new Random(lootSeed));
+  }
+
+  /**
+   * Lays one of everything out in a row next to the player.
+   *
+   * <p>A last resort for a map with no open ground to scatter loot over, so the loot and inventory
+   * features are still reachable while a map is being built.
+   */
+  private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
+
+    items.add(LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)));
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.BOW, 1)));
@@ -390,6 +766,11 @@ public class LevelGameArea extends GameArea {
     music.play();
   }
 
+  /** Restart this room's music after the previous room releases its shared music asset. */
+  public void resumeMusic() {
+    playMusic();
+  }
+
   private void loadAssets() {
     logger.debug("Loading level assets");
     ResourceService resourceService = ServiceLocator.getResourceService();
@@ -399,7 +780,7 @@ public class LevelGameArea extends GameArea {
     resourceService.loadTextures(entityTextures);
     resourceService.loadTextureAtlases(entityAtlases);
     resourceService.loadSounds(entitySounds);
-    resourceService.loadMusic(ENTITY_MUSIC);
+    resourceService.loadMusic(entityMusic);
 
     while (!resourceService.loadForMillis(10)) {
       logger.info("Loading... {}%", resourceService.getProgress());
@@ -415,7 +796,7 @@ public class LevelGameArea extends GameArea {
     resourceService.unloadAssets(entityTextures);
     resourceService.unloadAssets(entityAtlases);
     resourceService.unloadAssets(entitySounds);
-    resourceService.unloadAssets(ENTITY_MUSIC);
+    resourceService.unloadAssets(entityMusic);
   }
 
   @Override
@@ -423,5 +804,10 @@ public class LevelGameArea extends GameArea {
     super.dispose();
     ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class).stop();
     unloadAssets();
+  }
+
+  private void spawnTravelerNPC() {
+    Entity travelerNPC = NPCFactory.createTravelerNPC(player);
+    spawnEntityAt(travelerNPC, TRAVELER_NPC_SPAWN, true, true);
   }
 }

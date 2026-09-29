@@ -558,6 +558,17 @@ class InventoryComponentTest {
   }
 
   @Test
+  void shouldNotCanStackWhenSellPricesDiffer() {
+    Item bought = potion(1, 9);
+    bought.setSellPrice(6);
+    Item looted = potion(1, 9);
+    looted.setSellPrice(10);
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    assertFalse(inventory.canStack(bought, looted));
+  }
+
+  @Test
   void shouldReturnSingleSlotQuantityAsTotal() {
     InventoryComponent inventory = new InventoryComponent(0, 5);
     inventory.addItem(gold(5, 9));
@@ -619,6 +630,19 @@ class InventoryComponentTest {
     assertEquals(4, inventory.getItem(2).getQuantity());
     assertNotSame(goldItem, inventory.getItem(2));
     assertEquals(2, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldCopySellPriceWhenSplittingStack() {
+    InventoryComponent inventory = new InventoryComponent(0, 5);
+    Item stack = potion(9, 9);
+    stack.setSellPrice(12);
+    inventory.addItem(stack);
+
+    assertEquals(2, inventory.splitStack(1, 4));
+
+    assertEquals(12, inventory.getItem(1).getSellPrice());
+    assertEquals(12, inventory.getItem(2).getSellPrice());
   }
 
   @Test

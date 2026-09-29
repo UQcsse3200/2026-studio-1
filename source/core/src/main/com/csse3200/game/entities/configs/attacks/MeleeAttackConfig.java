@@ -5,7 +5,10 @@ package com.csse3200.game.entities.configs.attacks;
  * attacks.
  */
 public class MeleeAttackConfig {
+  /* Melee Reach - a property of the entity wielder, not the weapon */
   public float range = 2;
-  public float cooldown = 3;
+  /* Minimum time, in seconds, between attacks */
+  public float cooldown = 4;
+  /* Knockback magnitude onb a successful hit - property of the wilder not the weapon */
   public float knockback = 0;
 }

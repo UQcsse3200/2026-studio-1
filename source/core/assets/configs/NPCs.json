@@ -1,19 +1,10 @@
 {
-  "ghost": {
-    "health": 40,
-    "baseAttack": 10
-  },
-  "ghostKing": {
-    "health": 100,
-    "baseAttack": 25,
-    "spookyFactor": 7
-  },
   "skeleton": {
     "health": 30,
     "baseAttack": 5,
     "melee": {
       "range": 2,
-      "cooldown": 3,
+      "cooldown": 5,
       "knockback": 0
     }
   },
@@ -22,9 +13,57 @@
     "baseAttack": 5,
     "ranged": {
       "range": 8,
-      "cooldown": 4,
+      "cooldown": 5,
+      "projectileSpeed": 8,
       "knockback": 0
+    }
+  },
+  "minotaur": {
+    "health":  40,
+    "baseAttack": 5,
+    "melee": {
+      "range": 5,
+      "cooldown": 5,
+      "knockback": 2
+    },
+    "charge": {
+      "speedMultiplier": 1.5,
+      "duration": 4,
+      "cooldown": 3,
+      "damageMultiplier": 1.5,
+      "aggroRadius": 10
+    }
+  },
+  "centaur": {
+    "health": 40,
+    "baseAttack": 7,
+    "ranged": {
+      "range": 8,
+      "cooldown": 5,
+      "projectileSpeed": 8,
+      "knockback": 2
+    },
+    "charge": {
+      "speedMultiplier": 2,
+      "duration": 4,
+      "cooldown": 3,
+      "damageMultiplier": 1.5,
+      "aggroRadius": 10
+    }
+  },
+  "cyclops": {
+    "health": 50,
+    "baseAttack": 10,
+    "melee": {
+      "range": 3,
+      "cooldown": 4,
+      "knockback": 2.5
+    },
+    "ranged": {
+      "range": 7,
+      "cooldown": 3,
+      "projectileSpeed": 8,
+      "knockback": 3
     }
   }
 }
-

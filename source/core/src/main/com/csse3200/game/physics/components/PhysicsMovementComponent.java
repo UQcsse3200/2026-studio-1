@@ -17,6 +17,8 @@ public class PhysicsMovementComponent extends Component implements MovementContr
   private Vector2 targetPosition;
   private boolean movementEnabled = true;
   private boolean groundedMovement = false;
+  // no effect on any entity that doesn't have the charge component.
+  private float speedMultiplier = 1.0f;
 
   @Override
   public void create() {
@@ -98,8 +100,8 @@ public class PhysicsMovementComponent extends Component implements MovementContr
     Vector2 velocity = body.getLinearVelocity();
     Vector2 clampedVelocity = desiredVelocity.cpy();
     if (groundedMovement) {
-      // Only steer horizontally.
-      clampedVelocity.y = velocity.y;
+      // Only steer horizontally with speed multiplier.
+      clampedVelocity.y = velocity.y * this.getSpeedMultiplier();
     }
     Vector2 impulse = clampedVelocity.sub(velocity).scl(body.getMass());
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
@@ -113,5 +115,31 @@ public class PhysicsMovementComponent extends Component implements MovementContr
       direction.y = 0f;
     }
     return direction.nor();
+  }
+
+  /**
+   * Retyutrns the current speed multiplier applied to this entity's movement.
+   *
+   * @return the speed multiplier; defaults to 1.0f - no change unless called on.
+   */
+  public float getSpeedMultiplier() {
+    return this.speedMultiplier;
+  }
+
+  /**
+   * Sets a multiplier applied to this entity's base movement speed. A value of 1.0f restores to
+   * original speed.
+   *
+   * @param speedMultiplier the positive multiplier to apply.
+   * @throws IllegalArgumentException if speedMultiplier is not positive.
+   */
+  public void setSpeedMultiplier(float speedMultiplier) throws IllegalArgumentException {
+    if (speedMultiplier <= 0) {
+      throw new IllegalArgumentException("Speed multiplier must not be negative or equal to 0.");
+    }
+    if (speedMultiplier == 1.0f) {
+      this.speedMultiplier = 1.0f;
+    }
+    this.speedMultiplier = speedMultiplier;
   }
 }

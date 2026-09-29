@@ -4,9 +4,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.ComponentType;
 import com.csse3200.game.events.EventHandler;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ public class Entity {
   private final EventHandler eventHandler;
   private boolean enabled = true;
   private boolean created = false;
+  private boolean disposed = false;
   private Vector2 position = Vector2.Zero.cpy();
   private Vector2 scale = new Vector2(1, 1);
   private Array<Component> createdComponents;
@@ -201,6 +204,15 @@ public class Entity {
 
   /** Dispose of the entity. This will dispose of all components on this entity. */
   public void dispose() {
+    // Disposal may be requested more than once. For example, collected loot unregisters itself but
+    // remains in its room's ownership list, which is disposed again during a room transition.
+    // Box2D bodies cannot be destroyed twice, so make the complete entity teardown idempotent. Set
+    // the flag first to protect against re-entrant disposal.
+    if (disposed) {
+      return;
+    }
+    disposed = true;
+
     for (Component component : createdComponents) {
       component.dispose();
     }
@@ -219,6 +231,9 @@ public class Entity {
       return;
     }
     createdComponents = components.values().toArray();
+    createdComponents.sort(
+        Comparator.comparingInt(
+            c -> c.getPrio() == null ? ComponentPriority.LOW.getValue() : c.getPrio().getValue()));
     for (Component component : createdComponents) {
       component.create();
     }
@@ -283,5 +298,14 @@ public class Entity {
   @Override
   public String toString() {
     return String.format("Entity{id=%d}", id);
+  }
+
+  /**
+   * Gets whether the event has already been disposed.
+   *
+   * @return disposed boolean
+   */
+  public boolean isDisposed() {
+    return disposed;
   }
 }

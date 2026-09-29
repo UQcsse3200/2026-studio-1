@@ -2,6 +2,7 @@ package com.csse3200.game.physics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.math.Vector2;
@@ -31,6 +32,11 @@ class ColliderComponentTest {
   }
 
   @Test
+  void shouldKeepItemAndHazardLayersDistinct() {
+    assertNotEquals(PhysicsLayer.HAZARD, PhysicsLayer.ITEM);
+  }
+
+  @Test
   void shouldSetFriction() {
     Entity entity = new Entity();
     entity.addComponent(new PhysicsComponent());
@@ -56,6 +62,21 @@ class ColliderComponentTest {
     assertTrue(component.getFixture().isSensor());
     component.setSensor(false);
     assertFalse(component.getFixture().isSensor());
+  }
+
+  @Test
+  void shouldSetCollisionMask() {
+    Entity entity = new Entity();
+    entity.addComponent(new PhysicsComponent());
+    ColliderComponent component = new ColliderComponent();
+    entity.addComponent(component);
+
+    component.setMask(PhysicsLayer.OBSTACLE);
+    assertEquals(PhysicsLayer.OBSTACLE, component.getMask());
+
+    entity.create();
+    component.setMask(PhysicsLayer.PLAYER);
+    assertEquals(PhysicsLayer.PLAYER, component.getMask());
   }
 
   @Test

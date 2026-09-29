@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.EventHandler;
 import com.csse3200.game.extensions.GameExtension;
@@ -55,21 +55,22 @@ class PlayerStatsDisplayTest {
     // ResourceService must resolve each path to the matching mock texture above.
     ResourceService resourceService = mock(ResourceService.class);
 
-    when(resourceService.getAsset("images/heart-green.png", Texture.class)).thenReturn(green);
+    when(resourceService.getAsset("images/ui/heart-green.png", Texture.class)).thenReturn(green);
 
-    when(resourceService.getAsset("images/heart-yellow.png", Texture.class)).thenReturn(yellow);
+    when(resourceService.getAsset("images/ui/heart-yellow.png", Texture.class)).thenReturn(yellow);
 
-    when(resourceService.getAsset("images/heart.png", Texture.class)).thenReturn(red);
+    when(resourceService.getAsset("images/ui/heart.png", Texture.class)).thenReturn(red);
 
-    when(resourceService.getAsset("images/heart-empty.png", Texture.class)).thenReturn(empty);
+    when(resourceService.getAsset("images/ui/heart-empty.png", Texture.class)).thenReturn(empty);
 
-    when(resourceService.getAsset("images/heart-green-half.png", Texture.class))
+    when(resourceService.getAsset("images/ui/heart-green-half.png", Texture.class))
         .thenReturn(greenHalf);
 
-    when(resourceService.getAsset("images/heart-yellow-half.png", Texture.class))
+    when(resourceService.getAsset("images/ui/heart-yellow-half.png", Texture.class))
         .thenReturn(yellowHalf);
 
-    when(resourceService.getAsset("images/heart-red-half.png", Texture.class)).thenReturn(redHalf);
+    when(resourceService.getAsset("images/ui/heart-red-half.png", Texture.class))
+        .thenReturn(redHalf);
 
     when(resourceService.getAsset("sounds/player-hit.ogg", Sound.class)).thenReturn(hitSound);
 

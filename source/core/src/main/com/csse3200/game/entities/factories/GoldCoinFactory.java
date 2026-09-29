@@ -20,7 +20,7 @@ public class GoldCoinFactory {
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService()
-                .getAsset("images/gold_coin/gold_coin.atlas", TextureAtlas.class));
+                .getAsset("images/items/gold_coin/gold_coin.atlas", TextureAtlas.class));
 
     animator.addAnimation("gold_coin", 0.15f, Animation.PlayMode.LOOP);
     animator.startAnimation("gold_coin");

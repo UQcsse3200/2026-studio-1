@@ -140,6 +140,23 @@ class EntityTest {
   }
 
   @Test
+  void shouldOnlyDisposeOnce() {
+    Entity entity = new Entity();
+    TestComponent1 component = spy(TestComponent1.class);
+    entity.addComponent(component);
+    entity.create();
+
+    EntityService entityService = mock(EntityService.class);
+    ServiceLocator.registerEntityService(entityService);
+
+    entity.dispose();
+    entity.dispose();
+
+    verify(component, times(1)).dispose();
+    verify(entityService, times(1)).unregister(entity);
+  }
+
+  @Test
   void shouldHaveUniqueId() {
     Entity entity1 = new Entity();
     Entity entity2 = new Entity();

@@ -53,17 +53,26 @@ public abstract class GameArea implements Disposable {
    */
   protected void spawnEntityAt(
       Entity entity, GridPoint2 tilePos, boolean centerX, boolean centerY) {
+    positionEntityAt(entity, tilePos, centerX, centerY);
+    spawnEntity(entity);
+  }
+
+  /**
+   * Position an entity on a tile without registering it. This is used when an already registered
+   * entity, such as the persistent player, is adopted by a newly loaded room.
+   */
+  protected void positionEntityAt(
+      Entity entity, GridPoint2 tilePos, boolean centerX, boolean centerY) {
     Vector2 worldPos = terrain.tileToWorldPosition(tilePos);
     float tileSize = terrain.getTileSize();
 
     if (centerX) {
-      worldPos.x += (tileSize / 2) - entity.getCenterPosition().x;
+      worldPos.x += (tileSize - entity.getScale().x) / 2f;
     }
     if (centerY) {
-      worldPos.y += (tileSize / 2) - entity.getCenterPosition().y;
+      worldPos.y += (tileSize - entity.getScale().y) / 2f;
     }
 
     entity.setPosition(worldPos);
-    spawnEntity(entity);
   }
 }

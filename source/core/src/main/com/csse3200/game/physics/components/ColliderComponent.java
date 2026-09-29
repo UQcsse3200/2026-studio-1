@@ -208,6 +208,33 @@ public class ColliderComponent extends Component {
     return fixture.getFilterData().categoryBits;
   }
 
+  /**
+   * Set which physics layers this collider is allowed to collide with.
+   *
+   * @param layerMask bitmask of {@link PhysicsLayer} collision targets
+   * @return self
+   */
+  public ColliderComponent setMask(short layerMask) {
+    if (fixture == null) {
+      fixtureDef.filter.maskBits = layerMask;
+    } else {
+      Filter filter = fixture.getFilterData();
+      filter.maskBits = layerMask;
+      fixture.setFilterData(filter);
+    }
+    return this;
+  }
+
+  /**
+   * @return bitmask of physics layers this collider is allowed to collide with
+   */
+  public short getMask() {
+    if (fixture == null) {
+      return fixtureDef.filter.maskBits;
+    }
+    return fixture.getFilterData().maskBits;
+  }
+
   @Override
   public void dispose() {
     super.dispose();

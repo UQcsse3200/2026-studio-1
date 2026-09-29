@@ -86,7 +86,25 @@ class ItemTest {
   }
 
   @Test
+  void shouldHaveZeroSellPriceByDefault() {
+    assertEquals(0, consumable.getSellPrice());
+  }
+
+  @Test
+  void shouldSetSellPrice() {
+    consumable.setSellPrice(50);
+
+    assertEquals(50, consumable.getSellPrice());
+  }
+
+  @Test
+  void shouldRejectNegativeSellPrice() {
+    assertThrows(IllegalArgumentException.class, () -> consumable.setSellPrice(-1));
+  }
+
+  @Test
   void shouldRejectNullItemType() {
+
     assertThrows(IllegalArgumentException.class, () -> new Item("Test", null, 1, 10));
   }
 

@@ -10,7 +10,8 @@ public class PhysicsLayer {
   public static final short HAZARD = (1 << 4);
   // NPC (Non-Playable Character) colliders
   public static final short NPC = (1 << 3);
-  public static final short ITEM = (1 << 4);
+  // Collectible item sensors must not share the hazard bit.
+  public static final short ITEM = (1 << 5);
   public static final short ALL = ~0;
 
   public static boolean contains(short filterBits, short layer) {

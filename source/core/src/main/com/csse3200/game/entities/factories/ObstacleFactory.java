@@ -23,7 +23,7 @@ public class ObstacleFactory {
   public static Entity createTree() {
     Entity tree =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/tree.png"))
+            .addComponent(new TextureRenderComponent("images/environment/forest/tree.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
 
@@ -44,7 +44,7 @@ public class ObstacleFactory {
   public static Entity createPlatform(float width, float height) {
     Entity platform =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/platform.png"))
+            .addComponent(new TextureRenderComponent("images/environment/forest/platform.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
 

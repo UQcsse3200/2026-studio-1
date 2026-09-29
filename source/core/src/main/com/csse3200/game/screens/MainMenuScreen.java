@@ -1,5 +1,6 @@
 package com.csse3200.game.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
@@ -11,6 +12,7 @@ import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
+import com.csse3200.game.perks.PerkDefinitions;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.ResourceService;
@@ -23,7 +25,7 @@ public class MainMenuScreen extends ScreenAdapter {
   private static final Logger logger = LoggerFactory.getLogger(MainMenuScreen.class);
   private final GdxGame game;
   private final Renderer renderer;
-  private static final String[] mainMenuTextures = {"images/box_boy_title.png"};
+  private static final String[] mainMenuTextures = {"images/ui/box_boy_title.png"};
 
   public MainMenuScreen(GdxGame game) {
     this.game = game;
@@ -33,11 +35,19 @@ public class MainMenuScreen extends ScreenAdapter {
     ServiceLocator.registerResourceService(new ResourceService());
     ServiceLocator.registerEntityService(new EntityService());
     ServiceLocator.registerRenderService(new RenderService());
+    PerkDefinitions.registerAll();
 
     renderer = RenderFactory.createRenderer();
 
     loadAssets();
     createUI();
+  }
+
+  @Override
+  public void show() {
+    // Gameplay and death screens use a black clear colour. Restore the menu background whenever
+    // this screen becomes active so returning to it does not retain the previous screen's colour.
+    Gdx.gl.glClearColor(248f / 255f, 249f / 255f, 178f / 255f, 1f);
   }
 
   @Override

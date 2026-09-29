@@ -5,15 +5,17 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.csse3200.game.Quests.Quest;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
-import com.csse3200.game.components.attacks.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
-import com.csse3200.game.rendering.TextureRenderComponent;
+import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,9 +31,13 @@ import org.slf4j.LoggerFactory;
  * is triggered.
  */
 public class PlayerActions extends Component {
+  private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
   // Thank you Lachlan, you beautiful, beautiful man
-  private static final Vector2 MAX_SPEED = new Vector2(30f, 3f); // Metres per second
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
+  private static final float BASE_ATTACK_COOLDOWN = 0.5f;
+  private float attackCooldownRemaining = 0f;
+  private float attackCooldownMultiplier = 1f;
 
   private PhysicsComponent physicsComponent;
   private CombatStatsComponent combatStats;
@@ -56,15 +62,11 @@ public class PlayerActions extends Component {
   // Death State
   private boolean dead = false;
 
-  private final String NORMAL_TEXTURE = "images/box_boy_leaf.png";
-  private final String CROUCH_TEXTURE = "images/box_boy_crouch.png";
-  private final String SLIDE_TEXTURE = "images/box_boy_slide.png";
   private final String WALKING_SE = "sounds/walking1.mp3";
   private final String JUMP_SE = "sounds/jump.mp3";
   private final String DASH_SE = "sounds/dash.mp3";
   private final String SNEAK_SE = "sounds/sneaking1.mp3";
   private final String SLIDE_SE = "sounds/slide.mp3";
-  private TextureRenderComponent textureRenderComponent;
 
   private final Set<Entity> enemiesInRange = new HashSet<>();
 
@@ -79,7 +81,7 @@ public class PlayerActions extends Component {
     platformerComponent = entity.getComponent(PlatformerComponent.class);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
-    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
+    platformerComponent = entity.getComponent(PlatformerComponent.class);
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
@@ -88,27 +90,51 @@ public class PlayerActions extends Component {
     // Existing movement features
     entity.getEvents().addListener("dash", this::dash);
     entity.getEvents().addListener("slide", this::slide);
-    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
     entity.getEvents().addListener("ctrlChanged", this::ctrlChanged);
 
     // Existing combat features from main
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
     entity.getEvents().addListener("collisionEnd", this::onCollisionEnd);
 
-    // Death State
+    // Death State for player
     entity.getEvents().addListener("death", this::onDeath);
-
-    // Tell Terminal the player's position
-    entity.getEvents().addListener("getPlayerPosition", this::getPlayerPosition);
   }
 
   @Override
   public void update() {
+    if (attackCooldownRemaining > 0f) {
+      attackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
+      attackCooldownRemaining = Math.max(0f, attackCooldownRemaining);
+    }
+
     playMovementSound();
     if (!dead && (moving || platformerComponent.getJumpingBool())) {
       updateSpeed();
     }
     timerforslide();
+    String direction = entity.getComponent(KeyboardPlayerInputComponent.class).getDirection();
+    animationtimer(direction);
+  }
+
+  private void animationtimer(String direction) {
+    PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
+    if (animator.isFinished()
+        && !animator.getCurrentAnimation().equals("crouchidle")
+        && !animator.getCurrentAnimation().equals("Leftcrouchidle")
+        && !animator.getCurrentAnimation().equals("Run")
+        && !animator.getCurrentAnimation().equals("LeftRun")) {
+
+      if (animator.getCurrentAnimation().equals("Jump")
+          || animator.getCurrentAnimation().equals("LeftJump")) {
+        if (!walkDirection.isZero()) {
+          entity.getEvents().trigger("run", direction);
+        } else {
+          entity.getEvents().trigger("idle", direction);
+        }
+      } else {
+        entity.getEvents().trigger("idle", direction);
+      }
+    }
   }
 
   public void playMovementSound() {
@@ -116,28 +142,28 @@ public class PlayerActions extends Component {
     Sound sneakSound = ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
     if (dashing) {
       Sound dashSound = ServiceLocator.getResourceService().getAsset(DASH_SE, Sound.class);
-      dashSound.play();
+      dashSound.play(AudioSettings.getEffectiveEffectsVolume());
       dashing = false;
     } else if (platformerComponent.getJumpingBool()) {
       Sound jumpSound = ServiceLocator.getResourceService().getAsset(JUMP_SE, Sound.class);
-      jumpSound.play();
+      jumpSound.play(AudioSettings.getEffectiveEffectsVolume());
     } else if (sliding) {
       Sound slideSound = ServiceLocator.getResourceService().getAsset(SLIDE_SE, Sound.class);
       if (!slideSoundPlaying) {
-        slideSound.play();
+        slideSound.play(AudioSettings.getEffectiveEffectsVolume());
         slideSoundPlaying = true;
       }
     } else if (moving && platformerComponent.isGrounded()) {
       if (sneaking) {
         if (!sneakSoundPlaying) {
-          sneakSound.loop();
+          sneakSound.loop(AudioSettings.getEffectiveEffectsVolume());
           sneakSoundPlaying = true;
         }
         walkSound.stop();
         walkSoundPlaying = false;
       } else {
         if (!walkSoundPlaying) {
-          walkSound.loop();
+          walkSound.loop(AudioSettings.getEffectiveEffectsVolume());
           walkSoundPlaying = true;
         }
         sneakSound.stop();
@@ -167,6 +193,10 @@ public class PlayerActions extends Component {
     Vector2 impulse = desiredVelocity.scl(body.getMass());
     body.applyForce(impulse, body.getWorldCenter(), true);
 
+    // To track player global stats
+    if (platformerComponent.getJumpingBool()) {
+      Quest.incrementGlobalJumps();
+    }
     // For the jump portion
     platformerComponent.updateJump(MAX_SPEED);
   }
@@ -195,6 +225,14 @@ public class PlayerActions extends Component {
   /**
    * Returns the combined effect of all active speed modifiers (their product). 1 if none active.
    */
+  public void setAttackSpeedMultiplier(float multiplier) {
+    attackCooldownMultiplier = multiplier;
+  }
+
+  public float getAttackSpeedMultiplier() {
+    return attackCooldownMultiplier;
+  }
+
   public float getEffectiveSpeedMultiplier() {
     float result = 1f;
     for (float value : speedModifiers.values()) {
@@ -230,43 +268,24 @@ public class PlayerActions extends Component {
 
   /** Makes the player attack. */
   void attack() {
-    if (dead) {
-      return;
-    }
+    if (dead || attackCooldownRemaining > 0f) return;
+
+    Sound attackSound =
+        ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
       CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
-
-        Sound attackSound =
-            ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
-        attackSound.play();
-
-        // Check for death
-        if (enemyStats.isDead()) {
-          // Drop loot
-          Logger logger = LoggerFactory.getLogger(ItemDropComponent.class);
-          ItemDropComponent dropper = enemy.getComponent(ItemDropComponent.class);
-          if (dropper != null) {
-            // Drop gold
-            dropper.dropGold();
-
-            // Drop weapons and consumables
-            while (dropper.dropFirstStack()) {
-              logger.info("Enemy {} dropped item", enemy);
-            }
-          }
-
-          // Remove enemy
-          enemy.dispose();
-        }
+        logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+        attackSound.play(AudioSettings.getEffectiveEffectsVolume());
       }
     }
 
     // Existing weapon functionality
     entity.getEvents().trigger("weaponAttack");
+    attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
   }
 
   /** Makes the player dash. */
@@ -287,12 +306,10 @@ public class PlayerActions extends Component {
     }
 
     if (pressed) {
-      textureRenderComponent.setTexture(CROUCH_TEXTURE);
       sneaking = true;
       crouching = true;
       updateSpeed();
     } else {
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
       sneaking = false;
       crouching = false;
       updateSpeed();
@@ -303,18 +320,21 @@ public class PlayerActions extends Component {
     if (pressed) {
       sliding = true;
       SlideTimer = 0;
-      textureRenderComponent.setTexture(SLIDE_TEXTURE);
       slidingAction(walkDirection.cpy());
-
     } else {
       sliding = false;
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
   }
 
   private void slidingAction(Vector2 direction) {
     Body body = physicsComponent.getBody();
     Vector2 impulse = direction.cpy().scl(slidespeed);
+    if (impulse.x != 0f) {
+      entity
+          .getEvents()
+          .trigger(
+              "sliding", entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
+    }
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 
@@ -324,7 +344,6 @@ public class PlayerActions extends Component {
     SlideTimer += Gdx.graphics.getDeltaTime();
     if (SlideTimer >= SlideMaxTime) { // finish slide
       sliding = false;
-      textureRenderComponent.setTexture(NORMAL_TEXTURE);
     }
   }
 
@@ -370,11 +389,5 @@ public class PlayerActions extends Component {
 
   public boolean getDashing() {
     return dashing;
-  }
-
-  /** Sends player position to terminal */
-  private void getPlayerPosition() {
-    System.out.println("Sending PlayerPosition");
-    entity.getEvents().trigger("sendPlayerPosition", entity.getPosition());
   }
 }
