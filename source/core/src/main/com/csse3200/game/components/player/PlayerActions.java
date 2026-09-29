@@ -16,7 +16,6 @@ import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.PlayerRenderComponent;
-import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +44,6 @@ public class PlayerActions extends Component {
   private HitboxComponent hitboxComponent;
   private PlatformerComponent platformerComponent;
   private StaminaComponent staminaComponent;
-  private TextureRenderComponent textureRenderComponent;
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
@@ -85,7 +83,6 @@ public class PlayerActions extends Component {
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
     staminaComponent = entity.getComponent(StaminaComponent.class);
-    textureRenderComponent = entity.getComponent(TextureRenderComponent.class);
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
