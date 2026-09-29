@@ -11,10 +11,14 @@ public class SpawnCommand implements Command {
   private static LevelGameArea levelGameArea;
   private static final Logger logger = LoggerFactory.getLogger(SpawnCommand.class);
 
+  public SpawnCommand(LevelGameArea levelGameArea) {
+    SpawnCommand.levelGameArea = levelGameArea;
+  }
+
   /**
-   * Spawns an enemy at the players position unless specified coordinates are given. Enemy types
+   * Spawns an enemy of type defined in map at the players position.
    *
-   * @param args command args
+   * @param args command args, valid argument is entity type.
    */
   @Override
   public boolean action(ArrayList<String> args) {
@@ -22,23 +26,29 @@ public class SpawnCommand implements Command {
       logger.debug("Invalid arguments received for 'spawn' command: {}", args);
       return false;
     }
-    Vector2 position = new Vector2();
-    if (args.size() > 1) {
-      try {
-        position.x = getPosition(args.get(1), true);
-        position.y = getPosition(args.get(2), false);
-      } catch (NumberFormatException e) {
-        logger.debug("Invalid arguments received for 'spawn' command: {}", args);
-        return false;
-      }
-    } else {
-      position.x = getPosition(relativeDelimiter, true);
-      position.y = getPosition(relativeDelimiter, false);
+    if (levelGameArea.spawnEnemy(args.getFirst(), getPlayerPosition())) {
+      logger.info(
+          "'spawn' command {}, successfully spawned '{}' at {}",
+          args,
+          args.getFirst(),
+          getPlayerPosition());
+      return true;
     }
+    logger.debug("Invalid arguments received for 'spawn' command: {}", args);
+    return false;
+  }
 
-    // Should be in each level, so that an enemy can be spawned regardless of level.
+  private Vector2 getPlayerPosition() {
+    return levelGameArea != null ? levelGameArea.getPlayer().getPosition() : null;
+  }
 
-    return true;
+  /**
+   * A method to update the level game area on transition and loading.
+   *
+   * @param levelGameArea new level game area to spawn enemies in
+   */
+  public static void updateLevelGameArea(LevelGameArea levelGameArea) {
+    SpawnCommand.levelGameArea = levelGameArea;
   }
 
   /**
