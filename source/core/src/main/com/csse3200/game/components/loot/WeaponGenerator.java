@@ -31,7 +31,9 @@ public class WeaponGenerator {
         return bow;
 
       case DAGGER:
-          WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, WeaponTier.values()[tier - 1], 1, 20, 1);
+        WeaponItem dagger =
+            new WeaponItem(
+                "Basic Dagger", WeaponType.DAGGER, WeaponTier.values()[tier - 1], 1, 20, 1);
         dagger.setSellPrice(6 * tier);
         return dagger;
 

@@ -41,6 +41,7 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.SpawnCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
@@ -491,6 +492,7 @@ public class MainGameScreen extends ScreenAdapter {
     this.pauseMenu = pauseMenuComponent;
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
+    terminal.addCommand("spawn", new SpawnCommand());
 
     ServiceLocator.getEntityService().register(ui);
   }

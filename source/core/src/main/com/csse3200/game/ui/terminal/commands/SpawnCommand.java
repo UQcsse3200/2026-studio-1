@@ -1,14 +1,12 @@
 package com.csse3200.game.ui.terminal.commands;
 
 import com.badlogic.gdx.math.Vector2;
-import com.csse3200.game.events.EventHandler;
 import java.util.ArrayList;
-import java.util.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** A command for spawning NPCs */
-public class SpawnCommand implements Command, EventListener {
+public class SpawnCommand implements Command {
   private static final String relativeDelimiter = "r";
 
   /**
@@ -19,11 +17,6 @@ public class SpawnCommand implements Command, EventListener {
   private static Vector2 playerPosition = new Vector2();
 
   private static final Logger logger = LoggerFactory.getLogger(SpawnCommand.class);
-  private static final EventHandler eventHandler = new EventHandler();
-
-  static {
-    eventHandler.addListener("sendPlayerPosition", SpawnCommand::updatePlayerPosition);
-  }
 
   /**
    * Spawns an enemy at the players position unless specified coordinates are given. Enemy types
@@ -32,7 +25,6 @@ public class SpawnCommand implements Command, EventListener {
    */
   @Override
   public boolean action(ArrayList<String> args) {
-    eventHandler.trigger("getPlayerPosition");
     if (!isValid(args)) {
       logger.debug("Invalid arguments received for 'spawn' command: {}", args);
       return false;
@@ -52,7 +44,6 @@ public class SpawnCommand implements Command, EventListener {
     }
 
     // Should be in each level, so that an enemy can be spawned regardless of level.
-    eventHandler.trigger("debugSpawnEnemy", args.getFirst(), position);
 
     return true;
   }

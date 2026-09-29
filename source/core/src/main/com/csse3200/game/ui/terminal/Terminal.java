@@ -3,7 +3,6 @@ package com.csse3200.game.ui.terminal;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.ui.terminal.commands.Command;
 import com.csse3200.game.ui.terminal.commands.DebugCommand;
-import com.csse3200.game.ui.terminal.commands.SpawnCommand;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ public class Terminal extends Component {
     this.commands = commands;
 
     addCommand("debug", new DebugCommand());
-    addCommand("spawn", new SpawnCommand());
   }
 
   /**
