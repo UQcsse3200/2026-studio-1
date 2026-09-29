@@ -43,7 +43,7 @@ public class MeleeAttackComponent extends Component {
   private WeaponItem weapon;
   /* This is set in the {@link WeaponItem} creation rather than here as animation is per weapon
    * Adjustments can be made as public setter and getter for the value is avaliable.
-   */
+  */
   private float windupDuration;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
@@ -82,7 +82,7 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
-   * Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+   * Creates a melee attack component with configurable range, cooldown, knockback, with no weapon
    * for any attacks i.e. the rocks where no weapons are in the inventory.
    *
    * @param range attack reach, checked as a direct distance calculation between this entity's and
@@ -95,14 +95,11 @@ public class MeleeAttackComponent extends Component {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-    if (weapon.getWindupDuration() < 0) {
-      throw new IllegalArgumentException("windupDuration must not be negative.");
+    if (cooldown <= 1) {
+      throw new IllegalArgumentException("WindupDuration for attack must be less than cooldown and must be positive.");
     }
-    if (weapon.getWindupDuration() >= this.getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown");
-    }
+    this.windupDuration = this.getCooldown() - 1;
     this.timeSinceLastAttack = cooldown;
-    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**

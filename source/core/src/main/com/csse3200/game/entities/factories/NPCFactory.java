@@ -9,14 +9,7 @@ import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
-import com.csse3200.game.components.npc.CyclopsAnimationController;
-import com.csse3200.game.components.npc.DialogueComponent;
-import com.csse3200.game.components.npc.DialogueProximityComponent;
-import com.csse3200.game.components.npc.DisplayDialogue;
-import com.csse3200.game.components.npc.EnemyDeathComponent;
-import com.csse3200.game.components.npc.MinotaurAnimationController;
-import com.csse3200.game.components.npc.SkeletonAnimationController;
-import com.csse3200.game.components.npc.SkeletonWeaponAnimationController;
+import com.csse3200.game.components.npc.*;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.tasks.*;
@@ -101,6 +94,7 @@ public class NPCFactory {
     // Add necessary components to the entity
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(new EnemyTypeComponent("Melee Skeleton"))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,
@@ -164,6 +158,7 @@ public class NPCFactory {
     // Add necessary components to the entity
     rangedSkeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(new EnemyTypeComponent("Ranged Skeleton"))
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range,
@@ -214,7 +209,7 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    items.add(weaponGenerator.generateWeapon(WeaponType.AXE, 2));
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -230,6 +225,8 @@ public class NPCFactory {
     // Add necessary components to the entity
     minotaur
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(inventory)
+        .addComponent(new EnemyTypeComponent("Minotaur"))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,
@@ -242,7 +239,6 @@ public class NPCFactory {
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
-        .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
@@ -287,7 +283,7 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -316,6 +312,7 @@ public class NPCFactory {
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
+        .addComponent(new EnemyTypeComponent("Centaur"))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -355,20 +352,13 @@ public class NPCFactory {
     Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CyclopsConfig config = configs.cyclops;
 
-    // Create loot on drop
-    int numGold = 3;
+    // Create loot on drop - more gold dropped due to no weapons being dropped (no inventory)
+    int numGold = 12;
     InventoryComponent inventory = new InventoryComponent(numGold);
-    List<Item> items = new ArrayList<>();
 
-    WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
-    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
-    for (Item item : items) {
-      inventory.addItem(item);
-    }
 
     // Configure animation component
-    // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
+    // TODO: CYCLOPS ATTACK ANIMATION TO DO
     AnimationRenderComponent animator =
         new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
@@ -385,6 +375,7 @@ public class NPCFactory {
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+        .addComponent(new EnemyTypeComponent("Cyclops"))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
