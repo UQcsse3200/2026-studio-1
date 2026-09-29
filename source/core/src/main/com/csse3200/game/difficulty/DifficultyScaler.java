@@ -42,6 +42,7 @@ public final class DifficultyScaler {
     MeleeAttackComponent meleeAttack = enemy.getComponent(MeleeAttackComponent.class);
     if (meleeAttack != null) {
       meleeAttack.setCooldown(meleeAttack.getCooldown() * current.getAttackCooldownMultiplier());
+      meleeAttack.setDamageMultiplier(current.getEnemyDamageMultiplier());
     }
 
     RangedAttackComponent rangedAttack = enemy.getComponent(RangedAttackComponent.class);

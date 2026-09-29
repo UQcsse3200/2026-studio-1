@@ -12,6 +12,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import org.junit.jupiter.api.BeforeEach;
@@ -213,6 +214,89 @@ class MeleeAttackComponentTest {
             + targetStats.getHealth());
   }
 
+  // The difficulty damage multiplier (as set by DifficultyScaler at spawn) scales a landed hit's
+  // damage: unchanged at the default 1f, scaled up at 1.5f, scaled down (but never below 1) at 0.6f.
+  @Test
+  void shouldApplyDifficultyDamageMultiplierToLandedHitDamage() {
+    // default multiplier (1f) -> weapon damage of 10 is unchanged
+    Entity defaultAttacker = createWeaponDamageTenAttacker();
+    Entity defaultTarget = createHighHealthTarget();
+    defaultAttacker.setPosition(0, 0);
+    defaultTarget.setPosition(1, 0);
+    int defaultHealthBefore = defaultTarget.getComponent(CombatStatsComponent.class).getHealth();
+    defaultAttacker.getEvents().trigger("meleeAttack", defaultTarget);
+    defaultAttacker.update();
+    assertEquals(
+        defaultHealthBefore - 10,
+        defaultTarget.getComponent(CombatStatsComponent.class).getHealth(),
+        "Expected the default 1f multiplier to leave weapon damage of 10 unchanged.");
+
+    // 1.5f multiplier -> weapon damage of 10 becomes round(10 * 1.5) = 15
+    Entity hardAttacker = createWeaponDamageTenAttacker();
+    hardAttacker.getComponent(MeleeAttackComponent.class).setDamageMultiplier(1.5f);
+    Entity hardTarget = createHighHealthTarget();
+    hardAttacker.setPosition(0, 0);
+    hardTarget.setPosition(1, 0);
+    int hardHealthBefore = hardTarget.getComponent(CombatStatsComponent.class).getHealth();
+    hardAttacker.getEvents().trigger("meleeAttack", hardTarget);
+    hardAttacker.update();
+    assertEquals(
+        hardHealthBefore - 15,
+        hardTarget.getComponent(CombatStatsComponent.class).getHealth(),
+        "Expected a 1.5f multiplier to scale weapon damage of 10 up to 15.");
+
+    // 0.6f multiplier -> weapon damage of 10 becomes round(10 * 0.6) = 6
+    Entity easyAttacker = createWeaponDamageTenAttacker();
+    easyAttacker.getComponent(MeleeAttackComponent.class).setDamageMultiplier(0.6f);
+    Entity easyTarget = createHighHealthTarget();
+    easyAttacker.setPosition(0, 0);
+    easyTarget.setPosition(1, 0);
+    int easyHealthBefore = easyTarget.getComponent(CombatStatsComponent.class).getHealth();
+    easyAttacker.getEvents().trigger("meleeAttack", easyTarget);
+    easyAttacker.update();
+    assertEquals(
+        easyHealthBefore - 6,
+        easyTarget.getComponent(CombatStatsComponent.class).getHealth(),
+        "Expected a 0.6f multiplier to scale weapon damage of 10 down to 6.");
+  }
+
+  // The charge multiplier and the difficulty damage multiplier stack: charge is applied first
+  // (truncated), then the difficulty multiplier is applied on top of that (rounded), matching
+  // resolveAttack()'s actual order of operations.
+  @Test
+  void shouldStackChargeMultiplierThenDifficultyMultiplier() {
+    WeaponItem weapon = new WeaponItem("Test Sword", WeaponType.SWORD, 10, 1, 1, 0f);
+    MeleeAttackComponent meleeAttack = new MeleeAttackComponent(3, 2, 0, weapon);
+    Entity attacker =
+        new Entity()
+            .addComponent(meleeAttack)
+            .addComponent(new CombatStatsComponent(20, 2))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ChargeComponent(1f, 1f, 2.0f, 1.5f));
+    attacker.create();
+    meleeAttack.setDamageMultiplier(1.5f);
+
+    Entity target = createHighHealthTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+    int healthBefore = target.getComponent(CombatStatsComponent.class).getHealth();
+
+    // start a real charge: canCharge() is true immediately after construction (timeSinceLastCharge
+    // is seeded to the cooldown), so this doesn't need any preceding update() calls.
+    attacker.getComponent(ChargeComponent.class).startCharge(target.getPosition());
+
+    attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update(); // resolve the zero-length windup so the hit actually lands
+
+    // charge first: (int) (10 * 2.0) = 20, then difficulty: round(20 * 1.5) = 30
+    assertEquals(
+        healthBefore - 30,
+        target.getComponent(CombatStatsComponent.class).getHealth(),
+        "Expected charge (x2.0, truncated) then difficulty (x1.5, rounded) to combine to 30 "
+            + "damage from a base weapon damage of 10.");
+  }
+
   // Setters update range, cooldown, and knockback to new valid values.
   @Test
   void ShouldUpdateStatsViaSetter() {
@@ -327,6 +411,20 @@ class MeleeAttackComponentTest {
             + 0f
             + " but got a value of "
             + meleeAttack.getKnockback());
+  }
+
+  // setDamageMultiplier() rejects both a negative value and exactly zero, leaving the old value
+  // intact.
+  @Test
+  void shouldRejectZeroOrNegativeDamageMultiplier() {
+    MeleeAttackComponent meleeAttack =
+        new MeleeAttackComponent(0.5f, 10, 2.0f, createInstantWeapon());
+    assertThrows(IllegalArgumentException.class, () -> meleeAttack.setDamageMultiplier(-1f));
+    assertThrows(IllegalArgumentException.class, () -> meleeAttack.setDamageMultiplier(0f));
+    assertEquals(
+        1f,
+        meleeAttack.getDamageMultiplier(),
+        "Expected the damage multiplier to remain at its default of 1f after rejected updates.");
   }
 
   // create() wires up CombatStatsComponent and the meleeAttack listener so an attack can land.
@@ -754,6 +852,43 @@ class MeleeAttackComponentTest {
             .addComponent(new PhysicsComponent());
     attacker.create();
     return attacker;
+  }
+
+  /**
+   * Builds a fully created Entity representing an attacker equipped with a weapon dealing exactly
+   * 10 damage (via the literal-damage {@link WeaponItem} constructor, which returns {@code
+   * getDamage()} unmodified - no tier scaling), for tests asserting exact difficulty-multiplier
+   * arithmetic against a known base damage.
+   *
+   * @return an entity carrying {@link MeleeAttackComponent} (weapon damage 10), {@link
+   *     CombatStatsComponent}, and {@link PhysicsComponent}
+   */
+  Entity createWeaponDamageTenAttacker() {
+    WeaponItem weapon = new WeaponItem("Test Sword", WeaponType.SWORD, 10, 1, 1, 0f);
+    Entity attacker =
+        new Entity()
+            .addComponent(new MeleeAttackComponent(3, 2, 0, weapon))
+            .addComponent(new CombatStatsComponent(20, 2))
+            .addComponent(new PhysicsComponent());
+    attacker.create();
+    return attacker;
+  }
+
+  /**
+   * Builds a fully created target Entity with health set well above any damage value used in these
+   * tests, so a landed hit can't bottom out at a health floor of 0 - keeps assertions from depending
+   * on how hit()/setHealth() clamps negative values.
+   *
+   * @return a target entity that has {@link CombatStatsComponent} (100 health) and {@link
+   *     PhysicsComponent} attached
+   */
+  Entity createHighHealthTarget() {
+    Entity target =
+        new Entity()
+            .addComponent(new CombatStatsComponent(100, 0))
+            .addComponent(new PhysicsComponent());
+    target.create();
+    return target;
   }
 
   /**

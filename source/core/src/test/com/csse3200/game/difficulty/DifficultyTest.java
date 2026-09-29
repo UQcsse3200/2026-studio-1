@@ -13,7 +13,7 @@ class DifficultyTest {
     assertEquals(0.65f, Difficulty.EASY.getEnemyHealthMultiplier(), DELTA);
     assertEquals(0.6f, Difficulty.EASY.getEnemyDamageMultiplier(), DELTA);
     assertEquals(1.25f, Difficulty.EASY.getAttackCooldownMultiplier(), DELTA);
-    assertEquals(1.25f, Difficulty.EASY.getGoldMultiplier(), DELTA);
+    assertEquals(1.0f, Difficulty.EASY.getGoldMultiplier(), DELTA);
   }
 
   @Test
@@ -29,6 +29,6 @@ class DifficultyTest {
     assertEquals(1.4f, Difficulty.HARD.getEnemyHealthMultiplier(), DELTA);
     assertEquals(1.5f, Difficulty.HARD.getEnemyDamageMultiplier(), DELTA);
     assertEquals(0.8f, Difficulty.HARD.getAttackCooldownMultiplier(), DELTA);
-    assertEquals(1.15f, Difficulty.HARD.getGoldMultiplier(), DELTA);
+    assertEquals(1.5f, Difficulty.HARD.getGoldMultiplier(), DELTA);
   }
 }

@@ -112,6 +112,43 @@ class DifficultyScalerTest {
         expectedScaled(STARTING_GOLD, Difficulty.HARD.getGoldMultiplier(), 0), inventory.getGold());
   }
 
+  /**
+   * Regression test for the bug this fixes: at the old gold multipliers (EASY 1.25, HARD 1.15), a
+   * typical 3-gold enemy rounded to the exact same 3 gold on every difficulty - round(3 * 1.15) ==
+   * round(3 * 1.0) == 3 - making the difference invisible. Direct proof it's visible now.
+   */
+  @Test
+  void aThreeGoldEnemyEndsWithFiveOnHardAndThreeOnNormalAndEasy() {
+    Entity easyEnemy = new Entity().addComponent(new InventoryComponent(3));
+    Entity normalEnemy = new Entity().addComponent(new InventoryComponent(3));
+    Entity hardEnemy = new Entity().addComponent(new InventoryComponent(3));
+
+    DifficultyService.setCurrent(Difficulty.EASY);
+    DifficultyScaler.apply(easyEnemy);
+    DifficultyService.setCurrent(Difficulty.NORMAL);
+    DifficultyScaler.apply(normalEnemy);
+    DifficultyService.setCurrent(Difficulty.HARD);
+    DifficultyScaler.apply(hardEnemy);
+
+    assertEquals(3, easyEnemy.getComponent(InventoryComponent.class).getGold());
+    assertEquals(3, normalEnemy.getComponent(InventoryComponent.class).getGold());
+    assertEquals(5, hardEnemy.getComponent(InventoryComponent.class).getGold());
+  }
+
+  @Test
+  void meleeAttackDamageMultiplierMatchesTheCurrentDifficultyForEasyNormalAndHard() {
+    for (Difficulty difficulty : Difficulty.values()) {
+      DifficultyService.setCurrent(difficulty);
+      Entity enemy = entityWithMeleeAttack();
+
+      DifficultyScaler.apply(enemy);
+
+      assertEquals(
+          difficulty.getEnemyDamageMultiplier(),
+          enemy.getComponent(MeleeAttackComponent.class).getDamageMultiplier());
+    }
+  }
+
   @Test
   void doesNotThrowWhenSomeComponentsAreMissing() {
     DifficultyService.setCurrent(Difficulty.HARD);

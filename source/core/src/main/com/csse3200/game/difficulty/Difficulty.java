@@ -8,9 +8,9 @@ package com.csse3200.game.difficulty;
  * tuning EASY's, for example.
  */
 public enum Difficulty {
-  EASY(0.65f, 0.6f, 1.25f, 1.25f),
+  EASY(0.65f, 0.6f, 1.25f, 1.0f),
   NORMAL(1.0f, 1.0f, 1.0f, 1.0f),
-  HARD(1.4f, 1.5f, 0.8f, 1.15f);
+  HARD(1.4f, 1.5f, 0.8f, 1.5f);
 
   private final float enemyHealthMultiplier;
   private final float enemyDamageMultiplier;
