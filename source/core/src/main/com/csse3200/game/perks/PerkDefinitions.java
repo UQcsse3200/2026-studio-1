@@ -17,9 +17,10 @@ public final class PerkDefinitions {
         new Perk(
             "shieldMaster",
             "Shield Enhancement",
-            "Activate your shield 15 times",
+            "Activate your shield 5 times",
             "shieldActivated",
-            15));
-    PerkService.register(new Perk("thickSkin", "Max Health", "Kill x enemies", "enemyKilled", 25));
+            5));
+
+    PerkService.register(new Perk("thickSkin", "Max Health", "Kill 10 enemies", "enemyKilled", 10));
   }
 }
