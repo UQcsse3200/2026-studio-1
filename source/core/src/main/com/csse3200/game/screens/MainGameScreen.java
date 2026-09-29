@@ -172,6 +172,7 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     fitCameraToMap(levelGameArea);
+    SpawnCommand.updateLevelGameArea(levelGameArea);
   }
 
   public Entity getPlayerEntity() {
@@ -380,6 +381,7 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     fitCameraToMap(nextArea);
+    SpawnCommand.updateLevelGameArea(nextArea);
   }
 
   private void createSubLevelTravelPrompt(Entity player) {
@@ -492,7 +494,7 @@ public class MainGameScreen extends ScreenAdapter {
     this.pauseMenu = pauseMenuComponent;
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
-    terminal.addCommand("spawn", new SpawnCommand());
+    terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
 
     ServiceLocator.getEntityService().register(ui);
   }

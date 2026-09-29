@@ -1,21 +1,14 @@
 package com.csse3200.game.ui.terminal.commands;
 
 import com.badlogic.gdx.math.Vector2;
+import com.csse3200.game.areas.LevelGameArea;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** A command for spawning NPCs */
 public class SpawnCommand implements Command {
-  private static final String relativeDelimiter = "r";
-
-  /**
-   * Gets player position by triggering an event "getPlayerPosition" which is listened to by
-   * PlayerActions.java, which then itself sends another event "sendPlayerPosition" with the
-   * player's position, which is listened to back here.
-   */
-  private static Vector2 playerPosition = new Vector2();
-
+  private static LevelGameArea levelGameArea;
   private static final Logger logger = LoggerFactory.getLogger(SpawnCommand.class);
 
   /**
@@ -49,45 +42,16 @@ public class SpawnCommand implements Command {
   }
 
   /**
-   * Converts a string into its float value with an optional relative modifier.
-   *
-   * @param arg string argument
-   * @param isHorizontal is x coordinate
-   * @exception NumberFormatException on invalid suffix to relative modifier or non number.
-   * @return position of arg
-   */
-  private float getPosition(String arg, boolean isHorizontal) {
-    String isolatedValueArg = arg;
-    float position = 0;
-    if (arg.startsWith(relativeDelimiter)) {
-      isolatedValueArg = arg.substring(relativeDelimiter.length());
-      position = isHorizontal ? playerPosition.x : playerPosition.y;
-    }
-    if (!isolatedValueArg.isEmpty()) {
-      position += Float.parseFloat(isolatedValueArg);
-    }
-    System.out.println("argPosition: " + arg + " = " + position);
-
-    return position;
-  }
-
-  /**
-   * Gets value from event "sendPlayerPosition" called from getPlayerPosition() in
-   * PlaterActions.java
-   */
-  private void updatePlayerPosition(Vector2 position) {
-    System.out.println("updatedPlayerPosition: " + position);
-    playerPosition.set(position);
-  }
-
-  /**
    * Validates the command arguments.
    *
    * @param args command arguments
    * @return is valid
    */
   boolean isValid(ArrayList<String> args) {
-    System.out.println("isValid: " + (args.size() == 1 || args.size() == 3));
-    return (args.size() == 1 || args.size() == 3);
+    if (levelGameArea == null) {
+      logger.warn("Level Game Area is null");
+      return false;
+    }
+    return (args.size() == 1);
   }
 }
