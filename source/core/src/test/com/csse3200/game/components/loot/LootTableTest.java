@@ -9,8 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -83,18 +85,7 @@ class LootTableTest {
   void shouldMakeHigherTiersRarerInTheDefaultTable() {
     LootTable table = LootTable.createDefault(SEED);
 
-    WeaponGenerator weaponGenerator = new WeaponGenerator();
-    Map<Integer, Integer> tierCounts = new HashMap<>();
-    for (int i = 0; i < 2000; i++) {
-      Item item = table.rollItem();
-      if (item instanceof WeaponItem weapon) {
-        // WeaponGenerator multiplies a weapon's tier 1 damage by its tier, so dividing by the
-        // tier 1 damage recovers the tier. Looking it up keeps this right for any weapon type.
-        int tierOneDamage = weaponGenerator.generateWeapon(weapon.getWeaponType(), 1).getDamage();
-        int tier = weapon.getDamage() / tierOneDamage;
-        tierCounts.merge(tier, 1, Integer::sum);
-      }
-    }
+    Map<Integer, Integer> tierCounts = countWeaponTiers(table, 2000);
 
     int tier1 = tierCounts.getOrDefault(1, 0);
     int tier2 = tierCounts.getOrDefault(2, 0);
@@ -104,6 +95,74 @@ class LootTableTest {
     assertTrue(
         tier2 > tier3, "tier 2 (" + tier2 + ") should be commoner than tier 3 (" + tier3 + ")");
     assertTrue(tier3 > 0, "tier 3 should still appear sometimes");
+  }
+
+  /** Acceptance criterion: weapon rarity comes from the loot weights declared in WeaponTier. */
+  @Test
+  void shouldWeightWeaponTiersByTheirWeaponTierLootWeight() {
+    LootTable table = LootTable.createDefault(SEED);
+
+    Map<Integer, Integer> tierCounts = countWeaponTiers(table, 8000);
+
+    int totalWeapons = 0;
+    for (int count : tierCounts.values()) {
+      totalWeapons += count;
+    }
+    int totalWeight = 0;
+    for (WeaponTier weaponTier : WeaponTier.values()) {
+      totalWeight += weaponTier.getLootWeight();
+    }
+
+    for (WeaponTier weaponTier : WeaponTier.values()) {
+      int tier = weaponTier.getStats(WeaponType.SWORD).getTier();
+      double expectedShare = (double) weaponTier.getLootWeight() / totalWeight;
+      double actualShare = (double) tierCounts.getOrDefault(tier, 0) / totalWeapons;
+      assertEquals(
+          expectedShare,
+          actualShare,
+          0.05,
+          "tier " + tier + " should make up about " + expectedShare + " of weapon drops");
+    }
+  }
+
+  /**
+   * Acceptance criterion: every weapon type can be found at every tier, so none is unobtainable.
+   */
+  @Test
+  void shouldOfferEveryWeaponTypeAtEveryTierInTheDefaultTable() {
+    LootTable table = LootTable.createDefault(SEED);
+
+    Set<String> found = new HashSet<>();
+    for (int i = 0; i < 8000; i++) {
+      if (table.rollItem() instanceof WeaponItem weapon) {
+        found.add(weapon.getWeaponType() + " tier " + weapon.getTier());
+      }
+    }
+
+    for (WeaponType type : WeaponType.values()) {
+      for (WeaponTier weaponTier : WeaponTier.values()) {
+        String key = type + " tier " + weaponTier.getStats(type).getTier();
+        assertTrue(found.contains(key), key + " should be obtainable from the default loot table");
+      }
+    }
+  }
+
+  /** Acceptance criterion: every rolled weapon has the stats its tier defines. */
+  @Test
+  void shouldRollEveryWeaponWithTheStatsForItsTier() {
+    LootTable table = LootTable.createDefault(SEED);
+
+    for (int i = 0; i < 2000; i++) {
+      if (table.rollItem() instanceof WeaponItem weapon) {
+        WeaponStats expected =
+            WeaponTier.fromTierNumber(weapon.getTier()).getStats(weapon.getWeaponType());
+        String label = weapon.getWeaponType() + " tier " + weapon.getTier();
+        assertEquals(expected.getDamage(), weapon.getDamage(), label + " damage");
+        assertEquals(expected.getAttackSpeed(), weapon.getAttackSpeed(), label + " attack speed");
+        assertEquals(expected.getKnockback(), weapon.getKnockback(), label + " knockback");
+        assertEquals(expected.getRange(), weapon.getRange(), label + " range");
+      }
+    }
   }
 
   /** The default table has to offer every potion, so a new potion is never unobtainable. */
@@ -154,6 +213,17 @@ class LootTableTest {
   /** Returns the display name a consumable type is generated with at tier 1. */
   private String baseName(ConsumableType type) {
     return new ConsumableGenerator().generateConsumable(type, 1).getName();
+  }
+
+  /** Rolls the table and counts how many weapons came out at each tier, ignoring other loot. */
+  private Map<Integer, Integer> countWeaponTiers(LootTable table, int rolls) {
+    Map<Integer, Integer> tierCounts = new HashMap<>();
+    for (int i = 0; i < rolls; i++) {
+      if (table.rollItem() instanceof WeaponItem weapon) {
+        tierCounts.merge(weapon.getTier(), 1, Integer::sum);
+      }
+    }
+    return tierCounts;
   }
 
   private List<String> rollNames(LootTable table, int rolls) {
