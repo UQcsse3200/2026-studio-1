@@ -31,9 +31,14 @@ public class WeaponGenerator {
         return bow;
 
       case DAGGER:
-        WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, 3 * tier, 1, 20, 1);
+          WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, WeaponTier.values()[tier - 1], 1, 20, 1);
         dagger.setSellPrice(6 * tier);
         return dagger;
+
+      case AXE:
+        WeaponItem axe = new WeaponItem("Basic Axe", AXE, WeaponTier.values()[tier - 1], 1, 2, 3);
+        axe.setSellPrice(12 * tier);
+        return axe;
 
       default:
         throw new IllegalArgumentException("Unsupported weapon type.");
