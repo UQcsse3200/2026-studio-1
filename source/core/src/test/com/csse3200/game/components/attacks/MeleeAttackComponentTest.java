@@ -215,7 +215,8 @@ class MeleeAttackComponentTest {
   }
 
   // The difficulty damage multiplier (as set by DifficultyScaler at spawn) scales a landed hit's
-  // damage: unchanged at the default 1f, scaled up at 1.5f, scaled down (but never below 1) at 0.6f.
+  // damage: unchanged at the default 1f, scaled up at 1.5f, scaled down (but never below 1) at
+  // 0.6f.
   @Test
   void shouldApplyDifficultyDamageMultiplierToLandedHitDamage() {
     // default multiplier (1f) -> weapon damage of 10 is unchanged
@@ -876,8 +877,8 @@ class MeleeAttackComponentTest {
 
   /**
    * Builds a fully created target Entity with health set well above any damage value used in these
-   * tests, so a landed hit can't bottom out at a health floor of 0 - keeps assertions from depending
-   * on how hit()/setHealth() clamps negative values.
+   * tests, so a landed hit can't bottom out at a health floor of 0 - keeps assertions from
+   * depending on how hit()/setHealth() clamps negative values.
    *
    * @return a target entity that has {@link CombatStatsComponent} (100 health) and {@link
    *     PhysicsComponent} attached

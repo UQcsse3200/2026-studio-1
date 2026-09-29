@@ -48,6 +48,7 @@ public class MeleeAttackComponent extends Component {
   private CombatStatsComponent combatStats;
   private Entity pendingTarget;
   private float windupTimeRemaining;
+
   /** Difficulty's enemy damage multiplier, applied on top of weapon (and charge) damage. */
   private float damageMultiplier = 1f;
 
@@ -188,9 +189,9 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
-   * Updates the difficulty damage multiplier applied to this melee attacker's damage. Set by
-   * {@link com.csse3200.game.difficulty.DifficultyScaler} at spawn - not intended to be called
-   * directly by gameplay code.
+   * Updates the difficulty damage multiplier applied to this melee attacker's damage. Set by {@link
+   * com.csse3200.game.difficulty.DifficultyScaler} at spawn - not intended to be called directly by
+   * gameplay code.
    *
    * @param damageMultiplier new multiplier value
    * @throws IllegalArgumentException if {@code damageMultiplier} is zero or negative
