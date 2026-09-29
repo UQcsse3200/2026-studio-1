@@ -124,6 +124,7 @@ public class PauseMenuDisplay extends UIComponent {
     pauseMenu = entity.getComponent(PauseMenuComponent.class);
     AudioSettings.setMasterVolume(masterVol);
     AudioSettings.setEffectsVolume(effectsVol);
+    AudioSettings.setMusicVolume(musicVol);
     addActors();
     registerEventListeners();
   }
@@ -316,6 +317,7 @@ public class PauseMenuDisplay extends UIComponent {
 
   private void onMusicChanged(float value) {
     musicVol = value;
+    AudioSettings.setMusicVolume(musicVol);
     applyMusicVolume();
     savePrefs();
   }
@@ -341,7 +343,7 @@ public class PauseMenuDisplay extends UIComponent {
         ServiceLocator.getResourceService()
             .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
     if (music != null) {
-      music.setVolume(musicVol * masterVol);
+      music.setVolume(AudioSettings.getEffectiveMusicVolume());
       musicVolumeApplied = true;
     }
   }
