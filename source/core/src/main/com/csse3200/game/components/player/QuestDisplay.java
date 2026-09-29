@@ -31,7 +31,6 @@ public class QuestDisplay extends UIComponent {
     enemiesKilledQuestsToDisplay = Quest.getEnemiesKilledQuests();
     goldSpentQuestsToDisplay = Quest.getGoldSpentQuests();
     shieldsCollectedQuestsToDisplay = Quest.getShieldsCollectedQuests();
-    Quest.logShieldsCollectedQuest(Quest.giveOutUniqueNPCID(), 2);
 
     addActors();
 

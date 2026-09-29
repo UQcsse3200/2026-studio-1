@@ -15,16 +15,19 @@ public class QuestGiverComponent extends Component {
   public Item itemToGive = null;
   private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
   private Entity player;
-  public QuestGiverComponent(Entity player){
+
+  public QuestGiverComponent(Entity player) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
     this.player = player;
   }
+
   public QuestGiverComponent(Entity player, int goldToGive) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
     this.goldToGive = goldToGive;
     this.player = player;
   }
-  public QuestGiverComponent(Entity player, Item itemToGive){
+
+  public QuestGiverComponent(Entity player, Item itemToGive) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
     this.itemToGive = itemToGive;
     this.player = player;
@@ -46,7 +49,9 @@ public class QuestGiverComponent extends Component {
         rewardItem();
       }
     } catch (Exception e) {
-      logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+      logger.error(
+          "When trying to reward the player for a quest, the following exception was raised:\n {}",
+          e.getMessage());
     }
     Quest.clearJumpQuest(uniqueNPCID);
   }
@@ -78,7 +83,9 @@ public class QuestGiverComponent extends Component {
         rewardItem();
       }
     } catch (Exception e) {
-      logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+      logger.error(
+          "When trying to reward the player for a quest, the following exception was raised:\n {}",
+          e.getMessage());
     }
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
   }
@@ -119,8 +126,10 @@ public class QuestGiverComponent extends Component {
         rewardGold();
         rewardItem();
       }
-    }catch(Exception e){
-      logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+    } catch (Exception e) {
+      logger.error(
+          "When trying to reward the player for a quest, the following exception was raised:\n {}",
+          e.getMessage());
     }
     Quest.clearGoldSpentQuest(uniqueNPCID);
   }
@@ -142,7 +151,9 @@ public class QuestGiverComponent extends Component {
         rewardItem();
       }
     } catch (Exception e) {
-        logger.error("When trying to reward the player for a quest, the following exception was raised:\n {}", e.getMessage());
+      logger.error(
+          "When trying to reward the player for a quest, the following exception was raised:\n {}",
+          e.getMessage());
     }
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
   }
@@ -156,10 +167,11 @@ public class QuestGiverComponent extends Component {
       return Quest.checkShieldsCollectedQuest(uniqueNPCID);
     }
   }
+
   // ShieldsCollectedQuest functions end here
   private void rewardGold() {
-    if (goldToGive >= 0&&player != null) {
-        player.getComponent(InventoryComponent.class).addGold(goldToGive);
+    if (goldToGive >= 0 && player != null) {
+      player.getComponent(InventoryComponent.class).addGold(goldToGive);
     }
     }
     private void rewardItem(){
