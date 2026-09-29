@@ -613,16 +613,29 @@
       }
     },
     {
-      "id": "room1-to-loot-room",
-      "x": 8,
+      "id": "room1-to-loot-room-1",
+      "x": 1,
+      "y": 34,
+      "width": 1,
+      "height": 2,
+      "texture": "images/level1/loot-room-door.png",
+      "destinationMap": "maps/lootroom-l1-1.json",
+      "destinationSpawn": {
+        "x": 34,
+        "y": 3
+      }
+    },
+    {
+      "id": "room1-to-loot-room-2",
+      "x": 52,
       "y": 3,
       "width": 1,
-      "height": 1,
+      "height": 2,
       "texture": "images/level1/loot-room-door.png",
-      "destinationMap": "maps/lootroom.json",
+      "destinationMap": "maps/lootroom-l1-2.json",
       "destinationSpawn": {
         "x": 8,
-        "y": 2
+        "y": 3
       }
     }
   ]
