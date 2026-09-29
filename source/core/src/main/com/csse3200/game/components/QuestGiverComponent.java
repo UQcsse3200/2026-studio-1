@@ -2,8 +2,6 @@ package com.csse3200.game.components;
 
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.loot.Item;
-import com.csse3200.game.components.loot.WeaponGenerator;
-import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 import org.slf4j.Logger;
@@ -173,11 +171,12 @@ public class QuestGiverComponent extends Component {
     if (goldToGive >= 0 && player != null) {
       player.getComponent(InventoryComponent.class).addGold(goldToGive);
     }
-    }
-    private void rewardItem(){
-      if(itemToGive!= null && player != null){
-        //May cause issues if the inventory is full
-        player.getComponent(InventoryComponent.class).addItem(itemToGive);
-      }
+  }
+
+  private void rewardItem() {
+    if (itemToGive != null && player != null) {
+      // May cause issues if the inventory is full
+      player.getComponent(InventoryComponent.class).addItem(itemToGive);
     }
   }
+}
