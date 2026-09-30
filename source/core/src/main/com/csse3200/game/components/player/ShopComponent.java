@@ -346,12 +346,12 @@ public class ShopComponent extends Component {
 
     int slot = GamblingRoller.rollSlot(catalog, random);
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize = catalog.getPrize(slot);
-    if (!deliverPrize(prize.getProduct(), inventory)) {
+    if (!deliverPrize(prize.product(), inventory)) {
       return null;
     }
 
     inventory.addGold(-spinPrice);
-    notifyPrizeDelivered(prize.getProduct());
+    notifyPrizeDelivered(prize.product());
     if (entity != null) {
       entity.getEvents().trigger("gamblingSpun", catalogId, slot);
     }
@@ -577,7 +577,7 @@ public class ShopComponent extends Component {
    */
   private static boolean hasOnlySupportedPrizes(GamblingCatalogs.SpinCatalog catalog) {
     for (GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize : catalog.getPrizes().values()) {
-      Object product = prize.getProduct();
+      Object product = prize.product();
       if (!(product instanceof GamblingCatalogs.ItemPrize)
           && !(product instanceof GamblingCatalogs.GoldPrize)
           && !(product instanceof Pet)
@@ -599,7 +599,7 @@ public class ShopComponent extends Component {
   private static boolean canReceiveAllItemPrizes(
       GamblingCatalogs.SpinCatalog catalog, InventoryComponent inventory) {
     for (GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize : catalog.getPrizes().values()) {
-      if (prize.getProduct() instanceof GamblingCatalogs.ItemPrize itemPrize
+      if (prize.product() instanceof GamblingCatalogs.ItemPrize itemPrize
           && !inventory.canFullyAdd(itemPrize.create())) {
         return false;
       }

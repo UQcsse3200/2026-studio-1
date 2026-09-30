@@ -964,7 +964,7 @@ class ShopComponentTest {
 
     for (GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry :
         shop.getPrizes(catalogId).values()) {
-      if (entry.getProduct() instanceof GamblingCatalogs.ItemPrize prize) {
+      if (entry.product() instanceof GamblingCatalogs.ItemPrize prize) {
         assertEquals(
             prize.getDisplayName(),
             prize.create().getName(),
@@ -1093,8 +1093,8 @@ class ShopComponentTest {
       int weight) {
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
     assertNotNull(entry);
-    assertEquals(weight, entry.getWeight());
-    GamblingCatalogs.ItemPrize prize = (GamblingCatalogs.ItemPrize) entry.getProduct();
+    assertEquals(weight, entry.weight());
+    GamblingCatalogs.ItemPrize prize = (GamblingCatalogs.ItemPrize) entry.product();
     assertEquals(name, prize.getDisplayName(), catalogId + " slot " + slot + " display name");
     assertEquals(itemType, prize.getItemType(), catalogId + " slot " + slot + " item type");
   }
@@ -1103,10 +1103,10 @@ class ShopComponentTest {
       ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, int amount, int weight) {
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
     assertNotNull(entry);
-    assertEquals(weight, entry.getWeight());
+    assertEquals(weight, entry.weight());
     assertEquals(
         amount,
-        ((GamblingCatalogs.GoldPrize) entry.getProduct()).getAmount(),
+        ((GamblingCatalogs.GoldPrize) entry.product()).getAmount(),
         catalogId + " slot " + slot + " gold amount");
   }
 
@@ -1114,21 +1114,21 @@ class ShopComponentTest {
       ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, String name, int weight) {
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
     assertNotNull(entry);
-    assertEquals(weight, entry.getWeight());
-    assertEquals(name, ((ShopComponent.Upgrade) entry.getProduct()).getName());
+    assertEquals(weight, entry.weight());
+    assertEquals(name, ((ShopComponent.Upgrade) entry.product()).getName());
   }
 
   private static void assertSeededPet(
       ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, String name, int weight) {
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
     assertNotNull(entry);
-    assertEquals(weight, entry.getWeight());
-    assertEquals(name, ((ShopComponent.Pet) entry.getProduct()).getName());
+    assertEquals(weight, entry.weight());
+    assertEquals(name, ((ShopComponent.Pet) entry.product()).getName());
   }
 
   private static GamblingCatalogs.ItemPrize itemPrize(
       ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot) {
-    return (GamblingCatalogs.ItemPrize) shop.getPrize(catalogId, slot).getProduct();
+    return (GamblingCatalogs.ItemPrize) shop.getPrize(catalogId, slot).product();
   }
 
   // =========================================================================
@@ -1157,8 +1157,8 @@ class ShopComponentTest {
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
 
     assertNotNull(prize);
-    assertTrue(prize.getProduct() instanceof GamblingCatalogs.GoldPrize);
-    assertEquals(15, ((GamblingCatalogs.GoldPrize) prize.getProduct()).getAmount());
+    assertTrue(prize.product() instanceof GamblingCatalogs.GoldPrize);
+    assertEquals(15, ((GamblingCatalogs.GoldPrize) prize.product()).getAmount());
     // Initial (100) - Spin Cost (20) + Awarded Gold (15) = 95
     assertEquals(95, inventory.getGold());
   }
@@ -1182,7 +1182,7 @@ class ShopComponentTest {
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
 
     assertNotNull(prize);
-    assertTrue(prize.getProduct() instanceof GamblingCatalogs.ItemPrize);
+    assertTrue(prize.product() instanceof GamblingCatalogs.ItemPrize);
     assertEquals(80, inventory.getGold()); // 100 - 20
     assertEquals(1, inventory.getOccupiedSlots());
     assertEquals("Health Potion", inventory.getItem(1).getName());
@@ -1207,8 +1207,8 @@ class ShopComponentTest {
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
 
     assertNotNull(prize);
-    assertTrue(prize.getProduct() instanceof ShopComponent.Pet);
-    assertEquals("Bird", ((ShopComponent.Pet) prize.getProduct()).getName());
+    assertTrue(prize.product() instanceof ShopComponent.Pet);
+    assertEquals("Bird", ((ShopComponent.Pet) prize.product()).getName());
     assertEquals(80, inventory.getGold());
     assertEquals(1, shop.getPurchasedPets().size());
     assertEquals("Bird", shop.getPurchasedPets().get(0).getName());
@@ -1233,8 +1233,8 @@ class ShopComponentTest {
         shop.buySpin(GamblingCatalogs.CatalogId.PREMIUM);
 
     assertNotNull(prize);
-    assertTrue(prize.getProduct() instanceof ShopComponent.Upgrade);
-    assertEquals("Premium Health", ((ShopComponent.Upgrade) prize.getProduct()).getName());
+    assertTrue(prize.product() instanceof ShopComponent.Upgrade);
+    assertEquals("Premium Health", ((ShopComponent.Upgrade) prize.product()).getName());
     assertEquals(40, inventory.getGold()); // 100 - 60
     assertEquals(1, shop.getPurchasedUpgrades().size());
     assertEquals("Premium Health", shop.getPurchasedUpgrades().get(0).getName());

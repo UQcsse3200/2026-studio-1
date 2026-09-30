@@ -190,45 +190,20 @@ public class GamblingCatalogs {
    * <p>Later roll probability in a catalog is {@code weight / sum(weights in that catalog)}.
    *
    * @param <T> product type; a {@link Prize}
+   * @param product prize product; must be non-null
+   * @param weight probability weight; must be {@code > 0}
    */
-  public static final class PrizeEntry<T extends Prize> {
-    private final T product;
-    private final int weight;
-
+  public record PrizeEntry<T extends Prize>(T product, int weight) {
     /**
-     * Creates a prize entry.
-     *
-     * @param product prize product; must be non-null
-     * @param weight probability weight; must be {@code > 0}
      * @throws IllegalArgumentException if {@code product} is null or {@code weight} is not positive
      */
-    public PrizeEntry(T product, int weight) {
+    public PrizeEntry {
       if (product == null) {
         throw new IllegalArgumentException("product must not be null");
       }
       if (weight <= 0) {
         throw new IllegalArgumentException("weight must be > 0");
       }
-      this.product = product;
-      this.weight = weight;
-    }
-
-    /**
-     * Returns the prize product.
-     *
-     * @return product
-     */
-    public T getProduct() {
-      return product;
-    }
-
-    /**
-     * Returns the probability weight.
-     *
-     * @return weight
-     */
-    public int getWeight() {
-      return weight;
     }
   }
 

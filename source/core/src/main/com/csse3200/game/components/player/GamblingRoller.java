@@ -31,7 +31,7 @@ public final class GamblingRoller {
     requireCatalog(catalog);
     int total = 0;
     for (int slot = 1; slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT; slot++) {
-      total += catalog.getPrize(slot).getWeight();
+      total += catalog.getPrize(slot).weight();
     }
     return total;
   }
@@ -51,7 +51,7 @@ public final class GamblingRoller {
     if (prize == null) {
       return 0f;
     }
-    return prize.getWeight() / (float) totalWeight(catalog);
+    return prize.weight() / (float) totalWeight(catalog);
   }
 
   /**
@@ -72,7 +72,7 @@ public final class GamblingRoller {
     // the range and is picked twice as often.
     int pick = random.nextInt(totalWeight(catalog));
     for (int slot = 1; slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT; slot++) {
-      pick -= catalog.getPrize(slot).getWeight();
+      pick -= catalog.getPrize(slot).weight();
       if (pick < 0) {
         return slot;
       }

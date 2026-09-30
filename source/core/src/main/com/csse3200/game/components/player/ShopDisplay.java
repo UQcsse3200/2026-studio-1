@@ -1453,7 +1453,7 @@ public class ShopDisplay extends UIComponent {
   private String getPrizeName(GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize) {
     if (prize == null) return "?";
 
-    Object product = prize.getProduct();
+    Object product = prize.product();
     if (product instanceof GamblingCatalogs.ItemPrize itemPrize) {
       return itemPrize.getDisplayName();
     }
