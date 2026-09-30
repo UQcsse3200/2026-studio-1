@@ -279,12 +279,11 @@ public class PlayerActions extends Component {
     if (dead || attackCooldownRemaining > 0f) return;
 
     if (staminaComponent == null
-            || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
+        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
       return;
     }
 
     staminaComponent.useStamina(staminaComponent.getAttackCost());
-
 
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
@@ -341,7 +340,7 @@ public class PlayerActions extends Component {
   private void slide(boolean pressed) {
     if (pressed) {
       if (staminaComponent == null
-              || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
+          || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
         return;
       }
 
