@@ -9,6 +9,8 @@ public class StaminaComponent extends Component {
   private static final float JUMP_COST = 10f;
   private static final float REGEN_RATE = 5f;
   private static final float REGEN_DELAY = 3f;
+  private static final float ATTACK_COST = 5f;
+  private static final float SLIDE_COST = 15f;
 
   private float stamina = MAX_STAMINA;
   private float regenDelayRemaining = 0f;
@@ -47,6 +49,14 @@ public class StaminaComponent extends Component {
 
   public float getJumpCost() {
     return JUMP_COST;
+  }
+
+  public float getAttackCost() {
+    return ATTACK_COST;
+  }
+
+  public float getSlideCost() {
+    return SLIDE_COST;
   }
 
   public float getRegenRate() {
