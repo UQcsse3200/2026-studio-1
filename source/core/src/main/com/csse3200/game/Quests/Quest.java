@@ -15,10 +15,10 @@ public class Quest {
   private static ArrayList<ShieldsCollectedQuest> shieldsCollectedQuestTracker =
       new ArrayList<ShieldsCollectedQuest>();
   // Statistics tracker
-  private static float globalJumps = 0;
-  private static float globalEnemiesKilled = 0;
-  private static float globalGoldSpent = 0;
-  private static float globalShieldsCollected = 0;
+  private static int globalJumps = 0;
+  private static int globalEnemiesKilled = 0;
+  private static int globalGoldSpent = 0;
+  private static int globalShieldsCollected = 0;
 
   public static int giveOutUniqueNPCID() {
     int uniqueID = uniqueNPCID.size();
