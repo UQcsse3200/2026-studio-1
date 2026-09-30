@@ -25,7 +25,7 @@ public class ConsumableUseComponent extends Component {
 
   private int maxHealth;
   private static final String perk_ID = "thickSkin";
-  private static final int health_perk = 20;
+  private static final int health_perk = 50;
 
   /**
    * Creates a use handler with an explicit health cap.

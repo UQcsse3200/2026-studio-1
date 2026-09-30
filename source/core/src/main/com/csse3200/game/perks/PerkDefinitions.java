@@ -12,6 +12,7 @@ package com.csse3200.game.perks;
 public final class PerkDefinitions {
   private PerkDefinitions() {}
 
+  // Dont judge me for the perk IDs :D
   public static void registerAll() {
     PerkService.register(
         new Perk(
@@ -22,5 +23,11 @@ public final class PerkDefinitions {
             5));
 
     PerkService.register(new Perk("thickSkin", "Max Health", "Kill 10 enemies", "enemyKilled", 10));
+
+    PerkService.register(
+        new Perk("timeLord", "Time Freeze", "Find the 5 times turtle", "Tortoise", 5));
+
+    PerkService.register(
+        new Perk("snatcher", "Loot Drop", "Spend x amount of gold", "GoldSpent", 120));
   }
 }
