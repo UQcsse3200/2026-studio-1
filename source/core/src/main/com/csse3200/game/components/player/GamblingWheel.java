@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.csse3200.game.components.player.GamblingCatalogs.CatalogId;
+import com.csse3200.game.components.player.GamblingCatalogs.Prize;
 import com.csse3200.game.components.player.GamblingCatalogs.PrizeEntry;
 import com.csse3200.game.components.player.GamblingCatalogs.SpinCatalog;
 import java.util.ArrayList;
@@ -459,7 +460,7 @@ public class GamblingWheel extends Stack {
     if (prizeSlot < 1 || prizeSlot > SpinCatalog.PRIZE_SLOT_COUNT) {
       return;
     }
-    PrizeEntry<?> winningPrize = catalog.getPrize(prizeSlot);
+    PrizeEntry<Prize> winningPrize = catalog.getPrize(prizeSlot);
     if (winningPrize == null) {
       return;
     }
@@ -643,7 +644,7 @@ public class GamblingWheel extends Stack {
    * Charge phase: the glow shifts to the rarity colour of the prize, rays fade in, sparks are
    * pulled into the orb and the orb shakes harder and harder. Ends with the burst and reveal.
    */
-  private void startCharge(int prizeSlot, PrizeEntry<?> prize, Runnable onFinished) {
+  private void startCharge(int prizeSlot, PrizeEntry<Prize> prize, Runnable onFinished) {
     float percent = percentOf(prize);
     Color rarity = rarityColor(percent);
 
@@ -674,7 +675,7 @@ public class GamblingWheel extends Stack {
   }
 
   /** Hop -> shake (getting stronger) -> swell -> burst -> reveal. */
-  private Action buildOrbSequence(int prizeSlot, PrizeEntry<?> prize, Runnable onFinished) {
+  private Action buildOrbSequence(int prizeSlot, PrizeEntry<Prize> prize, Runnable onFinished) {
     List<Action> a = new ArrayList<>();
 
     a.add(
@@ -699,7 +700,7 @@ public class GamblingWheel extends Stack {
   }
 
   /** Flash + shockwaves + confetti + card slide-in, then highlight the winning slot. */
-  private void revealPrize(int prizeSlot, PrizeEntry<?> prize, Runnable onFinished) {
+  private void revealPrize(int prizeSlot, PrizeEntry<Prize> prize, Runnable onFinished) {
     int winnerIndex = prizeSlot - 1;
     float percent = percentOf(prize);
     Color rarity = rarityColor(percent);
@@ -891,7 +892,7 @@ public class GamblingWheel extends Stack {
   /** Writes prize name, icon, drop rate, rate bar and rarity colour into every slot. */
   private void updatePrizeLabels() {
     for (int i = 0; i < SpinCatalog.PRIZE_SLOT_COUNT; i++) {
-      PrizeEntry<?> prize = catalog.getPrize(i + 1);
+      PrizeEntry<Prize> prize = catalog.getPrize(i + 1);
       if (prize == null) {
         slotNameLabels.get(i).setText("?");
         slotIconLabels.get(i).setText("?");
@@ -958,7 +959,7 @@ public class GamblingWheel extends Stack {
   private int totalWeight() {
     int total = 0;
     if (catalog != null) {
-      for (PrizeEntry<?> prize : catalog.getPrizes().values()) {
+      for (PrizeEntry<Prize> prize : catalog.getPrizes().values()) {
         total += prize.getWeight();
       }
     }
@@ -966,7 +967,7 @@ public class GamblingWheel extends Stack {
   }
 
   /** Drop rate of a prize in percent (weight / sum of weights * 100). */
-  private float percentOf(PrizeEntry<?> prize) {
+  private float percentOf(PrizeEntry<Prize> prize) {
     int total = totalWeight();
     if (prize == null || total <= 0) {
       return 0f;
@@ -996,7 +997,7 @@ public class GamblingWheel extends Stack {
   }
 
   /** Converts a prize into a short display name suitable for a small slot. */
-  private String getPrizeShortName(PrizeEntry<?> prize) {
+  private String getPrizeShortName(PrizeEntry<Prize> prize) {
     if (prize == null) {
       return "?";
     }
@@ -1019,7 +1020,7 @@ public class GamblingWheel extends Stack {
   }
 
   /** One character shown in the slot icon badge. */
-  private String getPrizeInitial(PrizeEntry<?> prize) {
+  private String getPrizeInitial(PrizeEntry<Prize> prize) {
     if (prize != null && prize.getProduct() instanceof GamblingCatalogs.GoldPrize) {
       return "G";
     }

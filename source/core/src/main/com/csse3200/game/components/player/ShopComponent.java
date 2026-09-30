@@ -239,7 +239,7 @@ public class ShopComponent extends Component {
    * @return unmodifiable prize map, or an empty unmodifiable map if {@code catalogId} is null or
    *     the shop is not seeded
    */
-  public Map<Integer, GamblingCatalogs.PrizeEntry<?>> getPrizes(
+  public Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> getPrizes(
       GamblingCatalogs.CatalogId catalogId) {
     GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
     if (catalog == null) {
@@ -256,7 +256,8 @@ public class ShopComponent extends Component {
    * @return the entry, or {@code null} if the shop is not seeded, {@code catalogId} is null, or
    *     {@code slot} is outside {@code 1}..{@code 5}
    */
-  public GamblingCatalogs.PrizeEntry<?> getPrize(GamblingCatalogs.CatalogId catalogId, int slot) {
+  public GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> getPrize(
+      GamblingCatalogs.CatalogId catalogId, int slot) {
     GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
     if (catalog == null) {
       return null;
@@ -293,7 +294,9 @@ public class ShopComponent extends Component {
    *     the slot is invalid; {@code true} if the slot still holds a prize
    */
   public boolean setPrize(
-      GamblingCatalogs.CatalogId catalogId, int slot, GamblingCatalogs.PrizeEntry<?> prize) {
+      GamblingCatalogs.CatalogId catalogId,
+      int slot,
+      GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize) {
     GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
     if (catalog == null || prize == null || !isPrizeSlot(slot)) {
       return false;
@@ -328,7 +331,8 @@ public class ShopComponent extends Component {
    * @param catalogId Standard or Premium
    * @return the chosen prize entry, or {@code null} if the spin was rejected
    */
-  public GamblingCatalogs.PrizeEntry<?> buySpin(GamblingCatalogs.CatalogId catalogId) {
+  public GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> buySpin(
+      GamblingCatalogs.CatalogId catalogId) {
     InventoryComponent inventory = getInventory();
     GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
     if (inventory == null || catalog == null || !hasOnlySupportedPrizes(catalog)) {
@@ -341,7 +345,7 @@ public class ShopComponent extends Component {
     }
 
     int slot = GamblingRoller.rollSlot(catalog, random);
-    GamblingCatalogs.PrizeEntry<?> prize = catalog.getPrize(slot);
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize = catalog.getPrize(slot);
     if (!deliverPrize(prize.getProduct(), inventory)) {
       return null;
     }
@@ -572,7 +576,7 @@ public class ShopComponent extends Component {
    * @return {@code true} if every product is an item, gold, pet or Upgrade prize
    */
   private static boolean hasOnlySupportedPrizes(GamblingCatalogs.SpinCatalog catalog) {
-    for (GamblingCatalogs.PrizeEntry<?> prize : catalog.getPrizes().values()) {
+    for (GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize : catalog.getPrizes().values()) {
       Object product = prize.getProduct();
       if (!(product instanceof GamblingCatalogs.ItemPrize)
           && !(product instanceof GamblingCatalogs.GoldPrize)
@@ -594,7 +598,7 @@ public class ShopComponent extends Component {
    */
   private static boolean canReceiveAllItemPrizes(
       GamblingCatalogs.SpinCatalog catalog, InventoryComponent inventory) {
-    for (GamblingCatalogs.PrizeEntry<?> prize : catalog.getPrizes().values()) {
+    for (GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize : catalog.getPrizes().values()) {
       if (prize.getProduct() instanceof GamblingCatalogs.ItemPrize itemPrize
           && !inventory.canFullyAdd(itemPrize.create())) {
         return false;
@@ -681,7 +685,7 @@ public class ShopComponent extends Component {
    * @return Standard catalog at spin price 20
    */
   private GamblingCatalogs.SpinCatalog standardSpinCatalog() {
-    Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
+    Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> prizes = new HashMap<>();
     prizes.put(1, prize(consumablePrize("Health Potion", ConsumableType.HEALTH_POTION, 1), 40));
     prizes.put(2, prize(consumablePrize("Speed Potion", ConsumableType.SPEED_BUFF, 1), 25));
     prizes.put(3, prize(new GamblingCatalogs.GoldPrize(15), 20));
@@ -699,7 +703,7 @@ public class ShopComponent extends Component {
    * @return Premium catalog at spin price 60
    */
   private GamblingCatalogs.SpinCatalog premiumSpinCatalog() {
-    Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
+    Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> prizes = new HashMap<>();
     prizes.put(
         1,
         prize(consumablePrize("Regeneration Potion (Tier 2)", ConsumableType.REGENERATION, 2), 35));
@@ -768,10 +772,10 @@ public class ShopComponent extends Component {
    *
    * @param product prize product
    * @param weight probability weight
-   * @param <T> product type
    * @return prize entry
    */
-  private static <T> GamblingCatalogs.PrizeEntry<T> prize(T product, int weight) {
+  private static GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize(
+      GamblingCatalogs.Prize product, int weight) {
     return new GamblingCatalogs.PrizeEntry<>(product, weight);
   }
 
@@ -895,7 +899,7 @@ public class ShopComponent extends Component {
   }
 
   /** Minimal Upgrade product stub until the Upgrades team provides a type. */
-  public static class Upgrade {
+  public static class Upgrade implements GamblingCatalogs.Prize {
     private final String name;
 
     /**
@@ -922,7 +926,7 @@ public class ShopComponent extends Component {
   }
 
   /** Minimal pet product stub until the pets team provides a type. */
-  public static class Pet {
+  public static class Pet implements GamblingCatalogs.Prize {
     private final String name;
 
     /**

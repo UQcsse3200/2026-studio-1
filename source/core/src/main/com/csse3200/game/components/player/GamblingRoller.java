@@ -47,7 +47,7 @@ public final class GamblingRoller {
    */
   public static float probability(GamblingCatalogs.SpinCatalog catalog, int slot) {
     requireCatalog(catalog);
-    GamblingCatalogs.PrizeEntry<?> prize = catalog.getPrize(slot);
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize = catalog.getPrize(slot);
     if (prize == null) {
       return 0f;
     }

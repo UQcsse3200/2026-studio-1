@@ -1409,7 +1409,8 @@ public class ShopDisplay extends UIComponent {
       return;
     }
 
-    GamblingCatalogs.PrizeEntry<?> result = shop.buySpin(currentGamblingCatalog);
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> result =
+        shop.buySpin(currentGamblingCatalog);
     if (result == null) {
       gamblingResultLabel.setText("Spin failed.");
       gamblingResultLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
@@ -1438,9 +1439,10 @@ public class ShopDisplay extends UIComponent {
   }
 
   private int findPrizeSlot(
-      GamblingCatalogs.SpinCatalog catalog, GamblingCatalogs.PrizeEntry<?> result) {
+      GamblingCatalogs.SpinCatalog catalog,
+      GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> result) {
     for (int slot = 1; slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT; slot++) {
-      GamblingCatalogs.PrizeEntry<?> prize = catalog.getPrize(slot);
+      GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize = catalog.getPrize(slot);
       if (prize == result) {
         return slot;
       }
@@ -1448,7 +1450,7 @@ public class ShopDisplay extends UIComponent {
     return -1;
   }
 
-  private String getPrizeName(GamblingCatalogs.PrizeEntry<?> prize) {
+  private String getPrizeName(GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize) {
     if (prize == null) return "?";
 
     Object product = prize.getProduct();

@@ -103,7 +103,8 @@ class ShopGamblingTest {
   @Test
   void shouldLeaveCatalogUnchangedAfterSpins() {
     ShopComponent shop = newShop(new InventoryComponent(1_000), new FixedRandom(POTION_DRAW));
-    Map<Integer, GamblingCatalogs.PrizeEntry<?>> before = Map.copyOf(shop.getPrizes(STANDARD));
+    Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> before =
+        Map.copyOf(shop.getPrizes(STANDARD));
 
     for (int i = 0; i < 5; i++) {
       shop.buySpin(STANDARD);
@@ -193,7 +194,7 @@ class ShopGamblingTest {
     InventoryComponent inventory = new InventoryComponent(100);
     FixedRandom random = new FixedRandom(POTION_DRAW);
     ShopComponent shop = newShop(inventory, random);
-    shop.setPrize(STANDARD, 5, new GamblingCatalogs.PrizeEntry<>("not a product", 5));
+    shop.setPrize(STANDARD, 5, new GamblingCatalogs.PrizeEntry<>(new UnsupportedPrize(), 5));
     State before = State.of(inventory, shop);
 
     assertNull(shop.buySpin(STANDARD), "an unknown product type cannot be delivered");
@@ -402,6 +403,9 @@ class ShopGamblingTest {
     return shop;
   }
 
+  /** A prize {@link ShopComponent#buySpin} cannot deliver. */
+  private static final class UnsupportedPrize implements GamblingCatalogs.Prize {}
+
   private static GamblingCatalogs.GoldPrize gold(int amount) {
     return new GamblingCatalogs.GoldPrize(amount);
   }
@@ -423,7 +427,7 @@ class ShopGamblingTest {
       Map<Integer, String> slots,
       int purchasedPets,
       int purchasedUpgrades,
-      Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes) {
+      Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> prizes) {
     static State of(InventoryComponent inventory, ShopComponent shop) {
       Map<Integer, String> slots = new TreeMap<>();
       inventory

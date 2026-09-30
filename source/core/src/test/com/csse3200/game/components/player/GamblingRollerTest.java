@@ -143,10 +143,13 @@ class GamblingRollerTest {
   }
 
   private static GamblingCatalogs.SpinCatalog catalog(int... weights) {
-    Map<Integer, GamblingCatalogs.PrizeEntry<?>> prizes = new HashMap<>();
+    Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> prizes = new HashMap<>();
     for (int slot = 1; slot <= weights.length; slot++) {
-      prizes.put(slot, new GamblingCatalogs.PrizeEntry<>("prize " + slot, weights[slot - 1]));
+      prizes.put(slot, new GamblingCatalogs.PrizeEntry<>(new StubPrize(), weights[slot - 1]));
     }
     return new GamblingCatalogs.SpinCatalog(0, prizes);
   }
+
+  /** Product the roller never reads. Weights alone decide the slot. */
+  private static final class StubPrize implements GamblingCatalogs.Prize {}
 }

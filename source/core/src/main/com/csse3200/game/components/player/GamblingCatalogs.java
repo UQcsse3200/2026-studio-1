@@ -15,8 +15,8 @@ import java.util.function.Supplier;
  * in that catalog)}. This class stores weights and does not compute or roll them; see {@link
  * GamblingRoller}.
  *
- * <p>A prize product is one of {@link ItemPrize}, {@link GoldPrize}, {@link ShopComponent.Pet} or
- * {@link ShopComponent.Upgrade}.
+ * <p>A prize product is a {@link Prize}: {@link ItemPrize}, {@link GoldPrize}, {@link
+ * ShopComponent.Pet}, or {@link ShopComponent.Upgrade}.
  */
 public class GamblingCatalogs {
   private final SpinCatalog standard;
@@ -88,7 +88,7 @@ public class GamblingCatalogs {
     public static final int PRIZE_SLOT_COUNT = 5;
 
     private int spinPrice;
-    private final Map<Integer, PrizeEntry<?>> prizes;
+    private final Map<Integer, PrizeEntry<Prize>> prizes;
 
     /**
      * Creates a catalog.
@@ -98,7 +98,7 @@ public class GamblingCatalogs {
      * @throws IllegalArgumentException if the price is negative, {@code prizes} is null, a slot is
      *     missing or null, or the map is not exactly those five keys
      */
-    public SpinCatalog(int spinPrice, Map<Integer, PrizeEntry<?>> prizes) {
+    public SpinCatalog(int spinPrice, Map<Integer, PrizeEntry<Prize>> prizes) {
       if (spinPrice < 0) {
         throw new IllegalArgumentException("spinPrice must be >= 0");
       }
@@ -108,9 +108,9 @@ public class GamblingCatalogs {
       if (prizes.size() != PRIZE_SLOT_COUNT) {
         throw new IllegalArgumentException("prizes must contain exactly 5 slots");
       }
-      Map<Integer, PrizeEntry<?>> copy = new HashMap<>();
+      Map<Integer, PrizeEntry<Prize>> copy = new HashMap<>();
       for (int slot = 1; slot <= PRIZE_SLOT_COUNT; slot++) {
-        PrizeEntry<?> entry = prizes.get(slot);
+        PrizeEntry<Prize> entry = prizes.get(slot);
         if (entry == null) {
           throw new IllegalArgumentException("prize slot " + slot + " must be non-null");
         }
@@ -135,7 +135,7 @@ public class GamblingCatalogs {
      * @param slot prize slot
      * @return the entry, or {@code null} if {@code slot} is outside {@code 1}..{@code 5}
      */
-    public PrizeEntry<?> getPrize(int slot) {
+    public PrizeEntry<Prize> getPrize(int slot) {
       if (slot < 1 || slot > PRIZE_SLOT_COUNT) {
         return null;
       }
@@ -147,7 +147,7 @@ public class GamblingCatalogs {
      *
      * @return unmodifiable map of slot index to prize
      */
-    public Map<Integer, PrizeEntry<?>> getPrizes() {
+    public Map<Integer, PrizeEntry<Prize>> getPrizes() {
       return Collections.unmodifiableMap(prizes);
     }
 
@@ -172,7 +172,7 @@ public class GamblingCatalogs {
      * @param prize replacement entry; must be non-null
      * @return {@code true} if the stored entry changed
      */
-    public boolean replacePrize(int slot, PrizeEntry<?> prize) {
+    public boolean replacePrize(int slot, PrizeEntry<Prize> prize) {
       if (prizes.get(slot) == prize) {
         return false;
       }
@@ -181,14 +181,17 @@ public class GamblingCatalogs {
     }
   }
 
+  /** A product that can sit in a spin-catalog slot. */
+  public interface Prize {}
+
   /**
    * One weighted prize. Holds a product and a weight only.
    *
    * <p>Later roll probability in a catalog is {@code weight / sum(weights in that catalog)}.
    *
-   * @param <T> product type
+   * @param <T> product type; a {@link Prize}
    */
-  public static final class PrizeEntry<T> {
+  public static final class PrizeEntry<T extends Prize> {
     private final T product;
     private final int weight;
 
@@ -234,7 +237,7 @@ public class GamblingCatalogs {
    * (for example a {@code WeaponItem} or {@code ConsumableItem}) and the catalog never shares an
    * instance with the player's inventory.
    */
-  public static final class ItemPrize {
+  public static final class ItemPrize implements Prize {
     private final String displayName;
     private final ItemType itemType;
     private final Supplier<? extends Item> factory;
@@ -297,7 +300,7 @@ public class GamblingCatalogs {
   }
 
   /** A gold prize added straight to the player's wallet. */
-  public static final class GoldPrize {
+  public static final class GoldPrize implements Prize {
     private final int amount;
 
     /**
