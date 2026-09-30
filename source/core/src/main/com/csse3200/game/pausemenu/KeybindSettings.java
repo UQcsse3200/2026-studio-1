@@ -53,7 +53,7 @@ public final class KeybindSettings {
 
   private KeybindSettings() {}
 
-  /*
+  /**
    @param action the action name, e.g. "jump"
    @return the keycode currently bound to it, or UNBOUND if the action doesn't exist or has no
    key bound
