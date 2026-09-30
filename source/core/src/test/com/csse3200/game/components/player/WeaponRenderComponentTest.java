@@ -130,18 +130,71 @@ class WeaponRenderComponentTest {
             anyBoolean(),
             anyBoolean());
 
-    assertEquals(1.0f, scaleX.getValue(), 0.001f);
-    assertEquals(1.0f, scaleY.getValue(), 0.001f);
+    assertEquals(1.00f, scaleX.getValue(), 0.001f);
+    assertEquals(1.00f, scaleY.getValue(), 0.001f);
   }
 
   @Test
-  void shouldRenderTierThreeWeaponAtLargerScale() {
-    Texture swordTexture = mock(Texture.class);
-    when(swordTexture.getWidth()).thenReturn(32);
-    when(swordTexture.getHeight()).thenReturn(32);
+  void shouldRenderTierTwoSwordWithUpgradedTextureAndScale() {
+    Texture tierTwoSwordTexture = mock(Texture.class);
+    when(tierTwoSwordTexture.getWidth()).thenReturn(32);
+    when(tierTwoSwordTexture.getHeight()).thenReturn(32);
 
     ResourceService resources = mock(ResourceService.class);
-    when(resources.getAsset("images/items/sword.png", Texture.class)).thenReturn(swordTexture);
+    when(resources.getAsset("images/items/sword_t2.png", Texture.class))
+        .thenReturn(tierTwoSwordTexture);
+
+    ServiceLocator.registerResourceService(resources);
+    ServiceLocator.registerRenderService(new RenderService());
+
+    InventoryComponent inventory = new InventoryComponent(0);
+
+    inventory.addItem(
+        new WeaponItem("Tier 2 Sword", WeaponType.SWORD, WeaponTier.TIER_2, 1, 1, 0f));
+
+    WeaponRenderComponent renderer = new WeaponRenderComponent();
+
+    new Entity().addComponent(inventory).addComponent(renderer).create();
+
+    SpriteBatch batch = mock(SpriteBatch.class);
+
+    renderer.render(batch);
+
+    ArgumentCaptor<Float> scaleX = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> scaleY = ArgumentCaptor.forClass(Float.class);
+
+    verify(batch)
+        .draw(
+            eq(tierTwoSwordTexture),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            scaleX.capture(),
+            scaleY.capture(),
+            anyFloat(),
+            anyInt(),
+            anyInt(),
+            anyInt(),
+            anyInt(),
+            anyBoolean(),
+            anyBoolean());
+
+    assertEquals(1.20f, scaleX.getValue(), 0.001f);
+    assertEquals(1.20f, scaleY.getValue(), 0.001f);
+  }
+
+  @Test
+  void shouldRenderTierThreeSwordWithUpgradedTextureAndScale() {
+    Texture tierThreeSwordTexture = mock(Texture.class);
+    when(tierThreeSwordTexture.getWidth()).thenReturn(32);
+    when(tierThreeSwordTexture.getHeight()).thenReturn(32);
+
+    ResourceService resources = mock(ResourceService.class);
+    when(resources.getAsset("images/items/sword_t3.png", Texture.class))
+        .thenReturn(tierThreeSwordTexture);
 
     ServiceLocator.registerResourceService(resources);
     ServiceLocator.registerRenderService(new RenderService());
@@ -164,7 +217,7 @@ class WeaponRenderComponentTest {
 
     verify(batch)
         .draw(
-            eq(swordTexture),
+            eq(tierThreeSwordTexture),
             anyFloat(),
             anyFloat(),
             anyFloat(),

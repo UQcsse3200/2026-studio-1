@@ -107,8 +107,8 @@ public class WeaponRenderComponent extends RenderComponent {
   /**
    * Updates the currently rendered weapon from the active inventory slot.
    *
-   * <p>The weapon type and tier are stored separately from the texture so future Sprint 3 visual
-   * changes can depend on tier without changing the weapon switching logic.
+   * <p>The weapon type and tier are stored separately from the texture so upgraded weapon visuals
+   * can depend on tier.
    */
   private void updateWeapon(int activeSlot) {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
@@ -126,11 +126,16 @@ public class WeaponRenderComponent extends RenderComponent {
     currentWeaponType = weaponItem.getWeaponType();
     currentWeaponTier = weaponItem.getTier();
 
-    texture = getWeaponTexture(currentWeaponType);
+    texture = getWeaponTexture(currentWeaponType, currentWeaponTier);
   }
 
-  /** Returns the texture associated with the supplied weapon type. */
-  private Texture getWeaponTexture(WeaponType weaponType) {
+  /**
+   * Returns the texture associated with the supplied weapon type and tier.
+   *
+   * <p>Swords use different textures for each upgrade tier, while bows and daggers continue to use
+   * their existing textures.
+   */
+  private Texture getWeaponTexture(WeaponType weaponType, int tier) {
     if (weaponType == null) {
       return null;
     }
@@ -142,9 +147,24 @@ public class WeaponRenderComponent extends RenderComponent {
       case DAGGER ->
           ServiceLocator.getResourceService().getAsset("images/dagger.png", Texture.class);
 
-      case SWORD ->
-          ServiceLocator.getResourceService().getAsset("images/items/sword.png", Texture.class);
+      case SWORD -> getSwordTexture(tier);
     };
+  }
+
+  /**
+   * Returns the sword texture for the current tier.
+   *
+   * <p>Tier 1 keeps the original sword. Tier 2 and Tier 3 use the new upgraded sword assets.
+   */
+  private Texture getSwordTexture(int tier) {
+    String swordPath =
+        switch (tier) {
+          case 2 -> "images/items/sword_t2.png";
+          case 3 -> "images/items/sword_t3.png";
+          default -> "images/items/sword.png";
+        };
+
+    return ServiceLocator.getResourceService().getAsset(swordPath, Texture.class);
   }
 
   /**
@@ -330,8 +350,7 @@ public class WeaponRenderComponent extends RenderComponent {
   /**
    * Returns the visual configuration for the currently equipped weapon.
    *
-   * <p>Tier is intentionally included here so Sprint 3 can introduce meaningful visual differences
-   * between weapon tiers without rewriting the renderer.
+   * <p>Tier is used to provide different visual sizes for upgraded weapons.
    */
   private WeaponVisualConfig getVisualConfig() {
     if (currentWeaponType == null) {
@@ -376,20 +395,6 @@ public class WeaponRenderComponent extends RenderComponent {
         };
 
     return new WeaponVisualConfig(DAGGER_WIDTH, DAGGER_HEIGHT, scale, scale, true);
-  }
-
-  /**
-   * Provides a small tier-based visual scale.
-   *
-   * <p>These values are intentionally centralised so they can be tuned once the final Sprint 3
-   * weapon forms and tier visuals are agreed upon.
-   */
-  private float getTierScale(int tier) {
-    return switch (tier) {
-      case 2 -> 1.15f;
-      case 3 -> 1.30f;
-      default -> 1.0f;
-    };
   }
 
   private void updateHandAnchor(WeaponVisualConfig visualConfig) {

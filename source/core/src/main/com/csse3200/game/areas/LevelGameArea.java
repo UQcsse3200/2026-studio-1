@@ -101,6 +101,8 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghost_king.png",
     "images/enemies/ghost_1.png",
     "images/items/sword.png",
+    "images/items/sword_t2.png",
+    "images/items/sword_t3.png",
     "images/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
