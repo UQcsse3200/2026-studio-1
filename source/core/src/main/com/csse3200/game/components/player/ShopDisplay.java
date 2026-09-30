@@ -2,9 +2,11 @@ package com.csse3200.game.components.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -123,6 +125,8 @@ public class ShopDisplay extends UIComponent {
   /** Pet atlas containing the pet sprites. */
   private TextureAtlas petAtlas;
 
+  private Actor batchColorReset;
+
   /** Rarity tier used for card/icon/accent coloring. */
   private enum Rarity {
     COMMON(RARITY_COMMON),
@@ -208,6 +212,27 @@ public class ShopDisplay extends UIComponent {
 
     createShop();
     createShopIcon();
+    createBatchColorReset();
+  }
+
+  /** Adds an invisible actor that resets the batch color after all other shop actors are drawn. */
+  private void createBatchColorReset() {
+    batchColorReset =
+        new Actor() {
+          @Override
+          public void draw(Batch batch, float parentAlpha) {
+            batch.setColor(Color.WHITE);
+          }
+        };
+    batchColorReset.setTouchable(Touchable.disabled);
+    stage.addActor(batchColorReset);
+  }
+
+  /** Keeps the color-reset actor on top so it is always drawn after every other shop actor. */
+  private void keepBatchColorResetLast() {
+    if (batchColorReset != null) {
+      batchColorReset.toFront();
+    }
   }
 
   /** Creates the persistent floating icon used to open the shop. */
@@ -307,12 +332,12 @@ public class ShopDisplay extends UIComponent {
 
     shopTable = new Table();
     shopTable.setBackground(skin.getDrawable(WINDOW_BACKGROUND));
-    shopTable.setColor(PANEL_TINT);
+    shopTable.getColor().set(PANEL_TINT);
     shopTable.pad(PANEL_PADDING);
     shopTable.setSize(SHOP_WIDTH, SHOP_HEIGHT);
 
     whiteLabelStyle = new Label.LabelStyle(skin.get(LABEL_STYLE, Label.LabelStyle.class));
-    whiteLabelStyle.fontColor = Color.WHITE;
+    whiteLabelStyle.fontColor = new Color(Color.WHITE);
 
     createHeader();
     addDivider();
@@ -341,7 +366,7 @@ public class ShopDisplay extends UIComponent {
 
     Table goldPill = new Table();
     goldPill.setBackground(skin.getDrawable(BUTTON_BACKGROUND));
-    goldPill.setColor(GOLD_PILL_TINT);
+    goldPill.getColor().set(GOLD_PILL_TINT);
     goldPill.pad(4f, 12f, 4f, 12f);
 
     goldLabel = new Label(getGoldText(), whiteLabelStyle);
@@ -755,11 +780,10 @@ public class ShopDisplay extends UIComponent {
   }
 
   /** Creates the base table shell for a slot card. */
-  /** Creates the base table shell for a slot card. */
   private Table createCard() {
     Table card = new Table();
     card.setBackground(skin.getDrawable(BUTTON_BACKGROUND));
-    card.setColor(CARD_TINT);
+    card.getColor().set(CARD_TINT);
     card.pad(8f);
     card.setTransform(true);
     card.setOrigin(CARD_WIDTH / 2f, CARD_HEIGHT / 2f);
@@ -768,7 +792,7 @@ public class ShopDisplay extends UIComponent {
 
   /** Populates a card representing an empty/locked slot. */
   private void addEmptyCardContent(Table card, int slot) {
-    card.setColor(EMPTY_CARD_TINT);
+    card.getColor().set(EMPTY_CARD_TINT);
     addAccentStrip(card, EMPTY_STRIP_TINT);
 
     Label slotLabel = new Label("Empty", whiteLabelStyle);
@@ -831,7 +855,6 @@ public class ShopDisplay extends UIComponent {
     detailPanel.add(detailActionButton).size(85f, 36f).right();
   }
 
-  /** Updates selection highlights and populates the bottom detail drawer. */
   /**
    * Updates selection highlights, applies pulsing scale, and attaches a bobbing arrow indicator.
    */
@@ -848,11 +871,11 @@ public class ShopDisplay extends UIComponent {
     if (selectedCard != null) {
       selectedCard.clearActions();
       selectedCard.setScale(1f);
-      selectedCard.setColor(CARD_TINT);
+      selectedCard.getColor().set(CARD_TINT);
     }
 
     selectedCard = card;
-    selectedCard.setColor(CARD_TINT_SELECTED);
+    selectedCard.getColor().set(CARD_TINT_SELECTED);
 
     // Pulse / Breathing animation on selected card
     selectedCard.clearActions();
@@ -887,7 +910,6 @@ public class ShopDisplay extends UIComponent {
     detailActionButton.setTouchable(canPerformAction ? Touchable.enabled : Touchable.disabled);
   }
 
-  /** Clears selection highlights and resets detail information. */
   /** Clears selection highlights and resets detail information. */
   private void clearSelection() {
     if (selectedCard != null) {
@@ -1121,6 +1143,7 @@ public class ShopDisplay extends UIComponent {
 
     shopTable.setVisible(true);
     shopTable.toFront();
+    keepBatchColorResetLast();
   }
 
   public void closeShop() {
@@ -1142,7 +1165,10 @@ public class ShopDisplay extends UIComponent {
   }
 
   @Override
-  public void draw(SpriteBatch batch) {}
+  public void draw(SpriteBatch batch) {
+    // Shop UI is rendered by Scene2D Stage.
+    batch.setColor(Color.WHITE);
+  }
 
   @Override
   public void dispose() {
@@ -1169,6 +1195,10 @@ public class ShopDisplay extends UIComponent {
     if (selectionArrow != null) {
       selectionArrow.remove();
       selectionArrow = null;
+    }
+    if (batchColorReset != null) {
+      batchColorReset.remove();
+      batchColorReset = null;
     }
 
     contentTable = null;
@@ -1270,7 +1300,7 @@ public class ShopDisplay extends UIComponent {
      */
     gamblingWheel = new GamblingWheel(whiteLabelStyle);
 
-    gamblingRoot.add(gamblingWheel).size(300f, 300f).center().padTop(4f).padBottom(8f).row();
+    gamblingRoot.add(gamblingWheel).size(500f, 300f).center().padTop(4f).padBottom(8f).row();
 
     /*
      * ------------------------------------------------------------
@@ -1448,6 +1478,7 @@ public class ShopDisplay extends UIComponent {
       selectionArrow.setSize(24f, 24f);
       selectionArrow.setTouchable(Touchable.disabled);
       stage.addActor(selectionArrow);
+      keepBatchColorResetLast();
     }
 
     selectionArrow.pack(); // Ensure size is calculated before positioning
