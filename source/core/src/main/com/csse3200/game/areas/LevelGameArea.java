@@ -61,9 +61,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A game area built from a tile-based level map file. Loads the map via a {@link MapLoader},
- * renders it through the terrain system, and spawns the player and enemies from the map's spawn
- * data.
+ * A game area built from a tile-based level map. Loads the map via a {@link MapLoader}, renders it
+ * through the terrain system, and spawns the player and enemies from the map's spawn data.
  *
  * <p>Textures for map tiles are loaded from the map's legend; entity textures are loaded from the
  * static lists below. Physical collision from the tile data is handled by the Collision Layer task
@@ -72,12 +71,14 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+
   // Left side of the dungeon floor, next to the doric column decoration at (5, 14)
   // (level1-greek.json foreground layer) and the platform above it where the key item sits.
   // x=4 (rather than 5) centers the NPC's collider within the floor patch (world x=[1.0,3.0])
   // instead of overhanging onto the ladder tile at x=[3.0,3.5) - see createTravelerNPC()'s
   // wander-range comment for the full margin math.
   private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
+
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
 
   /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
@@ -191,8 +192,8 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Create a level while retaining an existing player, placing it at a specified entrance, and
-   * using a previously-saved loot seed so this room's loot layout matches what it was when saved.
+   * Create a level while retaining an existing player, placing it at an entrance, and using a
+   * previously-saved loot seed so this room's loot layout matches what it was when saved.
    *
    * @param savedLootSeed the loot seed to reuse, from a save file
    */
@@ -231,7 +232,9 @@ public class LevelGameArea extends GameArea {
     spawnBackdrop();
     spawnTerrain();
     spawnCollisions();
+
     player = existingPlayer == null ? spawnPlayer() : adoptPlayer(existingPlayer);
+
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
@@ -285,6 +288,27 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * Creates a completely new player in the current room.
+   *
+   * <p>This is used after player death. The old dead player is completely removed from the current
+   * area's entity collection and the global entity service before a fresh player is created. The
+   * new player therefore receives a fresh inventory and starter equipment instead of inheriting the
+   * dead player's state.
+   *
+   * @return the newly-created player entity
+   */
+  public Entity respawnPlayer() {
+    if (player != null) {
+      areaEntities.remove(player);
+      ServiceLocator.getEntityService().unregister(player);
+      player.dispose();
+    }
+
+    player = spawnPlayer();
+    return player;
+  }
+
+  /**
    * Return and clear a doorway request. The screen consumes this after the physics update so the
    * Box2D world is not modified from inside a contact callback.
    *
@@ -303,6 +327,7 @@ public class LevelGameArea extends GameArea {
     if (player == null) {
       return false;
     }
+
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
     return stats != null && stats.isDead();
   }
@@ -342,11 +367,14 @@ public class LevelGameArea extends GameArea {
   /** Adds a supplied full-map image behind the collision-driven terrain, when the map has one. */
   private void spawnBackdrop() {
     String backgroundTexture = mapData.getBackgroundTexture();
+
     if (backgroundTexture == null) {
       return;
     }
+
     Entity backdrop =
         new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
+
     backdrop.setScale(getMapWorldWidth(), getMapWorldHeight());
     spawnEntity(backdrop);
   }
@@ -371,7 +399,9 @@ public class LevelGameArea extends GameArea {
 
     // Hazards remain individual.
     spawnHazardCollisions(collisionLayer, tileSize);
+
     MapLayerData hazardLayer = mapData.getLayer("hazards");
+
     if (hazardLayer != null && hazardLayer != collisionLayer) {
       spawnHazardCollisions(hazardLayer, tileSize);
     }
@@ -390,12 +420,14 @@ public class LevelGameArea extends GameArea {
         }
 
         int startX = x;
+
         while (x + 1 < collisionLayer.getWidth()) {
           TileDefinition next = collisionLayer.get(x + 1, y);
 
           if (next == null || next.type().getCollisionType() != CollisionType.PLATFORM) {
             break;
           }
+
           x++;
         }
 
@@ -414,6 +446,7 @@ public class LevelGameArea extends GameArea {
 
       for (SolidRun run : findSolidRuns(collisionLayer, y)) {
         SolidRectangle previousRectangle = activeRectangles.remove(run);
+
         if (previousRectangle == null) {
           nextActiveRectangles.put(run, new SolidRectangle(run.x(), y, run.width(), 1));
         } else {
@@ -447,9 +480,11 @@ public class LevelGameArea extends GameArea {
       }
 
       int startX = x;
+
       while (x + 1 < collisionLayer.getWidth() && isSolidTile(collisionLayer, x + 1, y)) {
         x++;
       }
+
       runs.add(new SolidRun(startX, x - startX + 1));
       x++;
     }
@@ -459,6 +494,7 @@ public class LevelGameArea extends GameArea {
 
   private static boolean isSolidTile(MapLayerData collisionLayer, int x, int y) {
     TileDefinition definition = collisionLayer.get(x, y);
+
     return definition != null && definition.type().getCollisionType() == CollisionType.SOLID;
   }
 
@@ -466,6 +502,7 @@ public class LevelGameArea extends GameArea {
     Entity collider =
         ObstacleFactory.createSolidTile(
             rectangle.width() * tileSize, rectangle.height() * tileSize);
+
     Vector2 position = terrain.tileToWorldPosition(rectangle.x(), rectangle.y());
 
     if (position == null) {
@@ -483,10 +520,8 @@ public class LevelGameArea extends GameArea {
    * @param tileSize the size of each tile
    */
   private void spawnHazardCollisions(MapLayerData collisionLayer, float tileSize) {
-
     for (int x = 0; x < collisionLayer.getWidth(); x++) {
       for (int y = 0; y < collisionLayer.getHeight(); y++) {
-
         TileDefinition def = collisionLayer.get(x, y);
 
         if (def == null || def.type().getCollisionType() != CollisionType.HAZARD) {
@@ -533,21 +568,32 @@ public class LevelGameArea extends GameArea {
 
   private record SolidRun(int x, int width) {}
 
+  /**
+   * Creates a completely new player using the normal player factory.
+   *
+   * <p>The factory creates the player's new inventory, starter equipment, combat state, shield
+   * state, and other player components.
+   */
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayer(mapData);
 
     addHazardCollisionListener(newPlayer);
     positionAndSpawnPlayer(newPlayer, mapData.getSpawns().getPlayer());
+
     return newPlayer;
   }
 
   private Entity adoptPlayer(Entity retainedPlayer) {
     GridPoint2 spawn = entrySpawn != null ? entrySpawn : mapData.getSpawns().getPlayer();
+
     if (spawn == null) {
       spawn = new GridPoint2(0, 0);
     }
+
     positionEntityAt(retainedPlayer, spawn, true, true);
+
     PhysicsComponent physics = retainedPlayer.getComponent(PhysicsComponent.class);
+
     if (physics != null) {
       // A room entrance is a teleport, so momentum from the source doorway must not carry over.
       // Resetting it also prevents a dash/fall from crossing the destination floor on the load
@@ -556,15 +602,19 @@ public class LevelGameArea extends GameArea {
       physics.getBody().setAngularVelocity(0f);
       physics.getBody().setAwake(true);
     }
+
     areaEntities.add(retainedPlayer);
+
     return retainedPlayer;
   }
 
   private void positionAndSpawnPlayer(Entity newPlayer, GridPoint2 spawn) {
     if (spawn == null) {
       logger.warn("Map '{}' has no player spawn; defaulting to (0, 0)", mapData.getName());
+
       spawn = new GridPoint2(0, 0);
     }
+
     spawnEntityAt(newPlayer, spawn, true, true);
   }
 
@@ -603,6 +653,7 @@ public class LevelGameArea extends GameArea {
                       // Hazards carry their own damage; older maps that set none use the default.
                       HazardDamageComponent hazard =
                           other.getComponent(HazardDamageComponent.class);
+
                       int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
 
                       stats.addHealth(-damage);
@@ -617,6 +668,7 @@ public class LevelGameArea extends GameArea {
 
   private void spawnTransitions() {
     float tileSize = terrain.getTileSize();
+
     for (RoomTransition transition : mapData.getTransitions()) {
       Entity doorway =
           new Entity()
@@ -631,7 +683,9 @@ public class LevelGameArea extends GameArea {
       }
 
       doorway.setScale(transition.getWidth() * tileSize, transition.getHeight() * tileSize);
+
       doorway.setPosition(terrain.tileToWorldPosition(transition.getPosition()));
+
       spawnEntity(doorway);
     }
   }
@@ -639,12 +693,16 @@ public class LevelGameArea extends GameArea {
   private void spawnEnemies() {
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
       String id = EnemyId.of(mapData.getName(), spawn.getPosition());
+
       if (EnemyRegistry.isKilled(id)) {
         continue;
       }
+
       Entity enemy = createEnemy(spawn.getType());
+
       if (enemy != null) {
         enemy.addComponent(new PersistentEnemyIdComponent(id));
+
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
       }
     }
@@ -673,28 +731,40 @@ public class LevelGameArea extends GameArea {
    */
   private void spawnLoot() {
     List<SpawnPoint> lootSpawns = chooseLootSpawns();
+
     if (lootSpawns.isEmpty()) {
       spawnStarterLootRow();
       return;
     }
 
     SpawnPoint shieldSpawn = lootSpawns.get(0);
+
     String shieldId = LootId.of(mapData.getName(), shieldSpawn.getPosition());
+
     if (!LootRegistry.isCollected(shieldId)) {
       Entity shieldEntity = LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1));
+
       shieldEntity.addComponent(new PersistentLootIdComponent(shieldId));
+
       spawnEntityAt(shieldEntity, shieldSpawn.getPosition(), true, true);
     }
 
     List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
+
     LootTable table = LootTable.createDefault(lootSeed);
+
     for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
+
       String id = LootId.of(mapData.getName(), placed.getPosition());
+
       if (LootRegistry.isCollected(id)) {
         continue;
       }
+
       Entity lootEntity = LootFactory.createLoot(placed.getItem());
+
       lootEntity.addComponent(new PersistentLootIdComponent(id));
+
       spawnEntityAt(lootEntity, placed.getPosition(), true, true);
     }
   }
@@ -712,11 +782,13 @@ public class LevelGameArea extends GameArea {
     logger.info("Loot seed for {}: {}", mapData.getName(), lootSeed);
 
     List<SpawnPoint> declared = mapData.getSpawns().getLoot();
+
     if (!declared.isEmpty()) {
       return declared;
     }
 
     List<SpawnPoint> ground = LootSpawnFinder.findGroundSpots(mapData);
+
     return LootPlacement.pickRandomSpots(ground, RANDOM_LOOT_COUNT, new Random(lootSeed));
   }
 
@@ -732,21 +804,29 @@ public class LevelGameArea extends GameArea {
     items.add(LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)));
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
+
     items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.BOW, 1)));
+
     items.add(LootFactory.createLoot(weaponGenerator.generateWeapon(WeaponType.SWORD, 1)));
 
     ConsumableGenerator consumableGenerator = new ConsumableGenerator();
+
     for (ConsumableType type : ConsumableType.values()) {
+
       items.add(LootFactory.createLoot(consumableGenerator.generateConsumable(type, 1)));
     }
 
     items.add(LootFactory.createLoot(new Item("Gold Coin", ItemType.CURRENCY, 1, 99)));
 
     GridPoint2 start = lootRowStart();
+
     int maxX = Math.max(0, mapData.getWidth() - 2);
+
     int x = start.x;
+
     for (Entity item : items) {
       spawnEntityAt(item, new GridPoint2(Math.min(x, maxX), start.y), true, true);
+
       x++;
     }
   }
@@ -759,15 +839,19 @@ public class LevelGameArea extends GameArea {
     if (!mapData.getSpawns().getLoot().isEmpty()) {
       return mapData.getSpawns().getLoot().getFirst().getPosition();
     }
+
     GridPoint2 playerSpawn = mapData.getSpawns().getPlayer();
+
     if (playerSpawn != null) {
       return new GridPoint2(playerSpawn.x + 2, playerSpawn.y);
     }
+
     return new GridPoint2(1, 1);
   }
 
   private void playMusic() {
     Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
+
     music.setLooping(true);
     music.setVolume(0.3f);
     music.play();
@@ -780,13 +864,19 @@ public class LevelGameArea extends GameArea {
 
   private void loadAssets() {
     logger.debug("Loading level assets");
+
     ResourceService resourceService = ServiceLocator.getResourceService();
 
     Set<String> tileTextures = mapData.getTexturePaths();
+
     resourceService.loadTextures(tileTextures.toArray(new String[0]));
+
     resourceService.loadTextures(entityTextures);
+
     resourceService.loadTextureAtlases(entityAtlases);
+
     resourceService.loadSounds(entitySounds);
+
     resourceService.loadMusic(entityMusic);
 
     while (!resourceService.loadForMillis(10)) {
@@ -796,10 +886,13 @@ public class LevelGameArea extends GameArea {
 
   private void unloadAssets() {
     logger.debug("Unloading level assets");
+
     ResourceService resourceService = ServiceLocator.getResourceService();
+
     if (mapData != null) {
       resourceService.unloadAssets(mapData.getTexturePaths().toArray(new String[0]));
     }
+
     resourceService.unloadAssets(entityTextures);
     resourceService.unloadAssets(entityAtlases);
     resourceService.unloadAssets(entitySounds);
@@ -809,12 +902,15 @@ public class LevelGameArea extends GameArea {
   @Override
   public void dispose() {
     super.dispose();
+
     ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class).stop();
+
     unloadAssets();
   }
 
   private void spawnTravelerNPC() {
     Entity travelerNPC = NPCFactory.createTravelerNPC(player);
+
     spawnEntityAt(travelerNPC, TRAVELER_NPC_SPAWN, true, true);
   }
 }

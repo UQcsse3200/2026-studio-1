@@ -32,10 +32,12 @@ import org.slf4j.LoggerFactory;
  */
 public class PlayerActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
+
   // Thank you Lachlan, you beautiful, beautiful man
-  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
-  private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f);
+  private static final float SlideMaxTime = 0.5f;
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
+
   private float attackCooldownRemaining = 0f;
   private float attackCooldownMultiplier = 1f;
 
@@ -47,10 +49,10 @@ public class PlayerActions extends Component {
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
-  private float CrouchSpeedRate = 0.2f; // Crouchspeed = MAX_SPEED * Crouchspeedrate
+  private float CrouchSpeedRate = 0.2f;
   private float dashspeed = 5f;
   private float slidespeed = 3f;
-  private float SlideTimer = 0f; // slide will finifh in 0.5 second
+  private float SlideTimer = 0f;
   private boolean crouching = false;
   private boolean moving = false;
   private boolean sliding = false;
@@ -78,11 +80,23 @@ public class PlayerActions extends Component {
 
   @Override
   public void create() {
+    System.out.println("PLAYER ACTIONS CREATED entity=" + entity.getId());
+
     physicsComponent = entity.getComponent(PhysicsComponent.class);
     platformerComponent = entity.getComponent(PlatformerComponent.class);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
     staminaComponent = entity.getComponent(StaminaComponent.class);
+
+    System.out.println(
+        "PLAYER ACTIONS COMPONENTS entity="
+            + entity.getId()
+            + " physics="
+            + (physicsComponent != null)
+            + " platformer="
+            + (platformerComponent != null)
+            + " stamina="
+            + (staminaComponent != null));
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
@@ -103,7 +117,6 @@ public class PlayerActions extends Component {
 
   @Override
   public void update() {
-
     StaminaComponent staminaComponent = entity.getComponent(StaminaComponent.class);
 
     if (staminaComponent != null) {
@@ -117,16 +130,21 @@ public class PlayerActions extends Component {
     }
 
     playMovementSound();
+
     if (!dead && (moving || platformerComponent.getJumpingBool())) {
       updateSpeed();
     }
+
     timerforslide();
+
     String direction = entity.getComponent(KeyboardPlayerInputComponent.class).getDirection();
+
     animationtimer(direction);
   }
 
   private void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
+
     if (animator.isFinished()
         && !animator.getCurrentAnimation().equals("crouchidle")
         && !animator.getCurrentAnimation().equals("Leftcrouchidle")
@@ -135,11 +153,13 @@ public class PlayerActions extends Component {
 
       if (animator.getCurrentAnimation().equals("Jump")
           || animator.getCurrentAnimation().equals("LeftJump")) {
+
         if (!walkDirection.isZero()) {
           entity.getEvents().trigger("run", direction);
         } else {
           entity.getEvents().trigger("idle", direction);
         }
+
       } else {
         entity.getEvents().trigger("idle", direction);
       }
@@ -148,75 +168,119 @@ public class PlayerActions extends Component {
 
   public void playMovementSound() {
     Sound walkSound = ServiceLocator.getResourceService().getAsset(WALKING_SE, Sound.class);
+
     Sound sneakSound = ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
+
     if (dashing) {
       Sound dashSound = ServiceLocator.getResourceService().getAsset(DASH_SE, Sound.class);
+
       dashSound.play(AudioSettings.getEffectiveEffectsVolume());
       dashing = false;
+
     } else if (platformerComponent.getJumpingBool()) {
       Sound jumpSound = ServiceLocator.getResourceService().getAsset(JUMP_SE, Sound.class);
+
       jumpSound.play(AudioSettings.getEffectiveEffectsVolume());
+
     } else if (sliding) {
       Sound slideSound = ServiceLocator.getResourceService().getAsset(SLIDE_SE, Sound.class);
+
       if (!slideSoundPlaying) {
         slideSound.play(AudioSettings.getEffectiveEffectsVolume());
         slideSoundPlaying = true;
       }
+
     } else if (moving && platformerComponent.isGrounded()) {
+
       if (sneaking) {
         if (!sneakSoundPlaying) {
           sneakSound.loop(AudioSettings.getEffectiveEffectsVolume());
           sneakSoundPlaying = true;
         }
+
         walkSound.stop();
         walkSoundPlaying = false;
+
       } else {
         if (!walkSoundPlaying) {
           walkSound.loop(AudioSettings.getEffectiveEffectsVolume());
           walkSoundPlaying = true;
         }
+
         sneakSound.stop();
         sneakSoundPlaying = false;
       }
     }
+
     if (!moving) {
       walkSound.stop();
       sneakSound.stop();
+
       walkSoundPlaying = false;
       sneakSoundPlaying = false;
     }
+
     if (!sliding) {
       slideSoundPlaying = false;
     }
   }
 
   private void updateSpeed() {
+    if (physicsComponent == null) {
+      System.out.println("MOVEMENT ERROR entity=" + entity.getId() + " physicsComponent is NULL");
+      return;
+    }
+
     Body body = physicsComponent.getBody();
-    if (crouching == true) {
+
+    if (body == null) {
+      System.out.println("MOVEMENT ERROR entity=" + entity.getId() + " physics body is NULL");
+      return;
+    }
+
+    if (crouching) {
       Speed.x = MAX_SPEED.cpy().x * CrouchSpeedRate;
     } else {
       Speed = MAX_SPEED.cpy();
     }
+
     Vector2 desiredVelocity = walkDirection.cpy().scl(Speed).scl(getEffectiveSpeedMultiplier());
-    // impulse = desiredVel * mass
+
     Vector2 impulse = desiredVelocity.scl(body.getMass());
+
+    System.out.println(
+        "MOVEMENT entity="
+            + entity.getId()
+            + " walkDirection="
+            + walkDirection
+            + " bodyVelocityBefore="
+            + body.getLinearVelocity()
+            + " impulse="
+            + impulse
+            + " bodyType="
+            + body.getType()
+            + " active="
+            + body.isActive());
+
     body.applyForce(impulse, body.getWorldCenter(), true);
+
+    System.out.println(
+        "MOVEMENT entity=" + entity.getId() + " bodyVelocityAfter=" + body.getLinearVelocity());
 
     // To track player global stats
     if (platformerComponent.getJumpingBool()) {
       Quest.incrementGlobalJumps();
     }
+
     // For the jump portion
     platformerComponent.updateJump(MAX_SPEED);
   }
 
   /**
-   * Adds or updates a speed modifier owned by the given key. The effective speed multiplier is the
-   * product of all currently active modifiers.
+   * Adds or updates a speed modifier owned by the given key.
    *
-   * @param key identifies the owner of this modifier (e.g. the effect component itself), so it can
-   *     be removed later without affecting other active effects.
-   * @param multiplier the modifier's contribution (1 = no change, 0 = pause, 0.5 = half speed).
+   * @param key identifies the owner of this modifier
+   * @param multiplier the modifier's contribution
    */
   public void addSpeedModifier(Object key, float multiplier) {
     speedModifiers.put(key, multiplier);
@@ -225,15 +289,23 @@ public class PlayerActions extends Component {
   /**
    * Removes a previously-added speed modifier.
    *
-   * @param key the same key passed to {@link #addSpeedModifier(Object, float)}.
+   * @param key the same key passed to addSpeedModifier
    */
   public void removeSpeedModifier(Object key) {
     speedModifiers.remove(key);
   }
 
-  /**
-   * Returns the combined effect of all active speed modifiers (their product). 1 if none active.
-   */
+  /** Returns the combined effect of all active speed modifiers. */
+  public float getEffectiveSpeedMultiplier() {
+    float result = 1f;
+
+    for (float value : speedModifiers.values()) {
+      result *= value;
+    }
+
+    return result;
+  }
+
   public void setAttackSpeedMultiplier(float multiplier) {
     attackCooldownMultiplier = multiplier;
   }
@@ -242,30 +314,41 @@ public class PlayerActions extends Component {
     return attackCooldownMultiplier;
   }
 
-  public float getEffectiveSpeedMultiplier() {
-    float result = 1f;
-    for (float value : speedModifiers.values()) {
-      result *= value;
-    }
-    return result;
-  }
-
   /**
    * Moves the player towards a given direction.
    *
    * @param direction direction to move in
    */
   void walk(Vector2 direction) {
+    System.out.println(
+        "PLAYER ACTIONS WALK entity="
+            + entity.getId()
+            + " direction="
+            + direction
+            + " dead="
+            + dead);
+
     if (dead) {
+      System.out.println("PLAYER ACTIONS WALK BLOCKED entity=" + entity.getId() + " reason=dead");
       return;
     }
 
     this.walkDirection = direction;
     moving = true;
+
+    System.out.println(
+        "PLAYER ACTIONS WALK ACCEPTED entity="
+            + entity.getId()
+            + " walkDirection="
+            + walkDirection
+            + " moving="
+            + moving);
   }
 
   /** Stops the player from walking. */
   void stopWalking() {
+    System.out.println("PLAYER ACTIONS WALK STOP entity=" + entity.getId() + " dead=" + dead);
+
     this.walkDirection = Vector2.Zero.cpy();
 
     if (!dead) {
@@ -277,7 +360,9 @@ public class PlayerActions extends Component {
 
   /** Makes the player attack. */
   void attack() {
-    if (dead || attackCooldownRemaining > 0f) return;
+    if (dead || attackCooldownRemaining > 0f) {
+      return;
+    }
 
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
@@ -285,15 +370,19 @@ public class PlayerActions extends Component {
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
       CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
+
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
+
         logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+
         attackSound.play(AudioSettings.getEffectiveEffectsVolume());
       }
     }
 
     // Existing weapon functionality
     entity.getEvents().trigger("weaponAttack");
+
     attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
   }
 
@@ -310,8 +399,11 @@ public class PlayerActions extends Component {
     staminaComponent.useStamina(staminaComponent.getDashCost());
 
     Body body = physicsComponent.getBody();
+
     Vector2 impulse = direction.cpy().scl(dashspeed);
+
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
+
     dashing = true;
   }
 
@@ -343,26 +435,33 @@ public class PlayerActions extends Component {
 
   private void slidingAction(Vector2 direction) {
     Body body = physicsComponent.getBody();
+
     Vector2 impulse = direction.cpy().scl(slidespeed);
+
     if (impulse.x != 0f) {
       entity
           .getEvents()
           .trigger(
               "sliding", entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
     }
+
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
   }
 
   private void timerforslide() {
-    if (sliding != true) return;
+    if (!sliding) {
+      return;
+    }
 
     SlideTimer += Gdx.graphics.getDeltaTime();
-    if (SlideTimer >= SlideMaxTime) { // finish slide
+
+    if (SlideTimer >= SlideMaxTime) {
       sliding = false;
     }
   }
 
   private void onCollisionStart(Fixture me, Fixture other) {
+
     if (hitboxComponent.getFixture() != me) {
       return;
     }
@@ -372,12 +471,14 @@ public class PlayerActions extends Component {
     }
 
     BodyUserData userData = (BodyUserData) other.getBody().getUserData();
+
     if (userData != null && userData.entity != null) {
       enemiesInRange.add(userData.entity);
     }
   }
 
   private void onCollisionEnd(Fixture me, Fixture other) {
+
     if (hitboxComponent.getFixture() != me) {
       return;
     }
@@ -387,6 +488,7 @@ public class PlayerActions extends Component {
     }
 
     BodyUserData userData = (BodyUserData) other.getBody().getUserData();
+
     if (userData != null && userData.entity != null) {
       enemiesInRange.remove(userData.entity);
     }
@@ -394,12 +496,21 @@ public class PlayerActions extends Component {
 
   /** Stops all player actions when the player dies. */
   private void onDeath() {
+    System.out.println("PLAYER ACTIONS DEATH entity=" + entity.getId());
+
     dead = true;
     moving = false;
     walkDirection = Vector2.Zero.cpy();
 
     Body body = physicsComponent.getBody();
+
     body.setLinearVelocity(Vector2.Zero);
+
+    System.out.println(
+        "PLAYER ACTIONS DEATH COMPLETE entity="
+            + entity.getId()
+            + " velocity="
+            + body.getLinearVelocity());
   }
 
   public boolean getDashing() {
