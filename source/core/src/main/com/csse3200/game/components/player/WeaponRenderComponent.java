@@ -278,9 +278,9 @@ public class WeaponRenderComponent extends RenderComponent {
       return;
     }
 
-    updateHandAnchor();
-
     WeaponVisualConfig visualConfig = getVisualConfig();
+
+    updateHandAnchor(visualConfig);
 
     float weaponWidth = visualConfig.width;
     float weaponHeight = visualConfig.height;
@@ -340,26 +340,42 @@ public class WeaponRenderComponent extends RenderComponent {
 
     return switch (currentWeaponType) {
       case SWORD -> getSwordVisualConfig(currentWeaponTier);
-
       case BOW -> getBowVisualConfig(currentWeaponTier);
-
       case DAGGER -> getDaggerVisualConfig(currentWeaponTier);
     };
   }
 
   private WeaponVisualConfig getSwordVisualConfig(int tier) {
-    return new WeaponVisualConfig(
-        SWORD_WIDTH, SWORD_HEIGHT, getTierScale(tier), getTierScale(tier), true);
+    float scale =
+        switch (tier) {
+          case 2 -> 1.20f;
+          case 3 -> 1.45f;
+          default -> 1.00f;
+        };
+
+    return new WeaponVisualConfig(SWORD_WIDTH, SWORD_HEIGHT, scale, scale, true);
   }
 
   private WeaponVisualConfig getBowVisualConfig(int tier) {
-    return new WeaponVisualConfig(
-        BOW_WIDTH, BOW_HEIGHT, getTierScale(tier), getTierScale(tier), false);
+    float scale =
+        switch (tier) {
+          case 2 -> 1.10f;
+          case 3 -> 1.20f;
+          default -> 1.00f;
+        };
+
+    return new WeaponVisualConfig(BOW_WIDTH, BOW_HEIGHT, scale, scale, false);
   }
 
   private WeaponVisualConfig getDaggerVisualConfig(int tier) {
-    return new WeaponVisualConfig(
-        DAGGER_WIDTH, DAGGER_HEIGHT, getTierScale(tier), getTierScale(tier), true);
+    float scale =
+        switch (tier) {
+          case 2 -> 1.15f;
+          case 3 -> 1.30f;
+          default -> 1.00f;
+        };
+
+    return new WeaponVisualConfig(DAGGER_WIDTH, DAGGER_HEIGHT, scale, scale, true);
   }
 
   /**
@@ -376,7 +392,7 @@ public class WeaponRenderComponent extends RenderComponent {
     };
   }
 
-  private void updateHandAnchor() {
+  private void updateHandAnchor(WeaponVisualConfig visualConfig) {
     Vector2 playerPosition = entity.getPosition();
     Vector2 playerScale = entity.getScale();
 
