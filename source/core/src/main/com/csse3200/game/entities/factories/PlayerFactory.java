@@ -11,26 +11,7 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.*;
-import com.csse3200.game.components.player.ConsumableUseComponent;
-import com.csse3200.game.components.player.DeathStateComponent;
-import com.csse3200.game.components.player.InventoryComponent;
-import com.csse3200.game.components.player.InventoryDisplay;
-import com.csse3200.game.components.player.ItemDropComponent;
-import com.csse3200.game.components.player.LadderComponent;
-import com.csse3200.game.components.player.PlayerActions;
-import com.csse3200.game.components.player.PlayerBuffComponent;
-import com.csse3200.game.components.player.PlayerRegenComponent;
-import com.csse3200.game.components.player.PlayerStatsDisplay;
-import com.csse3200.game.components.player.QuestDisplay;
-import com.csse3200.game.components.player.ShieldComponent;
-import com.csse3200.game.components.player.ShieldRenderComponent;
-import com.csse3200.game.components.player.ShopComponent;
-import com.csse3200.game.components.player.ShopDisplay;
-import com.csse3200.game.components.player.StaminaComponent;
-import com.csse3200.game.components.player.SubLevelTravelComponent;
-import com.csse3200.game.components.player.WeaponAttackComponent;
-import com.csse3200.game.components.player.WeaponDisplay;
-import com.csse3200.game.components.player.WeaponRenderComponent;
+import com.csse3200.game.components.player.Tutorial;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.PlayerConfig;
 import com.csse3200.game.files.FileLoader;
@@ -106,6 +87,7 @@ public class PlayerFactory {
             .addComponent(new PlatformerComponent(5, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new QuestDisplay())
+            .addComponent(new Tutorial())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
