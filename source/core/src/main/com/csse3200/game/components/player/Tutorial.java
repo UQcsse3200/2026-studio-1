@@ -10,7 +10,6 @@ import com.csse3200.game.ui.UIComponent;
 public class Tutorial extends UIComponent {
 
   private Table rootTable;
-  private Table tutorialTable;
 
   @Override
   public void create() {
@@ -34,7 +33,7 @@ public class Tutorial extends UIComponent {
     rootTable.align(Align.bottom);
     rootTable.padBottom(20f);
 
-    tutorialTable = new Table();
+    Table tutorialTable = new Table();
     tutorialTable.setBackground(skin.getDrawable("window-w"));
     tutorialTable.pad(14f);
 
