@@ -47,7 +47,7 @@ public class WeaponRenderComponent extends RenderComponent {
   // Weapon hand positioning.
   private static final float RIGHT_HAND_OFFSET_X = 0.75f;
   private static final float LEFT_HAND_OFFSET_X = 0.15f;
-  private static final float HAND_OFFSET_Y = 0.35f;
+  private static final float HAND_OFFSET_Y = 0.75f;
 
   private Texture texture;
 
