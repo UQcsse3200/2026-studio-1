@@ -12,9 +12,19 @@ public class PauseMenuComponent extends Component {
       "sounds/BGM_03_mp3.mp3"; // change the background music file name here if you want to change
   // the music
   private boolean isPaused = false;
+  private boolean capturingKeybind = false;
 
   public boolean isPaused() {
     return isPaused;
+  }
+
+  /** Whether the pause menu is currently waiting for the next key press to bind to an action. */
+  public boolean isCapturingKeybind() {
+    return capturingKeybind;
+  }
+
+  public void setCapturingKeybind(boolean capturingKeybind) {
+    this.capturingKeybind = capturingKeybind;
   }
 
   public void toggleIsPaused() {
