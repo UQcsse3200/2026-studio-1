@@ -960,7 +960,7 @@ public class GamblingWheel extends Stack {
     int total = 0;
     if (catalog != null) {
       for (PrizeEntry<Prize> prize : catalog.getPrizes().values()) {
-        total += prize.getWeight();
+        total += prize.weight();
       }
     }
     return total;
@@ -972,7 +972,7 @@ public class GamblingWheel extends Stack {
     if (prize == null || total <= 0) {
       return 0f;
     }
-    return prize.getWeight() * 100f / total;
+    return prize.weight() * 100f / total;
   }
 
   private static String formatRate(float percent) {
@@ -1002,7 +1002,7 @@ public class GamblingWheel extends Stack {
       return "?";
     }
 
-    Object product = prize.getProduct();
+    Object product = prize.product();
 
     if (product instanceof GamblingCatalogs.ItemPrize itemPrize) {
       return itemPrize.getDisplayName();
@@ -1021,7 +1021,7 @@ public class GamblingWheel extends Stack {
 
   /** One character shown in the slot icon badge. */
   private String getPrizeInitial(PrizeEntry<Prize> prize) {
-    if (prize != null && prize.getProduct() instanceof GamblingCatalogs.GoldPrize) {
+    if (prize != null && prize.product() instanceof GamblingCatalogs.GoldPrize) {
       return "G";
     }
     String name = getPrizeShortName(prize);

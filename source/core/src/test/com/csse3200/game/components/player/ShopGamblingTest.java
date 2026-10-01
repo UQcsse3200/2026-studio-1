@@ -363,7 +363,7 @@ class ShopGamblingTest {
 
     assertInstanceOf(
         ShopComponent.Pet.class,
-        shop.buySpin(catalogId).getProduct(),
+        shop.buySpin(catalogId).product(),
         catalogId + " ticket's rarest slot should be its pet");
   }
 
