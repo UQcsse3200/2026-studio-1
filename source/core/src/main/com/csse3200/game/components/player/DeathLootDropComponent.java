@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.Item;
@@ -26,6 +27,11 @@ import org.slf4j.LoggerFactory;
  * fires it on every hit at zero health, and {@link DeathStateComponent} fires it again), so the
  * drop only ever happens once per hero.
  *
+ * <p>The drop is not done straight away. Death can be triggered from inside a Box2D collision
+ * callback (an enemy's touch attack, for example), and the physics world is locked during that
+ * callback, so creating the loot's physics bodies there would fail. Instead the drop is scheduled
+ * to run after the current frame, once the physics step has finished.
+ *
  * <p>Note for the revival flow: the dropped loot overlaps the dead hero's body. The dead hero must
  * be removed (or disposed) before physics starts again, otherwise it could collect its own loot.
  */
@@ -37,11 +43,19 @@ public class DeathLootDropComponent extends Component {
 
   private final BiFunction<Item, Entity, Entity> lootFactory;
   private final Consumer<Entity> lootSpawner;
+  private final Consumer<Runnable> scheduler;
+  private boolean dropScheduled = false;
   private boolean hasDropped = false;
 
-  /** Creates a component that drops loot through {@link LootFactory} into the entity service. */
+  /**
+   * Creates a component that drops loot through {@link LootFactory} into the entity service, after
+   * the current frame has finished.
+   */
   public DeathLootDropComponent() {
-    this(LootFactory::createDroppedLoot, loot -> ServiceLocator.getEntityService().register(loot));
+    this(
+        LootFactory::createDroppedLoot,
+        loot -> ServiceLocator.getEntityService().register(loot),
+        runnable -> Gdx.app.postRunnable(runnable));
   }
 
   /**
@@ -50,19 +64,36 @@ public class DeathLootDropComponent extends Component {
    *
    * @param lootFactory creates a loot entity from an item and the entity dropping it
    * @param lootSpawner adds a loot entity to the game world
+   * @param scheduler runs the drop later; the game passes {@code Gdx.app.postRunnable}, tests can
+   *     pass {@code Runnable::run} to drop straight away
    */
   DeathLootDropComponent(
-      BiFunction<Item, Entity, Entity> lootFactory, Consumer<Entity> lootSpawner) {
-    if (lootFactory == null || lootSpawner == null) {
-      throw new IllegalArgumentException("Loot factory and spawner must not be null.");
+      BiFunction<Item, Entity, Entity> lootFactory,
+      Consumer<Entity> lootSpawner,
+      Consumer<Runnable> scheduler) {
+    if (lootFactory == null || lootSpawner == null || scheduler == null) {
+      throw new IllegalArgumentException("Loot factory, spawner and scheduler must not be null.");
     }
     this.lootFactory = lootFactory;
     this.lootSpawner = lootSpawner;
+    this.scheduler = scheduler;
   }
 
   @Override
   public void create() {
-    entity.getEvents().addListener("death", this::dropEverything);
+    entity.getEvents().addListener("death", this::onDeath);
+  }
+
+  /**
+   * Schedules the drop for after the current frame. Repeated death events are ignored once a drop
+   * is scheduled.
+   */
+  private void onDeath() {
+    if (dropScheduled) {
+      return;
+    }
+    dropScheduled = true;
+    scheduler.accept(this::dropEverything);
   }
 
   /**

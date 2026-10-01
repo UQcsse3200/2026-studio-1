@@ -39,7 +39,8 @@ class DeathLootDropComponentTest {
               droppedOwners.add(owner);
               return new Entity();
             },
-            spawnedLoot::add);
+            spawnedLoot::add,
+            Runnable::run);
 
     Entity hero =
         new Entity()
@@ -179,7 +180,7 @@ class DeathLootDropComponentTest {
   @Test
   void shouldDoNothingWithoutAnInventory() {
     DeathLootDropComponent dropComponent =
-        new DeathLootDropComponent((item, owner) -> new Entity(), spawnedLoot::add);
+        new DeathLootDropComponent((item, owner) -> new Entity(), spawnedLoot::add, Runnable::run);
     Entity hero = new Entity().addComponent(dropComponent);
     hero.create();
 
@@ -189,11 +190,37 @@ class DeathLootDropComponentTest {
   }
 
   @Test
-  void shouldRejectMissingFactoryOrSpawner() {
-    assertThrows(
-        IllegalArgumentException.class, () -> new DeathLootDropComponent(null, spawnedLoot::add));
+  void shouldWaitForTheSchedulerBeforeDropping() {
+    List<Runnable> scheduled = new ArrayList<>();
+    DeathLootDropComponent dropComponent =
+        new DeathLootDropComponent((item, owner) -> new Entity(), spawnedLoot::add, scheduled::add);
+    Entity hero =
+        new Entity().addComponent(new InventoryComponent(0, 5)).addComponent(dropComponent);
+    hero.create();
+    hero.getComponent(InventoryComponent.class).addItem(potion("Health Potion"));
+
+    hero.getEvents().trigger("death");
+    hero.getEvents().trigger("death");
+
+    // Nothing is created during the death event itself, which may be inside a physics callback.
+    assertTrue(spawnedLoot.isEmpty());
+    assertEquals(1, scheduled.size(), "repeated death events should only schedule one drop");
+
+    scheduled.getFirst().run();
+
+    assertEquals(1, spawnedLoot.size());
+  }
+
+  @Test
+  void shouldRejectMissingArguments() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new DeathLootDropComponent((item, owner) -> new Entity(), null));
+        () -> new DeathLootDropComponent(null, spawnedLoot::add, Runnable::run));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new DeathLootDropComponent((item, owner) -> new Entity(), null, Runnable::run));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new DeathLootDropComponent((item, owner) -> new Entity(), spawnedLoot::add, null));
   }
 }
