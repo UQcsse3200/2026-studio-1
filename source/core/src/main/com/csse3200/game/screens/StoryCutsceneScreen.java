@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.components.story.StoryCutscene;
 import com.csse3200.game.components.story.StoryScene;
+import com.csse3200.game.services.ServiceLocator;
 
 /**
  * Full-screen cinematic story cutscene.
@@ -37,6 +38,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
   private final GdxGame game;
   private final StoryCutscene cutscene;
   private final GdxGame.ScreenType destinationScreen;
+  private final Runnable onFinished;
 
   private Stage stage;
 
@@ -65,7 +67,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
    * @param cutscene story cutscene to display
    */
   public StoryCutsceneScreen(GdxGame game, StoryCutscene cutscene) {
-    this(game, cutscene, GdxGame.ScreenType.MAIN_GAME);
+    this(game, cutscene, GdxGame.ScreenType.MAIN_GAME, null);
   }
 
   /**
@@ -77,9 +79,37 @@ public class StoryCutsceneScreen extends ScreenAdapter {
    */
   public StoryCutsceneScreen(
       GdxGame game, StoryCutscene cutscene, GdxGame.ScreenType destinationScreen) {
+    this(game, cutscene, destinationScreen, null);
+  }
+
+  /**
+   * Creates a story cutscene that runs a callback when it finishes.
+   *
+   * @param game game instance
+   * @param cutscene story cutscene to display
+   * @param onFinished action to run when the cutscene finishes
+   */
+  public StoryCutsceneScreen(GdxGame game, StoryCutscene cutscene, Runnable onFinished) {
+    this(game, cutscene, null, onFinished);
+  }
+
+  /**
+   * Creates a story cutscene screen with either a destination screen or a completion callback.
+   *
+   * @param game game instance
+   * @param cutscene story cutscene to display
+   * @param destinationScreen screen to show after the cutscene finishes
+   * @param onFinished action to run when the cutscene finishes
+   */
+  private StoryCutsceneScreen(
+      GdxGame game,
+      StoryCutscene cutscene,
+      GdxGame.ScreenType destinationScreen,
+      Runnable onFinished) {
     this.game = game;
     this.cutscene = cutscene;
     this.destinationScreen = destinationScreen;
+    this.onFinished = onFinished;
   }
 
   @Override
@@ -286,7 +316,11 @@ public class StoryCutsceneScreen extends ScreenAdapter {
     boolean finished = cutscene.advance();
 
     if (finished) {
-      game.setScreen(destinationScreen);
+      if (onFinished != null) {
+        onFinished.run();
+      } else {
+        game.setScreen(destinationScreen);
+      }
       return;
     }
 
@@ -372,7 +406,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   @Override
   public void hide() {
-    // MainGameScreen installs its own input processor when it becomes active.
+    Gdx.input.setInputProcessor(ServiceLocator.getInputService());
   }
 
   @Override
