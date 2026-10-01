@@ -64,5 +64,9 @@ public class DeathLootDropComponent extends Component {
 
     // Drop all remaining gold.
     itemDrop.dropGold();
+
+    // Drop a held, unactivated shield. It bypasses InventoryComponent entirely (see
+    // ShieldComponent), so it is not covered by the inventory-slot loop above.
+    itemDrop.dropShield();
   }
 }
