@@ -95,16 +95,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Picks a random item from a weighted list of potions and weapons.
 
  <p>Each entry has a weight, and an entry is chosen with a probability of its weight over the
- total weight of the table. Rarity is therefore just a smaller weight: the standard table built by
- <a href="#createDefault(long)"><code>createDefault(long)</code></a> gives tier 1 a weight of 60, tier 2 a weight of 30 and tier 3 a
- weight of 10, so a tier 3 item turns up roughly once every ten rolls.
+ total weight of the table. Rarity is therefore just a smaller weight: in the standard table built
+ by <a href="#createDefault(long)"><code>createDefault(long)</code></a>, each weapon tier uses the loot weight declared in <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a> (currently 60, 30 and 10), so a tier 3 weapon turns up roughly once every ten
+ weapons.
 
  <p>The random numbers come from a seeded <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Random.html" title="class or interface in java.util" class="external-link"><code>Random</code></a>, so the same seed always produces the
- same run. That makes a bug found while playing reproducible instead of a one-off.
-
- <p>The tier weights here are a placeholder until the weapon tier system lands; once tier values
- are published, <a href="#createDefault(long)"><code>createDefault(long)</code></a> should be built from those instead of the constants
- in this class.</div>
+ same run. That makes a bug found while playing reproducible instead of a one-off.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -160,8 +156,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createDefault(long)" class="member-name-link">createDefault</a><wbr>(long&nbsp;seed)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds the standard loot table: every potion and every weapon, at tiers 1 to 3, with higher
- tiers weighted to be rarer.</div>
+<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, and the shield.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty()" class="member-name-link">isEmpty</a>()</code></div>
@@ -231,8 +226,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createDefault(long)">
 <h3>createDefault</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></span>&nbsp;<span class="element-name">createDefault</span><wbr><span class="parameters">(long&nbsp;seed)</span></div>
-<div class="block">Builds the standard loot table: every potion and every weapon, at tiers 1 to 3, with higher
- tiers weighted to be rarer.</div>
+<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, and the shield. Higher tiers are weighted to be rarer.
+
+ <p>Weapons are built straight from <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a> and <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, so a new weapon
+ type or a new tier added there shows up in the loot table without any change here.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>seed</code> - seed for the table's random number generator</dd>
