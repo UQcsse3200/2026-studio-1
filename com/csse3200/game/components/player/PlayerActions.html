@@ -153,7 +153,9 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEffectiveSpeedMultiplier()" class="member-name-link">getEffectiveSpeedMultiplier</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the combined effect of all active speed modifiers.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#playMovementSound()" class="member-name-link">playMovementSound</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -164,9 +166,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setAttackSpeedMultiplier(float)" class="member-name-link">setAttackSpeedMultiplier</a><wbr>(float&nbsp;multiplier)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the combined effect of all active speed modifiers (their product).</div>
-</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -243,13 +243,11 @@ loadScripts(document, 'script');</script>
 <h3>addSpeedModifier</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addSpeedModifier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;key,
  float&nbsp;multiplier)</span></div>
-<div class="block">Adds or updates a speed modifier owned by the given key. The effective speed multiplier is the
- product of all currently active modifiers.</div>
+<div class="block">Adds or updates a speed modifier owned by the given key.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>key</code> - identifies the owner of this modifier (e.g. the effect component itself), so it can
-     be removed later without affecting other active effects.</dd>
-<dd><code>multiplier</code> - the modifier's contribution (1 = no change, 0 = pause, 0.5 = half speed).</dd>
+<dd><code>key</code> - identifies the owner of this modifier</dd>
+<dd><code>multiplier</code> - the modifier's contribution</dd>
 </dl>
 </section>
 </li>
@@ -260,27 +258,27 @@ loadScripts(document, 'script');</script>
 <div class="block">Removes a previously-added speed modifier.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>key</code> - the same key passed to <a href="#addSpeedModifier(java.lang.Object,float)"><code>addSpeedModifier(Object, float)</code></a>.</dd>
+<dd><code>key</code> - the same key passed to addSpeedModifier</dd>
 </dl>
-</section>
-</li>
-<li>
-<section class="detail" id="setAttackSpeedMultiplier(float)">
-<h3>setAttackSpeedMultiplier</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setAttackSpeedMultiplier</span><wbr><span class="parameters">(float&nbsp;multiplier)</span></div>
-<div class="block">Returns the combined effect of all active speed modifiers (their product). 1 if none active.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="getAttackSpeedMultiplier()">
-<h3>getAttackSpeedMultiplier</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getAttackSpeedMultiplier</span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="getEffectiveSpeedMultiplier()">
 <h3>getEffectiveSpeedMultiplier</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getEffectiveSpeedMultiplier</span>()</div>
+<div class="block">Returns the combined effect of all active speed modifiers.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setAttackSpeedMultiplier(float)">
+<h3>setAttackSpeedMultiplier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setAttackSpeedMultiplier</span><wbr><span class="parameters">(float&nbsp;multiplier)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAttackSpeedMultiplier()">
+<h3>getAttackSpeedMultiplier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getAttackSpeedMultiplier</span>()</div>
 </section>
 </li>
 <li>

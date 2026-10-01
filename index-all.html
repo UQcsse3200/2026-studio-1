@@ -654,6 +654,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a use handler with an explicit health cap.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/ShieldComponent.html#consumeHeldShield()" class="member-name-link">consumeHeldShield()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShieldComponent.html" title="class in com.csse3200.game.components.player">ShieldComponent</a></dt>
+<dd>
+<div class="block">Clears a held, unactivated shield without activating it, so it can be dropped as loot (for
+ example on death) instead of being silently lost or carried over.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/LevelGameArea.html#consumePendingTransition()" class="member-name-link">consumePendingTransition()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/LevelGameArea.html" title="class in com.csse3200.game.areas">LevelGameArea</a></dt>
 <dd>
 <div class="block">Return and clear a doorway request.</div>
@@ -765,6 +770,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/ConsumableUseComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ConsumableUseComponent.html" title="class in com.csse3200.game.components.player">ConsumableUseComponent</a></dt>
 <dd>
 <div class="block">Registers the <code>"useItem"</code> listener.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/DeathLootDropComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathLootDropComponent.html" title="class in com.csse3200.game.components.player">DeathLootDropComponent</a></dt>
+<dd>
+<div class="block">Registers the death event listener.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/DeathStateComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathStateComponent.html" title="class in com.csse3200.game.components.player">DeathStateComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -1073,13 +1082,19 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/GdxGame.ScreenType.html#DEATH_SCREEN" class="member-name-link">DEATH_SCREEN</a> - Enum constant in enum class com.csse3200.game.<a href="com/csse3200/game/GdxGame.ScreenType.html" title="enum class in com.csse3200.game">GdxGame.ScreenType</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/DeathLootDropComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">DeathLootDropComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
+<dd>
+<div class="block">Drops the player's inventory and gold when the player dies.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/DeathLootDropComponent.html#%3Cinit%3E()" class="member-name-link">DeathLootDropComponent()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathLootDropComponent.html" title="class in com.csse3200.game.components.player">DeathLootDropComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/screens/DeathScreen.html" class="type-name-link" title="class in com.csse3200.game.screens">DeathScreen</a> - Class in <a href="com/csse3200/game/screens/package-summary.html">com.csse3200.game.screens</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/screens/DeathScreen.html#%3Cinit%3E(com.csse3200.game.GdxGame)" class="member-name-link">DeathScreen(GdxGame)</a> - Constructor for class com.csse3200.game.screens.<a href="com/csse3200/game/screens/DeathScreen.html" title="class in com.csse3200.game.screens">DeathScreen</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.maingame">DeathScreenDisplay</a> - Class in <a href="com/csse3200/game/components/maingame/package-summary.html">com.csse3200.game.components.maingame</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html#%3Cinit%3E(com.csse3200.game.GdxGame)" class="member-name-link">DeathScreenDisplay(GdxGame)</a> - Constructor for class com.csse3200.game.components.maingame.<a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html" title="class in com.csse3200.game.components.maingame">DeathScreenDisplay</a></dt>
+<dt><a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html#%3Cinit%3E(com.csse3200.game.GdxGame,java.lang.Runnable)" class="member-name-link">DeathScreenDisplay(GdxGame, Runnable)</a> - Constructor for class com.csse3200.game.components.maingame.<a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html" title="class in com.csse3200.game.components.maingame">DeathScreenDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/maingame/DeathScreenInputComponent.html" class="type-name-link" title="class in com.csse3200.game.components.maingame">DeathScreenInputComponent</a> - Class in <a href="com/csse3200/game/components/maingame/package-summary.html">com.csse3200.game.components.maingame</a></dt>
 <dd>
@@ -1347,6 +1362,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropGold()" class="member-name-link">dropGold()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
 <dd>
 <div class="block">Drops all gold in entities inventory.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropShield()" class="member-name-link">dropShield()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
+<dd>
+<div class="block">Drops a held, unactivated shield, if the entity has one.</div>
 </dd>
 <dt><a href="com/csse3200/game/entities/configs/attacks/ChargeAttackConfig.html#duration" class="member-name-link">duration</a> - Variable in class com.csse3200.game.entities.configs.attacks.<a href="com/csse3200/game/entities/configs/attacks/ChargeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks">ChargeAttackConfig</a></dt>
 <dd>&nbsp;</dd>
@@ -1774,7 +1793,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/pausemenu/AudioSettings.html#getEffectiveEffectsVolume()" class="member-name-link">getEffectiveEffectsVolume()</a> - Static method in class com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/AudioSettings.html" title="class in com.csse3200.game.pausemenu">AudioSettings</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerActions.html#getEffectiveSpeedMultiplier()" class="member-name-link">getEffectiveSpeedMultiplier()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the combined effect of all active speed modifiers.</div>
+</dd>
 <dt><a href="com/csse3200/game/pausemenu/AudioSettings.html#getEffectsVolume()" class="member-name-link">getEffectsVolume()</a> - Static method in class com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/AudioSettings.html" title="class in com.csse3200.game.pausemenu">AudioSettings</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ActiveBuff.html#getEndTime()" class="member-name-link">getEndTime()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ActiveBuff.html" title="class in com.csse3200.game.components.player">ActiveBuff</a></dt>
@@ -4036,7 +4057,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/areas/LevelGameArea.html#respawnPlayer()" class="member-name-link">respawnPlayer()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/LevelGameArea.html" title="class in com.csse3200.game.areas">LevelGameArea</a></dt>
 <dd>
-<div class="block">Replaces the dead player with a new player at the level's original spawn point.</div>
+<div class="block">Creates a completely new player in the current room after player death.</div>
 </dd>
 <dt><a href="com/csse3200/game/GdxGame.ScreenType.html#RESTART_GAME" class="member-name-link">RESTART_GAME</a> - Enum constant in enum class com.csse3200.game.<a href="com/csse3200/game/GdxGame.ScreenType.html" title="enum class in com.csse3200.game">GdxGame.ScreenType</a></dt>
 <dd>&nbsp;</dd>
@@ -4164,9 +4185,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Set physics as a box with a given size.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/PlayerActions.html#setAttackSpeedMultiplier(float)" class="member-name-link">setAttackSpeedMultiplier(float)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></dt>
-<dd>
-<div class="block">Returns the combined effect of all active speed modifiers (their product).</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/CombatStatsComponent.html#setBaseAttack(int)" class="member-name-link">setBaseAttack(int)</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></dt>
 <dd>
 <div class="block">Sets the entity's attack damage.</div>
@@ -4338,8 +4357,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Set restitution</div>
 </dd>
-<dt><a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html#setRetryAction(java.lang.Runnable)" class="member-name-link">setRetryAction(Runnable)</a> - Method in class com.csse3200.game.components.maingame.<a href="com/csse3200/game/components/maingame/DeathScreenDisplay.html" title="class in com.csse3200.game.components.maingame">DeathScreenDisplay</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/Entity.html#setScale(float,float)" class="member-name-link">setScale(float, float)</a> - Method in class com.csse3200.game.entities.<a href="com/csse3200/game/entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></dt>
 <dd>
 <div class="block">Set the entity's scale.</div>
