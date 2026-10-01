@@ -130,7 +130,6 @@ public class LevelGameArea extends GameArea {
   private static final String[] entityAtlases = {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
-    "images/skeleton.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",
@@ -139,6 +138,8 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
+    "images/enemies/cyclops.atlas",
+    "images/enemies/minotaur.atlas",
     "images/pet.atlas"
   };
 
@@ -284,6 +285,16 @@ public class LevelGameArea extends GameArea {
       areaEntities.remove(player);
       ServiceLocator.getEntityService().unregister(player);
       player.dispose();
+   * Replaces the dead player with a new player at the level's original spawn point.
+   *
+   * @return the newly spawned player
+   */
+  public Entity respawnPlayer() {
+    Entity oldPlayer = player;
+
+    if (oldPlayer != null) {
+      areaEntities.remove(oldPlayer);
+      oldPlayer.dispose();
     }
 
     player = spawnPlayer();

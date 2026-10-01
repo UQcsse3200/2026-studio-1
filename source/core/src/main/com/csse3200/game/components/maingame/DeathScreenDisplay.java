@@ -12,6 +12,7 @@ import com.csse3200.game.ui.UIComponent;
 public class DeathScreenDisplay extends UIComponent {
   private final GdxGame game;
   private final Runnable retryAction;
+  private Runnable retryAction;
   private Table rootTable;
   private TextButton[] buttons;
   private int selectedIndex = 0;
@@ -19,6 +20,10 @@ public class DeathScreenDisplay extends UIComponent {
   public DeathScreenDisplay(GdxGame game, Runnable retryAction) {
     super();
     this.game = game;
+    this.retryAction = retryAction;
+  }
+
+  public void setRetryAction(Runnable retryAction) {
     this.retryAction = retryAction;
   }
 
@@ -106,6 +111,11 @@ public class DeathScreenDisplay extends UIComponent {
 
   private void onRetry() {
     retryAction.run();
+    if (retryAction != null) {
+      retryAction.run();
+    } else {
+      game.setScreen(ScreenType.RESTART_GAME);
+    }
   }
 
   private void onMainMenu() {
@@ -120,6 +130,7 @@ public class DeathScreenDisplay extends UIComponent {
     rootTable.setVisible(false);
     selectedIndex = 0;
     updateHighlight();
+
   }
 
   /**

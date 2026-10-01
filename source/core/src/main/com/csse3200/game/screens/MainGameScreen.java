@@ -393,7 +393,7 @@ public class MainGameScreen extends ScreenAdapter {
      * If the player has died, stop updating the game world,
      * but keep rendering the game and death popup.
      */
-    if (deathScreenShown) {
+    if (deathScreenShown || winScreenDisplay.isVisible()) {
       renderer.render();
       return;
     }
@@ -474,6 +474,29 @@ public class MainGameScreen extends ScreenAdapter {
     fitCameraToMap(nextArea);
   }
 
+  private void respawnPlayer() {
+    removeSubLevelTravelPrompt();
+
+    Entity player = levelGameArea.respawnPlayer();
+
+    upgradesDisplay.setPlayer(player);
+
+    ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
+    if (shopDisplay != null) {
+      shopDisplay.setUpgradesDisplay(upgradesDisplay);
+    }
+
+    createSubLevelTravelPrompt(player);
+
+    playerInNether = null;
+    deathScreenShown = false;
+
+    deathScreenDisplay.hideDeathScreen();
+    ServiceLocator.getTimeSource().setTimeScale(1f);
+
+    followPlayer();
+  }
+
   private void createSubLevelTravelPrompt(Entity player) {
 
     subLevelTravelPromptEntity =
@@ -552,6 +575,8 @@ public class MainGameScreen extends ScreenAdapter {
      * restarting the entire game.
      */
     deathScreenDisplay = new DeathScreenDisplay(this.game, this::revivePlayer);
+    deathScreenDisplay = new DeathScreenDisplay(this.game);
+    deathScreenDisplay.setRetryAction(this::respawnPlayer);
 
     winScreenDisplay = new WinScreenDisplay(this.game);
 
