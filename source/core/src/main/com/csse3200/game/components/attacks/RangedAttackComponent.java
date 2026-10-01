@@ -81,6 +81,15 @@ public class RangedAttackComponent extends Component {
     if (weapon.getWeaponType() == WeaponType.DAGGER || weapon.getWeaponType() == WeaponType.SWORD) {
       throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
     }
+
+    if (weapon.getWindupDuration() < 0) {
+      throw new IllegalArgumentException("windupDuration must not be negative.");
+    }
+
+    if (weapon.getWindupDuration() >= this.getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown");
+    }
+
     this.timeSinceLastAttack = cooldown;
     this.damage = this.weapon.getDamage();
   }
