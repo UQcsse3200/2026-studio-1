@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -43,6 +44,12 @@ class DifficultyScalerTest {
         .addComponent(new CombatStatsComponent(STARTING_HEALTH, STARTING_ATTACK))
         .addComponent(new RangedAttackComponent(5f, STARTING_COOLDOWN, 0f, bow, 8f))
         .addComponent(new InventoryComponent(STARTING_GOLD));
+  }
+
+  /** A standalone MeleeAttackComponent, for tests that only need an entity to count as hostile. */
+  private MeleeAttackComponent meleeAttack() {
+    WeaponItem sword = new WeaponItem("Sword", WeaponType.SWORD, 5, 1, 1, 0f);
+    return new MeleeAttackComponent(1f, STARTING_COOLDOWN, 0f, sword);
   }
 
   private int expectedScaled(int value, float multiplier, int minimum) {
@@ -119,9 +126,14 @@ class DifficultyScalerTest {
    */
   @Test
   void aThreeGoldEnemyEndsWithFiveOnHardAndThreeOnNormalAndEasy() {
-    Entity easyEnemy = new Entity().addComponent(new InventoryComponent(3));
-    Entity normalEnemy = new Entity().addComponent(new InventoryComponent(3));
-    Entity hardEnemy = new Entity().addComponent(new InventoryComponent(3));
+    // Needs an attack component - a 3-gold entity with no way to attack is not hostile, and
+    // apply() now leaves non-hostile entities (and their gold) untouched entirely.
+    Entity easyEnemy =
+        new Entity().addComponent(new InventoryComponent(3)).addComponent(meleeAttack());
+    Entity normalEnemy =
+        new Entity().addComponent(new InventoryComponent(3)).addComponent(meleeAttack());
+    Entity hardEnemy =
+        new Entity().addComponent(new InventoryComponent(3)).addComponent(meleeAttack());
 
     DifficultyService.setCurrent(Difficulty.EASY);
     DifficultyScaler.apply(easyEnemy);
@@ -149,20 +161,64 @@ class DifficultyScalerTest {
     }
   }
 
+  /**
+   * isHostile accepts a TouchAttackComponent as well as melee/ranged, but no other test exercises
+   * that branch - removing it would go unnoticed otherwise. A ghost (CombatStatsComponent +
+   * TouchAttackComponent, no melee, ranged, or inventory) is a real example of this shape.
+   */
   @Test
-  void doesNotThrowWhenSomeComponentsAreMissing() {
+  void aGhostWithOnlyTouchAttackIsScaledOnHard() {
     DifficultyService.setCurrent(Difficulty.HARD);
-    // Only a CombatStatsComponent - no attack component, no inventory, as a stationary enemy
-    // might have.
+    Entity ghost =
+        new Entity()
+            .addComponent(new CombatStatsComponent(40, 10))
+            .addComponent(new TouchAttackComponent((short) 0));
+
+    assertDoesNotThrow(() -> DifficultyScaler.apply(ghost));
+
+    CombatStatsComponent stats = ghost.getComponent(CombatStatsComponent.class);
+    assertEquals(56, stats.getHealth());
+    assertEquals(15, stats.getBaseAttack());
+  }
+
+  @Test
+  void doesNotThrowAndLeavesStatsUnscaledWhenNoAttackComponentIsPresent() {
+    DifficultyService.setCurrent(Difficulty.HARD);
+    // Only a CombatStatsComponent - no attack component, no inventory. Without a way to attack,
+    // this entity isn't hostile, so apply() must leave it alone entirely rather than scaling it.
     Entity enemy =
         new Entity().addComponent(new CombatStatsComponent(STARTING_HEALTH, STARTING_ATTACK));
 
     assertDoesNotThrow(() -> DifficultyScaler.apply(enemy));
 
     CombatStatsComponent stats = enemy.getComponent(CombatStatsComponent.class);
-    assertEquals(
-        expectedScaled(STARTING_HEALTH, Difficulty.HARD.getEnemyHealthMultiplier(), 1),
-        stats.getHealth());
+    assertEquals(STARTING_HEALTH, stats.getHealth());
+    assertEquals(STARTING_ATTACK, stats.getBaseAttack());
+  }
+
+  @Test
+  void aNonHostileNpcWithZeroBaseAttackIsLeftCompletelyUntouchedOnHard() {
+    // e.g. npc:traveler - CombatStatsComponent(50, 0) and no attack component. Without the
+    // hostility gate, scale()'s floor-at-1 would also push the 0 base attack up to 1 even on
+    // Normal; the gate must prevent apply() from touching this entity at all.
+    DifficultyService.setCurrent(Difficulty.HARD);
+    Entity npc = new Entity().addComponent(new CombatStatsComponent(50, 0));
+
+    DifficultyScaler.apply(npc);
+
+    CombatStatsComponent stats = npc.getComponent(CombatStatsComponent.class);
+    assertEquals(50, stats.getHealth());
+    assertEquals(0, stats.getBaseAttack());
+  }
+
+  @Test
+  void aHostileEnemyWithZeroGoldStaysAtZero() {
+    DifficultyService.setCurrent(Difficulty.HARD);
+    Entity enemy = new Entity().addComponent(meleeAttack()).addComponent(new InventoryComponent(0));
+
+    DifficultyScaler.apply(enemy);
+
+    assertEquals(0, enemy.getComponent(InventoryComponent.class).getGold());
   }
 
   @Test

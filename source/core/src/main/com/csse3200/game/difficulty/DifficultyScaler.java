@@ -3,6 +3,7 @@ package com.csse3200.game.difficulty;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 
@@ -22,11 +23,24 @@ public final class DifficultyScaler {
    * multipliers. Each of the four scaled components is optional and handled independently, so an
    * enemy missing any of them is simply left alone for that stat.
    *
+   * <p>Only hostile entities are scaled - those with a {@link MeleeAttackComponent}, {@link
+   * RangedAttackComponent}, or {@link TouchAttackComponent}. The registry also builds non-enemies
+   * (e.g. an NPC with a {@link CombatStatsComponent} but no way to attack), which must not be
+   * touched by difficulty at all.
+   *
    * @param enemy the entity to scale, or {@code null} - a no-op, since {@code
    *     EntitySpawnRegistry.create()} can return null when a spawn name isn't registered
    */
   public static void apply(Entity enemy) {
     if (enemy == null) {
+      return;
+    }
+
+    boolean isHostile =
+        enemy.getComponent(MeleeAttackComponent.class) != null
+            || enemy.getComponent(RangedAttackComponent.class) != null
+            || enemy.getComponent(TouchAttackComponent.class) != null;
+    if (!isHostile) {
       return;
     }
 
@@ -58,9 +72,13 @@ public final class DifficultyScaler {
 
   /**
    * Scales {@code value} by {@code multiplier}, rounded to the nearest int, floored at {@code
-   * minimum}.
+   * minimum} - except {@code 0} itself, which always stays {@code 0} (e.g. a stationary enemy's 0
+   * base attack must not be floored up to 1 just because it has a positive minimum).
    */
   private static int scale(int value, float multiplier, int minimum) {
+    if (value == 0) {
+      return 0;
+    }
     return Math.max(minimum, Math.round(value * multiplier));
   }
 }
