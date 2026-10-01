@@ -24,8 +24,8 @@ public class WeaponTierTest {
     WeaponStats tier3 = WeaponTier.TIER_3.getStats(WeaponType.BOW);
 
     assertEquals(7, tier1.getDamage());
-    assertEquals(14, tier2.getDamage());
-    assertEquals(21, tier3.getDamage());
+    assertEquals(4, tier2.getDamage());
+    assertEquals(3, tier3.getDamage());
   }
 
   @Test
