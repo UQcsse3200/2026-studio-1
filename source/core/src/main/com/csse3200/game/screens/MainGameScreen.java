@@ -25,6 +25,7 @@ import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
+import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
 import com.csse3200.game.files.SaveService;
@@ -77,7 +78,6 @@ public class MainGameScreen extends ScreenAdapter {
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
   private static final float GAMEPLAY_ZOOM = 0.95f;
 
-  /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
   private final GdxGame game;
 
   private final Renderer renderer;
@@ -129,7 +129,9 @@ public class MainGameScreen extends ScreenAdapter {
 
     if (loadsave) {
       GameSaveData saveData = SaveService.load();
+
       LootRegistry.loadFrom(saveData.collectedLootIds);
+      EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
       if (saveData.level != null && !saveData.level.isBlank()) {
@@ -139,6 +141,7 @@ public class MainGameScreen extends ScreenAdapter {
       savedSeed = lootSeedsByRoom.get(initialRoomMap);
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
+      EnemyRegistry.loadFrom(new ArrayList<>());
     }
 
     currentRoomMapPath = initialRoomMap;
@@ -149,7 +152,9 @@ public class MainGameScreen extends ScreenAdapter {
             : new LevelGameArea(terrainFactory, initialRoomMap);
 
     levelGameArea.create();
+
     lootSeedsByRoom.put(initialRoomMap, levelGameArea.getLootSeed());
+
     Entity player = levelGameArea.getPlayer();
 
     upgradesDisplay.setPlayer(player);
@@ -160,6 +165,7 @@ public class MainGameScreen extends ScreenAdapter {
     createSubLevelTravelPrompt(player);
 
     ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
+
     if (shopDisplay != null) {
       shopDisplay.setUpgradesDisplay(upgradesDisplay);
     }
@@ -192,6 +198,87 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /**
+   * Respawns the player in the current room after death.
+   *
+   * <p>The existing LevelGameArea is kept alive so that loot dropped by the dead player remains in
+   * the world. A completely new player is created by LevelGameArea rather than restoring the dead
+   * player's inventory.
+   */
+  private void revivePlayer() {
+    logger.info("Reviving player in current room '{}'", currentRoomMapPath);
+
+    /*
+     * Create a completely fresh player through LevelGameArea.
+     *
+     * This removes the old dead player from the area and creates a
+     * brand-new player through PlayerFactory.
+     */
+    Entity newPlayer = levelGameArea.respawnPlayer();
+
+    /*
+     * DeathStateComponent freezes the whole game (timeScale = 0f) when the
+     * player dies so that only death-screen input is processed. That freeze
+     * is global, not tied to the dead entity, so it must be explicitly
+     * lifted here. Otherwise the new player (and every other system that
+     * depends on delta time, e.g. physics/movement) will keep receiving a
+     * delta time of 0 every frame and will appear stuck in place even
+     * though it has been spawned correctly.
+     */
+    ServiceLocator.getTimeSource().setTimeScale(1f);
+
+    /*
+     * Reconnect the upgrades display to the new player.
+     */
+    upgradesDisplay.setPlayer(newPlayer);
+
+    /*
+     * Reconnect the shop display to the upgrades display.
+     */
+    ShopDisplay shopDisplay = newPlayer.getComponent(ShopDisplay.class);
+
+    if (shopDisplay != null) {
+      shopDisplay.setUpgradesDisplay(upgradesDisplay);
+    }
+
+    /*
+     * Create a new sub-level title display because the old one
+     * referenced the dead player.
+     */
+    ServiceLocator.getEntityService()
+        .register(new Entity().addComponent(new SubLevelTitleDisplay(newPlayer)));
+
+    /*
+     * Recreate the travel prompt so it references the new player.
+     */
+    removeSubLevelTravelPrompt();
+
+    LevelView level = levelGameArea.getLevel();
+
+    if (level != null && !level.subLevels().isEmpty()) {
+      createSubLevelTravelPrompt(newPlayer);
+    }
+
+    /*
+     * The player is alive again, so stop showing the death screen.
+     */
+    deathScreenShown = false;
+    deathScreenDisplay.hideDeathScreen();
+
+    /*
+     * Reset the sub-level tracking state so entering the current
+     * section is handled normally after revival.
+     */
+    playerInNether = null;
+
+    /*
+     * Put the camera back onto the newly-created player.
+     */
+    fitCameraToMap(levelGameArea);
+
+    logger.info("Player revived successfully");
+  }
+
+  /**
    * Set an approachable gameplay view that is close enough to read platforms and hazards without
    * hiding the neighbouring routes that guide exploration. Small maps still use the smaller
    * whole-map zoom when necessary.
@@ -207,6 +294,7 @@ public class MainGameScreen extends ScreenAdapter {
             area.getMapWorldHeight() / cam.viewportHeight);
 
     cam.zoom = Math.min(GAMEPLAY_ZOOM, zoomForWholeMap);
+
     cam.update();
 
     followPlayer();
@@ -225,15 +313,19 @@ public class MainGameScreen extends ScreenAdapter {
     OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
 
     float halfViewWidth = (cam.viewportWidth * cam.zoom) / 2f;
+
     float halfViewHeight = (cam.viewportHeight * cam.zoom) / 2f;
 
     float mapWidth = levelGameArea.getMapWorldWidth();
+
     Vector2 playerPosition = player.getPosition();
 
-    // Determine which named section of this map the player is standing in.
     LevelView level = levelGameArea.getLevel();
+
     float tileSize = level.tileSize();
+
     int playerRow = (int) Math.floor(player.getCenterPosition().y / tileSize);
+
     SubLevel section = level.subLevelAt(playerRow);
 
     boolean inNether = section != null && section != level.subLevels().getFirst();
@@ -265,6 +357,7 @@ public class MainGameScreen extends ScreenAdapter {
 
   /** The crossing title for a section of a map, taken from the map's own subLevels block. */
   static String subLevelTitle(LevelView level, boolean upperSection) {
+
     List<SubLevel> sections = level == null ? List.of() : level.subLevels();
 
     if (sections.size() < 2) {
@@ -300,7 +393,7 @@ public class MainGameScreen extends ScreenAdapter {
      * If the player has died, stop updating the game world,
      * but keep rendering the game and death popup.
      */
-    if (deathScreenShown) {
+    if (deathScreenShown || winScreenDisplay.isVisible()) {
       renderer.render();
       return;
     }
@@ -309,6 +402,7 @@ public class MainGameScreen extends ScreenAdapter {
      * Only update physics and entities when the pause menu is not active.
      */
     if (pauseMenu == null || !pauseMenu.isPaused()) {
+
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
     }
@@ -316,6 +410,7 @@ public class MainGameScreen extends ScreenAdapter {
     if (levelGameArea.isPlayerDead()) {
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
+
       renderer.render();
       return;
     }
@@ -331,6 +426,7 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   private void transitionTo(RoomTransition transition) {
+
     logger.info(
         "Entering '{}' through transition '{}'",
         transition.getDestinationMap(),
@@ -341,6 +437,7 @@ public class MainGameScreen extends ScreenAdapter {
     removeSubLevelTravelPrompt();
 
     Entity player = previousArea.releasePlayer();
+
     Long savedSeed = lootSeedsByRoom.get(transition.getDestinationMap());
 
     LevelGameArea nextArea =
@@ -354,18 +451,13 @@ public class MainGameScreen extends ScreenAdapter {
     nextArea.create();
 
     lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
-    nextArea.create();
-
-    lootSeedsByRoom.put(transition.getDestinationMap(), nextArea.getLootSeed());
 
     previousArea.dispose();
+
     nextArea.resumeMusic();
 
     levelGameArea = nextArea;
 
-    /*
-     * Preserve the current map path for save/load and pause-menu behaviour.
-     */
     currentRoomMapPath = transition.getDestinationMap();
 
     pauseMenuActions.saveCheckpoint();
@@ -374,11 +466,8 @@ public class MainGameScreen extends ScreenAdapter {
 
     player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
 
-    /*
-     * The lift prompt belongs to any map split into sub-levels,
-     * not just one named file.
-     */
     if (!nextArea.getLevel().subLevels().isEmpty()) {
+
       createSubLevelTravelPrompt(player);
     }
 
@@ -386,6 +475,7 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   private void createSubLevelTravelPrompt(Entity player) {
+
     subLevelTravelPromptEntity =
         new Entity()
             .addComponent(
@@ -403,7 +493,9 @@ public class MainGameScreen extends ScreenAdapter {
 
   @Override
   public void resize(int width, int height) {
+
     renderer.resize(width, height);
+
     logger.trace("Resized renderer: ({} x {})", width, height);
   }
 
@@ -421,13 +513,14 @@ public class MainGameScreen extends ScreenAdapter {
   public void dispose() {
     logger.debug("Disposing main game screen");
 
-    /*
-     * Dispose components while their services and physics world are still alive.
-     */
     ServiceLocator.getEntityService().dispose();
+
     physicsEngine.dispose();
+
     renderer.dispose();
+
     ServiceLocator.getRenderService().dispose();
+
     ServiceLocator.getResourceService().dispose();
 
     ServiceLocator.clear();
@@ -439,6 +532,7 @@ public class MainGameScreen extends ScreenAdapter {
     ResourceService resourceService = ServiceLocator.getResourceService();
 
     resourceService.loadTextures(mainGameTextures);
+
     ServiceLocator.getResourceService().loadAll();
   }
 
@@ -453,7 +547,11 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity ui = new Entity();
 
-    deathScreenDisplay = new DeathScreenDisplay(this.game);
+    /*
+     * Try Again now revives the player instead of
+     * restarting the entire game.
+     */
+    deathScreenDisplay = new DeathScreenDisplay(this.game, this::revivePlayer);
 
     winScreenDisplay = new WinScreenDisplay(this.game);
 
