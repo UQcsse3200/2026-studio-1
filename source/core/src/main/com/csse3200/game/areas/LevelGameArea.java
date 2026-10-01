@@ -31,6 +31,7 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -95,10 +96,8 @@ public class LevelGameArea extends GameArea {
     "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
-    "images/enemies/ghost_king.png",
-    "images/enemies/ghost_1.png",
     "images/items/sword.png",
-    "images/sword.png",
+    "images/items/axe.png",
     "images/items/bow.png",
     "images/items/arrow.png",
     "images/dagger.png",
@@ -125,14 +124,10 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas",
-    "images/ghostKing.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",
     "images/skeleton_weapons/skeleton_sword.atlas",
-    "images/enemies/ghost.atlas",
-    "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
@@ -639,6 +634,10 @@ public class LevelGameArea extends GameArea {
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
+        logger.info(
+            "Enemy: {} spawned at {}",
+            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+            enemy.getPosition());
       }
     }
   }

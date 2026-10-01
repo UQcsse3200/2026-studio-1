@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.*;
@@ -26,7 +27,6 @@ import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,7 +94,7 @@ public class NPCFactory {
     // Add necessary components to the entity
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
-        .addComponent(new EnemyTypeComponent("Melee Skeleton"))
+        .addComponent(new EnemyTypeComponent(EnemyType.SKELETON))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,
@@ -158,7 +158,7 @@ public class NPCFactory {
     // Add necessary components to the entity
     rangedSkeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
-        .addComponent(new EnemyTypeComponent("Ranged Skeleton"))
+        .addComponent(new EnemyTypeComponent(EnemyType.RANGED_SKELETON))
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range,
@@ -226,7 +226,7 @@ public class NPCFactory {
     minotaur
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(inventory)
-        .addComponent(new EnemyTypeComponent("Minotaur"))
+        .addComponent(new EnemyTypeComponent(EnemyType.MINOTAUR))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,
@@ -312,7 +312,7 @@ public class NPCFactory {
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
-        .addComponent(new EnemyTypeComponent("Centaur"))
+        .addComponent(new EnemyTypeComponent(EnemyType.CENTAUR))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -356,7 +356,6 @@ public class NPCFactory {
     int numGold = 12;
     InventoryComponent inventory = new InventoryComponent(numGold);
 
-
     // Configure animation component
     // TODO: CYCLOPS ATTACK ANIMATION TO DO
     AnimationRenderComponent animator =
@@ -375,7 +374,7 @@ public class NPCFactory {
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
-        .addComponent(new EnemyTypeComponent("Cyclops"))
+        .addComponent(new EnemyTypeComponent(EnemyType.CYCLOPS))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())

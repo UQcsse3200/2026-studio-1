@@ -43,7 +43,7 @@ public class MeleeAttackComponent extends Component {
   private WeaponItem weapon;
   /* This is set in the {@link WeaponItem} creation rather than here as animation is per weapon
    * Adjustments can be made as public setter and getter for the value is avaliable.
-  */
+   */
   private float windupDuration;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
@@ -96,7 +96,8 @@ public class MeleeAttackComponent extends Component {
     setKnockback(knockback);
     setCooldown(cooldown);
     if (cooldown <= 1) {
-      throw new IllegalArgumentException("WindupDuration for attack must be less than cooldown and must be positive.");
+      throw new IllegalArgumentException(
+          "WindupDuration for attack must be less than cooldown and must be positive.");
     }
     this.windupDuration = this.getCooldown() - 1;
     this.timeSinceLastAttack = cooldown;
@@ -283,8 +284,7 @@ public class MeleeAttackComponent extends Component {
                 entity.getPosition().x,
                 entity.getPosition().y,
                 target.getPosition().x,
-                target.getPosition().y
-            );
+                target.getPosition().y);
 
     if (distance > this.getRange()) {
       return;

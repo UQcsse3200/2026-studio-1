@@ -1,9 +1,14 @@
 package com.csse3200.game.components.loot;
 
 public enum WeaponTier {
-  TIER_1(1, 60, 10, 1.0f, 1.0f, 2.0f, 7, 1.0f, 0.5f, 8.0f, 3, 2.0f, 0.5f, 1.0f, 12, 1.0f, 1.3f, 2.3f),
-  TIER_2(2, 30, 20, 1.2f, 1.5f, 2.5f, 14, 1.2f, 0.75f, 10.0f, 6, 2.4f, 0.75f, 1.25f, 23, 1.2f, 1.8f, 2.8f),
-  TIER_3(3, 10, 30, 1.5f, 2.0f, 3.0f, 21, 1.5f, 1.0f, 12.0f, 9, 3.0f, 1.0f, 1.5f, 34, 1.5f, 2.3f, 3.3f);
+  TIER_1(
+      1, 60, 10, 1.0f, 1.0f, 2.0f, 7, 1.0f, 0.5f, 8.0f, 3, 2.0f, 0.5f, 1.0f, 12, 1.0f, 1.3f, 2.3f),
+  TIER_2(
+      2, 30, 20, 1.2f, 1.5f, 2.5f, 14, 1.2f, 0.75f, 10.0f, 6, 2.4f, 0.75f, 1.25f, 23, 1.2f, 1.8f,
+      2.8f),
+  TIER_3(
+      3, 10, 30, 1.5f, 2.0f, 3.0f, 21, 1.5f, 1.0f, 12.0f, 9, 3.0f, 1.0f, 1.5f, 34, 1.5f, 2.3f,
+      3.3f);
 
   private final int tier;
   private final int lootWeight;
@@ -34,7 +39,15 @@ public enum WeaponTier {
       int bowDamage,
       float bowAttackSpeed,
       float bowKnockback,
-      float bowRange, int daggerDamage, float daggerAttackSpeed, float daggerKnockback, float daggerRange, int axeDamage, float axeAttackSpeed, float axeKnockback, float axeRange) {
+      float bowRange,
+      int daggerDamage,
+      float daggerAttackSpeed,
+      float daggerKnockback,
+      float daggerRange,
+      int axeDamage,
+      float axeAttackSpeed,
+      float axeKnockback,
+      float axeRange) {
     this.tier = tier;
     this.lootWeight = lootWeight;
     this.swordDamage = swordDamage;
@@ -67,7 +80,8 @@ public enum WeaponTier {
     return switch (weaponType) {
       case SWORD -> new TierStats(tier, swordDamage, swordAttackSpeed, swordKnockback, swordRange);
       case BOW -> new TierStats(tier, bowDamage, bowAttackSpeed, bowKnockback, bowRange);
-      case DAGGER -> new TierStats(tier, daggerDamage, daggerAttackSpeed, daggerKnockback, daggerRange);
+      case DAGGER ->
+          new TierStats(tier, daggerDamage, daggerAttackSpeed, daggerKnockback, daggerRange);
       case AXE -> new TierStats(tier, axeDamage, axeAttackSpeed, axeKnockback, axeRange);
     };
   }

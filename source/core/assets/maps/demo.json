@@ -198,7 +198,7 @@
       "width": 2,
       "height": 3,
       "texture": "images/environment/dungeon-prototype/wall_px_2.png",
-      "destinationMap": "maps/room2.json",
+      "destinationMap": "maps/level2.json",
       "destinationSpawn": {
         "x": 2,
         "y": 2

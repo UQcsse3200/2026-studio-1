@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.csse3200.game.components.ComponentPriority;
+import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
@@ -67,7 +68,9 @@ class EnemyDeathComponentTest {
   @Test
   void shouldDisposeEvenWithoutItemDropComponent() {
     Entity entity = new Entity();
-    entity.addComponent(new EnemyDeathComponent());
+    entity
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(new EnemyTypeComponent(EnemyType.SKELETON));
     entity.create();
 
     entity.getEvents().trigger("death");
