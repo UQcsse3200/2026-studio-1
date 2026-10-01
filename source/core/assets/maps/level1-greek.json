@@ -391,7 +391,7 @@
       "#vvvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
       "#vv~~~~~~evvvvvvvvvvvvvvvvvivvvvvvvvvvvvvvvvvvvvvvvvrvvV",
       "##________________________rP________%%%%%%%%%%%_______##",
-      "#vvvvvvvvvvvvvvvvvvvvvvvvvrivvvvvvvvvvvvvvvvvvvvvvvvvvVV",
+      "#_________________________ri_________%%%%%%%%%________VV",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWrimWWWWWWWWWmWWWWWWWWWWWWWWwWW",
@@ -610,6 +610,32 @@
       "destinationSpawn": {
         "x": 2,
         "y": 2
+      }
+    },
+    {
+      "id": "room1-to-loot-room-1",
+      "x": 1,
+      "y": 34,
+      "width": 1,
+      "height": 2,
+      "texture": "images/level1/loot-room-door.png",
+      "destinationMap": "maps/lootroom-l1-1.json",
+      "destinationSpawn": {
+        "x": 34,
+        "y": 3
+      }
+    },
+    {
+      "id": "room1-to-loot-room-2",
+      "x": 52,
+      "y": 3,
+      "width": 1,
+      "height": 2,
+      "texture": "images/level1/loot-room-door.png",
+      "destinationMap": "maps/lootroom-l1-2.json",
+      "destinationSpawn": {
+        "x": 8,
+        "y": 3
       }
     }
   ]
