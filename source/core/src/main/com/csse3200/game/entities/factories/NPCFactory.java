@@ -27,7 +27,6 @@ import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -356,7 +355,6 @@ public class NPCFactory {
     // Create loot on drop - more gold dropped due to no weapons being dropped (no inventory)
     int numGold = 12;
     InventoryComponent inventory = new InventoryComponent(numGold);
-
 
     // Configure animation component
     // TODO: CYCLOPS ATTACK ANIMATION TO DO

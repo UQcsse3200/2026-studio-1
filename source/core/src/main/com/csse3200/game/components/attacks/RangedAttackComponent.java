@@ -62,12 +62,12 @@ public class RangedAttackComponent extends Component {
    * Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
    * speed.
    *
-   * @param range     attack reach, checked as a direct distance calculation between this entity's and
-   *                  the target's positions; also used as the fired arrow's maximum flight distance.
-   * @param cooldown  minimum time, in seconds, between successive shots being fired.
+   * @param range attack reach, checked as a direct distance calculation between this entity's and
+   *     the target's positions; also used as the fired arrow's maximum flight distance.
+   * @param cooldown minimum time, in seconds, between successive shots being fired.
    * @param knockback knockback magnitude applied to the target on a successful hit; {@code 0f}
-   *                  results in no knockback.
-   * @param weapon    weapon in entity's inventory
+   *     results in no knockback.
+   * @param weapon weapon in entity's inventory
    */
   public RangedAttackComponent(float range, float cooldown, float knockback, WeaponItem weapon) {
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
@@ -95,19 +95,19 @@ public class RangedAttackComponent extends Component {
    * Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
    * for any attacks i.e. the rocks where no weapons are in the inventory.
    *
-   * @param range     attack reach, checked as a direct distance calculation between this entity's and
-   *                  the target's positions; also used as the fired arrow's maximum flight distance.
-   * @param cooldown  minimum time, in seconds, between successive shots being fired.
+   * @param range attack reach, checked as a direct distance calculation between this entity's and
+   *     the target's positions; also used as the fired arrow's maximum flight distance.
+   * @param cooldown minimum time, in seconds, between successive shots being fired.
    * @param knockback knockback magnitude applied to the target on a successful hit; {@code 0f}
-   *                  results in no knockback.
+   *     results in no knockback.
    */
   public RangedAttackComponent(float range, float cooldown, float knockback) {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
     if (cooldown <= 1) {
-      throw new IllegalArgumentException("Windupduration for attack must be less than " +
-          "cooldown and must be positive.");
+      throw new IllegalArgumentException(
+          "Windupduration for attack must be less than " + "cooldown and must be positive.");
     }
     this.setWindupDuration(this.getCooldown() - 1);
     this.timeSinceLastAttack = cooldown;
@@ -124,9 +124,7 @@ public class RangedAttackComponent extends Component {
     entity.getEvents().addListener("rangedAttack", this::attemptAttack);
   }
 
-  /**
-   * Advances the internal cooldown timer by the time elapsed since the last frame.
-   */
+  /** Advances the internal cooldown timer by the time elapsed since the last frame. */
   @Override
   public void update() {
     timeSinceLastAttack += ServiceLocator.getTimeSource().getDeltaTime();
@@ -306,5 +304,4 @@ public class RangedAttackComponent extends Component {
     // nothing currently listens for it)
     entity.getEvents().trigger("rangedAttackFired", target);
   }
-
 }
