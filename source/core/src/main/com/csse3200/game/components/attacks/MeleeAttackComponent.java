@@ -286,8 +286,7 @@ public class MeleeAttackComponent extends Component {
                 entity.getPosition().x,
                 entity.getPosition().y,
                 target.getPosition().x,
-                target.getPosition().y
-            );
+                target.getPosition().y);
 
     if (distance > this.getRange()) {
       return;
