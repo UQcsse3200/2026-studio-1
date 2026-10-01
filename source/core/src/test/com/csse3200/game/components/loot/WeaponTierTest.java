@@ -72,4 +72,15 @@ public class WeaponTierTest {
     assertEquals(10.0f, tier2.getRange());
     assertEquals(12.0f, tier3.getRange());
   }
+
+  @Test
+  void shouldReturnCorrectBowProjectileCountForEachTier() {
+    WeaponStats tier1 = WeaponTier.TIER_1.getStats(WeaponType.BOW);
+    WeaponStats tier2 = WeaponTier.TIER_2.getStats(WeaponType.BOW);
+    WeaponStats tier3 = WeaponTier.TIER_3.getStats(WeaponType.BOW);
+
+    assertEquals(1, tier1.getProjectileCount());
+    assertEquals(5, tier2.getProjectileCount());
+    assertEquals(10, tier3.getProjectileCount());
+  }
 }
