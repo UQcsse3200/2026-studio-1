@@ -13,9 +13,10 @@ import org.slf4j.LoggerFactory;
  * WeaponUpgrader}. This class only connects it to the inventory: it takes the held weapon out of
  * its slot, puts the upgraded weapons back, and selects them so the player is holding them again.
  *
- * <p>One stone upgrades every weapon in the held stack: 20 tier 1 daggers become 20 tier 2 daggers,
- * and 20 max-tier daggers become 20 swords. {@link WeaponUpgrader} upgrades one weapon at a time,
- * so each weapon in the stack is upgraded and added on its own.
+ * <p>One stone upgrades every weapon in the held stack, not just one: for example, 20 tier 1
+ * daggers become 20 tier 2 swords, because a dagger turns into a sword on its first upgrade. {@link
+ * WeaponUpgrader} upgrades one weapon at a time, so each weapon in the stack is upgraded and added
+ * on its own.
  *
  * <p>Using the stone means pressing its slot key, which selects the stone's slot first. The weapon
  * to upgrade is therefore the one the player last selected, which {@link ConsumableUseComponent}
@@ -109,8 +110,8 @@ public class WeaponUpgradeEffect implements ConsumableEffect {
   /**
    * Selects the slot holding the upgraded weapon, so the player is holding it straight away.
    *
-   * <p>The weapon is found by type and tier rather than by the exact object, because a stack of
-   * daggers can merge into an existing stack of the same tier when it is added back.
+   * <p>The weapon is found by type and tier rather than by the exact object, because the upgraded
+   * weapons can merge into a stack of the same weapon the player already had.
    *
    * @param inventory the player's inventory
    * @param upgraded the weapon that was just added

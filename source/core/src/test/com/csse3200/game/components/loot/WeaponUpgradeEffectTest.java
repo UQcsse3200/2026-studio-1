@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class WeaponUpgradeEffectTest {
   private final WeaponGenerator weapons = new WeaponGenerator();
   private final ConsumableGenerator consumables = new ConsumableGenerator();
+  private final WeaponUpgrader upgrader = new WeaponUpgrader();
   private Entity player;
   private InventoryComponent inventory;
 
@@ -47,6 +48,34 @@ class WeaponUpgradeEffectTest {
 
   private ConsumableItem stone() {
     return consumables.generateConsumable(ConsumableType.UPGRADE_STONE, 1);
+  }
+
+  /**
+   * Returns a dagger whose next upgrade turns it into a sword. Under the team's rule that is a tier
+   * 1 dagger. Searching for it keeps these tests about the stone, not about which tier
+   * WeaponUpgrader uses for the change.
+   */
+  private WeaponItem daggerThatBecomesASword() {
+    for (int tier = 1; tier <= WeaponTier.values().length; tier++) {
+      WeaponItem dagger = weapons.generateWeapon(WeaponType.DAGGER, tier);
+      if (upgrader.upgrade(dagger).getWeaponType() == WeaponType.SWORD) {
+        return dagger;
+      }
+    }
+    throw new AssertionError("WeaponUpgrader never turns a dagger into a sword");
+  }
+
+  /** Adds up how many weapons of a type and tier the inventory holds, across all slots. */
+  private int countWeapons(WeaponType type, int tier) {
+    int total = 0;
+    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
+      if (inventory.getItem(slot) instanceof WeaponItem weapon
+          && weapon.getWeaponType() == type
+          && weapon.getTier() == tier) {
+        total += weapon.getQuantity();
+      }
+    }
+    return total;
   }
 
   /** Presses the number key for a slot: selects it, then uses whatever is in it. */
@@ -115,32 +144,40 @@ class WeaponUpgradeEffectTest {
   }
 
   @Test
-  void shouldTurnEveryMaxTierDaggerInTheStackIntoASword() {
-    WeaponItem maxDaggers = weapons.generateWeapon(WeaponType.DAGGER, WeaponTier.values().length);
-    maxDaggers.setQuantity(12);
-    givePlayer(maxDaggers, stone());
+  void shouldUpgradeEveryWeaponInTheStack() {
+    WeaponItem daggers = weapons.generateWeapon(WeaponType.DAGGER, 1);
+    daggers.setQuantity(15);
+    WeaponItem expected = upgrader.upgrade(daggers);
+    givePlayer(daggers, stone());
 
     pressSlotKey(2);
 
-    // A sword stack holds 10, so 12 swords fill slot 1 and start a second stack in the next empty
-    // slot.
-    int swords = 0;
-    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
-      if (inventory.getItem(slot) != null) {
-        WeaponItem sword = assertInstanceOf(WeaponItem.class, inventory.getItem(slot));
-        assertEquals(WeaponType.SWORD, sword.getWeaponType());
-        swords += sword.getQuantity();
-      }
-    }
-    assertEquals(12, swords, "every dagger in the stack should become a sword");
+    assertEquals(
+        15,
+        countWeapons(expected.getWeaponType(), expected.getTier()),
+        "all 15 daggers should be upgraded, not merged into one");
+  }
+
+  @Test
+  void shouldSplitTheSwordsAcrossStacksWhenDaggersBecomeSwords() {
+    WeaponItem daggers = daggerThatBecomesASword();
+    daggers.setQuantity(12);
+    givePlayer(daggers, stone());
+
+    pressSlotKey(2);
+
+    // A sword stack holds 10, so 12 swords fill one slot and start a second stack. Every slot must
+    // still hold a real weapon, not a plain item.
+    assertEquals(12, countWeapons(WeaponType.SWORD, upgrader.upgrade(daggers).getTier()));
+    assertNull(inventory.getItem(2), "only the stone's slot should be empty");
   }
 
   @Test
   void shouldKeepTheStoneWhenThereIsNoRoomForTheUpgradedStack() {
-    WeaponItem maxDaggers = weapons.generateWeapon(WeaponType.DAGGER, WeaponTier.values().length);
-    maxDaggers.setQuantity(20);
+    WeaponItem daggers = daggerThatBecomesASword();
+    daggers.setQuantity(20);
     givePlayer(
-        maxDaggers,
+        daggers,
         stone(),
         consumables.generateConsumable(ConsumableType.HEALTH_POTION, 1),
         consumables.generateConsumable(ConsumableType.SPEED_BUFF, 1),
@@ -149,22 +186,9 @@ class WeaponUpgradeEffectTest {
     // 20 swords need two slots, but only the daggers' own slot would be free.
     pressSlotKey(2);
 
-    assertSame(maxDaggers, inventory.getItem(1), "the daggers should be left as they were");
-    assertEquals(20, maxDaggers.getQuantity());
+    assertSame(daggers, inventory.getItem(1), "the daggers should be left as they were");
+    assertEquals(20, daggers.getQuantity());
     assertEquals(1, inventory.getItem(2).getQuantity(), "the stone should not be used up");
-  }
-
-  @Test
-  void shouldKeepTheSizeOfAnUpgradedDaggerStack() {
-    WeaponItem daggers = weapons.generateWeapon(WeaponType.DAGGER, 1);
-    daggers.setQuantity(15);
-    givePlayer(daggers, stone());
-
-    pressSlotKey(2);
-
-    WeaponItem upgraded = (WeaponItem) inventory.getItem(1);
-    assertEquals(2, upgraded.getTier());
-    assertEquals(15, upgraded.getQuantity());
   }
 
   @Test
