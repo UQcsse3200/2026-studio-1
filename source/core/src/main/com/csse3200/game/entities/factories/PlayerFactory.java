@@ -26,6 +26,7 @@ import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShieldRenderComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.ShopDisplay;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
@@ -86,6 +87,7 @@ public class PlayerFactory {
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
             .addComponent(new PlayerActions())
+            .addComponent(new StaminaComponent())
             .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
 
             // Death State
