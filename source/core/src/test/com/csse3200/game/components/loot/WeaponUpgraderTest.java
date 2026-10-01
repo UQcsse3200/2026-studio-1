@@ -46,23 +46,33 @@ class WeaponUpgraderTest {
   }
 
   @Test
-  void shouldUpgradeDaggerThroughItsTiers() {
+  void shouldTurnATier1DaggerIntoATier2Sword() {
     WeaponGenerator generator = new WeaponGenerator();
     WeaponItem dagger1 = generator.generateWeapon(WeaponType.DAGGER, 1);
 
-    WeaponItem dagger2 = upgrader.upgrade(dagger1);
-    assertEquals(2, dagger2.getTier());
-    assertEquals(WeaponType.DAGGER, dagger2.getWeaponType());
+    WeaponItem upgraded = upgrader.upgrade(dagger1);
+
+    assertEquals(WeaponType.SWORD, upgraded.getWeaponType());
+    assertEquals(2, upgraded.getTier());
   }
 
   @Test
-  void shouldTurnAMaxTierDaggerIntoATier1Sword() {
+  void shouldUpgradeTheResultingSwordThroughItsRemainingTiers() {
+    WeaponGenerator generator = new WeaponGenerator();
+    WeaponItem dagger1 = generator.generateWeapon(WeaponType.DAGGER, 1);
+
+    WeaponItem sword2 = upgrader.upgrade(dagger1);
+    WeaponItem sword3 = upgrader.upgrade(sword2);
+
+    assertEquals(WeaponType.SWORD, sword3.getWeaponType());
+    assertEquals(3, sword3.getTier());
+  }
+
+  @Test
+  void shouldRejectUpgradingAMaxTierDagger() {
     WeaponGenerator generator = new WeaponGenerator();
     WeaponItem dagger3 = generator.generateWeapon(WeaponType.DAGGER, 3);
 
-    WeaponItem upgraded = upgrader.upgrade(dagger3);
-
-    assertEquals(WeaponType.SWORD, upgraded.getWeaponType());
-    assertEquals(1, upgraded.getTier());
+    assertThrows(IllegalStateException.class, () -> upgrader.upgrade(dagger3));
   }
 }
