@@ -84,10 +84,14 @@ public class WeaponAttackComponent extends Component {
     Vector2 spawnPosition = entity.getCenterPosition();
     Vector2 direction = getProjectileDirection();
 
-    Entity arrow =
-        ArrowFactory.createArrow(spawnPosition, direction, activeWeapon.getDamage(), entity);
+    int projectileCount = activeWeapon.getProjectileCount();
 
-    ServiceLocator.getEntityService().register(arrow);
+    for (int i = 0; i < projectileCount; i++) {
+      Entity arrow =
+          ArrowFactory.createArrow(spawnPosition, direction, activeWeapon.getDamage(), entity);
+
+      ServiceLocator.getEntityService().register(arrow);
+    }
   }
 
   private void daggerAttack(WeaponItem activeWeapon) {
