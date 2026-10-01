@@ -7,11 +7,15 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 
-// Keeps a friendly NPC still and facing the player while they're in dialogue range.
+/** Stands still and faces the player while they are within dialogue range. */
 public class StandStillTask extends DefaultTask implements PriorityTask {
   private final Entity player;
   private final int priority;
 
+  /**
+   * @param player The entity to face.
+   * @param priority Task priority while the player is in dialogue range.
+   */
   public StandStillTask(Entity player, int priority) {
     this.player = player;
     this.priority = priority;
@@ -34,15 +38,17 @@ public class StandStillTask extends DefaultTask implements PriorityTask {
 
   @Override
   public int getPriority() {
-    DialogueProximityComponent proximity =
-        owner.getEntity().getComponent(DialogueProximityComponent.class);
-    if (player == null || proximity == null || !proximity.isPlayerInRange()) {
-      return -1;
-    }
-    return priority;
+    return isPlayerInRange() ? priority : -1;
   }
 
-  // Shows the idle frame facing the player, via the animation controller's idle events.
+  /** Checks whether the player is within this entity's dialogue range. */
+  private boolean isPlayerInRange() {
+    DialogueProximityComponent proximity =
+        owner.getEntity().getComponent(DialogueProximityComponent.class);
+    return player != null && proximity != null && proximity.isPlayerInRange();
+  }
+
+  /** Shows the idle animation facing the player. */
   private void facePlayer() {
     AnimationRenderComponent animator =
         owner.getEntity().getComponent(AnimationRenderComponent.class);

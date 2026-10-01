@@ -6,10 +6,10 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
 
-// Opens the shop with F while the player is in dialogue range, and closes it when they leave.
+/** Opens the shop with F while the player is in dialogue range, and closes it when they leave. */
 public class ShopkeeperComponent extends Component {
   private final Entity player;
-  private boolean wasInRange = false;
+  private boolean playerInRange = false;
 
   public ShopkeeperComponent(Entity player) {
     this.player = player;
@@ -25,12 +25,12 @@ public class ShopkeeperComponent extends Component {
     boolean inRange = proximity.isPlayerInRange();
     if (inRange && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
       player.getEvents().trigger("openShop");
-    } else if (wasInRange && !inRange) {
+    } else if (playerInRange && !inRange) {
       ShopDisplay shop = player.getComponent(ShopDisplay.class);
       if (shop != null) {
         shop.closeShop();
       }
     }
-    wasInRange = inRange;
+    playerInRange = inRange;
   }
 }

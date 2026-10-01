@@ -16,6 +16,8 @@ import com.csse3200.game.components.npc.DisplayDialogue;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.MinotaurAnimationController;
+import com.csse3200.game.components.npc.PotionThrowComponent;
+import com.csse3200.game.components.npc.ProvokedComponent;
 import com.csse3200.game.components.npc.ShopkeeperComponent;
 import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.npc.SkeletonWeaponAnimationController;
@@ -63,12 +65,10 @@ public class NPCFactory {
   private static final String WIZARD_NPC_ATLAS_PATH = "images/npcs/npc2.atlas";
   private static final String PHILOSOPHER_NPC_ATLAS_PATH = "images/npcs/npc1.atlas";
   private static final String SATYR_NPC_ATLAS_PATH = "images/npcs/npc3.atlas";
-  // Player's drawn height: 47px knight idle frame at 1/42 world units per pixel.
   private static final float FRIENDLY_NPC_HEIGHT = 47f / 42f;
   private static final float FRIENDLY_NPC_COLLIDER_WIDTH = 0.9f;
   private static final float FRIENDLY_NPC_WANDER_RANGE = 1.5f;
   private static final int FRIENDLY_NPC_HEALTH = 50;
-  // Stand-still priority: above wandering (1), below future attacks (e.g. 10).
   private static final int FRIENDLY_NPC_STAND_PRIORITY = 5;
 
   private static final NPCConfigs configs =
@@ -546,7 +546,7 @@ public class NPCFactory {
     return npc;
   }
 
-  // Registers the friendly NPC spawn names used by map "npc" markers.
+  /** Registers the friendly NPC spawn names used by map "npc" markers. */
   public static void registerNpcSpawns() {
     EntitySpawnRegistry.register("npc:shop", NPCFactory::createShopNPC);
     EntitySpawnRegistry.register("npc:wizard", NPCFactory::createWizardNPC);
@@ -554,30 +554,70 @@ public class NPCFactory {
     EntitySpawnRegistry.register("npc:satyr", NPCFactory::createSatyrNPC);
   }
 
-  // Shopkeeper NPC that cannot be hurt, with a walking animation.
+  /**
+   * Creates a shopkeeper NPC that opens the shop and cannot be hurt.
+   *
+   * @return entity
+   */
   public static Entity createShopNPC(Entity player) {
     Entity npc = createAnimatedNPC(player, "Hermes", SHOP_NPC_ATLAS_PATH);
-    // Opens the shop with F in dialogue range and closes it on leaving.
     npc.addComponent(new ShopkeeperComponent(player));
     return npc;
   }
 
-  // Hooded wizard quest-giver NPC.
+  /**
+   * Creates a wizard NPC that throws a poison potion at the player after being hit.
+   *
+   * @return entity
+   */
   public static Entity createWizardNPC(Entity player) {
-    return makeKillable(createAnimatedNPC(player, "Wizard", WIZARD_NPC_ATLAS_PATH));
+    float throwRange = 6f;
+    Entity wizard = makeKillable(createAnimatedNPC(player, "Wizard", WIZARD_NPC_ATLAS_PATH));
+
+    // Create loot on drop
+    int numGold = 1;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    ConsumableGenerator consumableGenerator = new ConsumableGenerator();
+    items.add(consumableGenerator.generateConsumable(ConsumableType.REGENERATION, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Add necessary components to the entity
+    wizard
+        .addComponent(new ProvokedComponent(8f))
+        .addComponent(new PotionThrowComponent(throwRange))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent());
+    wizard.getComponent(AITaskComponent.class).addTask(new RetaliateTask(player, 10, throwRange));
+    return wizard;
   }
 
-  // Old philosopher quest-giver NPC.
+  /**
+   * Creates an old philosopher NPC.
+   *
+   * @return entity
+   */
   public static Entity createPhilosopherNPC(Entity player) {
     return makeKillable(createAnimatedNPC(player, "Philosopher", PHILOSOPHER_NPC_ATLAS_PATH));
   }
 
-  // Satyr NPC.
+  /**
+   * Creates a satyr NPC.
+   *
+   * @return entity
+   */
   public static Entity createSatyrNPC(Entity player) {
     return makeKillable(createAnimatedNPC(player, "Satyr", SATYR_NPC_ATLAS_PATH));
   }
 
-  // Friendly NPC with walk/idle animations from its own atlas copy.
+  /**
+   * Creates a friendly NPC with walk and idle animations from its own atlas.
+   *
+   * @return entity
+   */
   private static Entity createAnimatedNPC(Entity player, String speakerName, String atlasPath) {
     AnimationRenderComponent animator =
         new AnimationRenderComponent(loadIndependentAtlas(atlasPath), true);
@@ -592,7 +632,11 @@ public class NPCFactory {
     return addFriendlyNpcParts(npc, player, speakerName);
   }
 
-  // Solid, gravity-bound NPC with dialogue that wanders its floor at the player's height.
+  /**
+   * Adds the physics, dialogue and wandering shared by all friendly NPCs.
+   *
+   * @return entity
+   */
   private static Entity addFriendlyNpcParts(Entity npc, Entity player, String speakerName) {
     npc.addComponent(new PhysicsComponent())
         .addComponent(new PhysicsMovementComponent())
@@ -612,7 +656,6 @@ public class NPCFactory {
                     new Vector2(FRIENDLY_NPC_WANDER_RANGE, FRIENDLY_NPC_WANDER_RANGE),
                     2f,
                     floorCollisionScale))
-            // Stands still facing the player while they're in dialogue range.
             .addTask(new StandStillTask(player, FRIENDLY_NPC_STAND_PRIORITY)));
 
     PhysicsUtils.setScaledCollider(npc, FRIENDLY_NPC_COLLIDER_WIDTH, 0.7f);
@@ -620,7 +663,11 @@ public class NPCFactory {
     return npc;
   }
 
-  // Gives an NPC a hitbox and health so it can be killed, without any loot drop.
+  /**
+   * Gives an NPC a hitbox and health so it can be killed.
+   *
+   * @return entity
+   */
   private static Entity makeKillable(Entity npc) {
     npc.addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
         .addComponent(new CombatStatsComponent(FRIENDLY_NPC_HEALTH, 0))
