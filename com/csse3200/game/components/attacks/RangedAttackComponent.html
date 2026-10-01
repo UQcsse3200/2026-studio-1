@@ -136,12 +136,18 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem,float)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
+ float&nbsp;cooldown,
+ float&nbsp;knockback)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+ for any attacks i.e.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback,
- <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon,
- float&nbsp;projectileSpeed)</code></div>
-<div class="col-last even-row-color">
+ <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
  speed.</div>
 </div>
@@ -170,44 +176,50 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the configured cooldown duration.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockback()" class="member-name-link">getKnockback</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the configured knockback magnitude.</div>
+<div class="block">Returns the damage for this attack, either the configured base attack from the config file or
+ the equipped weapon's damage.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getProjectileSpeed()" class="member-name-link">getProjectileSpeed</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockback()" class="member-name-link">getKnockback</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the configured projectile speed.</div>
+<div class="block">Returns the configured knockback magnitude.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRange()" class="member-name-link">getRange</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getProjectileSpeed()" class="member-name-link">getProjectileSpeed</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the configured projectile speed.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRange()" class="member-name-link">getRange</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the configured attack range.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCooldown(float)" class="member-name-link">setCooldown</a><wbr>(float&nbsp;cooldown)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCooldown(float)" class="member-name-link">setCooldown</a><wbr>(float&nbsp;cooldown)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Updates the cooldown duration.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKnockback(float)" class="member-name-link">setKnockback</a><wbr>(float&nbsp;knockback)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKnockback(float)" class="member-name-link">setKnockback</a><wbr>(float&nbsp;knockback)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Updates the knockback magnitude.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProjectileSpeed(float)" class="member-name-link">setProjectileSpeed</a><wbr>(float&nbsp;projectileSpeed)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProjectileSpeed(float)" class="member-name-link">setProjectileSpeed</a><wbr>(float&nbsp;projectileSpeed)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Updates the projectile speed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRange(float)" class="member-name-link">setRange</a><wbr>(float&nbsp;range)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRange(float)" class="member-name-link">setRange</a><wbr>(float&nbsp;range)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Updates the attack range.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Advances the internal cooldown timer by the time elapsed since the last frame.</div>
 </div>
 </div>
@@ -231,13 +243,12 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(float,float,float,com.csse3200.game.components.loot.WeaponItem,float)">
+<section class="detail" id="&lt;init&gt;(float,float,float,com.csse3200.game.components.loot.WeaponItem)">
 <h3>RangedAttackComponent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">RangedAttackComponent</span><wbr><span class="parameters">(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback,
- <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon,
- float&nbsp;projectileSpeed)</span></div>
+ <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon)</span></div>
 <div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
  speed.</div>
 <dl class="notes">
@@ -247,7 +258,25 @@ loadScripts(document, 'script');</script>
 <dd><code>cooldown</code> - minimum time, in seconds, between successive shots being fired.</dd>
 <dd><code>knockback</code> - knockback magnitude applied to the target on a successful hit; <code>0f</code>
      results in no knockback.</dd>
-<dd><code>projectileSpeed</code> - speed, in world units/second, the fired arrow travels at.</dd>
+<dd><code>weapon</code> - weapon in entity's inventory</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(float,float,float)">
+<h3>RangedAttackComponent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">RangedAttackComponent</span><wbr><span class="parameters">(float&nbsp;range,
+ float&nbsp;cooldown,
+ float&nbsp;knockback)</span></div>
+<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+ for any attacks i.e. the rocks where no weapons are in the inventory.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>range</code> - attack reach, checked as a direct distance calculation between this entity's and
+     the target's positions; also used as the fired arrow's maximum flight distance.</dd>
+<dd><code>cooldown</code> - minimum time, in seconds, between successive shots being fired.</dd>
+<dd><code>knockback</code> - knockback magnitude applied to the target on a successful hit; <code>0f</code>
+     results in no knockback.</dd>
 </dl>
 </section>
 </li>
@@ -352,6 +381,19 @@ loadScripts(document, 'script');</script>
 <dd><code>knockback</code> - new knockback magnitude</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>knockback</code> is negative</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getDamage()">
+<h3>getDamage</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getDamage</span>()</div>
+<div class="block">Returns the damage for this attack, either the configured base attack from the config file or
+ the equipped weapon's damage. The only stat this component reads from the weapon — range and
+ knockback are this wielder's own properties, not the weapon's.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the equipped weapon's damage, sourced from <code>weapon.getDamage()</code></dd>
 </dl>
 </section>
 </li>

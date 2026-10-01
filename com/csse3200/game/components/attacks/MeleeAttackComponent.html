@@ -131,11 +131,18 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">MeleeAttackComponent</a><wbr>(float&nbsp;range,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float)" class="member-name-link">MeleeAttackComponent</a><wbr>(float&nbsp;range,
+ float&nbsp;cooldown,
+ float&nbsp;knockback)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+ for any attacks i.e.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">MeleeAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback,
  <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -166,10 +173,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the configured cooldown duration.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the equipped weapon's damage.</div>
+<div class="block">Returns the damage for this attack, either the configured base attack from the config file or
+ the equipped weapon's damage.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockback()" class="member-name-link">getKnockback</a>()</code></div>
@@ -238,6 +246,24 @@ loadScripts(document, 'script');</script>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if weapon is null, range/cooldown are non-positive, knockback
      is negative, or windupDuration is negative or &gt;= cooldown</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(float,float,float)">
+<h3>MeleeAttackComponent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">MeleeAttackComponent</span><wbr><span class="parameters">(float&nbsp;range,
+ float&nbsp;cooldown,
+ float&nbsp;knockback)</span></div>
+<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+ for any attacks i.e. the rocks where no weapons are in the inventory.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>range</code> - attack reach, checked as a direct distance calculation between this entity's and
+     the target's positions; also used as the fired arrow's maximum flight distance.</dd>
+<dd><code>cooldown</code> - minimum time, in seconds, between successive shots being fired.</dd>
+<dd><code>knockback</code> - knockback magnitude applied to the target on a successful hit; <code>0f</code>
+     results in no knockback.</dd>
 </dl>
 </section>
 </li>
@@ -355,15 +381,13 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getDamage()">
 <h3>getDamage</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getDamage</span>()
-                throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></span></div>
-<div class="block">Returns the equipped weapon's damage. The only stat this component reads from the weapon —
- range and knockback are this wielder's own properties, not the weapon's.</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getDamage</span>()</div>
+<div class="block">Returns the damage for this attack, either the configured base attack from the config file or
+ the equipped weapon's damage. The only stat this component reads from the weapon — range and
+ knockback are this wielder's own properties, not the weapon's.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the equipped weapon's damage, sourced from <code>weapon.getDamage()</code></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if no weapon has been set</dd>
 </dl>
 </section>
 </li>

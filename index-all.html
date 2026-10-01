@@ -1711,7 +1711,13 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#getDamage()" class="member-name-link">getDamage()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>
-<div class="block">Returns the equipped weapon's damage.</div>
+<div class="block">Returns the damage for this attack, either the configured base attack from the config file or
+ the equipped weapon's damage.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#getDamage()" class="member-name-link">getDamage()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
+<dd>
+<div class="block">Returns the damage for this attack, either the configured base attack from the config file or
+ the equipped weapon's damage.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/HazardDamageComponent.html#getDamage()" class="member-name-link">getDamage()</a> - Method in class com.csse3200.game.components.<a href="com/csse3200/game/components/HazardDamageComponent.html" title="class in com.csse3200.game.components">HazardDamageComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -3220,6 +3226,11 @@ loadScripts(document, 'script');</script>
 <div class="block">Deals melee damage and knockback to a target entity when triggered, provided the target is within
  <code>range</code> and this component is off cooldown.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#%3Cinit%3E(float,float,float)" class="member-name-link">MeleeAttackComponent(float, float, float)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
+<dd>
+<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+ for any attacks i.e.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">MeleeAttackComponent(float, float, float, WeaponItem)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/attacks/MeleeAttackConfig.html" class="type-name-link" title="class in com.csse3200.game.entities.configs.attacks">MeleeAttackConfig</a> - Class in <a href="com/csse3200/game/entities/configs/attacks/package-summary.html">com.csse3200.game.entities.configs.attacks</a></dt>
@@ -3758,7 +3769,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Fires a real arrow projectile at a target entity when triggered, provided the target is within
  <code>range</code> and this component is off cooldown.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem,float)" class="member-name-link">RangedAttackComponent(float, float, float, WeaponItem, float)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#%3Cinit%3E(float,float,float)" class="member-name-link">RangedAttackComponent(float, float, float)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
+<dd>
+<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+ for any attacks i.e.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/attacks/RangedAttackComponent.html#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">RangedAttackComponent(float, float, float, WeaponItem)</a> - Constructor for class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></dt>
 <dd>
 <div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
  speed.</div>
