@@ -276,6 +276,23 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * Replaces the dead player with a new player at the level's original spawn point.
+   *
+   * @return the newly spawned player
+   */
+  public Entity respawnPlayer() {
+    Entity oldPlayer = player;
+
+    if (oldPlayer != null) {
+      areaEntities.remove(oldPlayer);
+      oldPlayer.dispose();
+    }
+
+    player = spawnPlayer();
+    return player;
+  }
+
+  /**
    * Remove ownership of the persistent player before this room is disposed.
    *
    * @return the player entity to adopt into the next room

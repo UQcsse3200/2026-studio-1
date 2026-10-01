@@ -381,6 +381,29 @@ public class MainGameScreen extends ScreenAdapter {
     fitCameraToMap(nextArea);
   }
 
+  private void respawnPlayer() {
+    removeSubLevelTravelPrompt();
+
+    Entity player = levelGameArea.respawnPlayer();
+
+    upgradesDisplay.setPlayer(player);
+
+    ShopDisplay shopDisplay = player.getComponent(ShopDisplay.class);
+    if (shopDisplay != null) {
+      shopDisplay.setUpgradesDisplay(upgradesDisplay);
+    }
+
+    createSubLevelTravelPrompt(player);
+
+    playerInNether = null;
+    deathScreenShown = false;
+
+    deathScreenDisplay.hideDeathScreen();
+    ServiceLocator.getTimeSource().setTimeScale(1f);
+
+    followPlayer();
+  }
+
   private void createSubLevelTravelPrompt(Entity player) {
     subLevelTravelPromptEntity =
         new Entity()
@@ -450,6 +473,7 @@ public class MainGameScreen extends ScreenAdapter {
     Entity ui = new Entity();
 
     deathScreenDisplay = new DeathScreenDisplay(this.game);
+    deathScreenDisplay.setRetryAction(this::respawnPlayer);
 
     winScreenDisplay = new WinScreenDisplay(this.game);
 
