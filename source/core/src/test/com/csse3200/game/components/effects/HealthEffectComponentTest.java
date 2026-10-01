@@ -120,15 +120,17 @@ public class HealthEffectComponentTest {
 
   @Test
   void shouldThrowExceptionForNegativeTime() {
-    assertThrows(IllegalArgumentException.class, () -> new HealthEffectComponent(-1, 10));
+    HealthEffectComponent effect = new HealthEffectComponent();
+    assertThrows(IllegalArgumentException.class, () -> effect.applyEffect(-1, 10));
   }
 
   Entity createEntityWithEffect(int startingHealth, int time, int health) {
     Entity entity =
         new Entity()
             .addComponent(new CombatStatsComponent(startingHealth, 0))
-            .addComponent(new HealthEffectComponent(time, health));
+            .addComponent(new HealthEffectComponent());
     entity.create();
+    entity.getComponent(HealthEffectComponent.class).applyEffect(time, health);
     return entity;
   }
 }
