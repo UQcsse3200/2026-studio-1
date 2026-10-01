@@ -44,8 +44,8 @@ public class EnemyDeathComponent extends Component {
 
       // Drop weapons and consumables
       while (dropper.dropFirstStack()) {
-        logger.info(
-            "Enemy {} dropped item", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
+        logger.info("Enemy {} dropped item",
+            entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
       }
     }
 

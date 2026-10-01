@@ -34,7 +34,7 @@ import java.util.List;
  * Factory to create non-playable character (NPC) entities with predefined components.
  *
  * <p>Each NPC entity type should have a creation method that returns a corresponding entity.
- * Predefined entity properties can be loaded from configs stored as json files which are defined in
+ * Predefined entity properties can be loaded from configs stored as JSON files which are defined in
  * "NPCConfigs".
  *
  * <p>If needed, this factory can be separated into more specific factories for entities with
@@ -180,7 +180,7 @@ public class NPCFactory {
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     rangedSkeleton
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 15, config.ranged.range));
@@ -247,7 +247,7 @@ public class NPCFactory {
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     minotaur
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 15, config.melee.range))
@@ -322,7 +322,7 @@ public class NPCFactory {
     centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     centaur
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 10, config.ranged.range))
@@ -384,7 +384,7 @@ public class NPCFactory {
     cyclops.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     cyclops
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
