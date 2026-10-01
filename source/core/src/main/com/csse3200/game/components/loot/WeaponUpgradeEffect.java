@@ -11,7 +11,11 @@ import org.slf4j.LoggerFactory;
  *
  * <p>The upgrade itself (stats, projectile count, dagger turning into a sword) comes from {@link
  * WeaponUpgrader}. This class only connects it to the inventory: it takes the held weapon out of
- * its slot, puts the upgraded weapon back, and selects it so the player is holding it again.
+ * its slot, puts the upgraded weapons back, and selects them so the player is holding them again.
+ *
+ * <p>One stone upgrades every weapon in the held stack: 20 tier 1 daggers become 20 tier 2 daggers,
+ * and 20 max-tier daggers become 20 swords. {@link WeaponUpgrader} upgrades one weapon at a time,
+ * so each weapon in the stack is upgraded and added on its own.
  *
  * <p>Using the stone means pressing its slot key, which selects the stone's slot first. The weapon
  * to upgrade is therefore the one the player last selected, which {@link ConsumableUseComponent}
@@ -56,26 +60,50 @@ public class WeaponUpgradeEffect implements ConsumableEffect {
       return false;
     }
 
-    // A stack of daggers keeps its size when it is upgraded. When the dagger turns into a sword,
-    // the
-    // stack is forged into one sword, so the quantity stays at 1.
-    if (upgraded.getWeaponType() == weapon.getWeaponType()) {
-      upgraded.setQuantity(weapon.getQuantity());
+    int count = weapon.getQuantity();
+    if (!hasRoomFor(inventory, upgraded, count)) {
+      logger.debug("Not enough inventory space to upgrade {} x{}", weapon.getName(), count);
+      return false;
     }
 
-    // Removing the old weapon frees a slot, so the upgraded weapon always has room to go back in.
+    // Add the upgraded weapons one at a time. Each one stacks onto the last, and when a stack is
+    // full the next weapon starts a new stack. Adding a large quantity in one call is avoided
+    // because the inventory would build the extra stacks as plain items rather than weapons.
     inventory.removeItem(weaponSlot);
     inventory.addItem(upgraded);
-    selectWeapon(inventory, upgraded);
+    for (int i = 1; i < count; i++) {
+      inventory.addItem(upgrader.upgrade(weapon));
+    }
+    int newSlot = selectWeapon(inventory, upgraded);
 
     logger.info(
-        "Upgraded {} (tier {}) to {} (tier {})",
+        "Upgraded {} x{} (tier {}) to {} (tier {})",
         weapon.getName(),
+        count,
         weapon.getTier(),
         upgraded.getName(),
         upgraded.getTier());
-    entity.getEvents().trigger("weaponUpgraded", upgraded);
+    entity.getEvents().trigger("weaponUpgraded", inventory.getItem(newSlot));
     return true;
+  }
+
+  /**
+   * Checks there will be enough empty slots for the upgraded stack. The held weapon's own slot is
+   * freed first, so it counts as empty.
+   *
+   * <p>A stack can need more than one slot after upgrading: 20 daggers fit in one slot, but 20
+   * swords need two, because a sword stack holds fewer.
+   *
+   * @param inventory the player's inventory
+   * @param upgraded one upgraded weapon, used for its stack size
+   * @param count how many weapons are being upgraded
+   * @return {@code true} if every upgraded weapon will fit
+   */
+  private boolean hasRoomFor(InventoryComponent inventory, WeaponItem upgraded, int count) {
+    int stackSize = upgraded.getMaxQuantity();
+    int slotsNeeded = (count + stackSize - 1) / stackSize; // count divided by stackSize, rounded up
+    int emptySlots = inventory.getMaxSlots() - inventory.getOccupiedSlots() + 1;
+    return slotsNeeded <= emptySlots;
   }
 
   /**
@@ -86,15 +114,17 @@ public class WeaponUpgradeEffect implements ConsumableEffect {
    *
    * @param inventory the player's inventory
    * @param upgraded the weapon that was just added
+   * @return the selected slot, or the current active slot if the weapon was not found
    */
-  private void selectWeapon(InventoryComponent inventory, WeaponItem upgraded) {
+  private int selectWeapon(InventoryComponent inventory, WeaponItem upgraded) {
     for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
       if (inventory.getItem(slot) instanceof WeaponItem weapon
           && weapon.getWeaponType() == upgraded.getWeaponType()
           && weapon.getTier() == upgraded.getTier()) {
         inventory.setActiveSlot(slot);
-        return;
+        return slot;
       }
     }
+    return inventory.getActiveSlot();
   }
 }

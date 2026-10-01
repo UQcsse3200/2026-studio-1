@@ -115,16 +115,43 @@ class WeaponUpgradeEffectTest {
   }
 
   @Test
-  void shouldTurnAMaxTierDaggerIntoASword() {
+  void shouldTurnEveryMaxTierDaggerInTheStackIntoASword() {
     WeaponItem maxDaggers = weapons.generateWeapon(WeaponType.DAGGER, WeaponTier.values().length);
     maxDaggers.setQuantity(12);
     givePlayer(maxDaggers, stone());
 
     pressSlotKey(2);
 
-    WeaponItem sword = (WeaponItem) inventory.getItem(1);
-    assertEquals(WeaponType.SWORD, sword.getWeaponType());
-    assertEquals(1, sword.getQuantity(), "the dagger stack is forged into one sword");
+    // A sword stack holds 10, so 12 swords fill slot 1 and start a second stack in the next empty
+    // slot.
+    int swords = 0;
+    for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
+      if (inventory.getItem(slot) != null) {
+        WeaponItem sword = assertInstanceOf(WeaponItem.class, inventory.getItem(slot));
+        assertEquals(WeaponType.SWORD, sword.getWeaponType());
+        swords += sword.getQuantity();
+      }
+    }
+    assertEquals(12, swords, "every dagger in the stack should become a sword");
+  }
+
+  @Test
+  void shouldKeepTheStoneWhenThereIsNoRoomForTheUpgradedStack() {
+    WeaponItem maxDaggers = weapons.generateWeapon(WeaponType.DAGGER, WeaponTier.values().length);
+    maxDaggers.setQuantity(20);
+    givePlayer(
+        maxDaggers,
+        stone(),
+        consumables.generateConsumable(ConsumableType.HEALTH_POTION, 1),
+        consumables.generateConsumable(ConsumableType.SPEED_BUFF, 1),
+        consumables.generateConsumable(ConsumableType.RESISTANCE, 1));
+
+    // 20 swords need two slots, but only the daggers' own slot would be free.
+    pressSlotKey(2);
+
+    assertSame(maxDaggers, inventory.getItem(1), "the daggers should be left as they were");
+    assertEquals(20, maxDaggers.getQuantity());
+    assertEquals(1, inventory.getItem(2).getQuantity(), "the stone should not be used up");
   }
 
   @Test
