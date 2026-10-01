@@ -40,8 +40,10 @@ class EnemyDeathComponentTest {
     when(dropper.getPrio()).thenReturn(ComponentPriority.LOW);
     when(dropper.dropFirstStack()).thenReturn(true, false); // one item, then stop
 
-    entity.addComponent(dropper);
-    entity.addComponent(new EnemyDeathComponent());
+    entity
+        .addComponent(dropper)
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(new EnemyTypeComponent(EnemyType.SKELETON));
     entity.create();
 
     entity.getEvents().trigger("death");
@@ -56,7 +58,9 @@ class EnemyDeathComponentTest {
     ServiceLocator.registerEntityService(entityService);
 
     Entity entity = new Entity();
-    entity.addComponent(new EnemyDeathComponent());
+    entity
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(new EnemyTypeComponent(EnemyType.SKELETON));
     entity.create();
 
     entity.getEvents().trigger("death");

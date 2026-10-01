@@ -20,7 +20,6 @@ public class EnemyDeathComponent extends Component {
   }
 
   private void onDeath() {
-    String enemyType = entity.getComponent(EnemyTypeComponent.class).getEnemyLabel();
     if (entity.isDisposed()) {
       logger.info(
           "Enemy: {} already died.", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
@@ -28,8 +27,13 @@ public class EnemyDeathComponent extends Component {
     }
     ItemDropComponent dropper = entity.getComponent(ItemDropComponent.class);
     if (dropper != null) {
-
-      int goldNum = entity.getComponent(InventoryComponent.class).getGold();
+      int goldNum;
+      InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+      if (inventory != null) {
+        goldNum = entity.getComponent(InventoryComponent.class).getGold();
+      } else {
+        goldNum = 0;
+      }
       // Drop gold
       if (dropper.dropGold()) {
         logger.info(
@@ -45,11 +49,11 @@ public class EnemyDeathComponent extends Component {
       }
     }
 
-    entity.dispose();
     logger.info(
         "Enemy {} died at x:{} y:{}",
         entity.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
         entity.getCenterPosition().x,
         entity.getCenterPosition().y);
+    entity.dispose();
   }
 }
