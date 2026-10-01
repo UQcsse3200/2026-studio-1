@@ -131,7 +131,7 @@
       "texture": "images/level1/loot-room-door.png",
       "destinationMap": "maps/level1-greek.json",
       "destinationSpawn": {
-        "x": 2,
+        "x": 3,
         "y": 34
       }
     }
