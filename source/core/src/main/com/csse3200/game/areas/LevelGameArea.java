@@ -276,6 +276,22 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * Creates a completely new player in the current room after player death.
+   *
+   * @return the newly-created player entity
+   */
+  public Entity respawnPlayer() {
+    if (player != null) {
+      areaEntities.remove(player);
+      ServiceLocator.getEntityService().unregister(player);
+      player.dispose();
+    }
+
+    player = spawnPlayer();
+    return player;
+  }
+
+  /**
    * Remove ownership of the persistent player before this room is disposed.
    *
    * @return the player entity to adopt into the next room
