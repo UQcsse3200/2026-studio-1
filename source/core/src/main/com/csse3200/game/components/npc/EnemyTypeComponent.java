@@ -36,11 +36,11 @@ public class EnemyTypeComponent extends Component {
       char[] word_char_array = enemyPart.toCharArray();
       String firstLetter = String.valueOf(word_char_array[0]).toUpperCase(Locale.ENGLISH);
       label = label.concat(firstLetter);
-      
+
       for (int j = 1; j < word_char_array.length; j++) {
         label = label.concat(String.valueOf(word_char_array[j]));
       }
-      
+
       label = label.concat(" ");
     }
     label = label.stripTrailing();

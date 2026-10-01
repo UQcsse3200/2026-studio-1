@@ -72,6 +72,16 @@ public enum WeaponTier {
     return lootWeight;
   }
 
+  public static WeaponTier fromTierNumber(int tierNumber) {
+    for (WeaponTier weaponTier : values()) {
+      if (weaponTier.tier == tierNumber) {
+        return weaponTier;
+      }
+    }
+    throw new IllegalArgumentException(
+        "Invalid weapon tier: " + tierNumber + ". Must be between 1 and " + values().length + ".");
+  }
+
   public WeaponStats getStats(WeaponType weaponType) {
     if (weaponType == null) {
       throw new IllegalArgumentException("WeaponType must not be null.");
