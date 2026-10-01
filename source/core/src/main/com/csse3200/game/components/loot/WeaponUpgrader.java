@@ -12,11 +12,6 @@ public class WeaponUpgrader {
     int currentTier = weapon.getTier();
     int maxTier = WeaponTier.values().length;
 
-    if (weapon.getWeaponType() == WeaponType.DAGGER && currentTier == maxTier) {
-      return generator.generateWeapon(WeaponType.SWORD, 1);
-    } // Dagger's final upgrade becomes a sword rather than a higher-tier dagger, so the
-    // existing sword attack code can be reused without any changes.
-
     if (currentTier >= maxTier) {
       throw new IllegalStateException(
           "Cannot upgrade "
@@ -24,6 +19,10 @@ public class WeaponUpgrader {
               + " - already at maximum tier ("
               + currentTier
               + ").");
+    }
+
+    if (weapon.getWeaponType() == WeaponType.DAGGER) {
+      return generator.generateWeapon(WeaponType.SWORD, currentTier + 1);
     }
 
     return generator.generateWeapon(weapon.getWeaponType(), currentTier + 1);
