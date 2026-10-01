@@ -69,7 +69,8 @@ public class Tutorial extends UIComponent {
   }
 
   @Override
-  public void update() {
+  public void update() 
+  {
   }
 
   @Override
