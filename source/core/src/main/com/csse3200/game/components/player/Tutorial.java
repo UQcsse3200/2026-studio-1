@@ -6,9 +6,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import com.csse3200.game.ui.UIComponent;
 
+/** UI component for displaying the basic player controls. */
 public class Tutorial extends UIComponent {
 
   private Table rootTable;
+  private Table tutorialTable;
 
   @Override
   public void create() {
@@ -25,13 +27,14 @@ public class Tutorial extends UIComponent {
             });
   }
 
+  /** Creates and positions the tutorial box. */
   private void addActors() {
     rootTable = new Table();
     rootTable.setFillParent(true);
     rootTable.align(Align.bottom);
     rootTable.padBottom(20f);
 
-    Table tutorialTable = new Table();
+    tutorialTable = new Table();
     tutorialTable.setBackground(skin.getDrawable("window-w"));
     tutorialTable.pad(14f);
 
@@ -69,8 +72,8 @@ public class Tutorial extends UIComponent {
   }
 
   @Override
-  public void update() 
-  {
+  public void update() {
+    // Tutorial display does not require regular updates.
   }
 
   @Override
