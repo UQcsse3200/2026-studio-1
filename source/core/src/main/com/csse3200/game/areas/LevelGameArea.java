@@ -38,7 +38,10 @@ import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EnemyId;
+import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
+import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -635,8 +638,13 @@ public class LevelGameArea extends GameArea {
 
   private void spawnEnemies() {
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
+      String id = EnemyId.of(mapData.getName(), spawn.getPosition());
+      if (EnemyRegistry.isKilled(id)) {
+        continue;
+      }
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
+        enemy.addComponent(new PersistentEnemyIdComponent(id));
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
       }
     }

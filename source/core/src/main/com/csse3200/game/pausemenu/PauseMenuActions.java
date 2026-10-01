@@ -8,6 +8,7 @@ import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedItem;
@@ -54,7 +55,6 @@ public class PauseMenuActions extends Component {
   }
 
   private void goToMainMenu() {
-    saveCheckpoint();
     entity.getEvents().trigger("exit");
   }
 
@@ -90,6 +90,7 @@ public class PauseMenuActions extends Component {
     data.posY = player.getPosition().y;
     data.lootSeedsByRoom = lootSeedsSupplier.get();
     data.collectedLootIds = LootRegistry.exportAll();
+    data.killedEnemyIds = EnemyRegistry.exportAll();
     data.level = levelSupplier.get();
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
