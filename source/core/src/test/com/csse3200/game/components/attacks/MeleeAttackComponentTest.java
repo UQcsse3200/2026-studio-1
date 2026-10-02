@@ -15,6 +15,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -296,6 +297,59 @@ class MeleeAttackComponentTest {
         target.getComponent(CombatStatsComponent.class).getHealth(),
         "Expected charge (x2.0, truncated) then difficulty (x1.5, rounded) to combine to 30 "
             + "damage from a base weapon damage of 10.");
+  }
+
+  // Regression test for a compounding-multiplier bug: for a weaponless attacker, getDamage()
+  // falls back to combatStats.getBaseAttack(), which resolveAttack() then writes back via
+  // setBaseAttack(finalDamage). If the damage multiplier were applied in that branch too, the
+  // multiplier would compound on every single swing (10 -> 15 -> 22.5 -> ...). It must not apply
+  // at all when there's no weapon - only the weapon-damage path gets the difficulty multiplier.
+  //
+  // There is no public API to construct a weapon-less MeleeAttackComponent without throwing (the
+  // 3-arg constructor reads an unset weapon field and NPEs), so this test builds a normal,
+  // weapon-equipped component and clears the weapon field via reflection afterward.
+  @Test
+  void shouldNotCompoundDamageMultiplierForWeaponlessAttacker() throws Exception {
+    MeleeAttackComponent meleeAttack = new MeleeAttackComponent(3, 2, 0, createInstantWeapon());
+    Field weaponField = MeleeAttackComponent.class.getDeclaredField("weapon");
+    weaponField.setAccessible(true);
+    weaponField.set(meleeAttack, null);
+    meleeAttack.setDamageMultiplier(1.5f);
+
+    Entity attacker =
+        new Entity()
+            .addComponent(meleeAttack)
+            .addComponent(new CombatStatsComponent(20, 10))
+            .addComponent(new PhysicsComponent());
+    attacker.create();
+
+    Entity target = createHighHealthTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(1, 0);
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+
+    int healthBeforeFirstHit = targetStats.getHealth();
+    attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update(); // resolve the zero-length windup so the first hit lands
+    assertEquals(
+        healthBeforeFirstHit - 10,
+        targetStats.getHealth(),
+        "Expected the first landed hit to deal the unscaled base attack of 10, since a weaponless "
+            + "attacker's damage multiplier must not apply.");
+
+    // let the cooldown elapse so a second attack can land
+    for (int i = 0; i < 101; i++) {
+      attacker.update();
+    }
+
+    int healthBeforeSecondHit = targetStats.getHealth();
+    attacker.getEvents().trigger("meleeAttack", target);
+    attacker.update();
+    assertEquals(
+        healthBeforeSecondHit - 10,
+        targetStats.getHealth(),
+        "Expected a second consecutive landed hit to still deal exactly 10 damage, proving the "
+            + "multiplier did not compound onto the attacker's own baseAttack between hits.");
   }
 
   // Setters update range, cooldown, and knockback to new valid values.

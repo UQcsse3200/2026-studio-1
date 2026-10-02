@@ -42,7 +42,7 @@ class DifficultyScalerTest {
     WeaponItem bow = new WeaponItem("Bow", WeaponType.BOW, 5, 1, 1, 0f);
     return new Entity()
         .addComponent(new CombatStatsComponent(STARTING_HEALTH, STARTING_ATTACK))
-        .addComponent(new RangedAttackComponent(5f, STARTING_COOLDOWN, 0f, bow, 8f))
+        .addComponent(new RangedAttackComponent(5f, STARTING_COOLDOWN, 0f, bow))
         .addComponent(new InventoryComponent(STARTING_GOLD));
   }
 

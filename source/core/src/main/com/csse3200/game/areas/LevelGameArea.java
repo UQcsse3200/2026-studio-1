@@ -43,6 +43,7 @@ import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -271,6 +272,22 @@ public class LevelGameArea extends GameArea {
    * @return the spawned player entity, or null before {@link #create()} runs
    */
   public Entity getPlayer() {
+    return player;
+  }
+
+  /**
+   * Creates a completely new player in the current room after player death.
+   *
+   * @return the newly-created player entity
+   */
+  public Entity respawnPlayer() {
+    if (player != null) {
+      areaEntities.remove(player);
+      ServiceLocator.getEntityService().unregister(player);
+      player.dispose();
+    }
+
+    player = spawnPlayer();
     return player;
   }
 
@@ -769,7 +786,7 @@ public class LevelGameArea extends GameArea {
   private void playMusic() {
     Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
     music.setLooping(true);
-    music.setVolume(0.3f);
+    music.setVolume(AudioSettings.getEffectiveMusicVolume());
     music.play();
   }
 
