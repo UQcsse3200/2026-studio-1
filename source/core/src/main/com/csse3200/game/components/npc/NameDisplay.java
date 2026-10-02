@@ -27,7 +27,7 @@ public class NameDisplay extends UIComponent {
   public void create() {
     super.create();
 
-    Label.LabelStyle style = new Label.LabelStyle(skin.get("small", Label.LabelStyle.class));
+    Label.LabelStyle style = new Label.LabelStyle(skin.get("default", Label.LabelStyle.class));
     style.fontColor = Color.WHITE;
 
     nameLabel = new Label(npc.getComponent(NameComponent.class).getName(), style);
