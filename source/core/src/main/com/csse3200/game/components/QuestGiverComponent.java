@@ -40,18 +40,19 @@ public class QuestGiverComponent extends Component {
     }
   }
 
-  public void clearJumpQuest() {
+  public boolean clearJumpQuest() {
     try {
-      if (checkJumpQuestComplete() == 1) {
-        rewardGold();
-        rewardItem();
-      }
+      checkJumpQuestComplete();
     } catch (Exception e) {
       logger.error(
-          "When trying to reward the player for a quest, the following exception was raised:\n {}",
-          e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
+      return false;
     }
+    if (!giveOutQuestRewards(checkJumpQuestComplete())) return false;
     Quest.clearJumpQuest(uniqueNPCID);
+    return true;
   }
 
   public int checkJumpQuestComplete() {
@@ -74,18 +75,19 @@ public class QuestGiverComponent extends Component {
     }
   }
 
-  public void clearEnemiesKilledQuest() {
+  public boolean clearEnemiesKilledQuest() {
     try {
-      if (checkEnemiesKilledQuestComplete() == 1) {
-        rewardGold();
-        rewardItem();
-      }
+      checkEnemiesKilledQuestComplete();
     } catch (Exception e) {
       logger.error(
-          "When trying to reward the player for a quest, the following exception was raised:\n {}",
-          e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
+      return false;
     }
+    if (!giveOutQuestRewards(checkEnemiesKilledQuestComplete())) return false;
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
+    return true;
   }
 
   public int checkEnemiesKilledQuestComplete() {
@@ -118,18 +120,19 @@ public class QuestGiverComponent extends Component {
     }
   }
 
-  public void clearGoldSpentQuest() {
+  public boolean clearGoldSpentQuest() {
     try {
-      if (checkGoldSpentQuestComplete() == 1) {
-        rewardGold();
-        rewardItem();
-      }
+      checkGoldSpentQuestComplete();
     } catch (Exception e) {
       logger.error(
-          "When trying to reward the player for a quest, the following exception was raised:\n {}",
-          e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
+      return false;
     }
+    if (!giveOutQuestRewards(checkGoldSpentQuestComplete())) return false;
     Quest.clearGoldSpentQuest(uniqueNPCID);
+    return true;
   }
 
   // GoldSpentQuest functions end here
@@ -142,18 +145,19 @@ public class QuestGiverComponent extends Component {
     }
   }
 
-  public void clearShieldsCollectedQuest() {
+  public boolean clearShieldsCollectedQuest() {
     try {
-      if (checkShieldsCollectedQuestComplete() >= 100) {
-        rewardGold();
-        rewardItem();
-      }
+      checkShieldsCollectedQuestComplete();
     } catch (Exception e) {
       logger.error(
-          "When trying to reward the player for a quest, the following exception was raised:\n {}",
-          e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
+      return false;
     }
+    if (!giveOutQuestRewards(checkShieldsCollectedQuestComplete())) return false;
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
+    return true;
   }
 
   public int checkShieldsCollectedQuestComplete() {
@@ -173,10 +177,30 @@ public class QuestGiverComponent extends Component {
     }
   }
 
-  private void rewardItem() {
+  private boolean rewardItem() {
     if (itemToGive != null && player != null) {
-      // May cause issues if the inventory is full
+      // If the inventory is full, then don't end the quest
+      if (player.getComponent(InventoryComponent.class).isFull()) {
+        logger.info("Player's inventory was full so the quest could not be completed");
+        return false;
+      }
       player.getComponent(InventoryComponent.class).addItem(itemToGive);
     }
+    return true;
+  }
+
+  private boolean giveOutQuestRewards(int questProgress) {
+    try {
+      if (questProgress >= 100) {
+        rewardGold();
+        if (!rewardItem()) return false;
+      }
+    } catch (Exception e) {
+      logger.error(
+          "When trying to reward the player for a quest, the following exception was raised:\n {}",
+          e.getMessage());
+      return false;
+    }
+    return true;
   }
 }

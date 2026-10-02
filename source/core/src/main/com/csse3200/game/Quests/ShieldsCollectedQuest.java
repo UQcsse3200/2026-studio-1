@@ -5,6 +5,11 @@ public class ShieldsCollectedQuest {
   float globalShieldsCollectedSnapshot;
 
   public ShieldsCollectedQuest(int shieldsToCollect) {
+    if (shieldsToCollect <= 0) {
+      throw new IllegalArgumentException(
+          "ShieldsCollectedQuest was given a shieldsToCollect that was less "
+              + "than or equal to zero when it shouldn't have");
+    }
     this.shieldsToCollect = shieldsToCollect;
     this.globalShieldsCollectedSnapshot = Quest.getGlobalShieldsCollected();
   }

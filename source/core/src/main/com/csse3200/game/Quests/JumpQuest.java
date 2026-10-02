@@ -1,17 +1,15 @@
 package com.csse3200.game.Quests;
 
 public class JumpQuest {
-  float jumpsToDoTotal;
   float globalJumpsSnapshot;
   float jumpsToDo;
 
   public JumpQuest(int jumpsToDo) {
     if (jumpsToDo <= 0) {
       throw new IllegalArgumentException(
-          "EnemiesKilledQuest was given a jumpsToDo that was less "
+          "JumpQuest was given a jumpsToDo that was less "
               + "than or equal to zero when it shouldn't have");
     }
-    this.jumpsToDoTotal = jumpsToDo + Quest.getGlobalJumps();
     this.jumpsToDo = jumpsToDo;
     this.globalJumpsSnapshot = Quest.getGlobalJumps();
   }

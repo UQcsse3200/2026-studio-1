@@ -53,8 +53,11 @@ public class Quest {
   }
 
   public static void clearJumpQuest(int NPCId) {
-    jumpQuestTracker.set(NPCId, null);
-    questActiveForNPCID.set(NPCId, false);
+    // Only clear the quest if a quest has been set.
+    if (jumpQuestTracker.get(NPCId) != null) {
+      jumpQuestTracker.set(NPCId, null);
+      questActiveForNPCID.set(NPCId, false);
+    }
   }
 
   // Jump Quest functions end
@@ -79,8 +82,11 @@ public class Quest {
   }
 
   public static void clearEnemiesKilledQuest(int NPCId) {
-    enemiesKilledQuestTracker.set(NPCId, null);
-    questActiveForNPCID.set(NPCId, false);
+    // Only clear the quest if there's a quest to clear
+    if (enemiesKilledQuestTracker.get(NPCId) != null) {
+      enemiesKilledQuestTracker.set(NPCId, null);
+      questActiveForNPCID.set(NPCId, false);
+    }
   }
 
   // EnemiesKilledQuest functions end
@@ -105,8 +111,10 @@ public class Quest {
   }
 
   public static void clearGoldSpentQuest(int NPCId) {
-    goldSpentQuestTracker.set(NPCId, null);
-    questActiveForNPCID.set(NPCId, false);
+    if (goldSpentQuestTracker.get(NPCId) != null) {
+      goldSpentQuestTracker.set(NPCId, null);
+      questActiveForNPCID.set(NPCId, false);
+    }
   }
 
   // GoldSpentQuest functions end
@@ -123,7 +131,7 @@ public class Quest {
 
   public static int checkShieldsCollectedQuest(int NPCId) {
     if (shieldsCollectedQuestTracker.get(NPCId) != null) {
-      return getShieldsCollectedQuests().get(NPCId).checkQuestProgress();
+      return shieldsCollectedQuestTracker.get(NPCId).checkQuestProgress();
     } else {
       // No shieldCollectedQuest was created for that NPC
       return -1;
@@ -131,8 +139,10 @@ public class Quest {
   }
 
   public static void clearShieldsCollectedQuest(int NPCId) {
-    shieldsCollectedQuestTracker.set(NPCId, null);
-    questActiveForNPCID.set(NPCId, false);
+    if (shieldsCollectedQuestTracker.get(NPCId) != null) {
+      shieldsCollectedQuestTracker.set(NPCId, null);
+      questActiveForNPCID.set(NPCId, false);
+    }
   }
 
   // ShieldsCollectedQuest functions end

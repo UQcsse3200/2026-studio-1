@@ -262,6 +262,7 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
+    Quest.addGlobalGoldSpent(listing.getBuyPrice());
     purchasedUpgrades.add(listing.getProduct());
     if (entity != null) {
       entity.getEvents().trigger("upgradePurchased");
@@ -294,6 +295,7 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
+    Quest.addGlobalGoldSpent(listing.getBuyPrice());
     purchasedPets.add(listing.getProduct());
     if (entity != null) {
       entity.getEvents().trigger("petPurchased", listing.getProduct());

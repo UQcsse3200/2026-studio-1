@@ -127,7 +127,10 @@ public class ShieldsCollectedQuestTest {
 
   @Test
   public void testCheckShieldsCollectedCompleteWhenNoQuestWasMade() {
-    questGiverComponent.clearShieldsCollectedQuest();
+    if (questGiverComponent.clearShieldsCollectedQuest()) {
+      fail(
+          "The function clearShieldsCollectedQuest() should have returned false when there was no quest to clear but didn't");
+    }
     assertThrows(
         NullPointerException.class,
         () -> questGiverComponent.checkShieldsCollectedQuestComplete(),

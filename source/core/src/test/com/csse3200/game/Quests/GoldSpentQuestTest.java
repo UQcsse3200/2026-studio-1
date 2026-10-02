@@ -127,7 +127,10 @@ public class GoldSpentQuestTest {
 
   @Test
   public void testCheckGoldSpentCompleteWhenNoQuestWasMade() {
-    questGiverComponent.clearGoldSpentQuest();
+    if (questGiverComponent.clearGoldSpentQuest()) {
+      fail(
+          "The function clearGoldSpentQuest() should have returned false when there's no quest to clear but didn't");
+    }
     assertThrows(
         NullPointerException.class,
         () -> questGiverComponent.checkGoldSpentQuestComplete(),

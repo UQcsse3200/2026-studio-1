@@ -20,11 +20,11 @@ public class EnemyDeathComponent extends Component {
   }
 
   private void onDeath() {
-    Quest.incrementGlobalEnemiesKilled();
     if (entity.isDisposed()) {
       logger.info("Enemy {} already died.", entity);
       return;
     }
+    Quest.incrementGlobalEnemiesKilled();
     ItemDropComponent dropper = entity.getComponent(ItemDropComponent.class);
     if (dropper != null) {
       // Drop gold

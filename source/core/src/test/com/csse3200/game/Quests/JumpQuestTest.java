@@ -76,7 +76,10 @@ public class JumpQuestTest {
     Entity entity = new Entity();
     QuestGiverComponent questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
-    questGiverComponent.clearJumpQuest();
+    if (questGiverComponent.clearJumpQuest()) {
+      fail(
+          "The function clearJumpQuest() should have returned false when no quest was logged but didn't");
+    }
     assertThrows(
         NullPointerException.class,
         () -> questGiverComponent.checkJumpQuestComplete(),
