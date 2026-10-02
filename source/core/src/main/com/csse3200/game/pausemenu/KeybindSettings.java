@@ -63,10 +63,10 @@ public final class KeybindSettings {
     return keycode != null ? keycode : UNBOUND;
   }
 
-  /*
-   Binds action to keycode. If any other action currently holds keycode, that action is
-   unbound first (set to UNBOUND), so no two actions can ever share the same key.
-  */
+  /**
+   * Binds action to keycode. If any other action currently holds keycode, that action is unbound
+   * first (set to UNBOUND), so no two actions can ever share the same key.
+   */
   public static void setKey(String action, int keycode) {
     if (!currentKeys.containsKey(action)) {
       return;
@@ -85,7 +85,7 @@ public final class KeybindSettings {
     saveKey(action, keycode);
   }
 
-  // Resets every action back to its default key.
+  /** Resets every action back to its default key. */
   public static void resetToDefaults() {
     for (Map.Entry<String, Integer> entry : defaultKeys.entrySet()) {
       currentKeys.put(entry.getKey(), entry.getValue());
