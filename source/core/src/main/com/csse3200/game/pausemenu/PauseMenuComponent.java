@@ -34,7 +34,7 @@ public class PauseMenuComponent extends Component {
 
   public void toggleIsPaused() {
     isPaused = !isPaused;
-    gamePause = isPaused;
+    gamePause = !gamePause;
     logger.info(
         "Paused: {}",
         isPaused); // resturns paused state in console, can be removed later if not needed
