@@ -4,7 +4,6 @@ import com.badlogic.gdx.Input;
 import com.csse3200.game.input.InputComponent;
 
 public class KeyboardPauseInput extends InputComponent {
-  private static final int TOGGLE_PAUSE_KEY = Input.Keys.ESCAPE;
   private PauseMenuComponent pauseMenu;
 
   public KeyboardPauseInput() {
@@ -24,7 +23,18 @@ public class KeyboardPauseInput extends InputComponent {
 
   @Override
   public boolean keyDown(int keycode) {
-    if (keycode == TOGGLE_PAUSE_KEY) {
+    // While waiting for a key to bind to an action, forward the raw key instead of handling it
+    // normally. Escape cancels the capture rather than being bound.
+    if (pauseMenu.isCapturingKeybind()) {
+      if (keycode == Input.Keys.ESCAPE) {
+        entity.getEvents().trigger("keybindCaptureCancelled");
+      } else {
+        entity.getEvents().trigger("keybindCaptured", keycode);
+      }
+      return true;
+    }
+
+    if (keycode == KeybindSettings.getKey("pause")) {
       if (!pauseMenu.isPaused()) {
         pauseMenu.toggleIsPaused();
       } else {
@@ -50,6 +60,9 @@ public class KeyboardPauseInput extends InputComponent {
 
   @Override
   public boolean keyUp(int keycode) {
+    if (pauseMenu.isCapturingKeybind()) {
+      return true;
+    }
     if (pauseMenu.isPaused()) {
       switch (keycode) {
         case Input.Keys.UP:

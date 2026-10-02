@@ -13,9 +13,14 @@ public class PauseMenuComponent extends Component {
   // the music
   private boolean isPaused = false;
   private boolean capturingKeybind = false;
+  private static volatile boolean gamePause = false;
 
   public boolean isPaused() {
     return isPaused;
+  }
+
+  public static boolean isGamePaused() {
+    return gamePause;
   }
 
   /** Whether the pause menu is currently waiting for the next key press to bind to an action. */
@@ -29,6 +34,7 @@ public class PauseMenuComponent extends Component {
 
   public void toggleIsPaused() {
     isPaused = !isPaused;
+    gamePause = !gamePause;
     logger.info(
         "Paused: {}",
         isPaused); // resturns paused state in console, can be removed later if not needed

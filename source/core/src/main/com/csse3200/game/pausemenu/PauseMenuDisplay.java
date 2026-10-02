@@ -1,6 +1,7 @@
 package com.csse3200.game.pausemenu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -59,20 +60,52 @@ public class PauseMenuDisplay extends UIComponent {
   };
   private static final int AUDIO_BACK_INDEX = 3;
 
-  private static final String[] KEYBIND_ITEMS = {
-    "Move left:  A",
-    "Move right:  D",
-    "Move down:  S",
-    "Jump: W",
-    "Dash: L",
-    "Slide: LShift",
-    "Attack: Space",
-    "Drop Item: Q",
-    "Equip Shield: B",
-    "Pause: ESC",
-    "Back"
+  /** Action names, matching KeybindSettings exactly. One row per action, plus a Back row. */
+  private static final String[] KEYBIND_ACTIONS = {
+    "moveLeft",
+    "moveRight",
+    "moveDown",
+    "jump",
+    "dash",
+    "slide",
+    "attack",
+    "dropItem",
+    "equipShield",
+    "interact",
+    "toggleQuestMenu",
+    "crouch",
+    "pause",
+    "hotbarSlot1",
+    "hotbarSlot2",
+    "hotbarSlot3",
+    "hotbarSlot4",
+    "hotbarSlot5"
   };
-  private static final int KEYBINDS_BACK_INDEX = KEYBIND_ITEMS.length - 1;
+
+  /** Human-readable labels, in the same order as KEYBIND_ACTIONS. */
+  private static final String[] KEYBIND_LABELS = {
+    "Move Left",
+    "Move Right",
+    "Move Down",
+    "Jump",
+    "Dash",
+    "Slide",
+    "Attack",
+    "Drop Item",
+    "Equip Shield",
+    "Interact",
+    "Toggle Quest Menu",
+    "Crouch",
+    "Pause",
+    "Hotbar Slot 1",
+    "Hotbar Slot 2",
+    "Hotbar Slot 3",
+    "Hotbar Slot 4",
+    "Hotbar Slot 5"
+  };
+
+  private static final int KEYBINDS_BACK_INDEX = KEYBIND_ACTIONS.length;
+  private static final int KEYBINDS_ITEM_COUNT = KEYBIND_ACTIONS.length + 1;
 
   private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
   private float masterVol =
@@ -103,6 +136,10 @@ public class PauseMenuDisplay extends UIComponent {
   private Label masterValueLabel;
   private Label musicValueLabel;
   private Label effectsValueLabel;
+
+  /** Action currently waiting for its next key press, or null when not capturing. */
+  private String capturingAction = null;
+
   // Restart confirmation
   private Label restartConfirmLabel;
   private Label restartConfirmMessageLabel;
@@ -140,8 +177,7 @@ public class PauseMenuDisplay extends UIComponent {
     audioLabels = new Label[AUDIO_ITEMS.length];
     audioPanel = buildAudioPanel();
 
-    keybindsLabels = new Label[KEYBIND_ITEMS.length];
-    keybindsPanel = buildPanel(KEYBIND_ITEMS, keybindsLabels);
+    keybindsPanel = buildKeybindsPanel();
 
     restartConfirmLabel = createLabel("ABANDON THIS JOURNEY?");
     restartConfirmMessageLabel =
@@ -250,9 +286,6 @@ public class PauseMenuDisplay extends UIComponent {
     if (items == MAIN_ITEMS) {
       return MenuState.MAIN;
     }
-    if (items == KEYBIND_ITEMS) {
-      return MenuState.KEYBINDS;
-    }
     return MenuState.SETTINGS;
   }
 
@@ -316,6 +349,59 @@ public class PauseMenuDisplay extends UIComponent {
     updateVolumeLabel(effectsValueLabel, effectsVol);
     applyUniformRowWidths(panel);
     return panel;
+  }
+
+  /**
+   * Builds the Keybinds panel: one row per action in KEYBIND_ACTIONS, plus a Back row. Row text
+   * starts empty and is filled in by refreshKeybindLabels() once every row exists, since the
+   * displayed text (label + current key) can change later whenever a rebind happens.
+   */
+  private Table buildKeybindsPanel() {
+    Table panel = new Table();
+    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    panel.pad(20f, 30f, 20f, 30f);
+    panel.left();
+
+    keybindsLabels = new Label[KEYBINDS_ITEM_COUNT];
+    for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
+      Label label = createLabel("");
+      keybindsLabels[i] = label;
+      Table row = new Table();
+      row.add(label).pad(6f, 15f, 6f, 15f).left();
+      addRowInteraction(row, MenuState.KEYBINDS, i, true);
+      panel.add(row).left().padBottom(4f).fillX();
+      panel.row();
+    }
+
+    Label backLabel = createLabel("Back");
+    keybindsLabels[KEYBINDS_BACK_INDEX] = backLabel;
+    Table backRow = new Table();
+    backRow.add(backLabel).pad(6f, 15f, 6f, 15f).left();
+    addRowInteraction(backRow, MenuState.KEYBINDS, KEYBINDS_BACK_INDEX, true);
+    panel.add(backRow).left().padBottom(4f).fillX();
+
+    refreshKeybindLabels();
+    applyUniformRowWidths(panel);
+    return panel;
+  }
+
+  /**
+   * Rewrites every keybind row's text from the current KeybindSettings state. Called after the
+   * panel is built, and again after every rebind or cancelled capture, since a rebind can also
+   * change a different row's text (auto-unbind) and the display must stay in sync.
+   */
+  private void refreshKeybindLabels() {
+    for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
+      String action = KEYBIND_ACTIONS[i];
+      if (action.equals(capturingAction)) {
+        keybindsLabels[i].setText(KEYBIND_LABELS[i] + ": Press any key...");
+        continue;
+      }
+      int keycode = KeybindSettings.getKey(action);
+      String keyName =
+          (keycode == KeybindSettings.UNBOUND) ? "Unbound" : Input.Keys.toString(keycode);
+      keybindsLabels[i].setText(KEYBIND_LABELS[i] + ": " + keyName);
+    }
   }
 
   private Slider buildSlider(
@@ -400,6 +486,24 @@ public class PauseMenuDisplay extends UIComponent {
     entity.getEvents().addListener("leftReleased", this::onLeftReleased);
     entity.getEvents().addListener("rightPressed", this::onRightPressed);
     entity.getEvents().addListener("rightReleased", this::onRightReleased);
+    entity.getEvents().addListener("keybindCaptured", this::onKeybindCaptured);
+    entity.getEvents().addListener("keybindCaptureCancelled", this::onKeybindCaptureCancelled);
+  }
+
+  void onKeybindCaptured(int keycode) {
+    if (capturingAction == null) {
+      return;
+    }
+    KeybindSettings.setKey(capturingAction, keycode);
+    capturingAction = null;
+    pauseMenu.setCapturingKeybind(false);
+    refreshKeybindLabels();
+  }
+
+  void onKeybindCaptureCancelled() {
+    capturingAction = null;
+    pauseMenu.setCapturingKeybind(false);
+    refreshKeybindLabels();
   }
 
   void navigateUp() {
@@ -464,7 +568,7 @@ public class PauseMenuDisplay extends UIComponent {
       case MAIN -> MAIN_ITEMS.length;
       case SETTINGS -> SETTINGS_ITEMS.length;
       case AUDIO -> AUDIO_ITEMS.length;
-      case KEYBINDS -> KEYBIND_ITEMS.length;
+      case KEYBINDS -> KEYBINDS_ITEM_COUNT;
       case RESTART_CONFIRM -> 2;
     };
   }
@@ -566,7 +670,15 @@ public class PauseMenuDisplay extends UIComponent {
     if (keybindsIndex == KEYBINDS_BACK_INDEX) {
       state = MenuState.SETTINGS;
       refreshPanels();
+      return;
     }
+    beginKeybindCapture(KEYBIND_ACTIONS[keybindsIndex]);
+  }
+
+  private void beginKeybindCapture(String action) {
+    capturingAction = action;
+    pauseMenu.setCapturingKeybind(true);
+    refreshKeybindLabels();
   }
 
   private void handleEscape() {
