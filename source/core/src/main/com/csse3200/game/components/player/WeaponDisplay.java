@@ -47,7 +47,7 @@ public class WeaponDisplay extends UIComponent {
     // The "large" skin style defaults to a dark font colour that is unreadable against this
     // dungeon background, so we copy the style and override just its font colour to white.
     Label.LabelStyle whiteLargeStyle =
-        new Label.LabelStyle(skin.get("large", Label.LabelStyle.class));
+        new Label.LabelStyle(skin.get("default", Label.LabelStyle.class));
     whiteLargeStyle.fontColor = Color.WHITE;
     weaponLabel = new Label(buildLabelText(), whiteLargeStyle);
 
