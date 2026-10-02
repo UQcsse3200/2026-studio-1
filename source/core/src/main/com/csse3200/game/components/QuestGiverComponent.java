@@ -16,16 +16,20 @@ public class QuestGiverComponent extends Component {
 
   public QuestGiverComponent(Entity player) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
-    if(player == null){
-      throw new IllegalArgumentException("A QuestGiverComponent was given null for a player entity reference");
+    if (player == null) {
+      throw new IllegalArgumentException(
+          "A QuestGiverComponent was given null for a player entity reference");
     }
     this.player = player;
   }
 
   public QuestGiverComponent(Entity player, int goldToGive) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
-    if(goldToGive<0){
-      throw new IllegalArgumentException("A QuestGiverComponent was given "+goldToGive+" as the goldToGive as a reward but goldToGive should not be negative");
+    if (goldToGive < 0) {
+      throw new IllegalArgumentException(
+          "A QuestGiverComponent was given "
+              + goldToGive
+              + " as the goldToGive as a reward but goldToGive should not be negative");
     }
     this.goldToGive = goldToGive;
     this.player = player;
@@ -33,8 +37,9 @@ public class QuestGiverComponent extends Component {
 
   public QuestGiverComponent(Entity player, Item itemToGive) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
-    if(itemToGive==null){
-      throw new IllegalArgumentException("A QuestGiverComponent was given null as the item to give as a reward which should not be done. If you don't want to give a reward to the player then use the constructor that only takes a player entity parameter");
+    if (itemToGive == null) {
+      throw new IllegalArgumentException(
+          "A QuestGiverComponent was given null as the item to give as a reward which should not be done. If you don't want to give a reward to the player then use the constructor that only takes a player entity parameter");
     }
     this.itemToGive = itemToGive;
     this.player = player;
@@ -184,12 +189,13 @@ public class QuestGiverComponent extends Component {
     if (goldToGive >= 0 && player != null) {
       player.getComponent(InventoryComponent.class).addGold(goldToGive);
       return true;
-    }else if(goldToGive<0){
-      //This should not trigger since the constructor safeguards this but just in case
-      logger.error("A QuestGiverComponent tried to give the player negative gold which is not allowed");
-    }else{
-      //This should not trigger since the constructor safeguards this but just in case
-     logger.error("A QuestGiverComponent had null for their player reference");
+    } else if (goldToGive < 0) {
+      // This should not trigger since the constructor safeguards this but just in case
+      logger.error(
+          "A QuestGiverComponent tried to give the player negative gold which is not allowed");
+    } else {
+      // This should not trigger since the constructor safeguards this but just in case
+      logger.error("A QuestGiverComponent had null for their player reference");
     }
     return false;
   }
@@ -203,13 +209,14 @@ public class QuestGiverComponent extends Component {
       }
       player.getComponent(InventoryComponent.class).addItem(itemToGive);
       return true;
-    }else if (itemToGive == null){
-      //There's nothing to give so we return true. The constructor should prevent this though
+    } else if (itemToGive == null) {
+      // There's nothing to give so we return true. The constructor should prevent this though
       return true;
-    }else{
-      //The player is null which is not allowed
-      //The constructor safeguards this but just in case, the logger is here
-      logger.error("A QuestGiverComponent when trying to reward the player with an item found that their player reference was null");
+    } else {
+      // The player is null which is not allowed
+      // The constructor safeguards this but just in case, the logger is here
+      logger.error(
+          "A QuestGiverComponent when trying to reward the player with an item found that their player reference was null");
       return false;
     }
   }
@@ -217,7 +224,7 @@ public class QuestGiverComponent extends Component {
   private boolean giveOutQuestRewards(int questProgress) {
     try {
       if (questProgress >= 100) {
-        if(!rewardGold()) return false;
+        if (!rewardGold()) return false;
         if (!rewardItem()) return false;
       }
     } catch (Exception e) {
