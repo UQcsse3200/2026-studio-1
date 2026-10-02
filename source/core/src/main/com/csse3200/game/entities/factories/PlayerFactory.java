@@ -105,6 +105,7 @@ public class PlayerFactory {
             .addComponent(new PetManagerComponent())
             .addComponent(new PlatformerComponent(5, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
+            .addComponent(new SpecialAttackCooldownDisplay())
             .addComponent(new QuestDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))

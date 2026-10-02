@@ -261,6 +261,20 @@ public class PlayerActions extends Component {
     return attackCooldownMultiplier;
   }
 
+  /**
+   * @return remaining cooldown in seconds for the F-key special attack
+   */
+  public float getSpecialAttackCooldownRemaining() {
+    return specialAttackCooldownRemaining;
+  }
+
+  /**
+   * @return remaining cooldown in seconds for the G-key area attack
+   */
+  public float getAreaAttackCooldownRemaining() {
+    return areaAttackCooldownRemaining;
+  }
+
   public float getEffectiveSpeedMultiplier() {
     float result = 1f;
     for (float value : speedModifiers.values()) {
