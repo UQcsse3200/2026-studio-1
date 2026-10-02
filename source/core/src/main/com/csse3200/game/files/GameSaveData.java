@@ -15,4 +15,6 @@ public class GameSaveData {
   public List<String> collectedLootIds = new ArrayList<>();
   public String level;
   public List<String> killedEnemyIds = new ArrayList<>();
+  public List<String> ownedPetNames = new ArrayList<>();
+  public String activePetName;
 }
