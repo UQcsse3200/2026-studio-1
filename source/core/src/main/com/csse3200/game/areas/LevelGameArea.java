@@ -1,14 +1,12 @@
 package com.csse3200.game.areas;
 
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.areas.terrain.CollisionType;
-import com.csse3200.game.components.npc.NameComponent;
-import com.csse3200.game.components.npc.NameDisplay;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
@@ -34,6 +32,8 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameDisplay;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -95,6 +95,7 @@ public class LevelGameArea extends GameArea {
    * it is logged when loot spawns so a run with a bug in it can be replayed from that seed.
    */
   private final long lootSeed;
+
   private final Camera worldCamera;
 
   /** Entity textures needed by the player, enemies, and loot items. */
@@ -208,48 +209,50 @@ public class LevelGameArea extends GameArea {
       GridPoint2 entrySpawn,
       Long savedLootSeed) {
     this(
-            terrainFactory,
-            mapPath,
-            new JsonMapLoader(),
-            existingPlayer,
-            entrySpawn,
-            savedLootSeed,
-            null);
+        terrainFactory,
+        mapPath,
+        new JsonMapLoader(),
+        existingPlayer,
+        entrySpawn,
+        savedLootSeed,
+        null);
   }
+
   public LevelGameArea(
-          TerrainFactory terrainFactory,
-          String mapPath,
-          Entity existingPlayer,
-          GridPoint2 entrySpawn,
-          Long savedLootSeed,
-          Camera worldCamera) {
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed,
+      Camera worldCamera) {
     this(
-            terrainFactory,
-            mapPath,
-            new JsonMapLoader(),
-            existingPlayer,
-            entrySpawn,
-            savedLootSeed,
-            worldCamera);
+        terrainFactory,
+        mapPath,
+        new JsonMapLoader(),
+        existingPlayer,
+        entrySpawn,
+        savedLootSeed,
+        worldCamera);
   }
+
   /**
-   * Create a level while retaining an existing player, placing it at a specified entrance,
-   * and using a camera for NPC name displays.
+   * Create a level while retaining an existing player, placing it at a specified entrance, and
+   * using a camera for NPC name displays.
    */
   public LevelGameArea(
-          TerrainFactory terrainFactory,
-          String mapPath,
-          Entity existingPlayer,
-          GridPoint2 entrySpawn,
-          Camera worldCamera) {
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Camera worldCamera) {
     this(
-            terrainFactory,
-            mapPath,
-            new JsonMapLoader(),
-            existingPlayer,
-            entrySpawn,
-            null,
-            worldCamera);
+        terrainFactory,
+        mapPath,
+        new JsonMapLoader(),
+        existingPlayer,
+        entrySpawn,
+        null,
+        worldCamera);
   }
 
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, Camera worldCamera) {
@@ -257,13 +260,13 @@ public class LevelGameArea extends GameArea {
   }
 
   private LevelGameArea(
-          TerrainFactory terrainFactory,
-          String mapPath,
-          MapLoader mapLoader,
-          Entity existingPlayer,
-          GridPoint2 entrySpawn,
-          Long savedLootSeed,
-          Camera worldCamera) {
+      TerrainFactory terrainFactory,
+      String mapPath,
+      MapLoader mapLoader,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed,
+      Camera worldCamera) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
@@ -725,6 +728,7 @@ public class LevelGameArea extends GameArea {
       }
     }
   }
+
   /**
    * Builds one spawn by name, through {@link EntitySpawnRegistry}, so this area holds no list of
    * what the game can spawn. A name nobody registered is reported by the registry and skipped.
