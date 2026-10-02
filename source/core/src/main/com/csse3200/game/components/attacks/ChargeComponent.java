@@ -17,15 +17,18 @@ import com.csse3200.game.services.ServiceLocator;
  */
 public class ChargeComponent extends Component {
   private final float chargeDuration;
+  private final float windupDuration;
   private final float cooldown;
   private final float damageMultiplier;
   private final float speedMultiplier;
 
+  private Vector2 targetPosition;
   private float timeSinceLastCharge;
   private float chargeTimeRemaining;
+  private float windupTimeRemaining;
 
   /**
-   * Create a charge component - increases the speed and attack damage from the entity.
+   * Create a charge component without a wind-up phase — moves fast immediately.
    *
    * @param chargeDuration seconds a single charge lasts once started
    * @param cooldown minimum seconds between the end of one charge and the start of the next
@@ -33,14 +36,39 @@ public class ChargeComponent extends Component {
    *     greater than 1.0
    * @param speedMultiplier movement speed multiplier applied while charging; must be greater than
    *     1.0
-   * @throws IllegalArgumentException if damageMultiplier or speedMultiplier is not greater than
-   *     1.0, if chargeDuration is not positive, or if cooldown is negative
+   * @throws IllegalArgumentException if constraints are violated
    */
   public ChargeComponent(
       float chargeDuration, float cooldown, float damageMultiplier, float speedMultiplier)
       throws IllegalArgumentException {
+    this(chargeDuration, 0f, cooldown, damageMultiplier, speedMultiplier);
+  }
+
+  /**
+   * Create a charge component with an optional stationary wind-up phase before the fast rush.
+   *
+   * @param chargeDuration total seconds a charge lasts (including windupDuration)
+   * @param windupDuration seconds the entity remains stationary winding up before moving fast
+   * @param cooldown minimum seconds between the end of one charge and the start of the next
+   * @param damageMultiplier damage multiplier applied to the next attack while charging; must be
+   *     greater than 1.0
+   * @param speedMultiplier movement speed multiplier applied while charging; must be greater than
+   *     1.0
+   * @throws IllegalArgumentException if constraints are violated
+   */
+  public ChargeComponent(
+      float chargeDuration,
+      float windupDuration,
+      float cooldown,
+      float damageMultiplier,
+      float speedMultiplier)
+      throws IllegalArgumentException {
     if (chargeDuration <= 0) {
       throw new IllegalArgumentException("chargeDuration must be positive.");
+    }
+    if (windupDuration < 0 || windupDuration >= chargeDuration) {
+      throw new IllegalArgumentException(
+          "windupDuration must be non-negative and strictly less than chargeDuration");
     }
     if (cooldown < 0) {
       throw new IllegalArgumentException("cooldown must not be negative.");
@@ -53,6 +81,7 @@ public class ChargeComponent extends Component {
           "to have any effect on speed, multiplier must be greater than 1.");
     }
     this.chargeDuration = chargeDuration;
+    this.windupDuration = windupDuration;
     this.cooldown = cooldown;
 
     this.damageMultiplier = damageMultiplier;
@@ -60,23 +89,47 @@ public class ChargeComponent extends Component {
 
     this.timeSinceLastCharge = cooldown;
     this.chargeTimeRemaining = 0;
+    this.windupTimeRemaining = 0;
   }
 
   /**
-   * Advances the charge/cooldown timers by one tick, restoring normal movement speed when a charge
-   * ends.
+   * Advances the charge/cooldown timers by one tick, transitioning from stationary windup to fast
+   * movement and restoring normal movement speed when a charge ends.
    */
   @Override
   public void update() {
+    float dt = ServiceLocator.getTimeSource().getDeltaTime();
     if (isCharging()) {
-      chargeTimeRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
-      if (chargeTimeRemaining <= 0) {
-        chargeTimeRemaining = 0;
-        timeSinceLastCharge = 0;
-        this.getEntity().getComponent(PhysicsMovementComponent.class).setSpeedMultiplier(1.0f);
-      } else {
-        timeSinceLastCharge += ServiceLocator.getTimeSource().getDeltaTime();
+      chargeTimeRemaining -= dt;
+      if (windupTimeRemaining > 0) {
+        windupTimeRemaining -= dt;
+        if (windupTimeRemaining <= 0.0001f) {
+          windupTimeRemaining = 0;
+          PhysicsMovementComponent movement =
+              this.getEntity().getComponent(PhysicsMovementComponent.class);
+          if (movement != null && targetPosition != null) {
+            movement.setTarget(targetPosition);
+            movement.setSpeedMultiplier(this.speedMultiplier);
+            movement.setMoving(true);
+          }
+          this.getEntity().getEvents().trigger("chargeRushStart");
+        }
       }
+
+      if (chargeTimeRemaining <= 0.0001f) {
+        chargeTimeRemaining = 0;
+        windupTimeRemaining = 0;
+        timeSinceLastCharge = 0;
+        PhysicsMovementComponent movement =
+            this.getEntity().getComponent(PhysicsMovementComponent.class);
+        if (movement != null) {
+          movement.setSpeedMultiplier(1.0f);
+          movement.setMoving(false);
+        }
+        this.getEntity().getEvents().trigger("chargeEnd");
+      }
+    } else {
+      timeSinceLastCharge += dt;
     }
   }
 
@@ -90,16 +143,45 @@ public class ChargeComponent extends Component {
   }
 
   /**
-   * @return true if a charge is currently in progress
+   * @return true if a charge is currently in progress (either in windup or rush phase)
    */
   public boolean isCharging() {
     return chargeTimeRemaining > 0;
   }
 
   /**
+   * @return true if the entity is currently in the stationary windup phase of the charge
+   */
+  public boolean isWindup() {
+    return isCharging() && windupTimeRemaining > 0;
+  }
+
+  /**
+   * @return true if the entity is currently in the fast movement rush phase of the charge
+   */
+  public boolean isRushing() {
+    return isCharging() && windupTimeRemaining <= 0;
+  }
+
+  /**
+   * @return the snapshot target position being charged toward, or null if not charging
+   */
+  public Vector2 getTargetPosition() {
+    return targetPosition != null ? targetPosition.cpy() : null;
+  }
+
+  public float getWindupDuration() {
+    return windupDuration;
+  }
+
+  public float getChargeDuration() {
+    return chargeDuration;
+  }
+
+  /**
    * Begins a charge toward the given target position if {@link #canCharge()} is true; otherwise a
-   * no-op. A one-time snapshot of the target's position, not tracked continuously — the entity
-   * keeps moving toward this point even if the target later moves.
+   * no-op. If windupDuration > 0, the entity remains stationary during the windup phase before
+   * moving fast toward the target position.
    *
    * @param targetPosition the world position to charge toward
    */
@@ -107,11 +189,25 @@ public class ChargeComponent extends Component {
     if (!canCharge()) {
       return;
     }
+    this.targetPosition = targetPosition.cpy();
     chargeTimeRemaining = chargeDuration;
-    this.getEntity().getComponent(PhysicsMovementComponent.class).setTarget(targetPosition);
-    this.getEntity()
-        .getComponent(PhysicsMovementComponent.class)
-        .setSpeedMultiplier(this.speedMultiplier);
+    windupTimeRemaining = windupDuration;
+    PhysicsMovementComponent movement =
+        this.getEntity().getComponent(PhysicsMovementComponent.class);
+
+    if (windupDuration > 0) {
+      if (movement != null) {
+        movement.setMoving(false);
+      }
+      this.getEntity().getEvents().trigger("chargeWindupStart");
+    } else {
+      if (movement != null) {
+        movement.setTarget(targetPosition);
+        movement.setSpeedMultiplier(this.speedMultiplier);
+        movement.setMoving(true);
+      }
+      this.getEntity().getEvents().trigger("chargeRushStart");
+    }
     this.getEntity().getEvents().trigger("chargeStart");
   }
 
