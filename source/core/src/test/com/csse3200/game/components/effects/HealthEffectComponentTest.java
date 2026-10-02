@@ -125,8 +125,8 @@ public class HealthEffectComponentTest {
 
   @Test
   void getsCorrectEffect() {
-    HealthEffectComponent effect = new HealthEffectComponent();
-    effect.applyEffect(1, 10);
+    Entity entity = createEntityWithEffect(100, 1, 10);
+    HealthEffectComponent effect = entity.getComponent(HealthEffectComponent.class);
     assertEquals(10, effect.getHealthEffect());
   }
 
