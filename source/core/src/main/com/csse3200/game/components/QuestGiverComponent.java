@@ -171,9 +171,12 @@ public class QuestGiverComponent extends Component {
   }
 
   // ShieldsCollectedQuest functions end here
-  private void rewardGold() {
+  private boolean rewardGold() {
     if (goldToGive >= 0 && player != null) {
       player.getComponent(InventoryComponent.class).addGold(goldToGive);
+      return true;
+    }else{
+      return false;
     }
   }
 
@@ -193,7 +196,7 @@ public class QuestGiverComponent extends Component {
   private boolean giveOutQuestRewards(int questProgress) {
     try {
       if (questProgress >= 100) {
-        rewardGold();
+        if(!rewardGold())return false;
         if (!rewardItem()) return false;
       }
     } catch (Exception e) {
