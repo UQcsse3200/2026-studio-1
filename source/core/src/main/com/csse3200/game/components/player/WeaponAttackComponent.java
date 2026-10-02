@@ -11,6 +11,8 @@ import com.csse3200.game.services.ServiceLocator;
 
 /** Handles player attacks based on the currently equipped weapon. */
 public class WeaponAttackComponent extends Component {
+  private static final float MAX_BOW_SPREAD_DEGREES = 15f;
+
   private final WeaponItem weapon;
   private Vector2 attackDirection = new Vector2(1f, 0f);
 
@@ -88,10 +90,30 @@ public class WeaponAttackComponent extends Component {
 
     for (int i = 0; i < projectileCount; i++) {
       Entity arrow =
-          ArrowFactory.createArrow(spawnPosition, direction, activeWeapon.getDamage(), entity);
+          ArrowFactory.createArrow(
+              spawnPosition,
+              getBowProjectileDirection(direction, i, projectileCount),
+              activeWeapon.getDamage(),
+              entity);
 
       ServiceLocator.getEntityService().register(arrow);
     }
+  }
+
+  static Vector2 getBowProjectileDirection(Vector2 direction, int projectileIndex, int count) {
+    if (direction == null || direction.isZero()) {
+      throw new IllegalArgumentException("Bow direction must not be null or zero.");
+    }
+    if (count < 1 || projectileIndex < 0 || projectileIndex >= count) {
+      throw new IllegalArgumentException("Projectile index must be within the projectile count.");
+    }
+    if (count == 1) {
+      return direction.cpy().nor();
+    }
+
+    float spreadStep = MAX_BOW_SPREAD_DEGREES / (count - 1);
+    float angle = -MAX_BOW_SPREAD_DEGREES / 2f + spreadStep * projectileIndex;
+    return direction.cpy().nor().rotateDeg(angle);
   }
 
   private void daggerAttack(WeaponItem activeWeapon) {
