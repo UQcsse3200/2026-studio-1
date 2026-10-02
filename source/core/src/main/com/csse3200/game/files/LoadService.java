@@ -75,13 +75,29 @@ public class LoadService {
       return;
     }
 
+    // Clear out any default starting items (e.g. the starting weapon/bow/dagger
+    // PlayerFactory gives every new player) so loaded items replace them,
+    // rather than competing with them for the same limited slots.
+    for (Integer slot : new java.util.ArrayList<>(inventory.getInventorySlots().keySet())) {
+      inventory.removeItem(slot);
+    }
+
     inventory.setGold(data.gold);
 
     for (SavedItem savedItem : data.items) {
       Item item = createItem(savedItem);
 
-      if (item != null) {
-        inventory.addItem(item);
+      if (item == null) {
+        continue;
+      }
+
+      int notAdded = inventory.addItem(item);
+      if (notAdded > 0) {
+        org.slf4j.LoggerFactory.getLogger(LoadService.class)
+            .warn(
+                "Inventory full - could not fully restore saved item: {} ({} not added)",
+                savedItem.name,
+                notAdded);
       }
     }
   }

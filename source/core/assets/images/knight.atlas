@@ -1,0 +1,185 @@
+knight.png
+size: 123, 708
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+pma: false
+Attacks
+  bounds: 63, 471, 27, 47
+  index: 0
+Attacks
+  bounds: 90, 471, 33, 47
+  index: 1
+Attacks
+  bounds: 0, 518, 37, 47
+  index: 2
+Attacks
+  bounds: 31, 379, 43, 46
+  index: 3
+Attacks
+  bounds: 37, 518, 45, 47
+  index: 4
+Attacks
+  bounds: 82, 518, 29, 47
+  index: 5
+Attacks
+  bounds: 0, 565, 30, 47
+  index: 6
+Attacks
+  bounds: 63, 246, 51, 44
+  index: 8
+Attacks
+  bounds: 0, 290, 52, 44
+  index: 9
+crouchidle
+  bounds: 78, 129, 40, 38
+  index: 0
+crouchidle
+  bounds: 0, 167, 40, 38
+  index: 1
+crouchidle
+  bounds: 40, 167, 39, 38
+  index: 2
+crouchidle
+  bounds: 62, 92, 39, 37
+  index: 3
+crouchidle
+  bounds: 0, 129, 39, 37
+  index: 4
+crouchidle
+  bounds: 39, 129, 39, 37
+  index: 5
+crouchidle
+  bounds: 79, 167, 40, 38
+  index: 6
+crouchidle
+  bounds: 0, 205, 40, 38
+  index: 7
+Death
+  bounds: 28, 246, 35, 43
+  index: 0
+Death
+  bounds: 19, 92, 43, 35
+  index: 1
+Death
+  bounds: 38, 64, 49, 28
+  index: 2
+Death
+  bounds: 0, 0, 59, 10
+  index: 3
+default
+  bounds: 30, 565, 27, 47
+Idle
+  bounds: 57, 565, 27, 47
+  index: 0
+Idle
+  bounds: 84, 565, 27, 47
+  index: 1
+Idle
+  bounds: 0, 612, 27, 47
+  index: 2
+Idle
+  bounds: 27, 612, 27, 47
+  index: 3
+Idle
+  bounds: 54, 612, 27, 47
+  index: 4
+Idle
+  bounds: 81, 612, 27, 47
+  index: 5
+Idle
+  bounds: 0, 659, 27, 47
+  index: 6
+Idle
+  bounds: 27, 659, 27, 47
+  index: 7
+Jump
+  bounds: 52, 290, 28, 44
+  index: 0
+Jump
+  bounds: 81, 659, 32, 49
+  index: 1
+Jump
+  bounds: 54, 659, 27, 47
+  index: 2
+Jump
+  bounds: 80, 290, 31, 44
+  index: 3
+Jump
+  bounds: 0, 334, 32, 44
+  index: 4
+Jump
+  bounds: 32, 334, 28, 44
+  index: 5
+Jump
+  bounds: 87, 205, 28, 41
+  index: 6
+Jump
+  bounds: 60, 334, 29, 45
+  index: 7
+Roll
+  bounds: 0, 92, 19, 31
+  index: 0
+Roll
+  bounds: 59, 0, 29, 18
+  index: 1
+Roll
+  bounds: 88, 0, 26, 20
+  index: 2
+Roll
+  bounds: 87, 64, 23, 28
+  index: 3
+Run
+  bounds: 89, 334, 31, 45
+  index: 0
+Run
+  bounds: 74, 379, 33, 46
+  index: 1
+Run
+  bounds: 0, 425, 34, 46
+  index: 2
+Run
+  bounds: 34, 425, 31, 46
+  index: 3
+Run
+  bounds: 0, 379, 31, 45
+  index: 4
+Run
+  bounds: 65, 425, 30, 46
+  index: 5
+Run
+  bounds: 0, 471, 32, 46
+  index: 6
+Run
+  bounds: 32, 471, 31, 46
+  index: 7
+Slide
+  bounds: 0, 246, 28, 42
+  index: 0
+Slide
+  bounds: 40, 205, 27, 40
+  index: 1
+Slide
+  bounds: 0, 20, 39, 22
+  index: 2
+Slide
+  bounds: 39, 20, 41, 22
+  index: 3
+Slide
+  bounds: 80, 20, 41, 22
+  index: 4
+Slide
+  bounds: 0, 42, 41, 22
+  index: 5
+Slide
+  bounds: 41, 42, 41, 22
+  index: 6
+Slide
+  bounds: 82, 42, 40, 22
+  index: 7
+Slide
+  bounds: 0, 64, 38, 24
+  index: 8
+Slide
+  bounds: 67, 205, 20, 40
+  index: 9
