@@ -31,7 +31,7 @@ public class DifficultySelectActions extends Component {
   private void startGame(String difficulty) {
     logger.info("Difficulty selected: {}", difficulty);
     DifficultyService.setCurrent(Difficulty.valueOf(difficulty));
-    game.setScreenDeferred(GdxGame.ScreenType.MAIN_GAME);
+    game.setScreenDeferred(GdxGame.ScreenType.STORY_CUTSCENE);
   }
 
   private void onBack() {

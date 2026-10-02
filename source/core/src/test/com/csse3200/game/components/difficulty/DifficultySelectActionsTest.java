@@ -2,6 +2,7 @@ package com.csse3200.game.components.difficulty;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.difficulty.Difficulty;
@@ -56,5 +57,16 @@ class DifficultySelectActionsTest {
     ui.getEvents().trigger("hard");
 
     assertEquals(Difficulty.HARD, DifficultyService.getCurrent());
+  }
+
+  @Test
+  void confirmingADifficultyOpensTheStoryCutsceneNotMainGameDirectly() {
+    GdxGame game = mock(GdxGame.class);
+    Entity ui = new Entity().addComponent(new DifficultySelectActions(game));
+    ui.create();
+
+    ui.getEvents().trigger("easy");
+
+    verify(game).setScreenDeferred(GdxGame.ScreenType.STORY_CUTSCENE);
   }
 }
