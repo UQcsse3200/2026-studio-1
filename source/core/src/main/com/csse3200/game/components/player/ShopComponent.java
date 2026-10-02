@@ -308,6 +308,7 @@ public class ShopComponent extends Component {
     return Collections.unmodifiableList(purchasedUpgrades);
   }
 
+
   /**
    * Returns an unmodifiable view of purchased pets.
    *
@@ -315,6 +316,22 @@ public class ShopComponent extends Component {
    */
   public List<Pet> getPurchasedPets() {
     return Collections.unmodifiableList(purchasedPets);
+  }
+
+  /**
+   * Replaces the purchased-pets list with the given pet names, used when restoring a save.
+   * Does not touch the catalog or gold - this is not a purchase.
+   *
+   * @param petNames names of pets to mark as owned
+   */
+  public void restorePurchasedPets(List<String> petNames) {
+    purchasedPets.clear();
+    if (petNames == null) {
+      return;
+    }
+    for (String name : petNames) {
+      purchasedPets.add(new Pet(name));
+    }
   }
 
   /**
