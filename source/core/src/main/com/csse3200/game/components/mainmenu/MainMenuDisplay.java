@@ -159,6 +159,7 @@ public class MainMenuDisplay extends UIComponent {
 
   private void confirmSelection() {
     updateHighlight();
+
     switch (selectedIndex) {
       case 0 -> entity.getEvents().trigger("start");
       case 1 -> entity.getEvents().trigger("load");
