@@ -282,6 +282,8 @@ public class NPCFactory {
     animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_charge_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_charge_r", 0.1f, Animation.PlayMode.LOOP);
 
     // Add necessary components to the entity
     minotaur
@@ -295,6 +297,7 @@ public class NPCFactory {
         .addComponent(
             new ChargeComponent(
                 config.charge.duration,
+                config.charge.windupDuration,
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
@@ -316,8 +319,8 @@ public class NPCFactory {
                 target,
                 minotaur.getComponent(ChargeComponent.class),
                 config.charge.aggroRadius,
-                15,
-                10)));
+                16,
+                -1)));
 
     minotaur.setScale(scale, scale * (80f / 96f));
 
@@ -378,6 +381,7 @@ public class NPCFactory {
         .addComponent(
             new ChargeComponent(
                 config.charge.duration,
+                config.charge.windupDuration,
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
@@ -399,8 +403,8 @@ public class NPCFactory {
                 target,
                 centaur.getComponent(ChargeComponent.class),
                 config.charge.aggroRadius,
-                15,
-                10)));
+                16,
+                -1)));
 
     centaur.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
