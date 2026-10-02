@@ -8,8 +8,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.rendering.RenderComponent;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-/** Animates a slash over the enemy struck by the player's special attack. */
+/** Animates a slash over each enemy struck by a player special attack. */
 public class SpecialAttackEffectComponent extends RenderComponent {
   private static final String FRAME_PATH = "images/effects/special-slash/Slash_color4_frame";
   private static final int FRAME_COUNT = 9;
@@ -18,8 +21,7 @@ public class SpecialAttackEffectComponent extends RenderComponent {
   private static final float EFFECT_SCALE = 2.2f;
 
   private Texture[] frames;
-  private Entity target;
-  private float elapsed;
+  private final Map<Entity, Float> targets = new HashMap<>();
 
   @Override
   public void create() {
@@ -30,17 +32,25 @@ public class SpecialAttackEffectComponent extends RenderComponent {
       frames[i].setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
     }
     entity.getEvents().addListener("specialAttackHit", this::showImpact);
+    entity.getEvents().addListener("areaAttackHit", this::showImpact);
   }
 
   @Override
   public void update() {
-    if (target == null) {
+    if (targets.isEmpty()) {
       return;
     }
 
-    elapsed += ServiceLocator.getTimeSource().getDeltaTime();
-    if (elapsed >= EFFECT_DURATION) {
-      target = null;
+    float deltaTime = ServiceLocator.getTimeSource().getDeltaTime();
+    Iterator<Map.Entry<Entity, Float>> iterator = targets.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<Entity, Float> target = iterator.next();
+      float elapsed = target.getValue() + deltaTime;
+      if (elapsed >= EFFECT_DURATION) {
+        iterator.remove();
+      } else {
+        target.setValue(elapsed);
+      }
     }
   }
 
@@ -58,29 +68,31 @@ public class SpecialAttackEffectComponent extends RenderComponent {
 
   @Override
   public float getZIndex() {
-    return target == null ? super.getZIndex() : -target.getPosition().y - 0.01f;
+    float lowestY = Float.POSITIVE_INFINITY;
+    for (Entity target : targets.keySet()) {
+      lowestY = Math.min(lowestY, target.getPosition().y);
+    }
+    return targets.isEmpty() ? super.getZIndex() : -lowestY - 0.01f;
   }
 
   @Override
   protected void draw(SpriteBatch batch) {
-    if (target == null) {
-      return;
+    for (Map.Entry<Entity, Float> impact : targets.entrySet()) {
+      Entity target = impact.getKey();
+      int frameIndex = Math.min((int) (impact.getValue() / FRAME_DURATION), FRAME_COUNT - 1);
+      Vector2 targetPosition = target.getPosition();
+      Vector2 targetScale = target.getScale();
+      float size = Math.max(targetScale.x, targetScale.y) * EFFECT_SCALE;
+      batch.draw(
+          frames[frameIndex],
+          targetPosition.x + (targetScale.x - size) / 2f,
+          targetPosition.y + (targetScale.y - size) / 2f,
+          size,
+          size);
     }
-
-    int frameIndex = Math.min((int) (elapsed / FRAME_DURATION), FRAME_COUNT - 1);
-    Vector2 targetPosition = target.getPosition();
-    Vector2 targetScale = target.getScale();
-    float size = Math.max(targetScale.x, targetScale.y) * EFFECT_SCALE;
-    batch.draw(
-        frames[frameIndex],
-        targetPosition.x + (targetScale.x - size) / 2f,
-        targetPosition.y + (targetScale.y - size) / 2f,
-        size,
-        size);
   }
 
   private void showImpact(Entity target) {
-    this.target = target;
-    elapsed = 0f;
+    targets.put(target, 0f);
   }
 }

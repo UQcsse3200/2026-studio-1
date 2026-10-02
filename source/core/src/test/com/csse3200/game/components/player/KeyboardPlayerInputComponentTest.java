@@ -81,4 +81,15 @@ class KeyboardPlayerInputComponentTest {
     assertTrue(input.keyDown(Keys.F));
     assertEquals(1, attacks.get());
   }
+
+  @Test
+  void shouldTriggerAreaAttackWhenGIsPressed() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player = new Entity().addComponent(input);
+    AtomicInteger attacks = new AtomicInteger();
+    player.getEvents().addListener("areaAttack", attacks::incrementAndGet);
+
+    assertTrue(input.keyDown(Keys.G));
+    assertEquals(1, attacks.get());
+  }
 }
