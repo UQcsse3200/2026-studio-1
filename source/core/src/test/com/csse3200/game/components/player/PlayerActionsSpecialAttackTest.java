@@ -13,6 +13,7 @@ import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -38,6 +39,8 @@ class PlayerActionsSpecialAttackTest {
     CombatStatsComponent enemyStats = new CombatStatsComponent(100, 0);
     Entity enemy = new Entity().addComponent(enemyStats);
     enemy.setPosition(1f, 0f);
+    AtomicReference<Entity> effectTarget = new AtomicReference<>();
+    player.getEvents().addListener("specialAttackHit", effectTarget::set);
     player.getEvents().trigger("collisionStart", playerFixture, npcFixtureFor(enemy));
 
     player.getEvents().trigger("specialAttack");
@@ -45,6 +48,7 @@ class PlayerActionsSpecialAttackTest {
 
     assertEquals(70, enemyStats.getHealth());
     assertEquals(95f, stamina.getStamina());
+    assertEquals(enemy, effectTarget.get());
   }
 
   private Fixture npcFixtureFor(Entity enemy) {

@@ -109,6 +109,7 @@ public class PlayerFactory {
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
+            .addComponent(new SpecialAttackEffectComponent())
             .addComponent(new WeaponRenderComponent())
             .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay())

@@ -334,6 +334,7 @@ public class PlayerActions extends Component {
                 (long) combatStats.getBaseAttack() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
                 Integer.MAX_VALUE);
     target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
+    entity.getEvents().trigger("specialAttackHit", target);
     specialAttackCooldownRemaining = SPECIAL_ATTACK_COOLDOWN;
   }
 
