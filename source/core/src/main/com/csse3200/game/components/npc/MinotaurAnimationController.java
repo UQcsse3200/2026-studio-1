@@ -3,19 +3,21 @@ package com.csse3200.game.components.npc;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.attacks.ChargeComponent;
+import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 
 /**
  * This class listens to events relevant to a minotaur entity's state and plays the animation when
- * one of the events is triggered. It also updates the animation state based on velocity and
- * charging.
+ * one of the events is triggered. It also updates the animation state based on velocity, charging,
+ * and melee attacks.
  */
 public class MinotaurAnimationController extends Component {
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
   private ChargeComponent chargeComponent;
   private AnimationState currentAnimState = null;
+  private boolean isSwinging = false;
 
   private enum AnimationState {
     IDLE_LEFT,
@@ -23,7 +25,9 @@ public class MinotaurAnimationController extends Component {
     WALK_LEFT,
     WALK_RIGHT,
     CHARGE_LEFT,
-    CHARGE_RIGHT
+    CHARGE_RIGHT,
+    SWING_LEFT,
+    SWING_RIGHT
   }
 
   @Override
@@ -40,6 +44,10 @@ public class MinotaurAnimationController extends Component {
     entity.getEvents().addListener("chargeLeftStart", this::animateChargeL);
     entity.getEvents().addListener("chargeRightStart", this::animateChargeR);
     entity.getEvents().addListener("chargeStart", this::onChargeStart);
+    entity.getEvents().addListener("swingLeftStart", this::animateSwingL);
+    entity.getEvents().addListener("swingRightStart", this::animateSwingR);
+    entity.getEvents().addListener("meleeAttack", (Entity target) -> onMeleeAttack(target));
+    entity.getEvents().addListener("meleeAttackWindup", (Entity target) -> onMeleeAttack(target));
 
     // Trigger a default starting state
     entity.getEvents().trigger("idleRightStart");
@@ -50,6 +58,13 @@ public class MinotaurAnimationController extends Component {
   public void update() {
     if (chargeComponent == null && entity != null) {
       chargeComponent = entity.getComponent(ChargeComponent.class);
+    }
+    if (isSwinging) {
+      if (animator != null && animator.isFinished()) {
+        isSwinging = false;
+      } else {
+        return;
+      }
     }
     if (physicsComponent != null && physicsComponent.getBody() != null) {
       Vector2 velocity = physicsComponent.getBody().getLinearVelocity();
@@ -63,7 +78,28 @@ public class MinotaurAnimationController extends Component {
     }
   }
 
+  private void onMeleeAttack(Entity target) {
+    if (target != null && target.getPosition() != null && entity != null) {
+      currentAnimState =
+          (target.getPosition().x < entity.getPosition().x)
+              ? AnimationState.SWING_LEFT
+              : AnimationState.SWING_RIGHT;
+    } else {
+      if (currentAnimState == AnimationState.WALK_LEFT
+          || currentAnimState == AnimationState.IDLE_LEFT
+          || currentAnimState == AnimationState.CHARGE_LEFT
+          || currentAnimState == AnimationState.SWING_LEFT) {
+        currentAnimState = AnimationState.SWING_LEFT;
+      } else {
+        currentAnimState = AnimationState.SWING_RIGHT;
+      }
+    }
+    isSwinging = true;
+    triggerStateEvent(currentAnimState);
+  }
+
   private void onChargeStart() {
+    isSwinging = false;
     Vector2 targetPos = chargeComponent != null ? chargeComponent.getTargetPosition() : null;
     if (targetPos != null && entity != null) {
       currentAnimState =
@@ -83,7 +119,8 @@ public class MinotaurAnimationController extends Component {
       } else {
         if (currentAnimState == AnimationState.WALK_LEFT
             || currentAnimState == AnimationState.IDLE_LEFT
-            || currentAnimState == AnimationState.CHARGE_LEFT) {
+            || currentAnimState == AnimationState.CHARGE_LEFT
+            || currentAnimState == AnimationState.SWING_LEFT) {
           currentAnimState = AnimationState.CHARGE_LEFT;
         } else {
           currentAnimState = AnimationState.CHARGE_RIGHT;
@@ -108,7 +145,8 @@ public class MinotaurAnimationController extends Component {
       }
       if (currentAnimState == AnimationState.WALK_LEFT
           || currentAnimState == AnimationState.IDLE_LEFT
-          || currentAnimState == AnimationState.CHARGE_LEFT) {
+          || currentAnimState == AnimationState.CHARGE_LEFT
+          || currentAnimState == AnimationState.SWING_LEFT) {
         return AnimationState.CHARGE_LEFT;
       } else {
         return AnimationState.CHARGE_RIGHT;
@@ -122,7 +160,8 @@ public class MinotaurAnimationController extends Component {
     } else {
       if (currentAnimState == AnimationState.WALK_LEFT
           || currentAnimState == AnimationState.IDLE_LEFT
-          || currentAnimState == AnimationState.CHARGE_LEFT) {
+          || currentAnimState == AnimationState.CHARGE_LEFT
+          || currentAnimState == AnimationState.SWING_LEFT) {
         return AnimationState.IDLE_LEFT;
       } else {
         return AnimationState.IDLE_RIGHT;
@@ -132,6 +171,12 @@ public class MinotaurAnimationController extends Component {
 
   private void triggerStateEvent(AnimationState state) {
     switch (state) {
+      case SWING_LEFT:
+        entity.getEvents().trigger("swingLeftStart");
+        break;
+      case SWING_RIGHT:
+        entity.getEvents().trigger("swingRightStart");
+        break;
       case CHARGE_LEFT:
         entity.getEvents().trigger("chargeLeftStart");
         break;
@@ -175,5 +220,23 @@ public class MinotaurAnimationController extends Component {
 
   void animateChargeR() {
     animator.startAnimation("minotaur_charge_r");
+  }
+
+  void animateSwingL() {
+    isSwinging = true;
+    if (animator != null) {
+      animator.startAnimation("minotaur_swing_l");
+    }
+  }
+
+  void animateSwingR() {
+    isSwinging = true;
+    if (animator != null) {
+      animator.startAnimation("minotaur_swing_r");
+    }
+  }
+
+  public boolean isSwinging() {
+    return isSwinging;
   }
 }
