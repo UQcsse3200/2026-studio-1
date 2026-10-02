@@ -3,7 +3,7 @@ package com.csse3200.game.components.player;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.input.InputComponent;
-import com.csse3200.game.pausemenu.KeybindSettings;
+import com.csse3200.game.pausemenu.*;
 import com.csse3200.game.utils.math.Vector2Utils;
 
 /**
@@ -26,6 +26,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean dashed = false;
   private boolean crouch = false;
   private String direction = "Right";
+  private String SlideString = "slide";
 
   public String getDirection() {
     return this.direction;
@@ -39,6 +40,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyDown(int keycode) {
+    if (PauseMenuComponent.isGamePaused()) {
+      return false;
+    }
     entity.getEvents().trigger("idle", direction);
     SubLevelTravelComponent travel = entity.getComponent(SubLevelTravelComponent.class);
     if (travel != null && travel.isControlLocked()) {
@@ -103,8 +107,8 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       crouch = true;
       return true;
     }
-    if (keycode == KeybindSettings.getKey("slide")) {
-      entity.getEvents().trigger("slide", true);
+    if (keycode == KeybindSettings.getKey(SlideString)) {
+      entity.getEvents().trigger(SlideString, true);
       return true;
     }
     if (keycode == KeybindSettings.getKey("hotbarSlot1")) {
@@ -156,6 +160,11 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyUp(int keycode) {
+    if (PauseMenuComponent.isGamePaused()) {
+      stopClimbing();
+      return false;
+    }
+
     if (keycode == KeybindSettings.getKey("jump")) {
       stopClimbing();
       return true;
@@ -188,7 +197,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       crouch = false;
       return true;
     }
-    if (keycode == KeybindSettings.getKey("slide")) {
+    if (keycode == KeybindSettings.getKey(SlideString)) {
       return true;
     }
 
