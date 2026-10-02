@@ -24,8 +24,8 @@ public class WeaponTierTest {
     WeaponStats tier3 = WeaponTier.TIER_3.getStats(WeaponType.BOW);
 
     assertEquals(7, tier1.getDamage());
-    assertEquals(14, tier2.getDamage());
-    assertEquals(21, tier3.getDamage());
+    assertEquals(4, tier2.getDamage());
+    assertEquals(3, tier3.getDamage());
   }
 
   @Test
@@ -74,13 +74,17 @@ public class WeaponTierTest {
   }
 
   @Test
-  void shouldReturnCorrectBowProjectileCountForEachTier() {
-    WeaponStats tier1 = WeaponTier.TIER_1.getStats(WeaponType.BOW);
-    WeaponStats tier2 = WeaponTier.TIER_2.getStats(WeaponType.BOW);
-    WeaponStats tier3 = WeaponTier.TIER_3.getStats(WeaponType.BOW);
+  void shouldReturnCorrectProjectileCountForEachTier() {
+    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.SWORD).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.BOW).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.DAGGER).getProjectileCount());
 
-    assertEquals(1, tier1.getProjectileCount());
-    assertEquals(5, tier2.getProjectileCount());
-    assertEquals(10, tier3.getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_2.getStats(WeaponType.SWORD).getProjectileCount());
+    assertEquals(5, WeaponTier.TIER_2.getStats(WeaponType.BOW).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_2.getStats(WeaponType.DAGGER).getProjectileCount());
+
+    assertEquals(1, WeaponTier.TIER_3.getStats(WeaponType.SWORD).getProjectileCount());
+    assertEquals(10, WeaponTier.TIER_3.getStats(WeaponType.BOW).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_3.getStats(WeaponType.DAGGER).getProjectileCount());
   }
 }
