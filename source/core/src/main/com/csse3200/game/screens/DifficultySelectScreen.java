@@ -41,8 +41,8 @@ public class DifficultySelectScreen extends ScreenAdapter {
 
   @Override
   public void show() {
-    // Same light-yellow background as the main menu
-    Gdx.gl.glClearColor(248f / 255f, 249f / 255f, 178f / 255f, 1f);
+    // Black - the full-screen background image covers the rest of the frame
+    Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
   }
 
   @Override
