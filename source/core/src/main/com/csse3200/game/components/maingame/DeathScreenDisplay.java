@@ -7,22 +7,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.GdxGame;
-import com.csse3200.game.GdxGame.ScreenType;
 import com.csse3200.game.ui.UIComponent;
 
 public class DeathScreenDisplay extends UIComponent {
   private final GdxGame game;
-  private Runnable retryAction;
+  private final Runnable retryAction;
   private Table rootTable;
   private TextButton[] buttons;
   private int selectedIndex = 0;
 
-  public DeathScreenDisplay(GdxGame game) {
+  public DeathScreenDisplay(GdxGame game, Runnable retryAction) {
     super();
     this.game = game;
-  }
-
-  public void setRetryAction(Runnable retryAction) {
     this.retryAction = retryAction;
   }
 
@@ -111,13 +107,11 @@ public class DeathScreenDisplay extends UIComponent {
   private void onRetry() {
     if (retryAction != null) {
       retryAction.run();
-    } else {
-      game.setScreen(ScreenType.RESTART_GAME);
     }
   }
 
   private void onMainMenu() {
-    game.setScreen(ScreenType.MAIN_MENU);
+    game.setScreen(GdxGame.ScreenType.MAIN_MENU);
   }
 
   public void showDeathScreen() {
@@ -126,12 +120,13 @@ public class DeathScreenDisplay extends UIComponent {
 
   public void hideDeathScreen() {
     rootTable.setVisible(false);
+    selectedIndex = 0;
+    updateHighlight();
   }
 
   /**
    * @return whether the death screen popup is currently visible - used by DeathScreenInputComponent
-   *     to gate keyboard input the same way PauseMenuInputComponent gates on
-   *     PauseMenuComponent.isPaused().
+   *     to gate keyboard input.
    */
   public boolean isVisible() {
     return rootTable.isVisible();
