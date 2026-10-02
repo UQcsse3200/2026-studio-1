@@ -8,24 +8,27 @@ package com.csse3200.game.difficulty;
  * tuning EASY's, for example.
  */
 public enum Difficulty {
-  EASY(0.65f, 0.6f, 1.25f, 1.0f),
-  NORMAL(1.0f, 1.0f, 1.0f, 1.0f),
-  HARD(1.4f, 1.5f, 0.8f, 1.5f);
+  EASY(0.65f, 0.6f, 1.25f, 1.0f, 1.0f),
+  NORMAL(1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
+  HARD(1.4f, 1.5f, 0.8f, 1.5f, 1.5f);
 
   private final float enemyHealthMultiplier;
   private final float enemyDamageMultiplier;
   private final float attackCooldownMultiplier;
   private final float goldMultiplier;
+  private final float regenHealMultiplier;
 
   Difficulty(
       float enemyHealthMultiplier,
       float enemyDamageMultiplier,
       float attackCooldownMultiplier,
-      float goldMultiplier) {
+      float goldMultiplier,
+      float regenHealMultiplier) {
     this.enemyHealthMultiplier = enemyHealthMultiplier;
     this.enemyDamageMultiplier = enemyDamageMultiplier;
     this.attackCooldownMultiplier = attackCooldownMultiplier;
     this.goldMultiplier = goldMultiplier;
+    this.regenHealMultiplier = regenHealMultiplier;
   }
 
   /**
@@ -54,5 +57,12 @@ public enum Difficulty {
    */
   public float getGoldMultiplier() {
     return goldMultiplier;
+  }
+
+  /**
+   * @return multiplier applied to Regen on Kill's heal-per-kill amount.
+   */
+  public float getRegenHealMultiplier() {
+    return regenHealMultiplier;
   }
 }

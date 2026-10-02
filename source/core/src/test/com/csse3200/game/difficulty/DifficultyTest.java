@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-/** Each enum constant's four multipliers must match the tuned starting values exactly. */
+/** Each enum constant's five multipliers must match the tuned starting values exactly. */
 class DifficultyTest {
   private static final float DELTA = 0.0001f;
 
@@ -14,6 +14,7 @@ class DifficultyTest {
     assertEquals(0.6f, Difficulty.EASY.getEnemyDamageMultiplier(), DELTA);
     assertEquals(1.25f, Difficulty.EASY.getAttackCooldownMultiplier(), DELTA);
     assertEquals(1.0f, Difficulty.EASY.getGoldMultiplier(), DELTA);
+    assertEquals(1.0f, Difficulty.EASY.getRegenHealMultiplier(), DELTA);
   }
 
   @Test
@@ -22,6 +23,7 @@ class DifficultyTest {
     assertEquals(1.0f, Difficulty.NORMAL.getEnemyDamageMultiplier(), DELTA);
     assertEquals(1.0f, Difficulty.NORMAL.getAttackCooldownMultiplier(), DELTA);
     assertEquals(1.0f, Difficulty.NORMAL.getGoldMultiplier(), DELTA);
+    assertEquals(1.0f, Difficulty.NORMAL.getRegenHealMultiplier(), DELTA);
   }
 
   @Test
@@ -30,5 +32,6 @@ class DifficultyTest {
     assertEquals(1.5f, Difficulty.HARD.getEnemyDamageMultiplier(), DELTA);
     assertEquals(0.8f, Difficulty.HARD.getAttackCooldownMultiplier(), DELTA);
     assertEquals(1.5f, Difficulty.HARD.getGoldMultiplier(), DELTA);
+    assertEquals(1.5f, Difficulty.HARD.getRegenHealMultiplier(), DELTA);
   }
 }
