@@ -455,11 +455,13 @@ public class PauseMenuDisplay extends UIComponent {
     }
     KeybindSettings.setKey(capturingAction, keycode);
     capturingAction = null;
+    pauseMenu.setCapturingKeybind(false);
     refreshKeybindLabels();
   }
 
   void onKeybindCaptureCancelled() {
     capturingAction = null;
+    pauseMenu.setCapturingKeybind(false);
     refreshKeybindLabels();
   }
 
@@ -627,7 +629,15 @@ public class PauseMenuDisplay extends UIComponent {
     if (keybindsIndex == KEYBINDS_BACK_INDEX) {
       state = MenuState.SETTINGS;
       refreshPanels();
+      return;
     }
+    beginKeybindCapture(KEYBIND_ACTIONS[keybindsIndex]);
+  }
+
+  private void beginKeybindCapture(String action) {
+    capturingAction = action;
+    pauseMenu.setCapturingKeybind(true);
+    refreshKeybindLabels();
   }
 
   private void handleEscape() {
