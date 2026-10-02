@@ -1,20 +1,19 @@
 package com.csse3200.game.components.difficulty;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.ui.UIComponent;
 
 public class DifficultySelectDisplay extends UIComponent {
   private static final float Z_INDEX = 2f;
   private static final Skin PIXTHULHU_SKIN =
-          new Skin(Gdx.files.internal("pixthulhu/pixthulhu-ui.json"));
+      new Skin(Gdx.files.internal("pixthulhu/pixthulhu-ui.json"));
 
   // Same look as the main menu
 
@@ -128,7 +127,9 @@ public class DifficultySelectDisplay extends UIComponent {
       boolean selected = i == selectedIndex;
       Table row = (Table) buttons[i].getParent();
       row.setBackground(
-              selected ? PIXTHULHU_SKIN.getDrawable("button-pressed") : PIXTHULHU_SKIN.getDrawable("button"));
+          selected
+              ? PIXTHULHU_SKIN.getDrawable("button-pressed")
+              : PIXTHULHU_SKIN.getDrawable("button"));
     }
     descriptionLabel.setText(DESCRIPTIONS[selectedIndex]);
   }
