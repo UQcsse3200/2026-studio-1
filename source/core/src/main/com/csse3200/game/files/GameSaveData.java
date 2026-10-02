@@ -14,4 +14,5 @@ public class GameSaveData {
   public Map<String, Long> lootSeedsByRoom = new HashMap<>();
   public List<String> collectedLootIds = new ArrayList<>();
   public String level;
+  public List<String> killedEnemyIds = new ArrayList<>();
 }
