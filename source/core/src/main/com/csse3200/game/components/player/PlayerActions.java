@@ -276,7 +276,9 @@ public class PlayerActions extends Component {
 
   /** Makes the player attack. */
   void attack() {
-    if (dead || attackCooldownRemaining > 0f) return;
+    if (dead || attackCooldownRemaining > 0f) {
+      return;
+    }
 
     if (staminaComponent == null
         || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {

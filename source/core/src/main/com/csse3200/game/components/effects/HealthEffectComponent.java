@@ -53,6 +53,20 @@ public class HealthEffectComponent extends Component {
     }
   }
 
+  /**
+   * Finds the overall health quantity being applied each update.
+   *
+   * @return overall health quantity (== 0 if no overall effect, > 0 if overall healing, < 0 if
+   *     overall poisoning
+   */
+  public int getHealthEffect() {
+    int total = 0;
+    for (ActiveEffect effect : activeEffects) {
+      total += effect.perTick;
+    }
+    return total;
+  }
+
   private static class ActiveEffect {
     private final int total;
     private final int perTick;
