@@ -14,50 +14,73 @@ import java.util.Map;
 
 /** Animates a slash over each enemy struck by a player special attack. */
 public class SpecialAttackEffectComponent extends RenderComponent {
-  private static final String FRAME_PATH = "images/effects/special-slash/Slash_color4_frame";
-  private static final int FRAME_COUNT = 9;
-  private static final float FRAME_DURATION = 0.05f;
-  private static final float EFFECT_DURATION = FRAME_COUNT * FRAME_DURATION;
+  private static final String SLASH_FRAME_PATH = "images/effects/special-slash/Slash_color4_frame";
+  private static final int SLASH_FRAME_COUNT = 9;
+  private static final float SLASH_FRAME_DURATION = 0.05f;
+  private static final float SLASH_EFFECT_DURATION = SLASH_FRAME_COUNT * SLASH_FRAME_DURATION;
   private static final float EFFECT_SCALE = 2.2f;
+  private static final String AREA_FRAME_PATH = "images/effects/area-vortex/Effect_TheVortex_1_";
+  private static final int AREA_FRAME_COUNT = 30;
+  private static final float AREA_FRAME_DURATION = 1f / 30f;
+  private static final float AREA_EFFECT_DIAMETER = 4f;
 
-  private Texture[] frames;
-  private final Map<Entity, Float> targets = new HashMap<>();
+  private Texture[] slashFrames;
+  private Texture[] areaFrames;
+  private final Map<Entity, Float> slashTargets = new HashMap<>();
+  private Vector2 areaAttackPosition;
+  private float areaAttackElapsed;
 
   @Override
   public void create() {
     super.create();
-    frames = new Texture[FRAME_COUNT];
-    for (int i = 0; i < FRAME_COUNT; i++) {
-      frames[i] = new Texture(Gdx.files.internal(FRAME_PATH + (i + 1) + ".png"));
-      frames[i].setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+    slashFrames = new Texture[SLASH_FRAME_COUNT];
+    for (int i = 0; i < SLASH_FRAME_COUNT; i++) {
+      slashFrames[i] = new Texture(Gdx.files.internal(SLASH_FRAME_PATH + (i + 1) + ".png"));
+      slashFrames[i].setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+    }
+    areaFrames = new Texture[AREA_FRAME_COUNT];
+    for (int i = 0; i < AREA_FRAME_COUNT; i++) {
+      areaFrames[i] =
+          new Texture(Gdx.files.internal(AREA_FRAME_PATH + String.format("%03d", i) + ".png"));
+      areaFrames[i].setFilter(TextureFilter.Linear, TextureFilter.Linear);
     }
     entity.getEvents().addListener("specialAttackHit", this::showImpact);
-    entity.getEvents().addListener("areaAttackHit", this::showImpact);
+    entity.getEvents().addListener("areaAttackStarted", this::showAreaAttack);
   }
 
   @Override
   public void update() {
-    if (targets.isEmpty()) {
-      return;
-    }
-
     float deltaTime = ServiceLocator.getTimeSource().getDeltaTime();
-    Iterator<Map.Entry<Entity, Float>> iterator = targets.entrySet().iterator();
+    Iterator<Map.Entry<Entity, Float>> iterator = slashTargets.entrySet().iterator();
     while (iterator.hasNext()) {
       Map.Entry<Entity, Float> target = iterator.next();
       float elapsed = target.getValue() + deltaTime;
-      if (elapsed >= EFFECT_DURATION) {
+      if (elapsed >= SLASH_EFFECT_DURATION) {
         iterator.remove();
       } else {
         target.setValue(elapsed);
+      }
+    }
+
+    if (areaAttackPosition != null) {
+      areaAttackElapsed += deltaTime;
+      if (areaAttackElapsed >= AREA_FRAME_COUNT * AREA_FRAME_DURATION) {
+        areaAttackPosition = null;
       }
     }
   }
 
   @Override
   public void dispose() {
-    if (frames != null) {
-      for (Texture frame : frames) {
+    if (slashFrames != null) {
+      for (Texture frame : slashFrames) {
+        if (frame != null) {
+          frame.dispose();
+        }
+      }
+    }
+    if (areaFrames != null) {
+      for (Texture frame : areaFrames) {
         if (frame != null) {
           frame.dispose();
         }
@@ -68,23 +91,40 @@ public class SpecialAttackEffectComponent extends RenderComponent {
 
   @Override
   public float getZIndex() {
-    float lowestY = Float.POSITIVE_INFINITY;
-    for (Entity target : targets.keySet()) {
+    if (areaAttackPosition == null && slashTargets.isEmpty()) {
+      return super.getZIndex();
+    }
+
+    float lowestY = entity.getPosition().y;
+    for (Entity target : slashTargets.keySet()) {
       lowestY = Math.min(lowestY, target.getPosition().y);
     }
-    return targets.isEmpty() ? super.getZIndex() : -lowestY - 0.01f;
+    return -lowestY - 0.01f;
   }
 
   @Override
   protected void draw(SpriteBatch batch) {
-    for (Map.Entry<Entity, Float> impact : targets.entrySet()) {
+    if (areaAttackPosition != null) {
+      int frameIndex =
+          Math.min((int) (areaAttackElapsed / AREA_FRAME_DURATION), AREA_FRAME_COUNT - 1);
+      float halfSize = AREA_EFFECT_DIAMETER / 2f;
+      batch.draw(
+          areaFrames[frameIndex],
+          areaAttackPosition.x - halfSize,
+          areaAttackPosition.y - halfSize,
+          AREA_EFFECT_DIAMETER,
+          AREA_EFFECT_DIAMETER);
+    }
+
+    for (Map.Entry<Entity, Float> impact : slashTargets.entrySet()) {
       Entity target = impact.getKey();
-      int frameIndex = Math.min((int) (impact.getValue() / FRAME_DURATION), FRAME_COUNT - 1);
+      int frameIndex =
+          Math.min((int) (impact.getValue() / SLASH_FRAME_DURATION), SLASH_FRAME_COUNT - 1);
       Vector2 targetPosition = target.getPosition();
       Vector2 targetScale = target.getScale();
       float size = Math.max(targetScale.x, targetScale.y) * EFFECT_SCALE;
       batch.draw(
-          frames[frameIndex],
+          slashFrames[frameIndex],
           targetPosition.x + (targetScale.x - size) / 2f,
           targetPosition.y + (targetScale.y - size) / 2f,
           size,
@@ -93,6 +133,11 @@ public class SpecialAttackEffectComponent extends RenderComponent {
   }
 
   private void showImpact(Entity target) {
-    targets.put(target, 0f);
+    slashTargets.put(target, 0f);
+  }
+
+  private void showAreaAttack() {
+    areaAttackPosition = entity.getCenterPosition().cpy();
+    areaAttackElapsed = 0f;
   }
 }

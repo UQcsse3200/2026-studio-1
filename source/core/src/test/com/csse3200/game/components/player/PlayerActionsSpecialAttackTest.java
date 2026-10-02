@@ -89,6 +89,7 @@ class PlayerActionsSpecialAttackTest {
 
       AtomicReference<Entity> lastHit = new AtomicReference<>();
       AtomicInteger hitCount = new AtomicInteger();
+      AtomicInteger areaAttackCount = new AtomicInteger();
       player
           .getEvents()
           .addListener(
@@ -97,6 +98,7 @@ class PlayerActionsSpecialAttackTest {
                 lastHit.set(target);
                 hitCount.incrementAndGet();
               });
+      player.getEvents().addListener("areaAttackStarted", areaAttackCount::incrementAndGet);
 
       player.getEvents().trigger("areaAttack");
       player.getEvents().trigger("areaAttack");
@@ -105,6 +107,7 @@ class PlayerActionsSpecialAttackTest {
       assertEquals(80, secondStats.getHealth());
       assertEquals(100, distantStats.getHealth());
       assertEquals(2, hitCount.get());
+      assertEquals(1, areaAttackCount.get());
       assertTrue(lastHit.get() == firstEnemy || lastHit.get() == secondEnemy);
       assertEquals(95f, stamina.getStamina());
     } finally {

@@ -385,6 +385,7 @@ public class PlayerActions extends Component {
     }
 
     staminaComponent.useStamina(staminaComponent.getAttackCost());
+    entity.getEvents().trigger("areaAttackStarted");
     int damage =
         (int)
             Math.min(
