@@ -36,7 +36,10 @@ public class PlayerActions extends Component {
   private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
+  private static final float SPECIAL_ATTACK_COOLDOWN = 3f;
+  private static final int SPECIAL_ATTACK_DAMAGE_MULTIPLIER = 3;
   private float attackCooldownRemaining = 0f;
+  private float specialAttackCooldownRemaining = 0f;
   private float attackCooldownMultiplier = 1f;
 
   private PhysicsComponent physicsComponent;
@@ -87,6 +90,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
+    entity.getEvents().addListener("specialAttack", this::specialAttack);
 
     // Existing movement features
     entity.getEvents().addListener("dash", this::dash);
@@ -113,6 +117,11 @@ public class PlayerActions extends Component {
     if (attackCooldownRemaining > 0f) {
       attackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
       attackCooldownRemaining = Math.max(0f, attackCooldownRemaining);
+    }
+
+    if (specialAttackCooldownRemaining > 0f) {
+      specialAttackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
+      specialAttackCooldownRemaining = Math.max(0f, specialAttackCooldownRemaining);
     }
 
     playMovementSound();
@@ -301,6 +310,51 @@ public class PlayerActions extends Component {
     // Existing weapon functionality
     entity.getEvents().trigger("weaponAttack");
     attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
+  }
+
+  /** Hits the nearest enemy in melee range for three times the player's base attack. */
+  void specialAttack() {
+    if (dead
+        || specialAttackCooldownRemaining > 0f
+        || staminaComponent == null
+        || combatStats == null
+        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
+      return;
+    }
+
+    Entity target = getNearestEnemyInRange();
+    if (target == null) {
+      return;
+    }
+
+    staminaComponent.useStamina(staminaComponent.getAttackCost());
+    int damage =
+        (int)
+            Math.min(
+                (long) combatStats.getBaseAttack() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
+                Integer.MAX_VALUE);
+    target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
+    specialAttackCooldownRemaining = SPECIAL_ATTACK_COOLDOWN;
+  }
+
+  private Entity getNearestEnemyInRange() {
+    Entity nearestEnemy = null;
+    float nearestDistanceSquared = Float.MAX_VALUE;
+    Vector2 playerPosition = entity.getPosition();
+
+    for (Entity enemy : enemiesInRange) {
+      if (enemy.getComponent(CombatStatsComponent.class) == null) {
+        continue;
+      }
+
+      float distanceSquared = playerPosition.dst2(enemy.getPosition());
+      if (distanceSquared < nearestDistanceSquared) {
+        nearestEnemy = enemy;
+        nearestDistanceSquared = distanceSquared;
+      }
+    }
+
+    return nearestEnemy;
   }
 
   /** Makes the player dash. */

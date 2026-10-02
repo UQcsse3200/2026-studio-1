@@ -70,4 +70,15 @@ class KeyboardPlayerInputComponentTest {
     assertTrue(input.keyDown(Keys.B));
     assertEquals(1, activations.get());
   }
+
+  @Test
+  void shouldTriggerSpecialAttackWhenFIsPressed() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player = new Entity().addComponent(input);
+    AtomicInteger attacks = new AtomicInteger();
+    player.getEvents().addListener("specialAttack", attacks::incrementAndGet);
+
+    assertTrue(input.keyDown(Keys.F));
+    assertEquals(1, attacks.get());
+  }
 }

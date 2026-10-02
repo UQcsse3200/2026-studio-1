@@ -109,6 +109,14 @@ public class CombatStatsComponent extends Component {
   }
 
   public void hit(CombatStatsComponent attacker) {
+    hit(attacker, attacker.getBaseAttack());
+  }
+
+  public void hit(CombatStatsComponent attacker, int damage) {
+    if (damage < 0) {
+      throw new IllegalArgumentException("Damage must not be negative.");
+    }
+
     if (shieldHits > 0) {
       shieldHits--;
       return;
@@ -116,7 +124,7 @@ public class CombatStatsComponent extends Component {
 
     boolean wasAlive = !isDead();
 
-    int newHealth = getHealth() - attacker.getBaseAttack();
+    int newHealth = getHealth() - damage;
     setHealth(newHealth);
 
     if (wasAlive && isDead() && attacker.getEntity() != null) {
