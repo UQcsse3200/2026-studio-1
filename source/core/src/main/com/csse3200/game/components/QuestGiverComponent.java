@@ -185,8 +185,9 @@ public class QuestGiverComponent extends Component {
         return false;
       }
       player.getComponent(InventoryComponent.class).addItem(itemToGive);
+      return true;
     }
-    return true;
+    return false;
   }
 
   private boolean giveOutQuestRewards(int questProgress) {
