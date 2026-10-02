@@ -145,7 +145,7 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
-   * Updates the melee range.
+   * 3 3 Updates the melee range.
    *
    * @param range new range value
    * @throws IllegalArgumentException if {@code range} is negative
