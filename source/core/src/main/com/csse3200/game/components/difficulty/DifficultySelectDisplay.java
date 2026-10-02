@@ -1,6 +1,7 @@
 package com.csse3200.game.components.difficulty;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -12,14 +13,13 @@ import com.csse3200.game.ui.UIComponent;
 
 public class DifficultySelectDisplay extends UIComponent {
   private static final float Z_INDEX = 2f;
+  private static final Skin PIXTHULHU_SKIN =
+          new Skin(Gdx.files.internal("pixthulhu/pixthulhu-ui.json"));
 
   // Same look as the main menu
-  private static final Color PANEL_COLOR = new Color(0f, 0f, 0f, 0.5f);
-  private static final Color SELECTED_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
-  private static final Color SELECTED_TEXT = Color.CYAN;
-  private static final Color UNSELECTED_TEXT = Color.WHITE;
+
   private static final float LEFT_PANEL_WIDTH_FRACTION = 0.30f;
-  private static final float MENU_ITEM_FONT_SCALE = 1.6f;
+  private static final float MENU_ITEM_FONT_SCALE = 1f;
 
   static final String[] MENU_ITEMS = {"Easy", "Normal", "Hard", "Back"};
   static final String[] EVENTS = {"easy", "normal", "hard", "back"};
@@ -51,30 +51,28 @@ public class DifficultySelectDisplay extends UIComponent {
 
     // Left panel: the options
     Table optionsPanel = new Table();
-    optionsPanel.setBackground(skin.newDrawable("white", PANEL_COLOR));
     optionsPanel.center();
 
     buttons = new Label[MENU_ITEMS.length];
     for (int i = 0; i < MENU_ITEMS.length; i++) {
-      Label label = createLabel(MENU_ITEMS[i], UNSELECTED_TEXT, MENU_ITEM_FONT_SCALE);
+      Label label = createLabel(MENU_ITEMS[i], MENU_ITEM_FONT_SCALE);
       buttons[i] = label;
       Table row = new Table();
-      row.add(label).pad(6f, 15f, 6f, 15f).left().expandX();
+      row.add(label).pad(8f, 20f, 8f, 20f).left().expandX();
       addRowInteraction(row, i);
       optionsPanel.add(row).width(panelWidth * 0.75f).padBottom(4f);
       optionsPanel.row();
     }
 
     // Right side: heading, description box, controls hint
-    Label heading = createLabel("Choose Difficulty", Color.BLACK, 2f);
+    Label heading = createLabel("Choose Difficulty", 1f);
 
-    descriptionLabel = createLabel("", Color.WHITE, 1.3f);
+    descriptionLabel = createLabel("", 1f);
     descriptionLabel.setWrap(true);
     Table descriptionBox = new Table();
-    descriptionBox.setBackground(skin.newDrawable("white", PANEL_COLOR));
     descriptionBox.add(descriptionLabel).width(screenWidth * 0.40f).pad(20f);
 
-    Label hint = createLabel("Up/Down: select   Enter: confirm   Esc: back", Color.BLACK, 1f);
+    Label hint = createLabel("Up/Down: select   Enter: confirm   Esc: back", 0.8f);
 
     Table rightSide = new Table();
     rightSide.add(heading).padBottom(30f).row();
@@ -91,11 +89,8 @@ public class DifficultySelectDisplay extends UIComponent {
     updateHighlight();
   }
 
-  private Label createLabel(String text, Color colour, float scale) {
-    Label label = new Label(text, skin);
-    Label.LabelStyle style = new Label.LabelStyle(label.getStyle());
-    style.fontColor = colour;
-    label.setStyle(style);
+  private Label createLabel(String text, float scale) {
+    Label label = new Label(text, PIXTHULHU_SKIN);
     label.setFontScale(scale);
     return label;
   }
@@ -131,9 +126,9 @@ public class DifficultySelectDisplay extends UIComponent {
   void updateHighlight() {
     for (int i = 0; i < buttons.length; i++) {
       boolean selected = i == selectedIndex;
-      buttons[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
       Table row = (Table) buttons[i].getParent();
-      row.setBackground(selected ? skin.newDrawable("white", SELECTED_BG) : null);
+      row.setBackground(
+              selected ? PIXTHULHU_SKIN.getDrawable("button-pressed") : PIXTHULHU_SKIN.getDrawable("button"));
     }
     descriptionLabel.setText(DESCRIPTIONS[selectedIndex]);
   }
