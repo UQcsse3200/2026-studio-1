@@ -184,6 +184,44 @@ public class ItemDropComponent extends Component {
     return true;
   }
 
+  /**
+   * Drops a held, unactivated shield, if the entity has one.
+   *
+   * <p>The shield bypasses the inventory slot system entirely (see {@link ShieldComponent}), so it
+   * is handled here the same way {@link #dropGold()} handles currency: read from its own component
+   * state rather than from {@link InventoryComponent}.
+   *
+   * @return {@code true} if a held shield was dropped
+   */
+  public boolean dropShield() {
+    ShieldComponent shield = entity.getComponent(ShieldComponent.class);
+    if (shield == null || !shield.consumeHeldShield()) {
+      logger.debug("Cannot drop a shield, entity has no held shield");
+      return false;
+    }
+
+    Item shieldItem = new Item("Shield", ItemType.SHIELD, 1, 1);
+    Entity loot = lootFactory.apply(shieldItem, entity);
+    if (loot == null) {
+      logger.warn("Loot factory returned null for item {}", shieldItem.getName());
+      return false;
+    }
+
+    float dropX = entity.getPosition().x + entity.getScale().x + HORIZONTAL_DROP_GAP;
+    loot.setPosition(dropX, entity.getPosition().y);
+
+    try {
+      lootSpawner.accept(loot);
+    } catch (RuntimeException exception) {
+      shield.grantShield();
+      throw exception;
+    }
+
+    logger.info("Dropped held shield");
+    entity.getEvents().trigger("itemDropped", shieldItem, loot);
+    return true;
+  }
+
   private int findFirstOccupiedSlot(InventoryComponent inventory) {
     for (int slot = 1; slot <= inventory.getMaxSlots(); slot++) {
       if (inventory.containsItem(slot)) {

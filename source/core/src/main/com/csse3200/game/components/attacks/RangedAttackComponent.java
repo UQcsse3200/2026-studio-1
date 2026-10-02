@@ -50,6 +50,7 @@ public class RangedAttackComponent extends Component {
   private float cooldown;
   private float knockback;
   private float projectileSpeed;
+  private float damage;
   private WeaponItem weapon;
   private float windupDuration;
   private float windupTimeRemaing;
@@ -66,14 +67,13 @@ public class RangedAttackComponent extends Component {
    * @param cooldown minimum time, in seconds, between successive shots being fired.
    * @param knockback knockback magnitude applied to the target on a successful hit; {@code 0f}
    *     results in no knockback.
-   * @param projectileSpeed speed, in world units/second, the fired arrow travels at.
+   * @param weapon weapon in entity's inventory
    */
-  public RangedAttackComponent(
-      float range, float cooldown, float knockback, WeaponItem weapon, float projectileSpeed) {
+  public RangedAttackComponent(float range, float cooldown, float knockback, WeaponItem weapon) {
+    setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-    setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
     if (weapon == null) {
       throw new IllegalArgumentException("weapon cannot be null");
     }
@@ -88,6 +88,32 @@ public class RangedAttackComponent extends Component {
       throw new IllegalArgumentException("windupDuration must be less than cooldown");
     }
     this.timeSinceLastAttack = cooldown;
+    this.damage = this.weapon.getDamage();
+  }
+
+  /**
+   * Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
+   * for any attacks i.e. the rocks where no weapons are in the inventory.
+   *
+   * @param range attack reach, checked as a direct distance calculation between this entity's and
+   *     the target's positions; also used as the fired arrow's maximum flight distance.
+   * @param cooldown minimum time, in seconds, between successive shots being fired.
+   * @param knockback knockback magnitude applied to the target on a successful hit; {@code 0f}
+   *     results in no knockback.
+   */
+  public RangedAttackComponent(float range, float cooldown, float knockback) {
+    setRange(range);
+    setKnockback(knockback);
+    setCooldown(cooldown);
+    if (weapon.getWindupDuration() < 0) {
+      throw new IllegalArgumentException("windupDuration must not be negative.");
+    }
+    if (weapon.getWindupDuration() >= this.getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown");
+    }
+    this.timeSinceLastAttack = cooldown;
+    setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
+    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**
@@ -171,6 +197,20 @@ public class RangedAttackComponent extends Component {
       throw new IllegalArgumentException("Knockback must not be negative");
     }
     this.knockback = knockback;
+  }
+
+  /**
+   * Returns the damage for this attack, either the configured base attack from the config file or
+   * the equipped weapon's damage. The only stat this component reads from the weapon — range and
+   * knockback are this wielder's own properties, not the weapon's.
+   *
+   * @return the equipped weapon's damage, sourced from {@code weapon.getDamage()}
+   */
+  public int getDamage() {
+    if (this.weapon == null) {
+      return this.combatStats.getBaseAttack();
+    }
+    return this.weapon.getDamage();
   }
 
   /**

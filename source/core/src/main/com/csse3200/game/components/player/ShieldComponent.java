@@ -133,6 +133,20 @@ public class ShieldComponent extends Component {
   }
 
   /**
+   * Clears a held, unactivated shield without activating it, so it can be dropped as loot (for
+   * example on death) instead of being silently lost or carried over.
+   *
+   * @return {@code true} if a held shield was present and cleared
+   */
+  public boolean consumeHeldShield() {
+    if (!hasShield) {
+      return false;
+    }
+    hasShield = false;
+    return true;
+  }
+
+  /**
    * Returns whether the shield is currently blocking damage.
    *
    * @return {@code true} if active
