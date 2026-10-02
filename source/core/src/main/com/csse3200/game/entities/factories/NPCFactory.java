@@ -270,7 +270,9 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    WeaponItem weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
+    weapon.setWindupDuration(0f);
+    items.add(weapon);
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -284,6 +286,8 @@ public class NPCFactory {
     animator.addAnimation("minotaur_walk_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_charge_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_charge_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_swing_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("minotaur_swing_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Add necessary components to the entity
     minotaur
