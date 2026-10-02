@@ -77,10 +77,35 @@ public class UpgradesDisplay extends UIComponent {
   /**
    * Supplies the player entity once it's spawned (after this UI entity already exists), so effect
    * code below must not assume player is non-null before this runs.
+   *
+   * <p>If a player was already set and {@code newPlayer} is a different entity (e.g. the player
+   * died and was replaced by a brand-new entity on revival), every upgrade is cleared first via
+   * {@link #clearAllUpgrades()} - their effects were applied to the old, now-disposed player, so
+   * leaving them "active" in the HUD would be stale and nothing would ever remove them from the new
+   * player. The very first call at game start must not clear anything, since there is no prior
+   * player to have earned anything from; passing the same entity again is also a no-op.
    */
-  public void setPlayer(Entity player) {
-    this.player = player;
-    player.getEvents().addListener("enemyKilled", this::onEnemyKilled);
+  public void setPlayer(Entity newPlayer) {
+    if (this.player != null && this.player != newPlayer) {
+      clearAllUpgrades();
+    }
+    this.player = newPlayer;
+    newPlayer.getEvents().addListener("enemyKilled", this::onEnemyKilled);
+  }
+
+  /**
+   * Forces every upgrade node back to Tier 0 (inactive) without firing their tier-changed/expired
+   * callbacks - those callbacks apply effects to {@link #player}, which by the time this is called
+   * may already be a different (or disposed) entity than the one the upgrade was earned on, so
+   * running them would apply to the wrong player or be meaningless. Also clears
+   * swordDamageBaselineAttack, the one piece of state captured from a player outside UpgradeNode
+   * itself. Does not refund any gold spent.
+   */
+  private void clearAllUpgrades() {
+    for (UpgradeNode node : getAllUpgrades()) {
+      node.reset();
+    }
+    swordDamageBaselineAttack = null;
   }
 
   private void onEnemyKilled() {

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.PlayerActions;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(GameExtension.class)
 class UpgradesDisplayTest {
   private UpgradesDisplay display;
+  private ActiveUpgradesHud hud;
 
   @BeforeEach
   void beforeEach() {
@@ -45,7 +47,12 @@ class UpgradesDisplayTest {
     ServiceLocator.registerResourceService(mock(ResourceService.class));
 
     display = new UpgradesDisplay();
-    Entity entity = new Entity().addComponent(new UpgradesMenuComponent()).addComponent(display);
+    hud = new ActiveUpgradesHud();
+    Entity entity =
+        new Entity()
+            .addComponent(new UpgradesMenuComponent())
+            .addComponent(display)
+            .addComponent(hud);
     entity.create();
   }
 
@@ -486,5 +493,111 @@ class UpgradesDisplayTest {
     getMovementUpgrades().get(0).purchaseNextTier(); // player_speed -> applyPlayerSpeedEffect()
 
     assertEquals(5, fired.size());
+  }
+
+  // --- clearAllUpgrades() wiring via setPlayer() ---
+  //
+  // Regression tests for the revive bug: MainGameScreen.revivePlayer() creates a brand-new player
+  // and calls setPlayer() again, but upgrades used to stay "active" (bought on the now-disposed old
+  // player) until this. setPlayer() must now clear every upgrade when the player entity actually
+  // changes, but not on the very first call (game start) or when passed the same entity again.
+
+  private int panelChildCount() {
+    try {
+      Field field = ActiveUpgradesHud.class.getDeclaredField("panel");
+      field.setAccessible(true);
+      Table panel = (Table) field.get(hud);
+      return panel.getChildren().size;
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
+  void settingADifferentPlayerClearsEveryUpgradeAndTheyCanBeBoughtAgainFromTierOne()
+      throws Exception {
+    Entity playerA = newPlayerEntity();
+    display.setPlayer(playerA);
+
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    UpgradeNode attackSpeed = getActionUpgrades().get(1);
+    UpgradeNode shieldDurability = getDefenceUpgrades().get(0);
+    UpgradeNode regenOnKill = getDefenceUpgrades().get(1);
+    swordDamage.purchaseNextTier();
+    attackSpeed.purchaseNextTier();
+    shieldDurability.purchaseNextTier();
+    regenOnKill.purchaseNextTier();
+    hud.draw(null);
+    assertEquals(4, panelChildCount()); // all four showing as active before the switch
+
+    Entity playerB = newPlayerEntity();
+    display.setPlayer(playerB);
+
+    assertEquals(0, swordDamage.getCurrentTier());
+    assertEquals(0, attackSpeed.getCurrentTier());
+    assertEquals(0, shieldDurability.getCurrentTier());
+    assertEquals(0, regenOnKill.getCurrentTier());
+    hud.draw(null);
+    assertEquals(0, panelChildCount());
+
+    // Each can be bought again from Tier 1 on the new player.
+    swordDamage.purchaseNextTier();
+    attackSpeed.purchaseNextTier();
+    shieldDurability.purchaseNextTier();
+    regenOnKill.purchaseNextTier();
+
+    assertEquals(1, swordDamage.getCurrentTier());
+    assertEquals(1, attackSpeed.getCurrentTier());
+    assertEquals(1, shieldDurability.getCurrentTier());
+    assertEquals(1, regenOnKill.getCurrentTier());
+  }
+
+  @Test
+  void playerBsStatsAreUntouchedByUpgradesThatWereActiveOnPlayerA() throws Exception {
+    Entity playerA = newPlayerEntity();
+    display.setPlayer(playerA);
+
+    getActionUpgrades().get(0).purchaseNextTier(); // sword_damage: +5 base attack
+    getActionUpgrades().get(1).purchaseNextTier(); // attack_speed: 0.8x cooldown
+    getDefenceUpgrades().get(0).purchaseNextTier(); // shield_durability: 3 shield hits
+    getMovementUpgrades().get(0).purchaseNextTier(); // player_speed: 1.15x speed
+
+    Entity playerB = newPlayerEntity();
+    display.setPlayer(playerB);
+
+    CombatStatsComponent statsB = playerB.getComponent(CombatStatsComponent.class);
+    PlayerActions actionsB = playerB.getComponent(PlayerActions.class);
+    assertEquals(10, statsB.getBaseAttack()); // playerB's own default, not playerA's 15
+    assertEquals(1f, actionsB.getAttackSpeedMultiplier(), 0.0001f);
+    assertEquals(0, statsB.getShieldHits());
+    assertEquals(1f, actionsB.getEffectiveSpeedMultiplier(), 0.0001f);
+  }
+
+  @Test
+  void settingTheSamePlayerEntityAgainClearsNothing() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    swordDamage.purchaseNextTier();
+
+    display.setPlayer(player); // same entity again
+
+    assertEquals(1, swordDamage.getCurrentTier());
+    assertEquals(15, player.getComponent(CombatStatsComponent.class).getBaseAttack());
+  }
+
+  @Test
+  void theFirstSetPlayerCallAtGameStartClearsNothing() throws Exception {
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    // Bought before any player has ever been set - this.player is still null inside display, so
+    // applySwordDamageEffect() no-ops, but the node's own tier is independent of that.
+    swordDamage.purchaseNextTier();
+    assertEquals(1, swordDamage.getCurrentTier());
+
+    Entity playerA = newPlayerEntity();
+    display.setPlayer(playerA); // first-ever call
+
+    assertEquals(1, swordDamage.getCurrentTier()); // untouched - nothing to clear from
   }
 }
