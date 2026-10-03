@@ -1,6 +1,7 @@
 package com.csse3200.game.components.npc;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 
@@ -27,7 +28,10 @@ public class SkeletonWeaponAnimationController extends Component {
     // Listen to attack events
     entity.getEvents().addListener("meleeAttack", (Entity target) -> onMeleeAttack());
     entity.getEvents().addListener("rangedAttackStart", this::onRangedAttack);
-    entity.getEvents().addListener("rangedAttack", (Entity target) -> onRangedAttack());
+    entity
+        .getEvents()
+        .addListener(
+            "rangedAttack", (Entity target, ProjectileType projectile) -> onRangedAttack());
 
     // Listen to explicit direct start events if triggered elsewhere
     entity.getEvents().addListener("SwordLeftStart", this::animateSwordL);

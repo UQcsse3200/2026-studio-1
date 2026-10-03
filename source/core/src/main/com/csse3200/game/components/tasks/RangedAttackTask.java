@@ -4,6 +4,7 @@ import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.ai.tasks.DefaultTask;
 import com.csse3200.game.ai.tasks.PriorityTask;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 
 /**
@@ -24,6 +25,7 @@ public class RangedAttackTask extends DefaultTask implements PriorityTask {
   private final Entity target;
   private final int priority;
   private final float range;
+  private final ProjectileType projectile;
 
   /**
    * @param target The entity to attack once in range.
@@ -32,11 +34,13 @@ public class RangedAttackTask extends DefaultTask implements PriorityTask {
    *     through its target.
    * @param range Distance from the target at which this task becomes active. Should normally match
    *     the {@link RangedAttackComponent}'s configured range on the same entity.
+   * @param projectile Type of projectile being launched
    */
-  public RangedAttackTask(Entity target, int priority, float range) {
+  public RangedAttackTask(Entity target, int priority, float range, ProjectileType projectile) {
     this.target = target;
     this.priority = priority;
     this.range = range;
+    this.projectile = projectile;
   }
 
   @Override
@@ -47,7 +51,7 @@ public class RangedAttackTask extends DefaultTask implements PriorityTask {
 
   @Override
   public void update() {
-    owner.getEntity().getEvents().trigger("rangedAttack", target);
+    owner.getEntity().getEvents().trigger("rangedAttack", target, projectile);
   }
 
   @Override

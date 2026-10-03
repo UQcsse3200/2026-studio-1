@@ -13,6 +13,7 @@ import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.*;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
+import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.components.tasks.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.NPCConfigs;
@@ -183,7 +184,7 @@ public class NPCFactory {
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     rangedSkeleton
         .getComponent(AITaskComponent.class)
-        .addTask(new RangedAttackTask(target, 15, config.ranged.range));
+        .addTask(new RangedAttackTask(target, 15, config.ranged.range, ProjectileType.ARROW));
 
     rangedSkeleton.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(rangedSkeleton, collisionScale.x, collisionScale.y);
@@ -325,7 +326,7 @@ public class NPCFactory {
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     centaur
         .getComponent(AITaskComponent.class)
-        .addTask(new RangedAttackTask(target, 10, config.ranged.range))
+        .addTask(new RangedAttackTask(target, 10, config.ranged.range, ProjectileType.ARROW))
         .addTask(
             (new ChargeTask(
                 target,
@@ -388,7 +389,7 @@ public class NPCFactory {
     cyclops
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
-        .addTask(new RangedAttackTask(target, 9, config.ranged.range));
+        .addTask(new RangedAttackTask(target, 9, config.ranged.range, ProjectileType.ARROW));
 
     cyclops.setScale(scale, scale * (48f / 64f));
     PhysicsUtils.setScaledCollider(cyclops, collisionScale.x, collisionScale.y);
