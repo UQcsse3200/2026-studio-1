@@ -10,8 +10,7 @@ import com.csse3200.game.services.ServiceLocator;
 
 /**
  * Draws a map's parallax backdrops behind its terrain: for whichever sub-level the camera is in,
- * that sub-level's stack of images, each filling the view and sliding at its own rate as the camera
- * pans.
+ * that sub-level's stack of images, each moving at its own rate as the camera does.
  */
 public class ParallaxBackdropRenderComponent extends RenderComponent {
   private final LevelMapData mapData;
@@ -24,7 +23,7 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
   @Override
   public void create() {
     super.create();
-    for (String texturePath : backdropTextures()) {
+    for (String texturePath : repeatingTextures()) {
       texture(texturePath).setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
     }
   }
@@ -47,12 +46,17 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
     float viewBottom = centreY - viewHeight / 2f;
 
     SubLevel subLevel = mapData.getSubLevelAt((int) Math.floor(centreY / mapData.getTileSize()));
-    if (subLevel == null) {
-      return;
-    }
+    float mapWidth = mapData.getWidth() * mapData.getTileSize();
+    float mapHeight = mapData.getHeight() * mapData.getTileSize();
 
-    for (BackdropLayer layer : mapData.getBackdrop(subLevel.id())) {
+    for (BackdropLayer layer : mapData.getBackdrop(subLevel == null ? null : subLevel.id())) {
       Texture texture = texture(layer.texture());
+      if (layer.spansMap()) {
+        float layerHeight = mapWidth * texture.getHeight() / texture.getWidth();
+        float layerBottom = spanningLayerBottom(viewBottom, viewHeight, layerHeight, mapHeight);
+        batch.draw(texture, 0f, layerBottom, mapWidth, layerHeight);
+        continue;
+      }
       float[] window =
           textureWindow(
               layer,
@@ -77,8 +81,29 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
   }
 
   /**
-   * Works out which part of a layer's image is on screen. The image is scaled to the height of the
-   * view and repeats sideways, so a view wider than the image shows it more than once.
+   * Works out where a layer spanning the map sits, so that it shows its bottom edge when the camera
+   * is at the bottom of the map and its top edge when the camera is at the top.
+   *
+   * @param viewBottom the bottom edge of the view in world units
+   * @param viewHeight the height of the view in world units
+   * @param layerHeight the height the layer is drawn at in world units
+   * @param mapHeight the height of the map in world units
+   * @return the world y of the layer's bottom edge
+   */
+  static float spanningLayerBottom(
+      float viewBottom, float viewHeight, float layerHeight, float mapHeight) {
+    float cameraTravel = mapHeight - viewHeight;
+    if (cameraTravel <= 0f) {
+      return 0f;
+    }
+    float rate = (layerHeight - viewHeight) / cameraTravel;
+    return viewBottom * (1f - rate);
+  }
+
+  /**
+   * Works out which part of a view-filling layer's image is on screen. The image is scaled to the
+   * height of the view and repeats sideways, so a view wider than the image shows it more than
+   * once.
    *
    * @param layer the layer being drawn
    * @param viewLeft the left edge of the view in world units
@@ -106,9 +131,11 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
     return offset - (float) Math.floor(offset);
   }
 
-  private Iterable<String> backdropTextures() {
+  private Iterable<String> repeatingTextures() {
     return mapData.getBackdrops().values().stream()
-        .flatMap(backdrop -> backdrop.stream().map(BackdropLayer::texture))
+        .flatMap(backdrop -> backdrop.stream())
+        .filter(layer -> !layer.spansMap())
+        .map(BackdropLayer::texture)
         .distinct()
         .toList();
   }

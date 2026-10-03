@@ -1,7 +1,7 @@
 {
   "name": "Level 2 — Climb Mount Olympus",
   "tileSize": 0.5,
-  "backgroundTexture": "images/level2/level2-map.png",
+  "backgroundTexture": "images/level2/level2-foreground.png",
   "legend": {
     "O": {
       "type": "WALL",
@@ -812,6 +812,26 @@
       "   P                                                                            ",
       "                                                                                ",
       "                                                                                "
+    ]
+  },
+  "backdrops": {
+    "*": [
+      {
+        "texture": "images/level2/backdrop/0-sky.png",
+        "spansMap": true
+      },
+      {
+        "texture": "images/level2/backdrop/1-far-sea.png",
+        "spansMap": true
+      },
+      {
+        "texture": "images/level2/backdrop/2-ranges.png",
+        "spansMap": true
+      },
+      {
+        "texture": "images/level2/backdrop/3-haze.png",
+        "spansMap": true
+      }
     ]
   },
   "subLevels": [

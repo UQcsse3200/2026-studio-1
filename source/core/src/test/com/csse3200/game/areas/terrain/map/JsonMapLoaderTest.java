@@ -483,7 +483,8 @@ class JsonMapLoaderTest {
             "cave": [
               { "texture": "far.png" },
               { "texture": "fog.png", "scroll": 0.6, "drift": { "x": 0.15, "y": 0.4 } }
-            ]
+            ],
+            "*": [ { "texture": "sky.png", "spansMap": true } ]
           }
         }
         """;
@@ -495,8 +496,12 @@ class JsonMapLoaderTest {
             new BackdropLayer("far.png", 0f, 0f, 0f),
             new BackdropLayer("fog.png", 0.6f, 0.15f, 0.4f)),
         map.getBackdrop("cave"));
-    assertTrue(map.getBackdrop("elsewhere").isEmpty());
-    assertTrue(map.getTexturePaths().containsAll(List.of("wall.png", "far.png", "fog.png")));
+    // Anywhere without a backdrop of its own falls back to the map-wide one.
+    List<BackdropLayer> wholeMap = List.of(new BackdropLayer("sky.png", 0f, 0f, 0f, true));
+    assertEquals(wholeMap, map.getBackdrop("elsewhere"));
+    assertEquals(wholeMap, map.getBackdrop(null));
+    assertTrue(
+        map.getTexturePaths().containsAll(List.of("wall.png", "far.png", "fog.png", "sky.png")));
   }
 
   @Test
@@ -542,7 +547,11 @@ class JsonMapLoaderTest {
     assertEquals(6, levelTwo.getSpawns().getLoot().size());
     assertEquals("maps/level3.json", levelTwo.getTransitions().getFirst().getDestinationMap());
     assertEquals(new GridPoint2(67, 166), levelTwo.getTransitions().getFirst().getPosition());
-    assertEquals("images/level2/level2-map.png", levelTwo.getBackgroundTexture());
+    assertEquals("images/level2/level2-foreground.png", levelTwo.getBackgroundTexture());
+    // One sky spans the whole climb, so both sub-levels share the map-wide backdrop.
+    assertEquals(4, levelTwo.getBackdrop("base").size());
+    assertEquals(levelTwo.getBackdrop("base"), levelTwo.getBackdrop("skies"));
+    assertTrue(levelTwo.getBackdrop("skies").getFirst().spansMap());
 
     LevelMapData levelThree = loader.load("maps/level3.json");
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());

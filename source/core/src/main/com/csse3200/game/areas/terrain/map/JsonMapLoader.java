@@ -266,7 +266,7 @@ public class JsonMapLoader implements MapLoader {
 
   /**
    * Reads the optional {@code backdrops} block: for each sub-level id, the parallax images drawn
-   * behind its tiles, listed back to front.
+   * behind its tiles, listed back to front. The key {@code "*"} is the backdrop for the whole map.
    *
    * @param backdropsJson the block, or null if the map has none
    * @param mapName the map's name, for error messages
@@ -304,7 +304,8 @@ public class JsonMapLoader implements MapLoader {
                 texture,
                 layer.getFloat("scroll", 0f),
                 drift == null ? 0f : drift.getFloat("x", 0f),
-                drift == null ? 0f : drift.getFloat("y", 0f)));
+                drift == null ? 0f : drift.getFloat("y", 0f),
+                layer.getBoolean("spansMap", false)));
       }
       backdrops.put(backdrop.name, layers);
     }

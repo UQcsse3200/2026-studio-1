@@ -1,6 +1,7 @@
 package com.csse3200.game.rendering;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.csse3200.game.areas.terrain.map.BackdropLayer;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,32 @@ class ParallaxBackdropRenderComponentTest {
     float[] window = window(layer, 1234f, 0f);
 
     assertArrayEquals(new float[] {0.4f, 1f, 2.4f, 0f}, window, 1e-3f);
+  }
+
+  @Test
+  void aSpanningLayerShowsItsBottomAtTheBottomOfTheMapAndItsTopAtTheTop() {
+    float mapHeight = 90f;
+    float layerHeight = 30f;
+
+    assertEquals(
+        0f,
+        ParallaxBackdropRenderComponent.spanningLayerBottom(
+            0f, VIEW_HEIGHT, layerHeight, mapHeight),
+        TOLERANCE);
+    // With the view at the very top (bottom edge at 80), the layer's top edge meets the map's.
+    assertEquals(
+        mapHeight - layerHeight,
+        ParallaxBackdropRenderComponent.spanningLayerBottom(
+            80f, VIEW_HEIGHT, layerHeight, mapHeight),
+        TOLERANCE);
+  }
+
+  @Test
+  void aSpanningLayerStaysPutWhenTheMapIsNoTallerThanTheView() {
+    assertEquals(
+        0f,
+        ParallaxBackdropRenderComponent.spanningLayerBottom(3f, VIEW_HEIGHT, 30f, VIEW_HEIGHT),
+        TOLERANCE);
   }
 
   private static float[] window(BackdropLayer layer, float viewLeft, float elapsed) {

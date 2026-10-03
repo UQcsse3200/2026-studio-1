@@ -20,6 +20,9 @@ public class LevelMapData {
   /** Preferred name of the layer used to derive collision, if present. */
   public static final String COLLISION_LAYER = "collision";
 
+  /** Backdrop key for a backdrop shown everywhere a sub-level has none of its own. */
+  public static final String WHOLE_MAP_BACKDROP = "*";
+
   /** Fallback layer used for collision when no explicit collision layer exists. */
   public static final String TERRAIN_LAYER = "terrain";
 
@@ -191,17 +194,23 @@ public class LevelMapData {
   }
 
   /**
-   * The parallax backdrop drawn behind a sub-level's tiles.
+   * The parallax backdrop drawn behind a sub-level's tiles: its own if it has one, otherwise the
+   * map's {@link #WHOLE_MAP_BACKDROP}.
    *
-   * @param subLevelId a sub-level's id
-   * @return its backdrop layers, back to front (unmodifiable), empty if it has none
+   * @param subLevelId a sub-level's id, or null for a part of the map outside every sub-level
+   * @return the backdrop layers, back to front (unmodifiable), empty if there are none
    */
   public List<BackdropLayer> getBackdrop(String subLevelId) {
-    return Collections.unmodifiableList(backdrops.getOrDefault(subLevelId, List.of()));
+    List<BackdropLayer> backdrop = subLevelId == null ? null : backdrops.get(subLevelId);
+    if (backdrop == null) {
+      backdrop = backdrops.getOrDefault(WHOLE_MAP_BACKDROP, List.of());
+    }
+    return Collections.unmodifiableList(backdrop);
   }
 
   /**
-   * @return every backdrop in this map, keyed by sub-level id (unmodifiable)
+   * @return every backdrop in this map, keyed by sub-level id or {@link #WHOLE_MAP_BACKDROP}
+   *     (unmodifiable)
    */
   public Map<String, List<BackdropLayer>> getBackdrops() {
     return Collections.unmodifiableMap(backdrops);

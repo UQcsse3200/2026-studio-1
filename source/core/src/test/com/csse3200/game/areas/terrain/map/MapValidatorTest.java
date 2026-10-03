@@ -154,6 +154,7 @@ class MapValidatorTest {
           "subLevels": [ { "id": "cave", "bounds": { "x": 0, "y": 0, "width": 3, "height": 1 } } ],
           "backdrops": {
             "cave": [ { "texture": "far.png" } ],
+            "*": [ { "texture": "far.png" } ],
             "cavern": [ { "texture": "far.png" } ]
           }
         }

@@ -249,7 +249,8 @@ public final class MapValidator {
   private static void checkBackdrops(LevelMapData map, String name, List<Problem> problems) {
     for (String subLevelId : map.getBackdrops().keySet()) {
       boolean known =
-          map.getSubLevels().stream().anyMatch(subLevel -> subLevel.id().equals(subLevelId));
+          subLevelId.equals(LevelMapData.WHOLE_MAP_BACKDROP)
+              || map.getSubLevels().stream().anyMatch(subLevel -> subLevel.id().equals(subLevelId));
       if (!known) {
         problems.add(
             new Problem(
