@@ -17,8 +17,8 @@ class SpawnCommandTest {
   private SpawnCommand spawnCommand;
   // Arbitrary for testing
   private static final String Enemy = "skeleton";
-  private LevelGameArea mockLevelGameArea = mock(LevelGameArea.class);
-  private Entity mockPlayer = mock(Entity.class);
+  private final LevelGameArea mockLevelGameArea = mock(LevelGameArea.class);
+  private final Entity mockPlayer = mock(Entity.class);
   // Arbitrary for testing
   private final Vector2 playerPosition = new Vector2(100f, 100f);
 
@@ -50,7 +50,11 @@ class SpawnCommandTest {
 
   @Test
   void returnsFalseOnInvalidSpawnArg() {
-    // TODO - Finish all test cases for the spawn command
+    stubPlayerPosition();
+    when(mockLevelGameArea.spawnEnemy("NotEnemy", playerPosition)).thenReturn(false);
+
+    assertFalse(spawnCommand.action(new ArrayList<>(List.of("NotEnemy"))));
+    verify(mockLevelGameArea).spawnEnemy("NotEnemy", playerPosition);
   }
 
   @Test
