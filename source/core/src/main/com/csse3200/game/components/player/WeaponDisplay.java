@@ -95,6 +95,7 @@ public class WeaponDisplay extends UIComponent {
           case BOW -> "images/items/bow.png";
           case DAGGER -> "images/dagger.png";
           case SWORD -> "images/items/sword.png";
+          case AXE -> "images/items/axe.png";
         };
 
     return ServiceLocator.getResourceService().getAsset(imagePath, Texture.class);
