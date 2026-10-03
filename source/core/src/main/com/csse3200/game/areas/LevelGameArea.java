@@ -114,6 +114,7 @@ public class LevelGameArea extends GameArea {
     "images/potions/speed_potion.png",
     "images/potions/regeneration_potion.png",
     "images/potions/resistance_potion.png",
+    "images/items/upgrade_stone.png",
     "images/Shield.png"
   };
 

@@ -14,6 +14,7 @@ public class ConsumableConfigs {
   public ConsumableConfig speedBuff = new ConsumableConfig();
   public ConsumableConfig regeneration = new ConsumableConfig();
   public ConsumableConfig resistance = new ConsumableConfig();
+  public ConsumableConfig upgradeStone = new ConsumableConfig();
 
   /**
    * Returns the config backing the given consumable type.
@@ -37,6 +38,8 @@ public class ConsumableConfigs {
         return regeneration;
       case RESISTANCE:
         return resistance;
+      case UPGRADE_STONE:
+        return upgradeStone;
       default:
         throw new IllegalArgumentException("No config for consumable type " + type);
     }
