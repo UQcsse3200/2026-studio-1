@@ -34,6 +34,7 @@ public class PlayerActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
   // Thank you Lachlan, you beautiful, beautiful man
   private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
+  private static final Vector2 MAX_JUMP_SPEED = new Vector2(10f, 10f); // Metres per second
   private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
   private float attackCooldownRemaining = 0f;
@@ -198,7 +199,7 @@ public class PlayerActions extends Component {
       Quest.incrementGlobalJumps();
     }
     // For the jump portion
-    platformerComponent.updateJump(MAX_SPEED);
+    platformerComponent.updateJump(MAX_JUMP_SPEED);
   }
 
   /**

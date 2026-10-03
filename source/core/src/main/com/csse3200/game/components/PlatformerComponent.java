@@ -19,7 +19,7 @@ public class PlatformerComponent extends Component {
   private boolean superJumpPowerup = false;
   private int superJumpScaler = 1;
 
-  private int baseJumpScaler = 3;
+  private int baseJumpScaler = 1;
 
   private PhysicsComponent physicsComponent;
   private PhysicsEngine physics;
@@ -131,11 +131,8 @@ public class PlatformerComponent extends Component {
   }
 
   private void jump(Vector2 direction) {
-    // Wall jump takes priority over a normal jump (given the player is not grounded),
-    // you cannot normal jump and wall jump at the same time. Wall jump doesn't
-    // replenish double jumps
+    // you cannot normal jump and wall jump at the same time.
     this.jumpDirection.y = direction.y;
-    // Wall jump code
     // Normal jump code
     if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
       this.jumpDirection.y *= baseJumpScaler;

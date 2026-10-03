@@ -101,7 +101,7 @@ public class PlayerFactory {
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
             .addComponent(new PetManagerComponent())
-            .addComponent(new PlatformerComponent(5, true, 1, false, 1))
+            .addComponent(new PlatformerComponent(2, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new QuestDisplay())
             .addComponent(new InventoryDisplay())
