@@ -1,16 +1,16 @@
 package com.csse3200.game.areas;
 
-import com.csse3200.game.areas.terrain.TerrainFactory;
-import com.csse3200.game.components.CameraComponent;
-import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+
+import com.csse3200.game.areas.terrain.TerrainFactory;
+import com.csse3200.game.components.CameraComponent;
+import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 class LevelGameAreaSpawnEnemyTest {
 
