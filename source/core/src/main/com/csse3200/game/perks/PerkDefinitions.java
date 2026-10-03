@@ -16,18 +16,13 @@ public final class PerkDefinitions {
   public static void registerAll() {
     PerkService.register(
         new Perk(
-            "shieldMaster",
-            "Shield Enhancement",
-            "Activate your shield 5 times",
-            "shieldActivated",
-            5));
+            "shieldMaster", "Shield Enhancement", "Collect shield 5 times", "shieldCollected", 5));
 
     PerkService.register(new Perk("thickSkin", "Max Health", "Kill 10 enemies", "enemyKilled", 10));
 
-    PerkService.register(
-        new Perk("timeLord", "Time Freeze", "Find the 5 times turtle", "Tortoise", 5));
+    PerkService.register(new Perk("timeLord", "Time Freeze", "Find the turtle", "Tortoise", 1));
 
     PerkService.register(
-        new Perk("snatcher", "Loot Drop", "Spend x amount of gold", "GoldSpent", 120));
+        new Perk("snatcher", "Loot Drop", "Spend 120 amount of gold", "GoldSpent", 120));
   }
 }

@@ -1,7 +1,7 @@
 package com.csse3200.game.ui.terminal.commands;
 
-// NEW FILE: debug terminal command for testing perk rewards
-// without grinding the real milestone or waiting on the quest-tracker UI integration.
+// Debug terminal command for testing perk rewards (Iron Skin, Shield Master, etc.) without
+// grinding the real milestone or waiting on the quest-tracker UI integration.
 
 import com.csse3200.game.perks.Perk;
 import com.csse3200.game.perks.PerkService;
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * <p>Usage in the debug terminal:
  *
  * <ul>
- *   <li>{@code "perk <id>"} - force-unlocks that perk,
+ *   <li>{@code "perk <id>"} - force-unlocks that perk, e.g. {@code "perk thickSkin"}
  *   <li>{@code "perk <id> reset"} - locks that perk back to zero progress, e.g. {@code "perk
  *       shieldMaster reset"}
  * </ul>
@@ -31,7 +31,7 @@ public class PerkCommand implements Command {
   @Override
   public boolean action(ArrayList<String> args) {
     if (args.isEmpty()) {
-      logger.error("Usage: perk <id> [reset], e.g. \"perk iron_skin\" or \"perk iron_skin reset\"");
+      logger.error("Usage: perk <id> [reset], e.g. \"perk thickSkin\" or \"perk thickSkin reset\"");
       return false;
     }
 

@@ -9,6 +9,7 @@ import com.csse3200.game.files.UserSettings;
 import com.csse3200.game.screens.DeathScreen;
 import com.csse3200.game.screens.MainGameScreen;
 import com.csse3200.game.screens.MainMenuScreen;
+import com.csse3200.game.screens.PerksScreen;
 import com.csse3200.game.screens.SettingsScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +100,8 @@ public class GdxGame extends Game {
         return new SettingsScreen(this);
       case DEATH_SCREEN:
         return new DeathScreen(this);
+      case PERKS:
+        return new PerksScreen(this);
       default:
         return null;
     }

@@ -2,7 +2,8 @@ package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.perks.*;
+import com.csse3200.game.perks.Perk;
+import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import org.slf4j.Logger;
@@ -76,10 +77,11 @@ public class ShieldComponent extends Component {
 
     Perk shieldPerk = PerkService.getPerk(shield_perk_id);
     if (shieldPerk != null) {
-      if (shieldPerk.isUnlocked()) {
+      if (shieldPerk.isActive()) {
         increaseDuration(shield_perk_duration);
       }
-      shieldPerk.setOnUnlocked(() -> increaseDuration(shield_perk_duration));
+      shieldPerk.setOnActivated(() -> increaseDuration(shield_perk_duration));
+      shieldPerk.setOnDeactivated(() -> decreaseDuration(shield_perk_duration));
     }
   }
 
@@ -175,11 +177,19 @@ public class ShieldComponent extends Component {
     logger.info("Shield duration increased by {}ms, now {}ms", extraMillis, durationMillis);
   }
 
+  public void decreaseDuration(long lessMillis) {
+    if (lessMillis <= 0) {
+      return;
+    }
+
+    durationMillis = Math.max(0, durationMillis - lessMillis);
+    logger.info("Shield duration decreased by {}ms, now {}ms", lessMillis, durationMillis);
+  }
+
   private void activate() {
     active = true;
     activeUntil = timeSource != null ? timeSource.getTime() + durationMillis : 0L;
     logger.info("Shield activated for {}ms", durationMillis);
-    PerkService.recordEvent(shield_perk_id, 1); // added line for perk
     entity.getEvents().trigger("shieldActivated", durationMillis);
   }
 
