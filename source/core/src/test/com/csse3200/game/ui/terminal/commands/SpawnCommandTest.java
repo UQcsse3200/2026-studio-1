@@ -64,16 +64,32 @@ class SpawnCommandTest {
 
   @Test
   void isValidReturnsFalseOnWrongArgSize() {
-    // TODO - Finish all test cases for the spawn command
+    // Empty argument list
+    ArrayList<String> args = new ArrayList<>(List.of());
+    assertFalse(spawnCommand.isValid(args));
+    assertFalse(spawnCommand.action(args));
+
+    // Extra argument list
+    args = new ArrayList<>(List.of(Enemy, "ExtraArg"));
+    assertFalse(spawnCommand.isValid(args));
+    assertFalse(spawnCommand.action(args));
+
+    // Ensures spawnEnemy is never called
+    verify(mockLevelGameArea, never()).spawnEnemy(anyString(), any());
   }
 
   @Test
   void isValidReturnsFalseOnNullLevelGameArea() {
-    // TODO - Finish all test cases for the spawn command
+    SpawnCommand.updateLevelGameArea(null);
+
+    // Valid args
+    ArrayList<String> args = new ArrayList<>(List.of(Enemy));
+    assertFalse(spawnCommand.isValid(args));
+    assertFalse(spawnCommand.action(args));
   }
 
   @Test
   void isValidReturnsTrueOnValid() {
-    // TODO - Finish all test cases for the spawn command
+    assertTrue(spawnCommand.isValid(new ArrayList<>(List.of(Enemy))));
   }
 }
