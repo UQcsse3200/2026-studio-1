@@ -7,23 +7,14 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
-import com.csse3200.game.components.npc.CyclopsAnimationController;
-import com.csse3200.game.components.npc.DialogueComponent;
-import com.csse3200.game.components.npc.DialogueProximityComponent;
-import com.csse3200.game.components.npc.DisplayDialogue;
-import com.csse3200.game.components.npc.EnemyDeathComponent;
-import com.csse3200.game.components.npc.GhostAnimationController;
-import com.csse3200.game.components.npc.MinotaurAnimationController;
-import com.csse3200.game.components.npc.SkeletonAnimationController;
-import com.csse3200.game.components.npc.SkeletonWeaponAnimationController;
+import com.csse3200.game.components.npc.*;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.tasks.*;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.configs.BaseEntityConfig;
-import com.csse3200.game.entities.configs.GhostKingConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
 import com.csse3200.game.entities.configs.enemies.*;
 import com.csse3200.game.files.FileLoader;
@@ -36,7 +27,6 @@ import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
-import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +34,7 @@ import java.util.List;
  * Factory to create non-playable character (NPC) entities with predefined components.
  *
  * <p>Each NPC entity type should have a creation method that returns a corresponding entity.
- * Predefined entity properties can be loaded from configs stored as json files which are defined in
+ * Predefined entity properties can be loaded from configs stored as JSON files which are defined in
  * "NPCConfigs".
  *
  * <p>If needed, this factory can be separated into more specific factories for entities with
@@ -61,59 +51,6 @@ public class NPCFactory {
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
-
-  /**
-   * Creates a ghost entity.
-   *
-   * @param target entity to chase
-   * @return entity
-   */
-  public static Entity createGhost(Entity target) {
-    Entity ghost = createBaseNPC(target);
-    BaseEntityConfig config = configs.ghost;
-
-    AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/enemies/ghost.atlas", TextureAtlas.class));
-    animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
-
-    ghost
-        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
-        .addComponent(animator)
-        .addComponent(new GhostAnimationController());
-
-    ghost.getComponent(AnimationRenderComponent.class).scaleEntity();
-
-    return ghost;
-  }
-
-  /**
-   * Creates a ghost king entity.
-   *
-   * @param target entity to chase
-   * @return entity
-   */
-  public static Entity createGhostKing(Entity target) {
-    Entity ghostKing = createBaseNPC(target);
-    GhostKingConfig config = configs.ghostKing;
-
-    AnimationRenderComponent animator =
-        new AnimationRenderComponent(
-            ServiceLocator.getResourceService()
-                .getAsset("images/enemies/ghostKing.atlas", TextureAtlas.class));
-    animator.addAnimation("float", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("angry_float", 0.1f, Animation.PlayMode.LOOP);
-
-    ghostKing
-        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
-        .addComponent(animator)
-        .addComponent(new GhostAnimationController());
-
-    ghostKing.getComponent(AnimationRenderComponent.class).scaleEntity();
-    return ghostKing;
-  }
 
   /**
    * Creates a skeleton entity.
@@ -157,6 +94,7 @@ public class NPCFactory {
     // Add necessary components to the entity
     skeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(new EnemyTypeComponent(EnemyType.SKELETON))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,
@@ -220,6 +158,7 @@ public class NPCFactory {
     // Add necessary components to the entity
     rangedSkeleton
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(new EnemyTypeComponent(EnemyType.RANGED_SKELETON))
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range,
@@ -241,7 +180,7 @@ public class NPCFactory {
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     rangedSkeleton
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 15, config.ranged.range));
@@ -259,7 +198,7 @@ public class NPCFactory {
    * @return minotaur entity that charges at target to attack
    */
   public static Entity createMinotaur(Entity target) {
-    float scale = 2.0f;
+    float scale = 4.0f;
     Vector2 collisionScale = new Vector2(0.8f, 0.7f);
     Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     MinotaurConfig config = configs.minotaur;
@@ -270,7 +209,9 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    WeaponItem weapon = weaponGenerator.generateWeapon(WeaponType.AXE, 2);
+    weapon.setWindupDuration(0f);
+    items.add(weapon);
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -282,10 +223,16 @@ public class NPCFactory {
     animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_charge_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_charge_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_swing_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("minotaur_swing_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Add necessary components to the entity
     minotaur
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(inventory)
+        .addComponent(new EnemyTypeComponent(EnemyType.MINOTAUR))
         .addComponent(
             new MeleeAttackComponent(
                 config.melee.range,
@@ -295,10 +242,10 @@ public class NPCFactory {
         .addComponent(
             new ChargeComponent(
                 config.charge.duration,
+                config.charge.windupDuration,
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
-        .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
@@ -307,7 +254,7 @@ public class NPCFactory {
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     minotaur
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 15, config.melee.range))
@@ -316,8 +263,8 @@ public class NPCFactory {
                 target,
                 minotaur.getComponent(ChargeComponent.class),
                 config.charge.aggroRadius,
-                15,
-                10)));
+                16,
+                -1)));
 
     minotaur.setScale(scale, scale * (80f / 96f));
 
@@ -341,7 +288,7 @@ public class NPCFactory {
    * @return centaur entity that charges at target to attack from a distance.
    */
   public static Entity createCentaur(Entity target) {
-    float scale = 2.0f;
+    float scale = 4.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity centaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CentaurConfig config = configs.centaur;
@@ -352,7 +299,7 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -378,9 +325,11 @@ public class NPCFactory {
         .addComponent(
             new ChargeComponent(
                 config.charge.duration,
+                config.charge.windupDuration,
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
+        .addComponent(new EnemyTypeComponent(EnemyType.CENTAUR))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -390,7 +339,7 @@ public class NPCFactory {
     centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     centaur
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 10, config.ranged.range))
@@ -399,8 +348,8 @@ public class NPCFactory {
                 target,
                 centaur.getComponent(ChargeComponent.class),
                 config.charge.aggroRadius,
-                15,
-                10)));
+                16,
+                -1)));
 
     centaur.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
@@ -420,20 +369,12 @@ public class NPCFactory {
     Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CyclopsConfig config = configs.cyclops;
 
-    // Create loot on drop
-    int numGold = 3;
+    // Create loot on drop - more gold dropped due to no weapons being dropped (no inventory)
+    int numGold = 12;
     InventoryComponent inventory = new InventoryComponent(numGold);
-    List<Item> items = new ArrayList<>();
-
-    WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
-    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
-    for (Item item : items) {
-      inventory.addItem(item);
-    }
 
     // Configure animation component
-    // TODO: THIS WILL BE CHANGED TO CYCLOPS ANIMATION AND SPRITES
+    // TODO: CYCLOPS ATTACK ANIMATION TO DO
     AnimationRenderComponent animator =
         new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
@@ -450,6 +391,7 @@ public class NPCFactory {
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+        .addComponent(new EnemyTypeComponent(EnemyType.CYCLOPS))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
@@ -459,7 +401,7 @@ public class NPCFactory {
     cyclops.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     cyclops
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))

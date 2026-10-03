@@ -4,7 +4,7 @@ import com.csse3200.game.files.FileLoader.Location;
 import java.io.File;
 
 public class SaveService {
-  private static final String ROOT_DIR = "DECO2800Game";
+  private static final String ROOT_DIR = "AscentOfTheMortal";
   private static final String SAVE_FILE = "save.json";
 
   public static void save(GameSaveData data) {

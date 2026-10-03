@@ -80,6 +80,18 @@
       "type": "ENEMY",
       "enemyType": "ranged-skeleton"
     },
+    "M": {
+      "type": "ENEMY",
+      "enemyType": "minotaur"
+    },
+    "Y": {
+      "type": "ENEMY",
+      "enemyType": "cyclops"
+    },
+    "C": {
+      "type": "ENEMY",
+      "enemyType": "centaur"
+    },
     "L": {
       "type": "LOOT"
     }

@@ -78,7 +78,9 @@ public class RangedAttackComponent extends Component {
       throw new IllegalArgumentException("weapon cannot be null");
     }
     this.weapon = weapon;
-    if (weapon.getWeaponType() == WeaponType.DAGGER || weapon.getWeaponType() == WeaponType.SWORD) {
+    if (weapon.getWeaponType() == WeaponType.DAGGER
+        || weapon.getWeaponType() == WeaponType.SWORD
+        || weapon.getWeaponType() == WeaponType.AXE) {
       throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
     }
     if (weapon.getWindupDuration() < 0) {
@@ -105,15 +107,13 @@ public class RangedAttackComponent extends Component {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-    if (weapon.getWindupDuration() < 0) {
-      throw new IllegalArgumentException("windupDuration must not be negative.");
+    if (cooldown <= 1) {
+      throw new IllegalArgumentException(
+          "Windupduration for attack must be less than " + "cooldown and must be positive.");
     }
-    if (weapon.getWindupDuration() >= this.getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown");
-    }
+    this.setWindupDuration(this.getCooldown() - 1);
     this.timeSinceLastAttack = cooldown;
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
-    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**
@@ -233,6 +233,14 @@ public class RangedAttackComponent extends Component {
       throw new IllegalArgumentException("projectileSpeed must be positive");
     }
     this.projectileSpeed = projectileSpeed;
+  }
+
+  public float getWindupDuration() {
+    return windupDuration;
+  }
+
+  public void setWindupDuration(float windupDuration) {
+    this.windupDuration = windupDuration;
   }
 
   /**
