@@ -424,7 +424,8 @@ public class NPCFactory {
    * object no other entity references, so that entity's eventual disposal (which calls {@code
    * atlas.dispose()}) cannot invalidate another still-living entity's sprite.
    *
-   * @param path internal file path to the {@code .atlas} file, e.g. {@code "images/skeleton.atlas"}
+   * @param path internal file path to the {@code .atlas} file, e.g. {@code
+   *     "images/enemies/skeleton.atlas"}
    * @return a new, independently-owned {@code TextureAtlas} loaded from that path
    * @throws com.badlogic.gdx.utils.GdxRuntimeException if the file does not exist or cannot be
    *     parsed as a texture atlas — same failure behaviour as libGDX's own atlas loading

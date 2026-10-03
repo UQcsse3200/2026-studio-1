@@ -93,7 +93,7 @@ public class WeaponDisplay extends UIComponent {
     String imagePath =
         switch (weapon.getWeaponType()) {
           case BOW -> "images/items/bow.png";
-          case DAGGER -> "images/dagger.png";
+          case DAGGER -> "images/items/dagger.png";
           case SWORD -> "images/items/sword.png";
           case AXE -> "images/items/axe.png";
         };

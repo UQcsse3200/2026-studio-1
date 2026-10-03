@@ -107,7 +107,7 @@ public class LevelGameArea extends GameArea {
     "images/items/bow.png",
     "images/items/arrow.png",
     "images/enemies/lightning.png",
-    "images/dagger.png",
+    "images/items/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
     "images/ui/Strength.png",
@@ -132,7 +132,6 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/skeleton.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",

@@ -9,6 +9,7 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
+import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
@@ -36,8 +37,6 @@ public class PlayerActions extends Component {
   // Thank you Lachlan, you beautiful, beautiful man
   private static final Vector2 MAX_SPEED = new Vector2(30f, 10f);
   private static final float SlideMaxTime = 0.5f;
-  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
-  private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
 
   private float attackCooldownRemaining = 0f;
@@ -328,16 +327,18 @@ public class PlayerActions extends Component {
    */
   void walk(Vector2 direction) {
     if (dead || frozen) {
-    System.out.println(
-        "PLAYER ACTIONS WALK entity="
-            + entity.getId()
-            + " direction="
-            + direction
-            + " dead="
-            + dead);
+      System.out.println(
+          "PLAYER ACTIONS WALK entity="
+              + entity.getId()
+              + " direction="
+              + direction
+              + " dead="
+              + dead);
 
-    if (dead) {
-      System.out.println("PLAYER ACTIONS WALK BLOCKED entity=" + entity.getId() + " reason=dead");
+      if (dead) {
+        System.out.println("PLAYER ACTIONS WALK BLOCKED entity=" + entity.getId() + " reason=dead");
+        return;
+      }
       return;
     }
 
@@ -362,8 +363,8 @@ public class PlayerActions extends Component {
     if (!dead) {
       updateSpeed();
     }
-
     moving = false;
+    walkSoundPlaying = false;
   }
 
   /** Makes the player attack. */
@@ -389,7 +390,10 @@ public class PlayerActions extends Component {
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
 
-        logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+        logger.info(
+            "Enemy: {} health decreased; health = {}",
+            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+            enemyStats.getHealth());
 
         attackSound.play(AudioSettings.getEffectiveEffectsVolume());
       }
@@ -523,7 +527,6 @@ public class PlayerActions extends Component {
     dead = true;
     moving = false;
     walkDirection = Vector2.Zero.cpy();
-
     Body body = physicsComponent.getBody();
 
     body.setLinearVelocity(Vector2.Zero);

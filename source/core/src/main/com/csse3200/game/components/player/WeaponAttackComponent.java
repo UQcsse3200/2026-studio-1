@@ -54,6 +54,8 @@ public class WeaponAttackComponent extends Component {
       case DAGGER:
         daggerAttack(activeWeapon);
         break;
+      case AXE:
+        axeAttack(activeWeapon);
       default:
         throw new IllegalStateException("Unsupported weapon type: " + type);
     }
@@ -72,6 +74,10 @@ public class WeaponAttackComponent extends Component {
     }
 
     return null;
+  }
+
+  private void axeAttack(WeaponItem activeWeapon) {
+    entity.getEvents().trigger("axeAttack", activeWeapon.getDamage());
   }
 
   private void swordAttack(WeaponItem activeWeapon) {

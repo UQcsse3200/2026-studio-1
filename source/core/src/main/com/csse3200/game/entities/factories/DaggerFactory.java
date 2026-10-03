@@ -21,7 +21,7 @@ public class DaggerFactory {
   public static Entity createDagger(Vector2 position, Vector2 direction) {
     Entity dagger =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/dagger.png"))
+            .addComponent(new TextureRenderComponent("images/items/dagger.png"))
             .addComponent(new DaggerMovementComponent(direction));
 
     dagger.setPosition(position);
@@ -43,7 +43,7 @@ public class DaggerFactory {
 
     Entity dagger =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/dagger.png"))
+            .addComponent(new TextureRenderComponent("images/items/dagger.png"))
             .addComponent(new PhysicsComponent())
             .addComponent(new HitboxComponent())
             .addComponent(new DaggerMovementComponent(direction))
