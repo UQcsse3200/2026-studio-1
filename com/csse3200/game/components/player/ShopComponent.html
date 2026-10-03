@@ -103,7 +103,13 @@ loadScripts(document, 'script');</script>
  stamps <code>sellPrice</code> as 60% of the listing buy price onto the copied item, consumes that item
  listing (one-use offer), and triggers <code>shopChanged</code>. Selling uses the player inventory and
  refunds <a href="../loot/Item.html#getSellPrice()"><code>Item.getSellPrice()</code></a>. Upgrade and pet purchases trigger <code>upgradePurchased</code>
- and <code>petPurchased</code> and leave those listings in place.</div>
+ and <code>petPurchased</code> and leave those listings in place.
+
+ <p>Gambling catalogs (Standard and Premium) hold a spin price and five weighted prize entries,
+ installed by <a href="#seedDefaultCatalog()"><code>seedDefaultCatalog()</code></a>. Item prizes are <a href="GamblingCatalogs.ItemPrize.html" title="class in com.csse3200.game.components.player"><code>GamblingCatalogs.ItemPrize</code></a>
+ factories backed by the loot generators, so each win is a new typed item. <a href="#buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)"><code>buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)</code></a> rolls
+ a prize by weight, delivers it, and charges the spin price, or changes nothing if the spin is
+ rejected. Replacing a spin price or prize on an attached shop triggers <code>shopChanged</code>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -166,6 +172,10 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Creates a shop with empty item, Upgrade, and pet catalogs.</div>
 </div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.util.Random)" class="member-name-link">ShopComponent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Random.html" title="class or interface in java.util" class="external-link">Random</a>&nbsp;random)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Creates a shop with empty catalogs that rolls gambling spins with the given random source.</div>
+</div>
 </div>
 </section>
 </li>
@@ -190,10 +200,20 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Buys the pet in a catalog slot using gold only.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buyUpgrade(int)" class="member-name-link">buyUpgrade</a><wbr>(int&nbsp;catalogSlot)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a><wbr>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)" class="member-name-link">buySpin</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Buys one spin from the Standard or Premium gambling catalog.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buyUpgrade(int)" class="member-name-link">buyUpgrade</a><wbr>(int&nbsp;catalogSlot)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Buys the Upgrade in a catalog slot using gold only.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.html" title="class in com.csse3200.game.components.player">GamblingCatalogs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGamblingCatalogs()" class="member-name-link">getGamblingCatalogs</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the Standard and Premium spin catalogs.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemCatalog()" class="member-name-link">getItemCatalog</a>()</code></div>
@@ -215,57 +235,96 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the pet listing in a catalog slot.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPurchasedPets()" class="member-name-link">getPurchasedPets</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.SpinCatalog.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.SpinCatalog</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPremiumCatalog()" class="member-name-link">getPremiumCatalog</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the Premium spin catalog.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a><wbr>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPrize(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int)" class="member-name-link">getPrize</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+ int&nbsp;slot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns one prize entry.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPrizes(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)" class="member-name-link">getPrizes</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the prize map for a catalog.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPurchasedPets()" class="member-name-link">getPurchasedPets</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of purchased pets.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPurchasedUpgrades()" class="member-name-link">getPurchasedUpgrades</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPurchasedUpgrades()" class="member-name-link">getPurchasedUpgrades</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of purchased Upgrades.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSellPrice(com.csse3200.game.components.loot.Item)" class="member-name-link">getSellPrice</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSellPrice(com.csse3200.game.components.loot.Item)" class="member-name-link">getSellPrice</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the gold refund for selling <code>item</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUpgradeCatalog()" class="member-name-link">getUpgradeCatalog</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSpinPrice(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)" class="member-name-link">getSpinPrice</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the spin price for a catalog.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.SpinCatalog.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.SpinCatalog</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getStandardCatalog()" class="member-name-link">getStandardCatalog</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the Standard spin catalog.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUpgradeCatalog()" class="member-name-link">getUpgradeCatalog</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of occupied Upgrade catalog slots.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a><wbr>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUpgradeListing(int)" class="member-name-link">getUpgradeListing</a><wbr>(int&nbsp;slot)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a><wbr>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUpgradeListing(int)" class="member-name-link">getUpgradeListing</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the Upgrade listing in a catalog slot.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#seedDefaultCatalog()" class="member-name-link">seedDefaultCatalog</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#seedDefaultCatalog()" class="member-name-link">seedDefaultCatalog</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Fills placeholder listings so the in-game shop is not empty.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sellItem(int)" class="member-name-link">sellItem</a><wbr>(int&nbsp;playerSlot)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sellItem(int)" class="member-name-link">sellItem</a><wbr>(int&nbsp;playerSlot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sells the entire stack in a player inventory slot and refunds <a href="#getSellPrice(com.csse3200.game.components.loot.Item)"><code>getSellPrice(Item)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setItemListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setItemListing</a><wbr>(int&nbsp;slot,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setItemListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setItemListing</a><wbr>(int&nbsp;slot,
  <a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;&nbsp;listing)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets or clears an item catalog listing.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPetListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setPetListing</a><wbr>(int&nbsp;slot,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPetListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setPetListing</a><wbr>(int&nbsp;slot,
  <a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&gt;&nbsp;listing)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets or clears a pet catalog listing.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPrize(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int,com.csse3200.game.components.player.GamblingCatalogs.PrizeEntry)" class="member-name-link">setPrize</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+ int&nbsp;slot,
+ <a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;&nbsp;prize)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Replaces one prize in a seeded catalog.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUpgradeListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setUpgradeListing</a><wbr>(int&nbsp;slot,
- <a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;&nbsp;listing)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSpinPrice(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int)" class="member-name-link">setSpinPrice</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+ int&nbsp;spinPrice)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Replaces the spin price of a seeded catalog.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUpgradeListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setUpgradeListing</a><wbr>(int&nbsp;slot,
+ <a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;&nbsp;listing)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets or clears an Upgrade catalog listing.</div>
 </div>
 </div>
@@ -316,6 +375,19 @@ loadScripts(document, 'script');</script>
 <h3>ShopComponent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ShopComponent</span>()</div>
 <div class="block">Creates a shop with empty item, Upgrade, and pet catalogs.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(java.util.Random)">
+<h3>ShopComponent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ShopComponent</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Random.html" title="class or interface in java.util" class="external-link">Random</a>&nbsp;random)</span></div>
+<div class="block">Creates a shop with empty catalogs that rolls gambling spins with the given random source.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>random</code> - random source for <a href="#buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)"><code>buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)</code></a>; must be non-null</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>random</code> is null</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -453,6 +525,145 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>unmodifiable map of slot index to listing</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getGamblingCatalogs()">
+<h3>getGamblingCatalogs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="GamblingCatalogs.html" title="class in com.csse3200.game.components.player">GamblingCatalogs</a></span>&nbsp;<span class="element-name">getGamblingCatalogs</span>()</div>
+<div class="block">Returns the Standard and Premium spin catalogs.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>gambling catalogs, or <code>null</code> if <a href="#seedDefaultCatalog()"><code>seedDefaultCatalog()</code></a> has not run</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getStandardCatalog()">
+<h3>getStandardCatalog</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="GamblingCatalogs.SpinCatalog.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.SpinCatalog</a></span>&nbsp;<span class="element-name">getStandardCatalog</span>()</div>
+<div class="block">Returns the Standard spin catalog.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>Standard catalog, or <code>null</code> if the shop is not seeded</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getPremiumCatalog()">
+<h3>getPremiumCatalog</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="GamblingCatalogs.SpinCatalog.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.SpinCatalog</a></span>&nbsp;<span class="element-name">getPremiumCatalog</span>()</div>
+<div class="block">Returns the Premium spin catalog.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>Premium catalog, or <code>null</code> if the shop is not seeded</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getSpinPrice(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)">
+<h3>getSpinPrice</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getSpinPrice</span><wbr><span class="parameters">(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId)</span></div>
+<div class="block">Returns the spin price for a catalog.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>catalogId</code> - Standard or Premium; <code>null</code> is invalid</dd>
+<dt>Returns:</dt>
+<dd>spin price, or <code>0</code> if <code>catalogId</code> is null or the shop is not seeded</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getPrizes(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)">
+<h3>getPrizes</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;&gt;</span>&nbsp;<span class="element-name">getPrizes</span><wbr><span class="parameters">(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId)</span></div>
+<div class="block">Returns the prize map for a catalog.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>catalogId</code> - Standard or Premium; <code>null</code> is invalid</dd>
+<dt>Returns:</dt>
+<dd>unmodifiable prize map, or an empty unmodifiable map if <code>catalogId</code> is null or
+     the shop is not seeded</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getPrize(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int)">
+<h3>getPrize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;</span>&nbsp;<span class="element-name">getPrize</span><wbr><span class="parameters">(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+ int&nbsp;slot)</span></div>
+<div class="block">Returns one prize entry.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>catalogId</code> - Standard or Premium; <code>null</code> is invalid</dd>
+<dd><code>slot</code> - prize slot</dd>
+<dt>Returns:</dt>
+<dd>the entry, or <code>null</code> if the shop is not seeded, <code>catalogId</code> is null, or
+     <code>slot</code> is outside <code>1</code>..<code>5</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setSpinPrice(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int)">
+<h3>setSpinPrice</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">setSpinPrice</span><wbr><span class="parameters">(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+ int&nbsp;spinPrice)</span></div>
+<div class="block">Replaces the spin price of a seeded catalog.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>catalogId</code> - Standard or Premium</dd>
+<dd><code>spinPrice</code> - new price; must be <code>&gt;= 0</code></dd>
+<dt>Returns:</dt>
+<dd><code>false</code> if the shop is not seeded, <code>catalogId</code> is null, or <code>
+     spinPrice</code> is negative; <code>true</code> if the price is stored</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setPrize(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int,com.csse3200.game.components.player.GamblingCatalogs.PrizeEntry)">
+<h3>setPrize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">setPrize</span><wbr><span class="parameters">(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+ int&nbsp;slot,
+ <a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;&nbsp;prize)</span></div>
+<div class="block">Replaces one prize in a seeded catalog. The catalog still has five prizes.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>catalogId</code> - Standard or Premium</dd>
+<dd><code>slot</code> - prize slot; must be <code>1</code>..<code>5</code></dd>
+<dd><code>prize</code> - replacement entry; must be non-null</dd>
+<dt>Returns:</dt>
+<dd><code>false</code> if the shop is not seeded, <code>catalogId</code> or <code>prize</code> is null, or
+     the slot is invalid; <code>true</code> if the slot still holds a prize</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)">
+<h3>buySpin</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;</span>&nbsp;<span class="element-name">buySpin</span><wbr><span class="parameters">(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId)</span></div>
+<div class="block">Buys one spin from the Standard or Premium gambling catalog.
+
+ <p>Every check runs before the roll, so a failed spin changes nothing: the inventory must
+ exist, the catalog must be seeded, every prize must be a supported product, the player must
+ afford <code>spinPrice</code>, and <em>every</em> item prize in the catalog must fit in the
+ inventory. Checking all item prizes, not just the rolled one, stops a full inventory from being
+ used to cancel item results for free.
+
+ <p>On success the prize is chosen by weight (<code>P = weight / sum(weights)</code>, see <a href="GamblingRoller.html" title="class in com.csse3200.game.components.player"><code>GamblingRoller</code></a>), delivered, and then the spin price is deducted, matching <a href="#buyItem(int)"><code>buyItem(int)</code></a>. An <a href="GamblingCatalogs.ItemPrize.html" title="class in com.csse3200.game.components.player"><code>GamblingCatalogs.ItemPrize</code></a> adds a new typed item to the inventory; a
+ <a href="GamblingCatalogs.GoldPrize.html" title="class in com.csse3200.game.components.player"><code>GamblingCatalogs.GoldPrize</code></a> adds gold; a <a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player"><code>ShopComponent.Pet</code></a> or <a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player"><code>ShopComponent.Upgrade</code></a> is recorded like
+ a purchase and triggers <code>petPurchased</code> or <code>upgradePurchased</code> without charging its
+ shop price. These events fire after the spin price is deducted, so listeners see the final
+ gold.
+
+ <p>Finally <code>gamblingSpun</code> is triggered with the <a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player"><code>GamblingCatalogs.CatalogId</code></a> and
+ the rolled slot (<code>1</code>..<code>5</code>) so the shop UI can animate the wheel to that slot; the
+ animation does not choose the prize. A rejected spin triggers no events.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>catalogId</code> - Standard or Premium</dd>
+<dt>Returns:</dt>
+<dd>the chosen prize entry, or <code>null</code> if the spin was rejected</dd>
 </dl>
 </section>
 </li>
