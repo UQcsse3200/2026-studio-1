@@ -3,11 +3,13 @@ package com.csse3200.game.entities.factories;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.attacks.LightningFreezeComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
 import com.csse3200.game.components.projectile.ProjectileComponent;
 import com.csse3200.game.components.projectile.ProjectileHitComponent;
 import com.csse3200.game.components.projectile.StraightLineMovementStrategy;
+import com.csse3200.game.components.projectile.VerticalMovementStrategy;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
@@ -76,7 +78,7 @@ public class ArrowFactory {
             .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
             // Not on any layer of its own - nothing in the game currently needs to detect the
             // arrow itself via collision filtering, only the other way around (below).
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NONE))
+            .addComponent(new HitboxComponent())
             // Carries the arrow's damage value only; health is irrelevant since the arrow itself
             // never takes damage. Lets ProjectileHitComponent reuse CombatStatsComponent#hit(...)
             // exactly like every other attack component in the game does.
@@ -93,6 +95,50 @@ public class ArrowFactory {
     arrow.getComponent(TextureRenderComponent.class).setFlipX(!movingRight);
 
     return arrow;
+  }
+
+  /**
+   * Creates a lightning bolt that spawns in the sky above a target position and falls straight
+   * down. On contact with {@code targetLayer} it deals damage and freezes the target via the
+   * target's {@code SpeedEffectComponent} (through the "applySpeedEffect" event).
+   *
+   * @param targetPosition position of the target at the moment of the strike. Sampled once, so a
+   *     moving target can dodge.
+   * @param skyOffset how far above the target the bolt spawns.
+   * @param speed fall speed in world units/second.
+   * @param damage damage on hit; 0 for a pure freeze.
+   * @param freezeTicks how many ticks the target is frozen for (about 60 per second).
+   * @param targetLayer physics layer the bolt hits (e.g. {@link PhysicsLayer#PLAYER}).
+   * @return the bolt entity, not yet registered with the entity service.
+   */
+  public static Entity createLightning(
+      Vector2 targetPosition,
+      float skyOffset,
+      float speed,
+      int damage,
+      int freezeTicks,
+      short targetLayer) {
+    Vector2 scale = new Vector2(0.3125f, 3.125f);
+
+    Entity bolt =
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/enemies/lightning.png"))
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
+            .addComponent(new HitboxComponent())
+            .addComponent(new CombatStatsComponent(1, damage))
+            // No blocking layer: lightning strikes through platforms. Pass PhysicsLayer.OBSTACLE
+            // instead if you want ceilings to shield the player.
+            .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.NONE, 0f))
+            .addComponent(new LightningFreezeComponent(freezeTicks))
+            .addComponent(
+                new ProjectileComponent(new VerticalMovementStrategy(speed), skyOffset + 2f));
+
+    bolt.setScale(scale);
+    // Entity position is the bottom-left corner, so shift left by half the width to centre the
+    // bolt on the target, and spawn it skyOffset above.
+    bolt.setPosition(targetPosition.x - scale.x / 2f, targetPosition.y + skyOffset);
+
+    return bolt;
   }
 
   private ArrowFactory() {
