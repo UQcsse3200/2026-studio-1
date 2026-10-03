@@ -193,12 +193,7 @@ public class PlatformerComponent extends Component {
       // Making sure that we are jumping off the wall with equal x and y forces
       this.jumpDirection.scl(baseJumpScaler);
       if (superJumpPowerup) this.jumpDirection.scl(superJumpScaler);
-      if (staminaComponent == null
-          || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
-        return;
-      }
 
-      staminaComponent.useStamina(staminaComponent.getJumpCost());
       jumping = true;
     }
     // Normal jump code
