@@ -59,7 +59,17 @@ class SpawnCommandTest {
 
   @Test
   void correctlyUpdatesLevelGameArea() {
-    // TODO - Finish all test cases for the spawn command
+    // Mock second LevelGameArea
+    LevelGameArea nextLevelGameArea = mock(LevelGameArea.class);
+    when(nextLevelGameArea.getPlayer()).thenReturn(mockPlayer);
+    when(mockPlayer.getPosition()).thenReturn(playerPosition);
+    when(nextLevelGameArea.spawnEnemy(Enemy, playerPosition)).thenReturn(true);
+
+    SpawnCommand.updateLevelGameArea(nextLevelGameArea);
+
+    assertTrue(spawnCommand.action(new ArrayList<>(List.of(Enemy))));
+    verify(nextLevelGameArea).spawnEnemy(Enemy, playerPosition);
+    verify(mockLevelGameArea, never()).spawnEnemy(anyString(), any());
   }
 
   @Test
