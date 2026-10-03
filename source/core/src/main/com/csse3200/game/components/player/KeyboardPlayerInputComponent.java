@@ -22,6 +22,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
+  private boolean walkingDown = false;
   private String direction = "Right";
 
   public String getDirection() {
@@ -49,6 +50,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         if (ladderUp != null && ladderUp.beginClimb(1f)) {
           return true;
         }
+        stopClimbing();
         jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
         triggerJumpEvent();
         entity.getEvents().trigger("jumping", direction);
@@ -58,6 +60,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         dashing(); // makes player dash
         return true;
       case Keys.A:
+        stopClimbing();
         walking('a'); // makes player walk left
         return true;
       case Keys.S:
@@ -65,10 +68,15 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         if (ladderDown != null && ladderDown.beginClimb(-1f)) {
           return true;
         }
-        walkDirection.add(Vector2Utils.DOWN);
+        stopClimbing();
+        if (!walkingDown) {
+          walkDirection.add(Vector2Utils.DOWN);
+          walkingDown = true;
+        }
         triggerWalkEvent();
         return true;
       case Keys.D:
+        stopClimbing();
         walking('d'); // makes player walk right
         return true;
       case Keys.SPACE:
@@ -150,8 +158,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.S:
         stopClimbing();
-        walkDirection.sub(Vector2Utils.DOWN);
-        triggerWalkEvent();
+        // Climbing does not add DOWN to walkDirection, so only remove it after ordinary walking.
+        if (walkingDown) {
+          walkDirection.sub(Vector2Utils.DOWN);
+          walkingDown = false;
+          triggerWalkEvent();
+        }
         return true;
       case Keys.D:
         walkDirection.sub(Vector2Utils.RIGHT);
