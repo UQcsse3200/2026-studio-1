@@ -21,7 +21,7 @@ public class GameAreaDisplay extends UIComponent {
   }
 
   private void addActors() {
-    title = new Label(this.gameAreaName, skin, "large");
+    title = new Label(this.gameAreaName, skin, "subtitle");
     stage.addActor(title);
   }
 
@@ -29,7 +29,7 @@ public class GameAreaDisplay extends UIComponent {
   public void draw(SpriteBatch batch) {
     int screenHeight = Gdx.graphics.getHeight();
     float offsetX = 10f;
-    float offsetY = 30f;
+    float offsetY = 50f;
 
     title.setPosition(offsetX, screenHeight - offsetY);
   }
