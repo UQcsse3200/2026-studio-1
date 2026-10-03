@@ -36,6 +36,8 @@ public class PlayerActions extends Component {
   // Thank you Lachlan, you beautiful, beautiful man
   private static final Vector2 MAX_SPEED = new Vector2(30f, 10f);
   private static final float SlideMaxTime = 0.5f;
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
+  private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
 
   private float attackCooldownRemaining = 0f;
@@ -61,6 +63,7 @@ public class PlayerActions extends Component {
   private boolean walkSoundPlaying = false;
   private boolean sneakSoundPlaying = false;
   private boolean slideSoundPlaying = false;
+  private boolean frozen = false;
 
   // Death State
   private boolean dead = false;
@@ -128,6 +131,7 @@ public class PlayerActions extends Component {
       attackCooldownRemaining = Math.max(0f, attackCooldownRemaining);
     }
 
+    frozen = getEffectiveSpeedMultiplier() == 0;
     playMovementSound();
 
     if (!dead && (moving || platformerComponent.getJumpingBool())) {
@@ -166,6 +170,9 @@ public class PlayerActions extends Component {
   }
 
   public void playMovementSound() {
+    if (frozen) {
+      return;
+    }
     Sound walkSound = ServiceLocator.getResourceService().getAsset(WALKING_SE, Sound.class);
 
     Sound sneakSound = ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
@@ -272,7 +279,8 @@ public class PlayerActions extends Component {
     }
 
     // For the jump portion
-    platformerComponent.updateJump(MAX_SPEED);
+    Vector2 jump = frozen ? new Vector2(0f, 0f) : MAX_SPEED;
+    platformerComponent.updateJump(jump);
   }
 
   /**
@@ -319,6 +327,7 @@ public class PlayerActions extends Component {
    * @param direction direction to move in
    */
   void walk(Vector2 direction) {
+    if (dead || frozen) {
     System.out.println(
         "PLAYER ACTIONS WALK entity="
             + entity.getId()
@@ -394,7 +403,7 @@ public class PlayerActions extends Component {
 
   /** Makes the player dash. */
   void dash(Vector2 direction) {
-    if (dead) {
+    if (dead || frozen) {
       return;
     }
 
@@ -414,7 +423,7 @@ public class PlayerActions extends Component {
   }
 
   private void ctrlChanged(boolean pressed) {
-    if (dead) {
+    if (dead || frozen) {
       return;
     }
 

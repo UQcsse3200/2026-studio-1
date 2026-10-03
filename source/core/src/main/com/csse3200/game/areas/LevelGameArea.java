@@ -106,6 +106,7 @@ public class LevelGameArea extends GameArea {
     "images/items/axe.png",
     "images/items/bow.png",
     "images/items/arrow.png",
+    "images/enemies/lightning.png",
     "images/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
@@ -126,7 +127,8 @@ public class LevelGameArea extends GameArea {
     "sounds/jump.mp3",
     "sounds/dash.mp3",
     "sounds/sneaking1.mp3",
-    "sounds/slide.mp3"
+    "sounds/slide.mp3",
+    "sounds/zap.mp3"
   };
 
   private static final String[] entityAtlases = {

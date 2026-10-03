@@ -1,5 +1,6 @@
 package com.csse3200.game.components.projectile;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.entities.Entity;
@@ -56,7 +57,7 @@ public class ProjectileComponent extends Component {
   public void create() {
     spawnPosition = entity.getPosition();
     movementStrategy.start(entity);
-    entity.getEvents().addListener("projectileExpired", this::despawn);
+    entity.getEvents().addListener("projectileExpired", () -> Gdx.app.postRunnable(this::despawn));
   }
 
   @Override

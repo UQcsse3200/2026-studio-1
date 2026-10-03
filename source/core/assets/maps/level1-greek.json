@@ -512,7 +512,7 @@
     "enemies": [
       { "type": "skeleton", "x": 23, "y": 3 },
       { "type": "skeleton", "x": 41, "y": 3 },
-      { "type": "skeleton", "x": 20, "y": 13 },
+      { "type": "ranged-skeleton", "x": 20, "y": 13 },
       { "type": "skeleton", "x": 21, "y": 25 },
       { "type": "skeleton", "x": 4,  "y": 25 },
       { "type": "skeleton", "x": 10, "y": 25 },
