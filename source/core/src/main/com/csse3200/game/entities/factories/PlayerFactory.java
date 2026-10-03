@@ -31,6 +31,7 @@ import com.csse3200.game.components.player.SpecialAttackCooldownDisplay;
 import com.csse3200.game.components.player.SpecialAttackEffectComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
+import com.csse3200.game.components.player.UpgradeActivationFlashComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -101,6 +102,7 @@ public class PlayerFactory {
             .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new ShieldComponent())
             .addComponent(new ShieldRenderComponent())
+            .addComponent(new UpgradeActivationFlashComponent())
             .addComponent(new PlayerBuffComponent())
             .addComponent(new PlayerRegenComponent())
             .addComponent(inventory)

@@ -1,9 +1,12 @@
 package com.csse3200.game.components.player;
 
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.perks.Perk;
+import com.csse3200.game.perks.PerkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +24,9 @@ import org.slf4j.LoggerFactory;
 public class ConsumableUseComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(ConsumableUseComponent.class);
 
-  private final int maxHealth;
+  private int maxHealth;
+  private static final String perk_ID = "thickSkin";
+  private static final int health_perk = 50;
 
   /**
    * Creates a use handler with an explicit health cap.
@@ -40,6 +45,43 @@ public class ConsumableUseComponent extends Component {
   @Override
   public void create() {
     entity.getEvents().addListener("useItem", this::useItem);
+
+    Perk thickSkinPerk = PerkService.getPerk(perk_ID);
+    if (thickSkinPerk != null) {
+      if (thickSkinPerk.isActive()) {
+        increaseMaxHealth(health_perk);
+      }
+      thickSkinPerk.setOnActivated(() -> increaseMaxHealth(health_perk));
+      thickSkinPerk.setOnDeactivated(() -> decreaseMaxHealth(health_perk));
+    }
+  }
+
+  public void increaseMaxHealth(int amount) {
+    if (amount <= 0) {
+      return;
+    }
+    maxHealth += amount;
+    logger.info("Max health increased by {}, now {}", amount, maxHealth);
+
+    CombatStatsComponent stats =
+        entity == null ? null : entity.getComponent(CombatStatsComponent.class);
+    if (stats != null) {
+      stats.addHealth(amount);
+    }
+  }
+
+  public void decreaseMaxHealth(int amount) {
+    if (amount <= 0) {
+      return;
+    }
+    maxHealth = Math.max(0, maxHealth - amount);
+    logger.info("Max health decreased by {}, now {}", amount, maxHealth);
+
+    CombatStatsComponent stats =
+        entity == null ? null : entity.getComponent(CombatStatsComponent.class);
+    if (stats != null && stats.getHealth() > maxHealth) {
+      stats.setHealth(maxHealth);
+    }
   }
 
   /**
