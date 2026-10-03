@@ -38,8 +38,12 @@ import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EnemyId;
+import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
+import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -127,6 +131,7 @@ public class LevelGameArea extends GameArea {
   private static final String[] entityAtlases = {
     "images/ghost.atlas",
     "images/ghostKing.atlas",
+    "images/skeleton.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",
@@ -135,8 +140,6 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
-    "images/enemies/cyclops.atlas",
-    "images/enemies/minotaur.atlas",
     "images/pet.atlas"
   };
 
@@ -269,6 +272,22 @@ public class LevelGameArea extends GameArea {
    * @return the spawned player entity, or null before {@link #create()} runs
    */
   public Entity getPlayer() {
+    return player;
+  }
+
+  /**
+   * Creates a completely new player in the current room after player death.
+   *
+   * @return the newly-created player entity
+   */
+  public Entity respawnPlayer() {
+    if (player != null) {
+      areaEntities.remove(player);
+      ServiceLocator.getEntityService().unregister(player);
+      player.dispose();
+    }
+
+    player = spawnPlayer();
     return player;
   }
 
@@ -636,8 +655,13 @@ public class LevelGameArea extends GameArea {
 
   private void spawnEnemies() {
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
+      String id = EnemyId.of(mapData.getName(), spawn.getPosition());
+      if (EnemyRegistry.isKilled(id)) {
+        continue;
+      }
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
+        enemy.addComponent(new PersistentEnemyIdComponent(id));
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
       }
     }
@@ -762,7 +786,7 @@ public class LevelGameArea extends GameArea {
   private void playMusic() {
     Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
     music.setLooping(true);
-    music.setVolume(0.3f);
+    music.setVolume(AudioSettings.getEffectiveMusicVolume());
     music.play();
   }
 

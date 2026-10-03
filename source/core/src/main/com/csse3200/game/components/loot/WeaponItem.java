@@ -121,4 +121,12 @@ public class WeaponItem extends Item {
 
     return 0f;
   }
+
+  public int getProjectileCount() {
+    if (weaponStats != null) {
+      return weaponStats.getProjectileCount();
+    }
+
+    return 1;
+  }
 }
