@@ -43,6 +43,7 @@ import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -786,7 +787,7 @@ public class LevelGameArea extends GameArea {
   private void playMusic() {
     Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
     music.setLooping(true);
-    music.setVolume(0.3f);
+    music.setVolume(AudioSettings.getEffectiveMusicVolume());
     music.play();
   }
 

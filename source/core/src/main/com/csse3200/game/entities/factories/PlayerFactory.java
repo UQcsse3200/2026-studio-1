@@ -27,6 +27,8 @@ import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShieldRenderComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.ShopDisplay;
+import com.csse3200.game.components.player.SpecialAttackCooldownDisplay;
+import com.csse3200.game.components.player.SpecialAttackEffectComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
@@ -107,10 +109,12 @@ public class PlayerFactory {
             .addComponent(new PetManagerComponent())
             .addComponent(new PlatformerComponent(5, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
+            .addComponent(new SpecialAttackCooldownDisplay())
             .addComponent(new QuestDisplay())
             .addComponent(new InventoryDisplay())
             .addComponent(new WeaponDisplay(startingWeapon))
             .addComponent(new WeaponAttackComponent(startingWeapon))
+            .addComponent(new SpecialAttackEffectComponent())
             .addComponent(new WeaponRenderComponent())
             .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay());
