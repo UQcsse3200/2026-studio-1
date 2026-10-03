@@ -33,6 +33,11 @@ public class StaminaComponent extends Component {
     entity.getEvents().trigger("updateStamina", stamina);
   }
 
+  public void setStamina(float stamina) {
+    this.stamina = Math.max(0f, Math.min(stamina, MAX_STAMINA));
+    entity.getEvents().trigger("updateStamina", this.stamina);
+  }
+
   public float getDashCost() {
     return DASH_COST;
   }

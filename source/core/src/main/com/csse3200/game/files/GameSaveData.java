@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class GameSaveData {
   public int health;
+  public float stamina = 100f;
   public int gold;
   public List<SavedItem> items = new ArrayList<>();
   public float posX;

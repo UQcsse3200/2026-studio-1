@@ -8,6 +8,7 @@ import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 
 /** Applies saved game data to a newly created player. */
@@ -31,6 +32,7 @@ public class LoadService {
     }
 
     loadHealth(player, data);
+    loadStamina(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
   }
@@ -54,6 +56,14 @@ public class LoadService {
 
     if (stats != null && data.health > 0) {
       stats.setHealth(data.health);
+    }
+  }
+
+  private static void loadStamina(Entity player, GameSaveData data) {
+    StaminaComponent stamina = player.getComponent(StaminaComponent.class);
+
+    if (stamina != null) {
+      stamina.setStamina(data.stamina);
     }
   }
 
