@@ -1,0 +1,129 @@
+package com.csse3200.game.rendering;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Matrix4;
+import com.csse3200.game.areas.terrain.map.BackdropLayer;
+import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.SubLevel;
+import com.csse3200.game.services.ServiceLocator;
+
+/**
+ * Draws a map's parallax backdrops behind its terrain: for whichever sub-level the camera is in,
+ * that sub-level's stack of images, each filling the view and sliding at its own rate as the camera
+ * pans.
+ */
+public class ParallaxBackdropRenderComponent extends RenderComponent {
+  private final LevelMapData mapData;
+  private float elapsed;
+
+  public ParallaxBackdropRenderComponent(LevelMapData mapData) {
+    this.mapData = mapData;
+  }
+
+  @Override
+  public void create() {
+    super.create();
+    for (String texturePath : backdropTextures()) {
+      texture(texturePath).setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+    }
+  }
+
+  @Override
+  public void update() {
+    elapsed += ServiceLocator.getTimeSource().getDeltaTime();
+  }
+
+  @Override
+  protected void draw(SpriteBatch batch) {
+    // The batch is already set to the camera's orthographic projection, which scales by 2 / size
+    // and translates by the camera centre, so the visible rectangle can be read back from it.
+    float[] projection = batch.getProjectionMatrix().val;
+    float viewWidth = 2f / projection[Matrix4.M00];
+    float viewHeight = 2f / projection[Matrix4.M11];
+    float centreX = -projection[Matrix4.M03] / projection[Matrix4.M00];
+    float centreY = -projection[Matrix4.M13] / projection[Matrix4.M11];
+    float viewLeft = centreX - viewWidth / 2f;
+    float viewBottom = centreY - viewHeight / 2f;
+
+    SubLevel subLevel = mapData.getSubLevelAt((int) Math.floor(centreY / mapData.getTileSize()));
+    if (subLevel == null) {
+      return;
+    }
+
+    for (BackdropLayer layer : mapData.getBackdrop(subLevel.id())) {
+      Texture texture = texture(layer.texture());
+      float[] window =
+          textureWindow(
+              layer,
+              viewLeft,
+              viewWidth,
+              viewHeight,
+              (float) texture.getWidth() / texture.getHeight(),
+              elapsed);
+      batch.draw(
+          texture,
+          viewLeft,
+          viewBottom,
+          viewWidth,
+          viewHeight,
+          window[0],
+          window[1],
+          window[2],
+          window[3]);
+    }
+    // The terrain draws through its own batch, so anything still queued here would land on top.
+    batch.flush();
+  }
+
+  /**
+   * Works out which part of a layer's image is on screen. The image is scaled to the height of the
+   * view and repeats sideways, so a view wider than the image shows it more than once.
+   *
+   * @param layer the layer being drawn
+   * @param viewLeft the left edge of the view in world units
+   * @param viewWidth the width of the view in world units
+   * @param viewHeight the height of the view in world units
+   * @param textureAspect the image's width divided by its height
+   * @param elapsed seconds the backdrop has been running, which drives drift
+   * @return texture coordinates {u, v, u2, v2} for the bottom-left and top-right of the view
+   */
+  static float[] textureWindow(
+      BackdropLayer layer,
+      float viewLeft,
+      float viewWidth,
+      float viewHeight,
+      float textureAspect,
+      float elapsed) {
+    float imageWidth = viewHeight * textureAspect;
+    float u = wrap((viewLeft * layer.scroll() - layer.driftX() * elapsed) / imageWidth);
+    float v = wrap(layer.driftY() * elapsed / viewHeight);
+    return new float[] {u, v + 1f, u + viewWidth / imageWidth, v};
+  }
+
+  /** Keeps a texture offset in [0, 1) so it stays precise however long the level has run. */
+  private static float wrap(float offset) {
+    return offset - (float) Math.floor(offset);
+  }
+
+  private Iterable<String> backdropTextures() {
+    return mapData.getBackdrops().values().stream()
+        .flatMap(backdrop -> backdrop.stream().map(BackdropLayer::texture))
+        .distinct()
+        .toList();
+  }
+
+  private static Texture texture(String path) {
+    return ServiceLocator.getResourceService().getAsset(path, Texture.class);
+  }
+
+  @Override
+  public int getLayer() {
+    return -2;
+  }
+
+  @Override
+  public float getZIndex() {
+    return 0f;
+  }
+}

@@ -51,6 +51,7 @@ import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.MapBackgroundRenderComponent;
+import com.csse3200.game.rendering.ParallaxBackdropRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -417,8 +418,15 @@ public class LevelGameArea extends GameArea {
     spawnEntity(new Entity().addComponent(terrain));
   }
 
-  /** Adds a supplied full-map image behind the collision-driven terrain, when the map has one. */
+  /**
+   * Adds the map's art behind the collision-driven terrain: its parallax backdrops, then its
+   * full-map image, for whichever of the two the map has.
+   */
   private void spawnBackdrop() {
+    if (!mapData.getBackdrops().isEmpty()) {
+      spawnEntity(new Entity().addComponent(new ParallaxBackdropRenderComponent(mapData)));
+    }
+
     String backgroundTexture = mapData.getBackgroundTexture();
     if (backgroundTexture == null) {
       return;

@@ -54,9 +54,11 @@ import org.slf4j.LoggerFactory;
  * feature can add per-tile data without changing this loader. See {@link TileDefinition}.
  *
  * <p>An optional {@code backgroundTexture} renders one composed image behind the tile layers, for
- * maps whose art is authored as a single scene rather than per-tile. Unknown top-level keys are
- * ignored, so maps may carry an {@code authoring} block of design-time data the runtime does not
- * read. Every level map uses this one format; there is no per-level parsing path.
+ * maps whose art is authored as a single scene rather than per-tile. An optional {@code backdrops}
+ * block gives a sub-level a stack of parallax images instead, keyed by the sub-level's id; see
+ * {@link BackdropLayer}. Unknown top-level keys are ignored, so maps may carry an {@code authoring}
+ * block of design-time data the runtime does not read. Every level map uses this one format; there
+ * is no per-level parsing path.
  */
 public class JsonMapLoader implements MapLoader {
   private static final String TYPE_KEY = "type";
@@ -151,6 +153,7 @@ public class JsonMapLoader implements MapLoader {
         .transitions(transitions)
         .backgroundTexture(resolveBackgroundTexture(root, name))
         .subLevels(parseSubLevels(root.get("subLevels"), name))
+        .backdrops(parseBackdrops(root.get("backdrops"), name))
         .build();
   }
 
@@ -259,6 +262,53 @@ public class JsonMapLoader implements MapLoader {
       index++;
     }
     return subLevels;
+  }
+
+  /**
+   * Reads the optional {@code backdrops} block: for each sub-level id, the parallax images drawn
+   * behind its tiles, listed back to front.
+   *
+   * @param backdropsJson the block, or null if the map has none
+   * @param mapName the map's name, for error messages
+   * @return the backdrop layers keyed by sub-level id, empty if the map declares none
+   */
+  private Map<String, List<BackdropLayer>> parseBackdrops(JsonValue backdropsJson, String mapName) {
+    if (backdropsJson == null) {
+      return Map.of();
+    }
+    if (!backdropsJson.isObject()) {
+      throw new MapLoadException("Map '" + mapName + "' 'backdrops' must be a JSON object");
+    }
+
+    Map<String, List<BackdropLayer>> backdrops = new LinkedHashMap<>();
+    for (JsonValue backdrop = backdropsJson.child; backdrop != null; backdrop = backdrop.next) {
+      if (!backdrop.isArray()) {
+        throw new MapLoadException(
+            "Backdrop '" + backdrop.name + "' in map '" + mapName + "' must be an array of layers");
+      }
+
+      List<BackdropLayer> layers = new ArrayList<>();
+      for (JsonValue layer = backdrop.child; layer != null; layer = layer.next) {
+        String texture = layer.getString(TEXTURE_KEY, null);
+        if (texture == null || texture.isBlank()) {
+          throw new MapLoadException(
+              "Backdrop '"
+                  + backdrop.name
+                  + "' in map '"
+                  + mapName
+                  + "' has a layer with no texture");
+        }
+        JsonValue drift = layer.get("drift");
+        layers.add(
+            new BackdropLayer(
+                texture,
+                layer.getFloat("scroll", 0f),
+                drift == null ? 0f : drift.getFloat("x", 0f),
+                drift == null ? 0f : drift.getFloat("y", 0f)));
+      }
+      backdrops.put(backdrop.name, layers);
+    }
+    return backdrops;
   }
 
   /** Reads an optional {x, y} object as a tile position. */

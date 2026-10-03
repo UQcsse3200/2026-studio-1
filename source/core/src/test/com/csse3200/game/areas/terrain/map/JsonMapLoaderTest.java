@@ -12,6 +12,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -464,6 +465,52 @@ class JsonMapLoaderTest {
     // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
     // map still loads and renders from its tile layers.
     assertNull(levelOne.getBackgroundTexture());
+    // The dungeon and the Nether each draw their own parallax backdrop instead of background tiles.
+    assertEquals(4, levelOne.getBackdrop("dungeon").size());
+    assertEquals(4, levelOne.getBackdrop("nether").size());
+    assertNull(levelOne.getLayer("background").get(26, 33).texture());
+  }
+
+  @Test
+  void readsBackdropLayersForASubLevel() {
+    String json =
+        """
+        {
+          "name": "Cavern",
+          "legend": { "#": { "type": "WALL", "texture": "wall.png" } },
+          "layers": { "terrain": ["#"] },
+          "backdrops": {
+            "cave": [
+              { "texture": "far.png" },
+              { "texture": "fog.png", "scroll": 0.6, "drift": { "x": 0.15, "y": 0.4 } }
+            ]
+          }
+        }
+        """;
+
+    LevelMapData map = loader.parse(json);
+
+    assertEquals(
+        List.of(
+            new BackdropLayer("far.png", 0f, 0f, 0f),
+            new BackdropLayer("fog.png", 0.6f, 0.15f, 0.4f)),
+        map.getBackdrop("cave"));
+    assertTrue(map.getBackdrop("elsewhere").isEmpty());
+    assertTrue(map.getTexturePaths().containsAll(List.of("wall.png", "far.png", "fog.png")));
+  }
+
+  @Test
+  void rejectsABackdropLayerWithNoTexture() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["#"] },
+          "backdrops": { "cave": [ { "scroll": 0.5 } ] }
+        }
+        """;
+
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
   @Test

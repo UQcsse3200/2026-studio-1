@@ -33,6 +33,7 @@ public class LevelMapData {
   private final List<RoomTransition> transitions;
   private final String backgroundTexture;
   private final List<SubLevel> subLevels;
+  private final Map<String, List<BackdropLayer>> backdrops;
 
   /**
    * Creates map data with no transitions, background or sub-levels. For anything more, use {@link
@@ -76,6 +77,7 @@ public class LevelMapData {
     this.spawns = spawns;
     this.transitions = transitions;
     this.backgroundTexture = backgroundTexture;
+    this.backdrops = builder.backdrops;
   }
 
   public String getName() {
@@ -189,6 +191,23 @@ public class LevelMapData {
   }
 
   /**
+   * The parallax backdrop drawn behind a sub-level's tiles.
+   *
+   * @param subLevelId a sub-level's id
+   * @return its backdrop layers, back to front (unmodifiable), empty if it has none
+   */
+  public List<BackdropLayer> getBackdrop(String subLevelId) {
+    return Collections.unmodifiableList(backdrops.getOrDefault(subLevelId, List.of()));
+  }
+
+  /**
+   * @return every backdrop in this map, keyed by sub-level id (unmodifiable)
+   */
+  public Map<String, List<BackdropLayer>> getBackdrops() {
+    return Collections.unmodifiableMap(backdrops);
+  }
+
+  /**
    * @return an optional composed background image which spans this entire map
    */
   public String getBackgroundTexture() {
@@ -196,8 +215,8 @@ public class LevelMapData {
   }
 
   /**
-   * All distinct, non-null texture paths referenced by the legend. Used by a game area to know
-   * which textures to load before building the terrain.
+   * All distinct, non-null texture paths this map draws with. Used by a game area to know which
+   * textures to load before building the terrain.
    *
    * @return the set of texture asset paths
    */
@@ -215,6 +234,11 @@ public class LevelMapData {
     }
     if (backgroundTexture != null) {
       paths.add(backgroundTexture);
+    }
+    for (List<BackdropLayer> backdrop : backdrops.values()) {
+      for (BackdropLayer layer : backdrop) {
+        paths.add(layer.texture());
+      }
     }
     return paths;
   }
@@ -248,6 +272,7 @@ public class LevelMapData {
     private List<RoomTransition> transitions = Collections.emptyList();
     private String backgroundTexture;
     private List<SubLevel> subLevels = Collections.emptyList();
+    private Map<String, List<BackdropLayer>> backdrops = Collections.emptyMap();
 
     private Builder(String name) {
       this.name = name;
@@ -324,6 +349,15 @@ public class LevelMapData {
      */
     public Builder subLevels(List<SubLevel> subLevels) {
       this.subLevels = subLevels == null ? Collections.emptyList() : subLevels;
+      return this;
+    }
+
+    /**
+     * @param backdrops parallax backdrop layers keyed by sub-level id, empty if the map has none
+     * @return this builder
+     */
+    public Builder backdrops(Map<String, List<BackdropLayer>> backdrops) {
+      this.backdrops = backdrops == null ? Collections.emptyMap() : backdrops;
       return this;
     }
 

@@ -144,6 +144,28 @@ class MapValidatorTest {
   }
 
   @Test
+  void reportsABackdropForASubLevelTheMapDoesNotDefine() {
+    String json =
+        """
+        {
+          "name": "Mislabelled",
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["###"] },
+          "subLevels": [ { "id": "cave", "bounds": { "x": 0, "y": 0, "width": 3, "height": 1 } } ],
+          "backdrops": {
+            "cave": [ { "texture": "far.png" } ],
+            "cavern": [ { "texture": "far.png" } ]
+          }
+        }
+        """;
+
+    List<MapValidator.Problem> problems = validate(json);
+
+    assertEquals(1, errors(problems).size());
+    assertTrue(mentions(problems, "backdrop for sub-level 'cavern'"));
+  }
+
+  @Test
   void warnsAboutAnOpenCollisionBoundary() {
     String json =
         """

@@ -96,6 +96,7 @@ public final class MapValidator {
     checkPlayerSpawn(map, name, problems);
     checkSpawnBounds(map, name, problems);
     checkTransitions(map, name, assetExists, problems);
+    checkBackdrops(map, name, problems);
     checkTextures(map, name, assetExists, problems);
     return problems;
   }
@@ -240,6 +241,23 @@ public final class MapValidator {
                 doorway
                     + " names no arrival tile, so the player lands on the destination's own"
                     + " player spawn"));
+      }
+    }
+  }
+
+  /** A backdrop is drawn for the sub-level it names, so one naming nothing is never seen. */
+  private static void checkBackdrops(LevelMapData map, String name, List<Problem> problems) {
+    for (String subLevelId : map.getBackdrops().keySet()) {
+      boolean known =
+          map.getSubLevels().stream().anyMatch(subLevel -> subLevel.id().equals(subLevelId));
+      if (!known) {
+        problems.add(
+            new Problem(
+                Severity.ERROR,
+                about(name)
+                    + "has a backdrop for sub-level '"
+                    + subLevelId
+                    + "', which it does not define"));
       }
     }
   }

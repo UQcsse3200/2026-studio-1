@@ -4,12 +4,10 @@
   "backgroundTexture": "images/level1/level1-map.png",
   "legend": {
     "b": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/bg-catacomb-512px.png"
+      "type": "DECORATIVE"
     },
     "v": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/bg-cavern-512px.png"
+      "type": "DECORATIVE"
     },
     "u": {
       "type": "DECORATIVE",
@@ -577,6 +575,52 @@
       "                                                        ",
       "                                                        ",
       "                                                        "
+    ]
+  },
+  "backdrops": {
+    "dungeon": [
+      {
+        "texture": "images/level1/backgrounds/dungeon/0-back.png",
+        "scroll": 0.05
+      },
+      {
+        "texture": "images/level1/backgrounds/dungeon/1-arcade.png",
+        "scroll": 0.2
+      },
+      {
+        "texture": "images/level1/backgrounds/dungeon/2-pillars.png",
+        "scroll": 0.45
+      },
+      {
+        "texture": "images/level1/backgrounds/dungeon/3-fog.png",
+        "scroll": 0.6,
+        "drift": {
+          "x": 0.15,
+          "y": 0
+        }
+      }
+    ],
+    "nether": [
+      {
+        "texture": "images/level1/backgrounds/underworld/0-void.png",
+        "scroll": 0
+      },
+      {
+        "texture": "images/level1/backgrounds/underworld/1-far-arches.png",
+        "scroll": 0.18
+      },
+      {
+        "texture": "images/level1/backgrounds/underworld/2-columns.png",
+        "scroll": 0.4
+      },
+      {
+        "texture": "images/level1/backgrounds/underworld/3-embers-loop.png",
+        "scroll": 0.9,
+        "drift": {
+          "x": 0.1,
+          "y": 0.45
+        }
+      }
     ]
   },
   "subLevels": [
