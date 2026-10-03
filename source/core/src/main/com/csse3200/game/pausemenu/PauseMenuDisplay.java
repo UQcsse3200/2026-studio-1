@@ -10,8 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
@@ -92,6 +94,7 @@ public class PauseMenuDisplay extends UIComponent {
   private Table audioPanel;
   private Table keybindsPanel;
   private Table restartOverlay;
+  private Image pauseOverlay;
 
   private Label[] mainLabels;
   private Label[] settingsLabels;
@@ -199,16 +202,35 @@ public class PauseMenuDisplay extends UIComponent {
 
     root = new Table();
     root.setFillParent(true);
-    root.left();
-    root.padLeft(60f);
-    root.add(mainPanel).top();
-    root.add(settingsPanel).top().padLeft(PANEL_GAP);
+    root.center();
+
+    Stack panelStack = new Stack();
+    panelStack.add(mainPanel);
+    panelStack.add(settingsPanel);
+
     detailSlot = new Table();
-    root.add(detailSlot).top().padLeft(PANEL_GAP);
+    panelStack.add(detailSlot);
+
+    panelStack.add(restartConfirmPanel);
+
+    Label pauseTitle = new Label("PAUSED", skin, "title");
+    pauseTitle.setFontScale(1.2f);
+
+    Table pauseLayout = new Table();
+    pauseLayout.add(pauseTitle).center().padBottom(18f).row();
+    pauseLayout.add(panelStack).width(320f).center();
+
+    root.add(pauseLayout).center();
 
     restartConfirmPanel.setVisible(false);
     root.setVisible(false);
     stage.addActor(root);
+
+    pauseOverlay = new Image(skin.getDrawable("black"));
+    pauseOverlay.setFillParent(true);
+    pauseOverlay.setColor(0f, 0f, 0f, 0.55f);
+    pauseOverlay.setVisible(false);
+    stage.addActor(pauseOverlay);
 
     restartOverlay = new Table();
     restartOverlay.setFillParent(true);
@@ -229,15 +251,16 @@ public class PauseMenuDisplay extends UIComponent {
 
   private Table buildPanel(String[] items, Label[] labelsOut) {
     Table panel = new Table();
-    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
     panel.pad(20f, 30f, 20f, 30f);
-    panel.left();
+    panel.center();
     MenuState ownerState = panelStateFor(items);
     for (int i = 0; i < items.length; i++) {
       Label label = createLabel(items[i]);
       labelsOut[i] = label;
+
       Table row = new Table();
-      row.add(label).pad(6f, 15f, 6f, 15f).left();
+      row.setBackground(skin.getDrawable("button"));
+      row.add(label).pad(10f, 25f, 10f, 25f).center();
       addRowInteraction(row, ownerState, i, true);
       panel.add(row).left().padBottom(4f).fillX();
       panel.row();
@@ -513,7 +536,10 @@ public class PauseMenuDisplay extends UIComponent {
 
   private void confirmMain() {
     switch (mainIndex) {
-      case 0 -> entity.getEvents().trigger("resumeClicked");
+      case 0 -> {
+        pauseOverlay.setVisible(false);
+        entity.getEvents().trigger("resumeClicked");
+      }
       case 1 -> showRestartConfirmation();
       case 2 -> {
         state = MenuState.SETTINGS;
@@ -571,7 +597,10 @@ public class PauseMenuDisplay extends UIComponent {
 
   private void handleEscape() {
     switch (state) {
-      case MAIN -> entity.getEvents().trigger("resumeClicked");
+      case MAIN -> {
+        pauseOverlay.setVisible(false);
+        entity.getEvents().trigger("resumeClicked");
+      }
       case SETTINGS -> {
         state = MenuState.MAIN;
         refreshPanels();
@@ -633,9 +662,11 @@ public class PauseMenuDisplay extends UIComponent {
   private void highlightPanel(Label[] labels, int selectedIndex, boolean isActivePanel) {
     for (int i = 0; i < labels.length; i++) {
       boolean selected = isActivePanel && i == selectedIndex;
-      labels[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
+
+      labels[i].getStyle().fontColor = Color.WHITE;
+
       Table row = (Table) labels[i].getParent();
-      row.setBackground(selected ? skin.newDrawable("button", SELECTED_BG) : null);
+      row.setBackground(skin.getDrawable(selected ? "button-pressed" : "button"));
     }
   }
 
@@ -682,6 +713,11 @@ public class PauseMenuDisplay extends UIComponent {
       rightHeld = false;
     }
     root.setVisible(isPaused);
+    if (isPaused) {
+      pauseOverlay.setVisible(true);
+      pauseOverlay.toFront();
+      root.toFront();
+    }
 
     if (isPaused && !wasPaused) {
       state = MenuState.MAIN;
