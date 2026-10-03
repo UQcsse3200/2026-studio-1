@@ -78,10 +78,18 @@ class LevelGameAreaCollisionTest {
   void detectsAPlayerWhoHasCompletelyLeftTheMap() {
     Vector2 playerScale = new Vector2(0.75f, 0.75f);
 
-    assertTrue(LevelGameArea.isOutsideMap(new Vector2(-1.5f, 2f), playerScale, 10f, 0.5f));
-    assertTrue(LevelGameArea.isOutsideMap(new Vector2(11f, 2f), playerScale, 10f, 0.5f));
-    assertTrue(LevelGameArea.isOutsideMap(new Vector2(2f, -1.5f), playerScale, 10f, 0.5f));
-    assertFalse(LevelGameArea.isOutsideMap(new Vector2(2f, 2f), playerScale, 10f, 0.5f));
+    assertTrue(LevelGameArea.isOutsideMap(new Vector2(-1.5f, 2f), playerScale, 10f, 8f, 0.5f));
+    assertTrue(LevelGameArea.isOutsideMap(new Vector2(11f, 2f), playerScale, 10f, 8f, 0.5f));
+    assertTrue(LevelGameArea.isOutsideMap(new Vector2(2f, -1.5f), playerScale, 10f, 8f, 0.5f));
+    assertFalse(LevelGameArea.isOutsideMap(new Vector2(2f, 2f), playerScale, 10f, 8f, 0.5f));
+  }
+
+  @Test
+  void doesNotRecoverAPlayerLeavingAboveTheMap() {
+    Vector2 playerScale = new Vector2(0.75f, 0.75f);
+
+    assertFalse(LevelGameArea.isOutsideMap(new Vector2(2f, 7.5f), playerScale, 10f, 8f, 0.5f));
+    assertFalse(LevelGameArea.isOutsideMap(new Vector2(-1.5f, 8f), playerScale, 10f, 8f, 0.5f));
   }
 
   private static void fill(

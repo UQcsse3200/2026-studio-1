@@ -338,7 +338,11 @@ public class LevelGameArea extends GameArea {
   public boolean recoverPlayerIfOutOfBounds() {
     if (player == null
         || !isOutsideMap(
-            player.getPosition(), player.getScale(), getMapWorldWidth(), mapData.getTileSize())) {
+            player.getPosition(),
+            player.getScale(),
+            getMapWorldWidth(),
+            getMapWorldHeight(),
+            mapData.getTileSize())) {
       return false;
     }
 
@@ -368,7 +372,13 @@ public class LevelGameArea extends GameArea {
   }
 
   static boolean isOutsideMap(
-      Vector2 position, Vector2 scale, float mapWorldWidth, float tileSize) {
+      Vector2 position, Vector2 scale, float mapWorldWidth, float mapWorldHeight, float tileSize) {
+    // Once any part of the player is above the map, do not mistake horizontal movement there for
+    // leaving through a side boundary.
+    if (position.y + scale.y > mapWorldHeight) {
+      return false;
+    }
+
     float margin = tileSize;
     return position.x + scale.x < -margin
         || position.x > mapWorldWidth + margin
