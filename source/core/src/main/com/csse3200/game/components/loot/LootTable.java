@@ -2,6 +2,7 @@ package com.csse3200.game.components.loot;
 
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
+import com.csse3200.game.components.loot.WeaponTier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -78,13 +79,13 @@ public class LootTable {
         table.addConsumable(type, tier, weight);
       }
     }
-
     // The tier system owns weapon rarity: each tier declares its own loot weight.
     for (WeaponTier weaponTier : WeaponTier.values()) {
       int weight = weaponTier.getLootWeight();
-      int tier = weaponTier.getTier();
       for (WeaponType type : WeaponType.values()) {
+        int tier = weaponTier.getTier();
         table.addWeapon(type, tier, weight);
+
       }
     }
 

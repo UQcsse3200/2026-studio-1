@@ -108,7 +108,7 @@ public class LevelGameArea extends GameArea {
     "images/items/bow.png",
     "images/items/arrow.png",
     "images/enemies/lightning.png",
-    "images/dagger.png",
+    "images/items/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
     "images/ui/Strength.png",
