@@ -113,8 +113,7 @@ loadScripts(document, 'script');</script>
  int&nbsp;damage,
  <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates a purely cosmetic arrow with no physics or collision, used by the player's bow weapon
- (see <a href="../../components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player"><code>WeaponAttackComponent</code></a>).</div>
+<div class="block">Creates a player arrow that travels in a straight line and hits enemies or obstacles.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createRangedArrow(com.badlogic.gdx.math.Vector2,boolean,float,float,int,float,short)" class="member-name-link">createRangedArrow</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;position,
@@ -151,10 +150,9 @@ loadScripts(document, 'script');</script>
  com.badlogic.gdx.math.Vector2&nbsp;direction,
  int&nbsp;damage,
  <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;owner)</span></div>
-<div class="block">Creates a purely cosmetic arrow with no physics or collision, used by the player's bow weapon
- (see <a href="../../components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player"><code>WeaponAttackComponent</code></a>). Kept separate from
- <a href="#createRangedArrow(com.badlogic.gdx.math.Vector2,boolean,float,float,int,float,short)"><code>createRangedArrow(com.badlogic.gdx.math.Vector2, boolean, float, float, int, float, short)</code></a> below - which enemies use, and which does have real physics-based
- collision - since the two have different requirements entirely.</div>
+<div class="block">Creates a player arrow that travels in a straight line and hits enemies or obstacles. Kept
+ separate from <a href="#createRangedArrow(com.badlogic.gdx.math.Vector2,boolean,float,float,int,float,short)"><code>createRangedArrow(com.badlogic.gdx.math.Vector2, boolean, float, float, int, float, short)</code></a> below because player arrows route damage through the
+ player's combat stats.</div>
 </section>
 </li>
 <li>
