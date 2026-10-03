@@ -68,15 +68,19 @@ public class MeleeAttackComponent extends Component {
       throw new IllegalArgumentException("weapon cannot be null");
     }
     this.weapon = weapon;
+
     if (weapon.getWeaponType() == WeaponType.BOW) {
       throw new IllegalArgumentException("Melee Attack cannot use a Bow Weapon.");
     }
+
     if (weapon.getWindupDuration() < 0) {
       throw new IllegalArgumentException("windupDuration must not be negative.");
     }
-    if (weapon.getWindupDuration() >= getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown.");
+
+    if (weapon.getWindupDuration() >= this.getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown");
     }
+
     this.windupDuration = weapon.getWindupDuration();
     this.timeSinceLastAttack = cooldown;
   }
@@ -95,12 +99,6 @@ public class MeleeAttackComponent extends Component {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-    if (weapon.getWindupDuration() < 0) {
-      throw new IllegalArgumentException("windupDuration must not be negative.");
-    }
-    if (weapon.getWindupDuration() >= this.getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown");
-    }
     this.timeSinceLastAttack = cooldown;
     this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
