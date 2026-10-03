@@ -429,7 +429,7 @@ public class ShopDisplay extends UIComponent {
 
   /** Adds an individual category tab button paired with an underline accent. */
   private void addTabButton(Table tabTable, String text, ShopTab tab) {
-    TextButton button = new TextButton(text, skin);
+    TextButton button = new TextButton(text, skin, "shop");
 
     button.addListener(
         new ClickListener() {
@@ -520,8 +520,8 @@ public class ShopDisplay extends UIComponent {
   private void createItemSubTabs() {
     Table subTabRow = new Table();
 
-    buySubButton = new TextButton("BUY", skin);
-    sellSubButton = new TextButton("SELL", skin);
+    buySubButton = new TextButton("BUY", skin, "shop");
+    sellSubButton = new TextButton("SELL", skin, "shop");
 
     buySubButton.addListener(
         new ClickListener() {
@@ -843,7 +843,7 @@ public class ShopDisplay extends UIComponent {
     detailPriceLabel = new Label("", whiteLabelStyle);
     detailPriceLabel.setColor(GOLD_COLOR);
 
-    detailActionButton = new TextButton("BUY", skin);
+    detailActionButton = new TextButton("BUY", skin, "shop");
     detailActionButton.setColor(BUY_MODE_TINT);
     detailActionButton.setDisabled(true);
     detailActionButton.setTouchable(Touchable.disabled);
@@ -1263,9 +1263,9 @@ public class ShopDisplay extends UIComponent {
     Table modeRow = new Table();
     modeRow.defaults().pad(0f);
 
-    standardGamblingButton = new TextButton("STANDARD", skin);
+    standardGamblingButton = new TextButton("STANDARD", skin, "shop");
 
-    premiumGamblingButton = new TextButton("PREMIUM", skin);
+    premiumGamblingButton = new TextButton("PREMIUM", skin, "shop");
 
     standardGamblingButton.addListener(
         new ClickListener() {
@@ -1331,7 +1331,7 @@ public class ShopDisplay extends UIComponent {
      * SPIN BUTTON
      * ------------------------------------------------------------
      */
-    spinButton = new TextButton("SPIN", skin);
+    spinButton = new TextButton("SPIN", skin, "shop");
 
     spinButton.setColor(SPIN_BUTTON_TINT);
 
