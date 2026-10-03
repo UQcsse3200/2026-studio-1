@@ -12,6 +12,7 @@ public class TextureRenderComponent extends RenderComponent {
   // left, when the source art only faces right). Purely visual - does not affect the
   // entity's scale, position, or collider.
   private boolean flipX = false;
+  private float rotationDegrees;
 
   /**
    * @param texturePath Internal path of static texture to render. Will be scaled to the entity's
@@ -52,6 +53,22 @@ public class TextureRenderComponent extends RenderComponent {
     return flipX;
   }
 
+  /**
+   * Sets the texture rotation around the centre of its bounds.
+   *
+   * @param rotationDegrees rotation in degrees
+   */
+  public void setRotationDegrees(float rotationDegrees) {
+    this.rotationDegrees = rotationDegrees;
+  }
+
+  /**
+   * @return texture rotation in degrees
+   */
+  public float getRotationDegrees() {
+    return rotationDegrees;
+  }
+
   public void setTexture(String texturePath) { // for crouch
     this.texture = ServiceLocator.getResourceService().getAsset(texturePath, Texture.class);
   }
@@ -64,7 +81,25 @@ public class TextureRenderComponent extends RenderComponent {
   protected void draw(SpriteBatch batch) {
     Vector2 position = entity.getPosition();
     Vector2 scale = entity.getScale();
-    if (flipX) {
+    if (rotationDegrees != 0f) {
+      batch.draw(
+          texture,
+          position.x,
+          position.y,
+          scale.x / 2f,
+          scale.y / 2f,
+          scale.x,
+          scale.y,
+          1f,
+          1f,
+          rotationDegrees,
+          0,
+          0,
+          texture.getWidth(),
+          texture.getHeight(),
+          flipX,
+          false);
+    } else if (flipX) {
       // Negative width mirrors the texture within the same bounding box (position.x to
       // position.x + scale.x) instead of shifting it - the box itself never moves.
       batch.draw(texture, position.x + scale.x, position.y, -scale.x, scale.y);

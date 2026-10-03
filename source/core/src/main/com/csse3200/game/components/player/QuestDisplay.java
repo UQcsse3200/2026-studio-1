@@ -51,14 +51,14 @@ public class QuestDisplay extends UIComponent {
     rootTable.padTop(75f).padRight(20f);
 
     questTable = new Table();
-    questTable.setBackground(skin.getDrawable("window-w"));
-    questTable.pad(14f);
+    questTable.setBackground(skin.getDrawable("window"));
+    questTable.pad(10f);
 
     Label title = new Label("QUEST", skin, "large");
     title.setAlignment(Align.center);
     questTable.add(title).expandX().fillX().padBottom(10f).row();
 
-    rootTable.add(questTable).width(400f);
+    rootTable.add(questTable).width(300f);
 
     stage.addActor(rootTable);
   }
