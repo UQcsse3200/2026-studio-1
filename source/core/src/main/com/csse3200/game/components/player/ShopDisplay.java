@@ -64,7 +64,7 @@ public class ShopDisplay extends UIComponent {
   private static final int ITEM_SLOT_COUNT = 10;
   private static final int SELL_SLOT_COUNT = 5;
 
-  private static final String LABEL_STYLE = "default";
+  private static final String LABEL_STYLE = "small";
 
   private static final String WINDOW_BACKGROUND = "window";
 
