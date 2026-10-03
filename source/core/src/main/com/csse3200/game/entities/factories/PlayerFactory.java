@@ -139,7 +139,7 @@ public class PlayerFactory {
 
     if (mapData != null) {
       player.addComponent(new LadderComponent(mapData));
-      player.addComponent(new SubLevelTravelComponent());
+      player.addComponent(new SubLevelTravelComponent(mapData));
     }
 
     // The map uses 0.5 world units per tile. Keep the player just over one tile wide

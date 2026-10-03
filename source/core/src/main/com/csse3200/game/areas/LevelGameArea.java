@@ -31,6 +31,8 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.LadderComponent;
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -559,6 +561,15 @@ public class LevelGameArea extends GameArea {
   }
 
   private Entity adoptPlayer(Entity retainedPlayer) {
+    LadderComponent ladder = retainedPlayer.getComponent(LadderComponent.class);
+    if (ladder != null) {
+      ladder.setMapData(mapData);
+    }
+    SubLevelTravelComponent travel = retainedPlayer.getComponent(SubLevelTravelComponent.class);
+    if (travel != null) {
+      travel.setMapData(mapData);
+    }
+
     GridPoint2 spawn = entrySpawn != null ? entrySpawn : mapData.getSpawns().getPlayer();
     if (spawn == null) {
       spawn = new GridPoint2(0, 0);

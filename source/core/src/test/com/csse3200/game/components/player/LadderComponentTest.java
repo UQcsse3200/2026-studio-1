@@ -185,6 +185,19 @@ class LadderComponentTest {
     assertFalse(ladder.canAutoClimb());
   }
 
+  @Test
+  void mapUpdateStopsUsingLaddersFromThePreviousRoom() {
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    Entity player = new Entity().addComponent(ladder);
+    positionCentreAtTile(player, 1, 2);
+
+    assertTrue(ladder.canAutoClimb());
+
+    ladder.setMapData(createMap());
+
+    assertFalse(ladder.canAutoClimb());
+  }
+
   private static LevelMapData createMap() {
     MapLayerData collision = new MapLayerData("collision", 5, 5);
     collision.set(LADDER_X, LADDER_Y, new TileDefinition(TileType.LADDER, null));

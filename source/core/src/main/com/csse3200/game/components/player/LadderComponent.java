@@ -12,7 +12,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 public class LadderComponent extends Component {
   private static final float CLIMB_SPEED = 2.5f;
 
-  private final LevelMapData mapData;
+  private LevelMapData mapData;
   private PhysicsComponent physics;
   private float direction;
   private boolean climbing;
@@ -28,6 +28,23 @@ public class LadderComponent extends Component {
 
   public LadderComponent(LevelMapData mapData) {
     this.mapData = mapData;
+  }
+
+  /** Updates the tile map used for ladder detection after the player enters another room. */
+  public void setMapData(LevelMapData mapData) {
+    this.mapData = mapData;
+    direction = 0f;
+    climbing = false;
+    autoClimbing = false;
+    autoElapsed = 0f;
+    autoStart = null;
+    shaftEntry = null;
+    shaftExit = null;
+    landing = null;
+    if (physics != null) {
+      physics.getBody().setGravityScale(1f);
+      physics.getBody().setLinearVelocity(0f, 0f);
+    }
   }
 
   @Override
