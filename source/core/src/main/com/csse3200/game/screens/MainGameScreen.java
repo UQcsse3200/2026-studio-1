@@ -150,8 +150,14 @@ public class MainGameScreen extends ScreenAdapter {
 
     this.levelGameArea =
         savedSeed != null
-            ? new LevelGameArea(terrainFactory, initialRoomMap, null, null, savedSeed)
-            : new LevelGameArea(terrainFactory, initialRoomMap);
+            ? new LevelGameArea(
+                terrainFactory,
+                initialRoomMap,
+                null,
+                null,
+                savedSeed,
+                renderer.getCamera().getCamera())
+            : new LevelGameArea(terrainFactory, initialRoomMap, renderer.getCamera().getCamera());
 
     levelGameArea.create();
 
@@ -466,7 +472,7 @@ public class MainGameScreen extends ScreenAdapter {
             transition.getDestinationMap(),
             player,
             transition.getDestinationSpawn(),
-            savedSeed);
+            renderer.getCamera().getCamera());
 
     nextArea.create();
 

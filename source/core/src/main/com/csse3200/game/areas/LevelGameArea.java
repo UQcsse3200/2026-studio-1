@@ -1,6 +1,7 @@
 package com.csse3200.game.areas;
 
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -31,6 +32,8 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameDisplay;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -92,6 +95,8 @@ public class LevelGameArea extends GameArea {
    * it is logged when loot spawns so a run with a bug in it can be replayed from that seed.
    */
   private final long lootSeed;
+
+  private final Camera worldCamera;
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
@@ -163,7 +168,7 @@ public class LevelGameArea extends GameArea {
    * @param mapPath asset path of the map file to load
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath) {
-    this(terrainFactory, mapPath, new JsonMapLoader());
+    this(terrainFactory, mapPath, new JsonMapLoader(), null, null, null, null);
   }
 
   /**
@@ -174,7 +179,7 @@ public class LevelGameArea extends GameArea {
    * @param mapLoader loader used to parse the map file
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
-    this(terrainFactory, mapPath, mapLoader, null, null, null);
+    this(terrainFactory, mapPath, mapLoader, null, null, null, null);
   }
 
   /**
@@ -188,7 +193,7 @@ public class LevelGameArea extends GameArea {
    */
   public LevelGameArea(
       TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
-    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null);
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null, null);
   }
 
   /**
@@ -203,7 +208,55 @@ public class LevelGameArea extends GameArea {
       Entity existingPlayer,
       GridPoint2 entrySpawn,
       Long savedLootSeed) {
-    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, savedLootSeed);
+    this(
+        terrainFactory,
+        mapPath,
+        new JsonMapLoader(),
+        existingPlayer,
+        entrySpawn,
+        savedLootSeed,
+        null);
+  }
+
+  public LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed,
+      Camera worldCamera) {
+    this(
+        terrainFactory,
+        mapPath,
+        new JsonMapLoader(),
+        existingPlayer,
+        entrySpawn,
+        savedLootSeed,
+        worldCamera);
+  }
+
+  /**
+   * Create a level while retaining an existing player, placing it at a specified entrance, and
+   * using a camera for NPC name displays.
+   */
+  public LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Camera worldCamera) {
+    this(
+        terrainFactory,
+        mapPath,
+        new JsonMapLoader(),
+        existingPlayer,
+        entrySpawn,
+        null,
+        worldCamera);
+  }
+
+  public LevelGameArea(TerrainFactory terrainFactory, String mapPath, Camera worldCamera) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), null, null, null, worldCamera);
   }
 
   private LevelGameArea(
@@ -212,7 +265,8 @@ public class LevelGameArea extends GameArea {
       MapLoader mapLoader,
       Entity existingPlayer,
       GridPoint2 entrySpawn,
-      Long savedLootSeed) {
+      Long savedLootSeed,
+      Camera worldCamera) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
@@ -220,6 +274,7 @@ public class LevelGameArea extends GameArea {
     this.existingPlayer = existingPlayer;
     this.entrySpawn = entrySpawn == null ? null : new GridPoint2(entrySpawn);
     this.lootSeed = savedLootSeed != null ? savedLootSeed : new Random().nextLong();
+    this.worldCamera = worldCamera;
   }
 
   @Override
@@ -661,8 +716,15 @@ public class LevelGameArea extends GameArea {
       }
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
-        enemy.addComponent(new PersistentEnemyIdComponent(id));
-        spawnEntityAt(enemy, spawn.getPosition(), true, true);
+        if (enemy != null) {
+          enemy.addComponent(new PersistentEnemyIdComponent(id));
+
+          if (enemy.getComponent(NameComponent.class) != null) {
+            enemy.addComponent(new NameDisplay(enemy, worldCamera));
+          }
+
+          spawnEntityAt(enemy, spawn.getPosition(), true, true);
+        }
       }
     }
   }
