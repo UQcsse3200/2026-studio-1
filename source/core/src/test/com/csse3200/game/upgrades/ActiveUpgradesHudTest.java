@@ -30,8 +30,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 /**
  * Verifies the HUD reads UpgradesDisplay's upgrade lists live: a node appearing once active,
  * showing the right tier/remaining text, updating when tier advances, and disappearing once it
- * expires - and that it is drawn on the shop toast's charcoal panel (root -> panel -> labels), with
- * white text, no runtime tinting, and no empty panel when nothing is active.
+ * expires - and that it is drawn on the dark shadow panel (root -> panel -> labels), with white
+ * text, no runtime tinting, and no empty panel when nothing is active.
  */
 @ExtendWith(GameExtension.class)
 class ActiveUpgradesHudTest {
@@ -234,23 +234,23 @@ class ActiveUpgradesHudTest {
   }
 
   @Test
-  void panelBackgroundIsTheToastCharcoalDrawable() throws Exception {
-    Object expected = getSkin().getDrawable("toast-charcoal");
+  void panelBackgroundIsTheShadowDrawable() throws Exception {
+    Object expected = getSkin().getDrawable("shadow");
 
     assertNotNull(getHudPanel().getBackground());
     assertSame(expected, getHudPanel().getBackground()); // the exact baked drawable the toast uses
   }
 
   @Test
-  void labelStyleUsesWhiteTextButTheSkinsSmallFontSoTextSizeIsUnchanged() throws Exception {
+  void labelUsesThePixthulhuDefaultStyleWhoseTextIsAlreadyWhite() throws Exception {
     getField("movementUpgrades").get(0).purchaseNextTier();
     hud.draw(null);
 
     Label label = (Label) getHudPanel().getChildren().get(0);
-    Label.LabelStyle skinSmall = getSkin().get("small", Label.LabelStyle.class);
+    Label.LabelStyle defaultStyle = getSkin().get(Label.LabelStyle.class);
 
-    assertEquals(Color.WHITE, label.getStyle().fontColor); // readable on charcoal (skin is black)
-    assertSame(skinSmall.font, label.getStyle().font); // same font face and size as before
+    assertEquals(Color.WHITE, label.getStyle().fontColor); // readable on the dark panel
+    assertSame(defaultStyle.font, label.getStyle().font);
   }
 
   @Test
