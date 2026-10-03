@@ -137,4 +137,72 @@ class WeaponGeneratorTest {
 
     assertEquals(30, sword.getSellPrice());
   }
+
+  // --- Axe tests added below (existing tests above are unchanged) ---
+
+  // Generating an Axe produces the correct name, type, and tier-1 damage (12, not the Sword's 10).
+  @Test
+  void shouldGenerateAxe() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem weapon = generator.generateWeapon(WeaponType.AXE, 1);
+
+    assertEquals("Basic Axe", weapon.getName());
+    assertEquals(ItemType.WEAPON, weapon.getItemType());
+    assertEquals(WeaponType.AXE, weapon.getWeaponType());
+    assertEquals(12, weapon.getDamage());
+  }
+
+  // Axe damage scales with tier the same way every other weapon type does.
+  @Test
+  void shouldIncreaseAxeDamageForHigherTier() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem tierOne = generator.generateWeapon(WeaponType.AXE, 1);
+    WeaponItem tierTwo = generator.generateWeapon(WeaponType.AXE, 2);
+    WeaponItem tierThree = generator.generateWeapon(WeaponType.AXE, 3);
+
+    assertEquals(12, tierOne.getDamage());
+    assertEquals(23, tierTwo.getDamage());
+    assertEquals(34, tierThree.getDamage());
+  }
+
+  // Axe's windup duration (3) matches Bow's, distinct from Sword (2) and Dagger (1).
+  @Test
+  void shouldSetAxeWindupDuration() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    assertEquals(3f, generator.generateWeapon(WeaponType.AXE, 1).getWindupDuration());
+  }
+
+  @Test
+  void shouldSetAxeSellPrice() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem axe = generator.generateWeapon(WeaponType.AXE, 1);
+
+    assertEquals(12, axe.getSellPrice());
+  }
+
+  @Test
+  void shouldScaleAxeSellPriceWithTier() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem axe = generator.generateWeapon(WeaponType.AXE, 3);
+
+    assertEquals(36, axe.getSellPrice());
+  }
+
+  // Axe is deliberately capped at a lower max stack size (2) than Sword/Bow (10) or Dagger (20) -
+  // easy to regress silently since nothing else exercises it.
+  @Test
+  void shouldGenerateAxeWithLowerMaxQuantity() {
+    WeaponGenerator generator = new WeaponGenerator();
+
+    WeaponItem axe = generator.generateWeapon(WeaponType.AXE, 1);
+
+    assertEquals(1, axe.getQuantity());
+    assertEquals(2, axe.getMaxQuantity());
+  }
+
 }
