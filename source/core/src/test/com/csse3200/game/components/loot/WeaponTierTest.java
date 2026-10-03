@@ -30,9 +30,9 @@ public class WeaponTierTest {
 
   @Test
   void shouldReturnCorrectTierNumbers() {
-    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.SWORD).getTier());
-    assertEquals(2, WeaponTier.TIER_2.getStats(WeaponType.SWORD).getTier());
-    assertEquals(3, WeaponTier.TIER_3.getStats(WeaponType.SWORD).getTier());
+    assertEquals(1, WeaponTier.TIER_1.getTier());
+    assertEquals(2, WeaponTier.TIER_2.getTier());
+    assertEquals(3, WeaponTier.TIER_3.getTier());
   }
 
   @Test

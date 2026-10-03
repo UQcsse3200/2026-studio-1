@@ -82,8 +82,8 @@ public class LootTable {
     // The tier system owns weapon rarity: each tier declares its own loot weight.
     for (WeaponTier weaponTier : WeaponTier.values()) {
       int weight = weaponTier.getLootWeight();
+      int tier = weaponTier.getTier();
       for (WeaponType type : WeaponType.values()) {
-        int tier = weaponTier.getStats(type).getTier();
         table.addWeapon(type, tier, weight);
       }
     }
