@@ -327,6 +327,55 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * Returns a player who has completely fallen outside the map to the room's safe spawn.
+   *
+   * <p>The authored collision boundary should normally prevent this. This recovery is a final
+   * safeguard against an accidental map gap or a fast-moving body crossing a boundary fixture.
+   * Player state is retained because the existing entity is repositioned rather than respawned.
+   *
+   * @return true when the player was recovered
+   */
+  public boolean recoverPlayerIfOutOfBounds() {
+    if (player == null
+        || !isOutsideMap(
+            player.getPosition(), player.getScale(), getMapWorldWidth(), mapData.getTileSize())) {
+      return false;
+    }
+
+    GridPoint2 safeSpawn = mapData.getSpawns().getPlayer();
+    if (safeSpawn == null) {
+      safeSpawn = entrySpawn;
+    }
+    if (safeSpawn == null) {
+      logger.error("Cannot recover player in '{}': no safe spawn is defined", mapData.getName());
+      return false;
+    }
+
+    logger.warn("Recovering out-of-bounds player in '{}' to {}", mapData.getName(), safeSpawn);
+    positionEntityAt(player, safeSpawn, true, true);
+    PhysicsComponent physics = player.getComponent(PhysicsComponent.class);
+    if (physics != null) {
+      physics.getBody().setLinearVelocity(0f, 0f);
+      physics.getBody().setAngularVelocity(0f);
+      physics.getBody().setGravityScale(1f);
+      physics.getBody().setAwake(true);
+    }
+    LadderComponent ladder = player.getComponent(LadderComponent.class);
+    if (ladder != null) {
+      ladder.setMapData(mapData);
+    }
+    return true;
+  }
+
+  static boolean isOutsideMap(
+      Vector2 position, Vector2 scale, float mapWorldWidth, float tileSize) {
+    float margin = tileSize;
+    return position.x + scale.x < -margin
+        || position.x > mapWorldWidth + margin
+        || position.y + scale.y < -margin;
+  }
+
+  /**
    * @return the map's width in world units (tiles * tileSize)
    */
   public float getMapWorldWidth() {

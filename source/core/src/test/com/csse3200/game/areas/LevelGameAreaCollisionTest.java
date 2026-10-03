@@ -1,8 +1,10 @@
 package com.csse3200.game.areas;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.LevelGameArea.SolidRectangle;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
@@ -70,6 +72,16 @@ class LevelGameAreaCollisionTest {
     fill(collisionLayer, 0, 0, 3, 1, PLATFORM);
 
     assertTrue(LevelGameArea.findSolidRectangles(collisionLayer).isEmpty());
+  }
+
+  @Test
+  void detectsAPlayerWhoHasCompletelyLeftTheMap() {
+    Vector2 playerScale = new Vector2(0.75f, 0.75f);
+
+    assertTrue(LevelGameArea.isOutsideMap(new Vector2(-1.5f, 2f), playerScale, 10f, 0.5f));
+    assertTrue(LevelGameArea.isOutsideMap(new Vector2(11f, 2f), playerScale, 10f, 0.5f));
+    assertTrue(LevelGameArea.isOutsideMap(new Vector2(2f, -1.5f), playerScale, 10f, 0.5f));
+    assertFalse(LevelGameArea.isOutsideMap(new Vector2(2f, 2f), playerScale, 10f, 0.5f));
   }
 
   private static void fill(

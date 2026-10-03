@@ -34,8 +34,8 @@ class MapValidatorTest {
           "legend": { "#": { "type": "WALL" } },
           "entityLegend": { "P": { "type": "PLAYER" } },
           "layers": {
-            "terrain":  ["  ", "##"],
-            "entities": ["P ", "  "]
+            "terrain":  ["# #", "###"],
+            "entities": [" P ", "   "]
           }
         }
         """;
@@ -80,8 +80,8 @@ class MapValidatorTest {
         {
           "name": "Midair",
           "legend": { "#": { "type": "WALL" } },
-          "layers": { "terrain": ["  ", "  ", "##"] },
-          "spawns": { "player": { "x": 0, "y": 2 } }
+          "layers": { "terrain": ["# #", "# #", "###"] },
+          "spawns": { "player": { "x": 1, "y": 2 } }
         }
         """;
     List<MapValidator.Problem> problems = validate(json);
@@ -111,9 +111,12 @@ class MapValidatorTest {
         """
         {
           "name": "Ledge",
-          "legend": { "=": { "type": "PLATFORM" } },
-          "layers": { "terrain": ["  ", "=="] },
-          "spawns": { "player": { "x": 0, "y": 1 } }
+          "legend": {
+            "#": { "type": "WALL" },
+            "=": { "type": "PLATFORM" }
+          },
+          "layers": { "terrain": ["# #", "#=#"] },
+          "spawns": { "player": { "x": 1, "y": 1 } }
         }
         """;
     assertTrue(validate(json).isEmpty());
@@ -138,6 +141,23 @@ class MapValidatorTest {
     assertEquals(2, errors(problems).size());
     assertTrue(mentions(problems, "enemy spawn"));
     assertTrue(mentions(problems, "loot spawn"));
+  }
+
+  @Test
+  void warnsAboutAnOpenCollisionBoundary() {
+    String json =
+        """
+        {
+          "name": "Escape Route",
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["  #", "###"] }
+        }
+        """;
+
+    List<MapValidator.Problem> problems = validate(json);
+
+    assertTrue(mentions(problems, "open collision boundary on its left edge"));
+    assertTrue(errors(problems).isEmpty());
   }
 
   @Test

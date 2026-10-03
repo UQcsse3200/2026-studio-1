@@ -92,6 +92,7 @@ public final class MapValidator {
     }
 
     checkCollisionLayer(map, name, problems);
+    checkCollisionBoundary(map, name, problems);
     checkPlayerSpawn(map, name, problems);
     checkSpawnBounds(map, name, problems);
     checkTransitions(map, name, assetExists, problems);
@@ -119,6 +120,35 @@ public final class MapValidator {
                   + "' or '"
                   + LevelMapData.TERRAIN_LAYER
                   + "' layer, so nothing in it is solid. Check the layer names for a typo."));
+    }
+  }
+
+  /** Open side or bottom edges allow the player to leave the physics world and become stuck. */
+  private static void checkCollisionBoundary(
+      LevelMapData map, String name, List<Problem> problems) {
+    MapLayerData layer = map.getCollisionLayer();
+    if (layer == null || layer.getWidth() == 0 || layer.getHeight() == 0) {
+      return;
+    }
+
+    List<String> openEdges = new ArrayList<>();
+    if (!isSolidColumn(map, 0)) {
+      openEdges.add("left");
+    }
+    if (!isSolidColumn(map, map.getWidth() - 1)) {
+      openEdges.add("right");
+    }
+    if (!isSupportingRow(map, 0)) {
+      openEdges.add("bottom");
+    }
+    if (!openEdges.isEmpty()) {
+      problems.add(
+          new Problem(
+              Severity.WARNING,
+              about(name)
+                  + "has an open collision boundary on its "
+                  + String.join(", ", openEdges)
+                  + " edge(s), allowing the player to leave the map"));
     }
   }
 
@@ -253,5 +283,23 @@ public final class MapValidator {
     }
     CollisionType collision = tile.type().getCollisionType();
     return collision == CollisionType.SOLID || collision == CollisionType.PLATFORM;
+  }
+
+  private static boolean isSolidColumn(LevelMapData map, int x) {
+    for (int y = 0; y < map.getHeight(); y++) {
+      if (!isSolid(map, x, y)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean isSupportingRow(LevelMapData map, int y) {
+    for (int x = 0; x < map.getWidth(); x++) {
+      if (!isSupporting(map, x, y)) {
+        return false;
+      }
+    }
+    return true;
   }
 }
