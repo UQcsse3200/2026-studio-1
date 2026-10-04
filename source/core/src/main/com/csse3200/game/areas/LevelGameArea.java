@@ -814,7 +814,7 @@ public class LevelGameArea extends GameArea {
   private void spawnLighting() {
     LightService ls = ServiceLocator.getLightService();
     // default low ambient light
-    ls.setAmbient(LightColour.BACKGROUND_DARK.getColour(), 0.25f);
+    ls.setAmbient(LightColour.AMBIENT_DARK.getColour(), 0.25f);
 
     Entity lightEntity = new Entity();
     lightEntity.setPosition(5f, 5f);

@@ -6,17 +6,21 @@ import java.util.Optional;
 
 public record LightSpec(Color color, float radius, int rays, float flicker) {
 
+  public static LightSpec of(Color color, float radius, float flicker) {
+    float r = Math.max(0.5f, radius);
+    return new LightSpec(
+        color, r, Math.max(8, Math.round(r * 8)), Math.max(0f, Math.min(1f, flicker)));
+  }
+
   public static Optional<LightSpec> fromTile(TileDefinition def) {
     if (!def.has("light")) return Optional.empty();
-    Color color;
-    try {
-      color = Color.valueOf(def.get("lightColor", "ffffff"));
-    } catch (RuntimeException e) {
-      color = Color.WHITE;
+    if (!"point".equalsIgnoreCase(def.get("light").trim())) {
+      // only point lights exist for now; extend here for cone
     }
-    float radius = Math.max(0.5f, def.getFloat("lightRadius", 2f));
-    int rays = Math.max(8, Math.round(radius * 8));
-    float flicker = Math.max(0f, Math.min(1f, def.getFloat("flicker", 0f)));
-    return Optional.of(new LightSpec(color, radius, rays, flicker));
+    return Optional.of(
+        of(
+            LightColour.parse(def.get("lightColour"), Color.WHITE),
+            def.getFloat("lightRadius", 2f),
+            def.getFloat("flicker", 0f)));
   }
 }

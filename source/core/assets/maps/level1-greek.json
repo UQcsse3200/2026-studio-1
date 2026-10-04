@@ -45,7 +45,11 @@
     },
     "~": {
       "type": "HAZARD",
-      "texture": "images/level1/river-phlegethon-512px.png"
+      "texture": "images/level1/river-phlegethon-512px.png",
+      "light": "point",
+      "lightColour": "lava_glow",
+      "lightRadius": "1",
+      "flicker": "0.2"
     },
     "S": {
       "type": "HAZARD",
@@ -153,7 +157,11 @@
     },
     "A": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-oil-lamp-512px.png"
+      "texture": "images/level1/decor-oil-lamp-512px.png",
+      "light": "point",
+      "lightColour": "oil_lamp",
+      "lightRadius": "2",
+      "flicker": "0.1"
     },
     "Q": {
       "type": "DECORATIVE",
@@ -290,6 +298,14 @@
     },
     "L": {
       "type": "LOOT"
+    }
+  },
+  "lighting": {
+    "ambient": { "color": "ambient_light", "intensity": 0.25 },
+    "player": { "radius": 3.5, "color": "resinous_torch" },
+    "subLevels": {
+      "dungeon": { "ambient": { "color": "ambient_dark", "intensity": 0.35 } },
+      "nether":  { "ambient": { "color": "ambient_orange", "intensity": 0.2 } }
     }
   },
   "layers": {
