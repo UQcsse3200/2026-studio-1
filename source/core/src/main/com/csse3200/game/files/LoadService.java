@@ -105,15 +105,23 @@ public class LoadService {
         continue;
       }
 
+      // Put the item back in the exact slot it was saved from. If that slot is
+      // invalid, fall back to the normal add so the item isn't lost.
+      if (inventory.setItem(savedItem.slot, item)) {
+        continue;
+      }
+
       int notAdded = inventory.addItem(item);
       if (notAdded > 0) {
         org.slf4j.LoggerFactory.getLogger(LoadService.class)
-            .warn(
-                "Inventory full - could not fully restore saved item: {} ({} not added)",
-                savedItem.name,
-                notAdded);
+                .warn(
+                        "Inventory full - could not fully restore saved item: {} ({} not added)",
+                        savedItem.name,
+                        notAdded);
       }
     }
+
+    inventory.setActiveSlot(data.activeSlot);
   }
 
   private static void loadPets(Entity player, GameSaveData data) {

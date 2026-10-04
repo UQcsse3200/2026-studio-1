@@ -92,6 +92,7 @@ public class PauseMenuActions extends Component {
     data.health = stats.getHealth();
     data.stamina = stamina.getStamina();
     data.gold = inventory.getGold();
+    data.activeSlot = inventory.getActiveSlot();
     data.posX = player.getPosition().x;
     data.posY = player.getPosition().y;
     data.lootSeedsByRoom = lootSeedsSupplier.get();

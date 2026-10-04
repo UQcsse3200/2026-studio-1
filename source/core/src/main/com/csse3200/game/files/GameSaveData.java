@@ -10,6 +10,7 @@ public class GameSaveData {
   public float stamina = 100f;
   public int gold;
   public List<SavedItem> items = new ArrayList<>();
+  public int activeSlot = 1;
   public float posX;
   public float posY;
   public Map<String, Long> lootSeedsByRoom = new HashMap<>();

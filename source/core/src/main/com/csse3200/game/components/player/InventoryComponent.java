@@ -357,6 +357,26 @@ public class InventoryComponent extends Component {
   }
 
   /**
+   * Places an item directly into a specific slot, replacing anything already there.
+   *
+   * <p>Unlike {@link #addItem(Item)}, this does not stack or search for an empty slot. Intended
+   * for restoring a saved inventory exactly as it was.
+   *
+   * @param slot slot index in the range 1 to {@code maxSlots}
+   * @param item item to store
+   * @return {@code true} if the item was placed
+   */
+  public boolean setItem(int slot, Item item) {
+    if (!isValidSlot(slot) || !isAddable(item)) {
+      return false;
+    }
+
+    inventorySlots.put(slot, item);
+    notifyInventoryChanged();
+    return true;
+  }
+
+  /**
    * Notifies listeners that inventory contents or gold changed.
    *
    * <p>No-ops when this component is not attached to an entity (common in unit tests).
