@@ -504,6 +504,45 @@ class JsonMapLoaderTest {
   }
 
   @Test
+  void readsOverlaysAndTheRowsTheyAreSeenIn() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["#"] },
+          "overlays": {
+            "*": [ { "texture": "rain.png", "scroll": 1, "rows": { "from": 10, "to": 20 } } ]
+          }
+        }
+        """;
+
+    LevelMapData map = loader.parse(json);
+
+    BackdropLayer rain = map.getOverlay(null).getFirst();
+    assertEquals(new BackdropLayer.Rows(10, 20), rain.rows());
+    assertEquals(1f, rain.visibilityAt(15f));
+    assertEquals(0.5f, rain.visibilityAt(24f));
+    assertEquals(0f, rain.visibilityAt(40f));
+    assertTrue(map.getBackdrop(null).isEmpty());
+    assertTrue(map.getTexturePaths().contains("rain.png"));
+  }
+
+  @Test
+  void loadsTheLightSpriteOfAGlowingTile() {
+    String json =
+        """
+        {
+          "legend": { "L": { "type": "DECORATIVE", "texture": "lamp.png", "glow": "light.png" } },
+          "layers": { "terrain": ["L"] }
+        }
+        """;
+
+    LevelMapData map = loader.parse(json);
+
+    assertTrue(map.getTexturePaths().containsAll(List.of("lamp.png", "light.png")));
+  }
+
+  @Test
   void rejectsABackdropLayerWithNoTexture() {
     String json =
         """
@@ -551,6 +590,8 @@ class JsonMapLoaderTest {
     assertEquals(4, levelTwo.getBackdrop("base").size());
     assertEquals(levelTwo.getBackdrop("base"), levelTwo.getBackdrop("skies"));
     assertTrue(levelTwo.getBackdrop("skies").getFirst().spansMap());
+    // Rain falls only around the storm clouds near the top of the climb.
+    assertEquals(new BackdropLayer.Rows(128, 160), levelTwo.getOverlay("skies").getFirst().rows());
 
     LevelMapData levelThree = loader.load("maps/level3.json");
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());

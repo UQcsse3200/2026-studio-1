@@ -7,17 +7,31 @@ import com.csse3200.game.areas.terrain.map.BackdropLayer;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.List;
 
 /**
- * Draws a map's parallax backdrops behind its terrain: for whichever sub-level the camera is in,
- * that sub-level's stack of images, each moving at its own rate as the camera does.
+ * Draws a map's parallax backdrops behind its terrain, or its overlays in front of everything in
+ * the world: for whichever sub-level the camera is in, that sub-level's stack of images, each
+ * moving at its own rate as the camera does.
  */
 public class ParallaxBackdropRenderComponent extends RenderComponent {
   private final LevelMapData mapData;
+  private final boolean inFront;
   private float elapsed;
 
+  /** Draws the map's backdrops, behind its terrain. */
   public ParallaxBackdropRenderComponent(LevelMapData mapData) {
+    this(mapData, false);
+  }
+
+  /**
+   * @param mapData the map whose layers are drawn
+   * @param inFront true to draw the map's overlays in front of the world, false to draw its
+   *     backdrops behind the terrain
+   */
+  public ParallaxBackdropRenderComponent(LevelMapData mapData, boolean inFront) {
     this.mapData = mapData;
+    this.inFront = inFront;
   }
 
   @Override
@@ -49,7 +63,16 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
     float mapWidth = mapData.getWidth() * mapData.getTileSize();
     float mapHeight = mapData.getHeight() * mapData.getTileSize();
 
-    for (BackdropLayer layer : mapData.getBackdrop(subLevel == null ? null : subLevel.id())) {
+    String subLevelId = subLevel == null ? null : subLevel.id();
+    List<BackdropLayer> layers =
+        inFront ? mapData.getOverlay(subLevelId) : mapData.getBackdrop(subLevelId);
+
+    for (BackdropLayer layer : layers) {
+      float visibility = layer.visibilityAt(centreY / mapData.getTileSize());
+      if (visibility <= 0f) {
+        continue;
+      }
+      batch.setColor(1f, 1f, 1f, visibility);
       Texture texture = texture(layer.texture());
       if (layer.spansMap()) {
         float layerHeight = mapWidth * texture.getHeight() / texture.getWidth();
@@ -76,6 +99,7 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
           window[2],
           window[3]);
     }
+    batch.setColor(1f, 1f, 1f, 1f);
     // The terrain draws through its own batch, so anything still queued here would land on top.
     batch.flush();
   }
@@ -132,25 +156,27 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
   }
 
   private Iterable<String> repeatingTextures() {
-    return mapData.getBackdrops().values().stream()
-        .flatMap(backdrop -> backdrop.stream())
-        .filter(layer -> !layer.spansMap())
-        .map(BackdropLayer::texture)
-        .distinct()
-        .toList();
+    return (inFront ? mapData.getOverlays() : mapData.getBackdrops())
+        .values().stream()
+            .flatMap(backdrop -> backdrop.stream())
+            .filter(layer -> !layer.spansMap())
+            .map(BackdropLayer::texture)
+            .distinct()
+            .toList();
   }
 
   private static Texture texture(String path) {
     return ServiceLocator.getResourceService().getAsset(path, Texture.class);
   }
 
+  /** Backdrops sit below the terrain; overlays share the characters' layer and are drawn last. */
   @Override
   public int getLayer() {
-    return -2;
+    return inFront ? 1 : -2;
   }
 
   @Override
   public float getZIndex() {
-    return 0f;
+    return inFront ? Float.MAX_VALUE : 0f;
   }
 }

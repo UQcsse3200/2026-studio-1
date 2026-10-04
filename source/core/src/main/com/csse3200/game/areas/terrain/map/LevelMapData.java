@@ -23,6 +23,9 @@ public class LevelMapData {
   /** Backdrop key for a backdrop shown everywhere a sub-level has none of its own. */
   public static final String WHOLE_MAP_BACKDROP = "*";
 
+  /** Legend property naming the light sprite a tile glows with. */
+  public static final String GLOW_PROPERTY = "glow";
+
   /** Fallback layer used for collision when no explicit collision layer exists. */
   public static final String TERRAIN_LAYER = "terrain";
 
@@ -37,6 +40,7 @@ public class LevelMapData {
   private final String backgroundTexture;
   private final List<SubLevel> subLevels;
   private final Map<String, List<BackdropLayer>> backdrops;
+  private final Map<String, List<BackdropLayer>> overlays;
 
   /**
    * Creates map data with no transitions, background or sub-levels. For anything more, use {@link
@@ -81,6 +85,7 @@ public class LevelMapData {
     this.transitions = transitions;
     this.backgroundTexture = backgroundTexture;
     this.backdrops = builder.backdrops;
+    this.overlays = builder.overlays;
   }
 
   public String getName() {
@@ -201,11 +206,35 @@ public class LevelMapData {
    * @return the backdrop layers, back to front (unmodifiable), empty if there are none
    */
   public List<BackdropLayer> getBackdrop(String subLevelId) {
-    List<BackdropLayer> backdrop = subLevelId == null ? null : backdrops.get(subLevelId);
-    if (backdrop == null) {
-      backdrop = backdrops.getOrDefault(WHOLE_MAP_BACKDROP, List.of());
+    return layersFor(backdrops, subLevelId);
+  }
+
+  /**
+   * The layers drawn in front of a sub-level's tiles and characters, such as rain: its own if it
+   * has any, otherwise the map's {@link #WHOLE_MAP_BACKDROP}.
+   *
+   * @param subLevelId a sub-level's id, or null for a part of the map outside every sub-level
+   * @return the overlay layers, back to front (unmodifiable), empty if there are none
+   */
+  public List<BackdropLayer> getOverlay(String subLevelId) {
+    return layersFor(overlays, subLevelId);
+  }
+
+  /**
+   * @return every overlay in this map, keyed by sub-level id or {@link #WHOLE_MAP_BACKDROP}
+   *     (unmodifiable)
+   */
+  public Map<String, List<BackdropLayer>> getOverlays() {
+    return Collections.unmodifiableMap(overlays);
+  }
+
+  private static List<BackdropLayer> layersFor(
+      Map<String, List<BackdropLayer>> stacks, String subLevelId) {
+    List<BackdropLayer> layers = subLevelId == null ? null : stacks.get(subLevelId);
+    if (layers == null) {
+      layers = stacks.getOrDefault(WHOLE_MAP_BACKDROP, List.of());
     }
-    return Collections.unmodifiableList(backdrop);
+    return Collections.unmodifiableList(layers);
   }
 
   /**
@@ -235,6 +264,9 @@ public class LevelMapData {
       if (def.texture() != null) {
         paths.add(def.texture());
       }
+      if (def.properties().containsKey(GLOW_PROPERTY)) {
+        paths.add(def.properties().get(GLOW_PROPERTY));
+      }
     }
     for (RoomTransition transition : transitions) {
       if (transition.getTexture() != null) {
@@ -246,6 +278,11 @@ public class LevelMapData {
     }
     for (List<BackdropLayer> backdrop : backdrops.values()) {
       for (BackdropLayer layer : backdrop) {
+        paths.add(layer.texture());
+      }
+    }
+    for (List<BackdropLayer> overlay : overlays.values()) {
+      for (BackdropLayer layer : overlay) {
         paths.add(layer.texture());
       }
     }
@@ -282,6 +319,7 @@ public class LevelMapData {
     private String backgroundTexture;
     private List<SubLevel> subLevels = Collections.emptyList();
     private Map<String, List<BackdropLayer>> backdrops = Collections.emptyMap();
+    private Map<String, List<BackdropLayer>> overlays = Collections.emptyMap();
 
     private Builder(String name) {
       this.name = name;
@@ -367,6 +405,16 @@ public class LevelMapData {
      */
     public Builder backdrops(Map<String, List<BackdropLayer>> backdrops) {
       this.backdrops = backdrops == null ? Collections.emptyMap() : backdrops;
+      return this;
+    }
+
+    /**
+     * @param overlays layers drawn in front of the tiles, keyed by sub-level id, empty if the map
+     *     has none
+     * @return this builder
+     */
+    public Builder overlays(Map<String, List<BackdropLayer>> overlays) {
+      this.overlays = overlays == null ? Collections.emptyMap() : overlays;
       return this;
     }
 

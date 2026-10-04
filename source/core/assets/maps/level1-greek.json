@@ -84,7 +84,8 @@
     },
     "L": {
       "type": "HAZARD",
-      "texture": "images/level1/hazard-firepit-512px.png"
+      "texture": "images/level1/hazard-firepit-512px.png",
+      "glow": "images/effects/lighting/light-lava.png"
     },
     "l": {
       "type": "LADDER",
@@ -132,7 +133,8 @@
     },
     "A": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-oil-lamp-512px.png"
+      "texture": "images/level1/decor-oil-lamp-512px.png",
+      "glow": "images/effects/lighting/light-warm.png"
     },
     "Q": {
       "type": "DECORATIVE",
@@ -176,11 +178,13 @@
     },
     "+": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-tripod-512px.png"
+      "texture": "images/level1/decor-tripod-512px.png",
+      "glow": "images/effects/lighting/light-warm.png"
     },
     "k": {
       "type": "DECORATIVE",
-      "texture": "images/level1/hazard-flame-jet-512px.png"
+      "texture": "images/level1/hazard-flame-jet-512px.png",
+      "glow": "images/effects/lighting/light-warm.png"
     },
     ":": {
       "type": "DECORATIVE",

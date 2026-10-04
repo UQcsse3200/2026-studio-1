@@ -50,6 +50,7 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.GlowRenderComponent;
 import com.csse3200.game.rendering.MapBackgroundRenderComponent;
 import com.csse3200.game.rendering.ParallaxBackdropRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
@@ -149,6 +150,9 @@ public class LevelGameArea extends GameArea {
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
   private static final String[] entityMusic = {BACKGROUND_MUSIC};
 
+  /** How wide a glowing tile's light spreads, in tiles. */
+  private static final float GLOW_TILES = 5f;
+
   private final TerrainFactory terrainFactory;
   private final MapLoader mapLoader;
   private final String mapPath;
@@ -234,6 +238,7 @@ public class LevelGameArea extends GameArea {
     displayUI();
     spawnBackdrop();
     spawnTerrain();
+    spawnGlows();
     spawnCollisions();
     player = existingPlayer == null ? spawnPlayer() : adoptPlayer(existingPlayer);
     spawnTransitions();
@@ -426,6 +431,9 @@ public class LevelGameArea extends GameArea {
     if (!mapData.getBackdrops().isEmpty()) {
       spawnEntity(new Entity().addComponent(new ParallaxBackdropRenderComponent(mapData)));
     }
+    if (!mapData.getOverlays().isEmpty()) {
+      spawnEntity(new Entity().addComponent(new ParallaxBackdropRenderComponent(mapData, true)));
+    }
 
     String backgroundTexture = mapData.getBackgroundTexture();
     if (backgroundTexture == null) {
@@ -435,6 +443,30 @@ public class LevelGameArea extends GameArea {
         new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
     backdrop.setScale(getMapWorldWidth(), getMapWorldHeight());
     spawnEntity(backdrop);
+  }
+
+  /**
+   * Lights every tile whose legend entry names a glow sprite, such as a lamp or a fire pit. The
+   * light is visual only and is centred on the tile.
+   */
+  private void spawnGlows() {
+    float tileSize = mapData.getTileSize();
+    for (MapLayerData layer : mapData.getLayers()) {
+      for (int x = 0; x < layer.getWidth(); x++) {
+        for (int y = 0; y < layer.getHeight(); y++) {
+          TileDefinition tile = layer.get(x, y);
+          String glow = tile == null ? null : tile.properties().get(LevelMapData.GLOW_PROPERTY);
+          if (glow == null) {
+            continue;
+          }
+          Entity light =
+              new Entity()
+                  .addComponent(new GlowRenderComponent(glow, GLOW_TILES * tileSize, x * 1.7f + y));
+          light.setPosition((x + 0.5f) * tileSize, (y + 0.5f) * tileSize);
+          spawnEntity(light);
+        }
+      }
+    }
   }
 
   /** Spawns collision bodies from the map's collision layer. */

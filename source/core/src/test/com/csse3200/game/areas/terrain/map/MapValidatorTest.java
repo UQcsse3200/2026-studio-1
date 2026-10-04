@@ -156,14 +156,16 @@ class MapValidatorTest {
             "cave": [ { "texture": "far.png" } ],
             "*": [ { "texture": "far.png" } ],
             "cavern": [ { "texture": "far.png" } ]
-          }
+          },
+          "overlays": { "cellar": [ { "texture": "rain.png" } ] }
         }
         """;
 
     List<MapValidator.Problem> problems = validate(json);
 
-    assertEquals(1, errors(problems).size());
-    assertTrue(mentions(problems, "backdrop for sub-level 'cavern'"));
+    assertEquals(2, errors(problems).size());
+    assertTrue(mentions(problems, "a backdrop for sub-level 'cavern'"));
+    assertTrue(mentions(problems, "an overlay for sub-level 'cellar'"));
   }
 
   @Test

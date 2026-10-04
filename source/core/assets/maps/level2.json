@@ -834,6 +834,22 @@
       }
     ]
   },
+  "overlays": {
+    "*": [
+      {
+        "texture": "images/level2/weather/storm-rain-loop.png",
+        "scroll": 1,
+        "drift": {
+          "x": -0.6,
+          "y": -3.9
+        },
+        "rows": {
+          "from": 128,
+          "to": 160
+        }
+      }
+    ]
+  },
   "subLevels": [
     {
       "id": "base",

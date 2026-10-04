@@ -55,10 +55,11 @@ import org.slf4j.LoggerFactory;
  *
  * <p>An optional {@code backgroundTexture} renders one composed image behind the tile layers, for
  * maps whose art is authored as a single scene rather than per-tile. An optional {@code backdrops}
- * block gives a sub-level a stack of parallax images instead, keyed by the sub-level's id; see
- * {@link BackdropLayer}. Unknown top-level keys are ignored, so maps may carry an {@code authoring}
- * block of design-time data the runtime does not read. Every level map uses this one format; there
- * is no per-level parsing path.
+ * block gives a sub-level a stack of parallax images instead, keyed by the sub-level's id or by
+ * {@code "*"} for the whole map, and an {@code overlays} block does the same in front of the tiles,
+ * for weather; see {@link BackdropLayer}. Unknown top-level keys are ignored, so maps may carry an
+ * {@code authoring} block of design-time data the runtime does not read. Every level map uses this
+ * one format; there is no per-level parsing path.
  */
 public class JsonMapLoader implements MapLoader {
   private static final String TYPE_KEY = "type";
@@ -153,7 +154,8 @@ public class JsonMapLoader implements MapLoader {
         .transitions(transitions)
         .backgroundTexture(resolveBackgroundTexture(root, name))
         .subLevels(parseSubLevels(root.get("subLevels"), name))
-        .backdrops(parseBackdrops(root.get("backdrops"), name))
+        .backdrops(parseBackdrops(root.get("backdrops"), "backdrops", name))
+        .overlays(parseBackdrops(root.get("overlays"), "overlays", name))
         .build();
   }
 
@@ -265,19 +267,22 @@ public class JsonMapLoader implements MapLoader {
   }
 
   /**
-   * Reads the optional {@code backdrops} block: for each sub-level id, the parallax images drawn
-   * behind its tiles, listed back to front. The key {@code "*"} is the backdrop for the whole map.
+   * Reads the optional {@code backdrops} or {@code overlays} block: for each sub-level id, the
+   * images drawn behind or in front of its tiles, listed back to front. The key {@code "*"} applies
+   * to the whole map.
    *
    * @param backdropsJson the block, or null if the map has none
+   * @param blockName the block's key, for error messages
    * @param mapName the map's name, for error messages
    * @return the backdrop layers keyed by sub-level id, empty if the map declares none
    */
-  private Map<String, List<BackdropLayer>> parseBackdrops(JsonValue backdropsJson, String mapName) {
+  private Map<String, List<BackdropLayer>> parseBackdrops(
+      JsonValue backdropsJson, String blockName, String mapName) {
     if (backdropsJson == null) {
       return Map.of();
     }
     if (!backdropsJson.isObject()) {
-      throw new MapLoadException("Map '" + mapName + "' 'backdrops' must be a JSON object");
+      throw new MapLoadException("Map '" + mapName + "' '" + blockName + "' must be a JSON object");
     }
 
     Map<String, List<BackdropLayer>> backdrops = new LinkedHashMap<>();
@@ -305,11 +310,19 @@ public class JsonMapLoader implements MapLoader {
                 layer.getFloat("scroll", 0f),
                 drift == null ? 0f : drift.getFloat("x", 0f),
                 drift == null ? 0f : drift.getFloat("y", 0f),
-                layer.getBoolean("spansMap", false)));
+                layer.getBoolean("spansMap", false),
+                readRows(layer.get("rows"))));
       }
       backdrops.put(backdrop.name, layers);
     }
     return backdrops;
+  }
+
+  /** Reads an optional {from, to} object as a band of tile rows. */
+  private static BackdropLayer.Rows readRows(JsonValue json) {
+    return json == null
+        ? null
+        : new BackdropLayer.Rows(json.getInt("from", 0), json.getInt("to", Integer.MAX_VALUE));
   }
 
   /** Reads an optional {x, y} object as a tile position. */

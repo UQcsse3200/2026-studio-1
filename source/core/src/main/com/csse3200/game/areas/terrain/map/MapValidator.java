@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.CollisionType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -245,9 +246,15 @@ public final class MapValidator {
     }
   }
 
-  /** A backdrop is drawn for the sub-level it names, so one naming nothing is never seen. */
+  /** A backdrop or overlay is drawn for the sub-level it names, so one naming nothing is unseen. */
   private static void checkBackdrops(LevelMapData map, String name, List<Problem> problems) {
-    for (String subLevelId : map.getBackdrops().keySet()) {
+    checkSubLevelKeys(map, name, "a backdrop", map.getBackdrops().keySet(), problems);
+    checkSubLevelKeys(map, name, "an overlay", map.getOverlays().keySet(), problems);
+  }
+
+  private static void checkSubLevelKeys(
+      LevelMapData map, String name, String what, Set<String> keys, List<Problem> problems) {
+    for (String subLevelId : keys) {
       boolean known =
           subLevelId.equals(LevelMapData.WHOLE_MAP_BACKDROP)
               || map.getSubLevels().stream().anyMatch(subLevel -> subLevel.id().equals(subLevelId));
@@ -256,7 +263,9 @@ public final class MapValidator {
             new Problem(
                 Severity.ERROR,
                 about(name)
-                    + "has a backdrop for sub-level '"
+                    + "has "
+                    + what
+                    + " for sub-level '"
                     + subLevelId
                     + "', which it does not define"));
       }
