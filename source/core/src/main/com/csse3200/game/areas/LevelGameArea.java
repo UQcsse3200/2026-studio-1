@@ -136,16 +136,17 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/enemy_weapons/enemy_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",
-    "images/skeleton_weapons/skeleton_sword.atlas",
+    "images/enemy_weapons/enemy_sword.atlas",
     "images/enemies/ghost.atlas",
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
     "images/enemies/minotaur.atlas",
+    "images/enemies/cerberus.atlas",
     "images/pet.atlas"
   };
 

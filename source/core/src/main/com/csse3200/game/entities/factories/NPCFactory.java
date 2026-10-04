@@ -44,19 +44,16 @@ import java.util.List;
  */
 public class NPCFactory {
   private static final String SKELETON_ATLAS_PATH = "images/enemies/skeleton.atlas";
-  private static final String SKELETON_SWORD_ATLAS_PATH =
-      "images/skeleton_weapons/skeleton_sword.atlas";
-  private static final String SKELETON_BOW_ATLAS_PATH =
-      "images/skeleton_weapons/skeleton_bow.atlas";
+  private static final String SKELETON_SWORD_ATLAS_PATH = "images/enemy_weapons/enemy_sword.atlas";
+  private static final String SKELETON_BOW_ATLAS_PATH = "images/enemy_weapons/enemy_bow.atlas";
   private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
   private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
   private static final String CENTAUR_ATLAS_PATH = "images/enemies/centaur.atlas";
   private static final String CERBERUS_ATLAS_PATH = "images/enemies/cerberus.atlas";
   private static final String MEDUSA_ATLAS_PATH = "images/enemies/medusa.atlas";
   private static final String ZEUS_ATLAS_PATH = "images/enemies/zeus.atlas";
-  // this could be the ranged harpy and the above is the melee one to differentiate
-  // 0on screen but if too hard all g.
-  private static final String HARPY_ATLAS_PATH = "images/enemies/harpy.atlas";
+  // Harpy and ranged harpy both use harpy_y atlas
+  private static final String HARPY_ATLAS_PATH = "images/enemies/harpy_y.atlas";
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
@@ -579,14 +576,11 @@ public class NPCFactory {
 
     InventoryComponent inventory = new InventoryComponent(12);
 
-    // TODO (ART): Cerberus needs her own atlas (idle and attack, left and right; she cannot
-    // walk). Until it exists she borrows the skeleton atlas, animations and controller.
+    // Cerberus uses her own atlas with left and right walking animations
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
-    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(CERBERUS_ATLAS_PATH), true);
+    animator.addAnimation("cerberus_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cerberus_r", 0.1f, Animation.PlayMode.LOOP);
 
     WeaponItem bite = WeaponItem.natural("Cerberus Bite", config.baseAttack, config.melee.windup);
 
@@ -600,15 +594,14 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
-        // TODO (ART): replace with CerberusAnimationController.
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new CerberusAnimationController());
 
     animator.scaleEntity();
     cerberus
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range));
 
-    cerberus.setScale(scale, scale);
+    cerberus.setScale(scale, scale * (96f / 150f));
     PhysicsUtils.setScaledCollider(cerberus, collisionScale.x, collisionScale.y);
     return cerberus;
   }
@@ -708,14 +701,11 @@ public class NPCFactory {
     InventoryComponent inventory = new InventoryComponent(3);
     inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 1));
 
-    // TODO (ART): the Harpy needs its own atlas (flap and attack, left and right). Until it
-    // exists it borrows the skeleton atlas, animations and controller.
+    // Harpy uses harpy_y atlas with left and right movement animations
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
-    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(HARPY_ATLAS_PATH), true);
+    animator.addAnimation("harpy_y_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("harpy_y_r", 0.1f, Animation.PlayMode.LOOP);
 
     harpy
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
@@ -730,15 +720,14 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
-        // TODO (ART): replace with HarpyAnimationController.
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new HarpyAnimationController());
 
     animator.scaleEntity();
     harpy
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range));
 
-    harpy.setScale(scale, scale);
+    harpy.setScale(scale, scale * (25f / 38f));
     PhysicsUtils.setScaledCollider(harpy, collisionScale.x, collisionScale.y);
     return harpy;
   }
@@ -746,8 +735,6 @@ public class NPCFactory {
   /**
    * Creates a ranged Harpy: a flying enemy armed with a tier-1 bow that fires aimed arrows,
    * mirroring the ranged Skeleton. Aimed arrows let it hit a player above or below it.
-   *
-   * <p>PLACEHOLDER BUILD: skeleton atlas and animation controller.
    *
    * @param target entity to chase and shoot; must not be null
    * @return a flying ranged enemy
@@ -765,13 +752,11 @@ public class NPCFactory {
     InventoryComponent inventory = new InventoryComponent(3);
     inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.BOW, 1));
 
-    // TODO (ART): same placeholder atlas as the melee Harpy.
+    // Ranged Harpy uses harpy_y atlas with left and right movement animations
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
-    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(HARPY_ATLAS_PATH), true);
+    animator.addAnimation("harpy_y_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("harpy_y_r", 0.1f, Animation.PlayMode.LOOP);
 
     harpy
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
@@ -786,8 +771,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
-        // TODO (ART): replace with HarpyAnimationController.
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new HarpyAnimationController());
 
     RangedAttackComponent ranged = harpy.getComponent(RangedAttackComponent.class);
     ranged.setProjectileSpeed(config.ranged.projectileSpeed);
@@ -800,7 +784,7 @@ public class NPCFactory {
             new RangedAttackTask(
                 target, MELEE_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW));
 
-    harpy.setScale(scale, scale);
+    harpy.setScale(scale, scale * (25f / 38f));
     PhysicsUtils.setScaledCollider(harpy, collisionScale.x, collisionScale.y);
     return harpy;
   }
