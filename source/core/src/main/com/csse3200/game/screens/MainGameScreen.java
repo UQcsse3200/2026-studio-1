@@ -211,23 +211,34 @@ public class MainGameScreen extends ScreenAdapter {
     return new HashMap<>(lootSeedsByRoom);
   }
 
-  /**
-   * Respawns the player in the current room after death.
-   *
-   * <p>The existing LevelGameArea is kept alive so that loot dropped by the dead player remains in
-   * the world. A completely new player is created by LevelGameArea rather than restoring the dead
-   * player's inventory.
-   */
+  /** Respawns the player at the beginning of the level-one dungeon after death. */
   private void revivePlayer() {
-    logger.info("Reviving player in current room '{}'", currentRoomMapPath);
+    logger.info("Reviving player at the start of '{}'", FIRST_ROOM_MAP);
 
     /*
-     * Create a completely fresh player through LevelGameArea.
-     *
-     * This removes the old dead player from the area and creates a
-     * brand-new player through PlayerFactory.
+     * Rebuild level one without retaining the dead player. This creates a completely fresh player
+     * through PlayerFactory at the dungeon spawn and prevents the current or most recently
+     * debug-teleported room from becoming the death respawn location.
      */
-    Entity newPlayer = levelGameArea.respawnPlayer();
+    LevelGameArea previousArea = levelGameArea;
+    removeSubLevelTravelPrompt();
+
+    Long savedSeed = lootSeedsByRoom.get(FIRST_ROOM_MAP);
+    LevelGameArea respawnArea =
+        savedSeed != null
+            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed)
+            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
+
+    respawnArea.create();
+    lootSeedsByRoom.put(FIRST_ROOM_MAP, respawnArea.getLootSeed());
+
+    previousArea.dispose();
+    respawnArea.resumeMusic();
+
+    levelGameArea = respawnArea;
+    currentRoomMapPath = FIRST_ROOM_MAP;
+
+    Entity newPlayer = respawnArea.getPlayer();
 
     /*
      * DeathStateComponent freezes the whole game (timeScale = 0f) when the
@@ -261,14 +272,8 @@ public class MainGameScreen extends ScreenAdapter {
     ServiceLocator.getEntityService()
         .register(new Entity().addComponent(new SubLevelTitleDisplay(newPlayer)));
 
-    /*
-     * Recreate the travel prompt so it references the new player.
-     */
-    removeSubLevelTravelPrompt();
-
-    LevelView level = levelGameArea.getLevel();
-
-    if (level != null && !level.subLevels().isEmpty()) {
+    /* Recreate the travel prompt so it references the new player. */
+    if (!respawnArea.getLevel().subLevels().isEmpty()) {
       createSubLevelTravelPrompt(newPlayer);
     }
 
@@ -287,7 +292,7 @@ public class MainGameScreen extends ScreenAdapter {
     /*
      * Put the camera back onto the newly-created player.
      */
-    fitCameraToMap(levelGameArea);
+    fitCameraToMap(respawnArea);
 
     logger.info("Player revived successfully");
   }
@@ -462,6 +467,10 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   private void transitionTo(RoomTransition transition) {
+    transitionTo(transition, true);
+  }
+
+  private void transitionTo(RoomTransition transition, boolean saveCheckpoint) {
 
     logger.info(
         "Entering '{}' through transition '{}'",
@@ -496,7 +505,9 @@ public class MainGameScreen extends ScreenAdapter {
 
     currentRoomMapPath = transition.getDestinationMap();
 
-    pauseMenuActions.saveCheckpoint();
+    if (saveCheckpoint) {
+      pauseMenuActions.saveCheckpoint();
+    }
 
     playerInNether = null;
 
@@ -510,11 +521,11 @@ public class MainGameScreen extends ScreenAdapter {
     fitCameraToMap(nextArea);
   }
 
-  /** Loads a debug destination through the same state-preserving path as a room transition. */
+  /** Loads a debug destination while retaining player state without changing normal progression. */
   private void debugTeleport(String mapPath, GridPoint2 spawn) {
     RoomTransition debugTransition =
         new RoomTransition("debug-teleport", new GridPoint2(0, 0), 1, 1, null, mapPath, spawn);
-    transitionTo(debugTransition);
+    transitionTo(debugTransition, false);
 
     Entity player = levelGameArea.getPlayer();
     LevelView level = levelGameArea.getLevel();
