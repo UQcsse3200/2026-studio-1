@@ -1,8 +1,6 @@
 package com.csse3200.game.areas;
 
-import box2dLight.PointLight;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -51,7 +49,6 @@ import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.MapBackgroundRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
-import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -240,13 +237,6 @@ public class LevelGameArea extends GameArea {
     spawnLoot();
     spawnTravelerNPC();
     playMusic();
-
-    LightService ls = ServiceLocator.getLightService();
-    ls.setAmbient(new Color(0.15f, 0.15f, 0.25f, 1f), 0.25f);
-
-    Vector2 p = player.getCenterPosition();
-    PointLight test = new PointLight(ls.getRayHandler(), 32, Color.ORANGE, 4f, p.x, p.y);
-    test.setXray(true);
   }
 
   /**
