@@ -16,11 +16,14 @@ class LevelGameAreaSpawnEnemyTest {
 
   @Test
   void spawnNullEnemyAtNullPosition() {
-    MockedStatic<EntitySpawnRegistry> mockSpawnRegistry = mockStatic(EntitySpawnRegistry.class);
-    when(EntitySpawnRegistry.create(eq(null), any())).thenReturn(null);
-    LevelGameArea levelGameArea = new LevelGameArea(new TerrainFactory(new CameraComponent()), "");
-    boolean spawned = levelGameArea.spawnEnemy(null, null);
-    assertFalse(spawned);
-    mockSpawnRegistry.verify(() -> EntitySpawnRegistry.create(eq(null), any()));
+    try (MockedStatic<EntitySpawnRegistry> mockSpawnRegistry =
+        mockStatic(EntitySpawnRegistry.class)) {
+      when(EntitySpawnRegistry.create(eq(null), any())).thenReturn(null);
+      LevelGameArea levelGameArea =
+          new LevelGameArea(new TerrainFactory(new CameraComponent()), "");
+      boolean spawned = levelGameArea.spawnEnemy(null, null);
+      assertFalse(spawned);
+      mockSpawnRegistry.verify(() -> EntitySpawnRegistry.create(eq(null), any()));
+    }
   }
 }
