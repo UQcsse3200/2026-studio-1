@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.PlayerActions;
+import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.ui.UIComponent;
@@ -121,7 +122,10 @@ public class UpgradesDisplay extends UIComponent {
       return;
     }
 
-    int healAmount = REGEN_HEAL_PER_KILL_PER_TIER[regenOnKill.getCurrentTier() - 1];
+    int healAmount =
+        Math.round(
+            REGEN_HEAL_PER_KILL_PER_TIER[regenOnKill.getCurrentTier() - 1]
+                * DifficultyService.getCurrent().getRegenHealMultiplier());
 
     CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
 
