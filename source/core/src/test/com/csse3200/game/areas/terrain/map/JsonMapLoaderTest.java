@@ -441,7 +441,9 @@ class JsonMapLoaderTest {
     // the list
     List<SpawnPoint> enemyList = levelOne.getSpawns().getEnemies();
     assertFalse(enemyList.isEmpty(), "Level 1 lists no enemies.");
+    int count = 0;
     for (SpawnPoint enemySpawn : enemyList) {
+      count++;
       assertTrue(
           enemySpawn.getX() > 0 && enemySpawn.getX() < (levelOne.getWidth() - 1),
           "Enemies must spawn in x coordinates between 0 and "
@@ -450,14 +452,19 @@ class JsonMapLoaderTest {
               + enemySpawn.getX());
       assertTrue(
           enemySpawn.getY() > 0 && enemySpawn.getY() < (levelOne.getHeight() - 1),
-          "Enemies must spawn in x coordinates between 0 and "
+          "Enemies must spawn in y coordinates between 0 and "
               + (levelOne.getHeight() - 1)
               + " but current enemy spawn x coordinate is at "
               + enemySpawn.getY());
     }
-
-    assertEquals(19, levelOne.getSpawns().getEnemies().size());
-
+    assertEquals(
+        enemyList.size(),
+        count,
+        "There should be "
+            + enemyList.size()
+            + " enemies spawned in the level 1 map, but there are actually "
+            + count
+            + " enemies spawned on the map.");
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
     // Transparent ladders and ledges must render over a background rather than the clear colour.
     assertNotNull(levelOne.getLayer("background"));
