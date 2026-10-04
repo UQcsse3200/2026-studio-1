@@ -265,5 +265,4 @@ class RangedAttackEventContractTest {
    */
   @Test
   void rangedAttackTaskFiresTheEventWithTheTargetAndAProjectileType() {}
-
 }
