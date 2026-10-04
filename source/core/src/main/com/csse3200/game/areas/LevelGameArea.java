@@ -44,6 +44,7 @@ import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -99,12 +100,18 @@ public class LevelGameArea extends GameArea {
     "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
+    "images/enemies/ghost_king.png",
+    "images/enemies/ghost_1.png",
     "images/items/sword.png",
-    "images/items/axe.png",
+    "images/items/sword_t2.png",
+    "images/items/sword_t3.png",
+    "images/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
-    "images/enemies/lightning.png",
+    "images/items/axe.png",
     "images/dagger.png",
+    "images/enemies/lightning.png",
+    "images/items/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
     "images/ui/Strength.png",
@@ -133,6 +140,8 @@ public class LevelGameArea extends GameArea {
     "images/knight.atlas",
     "images/LeftKnight.atlas",
     "images/skeleton_weapons/skeleton_sword.atlas",
+    "images/enemies/ghost.atlas",
+    "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
@@ -140,7 +149,7 @@ public class LevelGameArea extends GameArea {
     "images/pet.atlas"
   };
 
-  private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
+  private static final String BACKGROUND_MUSIC = "sounds/dungeon.mp3";
   private static final String[] entityMusic = {BACKGROUND_MUSIC};
 
   private final TerrainFactory terrainFactory;
@@ -269,6 +278,22 @@ public class LevelGameArea extends GameArea {
    * @return the spawned player entity, or null before {@link #create()} runs
    */
   public Entity getPlayer() {
+    return player;
+  }
+
+  /**
+   * Creates a completely new player in the current room after player death.
+   *
+   * @return the newly-created player entity
+   */
+  public Entity respawnPlayer() {
+    if (player != null) {
+      areaEntities.remove(player);
+      ServiceLocator.getEntityService().unregister(player);
+      player.dispose();
+    }
+
+    player = spawnPlayer();
     return player;
   }
 
@@ -664,6 +689,24 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * Creates a new enemy at the given world position, primarily used for debugging purposes.
+   *
+   * @param type The spawn name from the map
+   * @param position the world position to spawn the enemy at
+   * @return true if the spawn succeeds, false otherwise.
+   */
+  public boolean spawnEnemy(String type, Vector2 position) {
+    Entity enemy = createEnemy(type);
+    if (enemy == null || position == null) {
+      logger.debug("Invalid spawn of type '{}' at position {}", type, position);
+      return false;
+    }
+    enemy.setPosition(position);
+    spawnEntity(enemy);
+    return true;
+  }
+
+  /**
    * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
    * features work in this level.
    *
@@ -771,7 +814,7 @@ public class LevelGameArea extends GameArea {
   private void playMusic() {
     Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
     music.setLooping(true);
-    music.setVolume(0.3f);
+    music.setVolume(AudioSettings.getEffectiveMusicVolume());
     music.play();
   }
 

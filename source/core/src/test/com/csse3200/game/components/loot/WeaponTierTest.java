@@ -25,15 +25,15 @@ public class WeaponTierTest {
     WeaponStats tier3 = WeaponTier.TIER_3.getStats(WeaponType.BOW);
 
     assertEquals(7, tier1.getDamage());
-    assertEquals(14, tier2.getDamage());
-    assertEquals(21, tier3.getDamage());
+    assertEquals(4, tier2.getDamage());
+    assertEquals(3, tier3.getDamage());
   }
 
   @Test
   void shouldReturnCorrectTierNumbers() {
-    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.SWORD).getTier());
-    assertEquals(2, WeaponTier.TIER_2.getStats(WeaponType.SWORD).getTier());
-    assertEquals(3, WeaponTier.TIER_3.getStats(WeaponType.SWORD).getTier());
+    assertEquals(1, WeaponTier.TIER_1.getTier());
+    assertEquals(2, WeaponTier.TIER_2.getTier());
+    assertEquals(3, WeaponTier.TIER_3.getTier());
   }
 
   @Test
@@ -111,5 +111,20 @@ public class WeaponTierTest {
   void shouldRejectNaturalWeaponType() {
     assertThrows(
         IllegalArgumentException.class, () -> WeaponTier.TIER_1.getStats(WeaponType.NATURAL));
+  }
+
+  @Test
+  void shouldReturnCorrectProjectileCountForEachTier() {
+    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.SWORD).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.BOW).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_1.getStats(WeaponType.DAGGER).getProjectileCount());
+
+    assertEquals(1, WeaponTier.TIER_2.getStats(WeaponType.SWORD).getProjectileCount());
+    assertEquals(5, WeaponTier.TIER_2.getStats(WeaponType.BOW).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_2.getStats(WeaponType.DAGGER).getProjectileCount());
+
+    assertEquals(1, WeaponTier.TIER_3.getStats(WeaponType.SWORD).getProjectileCount());
+    assertEquals(10, WeaponTier.TIER_3.getStats(WeaponType.BOW).getProjectileCount());
+    assertEquals(1, WeaponTier.TIER_3.getStats(WeaponType.DAGGER).getProjectileCount());
   }
 }

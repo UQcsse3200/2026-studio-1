@@ -34,7 +34,7 @@ public final class DefaultEntitySpawns {
     // Enemy team.
     EntitySpawnRegistry.registerIfAbsent("skeleton", NPCFactory::createSkeleton);
     EntitySpawnRegistry.registerIfAbsent("enemy-skeleton-hoplite", NPCFactory::createSkeleton);
-    EntitySpawnRegistry.registerIfAbsent("rangedskeleton", NPCFactory::createRangedSkeleton);
+    EntitySpawnRegistry.registerIfAbsent("ranged-skeleton", NPCFactory::createRangedSkeleton);
     EntitySpawnRegistry.registerIfAbsent("ranged-skeleton", NPCFactory::createRangedSkeleton);
     EntitySpawnRegistry.registerIfAbsent("cyclops", NPCFactory::createCyclops);
     EntitySpawnRegistry.registerIfAbsent("minotaur", NPCFactory::createMinotaur);

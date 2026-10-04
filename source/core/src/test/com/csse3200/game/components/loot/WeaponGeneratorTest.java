@@ -80,13 +80,18 @@ class WeaponGeneratorTest {
     assertEquals(1f, generator.generateWeapon(WeaponType.DAGGER, 1).getWindupDuration());
   }
 
-  // Damage scales linearly with tier for Bow and Dagger too, not just Sword.
+  // Dagger damage per hit scales up with tier. Bow damage per arrow scales down with tier
+  // instead, since its projectile count increases - see WeaponTierTest for the combined
+  // total-damage-per-attack comparison across tiers.
   @Test
-  void shouldIncreaseDamageForHigherTierAcrossWeaponTypes() {
+  void shouldScaleDamagePerHitAcrossWeaponTypes() {
     WeaponGenerator generator = new WeaponGenerator();
 
     assertEquals(7, generator.generateWeapon(WeaponType.BOW, 1).getDamage());
-    assertEquals(14, generator.generateWeapon(WeaponType.BOW, 2).getDamage());
+    assertEquals(
+        20,
+        generator.generateWeapon(WeaponType.BOW, 2).getDamage()
+            * generator.generateWeapon(WeaponType.BOW, 2).getProjectileCount());
     assertEquals(3, generator.generateWeapon(WeaponType.DAGGER, 1).getDamage());
     assertEquals(6, generator.generateWeapon(WeaponType.DAGGER, 2).getDamage());
   }

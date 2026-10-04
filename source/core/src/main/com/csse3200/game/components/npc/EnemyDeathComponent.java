@@ -1,6 +1,7 @@
 package com.csse3200.game.components.npc;
 
 import com.badlogic.gdx.Gdx;
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
@@ -25,6 +26,7 @@ public class EnemyDeathComponent extends Component {
           "Enemy: {} already died.", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
       return;
     }
+    Quest.incrementGlobalEnemiesKilled();
 
     ItemDropComponent dropper = entity.getComponent(ItemDropComponent.class);
     if (dropper != null) {

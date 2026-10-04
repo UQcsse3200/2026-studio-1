@@ -20,22 +20,39 @@ import com.csse3200.game.rendering.TextureRenderComponent;
 public class ArrowFactory {
 
   /**
-   * Creates a purely cosmetic arrow with no physics or collision, used by the player's bow weapon
-   * (see {@link com.csse3200.game.components.player.WeaponAttackComponent}). Kept separate from
-   * {@link #createRangedArrow} below - which enemies use, and which does have real physics-based
-   * collision - since the two have different requirements entirely.
+   * Creates a player arrow that travels in a straight line and hits enemies or obstacles. Kept
+   * separate from {@link #createRangedArrow} below because player arrows route damage through the
+   * player's combat stats.
    */
   public static Entity createArrow(Vector2 position, Vector2 direction, int damage, Entity owner) {
+    if (position == null || direction == null || direction.isZero() || owner == null) {
+      throw new IllegalArgumentException("Arrow position, direction, and owner must be valid.");
+    }
+
+    Vector2 normalizedDirection = direction.cpy().nor();
+    float arrowWidth = 0.5f;
+    float arrowHeight = 0.2f;
+    Vector2 spawnCenter =
+        position
+            .cpy()
+            .mulAdd(normalizedDirection, owner.getScale().x / 2f + arrowWidth / 2f + 0.02f);
+
+    TextureRenderComponent renderer = new TextureRenderComponent("images/items/arrow.png");
+    renderer.setRotationDegrees(normalizedDirection.angleDeg());
+
     Entity arrow =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
-            .addComponent(new PhysicsComponent())
-            .addComponent(new HitboxComponent())
-            .addComponent(new ArrowMovementComponent(direction))
+            .addComponent(renderer)
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
+            .addComponent(
+                new HitboxComponent()
+                    .setLayer(PhysicsLayer.DEFAULT)
+                    .setMask((short) (PhysicsLayer.NPC | PhysicsLayer.OBSTACLE)))
+            .addComponent(new ArrowMovementComponent(normalizedDirection))
             .addComponent(new PlayerProjectileHitComponent(damage, owner));
 
-    arrow.setPosition(position);
-    arrow.setScale(0.5f, 0.2f);
+    arrow.setScale(arrowWidth, arrowHeight);
+    arrow.setPosition(spawnCenter.x - arrowWidth / 2f, spawnCenter.y - arrowHeight / 2f);
 
     return arrow;
   }

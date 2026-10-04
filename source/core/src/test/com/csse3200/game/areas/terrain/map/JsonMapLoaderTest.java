@@ -436,7 +436,7 @@ class JsonMapLoaderTest {
     assertEquals(56, levelOne.getWidth());
     assertEquals(64, levelOne.getHeight());
     assertEquals(new GridPoint2(3, 3), levelOne.getSpawns().getPlayer());
-    assertEquals(18, levelOne.getSpawns().getEnemies().size());
+    assertEquals(19, levelOne.getSpawns().getEnemies().size());
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
     // Transparent ladders and ledges must render over a background rather than the clear colour.
     assertNotNull(levelOne.getLayer("background"));

@@ -11,20 +11,21 @@ import java.util.function.Supplier;
  * Picks a random item from a weighted list of potions and weapons.
  *
  * <p>Each entry has a weight, and an entry is chosen with a probability of its weight over the
- * total weight of the table. Rarity is therefore just a smaller weight: the standard table built by
- * {@link #createDefault(long)} gives tier 1 a weight of 60, tier 2 a weight of 30 and tier 3 a
- * weight of 10, so a tier 3 item turns up roughly once every ten rolls.
+ * total weight of the table. Rarity is therefore just a smaller weight: in the standard table built
+ * by {@link #createDefault(long)}, each weapon tier uses the loot weight declared in {@link
+ * WeaponTier} (currently 60, 30 and 10), so a tier 3 weapon turns up roughly once every ten
+ * weapons.
  *
  * <p>The random numbers come from a seeded {@link Random}, so the same seed always produces the
  * same run. That makes a bug found while playing reproducible instead of a one-off.
- *
- * <p>The tier weights here are a placeholder until the weapon tier system lands; once tier values
- * are published, {@link #createDefault(long)} should be built from those instead of the constants
- * in this class.
  */
 public class LootTable {
-  /** Weight of each tier in the standard table, from tier 1 upwards. */
-  private static final int[] DEFAULT_TIER_WEIGHTS = {60, 30, 10};
+  /**
+   * Weight of each potion tier in the standard table, from tier 1 upwards. Potions keep their own
+   * weights because their strength is scaled by {@link ConsumableGenerator}, not by {@link
+   * WeaponTier}, so a new weapon tier should not also create a new potion tier.
+   */
+  private static final int[] POTION_TIER_WEIGHTS = {60, 30, 10};
 
   /**
    * Weight of the shield entry in the standard table. Shields have no tiers, so this sits alongside
@@ -59,8 +60,11 @@ public class LootTable {
   }
 
   /**
-   * Builds the standard loot table: every potion and every weapon, at tiers 1 to 3, with higher
-   * tiers weighted to be rarer.
+   * Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every {@link
+   * WeaponTier}, and the shield. Higher tiers are weighted to be rarer.
+   *
+   * <p>Weapons are built straight from {@link WeaponType} and {@link WeaponTier}, so a new weapon
+   * type or a new tier added there shows up in the loot table without any change here.
    *
    * @param seed seed for the table's random number generator
    * @return a table ready to roll
@@ -68,13 +72,16 @@ public class LootTable {
   public static LootTable createDefault(long seed) {
     LootTable table = new LootTable(seed);
 
-    for (int tier = 1; tier <= DEFAULT_TIER_WEIGHTS.length; tier++) {
-      int weight = DEFAULT_TIER_WEIGHTS[tier - 1];
-
+    for (int tier = 1; tier <= POTION_TIER_WEIGHTS.length; tier++) {
+      int weight = POTION_TIER_WEIGHTS[tier - 1];
       for (ConsumableType type : ConsumableType.values()) {
         table.addConsumable(type, tier, weight);
       }
-
+    }
+    // The tier system owns weapon rarity: each tier declares its own loot weight.
+    for (WeaponTier weaponTier : WeaponTier.values()) {
+      int weight = weaponTier.getLootWeight();
+      int tier = weaponTier.getTier();
       for (WeaponType type : WeaponType.values()) {
         table.addWeapon(type, tier, weight);
       }

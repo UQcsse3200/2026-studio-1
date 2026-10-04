@@ -23,6 +23,9 @@ public class WeaponRenderComponent extends RenderComponent {
   private static final float DAGGER_WIDTH = 0.25f;
   private static final float DAGGER_HEIGHT = 0.5f;
 
+  private static final float AXE_WIDTH = 0.385f;
+  private static final float AXE_HEIGHT = 0.9f;
+
   private static final float SWING_DURATION = 0.3f;
 
   private static final float WALK_BOB_SPEED = 10f;
@@ -40,6 +43,7 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private Texture texture;
   private boolean isBow;
+  private boolean isAxe;
   private final Vector2 handAnchor = new Vector2();
   private final Vector2 aimDirection = new Vector2(1f, 0f);
 
@@ -59,6 +63,7 @@ public class WeaponRenderComponent extends RenderComponent {
   public WeaponRenderComponent() {
     texture = null;
     isBow = false;
+    isAxe = false;
   }
 
   @Override
@@ -66,7 +71,7 @@ public class WeaponRenderComponent extends RenderComponent {
     super.create();
 
     previousPosition.set(entity.getPosition());
-
+    entity.getEvents().addListener("axeAttack", this::startSwing);
     entity.getEvents().addListener("swordAttack", this::startSwing);
     entity.getEvents().addListener("weaponAttack", this::handleWeaponAttack);
     entity.getEvents().addListener("walk", this::updateFacing);
@@ -87,19 +92,28 @@ public class WeaponRenderComponent extends RenderComponent {
     if (!(item instanceof WeaponItem weaponItem)) {
       texture = null;
       isBow = false;
+      isAxe = false;
       return;
     }
 
     if (weaponItem.getWeaponType() == WeaponType.BOW) {
       texture = ServiceLocator.getResourceService().getAsset("images/items/bow.png", Texture.class);
       isBow = true;
+      isAxe = false;
     } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
-      texture = ServiceLocator.getResourceService().getAsset("images/dagger.png", Texture.class);
+      texture =
+          ServiceLocator.getResourceService().getAsset("images/items/dagger.png", Texture.class);
       isBow = false;
+      isAxe = false;
+    } else if (weaponItem.getWeaponType() == WeaponType.AXE) {
+      texture = ServiceLocator.getResourceService().getAsset("images/items/axe.png", Texture.class);
+      isBow = false;
+      isAxe = true;
     } else {
       texture =
           ServiceLocator.getResourceService().getAsset("images/items/sword.png", Texture.class);
       isBow = false;
+      isAxe = false;
     }
   }
 
@@ -295,6 +309,10 @@ public class WeaponRenderComponent extends RenderComponent {
       return DAGGER_WIDTH;
     }
 
+    if (isAxe) {
+      return AXE_WIDTH;
+    }
+
     return SWORD_WIDTH;
   }
 
@@ -305,6 +323,10 @@ public class WeaponRenderComponent extends RenderComponent {
 
     if (isDagger) {
       return DAGGER_HEIGHT;
+    }
+
+    if (isAxe) {
+      return AXE_HEIGHT;
     }
 
     return SWORD_HEIGHT;

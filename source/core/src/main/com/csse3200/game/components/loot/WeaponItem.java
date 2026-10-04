@@ -8,7 +8,21 @@ public class WeaponItem extends Item {
   /* Delay, in seconds, between commit and resolve - matches the welder's swing animation.
    * Defaults to 0 if omitted. */
   private float windupDuration;
+  private int projectileCount;
 
+  /**
+   * Creates the weapon item that is tiered with the damage, attack speed, knockback, range and
+   * projectile count.
+   *
+   * @param name of weapon item
+   * @param weaponType of weapon, listed in {@link WeaponType}
+   * @param damage value of attack for the weapon which isn't tiered.
+   * @param quantity number of items in the stack
+   * @param maxQuantity max number of weapons that can be equipped in the stack
+   * @param windupDuration duration needed for the animations to configure with the weapon
+   * @throws IllegalArgumentException when {@link WeaponTier} are null or parameter damage is less
+   *     or equal to 0
+   */
   public WeaponItem(
       String name,
       WeaponType weaponType,
@@ -21,7 +35,6 @@ public class WeaponItem extends Item {
     if (weaponType == null) {
       throw new IllegalArgumentException("WeaponType must not be null.");
     }
-
     if (damage <= 0) {
       throw new IllegalArgumentException("Damage must be greater than zero.");
     }
@@ -31,6 +44,15 @@ public class WeaponItem extends Item {
     this.windupDuration = windupDuration;
   }
 
+  /**
+   * Creates the weapon item that is defaulted to no tiered value, only configured damage
+   *
+   * @param name of weapon item
+   * @param weaponType of weapon, listed in {@link WeaponType}
+   * @param quantity number of items in the stack
+   * @param maxQuantity max number of weapons that can be equipped in the stack
+   * @throws IllegalArgumentException when {@link WeaponTier} or {@link WeaponType} are null
+   */
   public WeaponItem(String name, WeaponType weaponType, int damage, int quantity, int maxQuantity) {
     super(name, ItemType.WEAPON, quantity, maxQuantity);
     if (weaponType == null) {
@@ -45,6 +67,19 @@ public class WeaponItem extends Item {
     this.damage = damage;
   }
 
+  /**
+   * Creates the weapon item that is tiered with the damage, attack speed, knockback, range and
+   * projectile count.
+   *
+   * @param name of weapon item
+   * @param weaponType of weapon, listed in {@link WeaponType}
+   * @param weaponTier listed values of set parameters outside of the given ones that are consistent
+   *     for any weapon and
+   * @param quantity number of items in the stack
+   * @param maxQuantity max number of weapons that can be equipped in the stack
+   * @param windupDuration duration needed for the animations to configure with the weapon
+   * @throws IllegalArgumentException when {@link WeaponTier} or {@link WeaponType} are null
+   */
   public WeaponItem(
       String name,
       WeaponType weaponType,
@@ -64,10 +99,11 @@ public class WeaponItem extends Item {
     }
 
     this.weaponType = weaponType;
-    this.tier = weaponTier.getStats(weaponType).getTier();
+    this.tier = weaponTier.getTier();
     this.weaponStats = weaponTier.getStats(weaponType);
     this.damage = weaponStats.getDamage();
     this.windupDuration = windupDuration;
+    this.projectileCount = weaponTier.getStats(weaponType).getProjectileCount();
   }
 
   /**
@@ -114,14 +150,13 @@ public class WeaponItem extends Item {
   }
 
   public int getTier() {
-    return tier;
+    return this.tier;
   }
 
   public float getAttackSpeed() {
     if (weaponStats != null) {
       return weaponStats.getAttackSpeed();
     }
-
     return 0f;
   }
 
@@ -129,7 +164,6 @@ public class WeaponItem extends Item {
     if (weaponStats != null) {
       return weaponStats.getKnockback();
     }
-
     return 0f;
   }
 
@@ -137,7 +171,10 @@ public class WeaponItem extends Item {
     if (weaponStats != null) {
       return weaponStats.getRange();
     }
-
     return 0f;
+  }
+
+  public int getProjectileCount() {
+    return this.projectileCount;
   }
 }

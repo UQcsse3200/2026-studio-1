@@ -17,6 +17,9 @@ public class ChargeAttackConfig {
   /* Seconds a single charge lasts once started */
   public float duration = 4;
 
+  /* Seconds the entity remains stationary winding up before moving fast */
+  public float windupDuration = 0f;
+
   /* Minimum seconds between the end of one charge and the start of the next */
   public float cooldown = 3;
 

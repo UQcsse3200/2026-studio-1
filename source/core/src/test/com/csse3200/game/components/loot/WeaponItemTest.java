@@ -28,7 +28,7 @@ class WeaponItemTest {
     assertEquals(ItemType.WEAPON, bow.getItemType());
     assertEquals(WeaponType.BOW, bow.getWeaponType());
     assertEquals(3, bow.getWindupDuration());
-    assertEquals(21, bow.getDamage());
+    assertEquals(3, bow.getDamage());
   }
 
   @Test
