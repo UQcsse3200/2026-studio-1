@@ -201,7 +201,7 @@ public class NPCFactory {
    */
   public static Entity createMinotaur(Entity target) {
     float scale = 4.0f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.7f);
+    Vector2 collisionScale = new Vector2(0.8f, 0.7f);
     Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     MinotaurConfig config = configs.minotaur;
 
@@ -211,7 +211,9 @@ public class NPCFactory {
     List<Item> items = new ArrayList<>();
 
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    items.add(weaponGenerator.generateWeapon(WeaponType.AXE, 2));
+    WeaponItem weapon = weaponGenerator.generateWeapon(WeaponType.AXE, 2);
+    weapon.setWindupDuration(0f);
+    items.add(weapon);
     for (Item item : items) {
       inventory.addItem(item);
     }
@@ -364,7 +366,7 @@ public class NPCFactory {
    * @return Cyclops entity as a mini boss enemy
    */
   public static Entity createCyclops(Entity target) {
-    float scale = 4.0f;
+    float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CyclopsConfig config = configs.cyclops;

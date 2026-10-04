@@ -141,7 +141,7 @@ class LootTableTest {
 
     for (WeaponType type : WeaponType.values()) {
       for (WeaponTier weaponTier : WeaponTier.values()) {
-        String key = type + " tier " + weaponTier.getStats(type).getTier();
+        String key = type + " tier " + weaponTier.getTier();
         assertTrue(found.contains(key), key + " should be obtainable from the default loot table");
       }
     }

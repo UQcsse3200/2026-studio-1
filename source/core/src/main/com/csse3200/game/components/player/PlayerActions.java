@@ -5,7 +5,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.World;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
@@ -34,17 +33,13 @@ import org.slf4j.LoggerFactory;
  */
 public class PlayerActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
+
+  // Thank you Lachlan, you beautiful, beautiful man
   private static final Vector2 MAX_SPEED = new Vector2(30f, 10f);
   private static final float SlideMaxTime = 0.5f;
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
-  private static final float SPECIAL_ATTACK_COOLDOWN = 3f;
-  private static final int SPECIAL_ATTACK_DAMAGE_MULTIPLIER = 3;
-  private static final float AREA_ATTACK_COOLDOWN = 5f;
-  private static final float AREA_ATTACK_RADIUS = 2f;
-  private static final int AREA_ATTACK_DAMAGE_MULTIPLIER = 2;
+
   private float attackCooldownRemaining = 0f;
-  private float specialAttackCooldownRemaining = 0f;
-  private float areaAttackCooldownRemaining = 0f;
   private float attackCooldownMultiplier = 1f;
 
   private PhysicsComponent physicsComponent;
@@ -108,8 +103,6 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
-    entity.getEvents().addListener("specialAttack", this::specialAttack);
-    entity.getEvents().addListener("areaAttack", this::areaAttack);
 
     // Existing movement features
     entity.getEvents().addListener("dash", this::dash);
@@ -135,15 +128,6 @@ public class PlayerActions extends Component {
     if (attackCooldownRemaining > 0f) {
       attackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
       attackCooldownRemaining = Math.max(0f, attackCooldownRemaining);
-    }
-    if (specialAttackCooldownRemaining > 0f) {
-      specialAttackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
-      specialAttackCooldownRemaining = Math.max(0f, specialAttackCooldownRemaining);
-    }
-
-    if (areaAttackCooldownRemaining > 0f) {
-      areaAttackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
-      areaAttackCooldownRemaining = Math.max(0f, areaAttackCooldownRemaining);
     }
 
     frozen = getEffectiveSpeedMultiplier() == 0;
@@ -337,35 +321,24 @@ public class PlayerActions extends Component {
   }
 
   /**
-   * @return remaining cooldown in seconds for the F-key special attack
-   */
-  public float getSpecialAttackCooldownRemaining() {
-    return specialAttackCooldownRemaining;
-  }
-
-  /**
-   * @return remaining cooldown in seconds for the G-key area attack
-   */
-  public float getAreaAttackCooldownRemaining() {
-    return areaAttackCooldownRemaining;
-  }
-
-  /**
    * Moves the player towards a given direction.
    *
    * @param direction direction to move in
    */
   void walk(Vector2 direction) {
-    System.out.println(
-        "PLAYER ACTIONS WALK entity="
-            + entity.getId()
-            + " direction="
-            + direction
-            + " dead="
-            + dead);
-
     if (dead || frozen) {
-      System.out.println("PLAYER ACTIONS WALK BLOCKED entity=" + entity.getId() + " reason=dead");
+      System.out.println(
+          "PLAYER ACTIONS WALK entity="
+              + entity.getId()
+              + " direction="
+              + direction
+              + " dead="
+              + dead);
+
+      if (dead) {
+        System.out.println("PLAYER ACTIONS WALK BLOCKED entity=" + entity.getId() + " reason=dead");
+        return;
+      }
       return;
     }
 
@@ -430,114 +403,6 @@ public class PlayerActions extends Component {
     entity.getEvents().trigger("weaponAttack");
 
     attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
-  }
-
-  /** Hits the nearest enemy in melee range for three times the player's base attack. */
-  void specialAttack() {
-    if (dead
-        || specialAttackCooldownRemaining > 0f
-        || staminaComponent == null
-        || combatStats == null
-        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
-      return;
-    }
-
-    Entity target = getNearestEnemyInRange();
-    if (target == null) {
-      return;
-    }
-
-    staminaComponent.useStamina(staminaComponent.getAttackCost());
-    int damage =
-        (int)
-            Math.min(
-                (long) combatStats.getBaseAttack() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
-                Integer.MAX_VALUE);
-    target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
-    entity.getEvents().trigger("specialAttackHit", target);
-    specialAttackCooldownRemaining = SPECIAL_ATTACK_COOLDOWN;
-  }
-
-  private Entity getNearestEnemyInRange() {
-    Entity nearestEnemy = null;
-    float nearestDistanceSquared = Float.MAX_VALUE;
-    Vector2 playerPosition = entity.getPosition();
-
-    for (Entity enemy : enemiesInRange) {
-      if (enemy.getComponent(CombatStatsComponent.class) == null) {
-        continue;
-      }
-
-      float distanceSquared = playerPosition.dst2(enemy.getPosition());
-      if (distanceSquared < nearestDistanceSquared) {
-        nearestEnemy = enemy;
-        nearestDistanceSquared = distanceSquared;
-      }
-    }
-
-    return nearestEnemy;
-  }
-
-  /** Hits every enemy within the player's area-attack radius for twice the base attack. */
-  void areaAttack() {
-    if (dead
-        || areaAttackCooldownRemaining > 0f
-        || staminaComponent == null
-        || combatStats == null
-        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
-      return;
-    }
-
-    Set<Entity> targets = getEnemiesInAreaAttackRange();
-    if (targets.isEmpty()) {
-      return;
-    }
-
-    staminaComponent.useStamina(staminaComponent.getAttackCost());
-    entity.getEvents().trigger("areaAttackStarted");
-    int damage =
-        (int)
-            Math.min(
-                (long) combatStats.getBaseAttack() * AREA_ATTACK_DAMAGE_MULTIPLIER,
-                Integer.MAX_VALUE);
-    for (Entity target : targets) {
-      target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
-      entity.getEvents().trigger("areaAttackHit", target);
-    }
-    areaAttackCooldownRemaining = AREA_ATTACK_COOLDOWN;
-  }
-
-  private Set<Entity> getEnemiesInAreaAttackRange() {
-    World world = ServiceLocator.getPhysicsService().getPhysics().getWorld();
-    Vector2 center = entity.getCenterPosition();
-    float radiusSquared = AREA_ATTACK_RADIUS * AREA_ATTACK_RADIUS;
-    Set<Entity> targets = new HashSet<>();
-
-    world.QueryAABB(
-        fixture -> {
-          if (!PhysicsLayer.contains(PhysicsLayer.NPC, fixture.getFilterData().categoryBits)) {
-            return true;
-          }
-
-          Object userData = fixture.getBody().getUserData();
-          if (!(userData instanceof BodyUserData bodyUserData)
-              || bodyUserData.entity == null
-              || bodyUserData.entity.getComponent(CombatStatsComponent.class) == null) {
-            return true;
-          }
-
-          Entity target = bodyUserData.entity;
-          if (center.dst2(target.getCenterPosition()) <= radiusSquared) {
-            targets.add(target);
-          }
-          return true;
-        },
-        center.x - AREA_ATTACK_RADIUS,
-        center.y - AREA_ATTACK_RADIUS,
-        center.x + AREA_ATTACK_RADIUS,
-        center.y + AREA_ATTACK_RADIUS);
-
-    return targets;
   }
 
   /** Makes the player dash. */

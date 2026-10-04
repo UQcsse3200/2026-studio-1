@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,15 +34,13 @@ class ProjectileComponentTest {
   private EntityService entityService;
   private ArgumentCaptor<Runnable> scheduledOnDeathCall;
   private ProjectileMovementStrategy movementStrategy;
-  private Application originalApp;
+
+  private Application originalApplication;
 
   private Application originalApplication;
 
   @BeforeEach
   void beforeEach() {
-    originalApp = Gdx.app;
-    Gdx.app = mock(Application.class);
-
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(20f / 1000);
     ServiceLocator.registerTimeSource(gameTime);
@@ -51,9 +49,11 @@ class ProjectileComponentTest {
   }
 
   @AfterEach
-  void afterEach() {
-    // Gdx.app is a static shared with every other test class, so put the real one back
-    Gdx.app = originalApp;
+  void restoreApplication() {
+    if (originalApplication != null) {
+      Gdx.app = originalApplication;
+      originalApplication = null;
+    }
   }
 
   @Test
@@ -149,15 +149,20 @@ class ProjectileComponentTest {
         () -> {
           projectile.getEvents().trigger("projectileExpired");
           projectile.getEvents().trigger("projectileExpired");
-          runPostedRunnables(); // both queued despawns run; the second must be a no-op
+          runAll(posted);
         });
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
   }
 
-  private void runPostedRunnables() {
-    ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
-    verify(Gdx.app, atLeastOnce()).postRunnable(captor.capture());
-    captor.getAllValues().forEach(Runnable::run);
+  @Test
+  void firingTheExpiredEventPostsExactlyOneDespawn() {
+    // checks that the deferral by checking the despawn is posed once and not run inline.
+    Entity projectile = createProjectile(100f);
+    List<Runnable> posted = capturePostedWork();
+
+    projectile.getEvents().trigger("projectileExpired");
+
+    assertEquals(1, posted.size(), "The despawn should be posted once, not run inline.");
   }
 
   private Entity createProjectile(float maxRange) {
