@@ -38,6 +38,7 @@ import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.GameTime;
+import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
@@ -114,6 +115,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     ServiceLocator.registerEntityService(new EntityService());
     ServiceLocator.registerRenderService(new RenderService());
+    ServiceLocator.registerLightService(new LightService(physicsEngine.getWorld()));
 
     renderer = RenderFactory.createRenderer();
     renderer.getCamera().getEntity().setPosition(CAMERA_POSITION);
@@ -400,6 +402,7 @@ public class MainGameScreen extends ScreenAdapter {
   @Override
   public void resize(int width, int height) {
     renderer.resize(width, height);
+    ServiceLocator.getLightService().resize(width, height);
     logger.trace("Resized renderer: ({} x {})", width, height);
   }
 
@@ -421,6 +424,7 @@ public class MainGameScreen extends ScreenAdapter {
      * Dispose components while their services and physics world are still alive.
      */
     ServiceLocator.getEntityService().dispose();
+    ServiceLocator.getLightService().dispose();
     physicsEngine.dispose();
     renderer.dispose();
     ServiceLocator.getRenderService().dispose();

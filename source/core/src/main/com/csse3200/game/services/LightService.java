@@ -12,7 +12,6 @@ public class LightService implements Disposable {
   public LightService(World world) {
     RayHandler.useDiffuseLight(true); // static; must precede construction
     rayHandler = new RayHandler(world);
-    rayHandler.setShadows(false); // every light is xray, so skip shadow work
     rayHandler.setAmbientLight(1f, 1f, 1f, 1f); // full bright by default
   }
 
