@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.services.GameTime;
@@ -99,6 +100,7 @@ public class ShieldComponent extends Component {
    */
   public void grantShield() {
     hasShield = true;
+    Quest.incrementGlobalShieldsCollected();
     logger.info("Shield granted, press the shield key to activate");
     entity.getEvents().trigger("shieldGranted");
   }
