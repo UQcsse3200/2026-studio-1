@@ -18,4 +18,5 @@ public class GameSaveData {
   public List<String> killedEnemyIds = new ArrayList<>();
   public List<String> ownedPetNames = new ArrayList<>();
   public String activePetName;
+  public String difficulty;
 }

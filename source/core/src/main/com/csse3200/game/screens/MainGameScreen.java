@@ -23,6 +23,8 @@ import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
+import com.csse3200.game.difficulty.Difficulty;
+import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -136,6 +138,14 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
+      if (saveData.difficulty != null && !saveData.difficulty.isBlank()) {
+        try {
+          DifficultyService.setCurrent(Difficulty.valueOf(saveData.difficulty));
+        } catch (IllegalArgumentException e) {
+          DifficultyService.setCurrent(Difficulty.NORMAL);
+        }
+      }
+
       if (saveData.level != null && !saveData.level.isBlank()) {
         initialRoomMap = saveData.level;
       }
@@ -144,6 +154,7 @@ public class MainGameScreen extends ScreenAdapter {
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
       EnemyRegistry.loadFrom(new ArrayList<>());
+      DifficultyService.setCurrent(Difficulty.NORMAL);
     }
 
     currentRoomMapPath = initialRoomMap;

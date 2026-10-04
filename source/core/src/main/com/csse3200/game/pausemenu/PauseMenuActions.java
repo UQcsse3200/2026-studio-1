@@ -10,6 +10,7 @@ import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
+import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
@@ -110,6 +111,8 @@ public class PauseMenuActions extends Component {
     if (petManager != null) {
       data.activePetName = petManager.getActivePetName();
     }
+
+    data.difficulty = DifficultyService.getCurrent().name();
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();
