@@ -80,7 +80,7 @@ public class PetManagerComponent extends Component {
 
     activePet.dispose();
     activePet = null;
-    activePetName=null;
+    activePetName = null;
   }
 
   /** Removes the active pet when this component is disposed. */

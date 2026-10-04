@@ -7,11 +7,11 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.components.pet.PetManagerComponent;
-import com.csse3200.game.components.player.ShopComponent;
 
 /** Applies saved game data to a newly created player. */
 public class LoadService {
@@ -37,7 +37,7 @@ public class LoadService {
     loadStamina(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
-    loadPets(player,data);
+    loadPets(player, data);
   }
 
   /**

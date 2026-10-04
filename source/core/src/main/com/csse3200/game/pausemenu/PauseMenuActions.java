@@ -6,15 +6,15 @@ import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedItem;
-import com.csse3200.game.components.pet.PetManagerComponent;
-import com.csse3200.game.components.player.ShopComponent;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -101,9 +101,9 @@ public class PauseMenuActions extends Component {
     ShopComponent shop = player.getComponent(ShopComponent.class);
     if (shop != null) {
       data.ownedPetNames =
-              shop.getPurchasedPets().stream()
-                      .map(ShopComponent.Pet::getName)
-                      .collect(java.util.stream.Collectors.toList());
+          shop.getPurchasedPets().stream()
+              .map(ShopComponent.Pet::getName)
+              .collect(java.util.stream.Collectors.toList());
     }
 
     PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
