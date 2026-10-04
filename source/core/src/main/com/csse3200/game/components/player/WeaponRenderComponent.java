@@ -12,8 +12,16 @@ import com.csse3200.game.entities.factories.DaggerFactory;
 import com.csse3200.game.rendering.RenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
-// Renders the equipped weapon beside the player and provides a basic sword swing animation.
+/**
+ * Renders the equipped weapon beside the player and handles weapon-specific visual animations such
+ * as sword swings, bow drawing and dagger throwing.
+ *
+ * <p>The renderer keeps track of both the current weapon type and tier so upgraded weapon visuals
+ * can be introduced without changing the rendering flow itself.
+ */
 public class WeaponRenderComponent extends RenderComponent {
+
+  // Base weapon dimensions.
   private static final float SWORD_WIDTH = 0.3f;
   private static final float SWORD_HEIGHT = 0.7f;
 
@@ -25,36 +33,49 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private static final float AXE_WIDTH = 0.385f;
   private static final float AXE_HEIGHT = 0.9f;
-
+  // Animation durations.
   private static final float SWING_DURATION = 0.3f;
+  private static final float DAGGER_THROW_DURATION = 1.5f;
 
+  // Walking animation.
   private static final float WALK_BOB_SPEED = 10f;
   private static final float WALK_BOB_AMOUNT = 0.025f;
   private static final float WALK_SWAY_AMOUNT = 5f;
 
-  private static final float BOW_DRAW_DURATION = 0.3f;
+  // Bow animation.
   private static final float BOW_DRAW_DISTANCE = 0.12f;
+  private static final float BOW_DRAW_DURATION = 0.3f;
 
+  // Weapon hand positioning.
   private static final float RIGHT_HAND_OFFSET_X = 0.75f;
   private static final float LEFT_HAND_OFFSET_X = 0.15f;
-  private static final float HAND_OFFSET_Y = 0.35f;
-
-  private static final float DAGGER_THROW_DURATION = 1.5f;
+  private static final float HAND_OFFSET_Y = 0.75f;
 
   private Texture texture;
-  private boolean isBow;
-  private boolean isAxe;
+
+  /** Currently equipped weapon type. */
+  private WeaponType currentWeaponType;
+
+  /** Currently equipped weapon tier. */
+  private int currentWeaponTier;
+
   private final Vector2 handAnchor = new Vector2();
   private final Vector2 aimDirection = new Vector2(1f, 0f);
 
   private boolean facingRight = true;
+
+  // Sword attack animation.
   private boolean swinging;
   private float swingTime;
+
+  // Walking animation.
   private float walkAnimationTime;
 
+  // Dagger throw animation.
   private boolean daggerThrown;
   private float daggerThrowTime;
 
+  // Bow draw animation.
   private boolean drawingBow;
   private float bowDrawTime;
 
@@ -62,8 +83,8 @@ public class WeaponRenderComponent extends RenderComponent {
 
   public WeaponRenderComponent() {
     texture = null;
-    isBow = false;
-    isAxe = false;
+    currentWeaponType = null;
+    currentWeaponTier = 1;
   }
 
   @Override
@@ -85,40 +106,90 @@ public class WeaponRenderComponent extends RenderComponent {
     updateWeapon(entity.getComponent(InventoryComponent.class).getActiveSlot());
   }
 
+  /**
+   * Updates the currently rendered weapon from the active inventory slot.
+   *
+   * <p>The weapon type and tier are stored separately from the texture so upgraded weapon visuals
+   * can depend on tier.
+   */
   private void updateWeapon(int activeSlot) {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
     Item item = inventory.getItem(activeSlot);
 
+    resetAnimationState();
+
     if (!(item instanceof WeaponItem weaponItem)) {
       texture = null;
-      isBow = false;
-      isAxe = false;
+      currentWeaponType = null;
+      currentWeaponTier = 1;
       return;
     }
 
-    if (weaponItem.getWeaponType() == WeaponType.BOW) {
-      texture = ServiceLocator.getResourceService().getAsset("images/items/bow.png", Texture.class);
-      isBow = true;
-      isAxe = false;
-    } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
-      texture =
-          ServiceLocator.getResourceService().getAsset("images/items/dagger.png", Texture.class);
-      isBow = false;
-      isAxe = false;
-    } else if (weaponItem.getWeaponType() == WeaponType.AXE) {
-      texture = ServiceLocator.getResourceService().getAsset("images/items/axe.png", Texture.class);
-      isBow = false;
-      isAxe = true;
-    } else {
-      texture =
-          ServiceLocator.getResourceService().getAsset("images/items/sword.png", Texture.class);
-      isBow = false;
-      isAxe = false;
+    currentWeaponType = weaponItem.getWeaponType();
+    currentWeaponTier = weaponItem.getTier();
+
+    texture = getWeaponTexture(currentWeaponType, currentWeaponTier);
+  }
+
+  /**
+   * Returns the texture associated with the supplied weapon type and tier.
+   *
+   * <p>Swords use different textures for each upgrade tier, while bows and daggers continue to use
+   * their existing textures.
+   */
+  private Texture getWeaponTexture(WeaponType weaponType, int tier) {
+    if (weaponType == null) {
+      return null;
     }
+
+    return switch (weaponType) {
+      case BOW ->
+          ServiceLocator.getResourceService().getAsset("images/items/bow.png", Texture.class);
+
+      case DAGGER ->
+          ServiceLocator.getResourceService().getAsset("images/items/dagger.png", Texture.class);
+
+      case AXE ->
+          ServiceLocator.getResourceService().getAsset("images/items/axe.png", Texture.class);
+      case SWORD -> getSwordTexture(tier);
+    };
+  }
+
+  /**
+   * Returns the sword texture for the current tier.
+   *
+   * <p>Tier 1 keeps the original sword. Tier 2 and Tier 3 use the new upgraded sword assets.
+   */
+  private Texture getSwordTexture(int tier) {
+    String swordPath =
+        switch (tier) {
+          case 2 -> "images/items/sword_t2.png";
+          case 3 -> "images/items/sword_t3.png";
+          default -> "images/items/sword.png";
+        };
+
+    return ServiceLocator.getResourceService().getAsset(swordPath, Texture.class);
+  }
+
+  /**
+   * Resets active weapon animations when switching weapons.
+   *
+   * <p>This prevents an animation from the previous weapon continuing after the player changes
+   * weapon.
+   */
+  private void resetAnimationState() {
+    swinging = false;
+    swingTime = 0f;
+
+    drawingBow = false;
+    bowDrawTime = 0f;
+
+    daggerThrown = false;
+    daggerThrowTime = 0f;
   }
 
   private void startSwing(int damage) {
-    if (isBow) {
+    if (!isCurrentWeapon(WeaponType.SWORD)) {
       return;
     }
 
@@ -134,16 +205,24 @@ public class WeaponRenderComponent extends RenderComponent {
       return;
     }
 
-    if (weaponItem.getWeaponType() == WeaponType.BOW) {
-      drawingBow = true;
-      bowDrawTime = 0f;
-    } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
-      if (weaponItem.getQuantity() <= 0) {
-        return;
-      }
+    switch (weaponItem.getWeaponType()) {
+      case BOW:
+        drawingBow = true;
+        bowDrawTime = 0f;
+        break;
 
-      daggerThrown = true;
-      daggerThrowTime = 0f;
+      case DAGGER:
+        if (weaponItem.getQuantity() <= 0) {
+          return;
+        }
+
+        daggerThrown = true;
+        daggerThrowTime = 0f;
+        break;
+
+      case SWORD:
+        // Sword animation is triggered through the swordAttack event.
+        break;
     }
   }
 
@@ -181,7 +260,7 @@ public class WeaponRenderComponent extends RenderComponent {
     Vector2 currentPosition = entity.getPosition();
     boolean moving = !currentPosition.epsilonEquals(previousPosition, 0.001f);
 
-    if (moving && !isBow) {
+    if (moving && !isCurrentWeapon(WeaponType.BOW)) {
       walkAnimationTime += deltaTime * WALK_BOB_SPEED;
     } else if (!moving) {
       walkAnimationTime = 0f;
@@ -219,22 +298,21 @@ public class WeaponRenderComponent extends RenderComponent {
 
   @Override
   protected void draw(SpriteBatch batch) {
-    if (texture == null || daggerThrown) {
+    if (texture == null || daggerThrown || currentWeaponType == null) {
       return;
     }
 
-    updateHandAnchor();
+    WeaponVisualConfig visualConfig = getVisualConfig();
 
-    Item activeItem = entity.getComponent(InventoryComponent.class).getActiveItem();
-    boolean isDagger = isDaggerWeapon(activeItem);
+    updateHandAnchor(visualConfig);
 
-    float weaponWidth = getWeaponWidth(isDagger);
-    float weaponHeight = getWeaponHeight(isDagger);
+    float weaponWidth = visualConfig.width;
+    float weaponHeight = visualConfig.height;
 
     float weaponX = handAnchor.x - weaponWidth / 2f;
     float weaponY = handAnchor.y - weaponHeight / 2f;
 
-    if (isBow && drawingBow) {
+    if (isCurrentWeapon(WeaponType.BOW) && drawingBow) {
       float progress = bowDrawTime / BOW_DRAW_DURATION;
       float pullProgress = getBowPullProgress(progress);
 
@@ -244,7 +322,7 @@ public class WeaponRenderComponent extends RenderComponent {
 
     float rotation = getWeaponRotation();
 
-    if (!isBow) {
+    if (!isCurrentWeapon(WeaponType.BOW)) {
       float bobOffset = (float) Math.sin(walkAnimationTime) * WALK_BOB_AMOUNT;
       weaponY += bobOffset;
     }
@@ -262,18 +340,79 @@ public class WeaponRenderComponent extends RenderComponent {
         weaponHeight / 2f,
         weaponWidth,
         weaponHeight,
-        1f,
-        1f,
+        visualConfig.scaleX,
+        visualConfig.scaleY,
         rotation,
         0,
         0,
         texture.getWidth(),
         texture.getHeight(),
-        !facingRight && !isBow,
+        visualConfig.flipX && !facingRight,
         false);
   }
 
-  private void updateHandAnchor() {
+  /**
+   * Returns the visual configuration for the currently equipped weapon.
+   *
+   * <p>Tier is used to provide different visual sizes for upgraded weapons.
+   */
+  private WeaponVisualConfig getVisualConfig() {
+    if (currentWeaponType == null) {
+      return new WeaponVisualConfig(0f, 0f, 1f, 1f, false);
+    }
+
+    return switch (currentWeaponType) {
+      case SWORD -> getSwordVisualConfig(currentWeaponTier);
+      case BOW -> getBowVisualConfig(currentWeaponTier);
+      case DAGGER -> getDaggerVisualConfig(currentWeaponTier);
+      case AXE -> getAxeVisualConfig(currentWeaponTier);
+    };
+  }
+
+  private WeaponVisualConfig getSwordVisualConfig(int tier) {
+    float scale =
+        switch (tier) {
+          case 2 -> 1.20f;
+          case 3 -> 1.45f;
+          default -> 1.00f;
+        };
+
+    return new WeaponVisualConfig(SWORD_WIDTH, SWORD_HEIGHT, scale, scale, true);
+  }
+
+  private WeaponVisualConfig getBowVisualConfig(int tier) {
+    float scale =
+        switch (tier) {
+          case 2 -> 1.10f;
+          case 3 -> 1.20f;
+          default -> 1.00f;
+        };
+
+    return new WeaponVisualConfig(BOW_WIDTH, BOW_HEIGHT, scale, scale, false);
+  }
+
+  private WeaponVisualConfig getAxeVisualConfig(int tier) {
+    float scale =
+        switch (tier) {
+          case 2 -> 1.10f;
+          case 3 -> 1.20f;
+          default -> 1.00f;
+        };
+    return new WeaponVisualConfig(AXE_WIDTH, AXE_HEIGHT, scale, scale, false);
+  }
+
+  private WeaponVisualConfig getDaggerVisualConfig(int tier) {
+    float scale =
+        switch (tier) {
+          case 2 -> 1.15f;
+          case 3 -> 1.30f;
+          default -> 1.00f;
+        };
+
+    return new WeaponVisualConfig(DAGGER_WIDTH, DAGGER_HEIGHT, scale, scale, true);
+  }
+
+  private void updateHandAnchor(WeaponVisualConfig visualConfig) {
     Vector2 playerPosition = entity.getPosition();
     Vector2 playerScale = entity.getScale();
 
@@ -292,46 +431,6 @@ public class WeaponRenderComponent extends RenderComponent {
     return LEFT_HAND_OFFSET_X;
   }
 
-  private boolean isDaggerWeapon(Item activeItem) {
-    if (activeItem instanceof WeaponItem weaponItem) {
-      return weaponItem.getWeaponType() == WeaponType.DAGGER;
-    }
-
-    return false;
-  }
-
-  private float getWeaponWidth(boolean isDagger) {
-    if (isBow) {
-      return BOW_WIDTH;
-    }
-
-    if (isDagger) {
-      return DAGGER_WIDTH;
-    }
-
-    if (isAxe) {
-      return AXE_WIDTH;
-    }
-
-    return SWORD_WIDTH;
-  }
-
-  private float getWeaponHeight(boolean isDagger) {
-    if (isBow) {
-      return BOW_HEIGHT;
-    }
-
-    if (isDagger) {
-      return DAGGER_HEIGHT;
-    }
-
-    if (isAxe) {
-      return AXE_HEIGHT;
-    }
-
-    return SWORD_HEIGHT;
-  }
-
   private float getBowPullProgress(float progress) {
     if (progress < 0.5f) {
       return progress * 2f;
@@ -341,11 +440,15 @@ public class WeaponRenderComponent extends RenderComponent {
   }
 
   private float getWeaponRotation() {
-    if (isBow) {
+    if (isCurrentWeapon(WeaponType.BOW)) {
       return MathUtils.atan2(aimDirection.y, aimDirection.x) * MathUtils.radiansToDegrees - 90f;
     }
 
     return (float) Math.sin(walkAnimationTime) * WALK_SWAY_AMOUNT;
+  }
+
+  private boolean isCurrentWeapon(WeaponType weaponType) {
+    return currentWeaponType == weaponType;
   }
 
   public Vector2 getHandAnchor() {
@@ -360,8 +463,44 @@ public class WeaponRenderComponent extends RenderComponent {
     return aimDirection.cpy();
   }
 
+  /**
+   * Returns the currently rendered weapon tier.
+   *
+   * @return current weapon tier, or 1 when no weapon is equipped
+   */
+  public int getCurrentWeaponTier() {
+    return currentWeaponTier;
+  }
+
+  /**
+   * Returns the currently rendered weapon type.
+   *
+   * @return current weapon type, or null when no weapon is equipped
+   */
+  public WeaponType getCurrentWeaponType() {
+    return currentWeaponType;
+  }
+
   @Override
   public float getZIndex() {
     return -entity.getPosition().y + 0.01f;
+  }
+
+  /** Stores the visual properties needed to render a weapon. */
+  private static class WeaponVisualConfig {
+    private final float width;
+    private final float height;
+    private final float scaleX;
+    private final float scaleY;
+    private final boolean flipX;
+
+    private WeaponVisualConfig(
+        float width, float height, float scaleX, float scaleY, boolean flipX) {
+      this.width = width;
+      this.height = height;
+      this.scaleX = scaleX;
+      this.scaleY = scaleY;
+      this.flipX = flipX;
+    }
   }
 }
