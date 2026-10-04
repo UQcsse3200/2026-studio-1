@@ -280,8 +280,8 @@ public class RangedAttackComponent extends Component {
   }
 
   /**
-   * Returns how many ticks a target is petrified for when hit by a {@link ProjectileType#GAZE}
-   * shot fired by this component.
+   * Returns how many ticks a target is petrified for when hit by a {@link ProjectileType#GAZE} shot
+   * fired by this component.
    *
    * @return petrify duration in ticks; {@value #DEFAULT_PETRIFY_TICKS} unless overridden
    */

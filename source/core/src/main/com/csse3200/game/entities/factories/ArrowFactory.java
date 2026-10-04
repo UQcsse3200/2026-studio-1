@@ -165,8 +165,8 @@ public class ArrowFactory {
    * PetrifyEffectComponent}, instead of {@link #createRangedArrow}'s plain {@link
    * ProjectileHitComponent} knockback.
    *
-   * @param position spawn position (world units) - typically just in front of Medusa, not her
-   *     exact centre, so the gaze doesn't spawn inside her own collider.
+   * @param position spawn position (world units) - typically just in front of Medusa, not her exact
+   *     centre, so the gaze doesn't spawn inside her own collider.
    * @param movingRight true to fire in the +x direction (target is to the right), false for -x.
    * @param speed travel speed in world units/second.
    * @param maxRange maximum distance the gaze can travel before despawning; should normally match

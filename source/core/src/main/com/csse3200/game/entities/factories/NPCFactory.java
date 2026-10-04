@@ -437,8 +437,8 @@ public class NPCFactory {
    * Creates a Medusa entity: a mini-boss who paces near her spawn, melees up close with natural
    * claws, and petrifies the player from range with her gaze.
    *
-   * <p>Structurally identical to {@link #createCyclops}: a ground mini-boss with both a melee and
-   * a ranged attack, neither backed by a carried weapon. Medusa's gaze reuses the same {@code
+   * <p>Structurally identical to {@link #createCyclops}: a ground mini-boss with both a melee and a
+   * ranged attack, neither backed by a carried weapon. Medusa's gaze reuses the same {@code
    * WeaponItem.natural(...)} pattern as Cyclops's rock throw, just fired as {@link
    * ProjectileType#GAZE} instead of {@link ProjectileType#ARROW} so it petrifies rather than knocks
    * back on a landed hit (see {@link PetrifyEffectComponent}).
@@ -627,8 +627,7 @@ public class NPCFactory {
         WeaponItem.natural("Zeus Lightning", config.baseAttack, config.ranged.cooldown - 1);
 
     // Add necessary components to the entity
-    zeus
-        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+    zeus.addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(inventory)
         .addComponent(
             new MeleeAttackComponent(
@@ -656,8 +655,7 @@ public class NPCFactory {
 
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
-    zeus
-        .getComponent(AITaskComponent.class)
+    zeus.getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
         .addTask(new RangedAttackTask(target, 9, config.ranged.range, ProjectileType.LIGHTNING));
 

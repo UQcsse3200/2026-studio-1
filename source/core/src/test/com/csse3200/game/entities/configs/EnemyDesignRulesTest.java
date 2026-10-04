@@ -29,8 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(GameExtension.class)
 class EnemyDesignRulesTest {
   /**
-   * Ticks-to-seconds conversion for effect durations (petrifyTicks/freezeTicks). Matches the
-   * "about 60 per second" assumption already documented on {@link
+   * Ticks-to-seconds conversion for effect durations (petrifyTicks/freezeTicks). Matches the "about
+   * 60 per second" assumption already documented on {@link
    * com.csse3200.game.entities.factories.ArrowFactory#createLightning} and {@link
    * com.csse3200.game.components.attacks.RangedAttackComponent#getLightningFreezeTicks}.
    */

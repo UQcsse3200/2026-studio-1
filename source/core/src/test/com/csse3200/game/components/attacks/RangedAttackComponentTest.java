@@ -12,9 +12,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
-import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
@@ -55,8 +56,15 @@ class RangedAttackComponentTest {
     when(texture.getWidth()).thenReturn(16);
     when(texture.getHeight()).thenReturn(16);
 
+    // LightningFreezeComponent.onHit plays "sounds/zap.mp3" via the resource service - stub it
+    // the same way LightningFreezeComponentTest does, or firing LIGHTNING and triggering
+    // "projectileHit" (see shouldApplyConfiguredLightningFreezeTicksNotTheDefault) NPEs on the
+    // unstubbed (null) Sound.
+    Sound sound = mock(Sound.class);
+
     ResourceService resourceService = mock(ResourceService.class);
     when(resourceService.getAsset(anyString(), eq(Texture.class))).thenReturn(texture);
+    when(resourceService.getAsset(anyString(), eq(Sound.class))).thenReturn(sound);
 
     ServiceLocator.registerResourceService(resourceService);
     ServiceLocator.registerRenderService(mock(RenderService.class));
