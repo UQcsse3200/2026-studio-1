@@ -19,9 +19,9 @@ import com.csse3200.game.services.ServiceLocator;
  * player touching it. Unlike loot, this uses a static body - a hidden tortoise should never move
  * once placed, not fall or get pushed around.
  *
- * <p>Visuals come from {@value #ATLAS_PATH} (backed by {@value #TEXTURE_PATH}), a hand-built atlas
- * over a 144x32 spritesheet (18x16 px cells): an 8-frame "walk" cycle (row 0, unused for now - a
- * hidden tortoise never moves) and a 6-frame "idle" loop (row 1, columns 2-7), which is what
+ * <p>Visuals come from {@code images/tortoise.atlas} (backed by a 144x32 spritesheet), a hand-built
+ * atlas over a 144x32 spritesheet (18x16 px cells): an 8-frame "walk" cycle (row 0, unused for now
+ * - a hidden tortoise never moves) and a 6-frame "idle" loop (row 1, columns 2-7), which is what
  * actually plays here.
  */
 public final class TortoiseFactory {
