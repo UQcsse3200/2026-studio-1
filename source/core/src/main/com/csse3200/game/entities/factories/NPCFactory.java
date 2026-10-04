@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.EnemyType;
+import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.*;
@@ -492,6 +493,7 @@ public class NPCFactory {
             // npc dialogue
             .addComponent(new DialogueComponent(dialoguetext))
             .addComponent(new DisplayDialogue("Traveler"))
+            .addComponent(new QuestGiverComponent(player, 10))
             .addComponent(new DialogueProximityComponent(player, 2f));
 
     npc.getComponent(TextureRenderComponent.class).scaleEntity();
