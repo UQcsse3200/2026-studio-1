@@ -39,7 +39,7 @@ public class WeaponDisplay extends UIComponent {
     table = new Table();
     table.top().left();
     table.setFillParent(true);
-    table.padTop(100f).padLeft(10f);
+    table.padTop(125f).padLeft(10f);
 
     weaponImage = new Image(getWeaponTexture());
     applyTierColor();
@@ -47,7 +47,7 @@ public class WeaponDisplay extends UIComponent {
     // The "large" skin style defaults to a dark font colour that is unreadable against this
     // dungeon background, so we copy the style and override just its font colour to white.
     Label.LabelStyle whiteLargeStyle =
-        new Label.LabelStyle(skin.get("large", Label.LabelStyle.class));
+        new Label.LabelStyle(skin.get("default", Label.LabelStyle.class));
     whiteLargeStyle.fontColor = Color.WHITE;
     weaponLabel = new Label(buildLabelText(), whiteLargeStyle);
 

@@ -13,12 +13,16 @@ public class PlayerProjectileHitComponent extends Component {
   private final int damage;
   private final Entity owner;
 
+  private CombatStatsComponent ownerCombatStats;
   private HitboxComponent hitboxComponent;
   private boolean collided;
 
   public PlayerProjectileHitComponent(int damage, Entity owner) {
     if (damage < 0) {
       throw new IllegalArgumentException("Projectile damage must not be negative.");
+    }
+    if (owner == null) {
+      throw new IllegalArgumentException("Projectile owner must not be null.");
     }
 
     this.damage = damage;
@@ -28,6 +32,10 @@ public class PlayerProjectileHitComponent extends Component {
   @Override
   public void create() {
     hitboxComponent = entity.getComponent(HitboxComponent.class);
+    ownerCombatStats = owner.getComponent(CombatStatsComponent.class);
+    if (ownerCombatStats == null) {
+      throw new IllegalStateException("Projectile owner must have combat stats.");
+    }
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
   }
 
@@ -53,7 +61,7 @@ public class PlayerProjectileHitComponent extends Component {
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
 
     if (targetStats != null) {
-      targetStats.addHealth(-damage);
+      targetStats.hit(ownerCombatStats, damage);
     }
 
     removeProjectile();

@@ -70,4 +70,48 @@ class KeyboardPlayerInputComponentTest {
     assertTrue(input.keyDown(Keys.B));
     assertEquals(1, activations.get());
   }
+
+  @Test
+  void shouldTriggerSpecialAttackWhenFIsPressed() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player = new Entity().addComponent(input);
+    AtomicInteger attacks = new AtomicInteger();
+    player.getEvents().addListener("specialAttack", attacks::incrementAndGet);
+
+    assertTrue(input.keyDown(Keys.F));
+    assertEquals(1, attacks.get());
+  }
+
+  @Test
+  void shouldTriggerAreaAttackWhenGIsPressed() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player = new Entity().addComponent(input);
+    AtomicInteger attacks = new AtomicInteger();
+    player.getEvents().addListener("areaAttack", attacks::incrementAndGet);
+
+    assertTrue(input.keyDown(Keys.G));
+    assertEquals(1, attacks.get());
+  }
+
+  @Test
+  void shouldGrantAndEquipTierTwoAndThreeTestBows() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    InventoryComponent inventory = new InventoryComponent(0);
+    inventory.addItem(new WeaponItem("Sword", WeaponType.SWORD, 10, 1, 1));
+    inventory.addItem(new WeaponItem("Tier 1 Bow", WeaponType.BOW, 7, 1, 1));
+    inventory.addItem(new WeaponItem("Dagger", WeaponType.DAGGER, 3, 1, 1));
+    new Entity().addComponent(input).addComponent(inventory);
+
+    assertTrue(input.keyDown(Keys.F6));
+    WeaponItem tierTwoBow = (WeaponItem) inventory.getActiveItem();
+    assertEquals(2, tierTwoBow.getTier());
+    assertEquals(5, tierTwoBow.getProjectileCount());
+    assertEquals(4, inventory.getActiveSlot());
+
+    assertTrue(input.keyDown(Keys.F7));
+    WeaponItem tierThreeBow = (WeaponItem) inventory.getActiveItem();
+    assertEquals(3, tierThreeBow.getTier());
+    assertEquals(10, tierThreeBow.getProjectileCount());
+    assertEquals(5, inventory.getActiveSlot());
+  }
 }

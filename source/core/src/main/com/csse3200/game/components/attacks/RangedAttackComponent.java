@@ -84,12 +84,15 @@ public class RangedAttackComponent extends Component {
         || weapon.getWeaponType() == WeaponType.AXE) {
       throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
     }
+
     if (weapon.getWindupDuration() < 0) {
       throw new IllegalArgumentException("windupDuration must not be negative.");
     }
+
     if (weapon.getWindupDuration() >= this.getCooldown()) {
       throw new IllegalArgumentException("windupDuration must be less than cooldown");
     }
+
     this.timeSinceLastAttack = cooldown;
     this.damage = this.weapon.getDamage();
   }
@@ -115,6 +118,7 @@ public class RangedAttackComponent extends Component {
     this.setWindupDuration(this.getCooldown() - 1);
     this.timeSinceLastAttack = cooldown;
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
+    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**
