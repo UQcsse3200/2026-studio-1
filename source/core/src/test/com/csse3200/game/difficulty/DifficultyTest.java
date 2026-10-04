@@ -15,6 +15,7 @@ class DifficultyTest {
     assertEquals(1.25f, Difficulty.EASY.getAttackCooldownMultiplier(), DELTA);
     assertEquals(1.0f, Difficulty.EASY.getGoldMultiplier(), DELTA);
     assertEquals(1.0f, Difficulty.EASY.getRegenHealMultiplier(), DELTA);
+    assertEquals(1.0f, Difficulty.EASY.getAttackWindupMultiplier(), DELTA);
   }
 
   @Test
@@ -24,6 +25,7 @@ class DifficultyTest {
     assertEquals(1.0f, Difficulty.NORMAL.getAttackCooldownMultiplier(), DELTA);
     assertEquals(1.0f, Difficulty.NORMAL.getGoldMultiplier(), DELTA);
     assertEquals(1.0f, Difficulty.NORMAL.getRegenHealMultiplier(), DELTA);
+    assertEquals(1.0f, Difficulty.NORMAL.getAttackWindupMultiplier(), DELTA);
   }
 
   @Test
@@ -33,5 +35,6 @@ class DifficultyTest {
     assertEquals(0.8f, Difficulty.HARD.getAttackCooldownMultiplier(), DELTA);
     assertEquals(1.5f, Difficulty.HARD.getGoldMultiplier(), DELTA);
     assertEquals(1.5f, Difficulty.HARD.getRegenHealMultiplier(), DELTA);
+    assertEquals(0.7f, Difficulty.HARD.getAttackWindupMultiplier(), DELTA);
   }
 }

@@ -53,6 +53,8 @@ public class MeleeAttackComponent extends Component {
   /** Difficulty's enemy damage multiplier, applied on top of weapon (and charge) damage. */
   private float damageMultiplier = 1f;
 
+  private float windupMultiplier = 1f;
+
   private static final Logger logger = LoggerFactory.getLogger(MeleeAttackComponent.class);
 
   /**
@@ -229,6 +231,30 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
+   * Returns the difficulty multiplier applied to this melee attacker's wind-up duration.
+   *
+   * @return wind-up multiplier; {@code 1f} by default (no change)
+   */
+  public float getWindupMultiplier() {
+    return this.windupMultiplier;
+  }
+
+  /**
+   * Updates the difficulty multiplier applied to this melee attacker's wind-up duration. Set by
+   * {@link com.csse3200.game.difficulty.DifficultyScaler} at spawn - not intended to be called
+   * directly by gameplay code.
+   *
+   * @param windupMultiplier new multiplier value
+   * @throws IllegalArgumentException if {@code windupMultiplier} is zero or negative
+   */
+  public void setWindupMultiplier(float windupMultiplier) throws IllegalArgumentException {
+    if (windupMultiplier <= 0) {
+      throw new IllegalArgumentException("Windup multiplier must be greater than zero.");
+    }
+    this.windupMultiplier = windupMultiplier;
+  }
+
+  /**
    * Returns the damage for this attack, either the configured base attack from the config file or
    * the equipped weapon's damage. The only stat this component reads from the weapon — range and
    * knockback are this wielder's own properties, not the weapon's.
@@ -289,7 +315,7 @@ public class MeleeAttackComponent extends Component {
       return;
     }
     this.pendingTarget = target;
-    this.windupTimeRemaining = this.windupDuration;
+    this.windupTimeRemaining = this.windupDuration * this.windupMultiplier;
     timeSinceLastAttack = 0;
     entity.getEvents().trigger("meleeAttackWindup", this.pendingTarget);
   }

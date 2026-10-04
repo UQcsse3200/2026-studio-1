@@ -161,6 +161,39 @@ class DifficultyScalerTest {
     }
   }
 
+  @Test
+  void meleeWindupMultiplierMatchesTheCurrentDifficultyForEasyNormalAndHard() {
+    Difficulty[] modes = {Difficulty.EASY, Difficulty.NORMAL, Difficulty.HARD};
+    float[] expected = {1.0f, 1.0f, 0.7f};
+    for (int i = 0; i < modes.length; i++) {
+      DifficultyService.setCurrent(modes[i]);
+      Entity enemy = entityWithMeleeAttack();
+
+      DifficultyScaler.apply(enemy);
+
+      assertEquals(
+          expected[i],
+          enemy.getComponent(MeleeAttackComponent.class).getWindupMultiplier(),
+          0.0001f);
+    }
+  }
+
+  @Test
+  void rangedOnlyEnemyIsStillScaledAsBeforeWithoutErrors() {
+    DifficultyService.setCurrent(Difficulty.HARD);
+    Entity enemy = entityWithRangedAttack();
+
+    assertDoesNotThrow(() -> DifficultyScaler.apply(enemy));
+
+    CombatStatsComponent stats = enemy.getComponent(CombatStatsComponent.class);
+    RangedAttackComponent attack = enemy.getComponent(RangedAttackComponent.class);
+    assertEquals(
+        expectedScaled(STARTING_HEALTH, Difficulty.HARD.getEnemyHealthMultiplier(), 1),
+        stats.getHealth());
+    assertEquals(
+        STARTING_COOLDOWN * Difficulty.HARD.getAttackCooldownMultiplier(), attack.getCooldown());
+  }
+
   /**
    * isHostile accepts a TouchAttackComponent as well as melee/ranged, but no other test exercises
    * that branch - removing it would go unnoticed otherwise. A ghost (CombatStatsComponent +

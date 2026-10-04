@@ -8,27 +8,30 @@ package com.csse3200.game.difficulty;
  * tuning EASY's, for example.
  */
 public enum Difficulty {
-  EASY(0.65f, 0.6f, 1.25f, 1.0f, 1.0f),
-  NORMAL(1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
-  HARD(1.4f, 1.5f, 0.8f, 1.5f, 1.5f);
+  EASY(0.65f, 0.6f, 1.25f, 1.0f, 1.0f, 1.0f),
+  NORMAL(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
+  HARD(1.4f, 1.5f, 0.8f, 1.5f, 1.5f, 0.7f);
 
   private final float enemyHealthMultiplier;
   private final float enemyDamageMultiplier;
   private final float attackCooldownMultiplier;
   private final float goldMultiplier;
   private final float regenHealMultiplier;
+  private final float attackWindupMultiplier;
 
   Difficulty(
       float enemyHealthMultiplier,
       float enemyDamageMultiplier,
       float attackCooldownMultiplier,
       float goldMultiplier,
-      float regenHealMultiplier) {
+      float regenHealMultiplier,
+      float attackWindupMultiplier) {
     this.enemyHealthMultiplier = enemyHealthMultiplier;
     this.enemyDamageMultiplier = enemyDamageMultiplier;
     this.attackCooldownMultiplier = attackCooldownMultiplier;
     this.goldMultiplier = goldMultiplier;
     this.regenHealMultiplier = regenHealMultiplier;
+    this.attackWindupMultiplier = attackWindupMultiplier;
   }
 
   /**
@@ -64,5 +67,13 @@ public enum Difficulty {
    */
   public float getRegenHealMultiplier() {
     return regenHealMultiplier;
+  }
+
+  /**
+   * @return multiplier applied to a melee attacker's wind-up duration - lower means a faster,
+   *     harder-to-dodge attack.
+   */
+  public float getAttackWindupMultiplier() {
+    return attackWindupMultiplier;
   }
 }
