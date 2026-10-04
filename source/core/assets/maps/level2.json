@@ -102,6 +102,16 @@
     "G": {
       "type": "ENEMY",
       "enemyType": "medusa"
+    },
+    "1": {
+      "type": "MARKER",
+      "kind": "npc",
+      "id": "npc:philosopher"
+    },
+    "3": {
+      "type": "MARKER",
+      "kind": "npc",
+      "id": "npc:satyr"
     }
   },
   "layers": {
@@ -684,7 +694,7 @@
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
-      "                                           S    L  L   Z                        ",
+      "                                           S    L 3L   Z                        ",
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
@@ -804,7 +814,7 @@
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
-      "                                                                                ",
+      "                                     1                                          ",
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",

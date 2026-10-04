@@ -106,6 +106,17 @@ public class ConsumableGenerator {
         return new ConsumableItem(
             name, type, buildBuff(BuffStat.RESISTANCE, config, tier), 1, config.maxQuantity);
 
+      case UPGRADE_STONE:
+        {
+          // A stone always upgrades a weapon by exactly one tier, so its own tier does not change
+          // what it does. The loot table only ever generates it at tier 1.
+          ConsumableItem stone =
+              new ConsumableItem(name, type, new WeaponUpgradeEffect(), 1, config.maxQuantity);
+
+          stone.setSellPrice(40);
+          return stone;
+        }
+
       default:
         throw new IllegalArgumentException("Unsupported consumable type.");
     }

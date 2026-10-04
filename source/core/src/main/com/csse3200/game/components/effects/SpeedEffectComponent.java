@@ -23,7 +23,7 @@ public class SpeedEffectComponent extends Component {
   }
 
   /**
-   * Boxed params so the method reference matches EventListener2 <Integer, Float>.
+   * Applies the given speed effect to the player.
    *
    * @param time number of ticks the effect lasts. A duration of 0 applies the effect instantly and
    *     never reverts it (matches HealthEffectComponent's "instant" convention).
