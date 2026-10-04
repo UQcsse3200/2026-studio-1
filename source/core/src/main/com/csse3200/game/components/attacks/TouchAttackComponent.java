@@ -2,6 +2,7 @@ package com.csse3200.game.components.attacks;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
@@ -10,6 +11,7 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import java.lang.reflect.Array;
 
 /**
  * When this entity touches a valid enemy's hitbox, deal damage to them and apply a knockback.
@@ -24,6 +26,14 @@ public class TouchAttackComponent extends Component {
   private float knockbackForce = 0f;
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
+
+  // always enabled
+  private boolean active = true;
+  // 0 means unlimited
+  private int maxHitsPerActivation = 0;
+  private int hitsThisActivation = 0;
+  // 1.0 means plan base attack
+  private float damageMultiplier = 1.0f;
 
   /**
    * Create a component which attacks entities on collision, without knockback.
@@ -79,4 +89,62 @@ public class TouchAttackComponent extends Component {
       targetBody.applyLinearImpulse(impulse, targetBody.getWorldCenter(), true);
     }
   }
+
+  /**
+   * Switches touch damage on or off without resetting the hit counter. A charging entity is built
+   * with this set to false so it is harmless until its rush begins.
+   *
+   * @param active true to allow damage on contact, false to ignore all contacts.
+   */
+  public void setActive(boolean active) {
+    this.active = active;
+  }
+
+  /**
+   * @return true if contacts currently cause damage
+   */
+  public boolean isActive() {
+    return this.active;
+  }
+
+  /**
+   * Starts a fresh activation: turns damage on, clears teh hit counter and treats any target that
+   * is ALREADY touching this entity's hit box as a new contact ( a collision-start event is only
+   * raised when two shapes begin to overlap, so a target standing inside the entity when the rush
+   * starts would otherwise never be hit.
+   */
+  public void activate() {
+    // turn damage on
+    setActive(true);
+    // set hits this activation to zero
+    this.hitsThisActivation = 0;
+    // retrieve every contact currently touching this entity's hit box
+    // loop through above list
+    // if the contact is touching and the other shape is on the target layer, try to hit the entity
+    // that owns that shape.
+    Fixture myFixture = hitboxComponent.getFixture();
+    // Copy the list: it is rebuilt on every getContactList() call, so a listener that asks the
+    // same body for its contacts during a hit must not disturb this loop.
+    Array<Contact> contacts = new Array<>(myFixture.getBody().getContactList());
+    for (Contact contact : contacts) {
+      if (!contact.isTouching()) {
+        continue;
+      }
+      Fixture other;
+      if (contact.getFixtureA() == myFixture) {
+        other = contact.getFixtureB();
+      } else if (contact.getFixtureB() == myFixture) {
+        other = contact.getFixtureA();
+      } else {
+        continue;
+      }
+      if (!PhysicsLayer.contains(targetLayer, other.getFilterData().categoryBits)) {
+        continue;
+      }
+      Entity target = ((BodyUserData) other.getBody().getUserData()).entity;
+      tryHit(target);
+    }
+  }
+
+  /** Turns damage off. Safe to call when already off. */
 }
