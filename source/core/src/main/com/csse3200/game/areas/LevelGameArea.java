@@ -664,6 +664,24 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * Creates a new enemy at the given world position, primarily used for debugging purposes.
+   *
+   * @param type The spawn name from the map
+   * @param position the world position to spawn the enemy at
+   * @return true if the spawn succeeds, false otherwise.
+   */
+  public boolean spawnEnemy(String type, Vector2 position) {
+    Entity enemy = createEnemy(type);
+    if (enemy == null || position == null) {
+      logger.debug("Invalid spawn of type '{}' at position {}", type, position);
+      return false;
+    }
+    enemy.setPosition(position);
+    spawnEntity(enemy);
+    return true;
+  }
+
+  /**
    * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
    * features work in this level.
    *

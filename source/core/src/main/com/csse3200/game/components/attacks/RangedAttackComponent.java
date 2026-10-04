@@ -110,7 +110,7 @@ public class RangedAttackComponent extends Component {
     setCooldown(cooldown);
     if (cooldown <= 1) {
       throw new IllegalArgumentException(
-          "Windupduration for attack must be less than " + "cooldown and must be positive.");
+          "Windupduration for attack must be less than cooldown and must be positive.");
     }
     this.setWindupDuration(this.getCooldown() - 1);
     this.timeSinceLastAttack = cooldown;
