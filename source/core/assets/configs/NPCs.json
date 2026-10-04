@@ -69,55 +69,6 @@
   },
   "medusa": {
     "health": 100,
-<<<<<<< HEAD
-    "baseAttack": 9,
-    "melee": {
-      "range": 2.5,
-      "cooldown": 4,
-      "knockback": 2
-    },
-    "ranged": {
-      "range": 7,
-      "cooldown": 6,
-      "projectileSpeed": 10,
-      "knockback": 1
-    },
-    "petrifyTicks": 90
-  },
-  "cerberus": {
-    "health": 100,
-    "baseAttack": 8,
-    "melee": {
-      "range": 2,
-      "cooldown": 1.2,
-      "knockback": 1
-    }
-  },
-  "zeus": {
-    "health": 100,
-    "baseAttack": 9,
-    "melee": {
-      "range": 2.5,
-      "cooldown": 4,
-      "knockback": 3
-    },
-    "ranged": {
-      "range": 7,
-      "cooldown": 6,
-      "projectileSpeed": 8,
-      "knockback": 0
-    },
-    "freezeTicks": 120
-  },
-  "harpy": {
-    "health": 30,
-    "baseAttack": 5,
-    "melee": {
-      "range": 2,
-      "cooldown": 5,
-      "knockback": 0
-    }
-=======
     "baseAttack": 8,
     "melee": { "range": 2.5, "cooldown": 4, "knockback": 1.5, "windup": 0.8 },
     "ranged": { "range": 7, "cooldown": 7, "projectileSpeed": 10, "knockback": 0, "windup": 1.0 },
@@ -143,21 +94,11 @@
     "baseAttack": 6,
     "flightDamping": 2.0,
     "melee": { "range": 1.5, "cooldown": 4, "knockback": 1 }
->>>>>>> origin/enemies
   },
   "rangedHarpy": {
     "health": 20,
     "baseAttack": 5,
-<<<<<<< HEAD
-    "ranged": {
-      "range": 8,
-      "cooldown": 5,
-      "projectileSpeed": 8,
-      "knockback": 0
-    }
-=======
     "flightDamping": 2.0,
     "ranged": { "range": 8, "cooldown": 5, "projectileSpeed": 8, "knockback": 0, "aimed": true }
->>>>>>> origin/enemies
   }
 }

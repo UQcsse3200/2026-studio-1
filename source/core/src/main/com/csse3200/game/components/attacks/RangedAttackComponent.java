@@ -52,12 +52,6 @@ public class RangedAttackComponent extends Component {
   // setProjectileSpeed(...) - matches RangedAttackConfig's own previous default.
   private static final float DEFAULT_PROJECTILE_SPEED = 8f;
 
-  // Defaults match this class's own previous hardcoded call to ArrowFactory.createLightning(...)
-  // (freezeTicks=120) and a comparable petrify duration for GAZE (90 ticks, i.e. 1.5s at ~60
-  // ticks/second) - only an attacker actually configured for LIGHTNING or GAZE ever reads these.
-  private static final int DEFAULT_LIGHTNING_FREEZE_TICKS = 120;
-  private static final int DEFAULT_PETRIFY_TICKS = 90;
-
   private float range;
   private float cooldown;
   private float knockback;
@@ -65,18 +59,17 @@ public class RangedAttackComponent extends Component {
   private float damage;
   private WeaponItem weapon;
   private float windupDuration;
+  // Ticks (about 60/second) a LIGHTNING hit freezes its target for - only meaningful for that
+  // projectile type; see getLightningFreezeTicks()/setLightningFreezeTicks(). Defaults to 120 to
+  // match this class's previous hardcoded behaviour for any shooter that doesn't configure it.
+  private int lightningFreezeTicks = 120;
   private float windupTimeRemaining;
   private float timeSinceLastAttack;
-<<<<<<< HEAD
-  private int lightningFreezeTicks = DEFAULT_LIGHTNING_FREEZE_TICKS;
-  private int petrifyTicks = DEFAULT_PETRIFY_TICKS;
-=======
   // The shot waiting out its windup; null when no windup is in progress.
   private Entity pendingTarget;
   private ProjectileType pendingProjectile;
   // When true, arrows fly straight at the target's centre instead of along the x axis.
   private boolean aimed = false;
->>>>>>> origin/enemies
   private CombatStatsComponent combatStats;
   private static final Logger logger = LoggerFactory.getLogger(RangedAttackComponent.class);
 
@@ -141,6 +134,7 @@ public class RangedAttackComponent extends Component {
     this.timeSinceLastAttack = cooldown;
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
   }
+
 
   /**
    * Resolves this entity's {@link CombatStatsComponent} and registers a listener for the
@@ -320,65 +314,34 @@ public class RangedAttackComponent extends Component {
   }
 
   /**
-<<<<<<< HEAD
-   * Returns how many ticks a target is frozen for when hit by a {@link ProjectileType#LIGHTNING}
-   * shot fired by this component.
+   * Returns how long, in ticks (about 60/second), a target is frozen for after being struck by a
+   * LIGHTNING projectile fired by this component. Not meaningful for any other projectile type.
    *
-   * @return freeze duration in ticks; {@value #DEFAULT_LIGHTNING_FREEZE_TICKS} unless overridden
+   * @return freeze duration in ticks
    */
   public int getLightningFreezeTicks() {
-    return lightningFreezeTicks;
+    return this.lightningFreezeTicks;
   }
 
   /**
-   * Updates the freeze duration applied by a {@link ProjectileType#LIGHTNING} shot fired by this
-   * component. Has no effect on any other projectile type.
+   * Updates how long a LIGHTNING hit freezes its target for.
    *
-   * @param lightningFreezeTicks new freeze duration, in ticks
+   * @param lightningFreezeTicks new freeze duration, in ticks (about 60/second)
    * @throws IllegalArgumentException if {@code lightningFreezeTicks} is negative
    */
   public void setLightningFreezeTicks(int lightningFreezeTicks) {
     if (lightningFreezeTicks < 0) {
-      throw new IllegalArgumentException("lightningFreezeTicks must not be negative.");
+      throw new IllegalArgumentException("lightningFreezeTicks must not be negative");
     }
     this.lightningFreezeTicks = lightningFreezeTicks;
   }
 
   /**
-   * Returns how many ticks a target is petrified for when hit by a {@link ProjectileType#GAZE} shot
-   * fired by this component.
-   *
-   * @return petrify duration in ticks; {@value #DEFAULT_PETRIFY_TICKS} unless overridden
-   */
-  public int getPetrifyTicks() {
-    return petrifyTicks;
-  }
-
-  /**
-   * Updates the petrify duration applied by a {@link ProjectileType#GAZE} shot fired by this
-   * component. Has no effect on any other projectile type.
-   *
-   * @param petrifyTicks new petrify duration, in ticks
-   * @throws IllegalArgumentException if {@code petrifyTicks} is negative
-   */
-  public void setPetrifyTicks(int petrifyTicks) {
-    if (petrifyTicks < 0) {
-      throw new IllegalArgumentException("petrifyTicks must not be negative.");
-    }
-    this.petrifyTicks = petrifyTicks;
-  }
-
-  /**
-   * Attempts to fire an arrow at the given target entity: validates cooldown and range, then spawns
-   * a real projectile aimed at it if both checks pass and the target has the required component(s).
-   * Whether the shot actually connects is resolved later by the arrow itself.
-=======
    * Attempts to attack the given target: validates the target, cooldown and range, spends the
    * cooldown, then either fires straight away (windup of zero) or starts a windup. During a windup
    * it fires {@code "rangedAttackWindup"} (target); the shot itself happens in {@link
    * #resolveShot()} once the windup ends. The cooldown is spent when the attack is accepted, so a
    * cancelled windup is not refunded.
->>>>>>> origin/enemies
    *
    * @param target the entity being aimed at
    * @param projectile the type of projectile being launched
@@ -472,22 +435,18 @@ public class RangedAttackComponent extends Component {
                       knockback,
                       PhysicsLayer.PLAYER);
           case LIGHTNING ->
+              // Damage and freeze duration come from this shooter's own getDamage()/
+              // getLightningFreezeTicks() - previously hardcoded to 3 and 120 regardless of which
+              // entity fired, so every LIGHTNING shooter did the same damage and froze for the
+              // same duration no matter how it was configured. skyOffset/speed (8f, 12f) stay
+              // fixed: they describe how a bolt visually falls from the sky, not a per-shooter
+              // stat (see ArrowFactoryLightningTest, which already pins them at these values).
               ArrowFactory.createLightning(
                   target.getCenterPosition(),
                   8f,
                   12f,
                   this.getDamage(),
-                  lightningFreezeTicks,
-                  PhysicsLayer.PLAYER);
-          case GAZE ->
-              ArrowFactory.createGaze(
-                  spawnPosition,
-                  movingRight,
-                  projectileSpeed,
-                  range,
-                  this.getDamage(),
-                  knockback,
-                  petrifyTicks,
+                  this.getLightningFreezeTicks(),
                   PhysicsLayer.PLAYER);
         };
     // Re-fire "rangedAttackHit" on the shooter (this entity) if the arrow lands - preserves the

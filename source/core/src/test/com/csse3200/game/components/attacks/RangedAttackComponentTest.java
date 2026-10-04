@@ -276,24 +276,17 @@ class RangedAttackComponentTest {
   }
 
   @Test
-  void shouldDefaultLightningFreezeAndPetrifyTicks() {
-    // Matches this class's own previous hardcoded values (freezeTicks=120) and a comparable
-    // petrify default (90), so an attacker that doesn't override either keeps today's behaviour.
+  void shouldDefaultLightningFreezeTicksTo120() {
+    // Matches this class's own previous hardcoded value (freezeTicks=120), so an attacker that
+    // doesn't override it keeps today's behaviour.
     RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
     assertEquals(120, ranged.getLightningFreezeTicks());
-    assertEquals(90, ranged.getPetrifyTicks());
   }
 
   @Test
   void shouldRejectNegativeLightningFreezeTicks() {
     RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
     assertThrows(IllegalArgumentException.class, () -> ranged.setLightningFreezeTicks(-1));
-  }
-
-  @Test
-  void shouldRejectNegativePetrifyTicks() {
-    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
-    assertThrows(IllegalArgumentException.class, () -> ranged.setPetrifyTicks(-1));
   }
 
   @Test
@@ -324,28 +317,6 @@ class RangedAttackComponentTest {
     SpeedEffectComponent speed = target.getComponent(SpeedEffectComponent.class);
 
     for (int i = 0; i < 49; i++) speed.update();
-    verify(playerActions, never()).removeSpeedModifier(any());
-    speed.update();
-    verify(playerActions).removeSpeedModifier(any());
-  }
-
-  @Test
-  void shouldFireGazeAndApplyConfiguredPetrifyTicksNotTheDefault() {
-    RangedAttackComponent rangedComponent = new RangedAttackComponent(6f, 2f, 0f, createWeapon(5));
-    rangedComponent.setPetrifyTicks(30);
-    Entity gaze = fireAndCapture(ProjectileType.GAZE, rangedComponent);
-    // The mocked EntityService used by fireAndCapture doesn't call create() the way the real one
-    // would, so PetrifyEffectComponent's own "projectileHit" listener needs registering here.
-    gaze.create();
-
-    PlayerActions playerActions = mockPlayerActionsTarget();
-    Entity target =
-        new Entity().addComponent(playerActions).addComponent(new SpeedEffectComponent());
-    target.create();
-    gaze.getEvents().trigger("projectileHit", target);
-    SpeedEffectComponent speed = target.getComponent(SpeedEffectComponent.class);
-
-    for (int i = 0; i < 29; i++) speed.update();
     verify(playerActions, never()).removeSpeedModifier(any());
     speed.update();
     verify(playerActions).removeSpeedModifier(any());
