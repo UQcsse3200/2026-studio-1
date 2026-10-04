@@ -8,13 +8,10 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 /**
- * Picks a random item from a weighted list of potions and weapons.
+ * Picks a random item from a weighted list of potions, weapons and shields.
  *
  * <p>Each entry has a weight, and an entry is chosen with a probability of its weight over the
- * total weight of the table. Rarity is therefore just a smaller weight: in the standard table built
- * by {@link #createDefault(long)}, each weapon tier uses the loot weight declared in {@link
- * WeaponTier} (currently 60, 30 and 10), so a tier 3 weapon turns up roughly once every ten
- * weapons.
+ * total weight of the table. Smaller weights therefore represent rarer loot.
  *
  * <p>The random numbers come from a seeded {@link Random}, so the same seed always produces the
  * same run. That makes a bug found while playing reproducible instead of a one-off.
@@ -23,13 +20,15 @@ public class LootTable {
   /**
    * Weight of each potion tier in the standard table, from tier 1 upwards. Potions keep their own
    * weights because their strength is scaled by {@link ConsumableGenerator}, not by {@link
-   * WeaponTier}, so a new weapon tier should not also create a new potion tier.
+   * WeaponTier}.
    */
   private static final int[] POTION_TIER_WEIGHTS = {60, 30, 10};
 
   /**
-   * Weight of the shield entry in the standard table. Shields have no tiers, so this sits alongside
-   * the tier weights as a single rarity knob, currently matched to a tier-3 item.
+   * Weight of the normal Tier 1 Shield in the standard table.
+   *
+   * <p>The normal Shield is intended to be regular loot, so it is more common than the Advanced
+   * Ballistic Shield.
    */
   private static final int SHIELD_WEIGHT = 10;
 
@@ -38,6 +37,14 @@ public class LootTable {
    * potion type totals 100 across its tiers), so weapon upgrades stay something to look out for.
    */
   private static final int UPGRADE_STONE_WEIGHT = 40;
+
+  /**
+   * Weight of the Advanced Ballistic Shield in the standard table.
+   *
+   * <p>This is deliberately much lower than the normal Shield so that the Ballistic Shield remains
+   * rare loot.
+   */
+  private static final int BALLISTIC_SHIELD_WEIGHT = 75;
 
   private final List<LootEntry> entries = new ArrayList<>();
   private final Random random;
@@ -66,11 +73,12 @@ public class LootTable {
   }
 
   /**
-   * Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every {@link
-   * WeaponTier}, the Upgrade Stone and the shield. Higher tiers are weighted to be rarer.
+   * Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every
+   * {@link WeaponTier}, the Upgrade Stone, the normal Shield, and the rare Advanced Ballistic
+   * Shield.
    *
-   * <p>Weapons are built straight from {@link WeaponType} and {@link WeaponTier}, so a new weapon
-   * type or a new tier added there shows up in the loot table without any change here.
+   * <p>Higher-tier weapons and the Advanced Ballistic Shield use lower weights so they appear less
+   * frequently.
    *
    * @param seed seed for the table's random number generator
    * @return a table ready to roll
@@ -99,7 +107,11 @@ public class LootTable {
       }
     }
 
+    // Tier 1 normal Shield.
     table.addShield(SHIELD_WEIGHT);
+
+    // Tier 2 Advanced Ballistic Shield — intentionally rare.
+    table.addBallisticShield(BALLISTIC_SHIELD_WEIGHT);
 
     return table;
   }
@@ -143,7 +155,7 @@ public class LootTable {
   }
 
   /**
-   * Adds a shield to the table. Shields have no tier, so only a weight is required.
+   * Adds a normal Tier 1 Shield to the table.
    *
    * @param weight how often it is picked relative to other entries; must be {@code > 0}
    * @return this table, so entries can be chained
@@ -155,6 +167,22 @@ public class LootTable {
     }
 
     return addEntry(weight, () -> new Item("Shield", ItemType.SHIELD, 1, 1));
+  }
+
+  /**
+   * Adds the rare Advanced Ballistic Shield to the table.
+   *
+   * @param weight how often it is picked relative to other entries; must be {@code > 0}
+   * @return this table, so entries can be chained
+   * @throws IllegalArgumentException if weight is not positive
+   */
+  public LootTable addBallisticShield(int weight) {
+    if (weight <= 0) {
+      throw new IllegalArgumentException("Weight must be greater than 0.");
+    }
+
+    return addEntry(
+        weight, () -> new Item("Ballistic Shield", ItemType.BALLISTIC_SHIELD, 1, 1));
   }
 
   /**
@@ -233,6 +261,7 @@ public class LootTable {
 
   /** One weighted entry in the table, and how to generate its item when it is rolled. */
   private static class LootEntry {
+
     private final int weight;
     private final Supplier<Item> generator;
 
