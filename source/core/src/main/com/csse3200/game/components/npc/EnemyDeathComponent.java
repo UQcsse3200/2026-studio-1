@@ -2,6 +2,7 @@ package com.csse3200.game.components.npc;
 
 import com.badlogic.gdx.Gdx;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,22 +21,35 @@ public class EnemyDeathComponent extends Component {
 
   private void onDeath() {
     if (entity.isDisposed()) {
-      logger.info("Enemy {} already died.", entity);
+      logger.info(
+          "Enemy: {} already died.", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
       return;
     }
+
     ItemDropComponent dropper = entity.getComponent(ItemDropComponent.class);
     if (dropper != null) {
       // Drop gold
       if (dropper.dropGold()) {
-        logger.info("Enemy {} dropped gold", entity);
+        InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+        int goldNum = (inventory != null) ? inventory.getGold() : 0;
+        logger.info(
+            "Enemy {} dropped {} gold",
+            entity.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+            goldNum);
       }
+
       // Drop weapons and consumables
       while (dropper.dropFirstStack()) {
-        logger.info("Enemy {} dropped item", entity);
+        logger.info(
+            "Enemy {} dropped item", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
       }
     }
 
+    logger.info(
+        "Enemy {} died at x:{} y:{}",
+        entity.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+        entity.getCenterPosition().x,
+        entity.getCenterPosition().y);
     entity.dispose();
-    logger.info("Enemy {} died.", entity);
   }
 }

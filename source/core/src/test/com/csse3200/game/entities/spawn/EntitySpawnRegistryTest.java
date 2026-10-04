@@ -37,13 +37,13 @@ class EntitySpawnRegistryTest {
     Entity player = new Entity();
     Entity[] seen = new Entity[1];
     EntitySpawnRegistry.register(
-        "ghost",
+        "skeleton",
         target -> {
           seen[0] = target;
           return new Entity();
         });
 
-    EntitySpawnRegistry.create("ghost", player);
+    EntitySpawnRegistry.create("skeleton", player);
 
     assertSame(player, seen[0]);
   }
@@ -102,7 +102,6 @@ class EntitySpawnRegistryTest {
 
     assertTrue(EntitySpawnRegistry.isRegistered("skeleton"));
     assertTrue(EntitySpawnRegistry.isRegistered("ranged-skeleton"));
-    assertTrue(EntitySpawnRegistry.isRegistered("ghostking"));
     assertTrue(EntitySpawnRegistry.isRegistered("centaur"));
     assertTrue(EntitySpawnRegistry.isRegistered("npc:traveler"));
   }

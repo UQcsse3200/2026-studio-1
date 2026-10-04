@@ -288,7 +288,18 @@
       "type": "ENEMY",
       "enemyType": "ranged-skeleton"
     },
-
+    "M": {
+      "type": "ENEMY",
+      "enemyType": "minotaur"
+    },
+    "Y": {
+      "type": "ENEMY",
+      "enemyType": "cyclops"
+    },
+    "C": {
+      "type": "ENEMY",
+      "enemyType": "centaur"
+    },
     "L": {
       "type": "LOOT"
     }
@@ -501,16 +512,24 @@
     "enemies": [
       { "type": "skeleton", "x": 23, "y": 3 },
       { "type": "skeleton", "x": 41, "y": 3 },
-      { "type": "skeleton", "x": 20, "y": 13 },
-      { "type": "skeleton", "x": 21, "y": 23 },
-      { "type": "skeleton", "x": 4,  "y": 22 },
-      { "type": "skeleton", "x": 10, "y": 22 },
-      { "type": "skeleton", "x": 16, "y": 22 },
-      { "type": "skeleton", "x": 34, "y": 22 },
-      { "type": "skeleton", "x": 46, "y": 55 },
-      { "type": "minotaur", "x": 52, "y": 55 },
-      { "type": "minotaur", "x": 52, "y": 32 },
-      { "type": "minotaur", "x": 35, "y": 42 }
+      { "type": "ranged-skeleton", "x": 20, "y": 13 },
+      { "type": "skeleton", "x": 21, "y": 25 },
+      { "type": "skeleton", "x": 4,  "y": 25 },
+      { "type": "skeleton", "x": 10, "y": 25 },
+      { "type": "skeleton", "x": 16, "y": 13 },
+
+      { "type": "skeleton", "x": 33, "y": 34 },
+      { "type": "skeleton", "x": 36, "y": 37 },
+      { "type": "skeleton", "x": 24, "y": 40 },
+      { "type": "skeleton", "x": 42, "y": 43 },
+      { "type": "skeleton", "x": 45, "y": 46 },
+      { "type": "skeleton", "x": 48, "y": 49 },
+      { "type": "skeleton", "x": 51, "y": 52 },
+      { "type": "skeleton", "x": 53, "y": 54 },
+      { "type": "minotaur", "x": 33, "y": 37 },
+      { "type": "minotaur", "x": 33, "y": 37 },
+      { "type": "minotaur", "x": 33, "y": 37 }
+
     ],
     "entities": [
       "                                                        ",
@@ -518,6 +537,15 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
+      "                    M                                    ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                        M                                ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                             M                           ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
@@ -534,17 +562,7 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
+      "          S    M    S              M    S       M       ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
@@ -573,7 +591,8 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
-      "   P                   S                 S              ",
+      "   P                    S                  S            ",
+      "                                                        ",
       "                                                        ",
       "                                                        ",
       "                                                        "

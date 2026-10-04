@@ -5,6 +5,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ArrowFactory;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -78,7 +79,9 @@ public class RangedAttackComponent extends Component {
       throw new IllegalArgumentException("weapon cannot be null");
     }
     this.weapon = weapon;
-    if (weapon.getWeaponType() == WeaponType.DAGGER || weapon.getWeaponType() == WeaponType.SWORD) {
+    if (weapon.getWeaponType() == WeaponType.DAGGER
+        || weapon.getWeaponType() == WeaponType.SWORD
+        || weapon.getWeaponType() == WeaponType.AXE) {
       throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
     }
     if (weapon.getWindupDuration() < 0) {
@@ -247,8 +250,9 @@ public class RangedAttackComponent extends Component {
    * Whether the shot actually connects is resolved later by the arrow itself.
    *
    * @param target the entity being aimed at
+   * @param projectile the type of projectile being launched
    */
-  private void attemptAttack(Entity target) {
+  private void attemptAttack(Entity target, ProjectileType projectile) {
     if (target == null) {
       return;
     }
@@ -279,14 +283,20 @@ public class RangedAttackComponent extends Component {
         entity.getCenterPosition().add(movingRight ? SPAWN_OFFSET : -SPAWN_OFFSET, 0f);
 
     Entity arrow =
-        ArrowFactory.createRangedArrow(
-            spawnPosition,
-            movingRight,
-            projectileSpeed,
-            range,
-            combatStats.getBaseAttack(),
-            knockback,
-            PhysicsLayer.PLAYER);
+        switch (projectile) {
+          case ARROW ->
+              ArrowFactory.createRangedArrow(
+                  spawnPosition,
+                  movingRight,
+                  projectileSpeed,
+                  range,
+                  combatStats.getBaseAttack(),
+                  knockback,
+                  PhysicsLayer.PLAYER);
+          case LIGHTNING ->
+              ArrowFactory.createLightning(
+                  target.getCenterPosition(), 8f, 12f, 3, 120, PhysicsLayer.PLAYER);
+        };
 
     // Re-fire "rangedAttackHit" on the shooter (this entity) if the arrow lands - preserves the
     // event for anything already listening for it there (e.g. OnHitEffectComponent), without

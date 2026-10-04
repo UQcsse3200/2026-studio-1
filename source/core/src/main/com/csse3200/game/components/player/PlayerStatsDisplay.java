@@ -8,10 +8,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.effects.HealthEffectComponent;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
@@ -31,6 +33,10 @@ public class PlayerStatsDisplay extends UIComponent {
   private Table table;
   private Label healthLabel;
   private int previousHealth;
+  private Label staminaLabel;
+  private ProgressBar staminaBar;
+  private Table staminaTable;
+  private StaminaComponent staminaComponent;
 
   private final Array<Image> heartImages = new Array<>();
 
@@ -51,6 +57,7 @@ public class PlayerStatsDisplay extends UIComponent {
     addActors();
 
     entity.getEvents().addListener("updateHealth", this::updatePlayerHealthUI);
+    entity.getEvents().addListener("updateStamina", this::updateStaminaUI);
   }
 
   /** Creates the heart images and positions them in the top-left corner. */
@@ -101,11 +108,25 @@ public class PlayerStatsDisplay extends UIComponent {
 
     table.add(healthLabel).colspan(MAX_HEARTS).padTop(5f).left();
 
+    // Stamina bar
+    staminaTable = new Table();
+    staminaTable.top().left();
+    staminaTable.setFillParent(true);
+    staminaTable.padTop(240f).padLeft(5f);
+
+    staminaBar = new ProgressBar(0f, 100f, 1f, false, skin);
+
+    staminaBar.setValue(100f);
+
+    staminaTable.add(staminaBar).width(250f).height(20f).left();
+
+    stage.addActor(staminaTable);
+
     stage.addActor(table);
 
     // Make sure the hearts and text match the player's current health
     int currentHealth = entity.getComponent(CombatStatsComponent.class).getHealth();
-
+    staminaComponent = entity.getComponent(StaminaComponent.class);
     previousHealth = currentHealth;
 
     updatePlayerHealthUI(currentHealth);
@@ -156,12 +177,14 @@ public class PlayerStatsDisplay extends UIComponent {
     Texture fullHeartTexture;
     Texture halfHeartTexture;
 
-    // Choose the correct heart colour set based on current health
-    if (health <= 30) {
+    // Choose the correct heart colour set based on current health effect
+    // red if no effects, yellow if healing, green if poisoned
+    int healthEffect = entity.getComponent(HealthEffectComponent.class).getHealthEffect();
+    if (healthEffect == 0) {
       fullHeartTexture = redHeartTexture;
       halfHeartTexture = redHalfHeartTexture;
 
-    } else if (health <= 60) {
+    } else if (healthEffect > 0) {
       fullHeartTexture = yellowHeartTexture;
       halfHeartTexture = yellowHalfHeartTexture;
 
@@ -193,6 +216,13 @@ public class PlayerStatsDisplay extends UIComponent {
 
     // Update exact health number
     healthLabel.setText("Health = " + health);
+  }
+
+  /** Updates the stamina display. */
+  public void updateStaminaUI(float stamina) {
+    if (staminaBar != null) {
+      staminaBar.setValue(stamina);
+    }
   }
 
   /**

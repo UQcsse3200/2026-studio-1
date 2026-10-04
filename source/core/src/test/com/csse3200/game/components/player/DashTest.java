@@ -19,6 +19,8 @@ public class DashTest {
     Entity entity = new Entity();
     PhysicsComponent physics = new PhysicsComponent();
     entity.addComponent(physics);
+    StaminaComponent stamina = new StaminaComponent();
+    entity.addComponent(stamina);
     PlayerActions playerActions = new PlayerActions();
     entity.addComponent(playerActions);
     playerActions.create();
@@ -33,6 +35,8 @@ public class DashTest {
     Entity entity = new Entity();
     PhysicsComponent physics = new PhysicsComponent();
     entity.addComponent(physics);
+    StaminaComponent stamina = new StaminaComponent();
+    entity.addComponent(stamina);
     PlayerActions playerActions = new PlayerActions();
     entity.addComponent(playerActions);
     playerActions.create();

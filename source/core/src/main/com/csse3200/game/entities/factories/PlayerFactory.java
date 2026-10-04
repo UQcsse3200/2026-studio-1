@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.PlatformerComponent;
+import com.csse3200.game.components.effects.HealthEffectComponent;
+import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
@@ -26,6 +28,7 @@ import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShieldRenderComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.ShopDisplay;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
@@ -86,6 +89,7 @@ public class PlayerFactory {
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
             .addComponent(new PlayerActions())
+            .addComponent(new StaminaComponent())
             .addComponent(new CombatStatsComponent(stats.health, stats.baseAttack))
 
             // Death State
@@ -110,7 +114,9 @@ public class PlayerFactory {
             .addComponent(new WeaponRenderComponent())
             .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay())
-            .addComponent(new WeaponRenderComponent());
+            .addComponent(new WeaponRenderComponent())
+            .addComponent(new SpeedEffectComponent())
+            .addComponent(new HealthEffectComponent());
     PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas);
 
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);

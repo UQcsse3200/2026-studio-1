@@ -31,6 +31,7 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -38,7 +39,10 @@ import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EnemyId;
+import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
+import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -95,12 +99,11 @@ public class LevelGameArea extends GameArea {
     "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
-    "images/enemies/ghost_king.png",
-    "images/enemies/ghost_1.png",
     "images/items/sword.png",
-    "images/sword.png",
+    "images/items/axe.png",
     "images/items/bow.png",
     "images/items/arrow.png",
+    "images/enemies/lightning.png",
     "images/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
@@ -121,18 +124,15 @@ public class LevelGameArea extends GameArea {
     "sounds/jump.mp3",
     "sounds/dash.mp3",
     "sounds/sneaking1.mp3",
-    "sounds/slide.mp3"
+    "sounds/slide.mp3",
+    "sounds/zap.mp3"
   };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas",
-    "images/ghostKing.atlas",
     "images/skeleton_weapons/skeleton_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",
     "images/skeleton_weapons/skeleton_sword.atlas",
-    "images/enemies/ghost.atlas",
-    "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
@@ -636,9 +636,18 @@ public class LevelGameArea extends GameArea {
 
   private void spawnEnemies() {
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
+      String id = EnemyId.of(mapData.getName(), spawn.getPosition());
+      if (EnemyRegistry.isKilled(id)) {
+        continue;
+      }
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
+        enemy.addComponent(new PersistentEnemyIdComponent(id));
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
+        logger.info(
+            "Enemy: {} spawned at {}",
+            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+            enemy.getPosition());
       }
     }
   }
