@@ -8,13 +8,18 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
@@ -260,6 +265,121 @@ class RangedAttackComponentTest {
         arrow.getComponent(CombatStatsComponent.class).getBaseAttack(),
         "Expected the fired arrow's damage to come from the weapon, not the shooter's own base "
             + "attack.");
+  }
+
+  @Test
+  void shouldDefaultLightningFreezeAndPetrifyTicks() {
+    // Matches this class's own previous hardcoded values (freezeTicks=120) and a comparable
+    // petrify default (90), so an attacker that doesn't override either keeps today's behaviour.
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
+    assertEquals(120, ranged.getLightningFreezeTicks());
+    assertEquals(90, ranged.getPetrifyTicks());
+  }
+
+  @Test
+  void shouldRejectNegativeLightningFreezeTicks() {
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
+    assertThrows(IllegalArgumentException.class, () -> ranged.setLightningFreezeTicks(-1));
+  }
+
+  @Test
+  void shouldRejectNegativePetrifyTicks() {
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
+    assertThrows(IllegalArgumentException.class, () -> ranged.setPetrifyTicks(-1));
+  }
+
+  @Test
+  void shouldSourceLightningDamageFromWeaponNotHardcodedValue() {
+    // Regression test: previously this branch called ArrowFactory.createLightning(...) with a
+    // literal damage of 3, ignoring whatever weapon/natural-weapon damage the shooter was actually
+    // configured with. Zeus's lightning must scale with his own config like every other attack
+    // does, not a magic number shared by every LIGHTNING shooter in the game.
+    RangedAttackComponent rangedComponent = new RangedAttackComponent(6f, 2f, 0f, createWeapon(42));
+    Entity bolt = fireAndCapture(ProjectileType.LIGHTNING, rangedComponent);
+    assertEquals(42, bolt.getComponent(CombatStatsComponent.class).getBaseAttack());
+  }
+
+  @Test
+  void shouldApplyConfiguredLightningFreezeTicksNotTheDefault() {
+    RangedAttackComponent rangedComponent = new RangedAttackComponent(6f, 2f, 0f, createWeapon(5));
+    rangedComponent.setLightningFreezeTicks(50);
+    Entity bolt = fireAndCapture(ProjectileType.LIGHTNING, rangedComponent);
+    // The mocked EntityService used by fireAndCapture doesn't call create() the way the real one
+    // would, so LightningFreezeComponent's own "projectileHit" listener needs registering here.
+    bolt.create();
+
+    PlayerActions playerActions = mockPlayerActionsTarget();
+    Entity target =
+        new Entity().addComponent(playerActions).addComponent(new SpeedEffectComponent());
+    target.create();
+    bolt.getEvents().trigger("projectileHit", target);
+    SpeedEffectComponent speed = target.getComponent(SpeedEffectComponent.class);
+
+    for (int i = 0; i < 49; i++) speed.update();
+    verify(playerActions, never()).removeSpeedModifier(any());
+    speed.update();
+    verify(playerActions).removeSpeedModifier(any());
+  }
+
+  @Test
+  void shouldFireGazeAndApplyConfiguredPetrifyTicksNotTheDefault() {
+    RangedAttackComponent rangedComponent = new RangedAttackComponent(6f, 2f, 0f, createWeapon(5));
+    rangedComponent.setPetrifyTicks(30);
+    Entity gaze = fireAndCapture(ProjectileType.GAZE, rangedComponent);
+    // The mocked EntityService used by fireAndCapture doesn't call create() the way the real one
+    // would, so PetrifyEffectComponent's own "projectileHit" listener needs registering here.
+    gaze.create();
+
+    PlayerActions playerActions = mockPlayerActionsTarget();
+    Entity target =
+        new Entity().addComponent(playerActions).addComponent(new SpeedEffectComponent());
+    target.create();
+    gaze.getEvents().trigger("projectileHit", target);
+    SpeedEffectComponent speed = target.getComponent(SpeedEffectComponent.class);
+
+    for (int i = 0; i < 29; i++) speed.update();
+    verify(playerActions, never()).removeSpeedModifier(any());
+    speed.update();
+    verify(playerActions).removeSpeedModifier(any());
+  }
+
+  /**
+   * Fires {@code rangedComponent} at a fresh target and returns the single spawned projectile
+   * entity, captured via a mocked {@link EntityService}.
+   */
+  private Entity fireAndCapture(ProjectileType projectile, RangedAttackComponent rangedComponent) {
+    EntityService entityService = mock(EntityService.class);
+    List<Entity> registered = new ArrayList<>();
+    doAnswer(
+            invocation -> {
+              registered.add(invocation.getArgument(0));
+              return null;
+            })
+        .when(entityService)
+        .register(any(Entity.class));
+    ServiceLocator.registerEntityService(entityService);
+
+    Entity attacker =
+        new Entity().addComponent(rangedComponent).addComponent(new CombatStatsComponent(20, 5));
+    attacker.create();
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(2, 0);
+
+    attacker.getEvents().trigger("rangedAttack", target, projectile);
+
+    assertEquals(1, registered.size());
+    return registered.get(0);
+  }
+
+  private WeaponItem createWeapon(int damage) {
+    return WeaponItem.natural("Test Natural Weapon", damage, 0f);
+  }
+
+  private PlayerActions mockPlayerActionsTarget() {
+    PlayerActions playerActions = mock(PlayerActions.class);
+    when(playerActions.getPrio()).thenReturn(ComponentPriority.LOW);
+    return playerActions;
   }
 
   private List<Entity> listenForFired(Entity attacker) {

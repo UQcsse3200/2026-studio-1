@@ -47,6 +47,12 @@ public class RangedAttackComponent extends Component {
   // setProjectileSpeed(...) - matches RangedAttackConfig's own previous default.
   private static final float DEFAULT_PROJECTILE_SPEED = 8f;
 
+  // Defaults match this class's own previous hardcoded call to ArrowFactory.createLightning(...)
+  // (freezeTicks=120) and a comparable petrify duration for GAZE (90 ticks, i.e. 1.5s at ~60
+  // ticks/second) - only an attacker actually configured for LIGHTNING or GAZE ever reads these.
+  private static final int DEFAULT_LIGHTNING_FREEZE_TICKS = 120;
+  private static final int DEFAULT_PETRIFY_TICKS = 90;
+
   private float range;
   private float cooldown;
   private float knockback;
@@ -56,6 +62,8 @@ public class RangedAttackComponent extends Component {
   private float windupDuration;
   private float windupTimeRemaining;
   private float timeSinceLastAttack;
+  private int lightningFreezeTicks = DEFAULT_LIGHTNING_FREEZE_TICKS;
+  private int petrifyTicks = DEFAULT_PETRIFY_TICKS;
   private CombatStatsComponent combatStats;
   private static final Logger logger = LoggerFactory.getLogger(RangedAttackComponent.class);
 
@@ -248,6 +256,54 @@ public class RangedAttackComponent extends Component {
   }
 
   /**
+   * Returns how many ticks a target is frozen for when hit by a {@link ProjectileType#LIGHTNING}
+   * shot fired by this component.
+   *
+   * @return freeze duration in ticks; {@value #DEFAULT_LIGHTNING_FREEZE_TICKS} unless overridden
+   */
+  public int getLightningFreezeTicks() {
+    return lightningFreezeTicks;
+  }
+
+  /**
+   * Updates the freeze duration applied by a {@link ProjectileType#LIGHTNING} shot fired by this
+   * component. Has no effect on any other projectile type.
+   *
+   * @param lightningFreezeTicks new freeze duration, in ticks
+   * @throws IllegalArgumentException if {@code lightningFreezeTicks} is negative
+   */
+  public void setLightningFreezeTicks(int lightningFreezeTicks) {
+    if (lightningFreezeTicks < 0) {
+      throw new IllegalArgumentException("lightningFreezeTicks must not be negative.");
+    }
+    this.lightningFreezeTicks = lightningFreezeTicks;
+  }
+
+  /**
+   * Returns how many ticks a target is petrified for when hit by a {@link ProjectileType#GAZE}
+   * shot fired by this component.
+   *
+   * @return petrify duration in ticks; {@value #DEFAULT_PETRIFY_TICKS} unless overridden
+   */
+  public int getPetrifyTicks() {
+    return petrifyTicks;
+  }
+
+  /**
+   * Updates the petrify duration applied by a {@link ProjectileType#GAZE} shot fired by this
+   * component. Has no effect on any other projectile type.
+   *
+   * @param petrifyTicks new petrify duration, in ticks
+   * @throws IllegalArgumentException if {@code petrifyTicks} is negative
+   */
+  public void setPetrifyTicks(int petrifyTicks) {
+    if (petrifyTicks < 0) {
+      throw new IllegalArgumentException("petrifyTicks must not be negative.");
+    }
+    this.petrifyTicks = petrifyTicks;
+  }
+
+  /**
    * Attempts to fire an arrow at the given target entity: validates cooldown and range, then spawns
    * a real projectile aimed at it if both checks pass and the target has the required component(s).
    * Whether the shot actually connects is resolved later by the arrow itself.
@@ -298,7 +354,22 @@ public class RangedAttackComponent extends Component {
                   PhysicsLayer.PLAYER);
           case LIGHTNING ->
               ArrowFactory.createLightning(
-                  target.getCenterPosition(), 8f, 12f, 3, 120, PhysicsLayer.PLAYER);
+                  target.getCenterPosition(),
+                  8f,
+                  12f,
+                  this.getDamage(),
+                  lightningFreezeTicks,
+                  PhysicsLayer.PLAYER);
+          case GAZE ->
+              ArrowFactory.createGaze(
+                  spawnPosition,
+                  movingRight,
+                  projectileSpeed,
+                  range,
+                  this.getDamage(),
+                  knockback,
+                  petrifyTicks,
+                  PhysicsLayer.PLAYER);
         };
 
     // Re-fire "rangedAttackHit" on the shooter (this entity) if the arrow lands - preserves the

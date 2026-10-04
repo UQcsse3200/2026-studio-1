@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.LightningFreezeComponent;
+import com.csse3200.game.components.attacks.PetrifyEffectComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
 import com.csse3200.game.components.projectile.ProjectileComponent;
@@ -156,6 +157,56 @@ public class ArrowFactory {
     bolt.setPosition(targetPosition.x - scale.x / 2f, targetPosition.y + skyOffset);
 
     return bolt;
+  }
+
+  /**
+   * Creates Medusa's petrifying gaze projectile: travels in a straight line exactly like {@link
+   * #createRangedArrow}, but petrifies (rather than knocks back) whatever it hits via {@link
+   * PetrifyEffectComponent}, instead of {@link #createRangedArrow}'s plain {@link
+   * ProjectileHitComponent} knockback.
+   *
+   * @param position spawn position (world units) - typically just in front of Medusa, not her
+   *     exact centre, so the gaze doesn't spawn inside her own collider.
+   * @param movingRight true to fire in the +x direction (target is to the right), false for -x.
+   * @param speed travel speed in world units/second.
+   * @param maxRange maximum distance the gaze can travel before despawning; should normally match
+   *     the firing {@link com.csse3200.game.components.attacks.RangedAttackComponent}'s configured
+   *     range.
+   * @param damage damage dealt to whatever the gaze hits on {@code targetLayer}.
+   * @param knockback knockback magnitude applied on a successful hit; {@code 0f} disables it.
+   * @param petrifyTicks how many ticks the hit target is petrified (speed multiplier 0) for.
+   * @param targetLayer the physics layer the gaze deals damage to on contact (e.g. {@link
+   *     PhysicsLayer#PLAYER}).
+   * @return the gaze entity, not yet registered with the entity service.
+   */
+  public static Entity createGaze(
+      Vector2 position,
+      boolean movingRight,
+      float speed,
+      float maxRange,
+      int damage,
+      float knockback,
+      int petrifyTicks,
+      short targetLayer) {
+    Entity gaze =
+        new Entity()
+            // No dedicated gaze art exists yet - reuses the arrow sprite as a placeholder, same
+            // as Centaur/Cyclops reuse other enemies' atlases until Medusa's own art lands.
+            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
+            .addComponent(new HitboxComponent())
+            .addComponent(new CombatStatsComponent(1, damage))
+            .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.OBSTACLE, knockback))
+            .addComponent(new PetrifyEffectComponent(petrifyTicks))
+            .addComponent(
+                new ProjectileComponent(
+                    new StraightLineMovementStrategy(speed, movingRight), maxRange));
+
+    gaze.setPosition(position);
+    gaze.setScale(0.5f, 0.2f);
+    gaze.getComponent(TextureRenderComponent.class).setFlipX(!movingRight);
+
+    return gaze;
   }
 
   private ArrowFactory() {
