@@ -384,13 +384,30 @@ public class NPCFactory {
     InventoryComponent inventory = new InventoryComponent(numGold);
 
     // Configure animation component
-    // TODO: CYCLOPS ATTACK ANIMATION TO DO
     AnimationRenderComponent animator =
         new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_rock_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_rock_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_stomp_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_stomp_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_death_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_death_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_taunt_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_taunt_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_eye_scratch_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_eye_scratch_r", 0.1f, Animation.PlayMode.NORMAL);
+
+    // Configure weapon animation component for laser overlay
+    EnemyWeaponAnimationComponent weaponAnimator =
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH));
+    weaponAnimator.setScaleMultiplier(1.0f);
+    weaponAnimator.setOffset(0f, 0f);
+    weaponAnimator.addAnimation("cyclops_laser_l", 0.1f, Animation.PlayMode.NORMAL);
+    weaponAnimator.addAnimation("cyclops_laser_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Cyclops carries no weapon - natural attacks flow through the same weapon-based attack
     // constructors an armed enemy uses, via WeaponItem.natural(...), rather than each attack
@@ -417,6 +434,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
+        .addComponent(weaponAnimator)
         .addComponent(new CyclopsAnimationController());
 
     cyclops
