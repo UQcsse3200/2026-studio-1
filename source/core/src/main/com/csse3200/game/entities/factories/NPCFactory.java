@@ -238,8 +238,7 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1),
-                8f))
+                (WeaponItem) inventory.getItem(1)))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -273,8 +272,8 @@ public class NPCFactory {
    * @return minotaur entity that charges at target to attack
    */
   public static Entity createMinotaur(Entity target) {
-    float scale = 2f;
-    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    float scale = 2.0f;
+    Vector2 collisionScale = new Vector2(0.8f, 0.7f);
     Entity minotaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     MinotaurConfig config = configs.minotaur;
 
@@ -306,6 +305,12 @@ public class NPCFactory {
                 config.melee.cooldown,
                 config.melee.knockback,
                 (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new ChargeComponent(
+                config.charge.duration,
+                config.charge.cooldown,
+                config.charge.damageMultiplier,
+                config.charge.speedMultiplier))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
@@ -314,19 +319,18 @@ public class NPCFactory {
 
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    ChargeComponent chargeComponent =
-        new ChargeComponent(
-            config.charge.duration,
-            config.charge.cooldown,
-            config.charge.damageMultiplier,
-            config.charge.speedMultiplier);
-
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
     minotaur
         .getComponent(AITaskComponent.class)
-        .addTask(new MeleeAttackTask(target, 10, config.melee.range))
-        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
+        .addTask(new MeleeAttackTask(target, 15, config.melee.range))
+        .addTask(
+            (new ChargeTask(
+                target,
+                minotaur.getComponent(ChargeComponent.class),
+                config.charge.aggroRadius,
+                15,
+                10)));
 
     minotaur.setScale(scale, scale * (80f / 96f));
     PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
@@ -341,7 +345,7 @@ public class NPCFactory {
    * @return centaur entity that charges at target to attack from a distance.
    */
   public static Entity createCentaur(Entity target) {
-    float scale = 2f;
+    float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity centaur = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CentaurConfig config = configs.centaur;
@@ -374,8 +378,13 @@ public class NPCFactory {
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
-                (WeaponItem) inventory.getItem(1),
-                8f))
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new ChargeComponent(
+                config.charge.duration,
+                config.charge.cooldown,
+                config.charge.damageMultiplier,
+                config.charge.speedMultiplier))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -384,19 +393,18 @@ public class NPCFactory {
 
     centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    ChargeComponent chargeComponent =
-        new ChargeComponent(
-            config.charge.duration,
-            config.charge.cooldown,
-            config.charge.damageMultiplier,
-            config.charge.speedMultiplier);
-
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's javadoc for why a higher priority than ChaseTask is what achieves this.
     centaur
         .getComponent(AITaskComponent.class)
         .addTask(new RangedAttackTask(target, 10, config.ranged.range))
-        .addTask((new ChargeTask(target, chargeComponent, config.charge.aggroRadius, 15, 10)));
+        .addTask(
+            (new ChargeTask(
+                target,
+                centaur.getComponent(ChargeComponent.class),
+                config.charge.aggroRadius,
+                15,
+                10)));
 
     centaur.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
@@ -411,7 +419,7 @@ public class NPCFactory {
    * @return Cyclops entity as a mini boss enemy
    */
   public static Entity createCyclops(Entity target) {
-    float scale = 2f;
+    float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
     CyclopsConfig config = configs.cyclops;
@@ -442,17 +450,10 @@ public class NPCFactory {
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range,
-                config.melee.cooldown,
-                config.melee.knockback,
-                (WeaponItem) inventory.getItem(1)))
+                config.melee.range, config.melee.cooldown, config.melee.knockback))
         .addComponent(
             new RangedAttackComponent(
-                config.ranged.range,
-                config.ranged.cooldown,
-                config.ranged.knockback,
-                (WeaponItem) inventory.getItem(2),
-                8f))
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())

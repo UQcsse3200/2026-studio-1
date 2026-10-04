@@ -13,9 +13,13 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 @ExtendWith(GameExtension.class)
 class ShopComponentTest {
@@ -887,5 +891,476 @@ class ShopComponentTest {
     ShopComponent shop = new ShopComponent();
     assertSame(shop, shop.seedDefaultCatalog());
     assertNotNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldLeaveGamblingCatalogsUnsetUntilSeed() {
+    ShopComponent shop = new ShopComponent();
+
+    assertNull(shop.getGamblingCatalogs());
+    assertNull(shop.getStandardCatalog());
+    assertNull(shop.getPremiumCatalog());
+    assertEquals(0, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(0, shop.getSpinPrice(null));
+    assertTrue(shop.getPrizes(null).isEmpty());
+    assertTrue(shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).isEmpty());
+    assertNull(shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 1));
+  }
+
+  @Test
+  void shouldSeedStandardAndPremiumGamblingCatalogs() {
+    ShopComponent shop = new ShopComponent();
+
+    assertSame(shop, shop.seedDefaultCatalog());
+    assertSame(shop.getGamblingCatalogs().getStandard(), shop.getStandardCatalog());
+    assertSame(shop.getGamblingCatalogs().getPremium(), shop.getPremiumCatalog());
+    assertEquals(20, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(60, shop.getSpinPrice(GamblingCatalogs.CatalogId.PREMIUM));
+
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.STANDARD, 1, "Health Potion", ItemType.CONSUMABLE, 40);
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.STANDARD, 2, "Speed Potion", ItemType.CONSUMABLE, 25);
+    assertSeededGold(shop, GamblingCatalogs.CatalogId.STANDARD, 3, 15, 20);
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.STANDARD, 4, "Basic Sword", ItemType.WEAPON, 10);
+    assertSeededPet(shop, GamblingCatalogs.CatalogId.STANDARD, 5, "Bird", 5);
+
+    assertSeededPrize(
+        shop,
+        GamblingCatalogs.CatalogId.PREMIUM,
+        1,
+        "Regeneration Potion (Tier 2)",
+        ItemType.CONSUMABLE,
+        35);
+    assertSeededGold(shop, GamblingCatalogs.CatalogId.PREMIUM, 2, 30, 15);
+    assertSeededPrize(
+        shop, GamblingCatalogs.CatalogId.PREMIUM, 3, "Basic Bow", ItemType.WEAPON, 20);
+    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Premium Health", 25);
+    assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 5, "Spirit", 5);
+    assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).size());
+    assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).size());
+    assertNull(shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 0));
+    assertNull(shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 6));
+  }
+
+  /** Weights summing to 100 let each weight read directly as a percentage. */
+  @ParameterizedTest
+  @EnumSource(GamblingCatalogs.CatalogId.class)
+  void shouldSeedTicketWeightsThatSumToOneHundred(GamblingCatalogs.CatalogId catalogId) {
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+
+    assertEquals(
+        100,
+        GamblingRoller.totalWeight(shop.getGamblingCatalogs().get(catalogId)),
+        catalogId + " weights should sum to 100");
+  }
+
+  /** The wheel shows the display name, so it must match the item the player actually receives. */
+  @ParameterizedTest
+  @EnumSource(GamblingCatalogs.CatalogId.class)
+  void shouldSeedItemPrizesThatCreateTheNamedItem(GamblingCatalogs.CatalogId catalogId) {
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+
+    for (GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry :
+        shop.getPrizes(catalogId).values()) {
+      if (entry.product() instanceof GamblingCatalogs.ItemPrize prize) {
+        assertEquals(
+            prize.getDisplayName(),
+            prize.create().getName(),
+            catalogId + " prize '" + prize.getDisplayName() + "' should create that item");
+      }
+    }
+  }
+
+  @Test
+  void shouldRejectMutatingReturnedPrizeMap() {
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> replacement =
+        new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Other"), 1);
+
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).put(1, replacement));
+    assertEquals(
+        "Health Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getDisplayName());
+  }
+
+  @Test
+  void shouldNotifyShopChangedWhenSeededOnAttachedShop() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    shop.seedDefaultCatalog();
+
+    assertNotNull(shop.getStandardCatalog());
+    assertNotNull(shop.getPremiumCatalog());
+    // Six existing listing setters plus one gambling install.
+    assertEquals(7, shopEvents.get());
+  }
+
+  @Test
+  void shouldNotifyShopChangedWhenGamblingPriceOrPrizeChanges() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    shop.seedDefaultCatalog();
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+
+    assertTrue(shop.setSpinPrice(GamblingCatalogs.CatalogId.STANDARD, 20));
+    assertEquals(0, shopEvents.get());
+
+    assertTrue(shop.setSpinPrice(GamblingCatalogs.CatalogId.STANDARD, 30));
+    assertEquals(1, shopEvents.get());
+    assertEquals(30, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> current =
+        shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 5);
+    assertTrue(shop.setPrize(GamblingCatalogs.CatalogId.PREMIUM, 5, current));
+    assertEquals(1, shopEvents.get());
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> replacement =
+        new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Premium Owl"), 3);
+    assertTrue(shop.setPrize(GamblingCatalogs.CatalogId.PREMIUM, 5, replacement));
+    assertEquals(2, shopEvents.get());
+    assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).size());
+    assertSame(replacement, shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 5));
+  }
+
+  @Test
+  void shouldNotNotifyWhenGamblingReplaceIsInvalid() {
+    ShopComponent shop = new ShopComponent();
+    Entity entity = new Entity().addComponent(shop);
+    AtomicInteger shopEvents = new AtomicInteger();
+    entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+        new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Upgrade("Nope"), 1);
+
+    assertFalse(shop.setSpinPrice(GamblingCatalogs.CatalogId.STANDARD, 10));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 1, prize));
+    assertEquals(0, shopEvents.get());
+
+    shop.seedDefaultCatalog();
+    shopEvents.set(0);
+
+    assertFalse(shop.setSpinPrice(null, 10));
+    assertFalse(shop.setSpinPrice(GamblingCatalogs.CatalogId.PREMIUM, -1));
+    assertFalse(shop.setPrize(null, 1, prize));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 1, null));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 0, prize));
+    assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 6, prize));
+    assertEquals(
+        "Health Potion", itemPrize(shop, GamblingCatalogs.CatalogId.STANDARD, 1).getDisplayName());
+    assertEquals(20, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(0, shopEvents.get());
+  }
+
+  @Test
+  void shouldRejectGamblingCatalogsThatAreNotFiveSlots() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>(null, 1));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 0));
+
+    Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> four = new HashMap<>();
+    four.put(1, new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 1));
+    assertThrows(IllegalArgumentException.class, () -> new GamblingCatalogs.SpinCatalog(0, four));
+    assertThrows(
+        IllegalArgumentException.class, () -> new GamblingCatalogs.SpinCatalog(-1, fivePrizes()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new GamblingCatalogs(null, new GamblingCatalogs.SpinCatalog(0, fivePrizes())));
+  }
+
+  private static Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> fivePrizes() {
+    Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> prizes = new HashMap<>();
+    for (int slot = 1; slot <= GamblingCatalogs.SpinCatalog.PRIZE_SLOT_COUNT; slot++) {
+      prizes.put(slot, new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Bird"), 1));
+    }
+    return prizes;
+  }
+
+  private static void assertSeededPrize(
+      ShopComponent shop,
+      GamblingCatalogs.CatalogId catalogId,
+      int slot,
+      String name,
+      ItemType itemType,
+      int weight) {
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.weight());
+    GamblingCatalogs.ItemPrize prize = (GamblingCatalogs.ItemPrize) entry.product();
+    assertEquals(name, prize.getDisplayName(), catalogId + " slot " + slot + " display name");
+    assertEquals(itemType, prize.getItemType(), catalogId + " slot " + slot + " item type");
+  }
+
+  private static void assertSeededGold(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, int amount, int weight) {
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.weight());
+    assertEquals(
+        amount,
+        ((GamblingCatalogs.GoldPrize) entry.product()).getAmount(),
+        catalogId + " slot " + slot + " gold amount");
+  }
+
+  private static void assertSeededUpgrade(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, String name, int weight) {
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.weight());
+    assertEquals(name, ((ShopComponent.Upgrade) entry.product()).getName());
+  }
+
+  private static void assertSeededPet(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot, String name, int weight) {
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry = shop.getPrize(catalogId, slot);
+    assertNotNull(entry);
+    assertEquals(weight, entry.weight());
+    assertEquals(name, ((ShopComponent.Pet) entry.product()).getName());
+  }
+
+  private static GamblingCatalogs.ItemPrize itemPrize(
+      ShopComponent shop, GamblingCatalogs.CatalogId catalogId, int slot) {
+    return (GamblingCatalogs.ItemPrize) shop.getPrize(catalogId, slot).product();
+  }
+
+  // =========================================================================
+  // GAMBLING SPIN UNIT TESTS
+  // =========================================================================
+
+  @Test
+  void shouldBuySpinAwardGoldPrizeSuccessfully() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    // Deterministic random generator targeting slot 3 (Gold Prize: 15G on Standard catalog, spin
+    // cost: 20G)
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                // Total weight is 100. Weights: slot 1 (40), slot 2 (25), slot 3 (20).
+                // Range for slot 3: [65, 84]. Returning 65 targets slot 3.
+                return 65;
+              }
+            });
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+        shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
+
+    assertNotNull(prize);
+    assertTrue(prize.product() instanceof GamblingCatalogs.GoldPrize);
+    assertEquals(15, ((GamblingCatalogs.GoldPrize) prize.product()).getAmount());
+    // Initial (100) - Spin Cost (20) + Awarded Gold (15) = 95
+    assertEquals(95, inventory.getGold());
+  }
+
+  @Test
+  void shouldBuySpinAwardItemPrizeAndAddToInventory() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    // Targets slot 1 (Health Potion, weight 40, range [0, 39])
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 0;
+              }
+            });
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+        shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
+
+    assertNotNull(prize);
+    assertTrue(prize.product() instanceof GamblingCatalogs.ItemPrize);
+    assertEquals(80, inventory.getGold()); // 100 - 20
+    assertEquals(1, inventory.getOccupiedSlots());
+    assertEquals("Health Potion", inventory.getItem(1).getName());
+  }
+
+  @Test
+  void shouldBuySpinAwardPetPrizeAndRecord() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    // Targets slot 5 on Standard catalog (Bird Pet, weight 5, range [95, 99])
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 99;
+              }
+            });
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+        shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
+
+    assertNotNull(prize);
+    assertTrue(prize.product() instanceof ShopComponent.Pet);
+    assertEquals("Bird", ((ShopComponent.Pet) prize.product()).getName());
+    assertEquals(80, inventory.getGold());
+    assertEquals(1, shop.getPurchasedPets().size());
+    assertEquals("Bird", shop.getPurchasedPets().get(0).getName());
+  }
+
+  @Test
+  void shouldBuySpinAwardUpgradePrizeAndRecord() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    // Targets slot 4 on Premium catalog (Premium Health Upgrade, range [70, 94], cost 60)
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 75;
+              }
+            });
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+        shop.buySpin(GamblingCatalogs.CatalogId.PREMIUM);
+
+    assertNotNull(prize);
+    assertTrue(prize.product() instanceof ShopComponent.Upgrade);
+    assertEquals("Premium Health", ((ShopComponent.Upgrade) prize.product()).getName());
+    assertEquals(40, inventory.getGold()); // 100 - 60
+    assertEquals(1, shop.getPurchasedUpgrades().size());
+    assertEquals("Premium Health", shop.getPurchasedUpgrades().get(0).getName());
+  }
+
+  @Test
+  void shouldRejectSpinWhenNotEnoughGold() {
+    InventoryComponent inventory = new InventoryComponent(10); // Standard spin costs 20
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+        shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
+
+    assertNull(prize);
+    assertEquals(10, inventory.getGold()); // Gold untouched
+    assertEquals(0, inventory.getOccupiedSlots());
+  }
+
+  @Test
+  void shouldRejectSpinWhenInventoryCannotReceiveAllItemPrizes() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    fillInventory(inventory); // Fills all 5 slots
+    assertTrue(inventory.isFull());
+
+    // Fails pre-flight check because inventory has no room for possible item prizes
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+        shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
+
+    assertNull(prize);
+    assertEquals(100, inventory.getGold()); // No gold charged
+  }
+
+  @Test
+  void shouldRejectSpinWhenCatalogNotSeededOrUnattached() {
+    ShopComponent unseededShop = new ShopComponent();
+    InventoryComponent inventory = new InventoryComponent(100);
+    attach(inventory, unseededShop);
+
+    assertNull(unseededShop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertNull(unseededShop.buySpin(null));
+
+    ShopComponent unattachedShop = new ShopComponent().seedDefaultCatalog();
+    assertNull(unattachedShop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+  }
+
+  @Test
+  void shouldTriggerGamblingSpunEventOnSuccessfulSpin() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 0; // Slot 1
+              }
+            });
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    shop.seedDefaultCatalog();
+
+    AtomicInteger spunEvents = new AtomicInteger();
+    entity
+        .getEvents()
+        .addListener(
+            "gamblingSpun",
+            (GamblingCatalogs.CatalogId catalogId, Integer slot) -> {
+              assertEquals(GamblingCatalogs.CatalogId.STANDARD, catalogId);
+              assertEquals(1, slot);
+              spunEvents.incrementAndGet();
+            });
+
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(1, spunEvents.get());
+  }
+
+  @Test
+  void shouldTriggerPetPurchasedEventOnWinningPetPrize() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 99; // Slot 5 (Bird)
+              }
+            });
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    shop.seedDefaultCatalog();
+
+    AtomicInteger petEvents = new AtomicInteger();
+    entity
+        .getEvents()
+        .addListener(
+            "petPurchased",
+            (ShopComponent.Pet pet) -> {
+              assertEquals("Bird", pet.getName());
+              petEvents.incrementAndGet();
+            });
+
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(1, petEvents.get());
+  }
+
+  @Test
+  void shouldTriggerUpgradePurchasedEventOnWinningUpgradePrize() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 75; // Slot 4 on Premium (Premium Health)
+              }
+            });
+    Entity entity = new Entity().addComponent(inventory).addComponent(shop);
+    shop.seedDefaultCatalog();
+
+    AtomicInteger upgradeEvents = new AtomicInteger();
+    entity.getEvents().addListener("upgradePurchased", upgradeEvents::incrementAndGet);
+
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.PREMIUM));
+    assertEquals(1, upgradeEvents.get());
   }
 }

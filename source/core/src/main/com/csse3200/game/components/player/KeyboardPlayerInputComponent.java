@@ -3,14 +3,20 @@ package com.csse3200.game.components.player;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Input handler for the player for keyboard and touch (mouse) input. This input handler only uses
  * keyboard input.
  */
 public class KeyboardPlayerInputComponent extends InputComponent {
+  private static final Logger logger = LoggerFactory.getLogger(KeyboardPlayerInputComponent.class);
   private final Vector2 walkDirection = Vector2.Zero.cpy();
   private final Vector2 jumpDirection = Vector2.Zero.cpy();
   private final Vector2 dashDirection = Vector2.Zero.cpy();
@@ -75,6 +81,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         entity.getEvents().trigger("attack");
         entity.getEvents().trigger("attacking", direction);
         return true;
+      case Keys.F:
+        entity.getEvents().trigger("specialAttack");
+        return true;
+      case Keys.G:
+        entity.getEvents().trigger("areaAttack");
+        return true;
       case Keys.Q:
         entity.getEvents().trigger("dropItem");
         return true;
@@ -83,6 +95,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
       case Keys.J:
         entity.getEvents().trigger("toggleQuestMenu");
+        return true;
+      case Keys.T:
+        entity.getEvents().trigger("toggleTutorial");
         return true;
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", true);
@@ -107,9 +122,41 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.NUM_5:
         handleInventorySlot(5);
         return true;
+      case Keys.F6:
+        grantTestBow(2);
+        return true;
+      case Keys.F7:
+        grantTestBow(3);
+        return true;
       default:
         return false;
     }
+  }
+
+  private void grantTestBow(int tier) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory == null) {
+      logger.warn("Cannot grant a tier {} test bow: player has no inventory", tier);
+      return;
+    }
+
+    WeaponItem bow = new WeaponGenerator().generateWeapon(WeaponType.BOW, tier);
+    if (inventory.addItem(bow) > 0) {
+      logger.warn("Cannot grant a tier {} test bow: inventory is full", tier);
+      return;
+    }
+
+    for (var entry : inventory.getInventorySlots().entrySet()) {
+      if (entry.getValue() instanceof WeaponItem inventoryWeapon
+          && inventoryWeapon.getWeaponType() == WeaponType.BOW
+          && inventoryWeapon.getTier() == tier) {
+        inventory.setActiveSlot(entry.getKey());
+        logger.info("Granted and equipped tier {} test bow in slot {}", tier, entry.getKey());
+        return;
+      }
+    }
+
+    throw new IllegalStateException("Granted tier " + tier + " bow was not found in inventory.");
   }
 
   /**

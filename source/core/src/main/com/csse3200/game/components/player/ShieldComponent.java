@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.services.GameTime;
@@ -99,6 +100,7 @@ public class ShieldComponent extends Component {
    */
   public void grantShield() {
     hasShield = true;
+    Quest.incrementGlobalShieldsCollected();
     logger.info("Shield granted, press the shield key to activate");
     entity.getEvents().trigger("shieldGranted");
   }
@@ -130,6 +132,20 @@ public class ShieldComponent extends Component {
    */
   public boolean hasShield() {
     return hasShield;
+  }
+
+  /**
+   * Clears a held, unactivated shield without activating it, so it can be dropped as loot (for
+   * example on death) instead of being silently lost or carried over.
+   *
+   * @return {@code true} if a held shield was present and cleared
+   */
+  public boolean consumeHeldShield() {
+    if (!hasShield) {
+      return false;
+    }
+    hasShield = false;
+    return true;
   }
 
   /**
