@@ -140,6 +140,11 @@ class LootTableTest {
     }
 
     for (WeaponType type : WeaponType.values()) {
+      // NATURAL is an NPC-only weapon type (built via WeaponItem#natural) - it's never offered as
+      // player loot, so it's excluded from this acceptance criterion too.
+      if (type == WeaponType.NATURAL) {
+        continue;
+      }
       for (WeaponTier weaponTier : WeaponTier.values()) {
         String key = type + " tier " + weaponTier.getTier();
         assertTrue(found.contains(key), key + " should be obtainable from the default loot table");

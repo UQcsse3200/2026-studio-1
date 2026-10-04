@@ -152,6 +152,10 @@ public class WeaponRenderComponent extends RenderComponent {
       case AXE ->
           ServiceLocator.getResourceService().getAsset("images/items/axe.png", Texture.class);
       case SWORD -> getSwordTexture(tier);
+      case NATURAL ->
+          throw new IllegalStateException(
+              "WeaponType.NATURAL has no icon - it's an NPC-only weapon type (built via"
+                  + " WeaponItem#natural) and should never reach the player's weapon renderer.");
     };
   }
 
@@ -366,6 +370,10 @@ public class WeaponRenderComponent extends RenderComponent {
       case BOW -> getBowVisualConfig(currentWeaponTier);
       case DAGGER -> getDaggerVisualConfig(currentWeaponTier);
       case AXE -> getAxeVisualConfig(currentWeaponTier);
+      case NATURAL ->
+          throw new IllegalStateException(
+              "WeaponType.NATURAL has no visual config - it's an NPC-only weapon type (built via"
+                  + " WeaponItem#natural) and should never reach the player's weapon renderer.");
     };
   }
 

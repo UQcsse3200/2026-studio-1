@@ -251,7 +251,7 @@ class RangedAttackComponentTest {
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
 
-    attacker.getEvents().trigger("rangedAttack", target);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
     assertEquals(1, registered.size());
     Entity arrow = registered.get(0);

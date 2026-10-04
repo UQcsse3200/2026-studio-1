@@ -83,6 +83,13 @@ public class LootTable {
       int weight = weaponTier.getLootWeight();
       int tier = weaponTier.getTier();
       for (WeaponType type : WeaponType.values()) {
+        // NATURAL is an NPC-only weapon type (built via WeaponItem#natural) with no
+        // WeaponTier stats and no WeaponGenerator support - it should never be offered as
+        // player loot, same as it's excluded from the player-facing weapon HUD (see
+        // WeaponDisplay/WeaponRenderComponent).
+        if (type == WeaponType.NATURAL) {
+          continue;
+        }
         table.addWeapon(type, tier, weight);
       }
     }
