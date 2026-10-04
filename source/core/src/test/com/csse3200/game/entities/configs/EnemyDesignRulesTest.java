@@ -3,6 +3,8 @@ package com.csse3200.game.entities.configs;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.entities.configs.enemies.MedusaConfig;
 import com.csse3200.game.entities.configs.enemies.ZeusConfig;
 import com.csse3200.game.extensions.GameExtension;
@@ -29,9 +31,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(GameExtension.class)
 class EnemyDesignRulesTest {
   /**
-   * Ticks-to-seconds conversion for effect durations (petrifyTicks/freezeTicks). Matches the "about
-   * 60 per second" assumption already documented on {@link
-   * com.csse3200.game.entities.factories.ArrowFactory#createLightning} and {@link
+   * Ticks-to-seconds conversion for {@link RangedAttackComponent}'s freeze duration. Matches the
+   * "about 60 per second" assumption already documented on {@link
    * com.csse3200.game.components.attacks.RangedAttackComponent#getLightningFreezeTicks}.
    */
   private static final float TICKS_PER_SECOND = 60f;
@@ -88,7 +89,8 @@ class EnemyDesignRulesTest {
   @Test
   void medusaGazeCooldownShouldBeAtLeastTwicePetrifyDuration() {
     MedusaConfig config = configs.medusa;
-    float petrifySeconds = config.petrifyTicks / TICKS_PER_SECOND;
+    // PetrifyConfig.duration is already in seconds - no ticks conversion needed here.
+    float petrifySeconds = config.petrify.duration;
     assertTrue(
         config.ranged.cooldown >= 2 * petrifySeconds,
         "Medusa's gaze cooldown ("
@@ -101,7 +103,13 @@ class EnemyDesignRulesTest {
   @Test
   void zeusLightningCooldownShouldBeAtLeastTwiceFreezeDuration() {
     ZeusConfig config = configs.zeus;
-    float freezeSeconds = config.freezeTicks / TICKS_PER_SECOND;
+    // ZeusConfig no longer configures a freeze duration per-enemy - Zeus's natural lightning
+    // always uses RangedAttackComponent's own default (see NPCFactory#createZeus, which never
+    // calls setLightningFreezeTicks()), so read that default off a throwaway instance rather
+    // than duplicating the magic number here.
+    RangedAttackComponent probe =
+        new RangedAttackComponent(1f, 1f, 0f, WeaponItem.natural("probe", 1, 0f));
+    float freezeSeconds = probe.getLightningFreezeTicks() / TICKS_PER_SECOND;
     assertTrue(
         config.ranged.cooldown >= 2 * freezeSeconds,
         "Zeus's lightning cooldown ("
