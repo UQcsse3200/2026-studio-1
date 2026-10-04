@@ -539,7 +539,7 @@ class JsonMapLoaderTest {
     // The player arrives on the spawn level 2's summit exit sends them to.
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
     assertEquals(1, levelThree.getSpawns().getEnemies().size());
-    assertEquals("ghostking", levelThree.getSpawns().getEnemies().getFirst().getType());
+    assertEquals("cyclops", levelThree.getSpawns().getEnemies().getFirst().getType());
     assertEquals(
         new GridPoint2(32, 2), levelThree.getSpawns().getEnemies().getFirst().getPosition());
     // Only the shell collides: the throne room's furniture is all walk-through decoration.
