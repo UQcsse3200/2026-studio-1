@@ -510,6 +510,75 @@ public class NPCFactory {
   }
 
   /**
+   * Creates a Cerberus entity: a stationary mini-boss who bites very often. Unlike every other
+   * enemy in this factory, Cerberus does not wander or chase - he waits at his spawn point and only
+   * ever runs a {@link MeleeAttackTask}, which naturally goes idle (a no-op, not an error - see
+   * {@link com.csse3200.game.ai.tasks.AITaskComponent#update}) whenever the target is out of reach.
+   *
+   * <p>"Three heads" biting very often is represented as a single {@link MeleeAttackComponent} with
+   * a deliberately short cooldown (see {@link CerberusConfig}) rather than three separate attack
+   * components - modelling three literal simultaneous attacks would add complexity disproportionate
+   * to the actual gameplay effect of "bites often".
+   *
+   * @param target entity to bite once in range
+   * @return Cerberus entity as a stationary mini-boss enemy
+   */
+  public static Entity createCerberus(Entity target) {
+    float scale = 3.0f;
+    Vector2 collisionScale = new Vector2(0.8f, 0.6f);
+    Entity cerberus = createStationaryPlatformerNPC();
+    CerberusConfig config = configs.cerberus;
+
+    // Create loot on drop - more gold dropped due to no weapons being dropped (no inventory)
+    int numGold = 12;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+
+    // Configure animation component
+    // TODO: CERBERUS' OWN SPRITES AND BITE ANIMATION - reuses the Minotaur atlas as a placeholder
+    // in the meantime (its "swing" animation doubles as a bite), same as Centaur/Medusa reuse
+    // other enemies' atlases until Cerberus's own art lands.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(MINOTAUR_ATLAS_PATH), true);
+    animator.addAnimation("minotaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_swing_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("minotaur_swing_r", 0.1f, Animation.PlayMode.NORMAL);
+
+    // Cerberus carries no weapon - his bite flows through the same weapon-based attack
+    // constructor an armed enemy uses, via WeaponItem.natural(...), exactly like Cyclops's fists.
+    WeaponItem naturalBite =
+        WeaponItem.natural("Cerberus Bite", config.baseAttack, config.melee.cooldown - 1);
+
+    // Add necessary components to the entity
+    cerberus
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range, config.melee.cooldown, config.melee.knockback, naturalBite))
+        .addComponent(new EnemyTypeComponent(EnemyType.CERBERUS))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(animator)
+        // MinotaurAnimationController works unmodified with no ChargeComponent attached - every
+        // branch that reads it already null-checks, so Cerberus simply never enters a charge
+        // state and plays its idle/walk/swing (bite) animations exactly as intended.
+        .addComponent(new MinotaurAnimationController());
+
+    cerberus.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    cerberus
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, 10, config.melee.range));
+
+    cerberus.setScale(scale, scale * (80f / 96f));
+    PhysicsUtils.setScaledCollider(cerberus, collisionScale.x, collisionScale.y);
+    return cerberus;
+  }
+
+  /**
    * Loads a fresh, independently-owned {@link TextureAtlas} from the given internal file path,
    * bypassing {@code ResourceService}'s asset cache entirely.
    *
@@ -578,6 +647,34 @@ public class NPCFactory {
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
             .addComponent(aiComponent);
+
+    PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
+    return npc;
+  }
+
+  /**
+   * Creates a generic NPC that falls with gravity but never wanders or chases, to be used as a base
+   * entity by stationary mini-boss creation methods (currently just Cerberus).
+   *
+   * <p>Deliberately has no {@code target} parameter and adds no {@link WanderTask}/{@link
+   * ChaseTask}/{@link MeleeAttackTask} of its own - unlike {@link #createBasePlatformerNPC}, which
+   * always adds all three. {@link com.csse3200.game.ai.tasks.AITaskComponent} already has no issue
+   * running with zero eligible tasks (see its own Javadoc), so the caller is free to add only the
+   * attack task(s) it actually needs. No raycast-based floor positioning is needed here, unlike
+   * {@link #createBasePlatformerNPC} - with no wander task ever moving this entity off its spawn
+   * point, gravity alone is enough to settle it on the ground once.
+   *
+   * @return entity
+   */
+  private static Entity createStationaryPlatformerNPC() {
+    Entity npc =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(new AITaskComponent());
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);

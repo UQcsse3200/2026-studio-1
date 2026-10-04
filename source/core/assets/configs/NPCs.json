@@ -82,5 +82,14 @@
       "knockback": 1
     },
     "petrifyTicks": 90
+  },
+  "cerberus": {
+    "health": 100,
+    "baseAttack": 8,
+    "melee": {
+      "range": 2,
+      "cooldown": 1.2,
+      "knockback": 1
+    }
   }
 }
