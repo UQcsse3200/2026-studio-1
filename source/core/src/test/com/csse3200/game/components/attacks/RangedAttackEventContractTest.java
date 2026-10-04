@@ -7,14 +7,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 /**
  * Event contract and firing behaviour of RangedAttackComponent after the projectile type was added.
  *
- * <p>The component registers {@code attemptAttack(Entity target, ProjectileType projectile)} for the
- * {@code "rangedAttack"} event, so every trigger carries TWO values after the event name: the target,
- * then the projectile type (ARROW or LIGHTNING). The event handler picks its listener type from the
- * number of values, so a one-value trigger fails with a ClassCastException at runtime.
+ * <p>The component registers {@code attemptAttack(Entity target, ProjectileType projectile)} for
+ * the {@code "rangedAttack"} event, so every trigger carries TWO values after the event name: the
+ * target, then the projectile type (ARROW or LIGHTNING). The event handler picks its listener type
+ * from the number of values, so a one-value trigger fails with a ClassCastException at runtime.
  *
- * <p>Fixture: frame time 0.02 s (mock time source); shooter at the origin with combat stats and a bow
- * (windup below the cooldown); target at (3, 0) with combat stats; range 8, cooldown 5; mock entity
- * service that records every registered entity so arrows can be counted and inspected.
+ * <p>Fixture: frame time 0.02 s (mock time source); shooter at the origin with combat stats and a
+ * bow (windup below the cooldown); target at (3, 0) with combat stats; range 8, cooldown 5; mock
+ * entity service that records every registered entity so arrows can be counted and inspected.
  * Types: Boundary, Integration, Negative, Regression, Unit.
  */
 @ExtendWith(GameExtension.class)
