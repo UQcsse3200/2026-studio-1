@@ -3,6 +3,7 @@ package com.csse3200.game.components.player;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 import com.csse3200.game.Quests.JumpQuest;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.ui.UIComponent;
@@ -53,18 +54,18 @@ public class QuestDisplay extends UIComponent {
     questTable.setBackground(skin.getDrawable("window"));
     questTable.pad(10f);
 
-    Label title = new Label("QUEST", skin, "subtitle");
-    questTable.add(title).left().padBottom(6f).row();
+    Label title = new Label("QUEST", skin, "large");
+    title.setAlignment(Align.center);
+    questTable.add(title).expandX().fillX().padBottom(10f).row();
 
     rootTable.add(questTable).width(300f);
 
     stage.addActor(rootTable);
   }
 
-  /** Updates the quest list and handles the quest menu toggle. */
+  /** Updates the quest list. */
   @Override
   public void update() {
-
     jumpQuestsToDisplay = Quest.getJumpQuests();
 
     refreshQuestTable();
@@ -74,26 +75,27 @@ public class QuestDisplay extends UIComponent {
   private void refreshQuestTable() {
     questTable.clear();
 
-    Label title = new Label("QUEST", skin, "subtitle");
-    questTable.add(title).left().padBottom(6f).row();
+    Label title = new Label("QUEST", skin, "large");
+    title.setAlignment(Align.center);
+    questTable.add(title).expandX().fillX().padBottom(10f).row();
 
     // Completed quests section
     Label completedTitle = new Label("COMPLETED", skin);
-    questTable.add(completedTitle).left().padBottom(5f).row();
+    questTable.add(completedTitle).expandX().fillX().left().padBottom(5f).row();
 
     if (!completedQuests.isEmpty()) {
       for (JumpQuest quest : completedQuests) {
         Label completedQuest = new Label("✓ Jump Quest", skin);
-        questTable.add(completedQuest).left().row();
+        questTable.add(completedQuest).expandX().fillX().left().row();
       }
     } else {
       Label noCompleted = new Label("No completed quests", skin);
-      questTable.add(noCompleted).left().row();
+      questTable.add(noCompleted).expandX().fillX().left().row();
     }
 
     // Remaining quests section
     Label remainingTitle = new Label("REMAINING", skin);
-    questTable.add(remainingTitle).left().padTop(8f).padBottom(4f).row();
+    questTable.add(remainingTitle).expandX().fillX().left().padTop(10f).padBottom(5f).row();
 
     boolean hasRemainingQuests = false;
 
@@ -111,7 +113,7 @@ public class QuestDisplay extends UIComponent {
 
             Label questToDisplay = new Label("• Jump Quest - " + progress + "%", skin);
 
-            questTable.add(questToDisplay).left().row();
+            questTable.add(questToDisplay).expandX().fillX().left().row();
           }
         }
       }
@@ -119,7 +121,7 @@ public class QuestDisplay extends UIComponent {
 
     if (!hasRemainingQuests) {
       Label noRemaining = new Label("No remaining quests", skin);
-      questTable.add(noRemaining).left().row();
+      questTable.add(noRemaining).expandX().fillX().left().row();
     }
   }
 
