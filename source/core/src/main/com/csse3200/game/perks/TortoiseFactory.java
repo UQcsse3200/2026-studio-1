@@ -28,6 +28,7 @@ public final class TortoiseFactory {
   private static final String ATLAS_PATH = "images/tortoise.atlas";
   private static final float IDLE_FRAME_DURATION = 0.1f;
 
+  
   /**
    * Creates one specific hidden tortoise, ready to be positioned and spawned (e.g. via {@code
    * GameArea.spawnEntityAt}).
