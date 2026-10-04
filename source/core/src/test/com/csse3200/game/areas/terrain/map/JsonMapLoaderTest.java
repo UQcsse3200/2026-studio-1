@@ -439,9 +439,10 @@ class JsonMapLoaderTest {
     assertEquals(new GridPoint2(3, 3), levelOne.getSpawns().getPlayer());
     assertEquals(12, levelOne.getSpawns().getEnemies().size());
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
-    // Transparent ladders and ledges must render over a background rather than the clear colour.
+    // Transparent ladders and ledges render over the parallax backdrops, so the background layer
+    // is kept for parity with the other levels but holds no tiles.
     assertNotNull(levelOne.getLayer("background"));
-    assertEquals(TileType.DECORATIVE, levelOne.getLayer("background").get(26, 33).type());
+    assertNull(levelOne.getLayer("background").get(26, 33));
     // The Nether endpoint keeps the ladder passage open beside its solid marble landing.
     assertEquals(TileType.LADDER, levelOne.getTileType(26, 33));
     assertEquals(TileType.PLATFORM, levelOne.getTileType(27, 33));
@@ -462,13 +463,11 @@ class JsonMapLoaderTest {
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
     assertEquals(1, levelOne.getTransitions().size());
     assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
-    // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
-    // map still loads and renders from its tile layers.
+    // Level 1 is drawn from its tiles, with no composed image behind them.
     assertNull(levelOne.getBackgroundTexture());
     // The dungeon and the Nether each draw their own parallax backdrop instead of background tiles.
     assertEquals(4, levelOne.getBackdrop("dungeon").size());
     assertEquals(4, levelOne.getBackdrop("nether").size());
-    assertNull(levelOne.getLayer("background").get(26, 33).texture());
   }
 
   @Test
