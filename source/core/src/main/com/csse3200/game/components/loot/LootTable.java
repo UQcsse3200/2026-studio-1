@@ -33,6 +33,12 @@ public class LootTable {
    */
   private static final int SHIELD_WEIGHT = 10;
 
+  /**
+   * Weight of the Upgrade Stone in the standard table. It is rarer than any single potion (each
+   * potion type totals 100 across its tiers), so weapon upgrades stay something to look out for.
+   */
+  private static final int UPGRADE_STONE_WEIGHT = 40;
+
   private final List<LootEntry> entries = new ArrayList<>();
   private final Random random;
   private int totalWeight;
@@ -61,7 +67,7 @@ public class LootTable {
 
   /**
    * Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every {@link
-   * WeaponTier}, and the shield. Higher tiers are weighted to be rarer.
+   * WeaponTier}, the Upgrade Stone and the shield. Higher tiers are weighted to be rarer.
    *
    * <p>Weapons are built straight from {@link WeaponType} and {@link WeaponTier}, so a new weapon
    * type or a new tier added there shows up in the loot table without any change here.
@@ -75,13 +81,18 @@ public class LootTable {
     for (int tier = 1; tier <= POTION_TIER_WEIGHTS.length; tier++) {
       int weight = POTION_TIER_WEIGHTS[tier - 1];
       for (ConsumableType type : ConsumableType.values()) {
-        table.addConsumable(type, tier, weight);
+        if (type.isPotion()) {
+          table.addConsumable(type, tier, weight);
+        }
       }
     }
+
+    // The Upgrade Stone has no tiers, so it is added once with its own weight.
+    table.addConsumable(ConsumableType.UPGRADE_STONE, 1, UPGRADE_STONE_WEIGHT);
+
     // The tier system owns weapon rarity: each tier declares its own loot weight.
     for (WeaponTier weaponTier : WeaponTier.values()) {
       int weight = weaponTier.getLootWeight();
-      int tier = weaponTier.getTier();
       for (WeaponType type : WeaponType.values()) {
         // NATURAL is an NPC-only weapon type (built via WeaponItem#natural) with no
         // WeaponTier stats and no WeaponGenerator support - it should never be offered as
@@ -90,6 +101,7 @@ public class LootTable {
         if (type == WeaponType.NATURAL) {
           continue;
         }
+        int tier = weaponTier.getStats(type).getTier();
         table.addWeapon(type, tier, weight);
       }
     }
