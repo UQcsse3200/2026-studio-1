@@ -6,6 +6,7 @@ import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -149,6 +150,21 @@ public class LoadService {
       try {
         WeaponType weaponType = WeaponType.valueOf(savedItem.weaponType);
 
+        if (savedItem.weaponTier != null) {
+          try {
+            WeaponTier weaponTier = WeaponTier.fromTierNumber(savedItem.weaponTier);
+            return new WeaponItem(
+                savedItem.name,
+                weaponType,
+                weaponTier,
+                savedItem.quantity,
+                savedItem.maxQuantity,
+                0f);
+          } catch (IllegalArgumentException e) {
+            // Unrecognised tier number - fall back to the flat-damage constructor below.
+          }
+        }
+
         return new WeaponItem(
             savedItem.name,
             weaponType,
@@ -163,15 +179,42 @@ public class LoadService {
     if (itemType == ItemType.CONSUMABLE && savedItem.consumableType != null) {
       try {
         ConsumableType consumableType = ConsumableType.valueOf(savedItem.consumableType);
-        // Tier isn't stored on ConsumableItem, so reload defaults to tier 1 —
-        // a known simplification, not a full fix.
-        return new ConsumableGenerator().generateConsumable(consumableType, 1);
+        int tier = parseConsumableTier(savedItem.name);
+        return new ConsumableGenerator().generateConsumable(consumableType, tier);
       } catch (IllegalArgumentException e) {
         return null;
       }
     }
 
     return new Item(savedItem.name, itemType, savedItem.quantity, savedItem.maxQuantity);
+  }
+
+  /**
+   * Recovers a consumable's loot tier from its saved name.
+   *
+   * <p>ConsumableItem doesn't store tier directly, but ConsumableGenerator names tier 2+ items as
+   * "<name> (Tier N)". Tier 1 has no suffix, so a missing or unparsable match defaults to 1.
+   *
+   * @param name the item's saved display name
+   * @return the parsed tier, or 1 if none is found
+   */
+  private static int parseConsumableTier(String name) {
+    if (name == null) {
+      return 1;
+    }
+
+    java.util.regex.Matcher matcher =
+        java.util.regex.Pattern.compile("\\(Tier (\\d+)\\)$").matcher(name.trim());
+
+    if (matcher.find()) {
+      try {
+        return Integer.parseInt(matcher.group(1));
+      } catch (NumberFormatException e) {
+        return 1;
+      }
+    }
+
+    return 1;
   }
 
   private LoadService() {

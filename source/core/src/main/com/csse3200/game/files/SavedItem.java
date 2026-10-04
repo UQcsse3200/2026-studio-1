@@ -9,6 +9,7 @@ public class SavedItem {
 
   public String weaponType;
   public Integer damage;
+  public Integer weaponTier;
   public String consumableType;
 
   public SavedItem() {

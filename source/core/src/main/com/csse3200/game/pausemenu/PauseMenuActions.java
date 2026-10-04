@@ -124,6 +124,7 @@ public class PauseMenuActions extends Component {
       if (item instanceof WeaponItem weapon) {
         saved.weaponType = weapon.getWeaponType().name();
         saved.damage = weapon.getDamage();
+        saved.weaponTier = weapon.getTier();
       } else if (item instanceof ConsumableItem consumable) {
         saved.consumableType = consumable.getConsumableType().name();
       }
