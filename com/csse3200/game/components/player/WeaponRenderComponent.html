@@ -100,6 +100,11 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">WeaponRenderComponent</span>
 <span class="extends-implements">extends <a href="../../rendering/RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></span></div>
+<div class="block">Renders the equipped weapon beside the player and handles weapon-specific visual animations such
+ as sword swings, bow drawing and dagger throwing.
+
+ <p>The renderer keeps track of both the current weapon type and tier so upgraded weapon visuals
+ can be introduced without changing the rendering flow itself.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -149,6 +154,16 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.badlogic.gdx.math.Vector2</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAimDirection()" class="member-name-link">getAimDirection</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCurrentWeaponTier()" class="member-name-link">getCurrentWeaponTier</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the currently rendered weapon tier.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCurrentWeaponType()" class="member-name-link">getCurrentWeaponType</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the currently rendered weapon type.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.badlogic.gdx.math.Vector2</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHandAnchor()" class="member-name-link">getHandAnchor</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -258,6 +273,28 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getAimDirection()">
 <h3>getAimDirection</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.badlogic.gdx.math.Vector2</span>&nbsp;<span class="element-name">getAimDirection</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getCurrentWeaponTier()">
+<h3>getCurrentWeaponTier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getCurrentWeaponTier</span>()</div>
+<div class="block">Returns the currently rendered weapon tier.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>current weapon tier, or 1 when no weapon is equipped</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getCurrentWeaponType()">
+<h3>getCurrentWeaponType</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../loot/WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></span>&nbsp;<span class="element-name">getCurrentWeaponType</span>()</div>
+<div class="block">Returns the currently rendered weapon type.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>current weapon type, or null when no weapon is equipped</dd>
+</dl>
 </section>
 </li>
 <li>
