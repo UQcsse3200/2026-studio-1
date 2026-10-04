@@ -9,6 +9,8 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.ShopComponent;
 
 /** Applies saved game data to a newly created player. */
 public class LoadService {
@@ -33,6 +35,7 @@ public class LoadService {
     loadHealth(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
+    loadPets(player,data);
   }
 
   /**
@@ -98,6 +101,20 @@ public class LoadService {
                 "Inventory full - could not fully restore saved item: {} ({} not added)",
                 savedItem.name,
                 notAdded);
+      }
+    }
+  }
+
+  private static void loadPets(Entity player, GameSaveData data) {
+    ShopComponent shop = player.getComponent(ShopComponent.class);
+    if (shop != null) {
+      shop.restorePurchasedPets(data.ownedPetNames);
+    }
+
+    if (data.activePetName != null && !data.activePetName.isBlank()) {
+      PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
+      if (petManager != null) {
+        petManager.activatePet(new ShopComponent.Pet(data.activePetName));
       }
     }
   }

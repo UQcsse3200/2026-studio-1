@@ -12,6 +12,8 @@ import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedItem;
+import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.ShopComponent;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -92,6 +94,19 @@ public class PauseMenuActions extends Component {
     data.collectedLootIds = LootRegistry.exportAll();
     data.killedEnemyIds = EnemyRegistry.exportAll();
     data.level = levelSupplier.get();
+
+    ShopComponent shop = player.getComponent(ShopComponent.class);
+    if (shop != null) {
+      data.ownedPetNames =
+              shop.getPurchasedPets().stream()
+                      .map(ShopComponent.Pet::getName)
+                      .collect(java.util.stream.Collectors.toList());
+    }
+
+    PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
+    if (petManager != null) {
+      data.activePetName = petManager.getActivePetName();
+    }
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();

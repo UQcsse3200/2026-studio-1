@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
  */
 public class PetManagerComponent extends Component {
   private Entity activePet;
+  private String activePetName;
   private final BiFunction<Entity, ShopComponent.Pet, Entity> petFactory;
 
   /** Creates a pet manager using the normal game pet factory. */
@@ -52,12 +53,18 @@ public class PetManagerComponent extends Component {
     removePet();
 
     activePet = petFactory.apply(entity, pet);
+    activePetName = pet.getName();
     ServiceLocator.getEntityService().register(activePet);
   }
 
   /** Returns the currently active pet, or null if there is no active pet. */
   public Entity getActivePet() {
     return activePet;
+  }
+
+  /** Returns the name of the currently active pet, or null if there is no active pet. */
+  public String getActivePetName() {
+    return activePetName;
   }
 
   /** Returns whether this player currently has an active pet. */
@@ -73,6 +80,7 @@ public class PetManagerComponent extends Component {
 
     activePet.dispose();
     activePet = null;
+    activePetName=null;
   }
 
   /** Removes the active pet when this component is disposed. */
