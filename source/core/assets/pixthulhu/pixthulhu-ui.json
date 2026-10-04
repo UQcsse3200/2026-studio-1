@@ -9,6 +9,10 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	title: {
 		file: font-title-export.fnt
 	}
+	small: {
+		file: font-export.fnt
+    	scaledSize: 12
+	}
 }
 com.badlogic.gdx.graphics.Color: {
 	black: {
@@ -139,6 +143,10 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: font
 		fontColor: white
 	}
+	small: {
+		font: small
+		fontColor: white
+	}
 	subtitle: {
 		font: subtitle
 		fontColor: white
@@ -213,6 +221,12 @@ com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: {
 		font: subtitle
+		fontColor: field
+		up: button
+		down: button-pressed
+	}
+	shop: {
+		font: small
 		fontColor: field
 		up: button
 		down: button-pressed
