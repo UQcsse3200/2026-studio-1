@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 public class ShieldComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(ShieldComponent.class);
   private static final long DEFAULT_DURATION_MILLIS = 30000L;
-  private static final String shield_perk_id = "shieldMaster";
-  private static final long shield_perk_duration = 10000L;
+  private static final String SHIELD_PERK_ID = "shieldMaster";
+  private static final long SHIELD_PERK_DURATION = 10000L;
 
   private long durationMillis; // changed from final to make it mutable for perks.
   private GameTime timeSource;
@@ -76,13 +76,13 @@ public class ShieldComponent extends Component {
 
     entity.getEvents().addListener("activateShield", this::activateShield);
 
-    Perk shieldPerk = PerkService.getPerk(shield_perk_id);
+    Perk shieldPerk = PerkService.getPerk(SHIELD_PERK_ID);
     if (shieldPerk != null) {
       if (shieldPerk.isActive()) {
-        increaseDuration(shield_perk_duration);
+        increaseDuration(SHIELD_PERK_DURATION);
       }
-      shieldPerk.setOnActivated(() -> increaseDuration(shield_perk_duration));
-      shieldPerk.setOnDeactivated(() -> decreaseDuration(shield_perk_duration));
+      shieldPerk.setOnActivated(() -> increaseDuration(SHIELD_PERK_DURATION));
+      shieldPerk.setOnDeactivated(() -> decreaseDuration(SHIELD_PERK_DURATION));
     }
   }
 

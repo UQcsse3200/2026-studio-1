@@ -94,7 +94,6 @@ public class MainGameScreen extends ScreenAdapter {
   private PauseMenuActions pauseMenuActions;
   private Map<String, Long> lootSeedsByRoom = new HashMap<>();
   private DeathScreenDisplay deathScreenDisplay;
-  private PerkSelectionDisplay perkSelectionDisplay;
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
@@ -575,12 +574,11 @@ public class MainGameScreen extends ScreenAdapter {
         ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
-
     /*
      * Try Again now revives the player instead of
      * restarting the entire game.
      */
-    perkSelectionDisplay = new PerkSelectionDisplay(this::revivePlayer);
+    PerkSelectionDisplay perkSelectionDisplay = new PerkSelectionDisplay(this::revivePlayer);
     deathScreenDisplay =
         new DeathScreenDisplay(
             this.game,

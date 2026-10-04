@@ -38,6 +38,7 @@ public class PerkSelectionDisplay extends UIComponent {
   private static final Color NO_BORDER_COLOR = Color.CLEAR;
   private static final float CARD_SIZE = 150f;
   private static final float BORDER_PAD = 4f;
+  private static final String white = "white";
 
   private final Runnable onContinue;
   private Table rootTable;
@@ -69,10 +70,10 @@ public class PerkSelectionDisplay extends UIComponent {
     // cards directly on top of whatever screen this was shown over.
     rootTable = new Table();
     rootTable.setFillParent(true);
-    rootTable.setBackground(skin.newDrawable("white", SCRIM_COLOR));
+    rootTable.setBackground(skin.newDrawable(white, SCRIM_COLOR));
 
     Table popup = new Table(skin);
-    popup.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    popup.setBackground(skin.newDrawable(white, PANEL_COLOR));
     popup.pad(30f);
 
     Label title = createTitleLabel("CHOOSE YOUR PERKS");
@@ -107,7 +108,7 @@ public class PerkSelectionDisplay extends UIComponent {
 
   private Table buildCardFrame(Perk perk, int index) {
     Table card = new Table(skin);
-    card.setBackground(skin.newDrawable("white", colorFor(perk)));
+    card.setBackground(skin.newDrawable(white, colorFor(perk)));
     card.pad(10f);
 
     Label nameLabel = createLabel(perk.getName());
@@ -134,7 +135,7 @@ public class PerkSelectionDisplay extends UIComponent {
     // same "background peeking through padding" trick used for highlights elsewhere in this
     // project, kept independent of the card's own state colour.
     Table frame = new Table();
-    frame.setBackground(skin.newDrawable("white", NO_BORDER_COLOR));
+    frame.setBackground(skin.newDrawable(white, NO_BORDER_COLOR));
     frame.add(card).width(CARD_SIZE).height(CARD_SIZE).pad(BORDER_PAD);
     return frame;
   }
@@ -217,18 +218,23 @@ public class PerkSelectionDisplay extends UIComponent {
 
   private void refreshCard(int index) {
     Table card = (Table) cardFrames[index].getChild(0);
-    card.setBackground(skin.newDrawable("white", colorFor(perks.get(index))));
+    card.setBackground(skin.newDrawable(white, colorFor(perks.get(index))));
   }
 
   private void updateFocus() {
     for (int i = 0; i < cardFrames.length; i++) {
       cardFrames[i].setBackground(
-          skin.newDrawable("white", i == selectedIndex ? FOCUS_BORDER_COLOR : NO_BORDER_COLOR));
+          skin.newDrawable(white, i == selectedIndex ? FOCUS_BORDER_COLOR : NO_BORDER_COLOR));
     }
     continueButton.setColor(selectedIndex == perks.size() ? FOCUS_BORDER_COLOR : Color.WHITE);
   }
 
   public void show() {
+    if (rootTable == null) {
+      // create() hasn't run yet (this display isn't on a registered entity), so there's nothing
+      // to show - and perks/cardFrames/continueButton, which create() also sets, are still null.
+      return;
+    }
     selectedIndex = 0;
     for (int i = 0; i < perks.size(); i++) {
       refreshCard(i);
@@ -242,7 +248,7 @@ public class PerkSelectionDisplay extends UIComponent {
    *     to gate keyboard input
    */
   public boolean isVisible() {
-    return rootTable.isVisible();
+    return rootTable != null && rootTable.isVisible();
   }
 
   private void close() {

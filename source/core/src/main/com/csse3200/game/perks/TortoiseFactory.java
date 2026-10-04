@@ -25,7 +25,6 @@ import com.csse3200.game.services.ServiceLocator;
  * actually plays here.
  */
 public final class TortoiseFactory {
-  private static final String TEXTURE_PATH = "images/tortoise.png";
   private static final String ATLAS_PATH = "images/tortoise.atlas";
   private static final float IDLE_FRAME_DURATION = 0.1f;
 

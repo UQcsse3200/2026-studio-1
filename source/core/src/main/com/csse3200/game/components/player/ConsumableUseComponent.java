@@ -25,8 +25,8 @@ public class ConsumableUseComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(ConsumableUseComponent.class);
 
   private int maxHealth;
-  private static final String perk_ID = "thickSkin";
-  private static final int health_perk = 50;
+  private static final String PERK_ID = "thickSkin";
+  private static final int HEALTH_PERK = 50;
 
   /**
    * Creates a use handler with an explicit health cap.
@@ -46,13 +46,13 @@ public class ConsumableUseComponent extends Component {
   public void create() {
     entity.getEvents().addListener("useItem", this::useItem);
 
-    Perk thickSkinPerk = PerkService.getPerk(perk_ID);
+    Perk thickSkinPerk = PerkService.getPerk(PERK_ID);
     if (thickSkinPerk != null) {
       if (thickSkinPerk.isActive()) {
-        increaseMaxHealth(health_perk);
+        increaseMaxHealth(HEALTH_PERK);
       }
-      thickSkinPerk.setOnActivated(() -> increaseMaxHealth(health_perk));
-      thickSkinPerk.setOnDeactivated(() -> decreaseMaxHealth(health_perk));
+      thickSkinPerk.setOnActivated(() -> increaseMaxHealth(HEALTH_PERK));
+      thickSkinPerk.setOnDeactivated(() -> decreaseMaxHealth(HEALTH_PERK));
     }
   }
 
