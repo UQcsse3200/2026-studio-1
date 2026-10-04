@@ -19,7 +19,6 @@ public class LightningFreezeComponent extends Component {
   }
 
   private void onHit(Entity target) {
-    // Boxed types must match applyEffect(Integer, Float): int and 0f, not 0
     Sound zapSound = ServiceLocator.getResourceService().getAsset("sounds/zap.mp3", Sound.class);
     zapSound.play(AudioSettings.getEffectiveEffectsVolume());
     target.getEvents().trigger("applySpeedEffect", freezeTicks, 0f);

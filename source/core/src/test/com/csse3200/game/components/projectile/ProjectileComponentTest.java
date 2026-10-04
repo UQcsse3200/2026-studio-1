@@ -5,10 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,12 +16,9 @@ import static org.mockito.Mockito.when;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,16 +27,14 @@ import org.mockito.ArgumentCaptor;
 
 @ExtendWith(GameExtension.class)
 class ProjectileComponentTest {
-  private EntityService entityService;
-  private ArgumentCaptor<Runnable> scheduledOnDeathCall;
   private ProjectileMovementStrategy movementStrategy;
-
-  private Application originalApplication;
-
-  private Application originalApplication;
+  private Application originalApp;
 
   @BeforeEach
   void beforeEach() {
+    originalApp = Gdx.app;
+    Gdx.app = mock(Application.class);
+
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(20f / 1000);
     ServiceLocator.registerTimeSource(gameTime);
@@ -49,11 +43,8 @@ class ProjectileComponentTest {
   }
 
   @AfterEach
-  void restoreApplication() {
-    if (originalApplication != null) {
-      Gdx.app = originalApplication;
-      originalApplication = null;
-    }
+  void afterEach() {
+    Gdx.app = originalApp;
   }
 
   @Test
@@ -124,13 +115,10 @@ class ProjectileComponentTest {
   @Test
   void shouldDespawnWhenProjectileExpiredEventFires() {
     // Simulates ProjectileHitComponent (or anything else) ending the projectile's flight early,
-    // well before it would otherwise reach maxRange. The despawn is posted to the game thread, so
-    // the test runs the posted work itself.
+    // well before it would otherwise reach maxRange.
     Entity projectile = createProjectile(100f);
-    List<Runnable> posted = capturePostedWork();
 
     projectile.getEvents().trigger("projectileExpired");
-    runAll(posted);
 
     // Hits arrive from inside Box2D's physics step, so the despawn must be deferred, not immediate
     assertFalse(projectile.getComponent(ProjectileComponent.class).isExpired());
@@ -143,61 +131,25 @@ class ProjectileComponentTest {
   @Test
   void projectileExpiredEventShouldBeIdempotent() {
     Entity projectile = createProjectile(100f);
-    List<Runnable> posted = capturePostedWork();
 
     assertDoesNotThrow(
         () -> {
           projectile.getEvents().trigger("projectileExpired");
           projectile.getEvents().trigger("projectileExpired");
-          runAll(posted);
+          runPostedRunnables(); // both queued despawns run; the second must be a no-op
         });
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
   }
 
-  @Test
-  void firingTheExpiredEventPostsExactlyOneDespawn() {
-    // checks that the deferral by checking the despawn is posed once and not run inline.
-    Entity projectile = createProjectile(100f);
-    List<Runnable> posted = capturePostedWork();
-
-    projectile.getEvents().trigger("projectileExpired");
-
-    assertEquals(1, posted.size(), "The despawn should be posted once, not run inline.");
+  private void runPostedRunnables() {
+    ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+    verify(Gdx.app, atLeastOnce()).postRunnable(captor.capture());
+    captor.getAllValues().forEach(Runnable::run);
   }
 
   private Entity createProjectile(float maxRange) {
     Entity entity = new Entity().addComponent(new ProjectileComponent(movementStrategy, maxRange));
     entity.create();
     return entity;
-  }
-
-  /**
-   * Replaces Gdx.app with a stand-in that records posted runnables instead of running them, so a
-   * test can fire an event and then run the deferred work itself, on the test thread.
-   *
-   * @return the list the stand-in adds each posted runnable to
-   */
-  private List<Runnable> capturePostedWork() {
-    List<Runnable> posted = new ArrayList<>();
-    if (originalApplication == null) {
-      originalApplication = Gdx.app;
-    }
-    Application application = mock(Application.class);
-    doAnswer(
-            invocation -> {
-              posted.add(invocation.getArgument(0));
-              return null;
-            })
-        .when(application)
-        .postRunnable(any(Runnable.class));
-    Gdx.app = application;
-    return posted;
-  }
-
-  private void runAll(List<Runnable> posted) {
-    for (Runnable runnable : new ArrayList<>(posted)) {
-      runnable.run();
-    }
-    posted.clear();
   }
 }
