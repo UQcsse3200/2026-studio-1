@@ -37,6 +37,8 @@ class ProjectileComponentTest {
 
   private Application originalApplication;
 
+  private Application originalApplication;
+
   @BeforeEach
   void beforeEach() {
     GameTime gameTime = mock(GameTime.class);
@@ -129,6 +131,11 @@ class ProjectileComponentTest {
 
     projectile.getEvents().trigger("projectileExpired");
     runAll(posted);
+
+    // Hits arrive from inside Box2D's physics step, so the despawn must be deferred, not immediate
+    assertFalse(projectile.getComponent(ProjectileComponent.class).isExpired());
+
+    runPostedRunnables();
 
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
   }

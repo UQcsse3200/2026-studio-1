@@ -53,6 +53,5 @@ public class EnemyDeathComponent extends Component {
         entity.getCenterPosition().x,
         entity.getCenterPosition().y);
     entity.dispose();
-    logger.info("Enemy {} died.", entity);
   }
 }

@@ -118,7 +118,6 @@ public class RangedAttackComponent extends Component {
     this.setWindupDuration(this.getCooldown() - 1);
     this.timeSinceLastAttack = cooldown;
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
-    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**
