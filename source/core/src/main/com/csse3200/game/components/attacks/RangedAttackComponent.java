@@ -135,7 +135,6 @@ public class RangedAttackComponent extends Component {
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
   }
 
-
   /**
    * Resolves this entity's {@link CombatStatsComponent} and registers a listener for the
    * attack-trigger event.

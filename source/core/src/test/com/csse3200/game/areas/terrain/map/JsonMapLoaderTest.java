@@ -519,7 +519,7 @@ class JsonMapLoaderTest {
                 spawn ->
                     "skeleton".equals(spawn.getType())
                         && spawn.getPosition().equals(new GridPoint2(43, 147))));
-    assertEquals(6, levelTwo.getSpawns().getEnemies().size());
+    assertEquals(8, levelTwo.getSpawns().getEnemies().size());
     assertEquals(6, levelTwo.getSpawns().getLoot().size());
     assertEquals("maps/level3.json", levelTwo.getTransitions().getFirst().getDestinationMap());
     assertEquals(new GridPoint2(67, 166), levelTwo.getTransitions().getFirst().getPosition());

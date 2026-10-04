@@ -50,6 +50,7 @@ public class NPCFactory {
       "images/skeleton_weapons/skeleton_bow.atlas";
   private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
   private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
+  private static final String GORGON_ATLAS_PATH = "images/enemies/gorgon.atlas";
   private static final String CENTAUR_ATLAS_PATH = "images/enemies/centaur.atlas";
   private static final String CERBERUS_ATLAS_PATH = "images/enemies/cerberus.atlas";
   private static final String MEDUSA_ATLAS_PATH = "images/enemies/medusa.atlas";
@@ -473,10 +474,10 @@ public class NPCFactory {
    * Creates Medusa, a mini-boss that paces on the spot, bites up close and petrifies the player
    * with a ranged gaze.
    *
-   * <p>PLACEHOLDER BUILD: made only from existing classes. She uses the Cyclops atlas and animation
-   * controller, a natural melee weapon and a natural gaze weapon (like the Cyclops), and freezes
-   * the player through the existing {@code "applySpeedEffect"} event (the same one lightning uses)
-   * instead of a petrify component.
+   * <p>She uses her real {@code gorgon} atlas and {@link MedusaAnimationController}, a natural
+   * melee weapon and a natural gaze weapon (like the Cyclops), and freezes the player through the
+   * existing {@code "applySpeedEffect"} event (the same one lightning uses) instead of a petrify
+   * component (still a PLACEHOLDER: petrify should become its own component, see the TODO below).
    *
    * @param target entity to attack (the player); must not be null
    * @return Medusa, ready to register
@@ -501,14 +502,16 @@ public class NPCFactory {
     // More gold because no weapon drops (natural weapons never go in the inventory).
     InventoryComponent inventory = new InventoryComponent(12);
 
-    // TODO (ART): Medusa needs her own atlas (idle, walk, melee, gaze, left and right). Until it
-    // exists she borrows the Cyclops atlas, animations and controller.
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
-    animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(GORGON_ATLAS_PATH), true);
+    animator.addAnimation("gorgon_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("gorgon_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("gorgon_walk_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("gorgon_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("gorgon_attack_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("gorgon_attack_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("gorgon_dead_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("gorgon_dead_r", 0.1f, Animation.PlayMode.NORMAL);
 
     WeaponItem bite = WeaponItem.natural("Medusa Bite", config.baseAttack, config.melee.windup);
     WeaponItem gaze = WeaponItem.natural("Medusa Gaze", config.baseAttack, config.ranged.windup);
@@ -526,8 +529,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
-        // TODO (ART): replace with MedusaAnimationController.
-        .addComponent(new CyclopsAnimationController());
+        .addComponent(new MedusaAnimationController());
 
     medusa
         .getComponent(RangedAttackComponent.class)

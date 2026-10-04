@@ -5,13 +5,13 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.physics.components.PhysicsComponent;
 
 /**
- * Makes an entity fly: zeroes its physics body's gravity scale once created, so the world's
- * gravity never pulls it down between steering updates, and optionally applies linear damping so
- * knockback impulses fade out instead of carrying the entity away indefinitely (ground NPCs get
- * the same effect for free from floor friction, which a flying entity has none of).
+ * Makes an entity fly: zeroes its physics body's gravity scale once created, so the world's gravity
+ * never pulls it down between steering updates, and optionally applies linear damping so knockback
+ * impulses fade out instead of carrying the entity away indefinitely (ground NPCs get the same
+ * effect for free from floor friction, which a flying entity has none of).
  *
- * <p>Pairs with a {@link com.csse3200.game.physics.components.PhysicsMovementComponent} left in
- * its default (non-grounded) mode, which already steers toward the full 2D direction to a target -
+ * <p>Pairs with a {@link com.csse3200.game.physics.components.PhysicsMovementComponent} left in its
+ * default (non-grounded) mode, which already steers toward the full 2D direction to a target -
  * including the vertical component that a grounded entity deliberately ignores (see {@link
  * com.csse3200.game.physics.components.PhysicsMovementComponent#setGroundedMovement}). With gravity
  * zeroed, that steering becomes the only vertical force acting on the entity, which is what keeps a
@@ -33,8 +33,8 @@ public class FlightComponent extends Component {
 
   /**
    * Creates a flight component that zeroes gravity and applies the given linear damping, so a
-   * knockback impulse on this entity fades out over time instead of persisting forever (there is
-   * no ground friction to do this for a flying entity otherwise).
+   * knockback impulse on this entity fades out over time instead of persisting forever (there is no
+   * ground friction to do this for a flying entity otherwise).
    *
    * @param linearDamping linear damping to apply to the physics body; not negative
    * @throws IllegalArgumentException if {@code linearDamping} is negative

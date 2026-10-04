@@ -40,6 +40,8 @@ public final class DefaultEntitySpawns {
     EntitySpawnRegistry.registerIfAbsent("minotaur", NPCFactory::createMinotaur);
     EntitySpawnRegistry.registerIfAbsent("centaur", NPCFactory::createCentaur);
     EntitySpawnRegistry.registerIfAbsent("enemy-centaur", NPCFactory::createCentaur);
+    EntitySpawnRegistry.registerIfAbsent("zeus", NPCFactory::createZeus);
+    EntitySpawnRegistry.registerIfAbsent("medusa", NPCFactory::createMedusa);
 
     // NPC team.
     EntitySpawnRegistry.registerIfAbsent("npc:traveler", NPCFactory::createTravelerNPC);
