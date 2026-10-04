@@ -8,6 +8,7 @@ import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.ShopComponent;
@@ -33,6 +34,7 @@ public class LoadService {
     }
 
     loadHealth(player, data);
+    loadStamina(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
     loadPets(player,data);
@@ -57,6 +59,14 @@ public class LoadService {
 
     if (stats != null && data.health > 0) {
       stats.setHealth(data.health);
+    }
+  }
+
+  private static void loadStamina(Entity player, GameSaveData data) {
+    StaminaComponent stamina = player.getComponent(StaminaComponent.class);
+
+    if (stamina != null) {
+      stamina.setStamina(data.stamina);
     }
   }
 

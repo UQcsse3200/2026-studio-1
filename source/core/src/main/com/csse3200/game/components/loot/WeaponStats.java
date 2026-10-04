@@ -11,4 +11,6 @@ public interface WeaponStats {
   float getKnockback();
 
   float getRange();
+
+  int getProjectileCount();
 }

@@ -7,6 +7,7 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
@@ -84,9 +85,11 @@ public class PauseMenuActions extends Component {
   public GameSaveData createSaveData(Entity player) {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
+    StaminaComponent stamina = player.getComponent(StaminaComponent.class);
 
     GameSaveData data = new GameSaveData();
     data.health = stats.getHealth();
+    data.stamina = stamina.getStamina();
     data.gold = inventory.getGold();
     data.posX = player.getPosition().x;
     data.posY = player.getPosition().y;
