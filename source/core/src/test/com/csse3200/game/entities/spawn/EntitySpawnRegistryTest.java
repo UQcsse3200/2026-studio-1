@@ -80,10 +80,10 @@ class EntitySpawnRegistryTest {
   @Test
   void aLaterRegistrationReplacesAnEarlierOne() {
     Entity second = new Entity();
-    EntitySpawnRegistry.register("ghost", player -> new Entity());
-    EntitySpawnRegistry.register("ghost", player -> second);
+    EntitySpawnRegistry.register("skeleton", player -> new Entity());
+    EntitySpawnRegistry.register("skeleton", player -> second);
 
-    assertSame(second, EntitySpawnRegistry.create("ghost", null));
+    assertSame(second, EntitySpawnRegistry.create("skeleton", null));
     assertEquals(1, EntitySpawnRegistry.registeredNames().size());
   }
 
