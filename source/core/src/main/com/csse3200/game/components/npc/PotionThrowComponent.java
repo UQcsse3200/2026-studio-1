@@ -117,7 +117,8 @@ public class PotionThrowComponent extends Component {
         new AnimationRenderComponent(new TextureAtlas(Gdx.files.internal(SPLASH_ATLAS)), true);
     animator.addAnimation("splash", SPLASH_FRAME_SECONDS, Animation.PlayMode.NORMAL);
 
-    Entity splash = new Entity().addComponent(animator).addComponent(new SplashEffectComponent());
+    Entity splash =
+        new Entity().addComponent(animator).addComponent(new SplashEffectComponent("splash"));
     splash.setScale(SPLASH_SIZE, SPLASH_SIZE);
     splash.setPosition(smashAt.x - SPLASH_SIZE / 2f, smashAt.y - POTION_SIZE / 2f);
     ServiceLocator.getEntityService().register(splash);

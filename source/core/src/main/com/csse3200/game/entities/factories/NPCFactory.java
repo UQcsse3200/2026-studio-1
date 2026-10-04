@@ -15,6 +15,7 @@ import com.csse3200.game.components.npc.DialogueProximityComponent;
 import com.csse3200.game.components.npc.DisplayDialogue;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
+import com.csse3200.game.components.npc.HeadbuttAttackComponent;
 import com.csse3200.game.components.npc.MinotaurAnimationController;
 import com.csse3200.game.components.npc.PotionThrowComponent;
 import com.csse3200.game.components.npc.ProvokedComponent;
@@ -591,7 +592,9 @@ public class NPCFactory {
         .addComponent(new PotionThrowComponent(throwRange))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent());
-    wizard.getComponent(AITaskComponent.class).addTask(new RetaliateTask(player, 10, throwRange));
+    wizard
+        .getComponent(AITaskComponent.class)
+        .addTask(new RetaliateTask(player, 10, throwRange, "throwPoisonPotion"));
     return wizard;
   }
 
@@ -605,12 +608,30 @@ public class NPCFactory {
   }
 
   /**
-   * Creates a satyr NPC.
+   * Creates a satyr NPC that headbutts the player after being hit.
    *
    * @return entity
    */
   public static Entity createSatyrNPC(Entity player) {
-    return makeKillable(createAnimatedNPC(player, "Satyr", SATYR_NPC_ATLAS_PATH));
+    Entity satyr = makeKillable(createAnimatedNPC(player, "Satyr", SATYR_NPC_ATLAS_PATH));
+
+    // Configure headbutt animations
+    AnimationRenderComponent animator = satyr.getComponent(AnimationRenderComponent.class);
+    animator.addAnimation("windupr", 0.25f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("windupl", 0.25f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("charger", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("chargel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("headbuttr", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("headbuttl", 0.1f, Animation.PlayMode.NORMAL);
+
+    // Add necessary components to the entity
+    satyr
+        .addComponent(new ProvokedComponent(8f, 1.5f))
+        .addComponent(new HeadbuttAttackComponent(player));
+    satyr
+        .getComponent(AITaskComponent.class)
+        .addTask(new RetaliateTask(player, 10, 4f, "headbutt"));
+    return satyr;
   }
 
   /**

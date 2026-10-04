@@ -1,6 +1,6 @@
 
 npc3.png
-size: 128,96
+size: 128,288
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
@@ -81,3 +81,101 @@ idlel
   orig: 32, 48
   offset: 0, 0
   index: -1
+windupr
+  rotate: false
+  xy: 0, 96
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+windupr
+  rotate: false
+  xy: 32, 96
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+headbuttr
+  rotate: false
+  xy: 64, 96
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+windupl
+  rotate: false
+  xy: 0, 144
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+windupl
+  rotate: false
+  xy: 32, 144
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+headbuttl
+  rotate: false
+  xy: 64, 144
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+charger
+  rotate: false
+  xy: 0, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+charger
+  rotate: false
+  xy: 32, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+charger
+  rotate: false
+  xy: 64, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 2
+charger
+  rotate: false
+  xy: 96, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 3
+chargel
+  rotate: false
+  xy: 0, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+chargel
+  rotate: false
+  xy: 32, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+chargel
+  rotate: false
+  xy: 64, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 2
+chargel
+  rotate: false
+  xy: 96, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 3
