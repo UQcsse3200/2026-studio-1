@@ -434,6 +434,82 @@ public class NPCFactory {
   }
 
   /**
+   * Creates a Medusa entity: a mini-boss who paces near her spawn, melees up close with natural
+   * claws, and petrifies the player from range with her gaze.
+   *
+   * <p>Structurally identical to {@link #createCyclops}: a ground mini-boss with both a melee and
+   * a ranged attack, neither backed by a carried weapon. Medusa's gaze reuses the same {@code
+   * WeaponItem.natural(...)} pattern as Cyclops's rock throw, just fired as {@link
+   * ProjectileType#GAZE} instead of {@link ProjectileType#ARROW} so it petrifies rather than knocks
+   * back on a landed hit (see {@link PetrifyEffectComponent}).
+   *
+   * @param target entity to chase
+   * @return Medusa entity as a mini-boss enemy
+   */
+  public static Entity createMedusa(Entity target) {
+    float scale = 2.0f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity medusa = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    MedusaConfig config = configs.medusa;
+
+    // Create loot on drop - more gold dropped due to no weapons being dropped (no inventory)
+    int numGold = 12;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+
+    // Configure animation component
+    // TODO: MEDUSA'S OWN SPRITES AND ATTACK ANIMATIONS - reuses the Cyclops atlas as a
+    // placeholder mini-boss sprite in the meantime, same as Centaur reuses the Skeleton atlas.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
+    animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
+
+    // Medusa carries no weapons - both attacks flow through the same weapon-based attack
+    // constructors an armed enemy uses, via WeaponItem.natural(...), exactly like Cyclops's fists
+    // and rock throw.
+    WeaponItem naturalClaws =
+        WeaponItem.natural("Medusa Claws", config.baseAttack, config.melee.cooldown - 1);
+    WeaponItem naturalGaze =
+        WeaponItem.natural("Medusa Gaze", config.baseAttack, config.ranged.cooldown - 1);
+
+    // Add necessary components to the entity
+    medusa
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range, config.melee.cooldown, config.melee.knockback, naturalClaws))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback, naturalGaze))
+        .addComponent(new EnemyTypeComponent(EnemyType.MEDUSA))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(animator)
+        .addComponent(new CyclopsAnimationController());
+
+    medusa
+        .getComponent(RangedAttackComponent.class)
+        .setProjectileSpeed(config.ranged.projectileSpeed);
+    medusa.getComponent(RangedAttackComponent.class).setPetrifyTicks(config.petrifyTicks);
+
+    medusa.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
+    medusa
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, 10, config.melee.range))
+        .addTask(new RangedAttackTask(target, 9, config.ranged.range, ProjectileType.GAZE));
+
+    medusa.setScale(scale, scale * (48f / 64f));
+    PhysicsUtils.setScaledCollider(medusa, collisionScale.x, collisionScale.y);
+    return medusa;
+  }
+
+  /**
    * Loads a fresh, independently-owned {@link TextureAtlas} from the given internal file path,
    * bypassing {@code ResourceService}'s asset cache entirely.
    *

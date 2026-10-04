@@ -66,5 +66,21 @@
       "projectileSpeed": 8,
       "knockback": 3
     }
+  },
+  "medusa": {
+    "health": 100,
+    "baseAttack": 9,
+    "melee": {
+      "range": 2.5,
+      "cooldown": 4,
+      "knockback": 2
+    },
+    "ranged": {
+      "range": 7,
+      "cooldown": 6,
+      "projectileSpeed": 10,
+      "knockback": 1
+    },
+    "petrifyTicks": 90
   }
 }
