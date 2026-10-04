@@ -11,12 +11,20 @@ import com.csse3200.game.services.ServiceLocator;
 
 public class LightComponent extends Component {
   private final LightSpec spec;
-  private final Entity follow; // null for fixed lights
+  private final Vector2 fixedPos; // null when following
+  private final Entity follow; // null when fixed
   private PointLight light;
-  private float phase = (float) (Math.random() * 6.28);
+  private float phase = MathUtils.random(0f, MathUtils.PI2);
+
+  public LightComponent(LightSpec spec, Vector2 fixedPos) {
+    this.spec = spec;
+    this.fixedPos = new Vector2(fixedPos);
+    this.follow = null;
+  }
 
   public LightComponent(LightSpec spec, Entity follow) {
     this.spec = spec;
+    this.fixedPos = null;
     this.follow = follow;
   }
 
@@ -32,17 +40,22 @@ public class LightComponent extends Component {
 
   @Override
   public void update() {
-    if (follow != null) light.setPosition(follow.getCenterPosition());
+    if (light == null) return;
+    if (follow != null) {
+      light.setPosition(follow.getCenterPosition());
+    }
     if (spec.flicker() > 0f) {
       phase += Gdx.graphics.getDeltaTime() * 9f;
-      float n =
-          1f - spec.flicker() * (0.5f + 0.5f * MathUtils.sin(phase) * MathUtils.sin(phase * 0.37f));
-      light.setDistance(spec.radius() * n);
+      float wobble = MathUtils.sin(phase) * MathUtils.sin(phase * 0.37f); // -1..1
+      light.setDistance(spec.radius() * (1f - spec.flicker() * (0.5f + 0.5f * wobble)));
     }
   }
 
   @Override
   public void dispose() {
-    if (light != null) light.remove();
+    if (light != null) {
+      light.remove();
+      light = null;
+    }
   }
 }

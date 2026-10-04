@@ -12,6 +12,8 @@ import com.csse3200.game.areas.terrain.map.*;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.lighting.EmitterScanner;
+import com.csse3200.game.components.lighting.LightComponent;
 import com.csse3200.game.components.lighting.LightingConfig;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
@@ -80,6 +82,8 @@ public class LevelGameArea extends GameArea {
 
   /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
   private static final int RANDOM_LOOT_COUNT = 8;
+
+  private static final int LIGHT_BUDGET = 40;
 
   /**
    * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
@@ -816,7 +820,37 @@ public class LevelGameArea extends GameArea {
     LightingConfig.Ambient a = cfg.ambientFor(section == null ? null : section.id());
     ls.setAmbient(a.color(), a.intensity());
 
-    // emitters and the player light come next
+    Vector2 origin = terrain.tileToWorldPosition(0, 0);
+    if (origin == null) {
+      logger.warn("No terrain origin; skipping tile lights for '{}'", mapData.getName());
+    } else {
+      float ts = mapData.getTileSize();
+      List<EmitterScanner.LightPlacement> placements = EmitterScanner.scan(mapData.getLayers(), ts);
+
+      int step = 1;
+      if (placements.size() > LIGHT_BUDGET) {
+        step = (int) Math.ceil(placements.size() / (double) LIGHT_BUDGET);
+        logger.warn(
+            "Map '{}' wants {} lights, budget {}; keeping 1 in {}",
+            mapData.getName(),
+            placements.size(),
+            LIGHT_BUDGET,
+            step);
+      }
+
+      for (int i = 0; i < placements.size(); i += step) {
+        EmitterScanner.LightPlacement p = placements.get(i);
+        Vector2 world = new Vector2(origin.x + p.tileX() * ts, origin.y + p.tileY() * ts);
+        spawnEntity(new Entity().addComponent(new LightComponent(p.spec(), world)));
+      }
+      logger.info(
+          "Spawned {} tile lights for '{}'",
+          (placements.size() + step - 1) / step,
+          mapData.getName());
+    }
+
+    // player light: room-owned, follows the player
+    spawnEntity(new Entity().addComponent(new LightComponent(cfg.player(), player)));
   }
 
   @Override
