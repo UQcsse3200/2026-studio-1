@@ -579,6 +579,94 @@ public class NPCFactory {
   }
 
   /**
+   * Creates a Zeus entity: a mini-boss who fights with a carried sword up close and natural
+   * lightning from range.
+   *
+   * <p>Combines Minotaur's armed-melee pattern (a real {@code WeaponItem} generated via {@link
+   * WeaponGenerator}, dropped on death like any other weapon-carrying enemy) with Cyclops's
+   * natural-ranged pattern (lightning flows through {@code WeaponItem.natural(...)}, fired as
+   * {@link ProjectileType#LIGHTNING} so it freezes rather than knocks back on a landed hit).
+   *
+   * @param target entity to chase
+   * @return Zeus entity as a mini-boss enemy
+   */
+  public static Entity createZeus(Entity target) {
+    float scale = 3.0f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.6f);
+    Entity zeus = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    ZeusConfig config = configs.zeus;
+
+    // Create loot on drop
+    int numGold = 6;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 2));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
+    // TODO: ZEUS' OWN SPRITES AND LIGHTNING-THROW ANIMATION - reuses the Minotaur atlas as a
+    // placeholder in the meantime (its "swing" animation doubles as Zeus's sword strike), same as
+    // Centaur/Medusa/Cerberus reuse other enemies' atlases until Zeus's own art lands.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(MINOTAUR_ATLAS_PATH), true);
+    animator.addAnimation("minotaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_swing_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("minotaur_swing_r", 0.1f, Animation.PlayMode.NORMAL);
+
+    // Zeus's lightning is a natural attack - no conventional weapon represents a god hurling
+    // lightning from his own hands - flowing through the same weapon-based attack constructor an
+    // armed enemy uses, via WeaponItem.natural(...), exactly like Cyclops's rock throw.
+    WeaponItem naturalLightning =
+        WeaponItem.natural("Zeus Lightning", config.baseAttack, config.ranged.cooldown - 1);
+
+    // Add necessary components to the entity
+    zeus
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(inventory)
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                naturalLightning))
+        .addComponent(new EnemyTypeComponent(EnemyType.ZEUS))
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(animator)
+        // MinotaurAnimationController works unmodified with no ChargeComponent attached - see
+        // createCerberus above for why.
+        .addComponent(new MinotaurAnimationController());
+
+    zeus.getComponent(RangedAttackComponent.class).setLightningFreezeTicks(config.freezeTicks);
+
+    zeus.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
+    zeus
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, 10, config.melee.range))
+        .addTask(new RangedAttackTask(target, 9, config.ranged.range, ProjectileType.LIGHTNING));
+
+    zeus.setScale(scale, scale * (80f / 96f));
+    PhysicsUtils.setScaledCollider(zeus, collisionScale.x, collisionScale.y);
+    return zeus;
+  }
+
+  /**
    * Loads a fresh, independently-owned {@link TextureAtlas} from the given internal file path,
    * bypassing {@code ResourceService}'s asset cache entirely.
    *

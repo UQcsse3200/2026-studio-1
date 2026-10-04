@@ -91,5 +91,21 @@
       "cooldown": 1.2,
       "knockback": 1
     }
+  },
+  "zeus": {
+    "health": 100,
+    "baseAttack": 9,
+    "melee": {
+      "range": 2.5,
+      "cooldown": 4,
+      "knockback": 3
+    },
+    "ranged": {
+      "range": 7,
+      "cooldown": 6,
+      "projectileSpeed": 8,
+      "knockback": 0
+    },
+    "freezeTicks": 120
   }
 }
