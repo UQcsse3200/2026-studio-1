@@ -131,20 +131,22 @@ public class MainGameScreen extends ScreenAdapter {
     String initialRoomMap = FIRST_ROOM_MAP;
     Long savedSeed = null;
 
-    if (loadsave) {
+    if (loadsave && SaveService.hasSave()) {
       GameSaveData saveData = SaveService.load();
 
       LootRegistry.loadFrom(saveData.collectedLootIds);
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
+      Difficulty savedDifficulty = Difficulty.NORMAL;
       if (saveData.difficulty != null && !saveData.difficulty.isBlank()) {
         try {
-          DifficultyService.setCurrent(Difficulty.valueOf(saveData.difficulty));
+          savedDifficulty = Difficulty.valueOf(saveData.difficulty);
         } catch (IllegalArgumentException e) {
-          DifficultyService.setCurrent(Difficulty.NORMAL);
+          // Unknown difficulty name in the save file - keep NORMAL.
         }
       }
+      DifficultyService.setCurrent(savedDifficulty);
 
       if (saveData.level != null && !saveData.level.isBlank()) {
         initialRoomMap = saveData.level;

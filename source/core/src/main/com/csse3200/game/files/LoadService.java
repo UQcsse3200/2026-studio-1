@@ -27,12 +27,12 @@ public class LoadService {
       return;
     }
 
-    GameSaveData data = SaveService.load();
-
-    // No saved progress exists, so keep the player's default values.
-    if (!hasSavedData(data)) {
+    // No save file exists, so keep the player's default values.
+    if (!SaveService.hasSave()) {
       return;
     }
+
+    GameSaveData data = SaveService.load();
 
     loadHealth(player, data);
     loadStamina(player, data);
@@ -41,19 +41,6 @@ public class LoadService {
     loadPets(player, data);
   }
 
-  /**
-   * Checks whether the loaded data represents an existing save.
-   *
-   * @param data loaded save data
-   * @return true if saved progress exists
-   */
-  private static boolean hasSavedData(GameSaveData data) {
-    return data.health > 0
-        || data.gold > 0
-        || !data.items.isEmpty()
-        || data.posX != 0
-        || data.posY != 0;
-  }
 
   private static void loadHealth(Entity player, GameSaveData data) {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
