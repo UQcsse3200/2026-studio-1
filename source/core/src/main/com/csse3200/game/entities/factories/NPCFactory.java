@@ -51,6 +51,12 @@ public class NPCFactory {
   private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
   private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
   private static final String CENTAUR_ATLAS_PATH = "images/enemies/centaur.atlas";
+  private static final String CERBERUS_ATLAS_PATH = "images/enemies/cerberus.atlas";
+  private static final String MEDUSA_ATLAS_PATH = "images/enemies/medusa.atlas";
+  private static final String ZEUS_ATLAS_PATH = "images/enemies/zeus.atlas";
+  // this could be the ranged harpy and the above is the melee one to differentiate
+  // 0on screen but if too hard all g.
+  private static final String HARPY_ATLAS_PATH = "images/enemies/harpy.atlas";
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
