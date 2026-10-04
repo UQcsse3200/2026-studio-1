@@ -7,24 +7,24 @@ public enum WeaponTier {
   TIER_1(
       1,
       60,
-      new WeaponStatsPreset(10, 1.0f, 1.0f, 2.0f, 1),
-      new WeaponStatsPreset(7, 1.0f, 0.5f, 8.0f, 1),
-      new WeaponStatsPreset(3, 2.0f, 0.5f, 1.0f, 1),
-      new WeaponStatsPreset(12, 1.0f, 1.3f, 2.3f, 1)),
+      new WeaponStatsPreset(1, 10, 1.0f, 1.0f, 2.0f, 1),
+      new WeaponStatsPreset(1, 7, 1.0f, 0.5f, 8.0f, 1),
+      new WeaponStatsPreset(1, 3, 2.0f, 0.5f, 1.0f, 1),
+      new WeaponStatsPreset(1, 12, 1.0f, 1.3f, 2.3f, 1)),
   TIER_2(
       2,
       30,
-      new WeaponStatsPreset(20, 1.2f, 1.5f, 2.5f, 1),
-      new WeaponStatsPreset(4, 1.2f, 0.75f, 10.0f, 5),
-      new WeaponStatsPreset(6, 2.4f, 0.75f, 10.0f, 1),
-      new WeaponStatsPreset(23, 1.2f, 1.8f, 2.8f, 1)),
+      new WeaponStatsPreset(1, 20, 1.2f, 1.5f, 2.5f, 1),
+      new WeaponStatsPreset(1, 4, 1.2f, 0.75f, 10.0f, 5),
+      new WeaponStatsPreset(1, 6, 2.4f, 0.75f, 1.2f, 1),
+      new WeaponStatsPreset(1, 23, 1.2f, 1.8f, 2.8f, 1)),
   TIER_3(
       3,
       10,
-      new WeaponStatsPreset(30, 1.5f, 2.0f, 3.0f, 1),
-      new WeaponStatsPreset(3, 1.5f, 1.0f, 12.0f, 10),
-      new WeaponStatsPreset(9, 3.0f, 1.0f, 1.5f, 1),
-      new WeaponStatsPreset(34, 1.5f, 2.3f, 3.3f, 1));
+      new WeaponStatsPreset(1, 30, 1.5f, 2.0f, 3.0f, 1),
+      new WeaponStatsPreset(1, 3, 1.5f, 1.0f, 12.0f, 10),
+      new WeaponStatsPreset(1, 9, 3.0f, 1.0f, 1.5f, 1),
+      new WeaponStatsPreset(1, 34, 1.5f, 2.3f, 3.3f, 1));
 
   private int tier;
   private final int lootWeight;

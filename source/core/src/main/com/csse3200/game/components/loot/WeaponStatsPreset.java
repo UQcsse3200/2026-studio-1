@@ -10,6 +10,7 @@ public class WeaponStatsPreset implements WeaponStats {
   private final float knockback;
   private final float range;
   private final int projectileCount;
+  private final int tier;
 
   /**
    * @param damage value for the attack damage
@@ -20,12 +21,13 @@ public class WeaponStatsPreset implements WeaponStats {
    *     configured for throwing.
    */
   public WeaponStatsPreset(
-      int damage, float attackSpeed, float knockback, float range, int projectileCount) {
+      int tier, int damage, float attackSpeed, float knockback, float range, int projectileCount) {
     this.damage = damage;
     this.attackSpeed = attackSpeed;
     this.knockback = knockback;
     this.range = range;
     this.projectileCount = projectileCount;
+    this.tier = tier;
   }
 
   /**
@@ -67,5 +69,13 @@ public class WeaponStatsPreset implements WeaponStats {
   @Override
   public int getProjectileCount() {
     return this.projectileCount;
+  }
+
+  /**
+   * @return tier value of weapon in specific tier.
+   */
+  @Override
+  public int getTier() {
+    return this.tier;
   }
 }
