@@ -31,7 +31,7 @@ public class LightComponent extends Component {
   @Override
   public void create() {
     RayHandler rh = ServiceLocator.getLightService().getRayHandler();
-    Vector2 p = entity.getCenterPosition();
+    Vector2 p = follow != null ? follow.getCenterPosition() : fixedPos;
     light = new PointLight(rh, spec.rays(), spec.color(), spec.radius(), p.x, p.y);
     light.setXray(true);
     light.setSoft(false);

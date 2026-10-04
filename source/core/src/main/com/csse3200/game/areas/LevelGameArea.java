@@ -1,7 +1,6 @@
 package com.csse3200.game.areas;
 
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -13,6 +12,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.lighting.EmitterScanner;
+import com.csse3200.game.components.lighting.LightColour;
 import com.csse3200.game.components.lighting.LightComponent;
 import com.csse3200.game.components.lighting.LightingConfig;
 import com.csse3200.game.components.loot.ConsumableGenerator;
@@ -83,7 +83,7 @@ public class LevelGameArea extends GameArea {
   /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
   private static final int RANDOM_LOOT_COUNT = 8;
 
-  private static final int LIGHT_BUDGET = 40;
+  private static final int LIGHT_BUDGET = 160;
 
   /**
    * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
@@ -811,7 +811,7 @@ public class LevelGameArea extends GameArea {
     LightingConfig cfg = mapData.getLighting();
 
     if (cfg == null) { // always reset, the service outlives rooms
-      ls.setAmbient(Color.WHITE, 1f);
+      ls.setAmbient(LightColour.AMBIENT_LIGHT.getColour(), 1f);
       return;
     }
 
@@ -838,10 +838,21 @@ public class LevelGameArea extends GameArea {
             step);
       }
 
+      logger.info("Tile light placements: {}", placements.size());
       for (int i = 0; i < placements.size(); i += step) {
         EmitterScanner.LightPlacement p = placements.get(i);
         Vector2 world = new Vector2(origin.x + p.tileX() * ts, origin.y + p.tileY() * ts);
         spawnEntity(new Entity().addComponent(new LightComponent(p.spec(), world)));
+
+        logger.info(
+            "tile light {} at tile ({}, {}) -> world ({}, {}), r={}, flicker={}",
+            i,
+            p.tileX(),
+            p.tileY(),
+            world.x,
+            world.y,
+            p.spec().radius(),
+            p.spec().flicker());
       }
       logger.info(
           "Spawned {} tile lights for '{}'",
