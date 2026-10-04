@@ -71,11 +71,7 @@ public class CyclopsAnimationController extends Component {
     // Ranged attack listeners
     entity.getEvents().addListener("rangedAttackWindup", this::onRockThrow);
     entity.getEvents().addListener("rangedAttackFired", this::onRockThrow);
-    entity
-        .getEvents()
-        .addListener(
-            "rangedAttack",
-          this::onRangedAttack);
+    entity.getEvents().addListener("rangedAttack", this::onRangedAttack);
 
     // Trigger a default starting state
     entity.getEvents().trigger("idleRightStart");
