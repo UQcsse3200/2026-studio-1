@@ -101,12 +101,13 @@ public class LevelGameArea extends GameArea {
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
     "images/items/sword.png",
-    "images/items/axe.png",
     "images/items/sword_t2.png",
     "images/items/sword_t3.png",
     "images/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
+    "images/items/axe.png",
+    "images/dagger.png",
     "images/enemies/lightning.png",
     "images/dagger.png",
     "images/ui/Health.png",
@@ -144,7 +145,7 @@ public class LevelGameArea extends GameArea {
     "images/pet.atlas"
   };
 
-  private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
+  private static final String BACKGROUND_MUSIC = "sounds/dungeon.mp3";
   private static final String[] entityMusic = {BACKGROUND_MUSIC};
 
   private final TerrainFactory terrainFactory;

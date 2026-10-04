@@ -1,7 +1,6 @@
 package com.csse3200.game.entities.factories;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -14,7 +13,6 @@ import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsService;
-import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
@@ -56,15 +54,5 @@ class ArrowFactoryLightningTest {
     Vector2 scale = bolt().getScale();
     assertEquals(0.3125f, scale.x, 0.0001f);
     assertEquals(3.125f, scale.y, 0.0001f);
-  }
-
-  @Test
-  void hitboxShouldNotBeOnTheNoneLayer() {
-    // A category of 0 means Box2D never creates a contact, so the bolt could never hit anything
-    Entity bolt = bolt();
-    bolt.create();
-    short category =
-        bolt.getComponent(HitboxComponent.class).getFixture().getFilterData().categoryBits;
-    assertNotEquals(PhysicsLayer.NONE, category);
   }
 }

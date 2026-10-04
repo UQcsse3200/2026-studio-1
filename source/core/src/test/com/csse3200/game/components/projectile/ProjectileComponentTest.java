@@ -44,7 +44,6 @@ class ProjectileComponentTest {
 
   @AfterEach
   void afterEach() {
-    // Gdx.app is a static shared with every other test class, so put the real one back
     Gdx.app = originalApp;
   }
 

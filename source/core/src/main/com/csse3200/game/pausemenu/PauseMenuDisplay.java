@@ -52,7 +52,7 @@ public class PauseMenuDisplay extends UIComponent {
   private static final String MUSIC_VOLUME_KEY = "musicVolume";
   private static final String EFFECTS_VOLUME_KEY = "effectsVolume";
   private static final float DEFAULT_MASTER_VOL = 1f;
-  private static final float DEFAULT_MUSIC_VOL = 0.8f;
+  private static final float DEFAULT_MUSIC_VOL = 0.3f;
   private static final float DEFAULT_EFFECTS_VOL = 1f;
 
   private static final String[] MAIN_ITEMS = {"Resume", "Restart", "Settings", "Main Menu", "Save"};
