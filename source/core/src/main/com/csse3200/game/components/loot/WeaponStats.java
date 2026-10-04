@@ -10,4 +10,6 @@ public interface WeaponStats {
   float getRange();
 
   int getProjectileCount();
+
+  int getTier();
 }

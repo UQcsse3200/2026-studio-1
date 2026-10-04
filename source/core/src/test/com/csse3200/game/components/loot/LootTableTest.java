@@ -116,7 +116,7 @@ class LootTableTest {
     for (WeaponTier weaponTier : WeaponTier.values()) {
       int tier = weaponTier.getTier();
       double expectedShare = (double) weaponTier.getLootWeight() / totalWeight;
-      double actualShare = (double) tierCounts.getOrDefault(tier, 0) / totalWeapons;
+      double actualShare = (double) (tierCounts.getOrDefault(tier, 0)) / totalWeapons;
       assertEquals(
           expectedShare,
           actualShare,
