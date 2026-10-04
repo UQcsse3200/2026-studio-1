@@ -144,7 +144,7 @@ public class PlayerActions extends Component {
       areaAttackCooldownRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
       areaAttackCooldownRemaining = Math.max(0f, areaAttackCooldownRemaining);
     }
-    
+
     frozen = getEffectiveSpeedMultiplier() == 0;
     playMovementSound();
 
@@ -362,7 +362,7 @@ public class PlayerActions extends Component {
             + direction
             + " dead="
             + dead);
-    
+
     if (dead || frozen) {
       System.out.println("PLAYER ACTIONS WALK BLOCKED entity=" + entity.getId() + " reason=dead");
       return;

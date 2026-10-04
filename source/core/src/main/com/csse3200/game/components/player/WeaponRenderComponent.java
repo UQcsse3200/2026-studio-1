@@ -30,7 +30,7 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private static final float DAGGER_WIDTH = 0.25f;
   private static final float DAGGER_HEIGHT = 0.5f;
-  
+
   private static final float AXE_WIDTH = 0.25f;
   private static final float AXE_HEIGHT = 0.5f;
 
@@ -151,7 +151,7 @@ public class WeaponRenderComponent extends RenderComponent {
           ServiceLocator.getResourceService().getAsset("images/dagger.png", Texture.class);
 
       case SWORD -> getSwordTexture(tier);
-      
+
       case AXE ->
           ServiceLocator.getResourceService().getAsset("images/items/axe.png", Texture.class);
     };
@@ -403,7 +403,7 @@ public class WeaponRenderComponent extends RenderComponent {
 
     return new WeaponVisualConfig(DAGGER_WIDTH, DAGGER_HEIGHT, scale, scale, true);
   }
-  
+
   private WeaponVisualConfig getAxeVisualConfig(int tier) {
     float scale =
         switch (tier) {
@@ -411,7 +411,7 @@ public class WeaponRenderComponent extends RenderComponent {
           case 3 -> 1.30f;
           default -> 1.00f;
         };
-    
+
     return new WeaponVisualConfig(AXE_WIDTH, AXE_HEIGHT, scale, scale, true);
   }
 
