@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.EnemyType;
-import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.*;
@@ -29,8 +28,6 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
-import com.csse3200.game.rendering.TextureRenderComponent;
-import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
 import java.util.List;
 
