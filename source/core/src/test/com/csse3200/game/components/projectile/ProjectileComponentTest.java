@@ -12,17 +12,34 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(GameExtension.class)
 class ProjectileComponentTest {
+  private EntityService entityService;
+  private ArgumentCaptor<Runnable> scheduledOnDeathCall;
   private ProjectileMovementStrategy movementStrategy;
+
+  private Application originalApplication;
 
   @BeforeEach
   void beforeEach() {
@@ -31,6 +48,14 @@ class ProjectileComponentTest {
     ServiceLocator.registerTimeSource(gameTime);
 
     movementStrategy = mock(ProjectileMovementStrategy.class);
+  }
+
+  @AfterEach
+  void restoreApplication() {
+    if (originalApplication != null) {
+      Gdx.app = originalApplication;
+      originalApplication = null;
+    }
   }
 
   @Test
@@ -101,10 +126,13 @@ class ProjectileComponentTest {
   @Test
   void shouldDespawnWhenProjectileExpiredEventFires() {
     // Simulates ProjectileHitComponent (or anything else) ending the projectile's flight early,
-    // well before it would otherwise reach maxRange.
+    // well before it would otherwise reach maxRange. The despawn is posted to the game thread, so
+    // the test runs the posted work itself.
     Entity projectile = createProjectile(100f);
+    List<Runnable> posted = capturePostedWork();
 
     projectile.getEvents().trigger("projectileExpired");
+    runAll(posted);
 
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
   }
@@ -112,18 +140,61 @@ class ProjectileComponentTest {
   @Test
   void projectileExpiredEventShouldBeIdempotent() {
     Entity projectile = createProjectile(100f);
+    List<Runnable> posted = capturePostedWork();
 
     assertDoesNotThrow(
         () -> {
           projectile.getEvents().trigger("projectileExpired");
           projectile.getEvents().trigger("projectileExpired");
+          runAll(posted);
         });
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
+  }
+
+  @Test
+  void firingTheExpiredEventPostsExactlyOneDespawn() {
+    // checks that the deferral by checking the despawn is posed once and not run inline.
+    Entity projectile = createProjectile(100f);
+    List<Runnable> posted = capturePostedWork();
+
+    projectile.getEvents().trigger("projectileExpired");
+
+    assertEquals(1, posted.size(), "The despawn should be posted once, not run inline.");
   }
 
   private Entity createProjectile(float maxRange) {
     Entity entity = new Entity().addComponent(new ProjectileComponent(movementStrategy, maxRange));
     entity.create();
     return entity;
+  }
+
+  /**
+   * Replaces Gdx.app with a stand-in that records posted runnables instead of running them, so a
+   * test can fire an event and then run the deferred work itself, on the test thread.
+   *
+   * @return the list the stand-in adds each posted runnable to
+   */
+  private List<Runnable> capturePostedWork() {
+    List<Runnable> posted = new ArrayList<>();
+    if (originalApplication == null) {
+      originalApplication = Gdx.app;
+    }
+    Application application = mock(Application.class);
+    doAnswer(
+        invocation -> {
+          posted.add(invocation.getArgument(0));
+          return null;
+        })
+        .when(application)
+        .postRunnable(any(Runnable.class));
+    Gdx.app = application;
+    return posted;
+  }
+
+  private void runAll(List<Runnable> posted) {
+    for (Runnable runnable : new ArrayList<>(posted)) {
+      runnable.run();
+    }
+    posted.clear();
   }
 }

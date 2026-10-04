@@ -13,6 +13,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
@@ -87,7 +88,7 @@ class RangedAttackComponentTest {
     target.setPosition(2, 0);
     List<Entity> fired = listenForFired(attacker);
 
-    attacker.getEvents().trigger("rangedAttack", target);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
     assertEquals(1, fired.size());
   }
@@ -100,7 +101,7 @@ class RangedAttackComponentTest {
     target.setPosition(10, 0);
     List<Entity> fired = listenForFired(attacker);
 
-    attacker.getEvents().trigger("rangedAttack", target);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
     assertEquals(0, fired.size());
   }
@@ -113,7 +114,7 @@ class RangedAttackComponentTest {
     target.setPosition(2, 0);
     List<Entity> fired = listenForFired(attacker);
 
-    attacker.getEvents().trigger("rangedAttack", target);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
     assertEquals(1, fired.size());
   }
@@ -127,7 +128,9 @@ class RangedAttackComponentTest {
     targetWithoutStats.setPosition(2, 0);
     List<Entity> fired = listenForFired(attacker);
 
-    assertDoesNotThrow(() -> attacker.getEvents().trigger("rangedAttack", targetWithoutStats));
+    assertDoesNotThrow(
+        () ->
+            attacker.getEvents().trigger("rangedAttack", targetWithoutStats, ProjectileType.ARROW));
 
     assertEquals(0, fired.size());
   }
@@ -140,8 +143,8 @@ class RangedAttackComponentTest {
     target.setPosition(2, 0);
     List<Entity> fired = listenForFired(attacker);
 
-    attacker.getEvents().trigger("rangedAttack", target);
-    attacker.getEvents().trigger("rangedAttack", target);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
     assertEquals(
         1,
@@ -161,11 +164,11 @@ class RangedAttackComponentTest {
     target.setPosition(2, 0);
     List<Entity> fired = listenForFired(attacker);
 
-    attacker.getEvents().trigger("rangedAttack", target);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
     for (int i = 0; i < 101; i++) {
       attacker.update();
     }
-    attacker.getEvents().trigger("rangedAttack", target);
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
     assertEquals(2, fired.size());
   }
@@ -173,7 +176,8 @@ class RangedAttackComponentTest {
   @Test
   void shouldNotThrowWhenTargetIsNull() {
     Entity attacker = createAttacker(6f, 2f, 0f);
-    assertDoesNotThrow(() -> attacker.getEvents().trigger("rangedAttack", (Entity) null));
+    assertDoesNotThrow(
+        () -> attacker.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
   }
 
   @Test
@@ -185,7 +189,8 @@ class RangedAttackComponentTest {
     attacker.setPosition(0, 0);
     target.setPosition(2, 0);
 
-    assertDoesNotThrow(() -> attacker.getEvents().trigger("rangedAttack", target));
+    assertDoesNotThrow(
+        () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
   }
 
   @Test
@@ -198,7 +203,8 @@ class RangedAttackComponentTest {
     target.setPosition(0, 0);
     List<Entity> fired = listenForFired(attacker);
 
-    assertDoesNotThrow(() -> attacker.getEvents().trigger("rangedAttack", target));
+    assertDoesNotThrow(
+        () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
 
     assertEquals(1, fired.size());
   }
