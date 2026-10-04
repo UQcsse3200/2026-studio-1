@@ -107,6 +107,12 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>int</code></div>
+<div class="col-second even-row-color"><code><a href="#goldToGive" class="member-name-link">goldToGive</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code><a href="loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#itemToGive" class="member-name-link">itemToGive</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>int</code></div>
 <div class="col-second even-row-color"><code><a href="#uniqueNPCID" class="member-name-link">uniqueNPCID</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
@@ -123,7 +129,13 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">QuestGiverComponent</a>()</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.entities.Entity)" class="member-name-link">QuestGiverComponent</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.entities.Entity,int)" class="member-name-link">QuestGiverComponent</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+ int&nbsp;goldToGive)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.entities.Entity,com.csse3200.game.components.loot.Item)" class="member-name-link">QuestGiverComponent</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+ <a href="loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;itemToGive)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -140,15 +152,41 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#checkEnemiesKilledQuestComplete()" class="member-name-link">checkEnemiesKilledQuestComplete</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#checkGoldSpentQuestComplete()" class="member-name-link">checkGoldSpentQuestComplete</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#checkJumpQuestComplete()" class="member-name-link">checkJumpQuestComplete</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearJumpQuest()" class="member-name-link">clearJumpQuest</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#checkShieldsCollectedQuestComplete()" class="member-name-link">checkShieldsCollectedQuestComplete</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logJumpQuest(java.lang.String,int)" class="member-name-link">logJumpQuest</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;Reward,
- int&nbsp;jumpsToDo)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearEnemiesKilledQuest()" class="member-name-link">clearEnemiesKilledQuest</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearGoldSpentQuest()" class="member-name-link">clearGoldSpentQuest</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearJumpQuest()" class="member-name-link">clearJumpQuest</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearShieldsCollectedQuest()" class="member-name-link">clearShieldsCollectedQuest</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logEnemiesKilledQuest(int)" class="member-name-link">logEnemiesKilledQuest</a><wbr>(int&nbsp;enemiesToKill)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logGoldSpentQuest(int)" class="member-name-link">logGoldSpentQuest</a><wbr>(int&nbsp;amountToSpend)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logJumpQuest(int)" class="member-name-link">logJumpQuest</a><wbr>(int&nbsp;jumpsToDo)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logShieldsCollectedQuest(int)" class="member-name-link">logShieldsCollectedQuest</a><wbr>(int&nbsp;shieldsToCollect)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -175,6 +213,18 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">uniqueNPCID</span></div>
 </section>
 </li>
+<li>
+<section class="detail" id="goldToGive">
+<h3>goldToGive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">goldToGive</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="itemToGive">
+<h3>itemToGive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></span>&nbsp;<span class="element-name">itemToGive</span></div>
+</section>
+</li>
 </ul>
 </section>
 </li>
@@ -184,9 +234,23 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;()">
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.entities.Entity)">
 <h3>QuestGiverComponent</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">QuestGiverComponent</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">QuestGiverComponent</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.entities.Entity,int)">
+<h3>QuestGiverComponent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">QuestGiverComponent</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+ int&nbsp;goldToGive)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.entities.Entity,com.csse3200.game.components.loot.Item)">
+<h3>QuestGiverComponent</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">QuestGiverComponent</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+ <a href="loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;itemToGive)</span></div>
 </section>
 </li>
 </ul>
@@ -198,22 +262,75 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="logJumpQuest(java.lang.String,int)">
+<section class="detail" id="logJumpQuest(int)">
 <h3>logJumpQuest</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">logJumpQuest</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;Reward,
- int&nbsp;jumpsToDo)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">logJumpQuest</span><wbr><span class="parameters">(int&nbsp;jumpsToDo)</span></div>
 </section>
 </li>
 <li>
 <section class="detail" id="clearJumpQuest()">
 <h3>clearJumpQuest</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clearJumpQuest</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">clearJumpQuest</span>()</div>
 </section>
 </li>
 <li>
 <section class="detail" id="checkJumpQuestComplete()">
 <h3>checkJumpQuestComplete</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">checkJumpQuestComplete</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="logEnemiesKilledQuest(int)">
+<h3>logEnemiesKilledQuest</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">logEnemiesKilledQuest</span><wbr><span class="parameters">(int&nbsp;enemiesToKill)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="clearEnemiesKilledQuest()">
+<h3>clearEnemiesKilledQuest</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">clearEnemiesKilledQuest</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="checkEnemiesKilledQuestComplete()">
+<h3>checkEnemiesKilledQuestComplete</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">checkEnemiesKilledQuestComplete</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="logGoldSpentQuest(int)">
+<h3>logGoldSpentQuest</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">logGoldSpentQuest</span><wbr><span class="parameters">(int&nbsp;amountToSpend)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="checkGoldSpentQuestComplete()">
+<h3>checkGoldSpentQuestComplete</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">checkGoldSpentQuestComplete</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="clearGoldSpentQuest()">
+<h3>clearGoldSpentQuest</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">clearGoldSpentQuest</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="logShieldsCollectedQuest(int)">
+<h3>logShieldsCollectedQuest</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">logShieldsCollectedQuest</span><wbr><span class="parameters">(int&nbsp;shieldsToCollect)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="clearShieldsCollectedQuest()">
+<h3>clearShieldsCollectedQuest</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">clearShieldsCollectedQuest</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="checkShieldsCollectedQuestComplete()">
+<h3>checkShieldsCollectedQuestComplete</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">checkShieldsCollectedQuestComplete</span>()</div>
 </section>
 </li>
 </ul>
