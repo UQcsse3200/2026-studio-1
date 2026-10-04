@@ -7,30 +7,45 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(GameExtension.class)
 class ProjectileComponentTest {
   private ProjectileMovementStrategy movementStrategy;
+  private Application originalApp;
 
   @BeforeEach
   void beforeEach() {
+    originalApp = Gdx.app;
+    Gdx.app = mock(Application.class);
+
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(20f / 1000);
     ServiceLocator.registerTimeSource(gameTime);
 
     movementStrategy = mock(ProjectileMovementStrategy.class);
+  }
+
+  @AfterEach
+  void afterEach() {
+    // Gdx.app is a static shared with every other test class, so put the real one back
+    Gdx.app = originalApp;
   }
 
   @Test
@@ -106,6 +121,11 @@ class ProjectileComponentTest {
 
     projectile.getEvents().trigger("projectileExpired");
 
+    // Hits arrive from inside Box2D's physics step, so the despawn must be deferred, not immediate
+    assertFalse(projectile.getComponent(ProjectileComponent.class).isExpired());
+
+    runPostedRunnables();
+
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
   }
 
@@ -117,8 +137,15 @@ class ProjectileComponentTest {
         () -> {
           projectile.getEvents().trigger("projectileExpired");
           projectile.getEvents().trigger("projectileExpired");
+          runPostedRunnables(); // both queued despawns run; the second must be a no-op
         });
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
+  }
+
+  private void runPostedRunnables() {
+    ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+    verify(Gdx.app, atLeastOnce()).postRunnable(captor.capture());
+    captor.getAllValues().forEach(Runnable::run);
   }
 
   private Entity createProjectile(float maxRange) {
