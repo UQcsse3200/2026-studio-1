@@ -6,6 +6,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.LightningFreezeComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
+import com.csse3200.game.components.projectile.AimedLineMovementStrategy;
 import com.csse3200.game.components.projectile.ProjectileComponent;
 import com.csse3200.game.components.projectile.ProjectileHitComponent;
 import com.csse3200.game.components.projectile.StraightLineMovementStrategy;
@@ -92,7 +93,9 @@ public class ArrowFactory {
     Entity arrow =
         new Entity()
             .addComponent(new TextureRenderComponent("images/items/arrow.png"))
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
+            // Dynamic, not kinematic: Box2D only creates a contact when at least one of the two
+            // bodies is dynamic, so a kinematic arrow never reported touching a static wall.
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
             // Not on any layer of its own - nothing in the game currently needs to detect the
             // arrow itself via collision filtering, only the other way around (below).
             .addComponent(new HitboxComponent())
@@ -105,6 +108,7 @@ public class ArrowFactory {
                 new ProjectileComponent(
                     new StraightLineMovementStrategy(speed, movingRight), maxRange));
 
+    configureFlightBody(arrow);
     arrow.setPosition(position);
     arrow.setScale(0.5f, 0.2f);
     // The source art faces right by default; mirror it for a leftward shot so the arrow
@@ -112,6 +116,69 @@ public class ArrowFactory {
     arrow.getComponent(TextureRenderComponent.class).setFlipX(!movingRight);
 
     return arrow;
+  }
+
+  /**
+   * Creates an enemy arrow that flies in a straight line along {@code direction} (for example from
+   * a Harpy to the player's centre), so a shooter above or below its target can still hit it.
+   * Everything else matches {@link #createRangedArrow}: damage only on real contact with {@code
+   * targetLayer}, stopped by {@link PhysicsLayer#OBSTACLE}, despawned after {@code maxRange}.
+   *
+   * <p>The sprite is mirrored when the shot travels leftward, as for the x-only arrow. Rotating the
+   * sprite to match a diagonal flight is not done here.
+   *
+   * @param position where the arrow's bottom-left corner starts
+   * @param direction direction of travel; must not be null, zero length or non-finite
+   * @param speed travel speed in world units/second; must be positive
+   * @param maxRange maximum distance travelled before despawning; must be positive
+   * @param damage damage dealt on a hit
+   * @param knockback knockback magnitude on a hit; 0 disables it
+   * @param targetLayer physics layer the arrow can damage
+   * @return the arrow entity, not yet registered with the entity service
+   * @throws IllegalArgumentException if position or direction is invalid, or speed or maxRange is
+   *     not positive
+   */
+  public static Entity createAimedArrow(
+      Vector2 position,
+      Vector2 direction,
+      float speed,
+      float maxRange,
+      int damage,
+      float knockback,
+      short targetLayer) {
+    if (position == null) {
+      throw new IllegalArgumentException("Arrow position must not be null.");
+    }
+    if (maxRange <= 0) {
+      throw new IllegalArgumentException("maxRange must be positive");
+    }
+    // the strategy validates speed and direction (null, zero, non-finite)
+    AimedLineMovementStrategy movement = new AimedLineMovementStrategy(speed, direction);
+    Entity arrow =
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
+            .addComponent(new HitboxComponent())
+            .addComponent(new CombatStatsComponent(1, damage))
+            .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.OBSTACLE, knockback))
+            .addComponent(new ProjectileComponent(movement, maxRange));
+    configureFlightBody(arrow);
+    arrow.setPosition(position);
+    arrow.setScale(0.5f, 0.2f);
+    arrow.getComponent(TextureRenderComponent.class).setFlipX(direction.x < 0f);
+    return arrow;
+  }
+
+  /**
+   * Makes an arrow's dynamic body fly like a bullet: no gravity pulling it down, no damping slowing
+   * it and continuous collision detection (the default body has ground-friction damping, meant for
+   * walking characters).
+   */
+  private static void configureFlightBody(Entity arrow) {
+    arrow.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
+    arrow.getComponent(PhysicsComponent.class).getBody().setLinearDamping(0f);
+    // a fast arrow must not skip over a thin collider between two physics steps
+    arrow.getComponent(PhysicsComponent.class).getBody().setBullet(true);
   }
 
   /**

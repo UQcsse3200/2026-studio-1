@@ -9,9 +9,9 @@ import com.csse3200.game.physics.components.PhysicsComponent;
  * the x-axis (no vertical movement at all) - e.g. a skeleton ranger's arrow.
  *
  * <p>Movement is driven through the projectile's {@link PhysicsComponent} body, not by setting the
- * entity's position directly: the body must be a {@code KinematicBody} (see {@link
- * com.csse3200.game.entities.factories.ArrowFactory#createRangedArrow}), which means it is
- * unaffected by gravity or forces but still takes part in Box2D collision detection. Setting a
+ * entity's position directly: the body must not be pulled by gravity or slowed by damping (see
+ * {@link com.csse3200.game.entities.factories.ArrowFactory#createRangedArrow}, which uses a dynamic
+ * body with both switched off so that it generates real contacts with static walls). Setting a
  * constant horizontal linear velocity once is enough - Box2D integrates the body's position every
  * physics step from then on, and {@link PhysicsComponent#earlyUpdate()} copies that position back
  * onto the entity every frame, exactly like any other physics-driven entity (the player, NPCs via
