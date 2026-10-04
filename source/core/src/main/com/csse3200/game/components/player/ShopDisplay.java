@@ -6,12 +6,15 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -45,16 +48,15 @@ import java.util.function.IntConsumer;
 public class ShopDisplay extends UIComponent {
 
   private static final float SHOP_WIDTH = 650f;
-  private static final float SHOP_HEIGHT = 560f;
+  private static final float SHOP_HEIGHT = 600f;
 
-  private static final float CARD_WIDTH = 185f;
+  private static final float CARD_WIDTH = 175f;
   private static final float CARD_HEIGHT = 110f;
 
   private static final float PANEL_PADDING = 14f;
   private static final float CARD_GAP = 8f;
 
-  private static final float UPGRADE_POPUP_WIDTH = 320f;
-  private static final float UPGRADE_POPUP_HEIGHT = 150f;
+  private static final float UPGRADE_POPUP_WIDTH = 280f;
   private static final float UPGRADE_POPUP_GAP_ABOVE_SHOP = 16f;
 
   private static final float PURCHASE_TOAST_TOP_MARGIN = 24f;
@@ -82,6 +84,7 @@ public class ShopDisplay extends UIComponent {
   // precisely. No live setColor() call involved either way.
   private static final String TOAST_BACKGROUND = "shadow";
   private static final String BUTTON_BACKGROUND = "button";
+  private static final String FLAT_BACKGROUND = "white";
 
   private static final float ICON_SIZE = 48f;
   private static final float ICON_MARGIN = 10f;
@@ -163,6 +166,7 @@ public class ShopDisplay extends UIComponent {
   private Table shopTable;
   private Table contentTable;
   private Table activeGrid;
+  private ScrollPane contentScroll;
   private Table detailPanel;
   private Label goldLabel;
   private TextButton shopIconButton;
@@ -356,7 +360,7 @@ public class ShopDisplay extends UIComponent {
     createTabs();
 
     contentTable = new Table();
-    shopTable.add(contentTable).grow().top().left();
+    shopTable.add(contentTable).grow().top().left().minHeight(0f);
     shopTable.row();
 
     createDetailPanel();
@@ -377,7 +381,7 @@ public class ShopDisplay extends UIComponent {
     titleLabel.setColor(GOLD_COLOR);
 
     Table goldPill = new Table();
-    goldPill.setBackground(skin.getDrawable(BUTTON_BACKGROUND));
+    goldPill.setBackground(skin.getDrawable(FLAT_BACKGROUND));
     goldPill.getColor().set(GOLD_PILL_TINT);
     goldPill.pad(4f, 12f, 4f, 12f);
 
@@ -405,7 +409,7 @@ public class ShopDisplay extends UIComponent {
 
   /** Adds a decorative golden divider line separating the header from the category tabs. */
   private void addDivider() {
-    Image divider = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    Image divider = new Image(skin.getDrawable(FLAT_BACKGROUND));
     divider.setColor(DIVIDER_TINT);
 
     shopTable.add(divider).growX().height(2f).padTop(4f).padBottom(8f);
@@ -443,7 +447,7 @@ public class ShopDisplay extends UIComponent {
           }
         });
 
-    Image underline = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    Image underline = new Image(skin.getDrawable(FLAT_BACKGROUND));
     underline.setColor(TAB_UNDERLINE_INACTIVE);
 
     Table tabWrap = new Table();
@@ -483,6 +487,11 @@ public class ShopDisplay extends UIComponent {
     hideUpgradePopup();
     contentTable.clearChildren();
 
+    if (gamblingWheel != null) {
+      gamblingWheel.dispose();
+      gamblingWheel = null;
+    }
+
     updateGold();
     updateTabHighlights();
     clearSelection();
@@ -492,7 +501,23 @@ public class ShopDisplay extends UIComponent {
     }
 
     activeGrid = new Table();
-    contentTable.add(activeGrid).grow().top().left();
+    activeGrid.top();
+
+    contentScroll = new ScrollPane(activeGrid, skin);
+    contentScroll.setScrollingDisabled(true, false);
+    contentScroll.setFadeScrollBars(false);
+    contentScroll.setOverscroll(false, false);
+    contentScroll.setFlickScroll(false);
+    final ScrollPane pane = contentScroll;
+    contentScroll.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            stage.setScrollFocus(pane);
+          }
+        });
+
+    contentTable.add(contentScroll).grow().minHeight(0f).top().left();
 
     switch (currentTab) {
       case ITEMS:
@@ -577,15 +602,9 @@ public class ShopDisplay extends UIComponent {
 
     if (shop == null || inventory == null) return;
 
-    int displayedSlots = 0;
     for (int slot = 1; slot <= SELL_SLOT_COUNT; slot++) {
       Item item = inventory.getItem(slot);
       addSellCard(shop, item, slot);
-      displayedSlots++;
-
-      if (displayedSlots % ITEM_COLUMNS == 0) {
-        activeGrid.row();
-      }
     }
   }
 
@@ -607,6 +626,7 @@ public class ShopDisplay extends UIComponent {
       Label nameLabel = new Label(name, whiteLabelStyle);
       nameLabel.setColor(TEXT_PRIMARY);
       nameLabel.setAlignment(Align.center);
+      nameLabel.setEllipsis(true);
       card.add(nameLabel).growX().center();
       card.row();
 
@@ -651,15 +671,9 @@ public class ShopDisplay extends UIComponent {
       Function<T, String> nameExtractor,
       IntConsumer buyAction) {
 
-    int displayedSlots = 0;
     for (int slotNumber = 1; slotNumber <= ITEM_SLOT_COUNT; slotNumber++) {
       ShopComponent.ShopListing<T> listing = catalog.get(slotNumber);
       addCatalogCard(listing, slotNumber, nameExtractor, buyAction);
-      displayedSlots++;
-
-      if (displayedSlots % ITEM_COLUMNS == 0) {
-        activeGrid.row();
-      }
     }
   }
 
@@ -693,6 +707,7 @@ public class ShopDisplay extends UIComponent {
       Label nameLabel = new Label(name, whiteLabelStyle);
       nameLabel.setColor(TEXT_PRIMARY);
       nameLabel.setAlignment(Align.center);
+      nameLabel.setEllipsis(true);
       card.add(nameLabel).growX().center();
       card.row();
 
@@ -730,7 +745,7 @@ public class ShopDisplay extends UIComponent {
 
   /** Appends a colored top accent strip indicating rarity. */
   private void addAccentStrip(Table card, Color color) {
-    Image strip = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    Image strip = new Image(skin.getDrawable(FLAT_BACKGROUND));
     strip.setColor(color);
     card.add(strip).growX().height(ACCENT_STRIP_HEIGHT).padBottom(5f);
     card.row();
@@ -740,7 +755,7 @@ public class ShopDisplay extends UIComponent {
   private Stack createIconStack(String name, Rarity rarity) {
     Stack iconStack = new Stack();
 
-    Image iconBackground = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    Image iconBackground = new Image(skin.getDrawable(FLAT_BACKGROUND));
     iconBackground.setColor(rarity.color);
 
     String initial = (name == null || name.isEmpty()) ? "?" : name.substring(0, 1).toUpperCase();
@@ -759,7 +774,7 @@ public class ShopDisplay extends UIComponent {
   private Stack createPetIconStack(Rarity rarity, String petName) {
     Stack iconStack = new Stack();
 
-    Image iconBackground = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    Image iconBackground = new Image(skin.getDrawable(FLAT_BACKGROUND));
     iconBackground.setColor(rarity.color);
     iconStack.add(iconBackground);
 
@@ -828,7 +843,7 @@ public class ShopDisplay extends UIComponent {
     detailPanel.setColor(CARD_TINT);
     detailPanel.pad(10f);
 
-    detailIconBg = new Image(skin.getDrawable(BUTTON_BACKGROUND));
+    detailIconBg = new Image(skin.getDrawable(FLAT_BACKGROUND));
     detailIconLabel = new Label("", whiteLabelStyle);
     detailIconLabel.setColor(Color.WHITE);
     detailIconLabel.setAlignment(Align.center);
@@ -839,6 +854,7 @@ public class ShopDisplay extends UIComponent {
 
     detailNameLabel = new Label("Select an item to view details", whiteLabelStyle);
     detailNameLabel.setColor(TEXT_MUTED);
+    detailNameLabel.setEllipsis(true);
 
     detailPriceLabel = new Label("", whiteLabelStyle);
     detailPriceLabel.setColor(GOLD_COLOR);
@@ -859,7 +875,7 @@ public class ShopDisplay extends UIComponent {
         });
 
     Table textColumn = new Table();
-    textColumn.add(detailNameLabel).left().row();
+    textColumn.add(detailNameLabel).growX().left().row();
     textColumn.add(detailPriceLabel).left().padTop(2f);
 
     detailPanel.add(detailIconStack).size(40f, 40f).padRight(10f);
@@ -933,7 +949,7 @@ public class ShopDisplay extends UIComponent {
 
     if (selectionArrow != null) {
       selectionArrow.clearActions();
-      selectionArrow.setVisible(false);
+      selectionArrow.remove();
     }
 
     pendingAction = null;
@@ -991,8 +1007,11 @@ public class ShopDisplay extends UIComponent {
   private void showUpgradePopup(UpgradeNode node) {
     ensureUpgradePopupCreated();
     populateUpgradePopup(node);
+    upgradePopup.pack();
     positionUpgradePopupAboveShop();
     upgradePopup.setVisible(true);
+    upgradePopup.toFront();
+    keepBatchColorResetLast();
   }
 
   private void ensureUpgradePopupCreated() {
@@ -1001,7 +1020,6 @@ public class ShopDisplay extends UIComponent {
     upgradePopup = new Table();
     upgradePopup.setBackground(skin.getDrawable(ACCENT_PANEL_BACKGROUND));
     upgradePopup.pad(PANEL_PADDING);
-    upgradePopup.setSize(UPGRADE_POPUP_WIDTH, UPGRADE_POPUP_HEIGHT);
 
     upgradePopupCloseButton = new TextButton("X", skin);
     upgradePopupCloseButton.addListener(
@@ -1025,7 +1043,12 @@ public class ShopDisplay extends UIComponent {
     upgradePopup.add(upgradePopupCloseButton).size(22f, 22f).right().padBottom(6f);
     upgradePopup.row();
     upgradePopup.add(upgradePopupNameLabel).left().row();
-    upgradePopup.add(upgradePopupDescriptionLabel).width(280f).left().padTop(8f).row();
+    upgradePopup
+        .add(upgradePopupDescriptionLabel)
+        .width(UPGRADE_POPUP_WIDTH - 40f)
+        .left()
+        .padTop(8f)
+        .row();
     upgradePopup.add(upgradePopupTierLabel).left().padTop(8f);
 
     stage.addActor(upgradePopup);
@@ -1043,11 +1066,24 @@ public class ShopDisplay extends UIComponent {
 
     float screenWidth = stage.getViewport().getWorldWidth();
     float screenHeight = stage.getViewport().getWorldHeight();
-    float shopTop = (screenHeight - SHOP_HEIGHT) / 2f + SHOP_HEIGHT;
+    float shopX = (screenWidth - SHOP_WIDTH) / 2f;
+    float shopY = (screenHeight - SHOP_HEIGHT) / 2f;
+    float popupWidth = upgradePopup.getWidth();
+    float popupHeight = upgradePopup.getHeight();
 
-    float x = (screenWidth - upgradePopup.getWidth()) / 2f;
-    float y = shopTop + UPGRADE_POPUP_GAP_ABOVE_SHOP;
+    float x = (screenWidth - popupWidth) / 2f;
+    float y = shopY + SHOP_HEIGHT + UPGRADE_POPUP_GAP_ABOVE_SHOP;
 
+    if (y + popupHeight > screenHeight) {
+      y = shopY + SHOP_HEIGHT - popupHeight;
+      x = shopX + SHOP_WIDTH + UPGRADE_POPUP_GAP_ABOVE_SHOP;
+      if (x + popupWidth > screenWidth) {
+        x = shopX - UPGRADE_POPUP_GAP_ABOVE_SHOP - popupWidth;
+      }
+    }
+
+    x = MathUtils.clamp(x, 0f, Math.max(0f, screenWidth - popupWidth));
+    y = MathUtils.clamp(y, 0f, Math.max(0f, screenHeight - popupHeight));
     upgradePopup.setPosition(x, y);
   }
 
@@ -1064,6 +1100,8 @@ public class ShopDisplay extends UIComponent {
 
     purchaseToast.clearActions();
     purchaseToast.setVisible(true);
+    purchaseToast.toFront();
+    keepBatchColorResetLast();
     purchaseToast.addAction(
         Actions.sequence(Actions.delay(PURCHASE_TOAST_VISIBLE_SECONDS), Actions.visible(false)));
   }
@@ -1213,8 +1251,14 @@ public class ShopDisplay extends UIComponent {
       batchColorReset = null;
     }
 
+    if (gamblingWheel != null) {
+      gamblingWheel.dispose();
+      gamblingWheel = null;
+    }
+
     contentTable = null;
     activeGrid = null;
+    contentScroll = null;
     detailPanel = null;
     goldLabel = null;
     selectedCard = null;
@@ -1312,7 +1356,7 @@ public class ShopDisplay extends UIComponent {
      */
     gamblingWheel = new GamblingWheel(whiteLabelStyle);
 
-    gamblingRoot.add(gamblingWheel).size(500f, 300f).center().padTop(4f).padBottom(8f).row();
+    gamblingRoot.add(gamblingWheel).size(440f, 300f).center().padTop(4f).padBottom(8f).row();
 
     /*
      * ------------------------------------------------------------
@@ -1488,26 +1532,20 @@ public class ShopDisplay extends UIComponent {
       selectionArrow = new Label("▼", whiteLabelStyle);
       selectionArrow.setColor(SELECTION_ARROW_COLOR);
       selectionArrow.setAlignment(Align.center);
-      selectionArrow.setFontScale(1.4f);
-      selectionArrow.setSize(24f, 24f);
+      selectionArrow.setFontScale(1.2f);
       selectionArrow.setTouchable(Touchable.disabled);
-      stage.addActor(selectionArrow);
-      keepBatchColorResetLast();
     }
 
+    selectionArrow.remove();
+    selectionArrow.clearActions();
     selectionArrow.pack(); // Ensure size is calculated before positioning
     selectionArrow.setVisible(true);
-    selectionArrow.clearActions();
 
-    // Map the top center of the card to stage coordinates
-    com.badlogic.gdx.math.Vector2 cardStagePos =
-        targetCard.localToStageCoordinates(
-            new com.badlogic.gdx.math.Vector2(targetCard.getWidth() / 2f, targetCard.getHeight()));
+    targetCard.addActor(selectionArrow);
 
-    float startX = cardStagePos.x - selectionArrow.getWidth() / 2f;
-    float startY = cardStagePos.y + 4f;
-
-    selectionArrow.setPosition(startX, startY);
+    float x = targetCard.getWidth() - selectionArrow.getWidth() - 6f;
+    float y = targetCard.getHeight() - selectionArrow.getHeight() - 10f;
+    selectionArrow.setPosition(x, y);
 
     // Continuous bobbing animation (moves up & down by 5px)
     selectionArrow.addAction(
