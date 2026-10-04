@@ -156,7 +156,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createDefault(long)" class="member-name-link">createDefault</a><wbr>(long&nbsp;seed)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, and the shield.</div>
+<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, the Upgrade Stone and the shield.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty()" class="member-name-link">isEmpty</a>()</code></div>
@@ -226,7 +226,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createDefault(long)">
 <h3>createDefault</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></span>&nbsp;<span class="element-name">createDefault</span><wbr><span class="parameters">(long&nbsp;seed)</span></div>
-<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, and the shield. Higher tiers are weighted to be rarer.
+<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, the Upgrade Stone and the shield. Higher tiers are weighted to be rarer.
 
  <p>Weapons are built straight from <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a> and <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, so a new weapon
  type or a new tier added there shows up in the loot table without any change here.</div>

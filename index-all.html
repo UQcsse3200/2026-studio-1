@@ -262,6 +262,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Starts regenerating health on the entity.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponUpgradeEffect.html#apply(com.csse3200.game.entities.Entity)" class="member-name-link">apply(Entity)</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponUpgradeEffect.html" title="class in com.csse3200.game.components.loot">WeaponUpgradeEffect</a></dt>
+<dd>
+<div class="block">Upgrades the weapon the entity last held.</div>
+</dd>
 <dt><a href="com/csse3200/game/difficulty/DifficultyScaler.html#apply(com.csse3200.game.entities.Entity)" class="member-name-link">apply(Entity)</a> - Static method in class com.csse3200.game.difficulty.<a href="com/csse3200/game/difficulty/DifficultyScaler.html" title="class in com.csse3200.game.difficulty">DifficultyScaler</a></dt>
 <dd>
 <div class="block">Scales <code>enemy</code>'s combat stats, attack cooldown, and gold drop by the current difficulty's
@@ -846,7 +850,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ConsumableUseComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ConsumableUseComponent.html" title="class in com.csse3200.game.components.player">ConsumableUseComponent</a></dt>
 <dd>
-<div class="block">Registers the <code>"useItem"</code> listener.</div>
+<div class="block">Registers the <code>"useItem"</code> listener and starts tracking the held weapon.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/DeathLootDropComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathLootDropComponent.html" title="class in com.csse3200.game.components.player">DeathLootDropComponent</a></dt>
 <dd>
@@ -1010,7 +1014,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/loot/LootTable.html#createDefault(long)" class="member-name-link">createDefault(long)</a> - Static method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></dt>
 <dd>
-<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="com/csse3200/game/components/loot/WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, and the shield.</div>
+<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="com/csse3200/game/components/loot/WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, the Upgrade Stone and the shield.</div>
 </dd>
 <dt><a href="com/csse3200/game/entities/factories/LootFactory.html#createDroppedLoot(com.csse3200.game.components.loot.Item,com.csse3200.game.entities.Entity)" class="member-name-link">createDroppedLoot(Item, Entity)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/LootFactory.html" title="class in com.csse3200.game.entities.factories">LootFactory</a></dt>
 <dd>
@@ -2147,6 +2151,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/RoomTransition.html#getHeight()" class="member-name-link">getHeight()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/RoomTransition.html" title="class in com.csse3200.game.areas.terrain.map">RoomTransition</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/ConsumableUseComponent.html#getHeldWeaponSlot()" class="member-name-link">getHeldWeaponSlot()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ConsumableUseComponent.html" title="class in com.csse3200.game.components.player">ConsumableUseComponent</a></dt>
+<dd>
+<div class="block">Returns the slot of the weapon the player last selected.</div>
+</dd>
 <dt><a href="com/csse3200/game/physics/raycast/AllHitCallback.html#getHitsAndClear()" class="member-name-link">getHitsAndClear()</a> - Method in class com.csse3200.game.physics.raycast.<a href="com/csse3200/game/physics/raycast/AllHitCallback.html" title="class in com.csse3200.game.physics.raycast">AllHitCallback</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/RoomTransition.html#getId()" class="member-name-link">getId()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/RoomTransition.html" title="class in com.csse3200.game.areas.terrain.map">RoomTransition</a></dt>
@@ -3123,6 +3131,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/npc/DialogueProximityComponent.html#isPlayerInRange()" class="member-name-link">isPlayerInRange()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/DialogueProximityComponent.html" title="class in com.csse3200.game.components.npc">DialogueProximityComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/loot/ConsumableType.html#isPotion()" class="member-name-link">isPotion()</a> - Method in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a></dt>
+<dd>
+<div class="block">Returns whether this consumable is a potion.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/npc/ProvokedComponent.html#isProvoked()" class="member-name-link">isProvoked()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/ProvokedComponent.html" title="class in com.csse3200.game.components.npc">ProvokedComponent</a></dt>
 <dd>
 <div class="block">Returns whether this NPC is still provoked by a recent hit.</div>
@@ -5964,6 +5976,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a Upgrade stub.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/loot/ConsumableType.html#UPGRADE_STONE" class="member-name-link">UPGRADE_STONE</a> - Enum constant in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/upgrades/UpgradeNode.html" class="type-name-link" title="class in com.csse3200.game.upgrades">UpgradeNode</a> - Class in <a href="com/csse3200/game/upgrades/package-summary.html">com.csse3200.game.upgrades</a></dt>
 <dd>
 <div class="block">Represents a single purchasable, temporary, tiered upgrade.</div>
@@ -5990,6 +6004,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Tracks whether the Upgrades screen is currently open.</div>
 </dd>
 <dt><a href="com/csse3200/game/upgrades/UpgradesMenuComponent.html#%3Cinit%3E()" class="member-name-link">UpgradesMenuComponent()</a> - Constructor for class com.csse3200.game.upgrades.<a href="com/csse3200/game/upgrades/UpgradesMenuComponent.html" title="class in com.csse3200.game.upgrades">UpgradesMenuComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/configs/ConsumableConfigs.html#upgradeStone" class="member-name-link">upgradeStone</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/ConsumableConfigs.html" title="class in com.csse3200.game.entities.configs">ConsumableConfigs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/ConsumableItem.html#use(com.csse3200.game.entities.Entity)" class="member-name-link">use(Entity)</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ConsumableItem.html" title="class in com.csse3200.game.components.loot">ConsumableItem</a></dt>
 <dd>
@@ -6271,6 +6287,12 @@ the order they are declared.</div>
 <dd>
 <div class="block">The set of weapon stypes avaliable in the game.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponUpgradeEffect.html" class="type-name-link" title="class in com.csse3200.game.components.loot">WeaponUpgradeEffect</a> - Class in <a href="com/csse3200/game/components/loot/package-summary.html">com.csse3200.game.components.loot</a></dt>
+<dd>
+<div class="block">The Upgrade Stone's effect: upgrades the weapon the player is holding by one tier.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponUpgradeEffect.html#%3Cinit%3E()" class="member-name-link">WeaponUpgradeEffect()</a> - Constructor for class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponUpgradeEffect.html" title="class in com.csse3200.game.components.loot">WeaponUpgradeEffect</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponUpgrader.html" class="type-name-link" title="class in com.csse3200.game.components.loot">WeaponUpgrader</a> - Class in <a href="com/csse3200/game/components/loot/package-summary.html">com.csse3200.game.components.loot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponUpgrader.html#%3Cinit%3E()" class="member-name-link">WeaponUpgrader()</a> - Constructor for class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponUpgrader.html" title="class in com.csse3200.game.components.loot">WeaponUpgrader</a></dt>
