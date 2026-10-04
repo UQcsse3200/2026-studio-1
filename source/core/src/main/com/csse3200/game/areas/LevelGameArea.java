@@ -23,9 +23,12 @@ import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.LootId;
 import com.csse3200.game.components.loot.LootPlacement;
+import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.LootSpawnFinder;
 import com.csse3200.game.components.loot.LootTable;
+import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.room.RoomTransitionComponent;
@@ -35,8 +38,12 @@ import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EnemyId;
+import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
+import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
+import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -84,7 +91,7 @@ public class LevelGameArea extends GameArea {
    * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
    * it is logged when loot spawns so a run with a bug in it can be replayed from that seed.
    */
-  private final long lootSeed = new Random().nextLong();
+  private final long lootSeed;
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
@@ -95,6 +102,8 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghost_king.png",
     "images/enemies/ghost_1.png",
     "images/items/sword.png",
+    "images/items/sword_t2.png",
+    "images/items/sword_t3.png",
     "images/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
@@ -167,7 +176,7 @@ public class LevelGameArea extends GameArea {
    * @param mapLoader loader used to parse the map file
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
-    this(terrainFactory, mapPath, mapLoader, null, null);
+    this(terrainFactory, mapPath, mapLoader, null, null, null);
   }
 
   /**
@@ -181,7 +190,22 @@ public class LevelGameArea extends GameArea {
    */
   public LevelGameArea(
       TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
-    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn);
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null);
+  }
+
+  /**
+   * Create a level while retaining an existing player, placing it at a specified entrance, and
+   * using a previously-saved loot seed so this room's loot layout matches what it was when saved.
+   *
+   * @param savedLootSeed the loot seed to reuse, from a save file
+   */
+  public LevelGameArea(
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
+    this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, savedLootSeed);
   }
 
   private LevelGameArea(
@@ -189,13 +213,15 @@ public class LevelGameArea extends GameArea {
       String mapPath,
       MapLoader mapLoader,
       Entity existingPlayer,
-      GridPoint2 entrySpawn) {
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
     this.mapLoader = mapLoader;
     this.existingPlayer = existingPlayer;
     this.entrySpawn = entrySpawn == null ? null : new GridPoint2(entrySpawn);
+    this.lootSeed = savedLootSeed != null ? savedLootSeed : new Random().nextLong();
   }
 
   @Override
@@ -238,9 +264,32 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * @return the loot seed used by this level instance
+   */
+  public long getLootSeed() {
+    return lootSeed;
+  }
+
+  /**
    * @return the spawned player entity, or null before {@link #create()} runs
    */
   public Entity getPlayer() {
+    return player;
+  }
+
+  /**
+   * Creates a completely new player in the current room after player death.
+   *
+   * @return the newly-created player entity
+   */
+  public Entity respawnPlayer() {
+    if (player != null) {
+      areaEntities.remove(player);
+      ServiceLocator.getEntityService().unregister(player);
+      player.dispose();
+    }
+
+    player = spawnPlayer();
     return player;
   }
 
@@ -608,8 +657,13 @@ public class LevelGameArea extends GameArea {
 
   private void spawnEnemies() {
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
+      String id = EnemyId.of(mapData.getName(), spawn.getPosition());
+      if (EnemyRegistry.isKilled(id)) {
+        continue;
+      }
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
+        enemy.addComponent(new PersistentEnemyIdComponent(id));
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
       }
     }
@@ -644,16 +698,23 @@ public class LevelGameArea extends GameArea {
     }
 
     SpawnPoint shieldSpawn = lootSpawns.get(0);
-    spawnEntityAt(
-        LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1)),
-        shieldSpawn.getPosition(),
-        true,
-        true);
+    String shieldId = LootId.of(mapData.getName(), shieldSpawn.getPosition());
+    if (!LootRegistry.isCollected(shieldId)) {
+      Entity shieldEntity = LootFactory.createLoot(new Item("Shield", ItemType.SHIELD, 1, 1));
+      shieldEntity.addComponent(new PersistentLootIdComponent(shieldId));
+      spawnEntityAt(shieldEntity, shieldSpawn.getPosition(), true, true);
+    }
 
     List<SpawnPoint> remainingSpawns = lootSpawns.subList(1, lootSpawns.size());
     LootTable table = LootTable.createDefault(lootSeed);
     for (LootPlacement.PlacedLoot placed : LootPlacement.forSpawnPoints(table, remainingSpawns)) {
-      spawnEntityAt(LootFactory.createLoot(placed.getItem()), placed.getPosition(), true, true);
+      String id = LootId.of(mapData.getName(), placed.getPosition());
+      if (LootRegistry.isCollected(id)) {
+        continue;
+      }
+      Entity lootEntity = LootFactory.createLoot(placed.getItem());
+      lootEntity.addComponent(new PersistentLootIdComponent(id));
+      spawnEntityAt(lootEntity, placed.getPosition(), true, true);
     }
   }
 
@@ -727,7 +788,7 @@ public class LevelGameArea extends GameArea {
   private void playMusic() {
     Music music = ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class);
     music.setLooping(true);
-    music.setVolume(0.3f);
+    music.setVolume(AudioSettings.getEffectiveMusicVolume());
     music.play();
   }
 

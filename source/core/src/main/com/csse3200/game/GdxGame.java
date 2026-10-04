@@ -5,12 +5,14 @@ import static com.badlogic.gdx.Gdx.app;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.csse3200.game.components.story.StoryCutscene;
 import com.csse3200.game.files.UserSettings;
 import com.csse3200.game.screens.DeathScreen;
 import com.csse3200.game.screens.MainGameScreen;
 import com.csse3200.game.screens.MainMenuScreen;
 import com.csse3200.game.screens.PerksScreen;
 import com.csse3200.game.screens.SettingsScreen;
+import com.csse3200.game.screens.StoryCutsceneScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,16 +92,31 @@ public class GdxGame extends Game {
     switch (screenType) {
       case MAIN_MENU:
         return new MainMenuScreen(this);
+
       case MAIN_GAME:
+        return new MainGameScreen(this, false);
+
+      case STORY_CUTSCENE:
+        return new StoryCutsceneScreen(this, new StoryCutscene());
+
+      case AFTER_DEATH_CUTSCENE:
+        return new StoryCutsceneScreen(this, StoryCutscene.createAfterDeathCutscene());
+
+      case LOAD_GAME:
         return new MainGameScreen(this, true);
+
       case RESTART_GAME:
         return new MainGameScreen(this, false);
+
       case SETTINGS:
         return new SettingsScreen(this);
+
       case PERKS:
         return new PerksScreen(this);
+
       case DEATH_SCREEN:
         return new DeathScreen(this);
+
       default:
         return null;
     }
@@ -108,6 +125,9 @@ public class GdxGame extends Game {
   public enum ScreenType {
     MAIN_MENU,
     MAIN_GAME,
+    STORY_CUTSCENE,
+    AFTER_DEATH_CUTSCENE,
+    LOAD_GAME,
     RESTART_GAME,
     SETTINGS,
     DEATH_SCREEN,

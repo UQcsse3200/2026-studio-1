@@ -10,8 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
@@ -22,7 +24,8 @@ public class PauseMenuDisplay extends UIComponent {
     MAIN,
     SETTINGS,
     AUDIO,
-    KEYBINDS
+    KEYBINDS,
+    RESTART_CONFIRM
   }
 
   private static final Color PANEL_COLOR = new Color(0.03f, 0.06f, 0.04f, 0.95f);
@@ -58,14 +61,16 @@ public class PauseMenuDisplay extends UIComponent {
   };
   private static final int AUDIO_BACK_INDEX = 3;
 
-  // Verified against KeyboardPlayerInputComponent on 2026-09-20.
   private static final String[] KEYBIND_ITEMS = {
-    "Move: W A S D",
-    "Jump: Space",
+    "Move left:  A",
+    "Move right:  D",
+    "Move down:  S",
+    "Jump: W",
     "Dash: L",
+    "Slide: LShift",
     "Attack: Space",
     "Drop Item: Q",
-    "Activate Shield: B",
+    "Equip Shield: B",
     "Pause: ESC",
     "Back"
   };
@@ -88,6 +93,8 @@ public class PauseMenuDisplay extends UIComponent {
   private Table detailSlot;
   private Table audioPanel;
   private Table keybindsPanel;
+  private Table restartOverlay;
+  private Image pauseOverlay;
 
   private Label[] mainLabels;
   private Label[] settingsLabels;
@@ -99,6 +106,13 @@ public class PauseMenuDisplay extends UIComponent {
   private Label masterValueLabel;
   private Label musicValueLabel;
   private Label effectsValueLabel;
+  // Restart confirmation
+  private Label restartConfirmLabel;
+  private Label restartConfirmMessageLabel;
+  private Label restartYesLabel;
+  private Label restartNoLabel;
+  private Table restartConfirmPanel;
+  private int restartConfirmIndex = 0;
 
   private PauseMenuComponent pauseMenu;
   MenuState state = MenuState.MAIN;
@@ -114,6 +128,7 @@ public class PauseMenuDisplay extends UIComponent {
     pauseMenu = entity.getComponent(PauseMenuComponent.class);
     AudioSettings.setMasterVolume(masterVol);
     AudioSettings.setEffectsVolume(effectsVol);
+    AudioSettings.setMusicVolume(musicVol);
     addActors();
     registerEventListeners();
   }
@@ -131,16 +146,99 @@ public class PauseMenuDisplay extends UIComponent {
     keybindsLabels = new Label[KEYBIND_ITEMS.length];
     keybindsPanel = buildPanel(KEYBIND_ITEMS, keybindsLabels);
 
+    restartConfirmLabel = createLabel("ABANDON THIS JOURNEY?");
+    restartConfirmMessageLabel =
+        createLabel("The path behind you shall be erased. Only the beginning shall remain.");
+
+    Label.LabelStyle italicStyle = new Label.LabelStyle(restartConfirmMessageLabel.getStyle());
+
+    restartConfirmMessageLabel.setStyle(italicStyle);
+
+    restartYesLabel = createLabel("YES");
+    restartNoLabel = createLabel("NO");
+
+    restartYesLabel.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            restartConfirmIndex = 0;
+            refreshHighlights();
+          }
+
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            restartConfirmIndex = 0;
+            confirmRestart();
+            return true;
+          }
+        });
+
+    restartNoLabel.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            restartConfirmIndex = 1;
+            refreshHighlights();
+          }
+
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            restartConfirmIndex = 1;
+            confirmRestart();
+            return true;
+          }
+        });
+
+    restartConfirmPanel = new Table();
+
+    restartConfirmPanel.setBackground(skin.newDrawable("white", Color.BLACK));
+
+    restartConfirmPanel.pad(30f);
+
+    restartConfirmPanel.add(restartConfirmLabel).center().row();
+    restartConfirmPanel.add(restartConfirmMessageLabel).center().row();
+    restartConfirmPanel.add(restartYesLabel).center().row();
+    restartConfirmPanel.add(restartNoLabel).center().row();
+
     root = new Table();
     root.setFillParent(true);
-    root.left();
-    root.padLeft(60f);
-    root.add(mainPanel).top();
-    root.add(settingsPanel).top().padLeft(PANEL_GAP);
+    root.center();
+
+    Stack panelStack = new Stack();
+    panelStack.add(mainPanel);
+    panelStack.add(settingsPanel);
+
     detailSlot = new Table();
-    root.add(detailSlot).top().padLeft(PANEL_GAP);
+    panelStack.add(detailSlot);
+
+    panelStack.add(restartConfirmPanel);
+
+    Label pauseTitle = new Label("PAUSED", skin, "title");
+    pauseTitle.setFontScale(1.2f);
+
+    Table pauseLayout = new Table();
+    pauseLayout.add(pauseTitle).center().padBottom(18f).row();
+    pauseLayout.add(panelStack).width(320f).center();
+
+    root.add(pauseLayout).center();
+
+    restartConfirmPanel.setVisible(false);
     root.setVisible(false);
     stage.addActor(root);
+
+    pauseOverlay = new Image(skin.getDrawable("black"));
+    pauseOverlay.setFillParent(true);
+    pauseOverlay.setColor(0f, 0f, 0f, 0.55f);
+    pauseOverlay.setVisible(false);
+    stage.addActor(pauseOverlay);
+
+    restartOverlay = new Table();
+    restartOverlay.setFillParent(true);
+    restartOverlay.center();
+    restartOverlay.add(restartConfirmPanel).center();
+    restartOverlay.setVisible(false);
+
+    stage.addActor(restartOverlay);
   }
 
   private Label createLabel(String text) {
@@ -153,15 +251,16 @@ public class PauseMenuDisplay extends UIComponent {
 
   private Table buildPanel(String[] items, Label[] labelsOut) {
     Table panel = new Table();
-    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
     panel.pad(20f, 30f, 20f, 30f);
-    panel.left();
+    panel.center();
     MenuState ownerState = panelStateFor(items);
     for (int i = 0; i < items.length; i++) {
       Label label = createLabel(items[i]);
       labelsOut[i] = label;
+
       Table row = new Table();
-      row.add(label).pad(6f, 15f, 6f, 15f).left();
+      row.setBackground(skin.getDrawable("button"));
+      row.add(label).pad(10f, 25f, 10f, 25f).center();
       addRowInteraction(row, ownerState, i, true);
       panel.add(row).left().padBottom(4f).fillX();
       panel.row();
@@ -282,6 +381,7 @@ public class PauseMenuDisplay extends UIComponent {
 
   private void onMusicChanged(float value) {
     musicVol = value;
+    AudioSettings.setMusicVolume(musicVol);
     applyMusicVolume();
     savePrefs();
   }
@@ -307,7 +407,7 @@ public class PauseMenuDisplay extends UIComponent {
         ServiceLocator.getResourceService()
             .getAsset(PauseMenuComponent.BACKGROUND_MUSIC, Music.class);
     if (music != null) {
-      music.setVolume(musicVol * masterVol);
+      music.setVolume(AudioSettings.getEffectiveMusicVolume());
       musicVolumeApplied = true;
     }
   }
@@ -388,6 +488,7 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> SETTINGS_ITEMS.length;
       case AUDIO -> AUDIO_ITEMS.length;
       case KEYBINDS -> KEYBIND_ITEMS.length;
+      case RESTART_CONFIRM -> 2;
     };
   }
 
@@ -397,6 +498,7 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> settingsIndex;
       case AUDIO -> audioIndex;
       case KEYBINDS -> keybindsIndex;
+      case RESTART_CONFIRM -> restartConfirmIndex;
     };
   }
 
@@ -406,6 +508,7 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> settingsIndex = index;
       case AUDIO -> audioIndex = index;
       case KEYBINDS -> keybindsIndex = index;
+      case RESTART_CONFIRM -> restartConfirmIndex = index;
     }
     refreshHighlights();
   }
@@ -416,13 +519,28 @@ public class PauseMenuDisplay extends UIComponent {
       case SETTINGS -> confirmSettings();
       case AUDIO -> confirmAudio();
       case KEYBINDS -> confirmKeybinds();
+      case RESTART_CONFIRM -> confirmRestart();
+    }
+  }
+
+  private void confirmRestart() {
+    if (restartConfirmIndex == 0) {
+      entity.getEvents().trigger("restartClicked");
+    } else {
+      state = MenuState.MAIN;
+      restartConfirmPanel.setVisible(false);
+      mainPanel.setVisible(true);
+      refreshPanels();
     }
   }
 
   private void confirmMain() {
     switch (mainIndex) {
-      case 0 -> entity.getEvents().trigger("resumeClicked");
-      case 1 -> entity.getEvents().trigger("restartClicked");
+      case 0 -> {
+        pauseOverlay.setVisible(false);
+        entity.getEvents().trigger("resumeClicked");
+      }
+      case 1 -> showRestartConfirmation();
       case 2 -> {
         state = MenuState.SETTINGS;
         settingsIndex = 0;
@@ -432,6 +550,14 @@ public class PauseMenuDisplay extends UIComponent {
       case 4 -> entity.getEvents().trigger("saveClicked");
       default -> {}
     }
+  }
+
+  private void showRestartConfirmation() {
+    state = MenuState.RESTART_CONFIRM;
+    restartConfirmIndex = 0;
+    restartConfirmPanel.setVisible(true);
+    mainPanel.setVisible(false);
+    refreshPanels();
   }
 
   private void confirmSettings() {
@@ -471,7 +597,10 @@ public class PauseMenuDisplay extends UIComponent {
 
   private void handleEscape() {
     switch (state) {
-      case MAIN -> entity.getEvents().trigger("resumeClicked");
+      case MAIN -> {
+        pauseOverlay.setVisible(false);
+        entity.getEvents().trigger("resumeClicked");
+      }
       case SETTINGS -> {
         state = MenuState.MAIN;
         refreshPanels();
@@ -480,13 +609,23 @@ public class PauseMenuDisplay extends UIComponent {
         state = MenuState.SETTINGS;
         refreshPanels();
       }
+      case RESTART_CONFIRM -> {
+        state = MenuState.MAIN;
+        mainPanel.setVisible(true);
+        refreshPanels();
+      }
     }
   }
 
   private void refreshPanels() {
-    settingsPanel.setVisible(state != MenuState.MAIN);
+    restartOverlay.setVisible(state == MenuState.RESTART_CONFIRM);
+    restartConfirmPanel.setVisible(state == MenuState.RESTART_CONFIRM);
+    settingsPanel.setVisible(state != MenuState.MAIN && state != MenuState.RESTART_CONFIRM);
+
+    settingsPanel.setVisible(state != MenuState.MAIN && state != MenuState.RESTART_CONFIRM);
 
     detailSlot.clearChildren();
+    detailSlot.setVisible(state != MenuState.RESTART_CONFIRM);
     if (state == MenuState.AUDIO) {
       detailSlot.add(audioPanel);
     } else if (state == MenuState.KEYBINDS) {
@@ -505,14 +644,29 @@ public class PauseMenuDisplay extends UIComponent {
     highlightPanel(settingsLabels, settingsIndex, state == MenuState.SETTINGS);
     highlightPanel(audioLabels, audioIndex, state == MenuState.AUDIO);
     highlightPanel(keybindsLabels, keybindsIndex, state == MenuState.KEYBINDS);
+    highlightRestartOptions();
+  }
+
+  private void highlightRestartOptions() {
+    restartYesLabel.getStyle().fontColor =
+        restartConfirmIndex == 0 && state == MenuState.RESTART_CONFIRM
+            ? SELECTED_TEXT
+            : UNSELECTED_TEXT;
+
+    restartNoLabel.getStyle().fontColor =
+        restartConfirmIndex == 1 && state == MenuState.RESTART_CONFIRM
+            ? SELECTED_TEXT
+            : UNSELECTED_TEXT;
   }
 
   private void highlightPanel(Label[] labels, int selectedIndex, boolean isActivePanel) {
     for (int i = 0; i < labels.length; i++) {
       boolean selected = isActivePanel && i == selectedIndex;
-      labels[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
+
+      labels[i].getStyle().fontColor = Color.WHITE;
+
       Table row = (Table) labels[i].getParent();
-      row.setBackground(selected ? skin.newDrawable("button", SELECTED_BG) : null);
+      row.setBackground(skin.getDrawable(selected ? "button-pressed" : "button"));
     }
   }
 
@@ -559,6 +713,11 @@ public class PauseMenuDisplay extends UIComponent {
       rightHeld = false;
     }
     root.setVisible(isPaused);
+    if (isPaused) {
+      pauseOverlay.setVisible(true);
+      pauseOverlay.toFront();
+      root.toFront();
+    }
 
     if (isPaused && !wasPaused) {
       state = MenuState.MAIN;
