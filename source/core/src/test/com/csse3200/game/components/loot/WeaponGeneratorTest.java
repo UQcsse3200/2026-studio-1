@@ -204,5 +204,4 @@ class WeaponGeneratorTest {
     assertEquals(1, axe.getQuantity());
     assertEquals(2, axe.getMaxQuantity());
   }
-
 }

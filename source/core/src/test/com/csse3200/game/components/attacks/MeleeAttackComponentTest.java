@@ -722,6 +722,17 @@ class MeleeAttackComponentTest {
             + healthAfterSecondAttack);
   }
 
+  // A natural weapon (no carried WeaponItem, e.g. a Cyclops's fists) flows through the same
+  // weapon-based constructor an armed enemy uses, with damage exactly as given.
+  @Test
+  void shouldAcceptNaturalWeapon() {
+    WeaponItem naturalFists = WeaponItem.natural("Cyclops Fists", 8, 3f);
+
+    MeleeAttackComponent meleeAttack = new MeleeAttackComponent(3f, 4f, 2f, naturalFists);
+
+    assertEquals(8, meleeAttack.getDamage());
+  }
+
   /* ---------- Helpers ---------- */
 
   /**

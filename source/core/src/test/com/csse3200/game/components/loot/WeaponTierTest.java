@@ -1,6 +1,7 @@
 package com.csse3200.game.components.loot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -105,4 +106,10 @@ public class WeaponTierTest {
     assertEquals(3.3f, tier3.getRange());
   }
 
+  // NATURAL weapons (built via WeaponItem#natural) deliberately have no tier-based stats.
+  @Test
+  void shouldRejectNaturalWeaponType() {
+    assertThrows(
+        IllegalArgumentException.class, () -> WeaponTier.TIER_1.getStats(WeaponType.NATURAL));
+  }
 }

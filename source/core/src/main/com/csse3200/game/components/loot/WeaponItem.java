@@ -71,6 +71,25 @@ public class WeaponItem extends Item {
   }
 
   /**
+   * Builds a natural weapon for an enemy with no carried weapon at all (e.g. a Cyclops's fists), so
+   * it can flow through the same weapon-based {@code MeleeAttackComponent}/{@code
+   * RangedAttackComponent} constructor an armed enemy uses - rather than each attack component
+   * needing its own parallel no-weapon constructor. Tagged with {@link WeaponType#NATURAL}, which
+   * has no {@link WeaponTier} stats: {@code damage} and {@code windupDuration} here are exactly
+   * what the caller passes in, fully independent of each other and of whatever cooldown the attack
+   * component is configured with.
+   *
+   * @param name display name for this natural weapon (e.g. "Cyclops Fists")
+   * @param damage flat damage dealt per hit
+   * @param windupDuration delay, in seconds, between commit and resolve
+   * @return a natural {@link WeaponItem}, usable by either attack component
+   */
+  public static WeaponItem natural(String name, int damage, float windupDuration) {
+    return new WeaponItem(
+        name, WeaponType.NATURAL, damage, /* quantity */ 1, /* maxQuantity */ 1, windupDuration);
+  }
+
+  /**
    * Returns the weapon type that has been created.
    *
    * @return this item's weapon type - i.e bow, sword,

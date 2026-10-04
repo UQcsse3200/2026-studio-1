@@ -95,4 +95,15 @@ class WeaponItemTest {
     assertEquals(12, axe.getDamage());
   }
 
+  // WeaponItem.natural(...) tags the result as WeaponType.NATURAL and stores exactly the damage
+  // and windup passed in - no WeaponTier lookup involved.
+  @Test
+  void shouldCreateNaturalWeapon() {
+    WeaponItem fists = WeaponItem.natural("Cyclops Fists", 10, 3f);
+
+    assertEquals("Cyclops Fists", fists.getName());
+    assertEquals(WeaponType.NATURAL, fists.getWeaponType());
+    assertEquals(10, fists.getDamage());
+    assertEquals(3f, fists.getWindupDuration());
+  }
 }

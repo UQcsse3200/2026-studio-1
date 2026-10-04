@@ -93,6 +93,10 @@ public enum WeaponTier {
       case DAGGER ->
           new TierStats(tier, daggerDamage, daggerAttackSpeed, daggerKnockback, daggerRange);
       case AXE -> new TierStats(tier, axeDamage, axeAttackSpeed, axeKnockback, axeRange);
+      case NATURAL ->
+          throw new IllegalArgumentException(
+              "WeaponType.NATURAL has no tier-based stats - build it via WeaponItem#natural"
+                  + " instead, which doesn't go through WeaponTier at all.");
     };
   }
 
