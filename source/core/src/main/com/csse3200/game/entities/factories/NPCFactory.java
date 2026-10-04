@@ -338,6 +338,10 @@ public class NPCFactory {
         .addComponent(new EnemyDeathComponent())
         .addComponent(new SkeletonAnimationController());
 
+    centaur
+        .getComponent(RangedAttackComponent.class)
+        .setProjectileSpeed(config.ranged.projectileSpeed);
+
     centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     // Attack from range instead of flying/chasing all the way onto the target - see
@@ -384,21 +388,36 @@ public class NPCFactory {
     animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
 
+    // Cyclops carries no weapon - natural attacks flow through the same weapon-based attack
+    // constructors an armed enemy uses, via WeaponItem.natural(...), rather than each attack
+    // component needing its own parallel no-weapon constructor (see WeaponItem#natural).
+    WeaponItem naturalFists =
+        WeaponItem.natural("Cyclops Fists", config.baseAttack, config.melee.cooldown - 1);
+    WeaponItem naturalRockThrow =
+        WeaponItem.natural("Cyclops Rock Throw", config.baseAttack, config.ranged.cooldown - 1);
+
     // Add necessary components to the entity
     cyclops
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range, config.melee.cooldown, config.melee.knockback))
+                config.melee.range, config.melee.cooldown, config.melee.knockback, naturalFists))
         .addComponent(
             new RangedAttackComponent(
-                config.ranged.range, config.ranged.cooldown, config.ranged.knockback))
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                naturalRockThrow))
         .addComponent(new EnemyTypeComponent(EnemyType.CYCLOPS))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new CyclopsAnimationController());
+
+    cyclops
+        .getComponent(RangedAttackComponent.class)
+        .setProjectileSpeed(config.ranged.projectileSpeed);
 
     cyclops.getComponent(AnimationRenderComponent.class).scaleEntity();
 

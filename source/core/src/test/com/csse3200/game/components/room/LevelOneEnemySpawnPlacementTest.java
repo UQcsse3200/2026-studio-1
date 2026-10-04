@@ -1,307 +1,274 @@
 package com.csse3200.game.components.room;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.LevelView;
+import com.csse3200.game.areas.terrain.map.MapDataLevelView;
+import com.csse3200.game.areas.terrain.map.SpawnPoint;
+import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
+import com.csse3200.game.extensions.GameExtension;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Placement rules for the enemy spawns in the shipped Level 1 map (maps/level1-greek.json).
+ * Placement rules for the enemy spawns in the shipped Level 1 map. Data tests: they load the map
+ * and ask the level view about tiles, so no physics world is needed.
  *
- * <p>DATA tests: they load the map and ask the level view about tiles; no physics world is needed.
- * They exist because the loader accepts any position inside the map, so a spawn inside a wall, in
- * mid-air, or crowded onto one surface loads fine and only shows up in play. Model the fixture on
- * MapDataLevelViewTest and ShippedMapsTest.
- *
- * <p>COLLIDER sizes in tiles (width by height; from the factory scales and
- * PhysicsUtils.setScaledCollider, world size divided by the 0.5 tile size): skeleton and ranged
- * skeleton 0.9 by 1.2, Minotaur 3.2 by 4.7, Cyclops 3.2 by 3.0, Centaur 3.2 by 4.0. The collider is
- * assumed centred on the sprite [CONFIRM]. Spawning centres the entity on the tile, then physics
- * drops it onto the first surface below. Types: Boundary, Negative, Regression, Mapping, Unit.
+ * <p>Geometry, copied from the real code: {@code GameArea.positionEntityAt} centres the entity's
+ * bounding box on the spawn tile, and {@code PhysicsUtils.setScaledCollider} puts the collider at
+ * the horizontal centre and the BOTTOM of that box. So the collider's feet sit below the spawn
+ * tile's bottom edge by (entity height / 2 - tile / 2) minus the collider's own bottom offset.
  */
+@ExtendWith(GameExtension.class)
 class LevelOneEnemySpawnPlacementTest {
-  private final JsonMapLoader loader = new JsonMapLoader();
+  private static final String MAP = "maps/level1-greek.json";
+  private static final double TILE = 0.5; // world units per tile, from the map file's tileSize
+  private static final double EPS = 1e-6;
 
-  /**
-   * Loads level 1 once, builds the level view, keeps the enemy spawn list.
-   *
-   * <pre>
-   * BEGIN set up the placement tests
-   *   load maps/level1-greek.json with the map loader
-   *   build the level view from the loaded map
-   *   keep the list of enemy spawns
-   * END set up
-   * </pre>
-   */
-  @BeforeEach
-  void setUp() {
-    LevelMapData levelOne = loader.load("maps/level1-greek.json");
-    assertEquals(56, levelOne.getWidth());
-    assertEquals(64, levelOne.getHeight());
-    assertEquals(new GridPoint2(3, 3), levelOne.getSpawns().getPlayer());
-    assertEquals(19, levelOne.getSpawns().getEnemies().size());
+  // Physics lifts a body out of a surface it starts inside, so feet may start up to half a tile
+  // below the top of the tile they stand on (every skeleton does: 2 x 0.5 tile entity offset).
+  private static final double FEET_SINK_ALLOWANCE = 0.5;
+  private static final double MAX_DROP = 1.5; // tiles an enemy may fall before it lands
+
+  /** Entity size and collider, in WORLD units, copied from NPCFactory. */
+  private record Body(
+      double scaleX,
+      double scaleY,
+      double colliderWidth,
+      double colliderHeight,
+      double colliderBottom) {}
+
+  /** Collider rectangle in TILE units. */
+  private record Box(double left, double bottom, double width, double height) {
+    double right() {
+      return left + width;
+    }
+
+    double top() {
+      return bottom + height;
+    }
   }
 
-  /**
-   * Collider size in tiles, by type text.
-   *
-   * <pre>
-   * BEGIN look up a collider
-   *   IF the type is skeleton or ranged-skeleton THEN return 0.9 wide, 1.2 tall
-   *   IF the type is minotaur THEN return 3.2 wide, 4.7 tall
-   *   IF the type is cyclops THEN return 3.2 wide, 3.0 tall
-   *   IF the type is centaur THEN return 3.2 wide, 4.0 tall
-   *   OTHERWISE report "unknown enemy type" and stop
-   * END look up
-   * </pre>
-   */
-  //  private double[] colliderOf(String type) {
-  //    return 0;
-  //  }
+  // The Minotaur builds its own collider (NPCFactory.createMinotaur): 16 px shorter from below.
+  private static final double MINOTAUR_HEIGHT = 4.0 * 80.0 / 96.0;
+  private static final double MINOTAUR_FEET = 16.0 * (MINOTAUR_HEIGHT / 80.0);
 
-  /**
-   * Boundary. Failure message: "Enemy spawn <type> at <x>, <y> is outside the 56 by 64 map".
-   *
-   * <pre>
-   * BEGIN everyEnemySpawnIsInsideTheMap
-   *   FOR each enemy spawn in the level 1 map
-   *     check its tile x is 0 to 55 and its tile y is 0 to 63
-   *   END FOR
-   * END everyEnemySpawnIsInsideTheMap
-   * </pre>
-   */
-  @Test
-  void everyEnemySpawnIsInsideTheMap() {}
+  private static final Map<String, Body> BODIES =
+      Map.of(
+          "skeleton",
+          new Body(1.0, 1.0, 0.45, 0.6, 0.0),
+          "ranged-skeleton",
+          new Body(1.0, 1.0, 0.45, 0.6, 0.0),
+          "minotaur",
+          new Body(
+              4.0,
+              MINOTAUR_HEIGHT,
+              4.0 * 0.8,
+              MINOTAUR_HEIGHT * 0.7 - MINOTAUR_FEET,
+              MINOTAUR_FEET),
+          "cyclops",
+          new Body(2.0, 1.5, 2.0 * 0.4, 1.5 * 0.5, 0.0),
+          "centaur",
+          new Body(4.0, 4.0, 4.0 * 0.4, 4.0 * 0.5, 0.0));
 
-  /**
-   * Mapping. Failure message: "No spawn factory is registered for enemy type <type>".
-   *
-   * <pre>
-   * BEGIN everyEnemyTypeHasARegisteredFactory
-   *   register the default spawn names (as the area does at start up)
-   *   FOR each distinct enemy type in the level 1 enemy list
-   *     check the spawn registry can build that type
-   *   END FOR
-   *   NOTE: needs the EntitySpawnRegistryTest default-names failure fixed first
-   * END everyEnemyTypeHasARegisteredFactory
-   * </pre>
-   */
-  @Test
-  void everyEnemyTypeHasARegisteredFactory() {}
+  private LevelView level;
+  private List<SpawnPoint> enemies;
 
-  /**
-   * Negative. Failure message: "Enemy <type> at <x>, <y> overlaps a wall or floor tile at <tx>,
-   * <ty>".
-   *
-   * <pre>
-   * BEGIN noEnemyColliderOverlapsASolidTile
-   *   FOR each enemy spawn
-   *     work out the collider rectangle in tiles from the enemy type (centred on the spawn tile)
-   *     FOR each wall or floor tile the rectangle touches
-   *       ignore an overlap smaller than 0.15 tiles (feet resting on the surface)
-   *       otherwise fail
-   *     END FOR
-   *   END FOR
-   * END noEnemyColliderOverlapsASolidTile
-   * </pre>
-   */
-  @Test
-  void noEnemyColliderOverlapsASolidTile() {}
+  @BeforeEach
+  void setUp() {
+    LevelMapData map = new JsonMapLoader().load(MAP);
+    level = new MapDataLevelView(map);
+    enemies = map.getSpawns().getEnemies();
+    // No count and no map size here: the list changes as enemies are added or moved.
+    assertFalse(enemies.isEmpty(), "Level 1 lists no enemies.");
+  }
 
-  /**
-   * Boundary. Failure message: "Enemy <type> at <x>, <y> does not fit under the ceiling".
-   *
-   * <pre>
-   * BEGIN everyEnemyHasHeadroomForItsCollider
-   *   FOR each enemy spawn
-   *     find the surface it lands on
-   *     check every tile above the surface, up to the collider height, is not a wall or floor tile
-   *   END FOR
-   * END everyEnemyHasHeadroomForItsCollider
-   * </pre>
-   */
   @Test
-  void everyEnemyHasHeadroomForItsCollider() {}
+  void everyEnemySpawnIsInsideTheMap() {
+    List<String> problems = new ArrayList<>();
+    for (SpawnPoint spawn : enemies) {
+      if (!level.inBounds(spawn.getX(), spawn.getY())) {
+        problems.add(
+            describe(spawn) + " is outside the " + level.width() + " by " + level.height());
+      }
+    }
+    assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
+  }
 
-  /**
-   * Unit. Failure message: "Enemy <type> at <x>, <y> falls <n> tiles before landing".
-   *
-   * <pre>
-   * BEGIN everyEnemyLandsOnASurfaceWithinOneAndAHalfTiles
-   *   FOR each enemy spawn
-   *     drop the collider straight down until it meets a wall, floor or platform
-   *     check the fall is at most 1.5 tiles
-   *     check something was found (the enemy is not above a void)
-   *   END FOR
-   * END everyEnemyLandsOnASurfaceWithinOneAndAHalfTiles
-   * </pre>
-   */
   @Test
-  void everyEnemyLandsOnASurfaceWithinOneAndAHalfTiles() {}
+  void noEnemyColliderIsInsideAWallOrCeiling() {
+    List<String> problems = new ArrayList<>();
+    for (SpawnPoint spawn : enemies) {
+      Box box = boxOf(spawn);
+      for (GridPoint2 tile : tilesTouching(box)) {
+        // How far above the collider's feet the tile's top edge is. A small value means the feet
+        // are resting in the surface; a larger one means the tile is beside or above the body.
+        double riseAboveFeet = (tile.y + 1) - box.bottom();
+        if (level.isSolid(tile.x, tile.y) && riseAboveFeet > FEET_SINK_ALLOWANCE + EPS) {
+          problems.add(
+              describe(spawn) + " overlaps a wall or floor tile at " + tile.x + ", " + tile.y);
+        }
+      }
+    }
+    assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
+  }
 
-  /**
-   * Negative. Failure message: "Enemy <type> at <x>, <y> lands next to a hazard tile".
-   *
-   * <pre>
-   * BEGIN noEnemyStandsOnOrBesideAHazard
-   *   FOR each enemy spawn
-   *     check no hazard tile lies in the collider's columns at the landing row or the row above it
-   *   END FOR
-   * END noEnemyStandsOnOrBesideAHazard
-   * </pre>
-   */
   @Test
-  void noEnemyStandsOnOrBesideAHazard() {}
+  void everyEnemyLandsOnASurfaceWithinOneAndAHalfTiles() {
+    List<String> problems = new ArrayList<>();
+    for (SpawnPoint spawn : enemies) {
+      Box box = boxOf(spawn);
+      Double supportTop = supportTopUnder(box);
+      if (supportTop == null) {
+        problems.add(describe(spawn) + " has nothing to stand on");
+      } else if (box.bottom() - supportTop > MAX_DROP + EPS) {
+        problems.add(
+            describe(spawn) + " falls " + (box.bottom() - supportTop) + " tiles before landing");
+      }
+    }
+    assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
+  }
 
-  /**
-   * Boundary. Failure message: "Enemy <type> at <x>, <y> has only <n> tiles of surface to one
-   * side".
-   *
-   * <pre>
-   * BEGIN everyEnemyHasTwoTilesOfSurfaceEachSide
-   *   FOR each enemy spawn
-   *     count the supporting tiles to its left and right on the surface it lands on
-   *     check both counts are at least 2
-   *   END FOR
-   *   Skeletons wander about 2 tiles each way, so less than this walks them off the edge or into the end stop
-   * END everyEnemyHasTwoTilesOfSurfaceEachSide
-   * </pre>
-   */
-  @Test
-  void everyEnemyHasTwoTilesOfSurfaceEachSide() {}
+  @AfterEach
+  void resetRegistry() {
+    EntitySpawnRegistry.clear();
+    DefaultEntitySpawns.reset();
+  }
 
-  /**
-   * Boundary. Failure message: "Minotaur, Cyclops and Centaur must not spawn in a room under 5
-   * tiles tall".
-   *
-   * <pre>
-   * BEGIN bigEnemiesAreOnlyPlacedWhereTheirColliderFits
-   *   FOR each enemy whose collider is taller than 3 tiles (Minotaur 4.7, Centaur 4.0)
-   *     check the free height above its landing surface is at least its collider height rounded up
-   *   END FOR
-   *   Keeps the large enemies out of the three dungeon rooms (5 tiles tall, partitions leave 2)
-   * END bigEnemiesAreOnlyPlacedWhereTheirColliderFits
-   * </pre>
-   */
   @Test
-  void bigEnemiesAreOnlyPlacedWhereTheirColliderFits() {}
+  void everyEnemyHasHeadroomForItsCollider() {
+    List<String> problems = new ArrayList<>();
+    for (SpawnPoint spawn : enemies) {
+      Box box = boxOf(spawn);
+      Double supportTop = supportTopUnder(box);
+      if (supportTop == null) {
+        continue; // reported by everyEnemyLandsOnASurfaceWithinOneAndAHalfTiles
+      }
+      // Once landed, the body occupies [supportTop, supportTop + height) over its footprint.
+      Box landed = new Box(box.left(), supportTop, box.width(), box.height());
+      for (GridPoint2 tile : tilesTouching(landed)) {
+        if (level.isSolid(tile.x, tile.y)) {
+          problems.add(
+              describe(spawn)
+                  + " does not fit above its surface: tile "
+                  + tile.x
+                  + ", "
+                  + tile.y
+                  + " is solid");
+        }
+      }
+    }
+    assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
+  }
 
-  /**
-   * Regression. Failure message: "Surface <name> holds <n> enemies (limit 3)".
-   *
-   * <pre>
-   * BEGIN enemiesAreSpreadAcrossSurfaces
-   *   group the enemy spawns by the surface they land on
-   *   FOR each group
-   *     check it holds at most 3 enemies
-   *   END FOR
-   *   check each dungeon floor has at least 2 enemies
-   *   check the nether floor holds at most a third of the nether enemies
-   *   Guards the earlier bug where 8 of 11 nether enemies all fell to the nether floor
-   * END enemiesAreSpreadAcrossSurfaces
-   * </pre>
-   */
   @Test
-  void enemiesAreSpreadAcrossSurfaces() {}
+  void noEnemyStartsInsideAHazard() {
+    List<String> problems = new ArrayList<>();
+    for (SpawnPoint spawn : enemies) {
+      for (GridPoint2 tile : tilesTouching(boxOf(spawn))) {
+        if (level.isHazard(tile.x, tile.y)) {
+          problems.add(describe(spawn) + " starts in a hazard tile at " + tile.x + ", " + tile.y);
+        }
+      }
+    }
+    assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
+  }
 
-  /**
-   * Regression. Failure message: "Nether ledge row <r> has no enemy".
-   *
-   * <pre>
-   * BEGIN everyNetherLedgeRowHasAnEnemy
-   *   FOR each nether ledge row (36, 39, 42, 45, 48, 51, 53)
-   *     check at least one enemy lands on a ledge in that row
-   *   END FOR
-   * END everyNetherLedgeRowHasAnEnemy
-   * </pre>
-   */
   @Test
-  void everyNetherLedgeRowHasAnEnemy() {}
+  void noTwoEnemiesShareATile() {
+    Map<String, SpawnPoint> seen = new HashMap<>();
+    List<String> problems = new ArrayList<>();
+    for (SpawnPoint spawn : enemies) {
+      SpawnPoint earlier = seen.put(spawn.getX() + "," + spawn.getY(), spawn);
+      if (earlier != null) {
+        problems.add(describe(spawn) + " is on the same tile as " + describe(earlier));
+      }
+    }
+    assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
+  }
 
-  /**
-   * Boundary. Failure message: "Enemy <type> at <x>, <y> is within 8 tiles of the player or a
-   * door".
-   *
-   * <pre>
-   * BEGIN noFloorLevelEnemyIsNearADoorOrPlayerSpawn
-   *   FOR each enemy that lands on a floor row
-   *     check it is at least 8 tiles from the player spawn (3, 3)
-   *     check it is at least 8 tiles from both sub-level doors (26, 22) and (26, 33) when on the same row
-   *   END FOR
-   * END noFloorLevelEnemyIsNearADoorOrPlayerSpawn
-   * </pre>
-   */
   @Test
-  void noFloorLevelEnemyIsNearADoorOrPlayerSpawn() {}
+  void everyEnemyTypeHasARegisteredFactory() {
+    // Same call the game makes at start up. Registering only stores factories: nothing is built,
+    // so no atlases or physics are needed. The registry is static, so resetRegistry cleans up.
+    EntitySpawnRegistry.clear();
+    DefaultEntitySpawns.reset();
+    DefaultEntitySpawns.registerAll();
 
-  /**
-   * Regression. Failure message: "level1-greek.json still has a stale entities grid under spawns".
-   *
-   * <pre>
-   * BEGIN spawnsHoldsNoEntitiesGrid
-   *   read the raw text of the level 1 map file
-   *   check the spawns object has no entities key
-   * END spawnsHoldsNoEntitiesGrid
-   * </pre>
-   */
-  @Test
-  void spawnsHoldsNoEntitiesGrid() {}
+    Set<String> unknown = new LinkedHashSet<>();
+    for (SpawnPoint spawn : enemies) {
+      if (!EntitySpawnRegistry.isRegistered(spawn.getType())) {
+        unknown.add(spawn.getType());
+      }
+    }
+    assertTrue(
+        unknown.isEmpty(),
+        () ->
+            "No spawn factory is registered for "
+                + unknown
+                + ". Registered: "
+                + EntitySpawnRegistry.registeredNames());
+  }
 
-  /**
-   * Regression. Failure message: "A map still spawns the retired ghostking type".
-   *
-   * <pre>
-   * BEGIN spawnTypeIsNeverGhostKing
-   *   FOR each shipped map
-   *     check no enemy spawn has the type ghostking
-   *   END FOR
-   *   Only meaningful once Level 3's boss is switched to the Cyclops
-   * END spawnTypeIsNeverGhostKing
-   * </pre>
-   */
-  @Test
-  void spawnTypeIsNeverGhostKing() {}
+  private static String describe(SpawnPoint spawn) {
+    return spawn.getType() + " at " + spawn.getX() + ", " + spawn.getY();
+  }
 
-  /**
-   * Negative. Failure message: "A map with no enemies should fail the spawn rules".
-   *
-   * <pre>
-   * BEGIN emptyEnemyListIsAnError
-   *   build a small map in text with no enemy entries
-   *   check the placement rules report 'no enemies' instead of passing silently
-   * END emptyEnemyListIsAnError
-   * </pre>
-   */
-  @Test
-  void emptyEnemyListIsAnError() {}
+  private static Body bodyOf(String type) {
+    Body body = BODIES.get(type);
+    assertNotNull(body, "No collider recorded for enemy type '" + type + "': add it to BODIES");
+    return body;
+  }
 
-  /**
-   * Boundary. Failure message: "Enemy at tile y 0 starts inside the floor".
-   *
-   * <pre>
-   * BEGIN enemyOnTheBottomRowIsRejected
-   *   build a small map in text with a skeleton on the bottom row
-   *   check the overlap rule reports it
-   * END enemyOnTheBottomRowIsRejected
-   * </pre>
-   */
-  @Test
-  void enemyOnTheBottomRowIsRejected() {}
+  /** The collider rectangle, in tiles, once the game has centred the entity on the spawn tile. */
+  private static Box boxOf(SpawnPoint spawn) {
+    Body body = bodyOf(spawn.getType());
+    double entityLeft = spawn.getX() * TILE + (TILE - body.scaleX()) / 2;
+    double entityBottom = spawn.getY() * TILE + (TILE - body.scaleY()) / 2;
+    double left = entityLeft + (body.scaleX() - body.colliderWidth()) / 2; // centred in x
+    double bottom = entityBottom + body.colliderBottom(); // bottom aligned
+    return new Box(
+        left / TILE, bottom / TILE, body.colliderWidth() / TILE, body.colliderHeight() / TILE);
+  }
 
-  /**
-   * Negative. Failure message: "Minotaur in a 5-tile room is rejected only if the collider does not
-   * fit".
-   *
-   * <pre>
-   * BEGIN enemyUnderAFiveTileCeilingIsRejectedForAMinotaur
-   *   build a small map in text with a 6-tile room and a 4-tile room
-   *   check the Minotaur fits the first and is rejected in the second
-   * END enemyUnderAFiveTileCeilingIsRejectedForAMinotaur
-   * </pre>
-   */
-  @Test
-  void enemyUnderAFiveTileCeilingIsRejectedForAMinotaur() {}
+  private static List<GridPoint2> tilesTouching(Box box) {
+    List<GridPoint2> tiles = new ArrayList<>();
+    for (int x = (int) Math.floor(box.left() + EPS); x < Math.ceil(box.right() - EPS); x++) {
+      for (int y = (int) Math.floor(box.bottom() + EPS); y < Math.ceil(box.top() - EPS); y++) {
+        tiles.add(new GridPoint2(x, y));
+      }
+    }
+    return tiles;
+  }
+
+  /** Top edge, in tiles, of the highest supporting tile under the feet; null if there is none. */
+  private Double supportTopUnder(Box box) {
+    Double best = null;
+    int startRow = (int) Math.floor(box.bottom() + FEET_SINK_ALLOWANCE + EPS);
+    for (int x = (int) Math.floor(box.left() + EPS); x < Math.ceil(box.right() - EPS); x++) {
+      for (int y = Math.min(startRow, level.height() - 1); y >= 0; y--) {
+        if (level.isSupporting(x, y)) {
+          if (best == null || y + 1 > best) {
+            best = (double) (y + 1);
+          }
+          break;
+        }
+      }
+    }
+    return best;
+  }
 }

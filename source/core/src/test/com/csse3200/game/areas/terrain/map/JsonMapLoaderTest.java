@@ -12,6 +12,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -436,7 +437,27 @@ class JsonMapLoaderTest {
     assertEquals(56, levelOne.getWidth());
     assertEquals(64, levelOne.getHeight());
     assertEquals(new GridPoint2(3, 3), levelOne.getSpawns().getPlayer());
+    // list changes depending on what we choose to spawn so expected number will fail as changes to
+    // the list
+    List<SpawnPoint> enemyList = levelOne.getSpawns().getEnemies();
+    assertFalse(enemyList.isEmpty(), "Level 1 lists no enemies.");
+    for (SpawnPoint enemySpawn : enemyList) {
+      assertTrue(
+          enemySpawn.getX() > 0 && enemySpawn.getX() < (levelOne.getWidth() - 1),
+          "Enemies must spawn in x coordinates between 0 and "
+              + (levelOne.getWidth() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getX());
+      assertTrue(
+          enemySpawn.getY() > 0 && enemySpawn.getY() < (levelOne.getHeight() - 1),
+          "Enemies must spawn in x coordinates between 0 and "
+              + (levelOne.getHeight() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getY());
+    }
+
     assertEquals(19, levelOne.getSpawns().getEnemies().size());
+
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
     // Transparent ladders and ledges must render over a background rather than the clear colour.
     assertNotNull(levelOne.getLayer("background"));

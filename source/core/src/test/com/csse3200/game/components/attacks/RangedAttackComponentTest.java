@@ -3,8 +3,10 @@ package com.csse3200.game.components.attacks;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -207,6 +209,57 @@ class RangedAttackComponentTest {
         () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
 
     assertEquals(1, fired.size());
+  }
+
+  // A natural weapon (no carried WeaponItem, e.g. a Cyclops's rock throw) flows through the
+  // same weapon-based constructor an armed enemy uses, with damage exactly as given.
+  @Test
+  void shouldAcceptNaturalWeapon() {
+    WeaponItem naturalRockThrow = WeaponItem.natural("Cyclops Rock Throw", 12, 2f);
+
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, naturalRockThrow);
+
+    assertEquals(12, ranged.getDamage());
+  }
+
+  @Test
+  void shouldSourceFiredArrowDamageFromWeaponNotShooterBaseAttack() {
+    // Regression test: the fired arrow's damage must come from the equipped weapon
+    // (WeaponItem#getDamage()), not the shooter's own CombatStatsComponent#getBaseAttack() - those
+    // can differ, and sourcing the wrong one silently gives every ranged attacker identical damage
+    // regardless of which weapon they're holding.
+    EntityService entityService = mock(EntityService.class);
+    List<Entity> registered = new ArrayList<>();
+    doAnswer(
+            invocation -> {
+              registered.add(invocation.getArgument(0));
+              return null;
+            })
+        .when(entityService)
+        .register(any(Entity.class));
+    ServiceLocator.registerEntityService(entityService);
+
+    WeaponItem weapon = createInstantWeapon();
+    Entity attacker =
+        new Entity()
+            .addComponent(new RangedAttackComponent(6f, 2f, 0f, weapon))
+            // Deliberately different from the weapon's damage, so this test fails if the arrow's
+            // damage is ever sourced from this instead.
+            .addComponent(new CombatStatsComponent(20, 999));
+    attacker.create();
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(2, 0);
+
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+
+    assertEquals(1, registered.size());
+    Entity arrow = registered.get(0);
+    assertEquals(
+        weapon.getDamage(),
+        arrow.getComponent(CombatStatsComponent.class).getBaseAttack(),
+        "Expected the fired arrow's damage to come from the weapon, not the shooter's own base "
+            + "attack.");
   }
 
   private List<Entity> listenForFired(Entity attacker) {

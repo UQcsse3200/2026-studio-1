@@ -293,7 +293,7 @@ public class RangedAttackComponent extends Component {
                   movingRight,
                   projectileSpeed,
                   range,
-                  combatStats.getBaseAttack(),
+                  this.getDamage(),
                   knockback,
                   PhysicsLayer.PLAYER);
           case LIGHTNING ->
