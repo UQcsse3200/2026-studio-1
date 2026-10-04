@@ -57,7 +57,7 @@ public class QuestDisplay extends UIComponent {
     questTable.setBackground(skin.getDrawable("window"));
     questTable.pad(10f);
 
-    Label title = new Label("QUEST", skin, "large");
+    Label title = new Label("QUEST", skin);
     title.setAlignment(Align.center);
     questTable.add(title).expandX().fillX().padBottom(10f).row();
 
@@ -81,7 +81,7 @@ public class QuestDisplay extends UIComponent {
   private void refreshQuestTable() {
     questTable.clear();
 
-    Label title = new Label("QUEST", skin, "large");
+    Label title = new Label("QUEST", skin, "subtitle");
     title.setAlignment(Align.center);
     questTable.add(title).expandX().fillX().padBottom(10f).row();
 

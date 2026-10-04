@@ -34,10 +34,10 @@ public class Tutorial extends UIComponent {
     rootTable.padBottom(20f);
 
     Table tutorialTable = new Table();
-    tutorialTable.setBackground(skin.getDrawable("window-w"));
+    tutorialTable.setBackground(skin.getDrawable("window"));
     tutorialTable.pad(20f);
 
-    Label title = new Label("TUTORIAL", skin, "large");
+    Label title = new Label("TUTORIAL", skin, "subtitle");
     title.setAlignment(Align.center);
     tutorialTable.add(title).expandX().fillX().padBottom(10f).row();
 
