@@ -1,268 +1,312 @@
 package com.csse3200.game.components.attacks;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.badlogic.gdx.graphics.Texture;
+import com.csse3200.game.ai.tasks.AITaskComponent;
+import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponTier;
+import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.projectile.ProjectileType;
+import com.csse3200.game.components.tasks.RangedAttackTask;
+import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
+import com.csse3200.game.physics.PhysicsService;
+import com.csse3200.game.rendering.RenderService;
+import com.csse3200.game.services.GameTime;
+import com.csse3200.game.services.ResourceService;
+import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Event contract and firing behaviour of RangedAttackComponent after the projectile type was added.
+ * Event contract and firing behaviour of {@link RangedAttackComponent} after the projectile type
+ * was added.
  *
  * <p>The component registers {@code attemptAttack(Entity target, ProjectileType projectile)} for
  * the {@code "rangedAttack"} event, so every trigger carries TWO values after the event name: the
- * target, then the projectile type (ARROW or LIGHTNING). The event handler picks its listener type
- * from the number of values, so a one-value trigger fails with a ClassCastException at runtime.
+ * target, then the projectile type. The event handler picks the listener type from the number of
+ * values, so a one-value trigger fails with a ClassCastException at runtime, and swapped values
+ * fail the same way inside the listener.
  *
- * <p>Fixture: frame time 0.02 s (mock time source); shooter at the origin with combat stats and a
- * bow (windup below the cooldown); target at (3, 0) with combat stats; range 8, cooldown 5; mock
- * entity service that records every registered entity so arrows can be counted and inspected.
- * Types: Boundary, Integration, Negative, Regression, Unit.
+ * <p>Fixture: frame time 0.02 s; shooter at the origin with a bow of zero windup (so a shot leaves
+ * on the trigger call), range 8, cooldown 1 s; target at (3, 0) with combat stats; a mock entity
+ * service records every entity registered, so arrows can be counted and inspected.
  */
 @ExtendWith(GameExtension.class)
 class RangedAttackEventContractTest {
+  private static final float RANGE = 8f;
+  private static final float COOLDOWN = 1f;
 
-  /**
-   * Builds the shooter, target and mock services.
-   *
-   * <pre>
-   * BEGIN set up the ranged attack tests
-   *   register the physics service and a mock time source giving 0.02 second frames
-   *   register a mock entity service that records every registered entity
-   *   build a shooter with combat stats and a ranged attack component (range 8, cooldown 5, bow)
-   *   build a target at 3, 0 with combat stats
-   *   create both entities
-   * END set up
-   * </pre>
-   */
-  // @BeforeEach
-  // void setUp() {}
+  private final List<Entity> registered = new ArrayList<>();
+  private Entity shooter;
+  private Entity target;
 
-  /**
-   * Unit. Failure message: "Expected one arrow after a valid two-value attack".
-   *
-   * <pre>
-   * BEGIN firesOneArrowAtAValidTargetAndResetsTheCooldown
-   *   trigger the event with the target and ARROW
-   *   CHECK exactly one arrow was registered
-   *   CHECK a second trigger on the same frame spawns no further arrow (cooldown restarted)
-   * END firesOneArrowAtAValidTargetAndResetsTheCooldown
-   * </pre>
-   */
+  @BeforeEach
+  void setUp() {
+    registered.clear();
+    Texture texture = mock(Texture.class);
+    when(texture.getWidth()).thenReturn(16);
+    when(texture.getHeight()).thenReturn(16);
+    ResourceService resourceService = mock(ResourceService.class);
+    when(resourceService.getAsset(anyString(), eq(Texture.class))).thenReturn(texture);
+    ServiceLocator.registerResourceService(resourceService);
+    ServiceLocator.registerRenderService(mock(RenderService.class));
+    ServiceLocator.registerPhysicsService(new PhysicsService());
+    EntityService entityService = mock(EntityService.class);
+    doAnswer(
+            invocation -> {
+              registered.add(invocation.getArgument(0));
+              return null;
+            })
+        .when(entityService)
+        .register(any(Entity.class));
+    ServiceLocator.registerEntityService(entityService);
+    GameTime gameTime = mock(GameTime.class);
+    when(gameTime.getDeltaTime()).thenReturn(0.02f);
+    ServiceLocator.registerTimeSource(gameTime);
+
+    shooter = createShooter(99);
+    target = createTarget(3f);
+  }
+
+  // ---------- firing ----------
+
   @Test
-  void firesOneArrowAtAValidTargetAndResetsTheCooldown() {}
+  void firesOneArrowAtAValidTargetAndResetsTheCooldown() {
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    assertEquals(1, registered.size(), "Expected one arrow after a valid two-value attack");
 
-  /**
-   * Unit. Failure message: "Arrow should start to the right of the shooter".
-   *
-   * <pre>
-   * BEGIN arrowSpawnsOnTheRightWhenTheTargetIsToTheRight
-   *   target at x = 3; trigger with ARROW
-   *   CHECK the arrow's start x is greater than the shooter's centre x by the spawn offset (0.3)
-   * END arrowSpawnsOnTheRightWhenTheTargetIsToTheRight
-   * </pre>
-   */
-  @Test
-  void arrowSpawnsOnTheRightWhenTheTargetIsToTheRight() {}
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    assertEquals(1, registered.size(), "A second trigger on the same frame must not fire");
+  }
 
-  /**
-   * Unit. Failure message: "Arrow should start to the left of the shooter".
-   *
-   * <pre>
-   * BEGIN arrowSpawnsOnTheLeftWhenTheTargetIsToTheLeft
-   *   target at x = -3; trigger with ARROW
-   *   CHECK the arrow's start x is less than the shooter's centre x by the spawn offset (0.3)
-   * END arrowSpawnsOnTheLeftWhenTheTargetIsToTheLeft
-   * </pre>
-   */
   @Test
-  void arrowSpawnsOnTheLeftWhenTheTargetIsToTheLeft() {}
+  void arrowSpawnsOnTheRightWhenTheTargetIsToTheRight() {
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
-  /**
-   * Unit. Failure message: "Lightning should appear at the target's centre".
-   *
-   * <pre>
-   * BEGIN lightningSpawnsAtTheTargetCentre
-   *   trigger with the target and LIGHTNING
-   *   CHECK one entity was registered and its position is the target's centre
-   * END lightningSpawnsAtTheTargetCentre
-   * </pre>
-   */
-  @Test
-  void lightningSpawnsAtTheTargetCentre() {}
+    float expected = shooter.getCenterPosition().x + 0.3f;
+    assertEquals(expected, registered.get(0).getPosition().x, 1e-4f);
+  }
 
-  /**
-   * Boundary. Failure message: "A second shot inside the cooldown must be ignored".
-   *
-   * <pre>
-   * BEGIN doesNotFireDuringTheCooldown
-   *   trigger once; step less than the cooldown; trigger again
-   *   CHECK only one arrow in total
-   * END doesNotFireDuringTheCooldown
-   * </pre>
-   */
   @Test
-  void doesNotFireDuringTheCooldown() {}
+  void arrowSpawnsOnTheLeftWhenTheTargetIsToTheLeft() {
+    Entity leftTarget = createTarget(-3f);
 
-  /**
-   * Boundary. Failure message: "A shot after the cooldown should fire".
-   *
-   * <pre>
-   * BEGIN firesAgainOnceTheCooldownHasElapsed
-   *   trigger once; step slightly over the cooldown (101 steps of a 1 second cooldown, not exactly 100)
-   *   trigger again; CHECK two arrows in total
-   * END firesAgainOnceTheCooldownHasElapsed
-   * </pre>
-   */
-  @Test
-  void firesAgainOnceTheCooldownHasElapsed() {}
+    shooter.getEvents().trigger("rangedAttack", leftTarget, ProjectileType.ARROW);
 
-  /**
-   * Boundary. Failure message: "A target exactly at maximum range should be shot".
-   *
-   * <pre>
-   * BEGIN firesAtExactlyMaximumRange
-   *   place the target exactly range units away; trigger; CHECK one arrow
-   * END firesAtExactlyMaximumRange
-   * </pre>
-   */
-  @Test
-  void firesAtExactlyMaximumRange() {}
+    float expected = shooter.getCenterPosition().x - 0.3f;
+    assertEquals(expected, registered.get(0).getPosition().x, 1e-4f);
+  }
 
-  /**
-   * Boundary. Failure message: "A target just outside range must not be shot".
-   *
-   * <pre>
-   * BEGIN doesNotFireJustBeyondMaximumRange
-   *   place the target range plus 0.01 away; trigger; CHECK zero arrows and the cooldown untouched
-   * END doesNotFireJustBeyondMaximumRange
-   * </pre>
-   */
   @Test
-  void doesNotFireJustBeyondMaximumRange() {}
+  void lightningSpawnsAboveTheTargetCentre() {
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.LIGHTNING);
 
-  /**
-   * Negative. Failure message: "A null target must not fire or use the cooldown".
-   *
-   * <pre>
-   * BEGIN nullTargetDoesNothingAndKeepsTheCooldown
-   *   trigger with a null target and ARROW; CHECK no exception, zero arrows
-   *   trigger with a real target straight after; CHECK it fires (cooldown was not spent)
-   * END nullTargetDoesNothingAndKeepsTheCooldown
-   * </pre>
-   */
-  @Test
-  void nullTargetDoesNothingAndKeepsTheCooldown() {}
+    assertEquals(1, registered.size());
+    Entity bolt = registered.get(0);
+    // The bolt is centred on the target in x (its width is 0.3125) and starts 8 units above it.
+    assertEquals(target.getCenterPosition().x - 0.3125f / 2f, bolt.getPosition().x, 1e-4f);
+    assertEquals(target.getCenterPosition().y + 8f, bolt.getPosition().y, 1e-4f);
+  }
 
-  /**
-   * Regression. Failure message: "A null projectile type must not fire or use the cooldown".
-   *
-   * <pre>
-   * BEGIN nullProjectileTypeDoesNothingAndKeepsTheCooldown
-   *   trigger with a real target and a null projectile type
-   *   CHECK no exception, zero arrows
-   *   trigger again with ARROW; CHECK it fires
-   *   Fails today: the cooldown is reset to zero BEFORE the switch on the projectile type, so a null type throws a NullPointerException after eating the cooldown. Check the type for null at the top, beside the null-target check.
-   * END nullProjectileTypeDoesNothingAndKeepsTheCooldown
-   * </pre>
-   */
-  @Test
-  void nullProjectileTypeDoesNothingAndKeepsTheCooldown() {}
+  // ---------- cooldown and range ----------
 
-  /**
-   * Negative. Failure message: "A target that cannot take damage must not be shot at".
-   *
-   * <pre>
-   * BEGIN targetWithoutCombatStatsIsIgnoredAndKeepsTheCooldown
-   *   create a target with no combat stats; trigger with ARROW
-   *   CHECK zero arrows; trigger at a normal target; CHECK it fires
-   * END targetWithoutCombatStatsIsIgnoredAndKeepsTheCooldown
-   * </pre>
-   */
   @Test
-  void targetWithoutCombatStatsIsIgnoredAndKeepsTheCooldown() {}
+  void doesNotFireDuringTheCooldown() {
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    updateFrames(shooter, 25); // 0.5 s of a 1 s cooldown
 
-  /**
-   * Negative. Failure message: "Projectile type first, target second must be rejected".
-   *
-   * <pre>
-   * BEGIN swappedArgumentsThrowAndSpawnNothing
-   *   trigger with ARROW first and the target second
-   *   CHECK a ClassCastException is thrown and zero arrows were registered
-   *   (documents that the order is part of the contract: target first, type second)
-   * END swappedArgumentsThrowAndSpawnNothing
-   * </pre>
-   */
-  @Test
-  void swappedArgumentsThrowAndSpawnNothing() {}
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
-  /**
-   * Negative. Failure message: "A one-value trigger must fail the same way everywhere".
-   *
-   * <pre>
-   * BEGIN aOneValueTriggerFailsWithAClearFailure
-   *   trigger with only the target
-   *   CHECK a ClassCastException is thrown (the event handler needs a listener with the same number of values)
-   *   One test is enough: it documents the arity so a forgotten call site is found by this spec
-   * END aOneValueTriggerFailsWithAClearFailure
-   * </pre>
-   */
-  @Test
-  void aOneValueTriggerFailsWithAClearFailure() {}
+    assertEquals(1, registered.size(), "A second shot inside the cooldown must be ignored");
+  }
 
-  /**
-   * Integration. Failure message: "'rangedAttackFired' should fire once per shot".
-   *
-   * <pre>
-   * BEGIN rangedAttackFiredIsTriggeredOncePerShotWithTheTarget
-   *   listen for rangedAttackFired on the shooter
-   *   trigger a valid attack; CHECK the listener ran once and received the target
-   *   trigger during the cooldown; CHECK it did not run again
-   * END rangedAttackFiredIsTriggeredOncePerShotWithTheTarget
-   * </pre>
-   */
   @Test
-  void rangedAttackFiredIsTriggeredOncePerShotWithTheTarget() {}
+  void firesAgainOnceTheCooldownHasElapsed() {
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    updateFrames(shooter, 51); // slightly over 1 s, not exactly 50
 
-  /**
-   * Integration. Failure message: "'rangedAttackHit' should reach the shooter".
-   *
-   * <pre>
-   * BEGIN rangedAttackHitIsRefiredOnTheShooterWhenTheArrowHits
-   *   listen for rangedAttackHit on the shooter
-   *   trigger a valid attack; take the registered arrow
-   *   make the arrow trigger projectileHit with the target
-   *   CHECK the shooter's listener ran once with that target
-   * END rangedAttackHitIsRefiredOnTheShooterWhenTheArrowHits
-   * </pre>
-   */
-  @Test
-  void rangedAttackHitIsRefiredOnTheShooterWhenTheArrowHits() {}
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
-  /**
-   * Regression. Failure message: "The arrow's damage should equal the documented source".
-   *
-   * <pre>
-   * BEGIN arrowDamageMatchesTheDocumentedDamage
-   *   shooter base attack 99, bow damage 7; trigger and take the arrow
-   *   CHECK the arrow's damage is 7 (the weapon's damage, as the component's own getDamage and the pack's windup design say)
-   *   DECISION: the branch fires the arrow with the shooter's base attack (99) while getDamage() returns the weapon's (7), and the 'damage' field is never read. Pick one and keep this spec in line with it.
-   * END arrowDamageMatchesTheDocumentedDamage
-   * </pre>
-   */
-  @Test
-  void arrowDamageMatchesTheDocumentedDamage() {}
+    assertEquals(2, registered.size(), "A shot after the cooldown should fire");
+  }
 
-  /**
-   * Integration. Failure message: "The AI task must send both values".
-   *
-   * <pre>
-   * BEGIN rangedAttackTaskFiresTheEventWithTheTargetAndAProjectileType
-   *   build a shooter with the component and a RangedAttackTask on a target within range
-   *   run the task for one frame
-   *   CHECK the event reached the component with the target and an ARROW type and an arrow was registered
-   *   This is the guard against the live-game crash: a task that fires one value throws every time that enemy attacks
-   * END rangedAttackTaskFiresTheEventWithTheTargetAndAProjectileType
-   * </pre>
-   */
   @Test
-  void rangedAttackTaskFiresTheEventWithTheTargetAndAProjectileType() {}
+  void firesAtExactlyMaximumRange() {
+    Entity edge = createTarget(RANGE);
+
+    shooter.getEvents().trigger("rangedAttack", edge, ProjectileType.ARROW);
+
+    assertEquals(1, registered.size(), "A target exactly at maximum range should be shot");
+  }
+
+  @Test
+  void doesNotFireJustBeyondMaximumRangeAndKeepsTheCooldown() {
+    Entity tooFar = createTarget(RANGE + 0.01f);
+
+    shooter.getEvents().trigger("rangedAttack", tooFar, ProjectileType.ARROW);
+    assertEquals(0, registered.size(), "A target just outside range must not be shot");
+
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    assertEquals(1, registered.size(), "The rejected trigger must not have spent the cooldown");
+  }
+
+  // ---------- rejected triggers ----------
+
+  @Test
+  void nullTargetDoesNothingAndKeepsTheCooldown() {
+    assertDoesNotThrow(
+        () -> shooter.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
+    assertEquals(0, registered.size());
+
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    assertEquals(1, registered.size(), "A null target must not eat the cooldown");
+  }
+
+  @Test
+  void nullProjectileTypeDoesNothingAndKeepsTheCooldown() {
+    assertDoesNotThrow(
+        () -> shooter.getEvents().trigger("rangedAttack", target, (ProjectileType) null));
+    assertEquals(0, registered.size());
+
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    assertEquals(1, registered.size(), "A null projectile type must not eat the cooldown");
+  }
+
+  @Test
+  void targetWithoutCombatStatsIsIgnoredAndKeepsTheCooldown() {
+    Entity noStats = new Entity();
+    noStats.create();
+    noStats.setPosition(3f, 0f);
+
+    assertDoesNotThrow(
+        () -> shooter.getEvents().trigger("rangedAttack", noStats, ProjectileType.ARROW));
+    assertEquals(0, registered.size(), "A target that cannot take damage must not be shot at");
+
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    assertEquals(1, registered.size());
+  }
+
+  @Test
+  void swappedArgumentsThrowAndSpawnNothing() {
+    // The order is part of the contract: target first, projectile type second.
+    assertThrows(
+        ClassCastException.class,
+        () -> shooter.getEvents().trigger("rangedAttack", ProjectileType.ARROW, target));
+
+    assertEquals(0, registered.size());
+  }
+
+  @Test
+  void aOneValueTriggerFailsWithAClassCastException() {
+    // A forgotten call site that sends only the target fails like this every time it attacks.
+    assertThrows(
+        ClassCastException.class, () -> shooter.getEvents().trigger("rangedAttack", target));
+
+    assertEquals(0, registered.size());
+  }
+
+  // ---------- announced events ----------
+
+  @Test
+  void rangedAttackFiredIsTriggeredOncePerShotWithTheTarget() {
+    List<Entity> fired = new ArrayList<>();
+    shooter.getEvents().addListener("rangedAttackFired", (Entity t) -> fired.add(t));
+
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    assertEquals(1, fired.size());
+    assertSame(target, fired.get(0));
+
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW); // cooldown
+    assertEquals(1, fired.size(), "No second 'fired' event during the cooldown");
+  }
+
+  @Test
+  void rangedAttackHitIsRefiredOnTheShooterWhenTheArrowHits() {
+    List<Entity> hits = new ArrayList<>();
+    shooter.getEvents().addListener("rangedAttackHit", (Entity t) -> hits.add(t));
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    Entity arrow = registered.get(0);
+
+    arrow.getEvents().trigger("projectileHit", target);
+
+    assertEquals(1, hits.size());
+    assertSame(target, hits.get(0));
+  }
+
+  // ---------- damage ----------
+
+  @Test
+  void arrowDamageIsTheWeaponsDamageNotTheShootersBaseAttack() {
+    // shooter base attack is 99; a tier-1 bow deals 7 per arrow
+    shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+
+    int arrowDamage = registered.get(0).getComponent(CombatStatsComponent.class).getBaseAttack();
+    assertEquals(7, arrowDamage);
+  }
+
+  // ---------- the AI task ----------
+
+  @Test
+  void rangedAttackTaskFiresTheEventWithTheTargetAndAProjectileType() {
+    // Components cannot be added after an entity is created, so the AI goes in at build time.
+    AITaskComponent ai = new AITaskComponent();
+    ai.addTask(new RangedAttackTask(target, 15, RANGE, ProjectileType.ARROW));
+    Entity archer = createShooter(5, ai);
+    List<Entity> fired = new ArrayList<>();
+    archer.getEvents().addListener("rangedAttackFired", (Entity t) -> fired.add(t));
+
+    archer.update();
+
+    assertEquals(1, fired.size(), "The task must send both values or the attack never happens");
+    assertEquals(1, registered.size());
+  }
+
+  // ---------- helpers ----------
+
+  private Entity createShooter(int baseAttack) {
+    return createShooter(baseAttack, null);
+  }
+
+  private Entity createShooter(int baseAttack, AITaskComponent ai) {
+    WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, WeaponTier.TIER_1, 1, 1, 0f);
+    Entity entity =
+        new Entity()
+            .addComponent(new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow))
+            .addComponent(new CombatStatsComponent(20, baseAttack));
+    if (ai != null) {
+      entity.addComponent(ai);
+    }
+    entity.create();
+    entity.setPosition(0f, 0f);
+    return entity;
+  }
+
+  private Entity createTarget(float x) {
+    Entity entity = new Entity().addComponent(new CombatStatsComponent(10, 0));
+    entity.create();
+    entity.setPosition(x, 0f);
+    return entity;
+  }
+
+  private void updateFrames(Entity entity, int frames) {
+    for (int i = 0; i < frames; i++) {
+      entity.update();
+    }
+  }
 }
