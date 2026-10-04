@@ -955,7 +955,7 @@ public class ShopDisplay extends UIComponent {
     pendingAction = null;
     if (detailIconBg == null) return;
 
-    detailIconBg.setColor(EMPTY_CARD_TINT);
+    detailIconBg.setColor(Color.CLEAR);
     detailIconLabel.setText("");
 
     detailNameLabel.setText("Select an item to view details");
@@ -1296,7 +1296,7 @@ public class ShopDisplay extends UIComponent {
      */
     Table gamblingRoot = new Table();
     gamblingRoot.setFillParent(false);
-    gamblingRoot.defaults().pad(4f);
+    gamblingRoot.defaults().pad(2f);
     gamblingRoot.center();
 
     /*
@@ -1343,7 +1343,7 @@ public class ShopDisplay extends UIComponent {
 
     modeRow.add(premiumGamblingButton).width(120f).height(32f);
 
-    gamblingRoot.add(modeRow).center().padBottom(8f).row();
+    gamblingRoot.add(modeRow).center().padBottom(4f).row();
 
     /*
      * ------------------------------------------------------------
@@ -1356,7 +1356,7 @@ public class ShopDisplay extends UIComponent {
      */
     gamblingWheel = new GamblingWheel(whiteLabelStyle);
 
-    gamblingRoot.add(gamblingWheel).size(440f, 300f).center().padTop(4f).padBottom(8f).row();
+    gamblingRoot.add(gamblingWheel).size(380f, 248f).center().padTop(2f).padBottom(4f).row();
 
     /*
      * ------------------------------------------------------------
@@ -1368,7 +1368,9 @@ public class ShopDisplay extends UIComponent {
     gamblingPriceLabel.setColor(GOLD_COLOR);
     gamblingPriceLabel.setAlignment(Align.center);
 
-    gamblingRoot.add(gamblingPriceLabel).center().padTop(2f).padBottom(6f).row();
+    Table spinRow = new Table();
+
+    spinRow.add(gamblingPriceLabel).center().padRight(16f);
 
     /*
      * ------------------------------------------------------------
@@ -1387,7 +1389,9 @@ public class ShopDisplay extends UIComponent {
           }
         });
 
-    gamblingRoot.add(spinButton).width(150f).height(40f).center().padTop(2f).padBottom(6f).row();
+    spinRow.add(spinButton).width(120f).height(32f).center();
+
+    gamblingRoot.add(spinRow).center().padTop(2f).padBottom(4f).row();
 
     /*
      * ------------------------------------------------------------
