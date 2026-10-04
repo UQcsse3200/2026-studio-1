@@ -2,20 +2,38 @@ package com.csse3200.game.components.attacks;
 
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.services.ServiceLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Represents a temporary charge state: a burst of movement speed toward a target, and a short-lived
- * damage multiplier applied to whichever attack (melee or ranged) resolves next — NOT a separate
- * damage-dealing hit of its own. Attack-type-agnostic: Minotaur pairs this with
- * MeleeAttackComponent, Centaur pairs it with RangedAttackComponent; neither needs to know charging
- * exists beyond checking for this component and reading getDamageMultiplier(). A separate
- * damage-on-collision design was considered and rejected: it risks double-dipping if the entity's
- * normal attack also fires around the same time as the collision. A pure multiplier on the next
- * real attack avoids that — exactly one damage-dealing event per charge.
+ * Represents a temporary charge state. A charge has two phases: in the windup the entity stands
+ * still, and in the rush it moves fast toward a snapshot of the target's position with its {@link
+ * TouchAttackComponent} live. Touching the target during the rush deals the entity's base attack
+ * times the damage multiplier, once per rush, and (by default) ends the rush so the entity does not
+ * run through the player. The rush is the attack, so there is exactly one damage event per charge
+ * and no double-dipping with a separate attack.
+ *
+ * <p>Attack-type-agnostic: Minotaur and Centaur both use it. If the entity has no {@link
+ * TouchAttackComponent} the charge still moves the entity but deals no damage.
+ *
+ * <p>Fires {@code "chargeStart"}, {@code "chargeWindupStart"}, {@code "chargeRushStart"} and {@code
+ * "chargeEnd"} on the entity.
  */
 public class ChargeComponent extends Component {
+  private static final Logger logger = LoggerFactory.getLogger(ChargeComponent.class);
+
+  /** This entity's touch attack, found in create(); may be null. */
+  private TouchAttackComponent touchAttack;
+
+  /** True (the default) to end the rush as soon as it lands. */
+  private boolean endOnHit = true;
+
+  /** Set when a charge ends, cleared at the start of each update(); stops a double end. */
+  private boolean finishedThisTick = false;
+
   private final float chargeDuration;
   private final float windupDuration;
   private final float cooldown;
@@ -93,11 +111,107 @@ public class ChargeComponent extends Component {
   }
 
   /**
+   * Finds this entity's touch attack, switches it off, limits it to one hit per rush and listens
+   * for it landing. With no touch attack the charge still moves the entity but deals no damage.
+   */
+  @Override
+  public void create() {
+    touchAttack = entity.getComponent(TouchAttackComponent.class);
+    if (touchAttack == null) {
+      logger.warn(
+          "ChargeComponent on {} has no TouchAttackComponent: the charge deals no damage", entity);
+      return;
+    }
+    touchAttack.setActive(false);
+    touchAttack.setMaxHitsPerActivation(1);
+    entity.getEvents().addListener("touchAttackHit", this::onTouchHit);
+  }
+
+  /** Switches the touch attack off when this component is disposed. */
+  @Override
+  public void dispose() {
+    if (touchAttack != null) {
+      touchAttack.setActive(false);
+    }
+  }
+
+  /**
+   * Sets whether a landed hit ends the rush.
+   *
+   * @param endOnHit true (the default) to end the rush when the touch attack lands; false to let it
+   *     run for its full duration
+   */
+  public void setEndOnHit(boolean endOnHit) {
+    this.endOnHit = endOnHit;
+  }
+
+  /**
+   * Returns whether a landed hit ends the rush.
+   *
+   * @return true if the rush ends when the touch attack lands
+   */
+  public boolean isEndOnHit() {
+    return endOnHit;
+  }
+
+  /**
+   * Ends the current charge now, exactly as if its duration had run out. Does nothing if no charge
+   * is in progress.
+   */
+  public void endCharge() {
+    if (!isCharging()) {
+      return;
+    }
+    finishCharge();
+  }
+
+  /** Makes the touch attack live for the rush, scaled by this charge's damage multiplier. */
+  private void beginTouchDamage() {
+    if (touchAttack == null) {
+      return;
+    }
+    touchAttack.setDamageMultiplier(damageMultiplier);
+    touchAttack.activate();
+  }
+
+  /**
+   * The touch attack landed. Ends the rush if configured to, and only during the rush itself (a hit
+   * during the stationary windup must not end it).
+   *
+   * @param target the entity that was hit
+   */
+  private void onTouchHit(Entity target) {
+    if (endOnHit && isRushing()) {
+      finishCharge();
+    }
+  }
+
+  /** The one place a charge ends, whether it ran out, was ended early, or landed. */
+  private void finishCharge() {
+    if (touchAttack != null) {
+      touchAttack.deactivate();
+      touchAttack.setDamageMultiplier(1.0f);
+    }
+    chargeTimeRemaining = 0;
+    windupTimeRemaining = 0;
+    timeSinceLastCharge = 0;
+    PhysicsMovementComponent movement =
+        this.getEntity().getComponent(PhysicsMovementComponent.class);
+    if (movement != null) {
+      movement.setSpeedMultiplier(1.0f);
+      movement.setMoving(false);
+    }
+    finishedThisTick = true;
+    this.getEntity().getEvents().trigger("chargeEnd");
+  }
+
+  /**
    * Advances the charge/cooldown timers by one tick, transitioning from stationary windup to fast
    * movement and restoring normal movement speed when a charge ends.
    */
   @Override
   public void update() {
+    finishedThisTick = false;
     float dt = ServiceLocator.getTimeSource().getDeltaTime();
     if (isCharging()) {
       chargeTimeRemaining -= dt;
@@ -113,20 +227,15 @@ public class ChargeComponent extends Component {
             movement.setMoving(true);
           }
           this.getEntity().getEvents().trigger("chargeRushStart");
+          beginTouchDamage();
         }
       }
-
+      if (finishedThisTick) {
+        // A hit that landed on the first frame of the rush already ended the charge.
+        return;
+      }
       if (chargeTimeRemaining <= 0.0001f) {
-        chargeTimeRemaining = 0;
-        windupTimeRemaining = 0;
-        timeSinceLastCharge = 0;
-        PhysicsMovementComponent movement =
-            this.getEntity().getComponent(PhysicsMovementComponent.class);
-        if (movement != null) {
-          movement.setSpeedMultiplier(1.0f);
-          movement.setMoving(false);
-        }
-        this.getEntity().getEvents().trigger("chargeEnd");
+        finishCharge();
       }
     } else {
       timeSinceLastCharge += dt;
@@ -209,6 +318,10 @@ public class ChargeComponent extends Component {
       this.getEntity().getEvents().trigger("chargeRushStart");
     }
     this.getEntity().getEvents().trigger("chargeStart");
+    if (windupDuration <= 0) {
+      // After the start events, so a hit on the very first frame ends the charge after them.
+      beginTouchDamage();
+    }
   }
 
   /**

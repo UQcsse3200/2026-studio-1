@@ -100,6 +100,9 @@ public class ChargeTask extends DefaultTask implements PriorityTask {
   @Override
   public void stop() {
     super.stop();
+    if (chargeComponent != null) {
+      chargeComponent.endCharge();
+    }
     if (owner != null && owner.getEntity() != null) {
       PhysicsMovementComponent movement =
           owner.getEntity().getComponent(PhysicsMovementComponent.class);
