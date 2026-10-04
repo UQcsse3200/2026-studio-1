@@ -185,8 +185,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    * instead. This keeps the existing B-key behaviour for the normal Shield.
    */
   private void activateAvailableShield() {
-    BallisticShieldComponent ballisticShield =
-        entity.getComponent(BallisticShieldComponent.class);
+    BallisticShieldComponent ballisticShield = entity.getComponent(BallisticShieldComponent.class);
 
     if (ballisticShield != null && ballisticShield.hasShield()) {
       logger.info("B key pressed - activating Ballistic Shield");

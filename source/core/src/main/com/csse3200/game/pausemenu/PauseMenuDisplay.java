@@ -77,8 +77,7 @@ public class PauseMenuDisplay extends UIComponent {
   };
   private static final int KEYBINDS_BACK_INDEX = KEYBIND_ITEMS.length - 1;
 
-  private final Preferences prefs =
-      (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
+  private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
   private float masterVol =
       (prefs != null) ? prefs.getFloat(MASTER_VOLUME_KEY, DEFAULT_MASTER_VOL) : DEFAULT_MASTER_VOL;
   private float musicVol =

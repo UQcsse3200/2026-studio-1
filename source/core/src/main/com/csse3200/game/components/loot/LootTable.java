@@ -73,9 +73,8 @@ public class LootTable {
   }
 
   /**
-   * Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every
-   * {@link WeaponTier}, the Upgrade Stone, the normal Shield, and the rare Advanced Ballistic
-   * Shield.
+   * Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every {@link
+   * WeaponTier}, the Upgrade Stone, the normal Shield, and the rare Advanced Ballistic Shield.
    *
    * <p>Higher-tier weapons and the Advanced Ballistic Shield use lower weights so they appear less
    * frequently.
@@ -181,8 +180,7 @@ public class LootTable {
       throw new IllegalArgumentException("Weight must be greater than 0.");
     }
 
-    return addEntry(
-        weight, () -> new Item("Ballistic Shield", ItemType.BALLISTIC_SHIELD, 1, 1));
+    return addEntry(weight, () -> new Item("Ballistic Shield", ItemType.BALLISTIC_SHIELD, 1, 1));
   }
 
   /**
