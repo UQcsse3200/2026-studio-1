@@ -11,4 +11,9 @@ public class NPCConfigs {
   public MinotaurConfig minotaur = new MinotaurConfig();
   public CentaurConfig centaur = new CentaurConfig();
   public CyclopsConfig cyclops = new CyclopsConfig();
+  public MedusaConfig medusa = new MedusaConfig();
+  public CerberusConfig cerberus = new CerberusConfig();
+  public ZeusConfig zeus = new ZeusConfig();
+  public HarpyConfig harpy = new HarpyConfig();
+  public RangedHarpyConfig rangedHarpy = new RangedHarpyConfig();
 }

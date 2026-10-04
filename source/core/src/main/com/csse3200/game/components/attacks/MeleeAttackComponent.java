@@ -50,7 +50,7 @@ public class MeleeAttackComponent extends Component {
   private Entity pendingTarget;
   private float windupTimeRemaining;
 
-  /** Difficulty's enemy damage multiplier, applied on top of weapon (and charge) damage. */
+  /** Difficulty's enemy damage multiplier, applied on top of weapon damage. */
   private float damageMultiplier = 1f;
 
   private float windupMultiplier = 1f;
@@ -352,9 +352,9 @@ public class MeleeAttackComponent extends Component {
   /**
    * Called once the windup timer elapses. Re-validates the pending target is still alive and in
    * range (it may have died or moved away during the windup). If so, applies weapon damage
-   * (multiplied by any active {@link ChargeComponent} bonus and the difficulty multiplier), fires
-   * {@code "meleeAttackHit"}, and applies knockback. If not, fires {@code "meleeAttackWhiff"} with
-   * the intended target and does nothing else (the cooldown stays spent).
+   * (multiplied by the difficulty multiplier), fires {@code "meleeAttackHit"}, and applies
+   * knockback. If not, fires {@code "meleeAttackWhiff"} with the intended target and does nothing
+   * else (the cooldown stays spent).
    *
    * <p>The attacker's own base attack is restored after the hit, so repeated hits never drift.
    */
@@ -382,11 +382,6 @@ public class MeleeAttackComponent extends Component {
     // retrieve damage stats from weapon
     int finalDamage = this.getDamage();
 
-    ChargeComponent chargeComponent = entity.getComponent(ChargeComponent.class);
-    if (chargeComponent != null) {
-      // if not charging then 1.0f is the mutiplier
-      finalDamage = (int) (finalDamage * chargeComponent.getDamageMultiplier());
-    }
     if (weapon != null && damageMultiplier != 1f) {
       finalDamage = Math.max(1, Math.round(finalDamage * damageMultiplier));
     }

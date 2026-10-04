@@ -11,4 +11,7 @@ public class MeleeAttackConfig {
   public float cooldown = 4;
   /* Knockback magnitude onb a successful hit - property of the wilder not the weapon */
   public float knockback = 0;
+  /* Seconds of telegraph before a natural-weapon melee attack lands. Must be less than cooldown.
+   * Ignored for enemies that carry a real weapon (windup then comes from the weapon). */
+  public float windup = 0.5f;
 }

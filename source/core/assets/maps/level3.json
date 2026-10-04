@@ -47,7 +47,7 @@
     "P": {
       "type": "PLAYER"
     },
-    "Z": {
+    "Y": {
       "type": "ENEMY",
       "enemyType": "cyclops"
     },
@@ -124,7 +124,7 @@
       "                                        ",
       "                                        ",
       "                                        ",
-      "  P                 L           Z       ",
+      "  P                 L           Y       ",
       "                                        ",
       "                                        "
     ]
