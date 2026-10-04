@@ -1,6 +1,7 @@
 package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.PlayerRenderComponent;
 
 /**
@@ -14,6 +15,7 @@ public class PlayerAnimationController extends Component {
   public void create() {
     super.create();
     animator = this.entity.getComponent(PlayerRenderComponent.class);
+
     entity.getEvents().addListener("idle", this::animateIdle);
     entity.getEvents().addListener("run", this::animateRun);
     entity.getEvents().addListener("attacking", this::animateAttack);
@@ -21,6 +23,10 @@ public class PlayerAnimationController extends Component {
     entity.getEvents().addListener("crouchidle", this::animateCrouch);
     entity.getEvents().addListener("jumping", this::animateJump);
     entity.getEvents().addListener("rolling", this::animateRoll);
+    entity.getEvents().addListener("dead", this::animateDeath);
+    entity.getEvents().addListener("heal", this::animateHeal);
+    entity.getEvents().addListener("climb", this::animateClimb);
+    entity.getEvents().addListener("hurt", this::animateHurt);
   }
 
   boolean facingRight(String direction) {
@@ -81,5 +87,33 @@ public class PlayerAnimationController extends Component {
     } else {
       animator.startAnimation("LeftRoll");
     }
+  }
+
+  void animateDeath(String direction) {
+    if (facingRight(direction)) {
+      animator.startAnimation("death");
+    } else {
+      animator.startAnimation("leftdeath");
+    }
+  }
+
+  void animateHeal(String direction) {
+    if (facingRight(direction)) {
+      animator.startAnimation("health");
+    } else {
+      animator.startAnimation("lefthealth");
+    }
+  }
+
+  void animateHurt(String direction) {
+    if (facingRight(direction)) {
+      animator.startAnimation("hurt");
+    } else {
+      animator.startAnimation("lefthurt");
+    }
+  }
+
+  void animateClimb() {
+    animator.startAnimation("climb");
   }
 }

@@ -47,6 +47,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.W:
         LadderComponent ladderUp = entity.getComponent(LadderComponent.class);
         if (ladderUp != null && ladderUp.beginClimb(1f)) {
+          entity.getEvents().trigger("climb");
           return true;
         }
         jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
@@ -137,6 +138,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     switch (keycode) {
       case Keys.W:
         stopClimbing();
+        entity.getEvents().trigger("idle", direction);
         return true;
       case Keys.A:
         walkDirection.sub(Vector2Utils.LEFT);

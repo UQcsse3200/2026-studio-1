@@ -123,7 +123,8 @@ public class PlayerActions extends Component {
         && !animator.getCurrentAnimation().equals("crouchidle")
         && !animator.getCurrentAnimation().equals("Leftcrouchidle")
         && !animator.getCurrentAnimation().equals("Run")
-        && !animator.getCurrentAnimation().equals("LeftRun")) {
+        && !animator.getCurrentAnimation().equals("LeftRun")
+        && !animator.getCurrentAnimation().equals("climb")) {
 
       if (animator.getCurrentAnimation().equals("Jump")
           || animator.getCurrentAnimation().equals("LeftJump")) {
@@ -386,6 +387,8 @@ public class PlayerActions extends Component {
 
     Body body = physicsComponent.getBody();
     body.setLinearVelocity(Vector2.Zero);
+    entity.getEvents().trigger("dead",
+            entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
   }
 
   public boolean getDashing() {
