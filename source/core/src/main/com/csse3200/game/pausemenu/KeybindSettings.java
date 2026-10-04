@@ -39,6 +39,7 @@ public final class KeybindSettings {
     defaultKeys.put("interact", Input.Keys.E);
     defaultKeys.put("toggleQuestMenu", Input.Keys.J);
     defaultKeys.put("crouch", Input.Keys.CONTROL_LEFT);
+    defaultKeys.put("TimeFreeze", Input.Keys.R);
     defaultKeys.put("pause", Input.Keys.ESCAPE);
     defaultKeys.put("hotbarSlot1", Input.Keys.NUM_1);
     defaultKeys.put("hotbarSlot2", Input.Keys.NUM_2);
