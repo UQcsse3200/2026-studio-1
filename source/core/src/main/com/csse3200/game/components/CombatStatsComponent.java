@@ -11,11 +11,14 @@ import org.slf4j.LoggerFactory;
 public class CombatStatsComponent extends Component {
 
   private static final Logger logger = LoggerFactory.getLogger(CombatStatsComponent.class);
+  private final int maximumHealth;
   private int health;
   private int baseAttack;
   private int shieldHits;
+  private boolean invulnerable;
 
   public CombatStatsComponent(int health, int baseAttack) {
+    maximumHealth = Math.max(0, health);
     setHealth(health);
     setBaseAttack(baseAttack);
   }
@@ -39,12 +42,31 @@ public class CombatStatsComponent extends Component {
   }
 
   /**
+   * Enables or disables damage immunity. Enabling it immediately restores the entity's starting
+   * maximum health.
+   *
+   * @param invulnerable whether health reductions should be ignored
+   */
+  public void setInvulnerable(boolean invulnerable) {
+    this.invulnerable = invulnerable;
+    if (invulnerable) {
+      setHealth(maximumHealth);
+    }
+  }
+
+  public boolean isInvulnerable() {
+    return invulnerable;
+  }
+
+  /**
    * Sets the entity's health. Health has a minimum bound of 0.
    *
    * @param health health
    */
   public void setHealth(int health) {
-    if (health >= 0) {
+    if (invulnerable) {
+      this.health = maximumHealth;
+    } else if (health >= 0) {
       this.health = health;
     } else {
       this.health = 0;
@@ -64,7 +86,9 @@ public class CombatStatsComponent extends Component {
    * @param health health to add
    */
   public void addHealth(int health) {
-    if (this.health + health >= 0) {
+    if (invulnerable) {
+      this.health = maximumHealth;
+    } else if (this.health + health >= 0) {
       this.health += health;
     } else {
       this.health = 0;

@@ -76,4 +76,35 @@ class CombatStatsComponentTest {
     combat.hit(attacker);
     assertEquals(90, combat.getHealth());
   }
+
+  @Test
+  void shouldRemainAtFullHealthWhileInvulnerable() {
+    CombatStatsComponent combat = new CombatStatsComponent(100, 20);
+    CombatStatsComponent attacker = new CombatStatsComponent(100, 10);
+    combat.setHealth(40);
+
+    combat.setInvulnerable(true);
+
+    assertTrue(combat.isInvulnerable());
+    assertEquals(100, combat.getHealth());
+
+    combat.addHealth(-30);
+    combat.setHealth(0);
+    combat.hit(attacker, 1000);
+
+    assertEquals(100, combat.getHealth());
+    assertFalse(combat.isDead());
+  }
+
+  @Test
+  void shouldTakeDamageAgainAfterInvulnerabilityIsDisabled() {
+    CombatStatsComponent combat = new CombatStatsComponent(100, 20);
+    combat.setInvulnerable(true);
+
+    combat.setInvulnerable(false);
+    combat.addHealth(-25);
+
+    assertFalse(combat.isInvulnerable());
+    assertEquals(75, combat.getHealth());
+  }
 }

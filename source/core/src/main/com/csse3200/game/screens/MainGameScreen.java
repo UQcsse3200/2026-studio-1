@@ -14,6 +14,7 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SubLevel;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
@@ -48,6 +49,7 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.GodModeCommand;
 import com.csse3200.game.ui.terminal.commands.NoclipCommand;
 import com.csse3200.game.ui.terminal.commands.TeleportCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
@@ -609,6 +611,19 @@ public class MainGameScreen extends ScreenAdapter {
     noclipVerticalDirection = (float) Math.clamp(direction, -1d, 1d);
   }
 
+  private void setGodModeEnabled(boolean enabled) {
+    Entity player = getPlayerEntity();
+    CombatStatsComponent stats =
+        player == null ? null : player.getComponent(CombatStatsComponent.class);
+    if (stats == null) {
+      logger.warn("Cannot change god mode: the current player has no combat stats");
+      return;
+    }
+
+    stats.setInvulnerable(enabled);
+    logger.info("God mode {}", enabled ? "enabled" : "disabled");
+  }
+
   private void createSubLevelTravelPrompt(Entity player) {
 
     subLevelTravelPromptEntity =
@@ -702,6 +717,7 @@ public class MainGameScreen extends ScreenAdapter {
                 "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
                 "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
+    terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
 
