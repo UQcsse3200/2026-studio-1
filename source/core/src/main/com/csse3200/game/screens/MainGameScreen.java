@@ -3,7 +3,10 @@ package com.csse3200.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.LevelGameArea;
@@ -36,6 +39,7 @@ import com.csse3200.game.input.InputService;
 import com.csse3200.game.pausemenu.*;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.GameTime;
@@ -43,6 +47,8 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.NoclipCommand;
+import com.csse3200.game.ui.terminal.commands.TeleportCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
@@ -50,6 +56,7 @@ import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -77,6 +84,9 @@ public class MainGameScreen extends ScreenAdapter {
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
+  private static final String THIRD_ROOM_MAP = "maps/level3.json";
+  private static final GridPoint2 LEVEL_ONE_DUNGEON_SPAWN = new GridPoint2(3, 3);
+  private static final GridPoint2 LEVEL_ONE_NETHER_SPAWN = new GridPoint2(27, 34);
   private static final float GAMEPLAY_ZOOM = 0.95f;
 
   private final GdxGame game;
@@ -97,6 +107,8 @@ public class MainGameScreen extends ScreenAdapter {
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
   private Entity subLevelTravelPromptEntity;
+  private final Map<Fixture, Short> noclipFixtureMasks = new IdentityHashMap<>();
+  private boolean noclipEnabled;
 
   public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
@@ -405,9 +417,12 @@ public class MainGameScreen extends ScreenAdapter {
      */
     if (pauseMenu == null || !pauseMenu.isPaused()) {
 
+      applyNoclipState();
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
-      levelGameArea.recoverPlayerIfOutOfBounds();
+      if (!noclipEnabled) {
+        levelGameArea.recoverPlayerIfOutOfBounds();
+      }
     }
 
     if (levelGameArea.isPlayerDead()) {
@@ -495,6 +510,85 @@ public class MainGameScreen extends ScreenAdapter {
     fitCameraToMap(nextArea);
   }
 
+  /** Loads a debug destination through the same state-preserving path as a room transition. */
+  private void debugTeleport(String mapPath, GridPoint2 spawn) {
+    RoomTransition debugTransition =
+        new RoomTransition("debug-teleport", new GridPoint2(0, 0), 1, 1, null, mapPath, spawn);
+    transitionTo(debugTransition);
+
+    Entity player = levelGameArea.getPlayer();
+    LevelView level = levelGameArea.getLevel();
+    int playerRow = (int) Math.floor(player.getCenterPosition().y / level.tileSize());
+    SubLevel section = level.subLevelAt(playerRow);
+    if (section != null && section.title() != null) {
+      player.getEvents().trigger("subLevelEntered", section.title());
+      playerInNether = section != level.subLevels().getFirst();
+    }
+  }
+
+  /** Enables or disables the reversible developer-only noclip state. */
+  private void setNoclipEnabled(boolean enabled) {
+    if (noclipEnabled == enabled) {
+      return;
+    }
+
+    noclipEnabled = enabled;
+    if (enabled) {
+      enableNoclipForCurrentPlayer(true);
+      logger.info("Noclip enabled");
+    } else {
+      disableNoclipForCurrentPlayer();
+      logger.info("Noclip disabled");
+    }
+  }
+
+  /** Reapplies noclip before each physics step in case another movement system changed gravity. */
+  private void applyNoclipState() {
+    if (noclipEnabled) {
+      enableNoclipForCurrentPlayer(false);
+    }
+  }
+
+  private void enableNoclipForCurrentPlayer(boolean stopVerticalMovement) {
+    Entity player = getPlayerEntity();
+    PhysicsComponent physics = player == null ? null : player.getComponent(PhysicsComponent.class);
+    if (physics == null) {
+      return;
+    }
+
+    var body = physics.getBody();
+    body.setGravityScale(0f);
+    if (stopVerticalMovement) {
+      body.setLinearVelocity(body.getLinearVelocity().x, 0f);
+    }
+
+    for (Fixture fixture : body.getFixtureList()) {
+      noclipFixtureMasks.putIfAbsent(fixture, fixture.getFilterData().maskBits);
+      Filter filter = fixture.getFilterData();
+      filter.maskBits = 0;
+      fixture.setFilterData(filter);
+    }
+  }
+
+  private void disableNoclipForCurrentPlayer() {
+    Entity player = getPlayerEntity();
+    PhysicsComponent physics = player == null ? null : player.getComponent(PhysicsComponent.class);
+    if (physics != null) {
+      var body = physics.getBody();
+      body.setGravityScale(1f);
+      body.setLinearVelocity(body.getLinearVelocity().x, 0f);
+      for (Fixture fixture : body.getFixtureList()) {
+        Short originalMask = noclipFixtureMasks.get(fixture);
+        if (originalMask != null) {
+          Filter filter = fixture.getFilterData();
+          filter.maskBits = originalMask;
+          fixture.setFilterData(filter);
+        }
+      }
+    }
+    noclipFixtureMasks.clear();
+  }
+
   private void createSubLevelTravelPrompt(Entity player) {
 
     subLevelTravelPromptEntity =
@@ -579,6 +673,15 @@ public class MainGameScreen extends ScreenAdapter {
     Terminal terminal = new Terminal();
 
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
+    terminal.addCommand(
+        "tp",
+        new TeleportCommand(
+            Map.of(
+                "lvl1-1", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
+                "lvl1-2", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
+                "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
+                "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
+    terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
 
