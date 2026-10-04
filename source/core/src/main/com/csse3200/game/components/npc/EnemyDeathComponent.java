@@ -1,6 +1,7 @@
 package com.csse3200.game.components.npc;
 
 import com.badlogic.gdx.Gdx;
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.player.ItemDropComponent;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public class EnemyDeathComponent extends Component {
       logger.info("Enemy {} already died.", entity);
       return;
     }
+    Quest.incrementGlobalEnemiesKilled();
     ItemDropComponent dropper = entity.getComponent(ItemDropComponent.class);
     if (dropper != null) {
       // Drop gold
