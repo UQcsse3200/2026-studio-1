@@ -56,6 +56,7 @@ public class WeaponAttackComponent extends Component {
         break;
       case AXE:
         axeAttack(activeWeapon);
+        break;
       default:
         throw new IllegalStateException("Unsupported weapon type: " + type);
     }

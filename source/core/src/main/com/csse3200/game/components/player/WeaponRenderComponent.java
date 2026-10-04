@@ -92,16 +92,19 @@ public class WeaponRenderComponent extends RenderComponent {
     if (!(item instanceof WeaponItem weaponItem)) {
       texture = null;
       isBow = false;
+      isAxe = false;
       return;
     }
 
     if (weaponItem.getWeaponType() == WeaponType.BOW) {
       texture = ServiceLocator.getResourceService().getAsset("images/items/bow.png", Texture.class);
       isBow = true;
+      isAxe = false;
     } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
       texture =
           ServiceLocator.getResourceService().getAsset("images/items/dagger.png", Texture.class);
       isBow = false;
+      isAxe = false;
     } else if (weaponItem.getWeaponType() == WeaponType.AXE) {
       texture = ServiceLocator.getResourceService().getAsset("images/items/axe.png", Texture.class);
       isBow = false;
@@ -110,6 +113,7 @@ public class WeaponRenderComponent extends RenderComponent {
       texture =
           ServiceLocator.getResourceService().getAsset("images/items/sword.png", Texture.class);
       isBow = false;
+      isAxe = false;
     }
   }
 
