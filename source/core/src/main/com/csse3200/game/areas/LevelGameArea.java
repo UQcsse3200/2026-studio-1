@@ -1,27 +1,18 @@
 package com.csse3200.game.areas;
 
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
-import com.csse3200.game.areas.terrain.map.JsonMapLoader;
-import com.csse3200.game.areas.terrain.map.LevelMapData;
-import com.csse3200.game.areas.terrain.map.LevelView;
-import com.csse3200.game.areas.terrain.map.MapDataLevelView;
-import com.csse3200.game.areas.terrain.map.MapLayerData;
-import com.csse3200.game.areas.terrain.map.MapLoader;
-import com.csse3200.game.areas.terrain.map.RoomTransition;
-import com.csse3200.game.areas.terrain.map.SpawnPoint;
-import com.csse3200.game.areas.terrain.map.TileDefinition;
+import com.csse3200.game.areas.terrain.map.*;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
-import com.csse3200.game.components.lighting.LightColour;
-import com.csse3200.game.components.lighting.LightComponent;
-import com.csse3200.game.components.lighting.LightSpec;
+import com.csse3200.game.components.lighting.LightingConfig;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
@@ -813,17 +804,19 @@ public class LevelGameArea extends GameArea {
   /** Spawns the lighting in the level */
   private void spawnLighting() {
     LightService ls = ServiceLocator.getLightService();
-    // default low ambient light
-    ls.setAmbient(LightColour.AMBIENT_DARK.getColour(), 0.25f);
+    LightingConfig cfg = mapData.getLighting();
 
-    Entity lightEntity = new Entity();
-    lightEntity.setPosition(5f, 5f);
+    if (cfg == null) { // always reset, the service outlives rooms
+      ls.setAmbient(Color.WHITE, 1f);
+      return;
+    }
 
-    LightSpec spec = new LightSpec(LightColour.RESINOUS_TORCH.getColour(), 3f, 24, 0f);
+    int row = (int) Math.floor(player.getCenterPosition().y / mapData.getTileSize());
+    SubLevel section = mapData.getSubLevelAt(row);
+    LightingConfig.Ambient a = cfg.ambientFor(section == null ? null : section.id());
+    ls.setAmbient(a.color(), a.intensity());
 
-    lightEntity.addComponent(new LightComponent(spec, player));
-
-    ServiceLocator.getEntityService().register(lightEntity);
+    // emitters and the player light come next
   }
 
   @Override
