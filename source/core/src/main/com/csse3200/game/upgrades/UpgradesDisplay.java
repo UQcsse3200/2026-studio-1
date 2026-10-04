@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.PlayerActions;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.ui.UIComponent;
@@ -33,6 +34,7 @@ public class UpgradesDisplay extends UIComponent {
   private static final int[] SWORD_DAMAGE_BONUS_PER_TIER = {5, 10, 15};
   private static final float[] ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER = {0.8f, 0.6f, 0.4f};
   private static final int[] REGEN_HEAL_PER_KILL_PER_TIER = {5, 10};
+  private static final float[] ENDURANCE_REGEN_MULTIPLIER_PER_TIER = {1.6f, 2.0f, 2.5f};
   // Fired on the player whenever Sword Damage's bonus changes (including to 0 on expiry), so
   // WeaponDisplay etc. can react without a direct reference to this class.
   private static final String SWORD_DAMAGE_BONUS_EVENT = "swordDamageBonusChanged";
@@ -182,7 +184,7 @@ public class UpgradesDisplay extends UIComponent {
             "sword_damage",
             "Sword Damage",
             "Increases melee damage. Stacking tiers also raises the kill threshold.",
-            new int[] {40, 35, 30},
+            new int[] {20, 18, 15},
             new int[] {2, 5, 8});
     swordDamage.setOnTierChanged(() -> applySwordDamageEffect(swordDamage));
     swordDamage.setOnExpired(this::removeSwordDamageEffect);
@@ -193,7 +195,7 @@ public class UpgradesDisplay extends UIComponent {
             "attack_speed",
             "Attack Speed",
             "Reduces the delay between attacks. Stacking tiers also raises the kill threshold.",
-            new int[] {50, 45, 40},
+            new int[] {25, 22, 20},
             new int[] {5, 8, 12});
 
     attackSpeed.setOnTierChanged(() -> applyAttackSpeedEffect(attackSpeed));
@@ -207,7 +209,7 @@ public class UpgradesDisplay extends UIComponent {
             "shield_durability",
             "Shield Durability",
             "Absorbs a limited number of attacks. Stacking tiers increases shield durability.",
-            new int[] {30, 25, 25},
+            new int[] {18, 15, 15},
             new float[] {20f, 35f, 55f});
 
     shieldDurability.setOnTierChanged(() -> applyShieldEffect(shieldDurability));
@@ -220,7 +222,7 @@ public class UpgradesDisplay extends UIComponent {
             "regen_on_kill",
             "Regen on Kill",
             "Heals you when you defeat an enemy. Stacking tiers also extends the duration.",
-            new int[] {60, 50},
+            new int[] {30, 25},
             new float[] {15f, 30f});
 
     regenOnKill.setOnTierChanged(() -> applyRegenEffect(regenOnKill));
@@ -235,11 +237,42 @@ public class UpgradesDisplay extends UIComponent {
             "player_speed",
             "Player Speed+",
             "Increases movement speed. Stacking tiers also adds 10s to the remaining duration.",
-            new int[] {35, 30, 25},
+            new int[] {15, 12, 10},
             new float[] {10f, 10f, 10f});
     playerSpeed.setOnTierChanged(() -> applyPlayerSpeedEffect(playerSpeed));
     playerSpeed.setOnExpired(() -> removePlayerSpeedEffect(playerSpeed));
     movementUpgrades.add(playerSpeed);
+
+    UpgradeNode endurance =
+        UpgradeNode.timeBased(
+            "endurance",
+            "Endurance",
+            "Stamina refills faster. Stacking tiers also adds 10s to the remaining duration.",
+            new int[] {15, 12, 10},
+            new float[] {10f, 10f, 10f});
+    endurance.setOnTierChanged(() -> applyEnduranceEffect(endurance));
+    endurance.setOnExpired(this::removeEnduranceEffect);
+    movementUpgrades.add(endurance);
+  }
+
+  private void applyEnduranceEffect(UpgradeNode node) {
+    if (player == null) {
+      return;
+    }
+    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+
+    StaminaComponent stamina = getStamina();
+    if (stamina == null) {
+      return;
+    }
+    stamina.setRegenMultiplier(ENDURANCE_REGEN_MULTIPLIER_PER_TIER[node.getCurrentTier() - 1]);
+  }
+
+  private void removeEnduranceEffect() {
+    StaminaComponent stamina = getStamina();
+    if (stamina != null) {
+      stamina.setRegenMultiplier(1f);
+    }
   }
 
   /**
@@ -367,6 +400,10 @@ public class UpgradesDisplay extends UIComponent {
 
   private PlayerActions getPlayerActions() {
     return player == null ? null : player.getComponent(PlayerActions.class);
+  }
+
+  private StaminaComponent getStamina() {
+    return player == null ? null : player.getComponent(StaminaComponent.class);
   }
 
   private CombatStatsComponent getCombatStats() {
