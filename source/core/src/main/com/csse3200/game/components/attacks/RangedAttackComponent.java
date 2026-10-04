@@ -32,6 +32,11 @@ import org.slf4j.LoggerFactory;
  * every single frame {@link com.csse3200.game.components.tasks.RangedAttackTask} re-triggers the
  * event while still in range, instead of at most once per {@code cooldown} seconds.
  *
+ * <p><b>Windup.</b> If the weapon has a windup above zero, an accepted attack first winds up
+ * ({@code "rangedAttackWindup"}), then fires ({@code "rangedAttackFired"}) or, if the target died
+ * meanwhile, is cancelled ({@code "rangedAttackCancelled"}). A windup of zero announces the windup
+ * and fires straight away.
+ *
  * <p>Requires {@link CombatStatsComponent} on this entity - its {@code baseAttack} becomes the
  * fired arrow's damage.
  *
@@ -56,6 +61,11 @@ public class RangedAttackComponent extends Component {
   private float windupDuration;
   private float windupTimeRemaining;
   private float timeSinceLastAttack;
+  // The shot waiting out its windup; null when no windup is in progress.
+  private Entity pendingTarget;
+  private ProjectileType pendingProjectile;
+  // When true, arrows fly straight at the target's centre instead of along the x axis.
+  private boolean aimed = false;
   private CombatStatsComponent combatStats;
   private static final Logger logger = LoggerFactory.getLogger(RangedAttackComponent.class);
 
@@ -93,6 +103,7 @@ public class RangedAttackComponent extends Component {
       throw new IllegalArgumentException("windupDuration must be less than cooldown");
     }
 
+    this.windupDuration = weapon.getWindupDuration();
     this.timeSinceLastAttack = cooldown;
     this.damage = this.weapon.getDamage();
   }
@@ -133,7 +144,14 @@ public class RangedAttackComponent extends Component {
   /** Advances the internal cooldown timer by the time elapsed since the last frame. */
   @Override
   public void update() {
-    timeSinceLastAttack += ServiceLocator.getTimeSource().getDeltaTime();
+    float delta = ServiceLocator.getTimeSource().getDeltaTime();
+    timeSinceLastAttack += delta;
+    if (pendingTarget != null) {
+      windupTimeRemaining -= delta;
+      if (windupTimeRemaining <= 0) {
+        resolveShot();
+      }
+    }
   }
 
   /**
@@ -239,8 +257,51 @@ public class RangedAttackComponent extends Component {
     this.projectileSpeed = projectileSpeed;
   }
 
+  /**
+   * Returns the windup length.
+   *
+   * @return windup duration in seconds
+   */
   public float getWindupDuration() {
     return windupDuration;
+  }
+
+  /**
+   * Returns how much of the current windup is left.
+   *
+   * @return seconds remaining, or {@code 0f} when no windup is in progress
+   */
+  public float getWindupTimeRemaining() {
+    return pendingTarget == null ? 0f : Math.max(0f, windupTimeRemaining);
+  }
+
+  /**
+   * Reports whether a shot is currently winding up.
+   *
+   * @return true between an accepted {@code "rangedAttack"} trigger and the shot resolving
+   */
+  public boolean isWindingUp() {
+    return pendingTarget != null;
+  }
+
+  /**
+   * Reports whether arrows are aimed at the target's centre.
+   *
+   * @return true if aimed; false (the default) for a straight horizontal shot
+   */
+  public boolean isAimed() {
+    return aimed;
+  }
+
+  /**
+   * Chooses between a straight horizontal arrow (false) and an arrow flown along the line to the
+   * target's centre (true). Only affects {@link ProjectileType#ARROW}; lightning keeps its own
+   * spawn.
+   *
+   * @param aimed true to aim arrows at the target
+   */
+  public void setAimed(boolean aimed) {
+    this.aimed = aimed;
   }
 
   public void setWindupDuration(float windupDuration) {
@@ -248,9 +309,11 @@ public class RangedAttackComponent extends Component {
   }
 
   /**
-   * Attempts to fire an arrow at the given target entity: validates cooldown and range, then spawns
-   * a real projectile aimed at it if both checks pass and the target has the required component(s).
-   * Whether the shot actually connects is resolved later by the arrow itself.
+   * Attempts to attack the given target: validates the target, cooldown and range, spends the
+   * cooldown, then either fires straight away (windup of zero) or starts a windup. During a windup
+   * it fires {@code "rangedAttackWindup"} (target); the shot itself happens in {@link
+   * #resolveShot()} once the windup ends. The cooldown is spent when the attack is accepted, so a
+   * cancelled windup is not refunded.
    *
    * @param target the entity being aimed at
    * @param projectile the type of projectile being launched
@@ -259,48 +322,94 @@ public class RangedAttackComponent extends Component {
     if (target == null || projectile == null) {
       return;
     }
-
-    // cooldown check
+    // cooldown check (a pending windup has already spent it, so this also blocks a second windup)
     if (this.timeSinceLastAttack < this.getCooldown()) {
       return;
     }
-
     // range check
     float distance = entity.getPosition().dst(target.getPosition());
     if (distance > this.getRange()) {
       return;
     }
-
     // handle whether target has a combat stats component - if it can't take damage, don't bother
     // firing at it at all
     if (target.getComponent(CombatStatsComponent.class) == null) {
       return;
     }
-
-    // The shot is being fired regardless of whether the arrow eventually connects - see this
-    // class's javadoc for why cooldown has to gate firing rather than landing now.
+    // The shot is being committed regardless of whether the arrow eventually connects - see this
+    // class's javadoc for why cooldown has to gate firing rather than landing.
     this.timeSinceLastAttack = 0;
+    this.pendingTarget = target;
+    this.pendingProjectile = projectile;
+    this.windupTimeRemaining = this.windupDuration;
+    entity.getEvents().trigger("rangedAttackWindup", target);
+    if (this.windupDuration <= 0f) {
+      resolveShot();
+    }
+  }
 
+  /**
+   * Called once the windup timer elapses. Re-checks that the target is still alive. If so the shot
+   * is fired, aimed at the target's CURRENT position; if not, {@code "rangedAttackCancelled"}
+   * (target) is announced and no projectile is created. Range is checked at commit only, so a
+   * target that leaves range during the windup is still shot at (the arrow's own range decides
+   * whether it can land).
+   */
+  private void resolveShot() {
+    Entity target = this.pendingTarget;
+    ProjectileType projectile = this.pendingProjectile;
+    this.pendingTarget = null;
+    this.pendingProjectile = null;
+    this.windupTimeRemaining = 0;
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+    if (targetStats == null || targetStats.getHealth() <= 0) {
+      entity.getEvents().trigger("rangedAttackCancelled", target);
+      return;
+    }
+    fireShot(target, projectile);
+  }
+
+  /**
+   * Spawns the projectile and announces the shot. Aimed arrows fly along the line to the target's
+   * centre; unaimed arrows fly along the x axis towards the target's side.
+   *
+   * @param target the entity being shot at
+   * @param projectile the type of projectile to launch
+   */
+  private void fireShot(Entity target, ProjectileType projectile) {
     boolean movingRight = target.getPosition().x >= entity.getPosition().x;
+    Vector2 aimDirection = target.getCenterPosition().sub(entity.getCenterPosition());
+    if (aimDirection.isZero()) {
+      aimDirection.set(1f, 0f);
+    }
     Vector2 spawnPosition =
-        entity.getCenterPosition().add(movingRight ? SPAWN_OFFSET : -SPAWN_OFFSET, 0f);
-
+        aimed && projectile == ProjectileType.ARROW
+            ? entity.getCenterPosition().mulAdd(aimDirection.cpy().nor(), SPAWN_OFFSET)
+            : entity.getCenterPosition().add(movingRight ? SPAWN_OFFSET : -SPAWN_OFFSET, 0f);
     Entity arrow =
         switch (projectile) {
           case ARROW ->
-              ArrowFactory.createRangedArrow(
-                  spawnPosition,
-                  movingRight,
-                  projectileSpeed,
-                  range,
-                  this.getDamage(),
-                  knockback,
-                  PhysicsLayer.PLAYER);
+              aimed
+                  ? ArrowFactory.createAimedArrow(
+                      spawnPosition,
+                      aimDirection,
+                      projectileSpeed,
+                      range,
+                      this.getDamage(),
+                      knockback,
+                      PhysicsLayer.PLAYER)
+                  : ArrowFactory.createRangedArrow(
+                      spawnPosition,
+                      movingRight,
+                      projectileSpeed,
+                      range,
+                      this.getDamage(),
+                      knockback,
+                      PhysicsLayer.PLAYER);
           case LIGHTNING ->
               ArrowFactory.createLightning(
                   target.getCenterPosition(), 8f, 12f, 3, 120, PhysicsLayer.PLAYER);
         };
-
     // Re-fire "rangedAttackHit" on the shooter (this entity) if the arrow lands - preserves the
     // event for anything already listening for it there (e.g. OnHitEffectComponent), without
     // ProjectileHitComponent needing to know it's specifically a "ranged attack" that fired it.
@@ -309,12 +418,8 @@ public class RangedAttackComponent extends Component {
         .addListener(
             "projectileHit",
             (Entity hitTarget) -> entity.getEvents().trigger("rangedAttackHit", hitTarget));
-
     ServiceLocator.getEntityService().register(arrow);
-
-    // announce that a shot was fired - useful for triggering the attack animation (see
-    // RangedAttackTask, which already fires "rangedAttackStart" once when the AI task begins, but
-    // nothing currently listens for it)
+    // announce that a shot was fired - useful for triggering the attack animation
     entity.getEvents().trigger("rangedAttackFired", target);
   }
 }

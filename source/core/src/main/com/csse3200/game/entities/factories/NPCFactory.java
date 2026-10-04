@@ -50,6 +50,7 @@ public class NPCFactory {
       "images/skeleton_weapons/skeleton_bow.atlas";
   private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
   private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
+  private static final String CENTAUR_ATLAS_PATH = "images/enemies/centaur.atlas";
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
@@ -307,13 +308,16 @@ public class NPCFactory {
     }
 
     // Configure animation component
-    // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
-    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(CENTAUR_ATLAS_PATH), true);
+    animator.addAnimation("centaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_run_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_run_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_swing_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("centaur_swing_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("centaur_death_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("centaur_death_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Add necessary components to the entity
     centaur
@@ -336,7 +340,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new CentaurAnimationController());
 
     centaur
         .getComponent(RangedAttackComponent.class)
@@ -357,7 +361,7 @@ public class NPCFactory {
                 16,
                 -1)));
 
-    centaur.setScale(scale, scale);
+    centaur.setScale(scale, scale * (53f / 66f));
     PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
     return centaur;
   }

@@ -49,7 +49,7 @@
     },
     "Z": {
       "type": "ENEMY",
-      "enemyType": "ghostking"
+      "enemyType": "cyclops"
     },
     "L": {
       "type": "LOOT"
