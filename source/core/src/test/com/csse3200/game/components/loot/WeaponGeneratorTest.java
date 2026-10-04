@@ -88,7 +88,10 @@ class WeaponGeneratorTest {
     WeaponGenerator generator = new WeaponGenerator();
 
     assertEquals(7, generator.generateWeapon(WeaponType.BOW, 1).getDamage());
-    assertEquals(4, generator.generateWeapon(WeaponType.BOW, 2).getDamage());
+    assertEquals(
+        20,
+        generator.generateWeapon(WeaponType.BOW, 2).getDamage()
+            * generator.generateWeapon(WeaponType.BOW, 2).getProjectileCount());
     assertEquals(3, generator.generateWeapon(WeaponType.DAGGER, 1).getDamage());
     assertEquals(6, generator.generateWeapon(WeaponType.DAGGER, 2).getDamage());
   }

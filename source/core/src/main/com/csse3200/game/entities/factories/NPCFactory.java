@@ -223,6 +223,10 @@ public class NPCFactory {
     animator.addAnimation("minotaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("minotaur_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_charge_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_charge_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("minotaur_swing_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("minotaur_swing_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Add necessary components to the entity
     minotaur
@@ -238,6 +242,7 @@ public class NPCFactory {
         .addComponent(
             new ChargeComponent(
                 config.charge.duration,
+                config.charge.windupDuration,
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
@@ -258,11 +263,20 @@ public class NPCFactory {
                 target,
                 minotaur.getComponent(ChargeComponent.class),
                 config.charge.aggroRadius,
-                15,
-                10)));
+                16,
+                -1)));
 
     minotaur.setScale(scale, scale * (80f / 96f));
-    PhysicsUtils.setScaledCollider(minotaur, collisionScale.x, collisionScale.y);
+
+    // 16 pixels shorter from below to make the minotaur's feet align with the floor.
+    // The sprite frame is 80px high, so 16px is (16f / 80f) of the entity's height.
+    float pixelHeight = minotaur.getScale().y / 80f;
+    float bottomOffset = 16f * pixelHeight;
+    float boxWidth = minotaur.getScale().x * collisionScale.x;
+    float boxHeight = (minotaur.getScale().y * collisionScale.y) - bottomOffset;
+    Vector2 boxSize = new Vector2(boxWidth, boxHeight);
+    Vector2 boxPosition = new Vector2(minotaur.getScale().x / 2f, bottomOffset + (boxHeight / 2f));
+    minotaur.getComponent(ColliderComponent.class).setAsBox(boxSize, boxPosition);
     return minotaur;
   }
 
@@ -311,6 +325,7 @@ public class NPCFactory {
         .addComponent(
             new ChargeComponent(
                 config.charge.duration,
+                config.charge.windupDuration,
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
@@ -333,8 +348,8 @@ public class NPCFactory {
                 target,
                 centaur.getComponent(ChargeComponent.class),
                 config.charge.aggroRadius,
-                15,
-                10)));
+                16,
+                -1)));
 
     centaur.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
@@ -408,7 +423,8 @@ public class NPCFactory {
    * object no other entity references, so that entity's eventual disposal (which calls {@code
    * atlas.dispose()}) cannot invalidate another still-living entity's sprite.
    *
-   * @param path internal file path to the {@code .atlas} file, e.g. {@code "images/skeleton.atlas"}
+   * @param path internal file path to the {@code .atlas} file, e.g. {@code
+   *     "images/enemies/skeleton.atlas"}
    * @return a new, independently-owned {@code TextureAtlas} loaded from that path
    * @throws com.badlogic.gdx.utils.GdxRuntimeException if the file does not exist or cannot be
    *     parsed as a texture atlas — same failure behaviour as libGDX's own atlas loading

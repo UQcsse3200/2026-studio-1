@@ -93,7 +93,7 @@ public class WeaponRenderComponent extends RenderComponent {
     super.create();
 
     previousPosition.set(entity.getPosition());
-
+    entity.getEvents().addListener("axeAttack", this::startSwing);
     entity.getEvents().addListener("swordAttack", this::startSwing);
     entity.getEvents().addListener("weaponAttack", this::handleWeaponAttack);
     entity.getEvents().addListener("walk", this::updateFacing);

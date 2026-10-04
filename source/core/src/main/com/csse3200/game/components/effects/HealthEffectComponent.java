@@ -56,7 +56,7 @@ public class HealthEffectComponent extends Component {
   /**
    * Finds the overall health quantity being applied each update.
    *
-   * @return overall health quantity (== 0 if no overall effect, > 0 if overall healing, < 0 if
+   * @return overall health quantity (= 0 if no overall effect, > 0 if overall healing, < 0 if
    *     overall poisoning
    */
   public int getHealthEffect() {

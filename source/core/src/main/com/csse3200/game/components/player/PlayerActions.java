@@ -10,6 +10,7 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
+import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
@@ -389,8 +390,8 @@ public class PlayerActions extends Component {
     if (!dead) {
       updateSpeed();
     }
-
     moving = false;
+    walkSoundPlaying = false;
   }
 
   /** Makes the player attack. */
@@ -416,7 +417,10 @@ public class PlayerActions extends Component {
       if (enemyStats != null) {
         enemyStats.hit(combatStats);
 
-        logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+        logger.info(
+            "Enemy: {} health decreased; health = {}",
+            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+            enemyStats.getHealth());
 
         attackSound.play(AudioSettings.getEffectiveEffectsVolume());
       }
@@ -658,7 +662,6 @@ public class PlayerActions extends Component {
     dead = true;
     moving = false;
     walkDirection = Vector2.Zero.cpy();
-
     Body body = physicsComponent.getBody();
 
     body.setLinearVelocity(Vector2.Zero);

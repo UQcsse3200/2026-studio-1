@@ -101,7 +101,10 @@ public class PhysicsMovementComponent extends Component implements MovementContr
     Vector2 clampedVelocity = desiredVelocity.cpy();
     if (groundedMovement) {
       // Only steer horizontally with speed multiplier.
-      clampedVelocity.y = velocity.y * this.getSpeedMultiplier();
+      clampedVelocity.x = desiredVelocity.x * this.getSpeedMultiplier();
+      clampedVelocity.y = velocity.y;
+    } else {
+      clampedVelocity.scl(this.getSpeedMultiplier());
     }
     Vector2 impulse = clampedVelocity.sub(velocity).scl(body.getMass());
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
