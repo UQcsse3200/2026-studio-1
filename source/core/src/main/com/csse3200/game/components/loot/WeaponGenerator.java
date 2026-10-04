@@ -42,6 +42,7 @@ public class WeaponGenerator {
       case AXE:
         WeaponItem axe = new WeaponItem("Basic Axe", AXE, WeaponTier.values()[tier - 1], 1, 2, 3);
         axe.setSellPrice(12 * tier);
+
         return axe;
 
       default:

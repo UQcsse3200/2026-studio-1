@@ -54,7 +54,7 @@ public class RangedAttackComponent extends Component {
   private float damage;
   private WeaponItem weapon;
   private float windupDuration;
-  private float windupTimeRemaing;
+  private float windupTimeRemaining;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
   private static final Logger logger = LoggerFactory.getLogger(RangedAttackComponent.class);
@@ -118,7 +118,6 @@ public class RangedAttackComponent extends Component {
     this.setWindupDuration(this.getCooldown() - 1);
     this.timeSinceLastAttack = cooldown;
     setProjectileSpeed(DEFAULT_PROJECTILE_SPEED);
-    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**

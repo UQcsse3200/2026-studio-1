@@ -52,6 +52,10 @@ public class LootFactory {
 
       if (weaponItem.getWeaponType() == WeaponType.BOW) {
         texturePath = "images/items/bow.png";
+      } else if (weaponItem.getWeaponType() == WeaponType.AXE) {
+        texturePath = "images/items/axe.png";
+      } else if (weaponItem.getWeaponType() == WeaponType.DAGGER) {
+        texturePath = "images/items/dagger.png";
       } else {
         texturePath = "images/items/sword.png";
       }
