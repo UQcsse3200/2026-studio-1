@@ -1,12 +1,12 @@
 package com.csse3200.game.components.room;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Placement rules for the enemy spawns in the shipped Level 1 map (maps/level1-greek.json).
@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * mid-air, or crowded onto one surface loads fine and only shows up in play. Model the fixture on
  * MapDataLevelViewTest and ShippedMapsTest.
  *
- * <p>COLLIDER sizes in tiles (width by height; from the factory scales and PhysicsUtils.setScaledCollider,
- * world size divided by the 0.5 tile size): skeleton and ranged skeleton 0.9 by 1.2, Minotaur 3.2 by 4.7,
- * Cyclops 3.2 by 3.0, Centaur 3.2 by 4.0. The collider is assumed centred on the sprite [CONFIRM].
- * Spawning centres the entity on the tile, then physics drops it onto the first surface below.
- * Types: Boundary, Negative, Regression, Mapping, Unit.
+ * <p>COLLIDER sizes in tiles (width by height; from the factory scales and
+ * PhysicsUtils.setScaledCollider, world size divided by the 0.5 tile size): skeleton and ranged
+ * skeleton 0.9 by 1.2, Minotaur 3.2 by 4.7, Cyclops 3.2 by 3.0, Centaur 3.2 by 4.0. The collider is
+ * assumed centred on the sprite [CONFIRM]. Spawning centres the entity on the tile, then physics
+ * drops it onto the first surface below. Types: Boundary, Negative, Regression, Mapping, Unit.
  */
 class LevelOneEnemySpawnPlacementTest {
   private final JsonMapLoader loader = new JsonMapLoader();
@@ -58,9 +58,9 @@ class LevelOneEnemySpawnPlacementTest {
    * END look up
    * </pre>
    */
-//  private double[] colliderOf(String type) {
-//    return 0;
-//  }
+  //  private double[] colliderOf(String type) {
+  //    return 0;
+  //  }
 
   /**
    * Boundary. Failure message: "Enemy spawn <type> at <x>, <y> is outside the 56 by 64 map".
@@ -93,7 +93,8 @@ class LevelOneEnemySpawnPlacementTest {
   void everyEnemyTypeHasARegisteredFactory() {}
 
   /**
-   * Negative. Failure message: "Enemy <type> at <x>, <y> overlaps a wall or floor tile at <tx>, <ty>".
+   * Negative. Failure message: "Enemy <type> at <x>, <y> overlaps a wall or floor tile at <tx>,
+   * <ty>".
    *
    * <pre>
    * BEGIN noEnemyColliderOverlapsASolidTile
@@ -156,7 +157,8 @@ class LevelOneEnemySpawnPlacementTest {
   void noEnemyStandsOnOrBesideAHazard() {}
 
   /**
-   * Boundary. Failure message: "Enemy <type> at <x>, <y> has only <n> tiles of surface to one side".
+   * Boundary. Failure message: "Enemy <type> at <x>, <y> has only <n> tiles of surface to one
+   * side".
    *
    * <pre>
    * BEGIN everyEnemyHasTwoTilesOfSurfaceEachSide
@@ -172,7 +174,8 @@ class LevelOneEnemySpawnPlacementTest {
   void everyEnemyHasTwoTilesOfSurfaceEachSide() {}
 
   /**
-   * Boundary. Failure message: "Minotaur, Cyclops and Centaur must not spawn in a room under 5 tiles tall".
+   * Boundary. Failure message: "Minotaur, Cyclops and Centaur must not spawn in a room under 5
+   * tiles tall".
    *
    * <pre>
    * BEGIN bigEnemiesAreOnlyPlacedWhereTheirColliderFits
@@ -219,7 +222,8 @@ class LevelOneEnemySpawnPlacementTest {
   void everyNetherLedgeRowHasAnEnemy() {}
 
   /**
-   * Boundary. Failure message: "Enemy <type> at <x>, <y> is within 8 tiles of the player or a door".
+   * Boundary. Failure message: "Enemy <type> at <x>, <y> is within 8 tiles of the player or a
+   * door".
    *
    * <pre>
    * BEGIN noFloorLevelEnemyIsNearADoorOrPlayerSpawn
@@ -288,7 +292,8 @@ class LevelOneEnemySpawnPlacementTest {
   void enemyOnTheBottomRowIsRejected() {}
 
   /**
-   * Negative. Failure message: "Minotaur in a 5-tile room is rejected only if the collider does not fit".
+   * Negative. Failure message: "Minotaur in a 5-tile room is rejected only if the collider does not
+   * fit".
    *
    * <pre>
    * BEGIN enemyUnderAFiveTileCeilingIsRejectedForAMinotaur
@@ -299,5 +304,4 @@ class LevelOneEnemySpawnPlacementTest {
    */
   @Test
   void enemyUnderAFiveTileCeilingIsRejectedForAMinotaur() {}
-
 }
