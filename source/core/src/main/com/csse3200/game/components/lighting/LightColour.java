@@ -1,0 +1,22 @@
+package com.csse3200.game.components.lighting;
+
+import com.badlogic.gdx.graphics.Color;
+
+public enum LightColour {
+  BACKGROUND_DARK(new Color(0.15f, 0.15f, 0.25f, 1f)),
+  RESINOUS_TORCH(new Color(0.85f, 0.58f, 0.38f, 1f)),
+  ASHEN_TORCH(new Color(0.74f, 0.53f, 0.40f, 1f)),
+  OIL_LAMP(new Color(0.82f, 0.51f, 0.28f, 1f)),
+  ELYSIAN_FADE(new Color(0.88f, 0.66f, 0.44f, 1f)),
+  LAVA_GLOW(new Color(0.55f, 0.16f, 0.11f, 1f));
+
+  private final Color colour;
+
+  LightColour(Color colour) {
+    this.colour = colour;
+  }
+
+  public Color getColour() {
+    return colour;
+  }
+}

@@ -19,6 +19,9 @@ import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.lighting.LightColour;
+import com.csse3200.game.components.lighting.LightComponent;
+import com.csse3200.game.components.lighting.LightSpec;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
@@ -49,6 +52,7 @@ import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.MapBackgroundRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
+import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -235,7 +239,7 @@ public class LevelGameArea extends GameArea {
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
-    spawnTravelerNPC();
+    spawnLighting();
     playMusic();
   }
 
@@ -804,6 +808,22 @@ public class LevelGameArea extends GameArea {
     resourceService.unloadAssets(entityAtlases);
     resourceService.unloadAssets(entitySounds);
     resourceService.unloadAssets(entityMusic);
+  }
+
+  /** Spawns the lighting in the level */
+  private void spawnLighting() {
+    LightService ls = ServiceLocator.getLightService();
+    // default low ambient light
+    ls.setAmbient(LightColour.BACKGROUND_DARK.getColour(), 0.25f);
+
+    Entity lightEntity = new Entity();
+    lightEntity.setPosition(5f, 5f);
+
+    LightSpec spec = new LightSpec(LightColour.RESINOUS_TORCH.getColour(), 3f, 24, 0f);
+
+    lightEntity.addComponent(new LightComponent(spec, player));
+
+    ServiceLocator.getEntityService().register(lightEntity);
   }
 
   @Override
