@@ -667,6 +667,154 @@ public class NPCFactory {
   }
 
   /**
+   * Creates a Harpy entity: a flying melee enemy mirroring the (ground) Skeleton's sword attack and
+   * stats almost field-for-field - see {@link #createSkeleton}. The only structural difference is
+   * the base entity: {@link #createBaseFlyingNPC} in place of {@link #createBasePlatformerNPC}, so
+   * a Harpy wanders and chases freely through the air instead of being bound to a platform.
+   *
+   * @param target entity to chase
+   * @return entity
+   */
+  public static Entity createHarpy(Entity target) {
+    float scale = 1.0f;
+    Vector2 collisionScale = new Vector2(0.45f, 0.6f);
+    Entity harpy = createBaseFlyingNPC(target);
+    HarpyConfig config = configs.harpy;
+
+    // Create loot on drop
+    int numGold = 3;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.SWORD, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
+    // TODO: HARPY'S OWN FLYING SPRITES - reuses the Skeleton atlas as a placeholder in the
+    // meantime, same as Centaur/Medusa/Cerberus/Zeus reuse other enemies' atlases.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH));
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+
+    // Configure weapon animation component
+    EnemyWeaponAnimationComponent weaponAnimator =
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(SKELETON_SWORD_ATLAS_PATH));
+    weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("sword_l", 0.08f, Animation.PlayMode.NORMAL);
+    weaponAnimator.addAnimation("sword_r", 0.08f, Animation.PlayMode.NORMAL);
+
+    // Add necessary components to the entity
+    harpy
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(new EnemyTypeComponent(EnemyType.HARPY))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(animator)
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(new SkeletonAnimationController())
+        .addComponent(weaponAnimator)
+        .addComponent(new SkeletonWeaponAnimationController());
+
+    harpy.getComponent(AnimationRenderComponent.class).scaleEntity();
+    harpy.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(harpy, collisionScale.x, collisionScale.y);
+    return harpy;
+  }
+
+  /**
+   * Creates a Ranged Harpy entity: a flying ranged enemy mirroring the (ground) Ranged Skeleton's
+   * bow attack and stats almost field-for-field - see {@link #createRangedSkeleton}. The only
+   * structural difference is the base entity: {@link #createBaseFlyingNPC} in place of {@link
+   * #createBasePlatformerNPC}, so a Ranged Harpy wanders and chases freely through the air instead
+   * of being bound to a platform.
+   *
+   * @param target entity to chase
+   * @return entity
+   */
+  public static Entity createRangedHarpy(Entity target) {
+    float scale = 1.0f;
+    Vector2 collisionScale = new Vector2(0.45f, 0.6f);
+    Entity rangedHarpy = createBaseFlyingNPC(target);
+    RangedHarpyConfig config = configs.rangedHarpy;
+
+    // Create loot on drop
+    int numGold = 3;
+    InventoryComponent inventory = new InventoryComponent(numGold);
+    List<Item> items = new ArrayList<>();
+
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    items.add(weaponGenerator.generateWeapon(WeaponType.BOW, 1));
+    for (Item item : items) {
+      inventory.addItem(item);
+    }
+
+    // Configure animation component
+    // TODO: RANGED HARPY'S OWN FLYING SPRITES - reuses the Skeleton atlas as a placeholder in
+    // the meantime, same as Centaur/Medusa/Cerberus/Zeus reuse other enemies' atlases.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+
+    // Configure weapon animation component
+    EnemyWeaponAnimationComponent weaponAnimator =
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(SKELETON_BOW_ATLAS_PATH));
+    weaponAnimator.addAnimation("default_l", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("default_r", 0.1f, Animation.PlayMode.LOOP);
+    weaponAnimator.addAnimation("bow_l", 0.1f, Animation.PlayMode.NORMAL);
+    weaponAnimator.addAnimation("bow_r", 0.1f, Animation.PlayMode.NORMAL);
+
+    // Add necessary components to the entity
+    rangedHarpy
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(new EnemyTypeComponent(EnemyType.RANGED_HARPY))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range,
+                config.ranged.cooldown,
+                config.ranged.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(animator)
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(new SkeletonAnimationController())
+        .addComponent(weaponAnimator)
+        .addComponent(new SkeletonWeaponAnimationController());
+
+    rangedHarpy
+        .getComponent(RangedAttackComponent.class)
+        .setProjectileSpeed(config.ranged.projectileSpeed);
+
+    rangedHarpy.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
+    rangedHarpy
+        .getComponent(AITaskComponent.class)
+        .addTask(new RangedAttackTask(target, 15, config.ranged.range, ProjectileType.ARROW));
+
+    rangedHarpy.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(rangedHarpy, collisionScale.x, collisionScale.y);
+    return rangedHarpy;
+  }
+
+  /**
    * Loads a fresh, independently-owned {@link TextureAtlas} from the given internal file path,
    * bypassing {@code ResourceService}'s asset cache entirely.
    *
@@ -766,6 +914,40 @@ public class NPCFactory {
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
+    return npc;
+  }
+
+  /**
+   * Creates a generic flying NPC to be used as a base entity by flying NPC creation methods
+   * (currently Harpy and Ranged Harpy).
+   *
+   * <p>The exact opposite of {@link #createBasePlatformerNPC} in two ways: it adds a plain {@link
+   * WanderTask} rather than a {@link PlatformWanderTask} (no floor to raycast against while
+   * airborne), and it leaves {@link PhysicsMovementComponent#setGroundedMovement} at its default of
+   * {@code false}, so the movement controller steers freely in both X and Y toward a target instead
+   * of leaving vertical motion to gravity (see that method's own Javadoc). Gravity itself is also
+   * disabled on the physics body - without both changes, gravity would constantly fight the
+   * movement controller's vertical steering, and a flying enemy would still sink like every
+   * grounded one.
+   *
+   * @return entity
+   */
+  private static Entity createBaseFlyingNPC(Entity target) {
+    AITaskComponent aiComponent =
+        new AITaskComponent()
+            .addTask(new WanderTask(new Vector2(3f, 2f), 2f))
+            .addTask(new ChaseTask(target, 10, 4f, 6f))
+            .addTask(new MeleeAttackTask(target, 15, 1f));
+    Entity npc =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(aiComponent);
+
+    PhysicsUtils.setScaledCollider(npc, 0.45f, 0.6f);
+    npc.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
     return npc;
   }
 
