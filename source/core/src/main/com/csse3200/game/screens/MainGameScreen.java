@@ -677,8 +677,8 @@ public class MainGameScreen extends ScreenAdapter {
         "tp",
         new TeleportCommand(
             Map.of(
-                "lvl1-1", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
-                "lvl1-2", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
+                "lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
+                "lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
                 "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
                 "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
