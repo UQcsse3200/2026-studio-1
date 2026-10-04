@@ -149,4 +149,10 @@ class SpeedEffectComponentTest {
     assertDoesNotThrow(orphan::update);
     assertDoesNotThrow(orphan::dispose);
   }
+
+  @Test
+  void shouldApplyEffectWhenEventTriggered() {
+    entity.getEvents().trigger("applySpeedEffect", 10, 0.5f);
+    verify(playerActions).addSpeedModifier(any(), eq(0.5f));
+  }
 }

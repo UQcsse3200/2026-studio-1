@@ -1,19 +1,19 @@
 package com.csse3200.game.components.attacks;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.projectile.ProjectileType;
+import com.csse3200.game.components.tasks.RangedAttackTask;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
@@ -215,6 +215,42 @@ class RangedAttackComponentTest {
 
     attacker.getEvents().trigger("rangedAttack", target, ProjectileType.LIGHTNING);
 
+    assertEquals(1, fired.size());
+  }
+
+  @Test
+  void shouldTriggerRangedAttackWithConfiguredProjectileType() {
+    Entity target = new Entity();
+    target.setPosition(1, 0);
+    Entity owner =
+        new Entity()
+            .addComponent(
+                new AITaskComponent()
+                    .addTask(new RangedAttackTask(target, 10, 5f, ProjectileType.LIGHTNING)));
+    owner.create();
+    owner.setPosition(0, 0);
+
+    List<ProjectileType> seen = new ArrayList<>();
+    owner.getEvents().addListener("rangedAttack", (Entity t, ProjectileType p) -> seen.add(p));
+
+    owner.update();
+
+    assertFalse(seen.isEmpty());
+    assertEquals(ProjectileType.LIGHTNING, seen.get(0));
+  }
+
+  @Test
+  void shouldNotConsumeCooldownWhenProjectileTypeIsNull() {
+    Entity attacker = createAttacker(6f, 2f, 0f);
+    Entity target = createTarget();
+    attacker.setPosition(0, 0);
+    target.setPosition(2, 0);
+    List<Entity> fired = listenForFired(attacker);
+
+    attacker.getEvents().trigger("rangedAttack", target, (ProjectileType) null);
+    assertEquals(0, fired.size());
+
+    attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
     assertEquals(1, fired.size());
   }
 

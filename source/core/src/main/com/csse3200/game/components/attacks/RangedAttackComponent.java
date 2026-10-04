@@ -257,7 +257,7 @@ public class RangedAttackComponent extends Component {
    * @param projectile the type of projectile being launched
    */
   private void attemptAttack(Entity target, ProjectileType projectile) {
-    if (target == null) {
+    if (target == null || projectile == null) {
       return;
     }
 
