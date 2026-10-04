@@ -23,6 +23,7 @@ import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
+import com.csse3200.game.components.player.NoclipInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
@@ -88,6 +89,7 @@ public class MainGameScreen extends ScreenAdapter {
   private static final GridPoint2 LEVEL_ONE_DUNGEON_SPAWN = new GridPoint2(3, 3);
   private static final GridPoint2 LEVEL_ONE_NETHER_SPAWN = new GridPoint2(27, 34);
   private static final float GAMEPLAY_ZOOM = 0.95f;
+  private static final float NOCLIP_VERTICAL_SPEED = 7f;
 
   private final GdxGame game;
 
@@ -109,6 +111,8 @@ public class MainGameScreen extends ScreenAdapter {
   private Entity subLevelTravelPromptEntity;
   private final Map<Fixture, Short> noclipFixtureMasks = new IdentityHashMap<>();
   private boolean noclipEnabled;
+  private float noclipVerticalDirection;
+  private NoclipInputComponent noclipInputComponent;
 
   public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
@@ -544,6 +548,7 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     noclipEnabled = enabled;
+    noclipInputComponent.setNoclipEnabled(enabled);
     if (enabled) {
       enableNoclipForCurrentPlayer(true);
       logger.info("Noclip enabled");
@@ -569,9 +574,9 @@ public class MainGameScreen extends ScreenAdapter {
 
     var body = physics.getBody();
     body.setGravityScale(0f);
-    if (stopVerticalMovement) {
-      body.setLinearVelocity(body.getLinearVelocity().x, 0f);
-    }
+    float verticalVelocity =
+        stopVerticalMovement ? 0f : noclipVerticalDirection * NOCLIP_VERTICAL_SPEED;
+    body.setLinearVelocity(body.getLinearVelocity().x, verticalVelocity);
 
     for (Fixture fixture : body.getFixtureList()) {
       noclipFixtureMasks.putIfAbsent(fixture, fixture.getFilterData().maskBits);
@@ -598,6 +603,10 @@ public class MainGameScreen extends ScreenAdapter {
       }
     }
     noclipFixtureMasks.clear();
+  }
+
+  private void setNoclipVerticalDirection(double direction) {
+    noclipVerticalDirection = (float) Math.clamp(direction, -1d, 1d);
   }
 
   private void createSubLevelTravelPrompt(Entity player) {
@@ -700,6 +709,8 @@ public class MainGameScreen extends ScreenAdapter {
 
     upgradesDisplay = new UpgradesDisplay();
 
+    noclipInputComponent = new NoclipInputComponent(this::setNoclipVerticalDirection);
+
     PauseMenuActions pauseMenuActions =
         new PauseMenuActions(
             this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
@@ -710,6 +721,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PerformanceDisplay())
         .addComponent(terminal)
         .addComponent(inputComponent)
+        .addComponent(noclipInputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
