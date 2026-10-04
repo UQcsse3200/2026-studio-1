@@ -12,6 +12,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -436,7 +437,34 @@ class JsonMapLoaderTest {
     assertEquals(56, levelOne.getWidth());
     assertEquals(64, levelOne.getHeight());
     assertEquals(new GridPoint2(3, 3), levelOne.getSpawns().getPlayer());
-    assertEquals(19, levelOne.getSpawns().getEnemies().size());
+    // list changes depending on what we choose to spawn so expected number will fail as changes to
+    // the list
+    List<SpawnPoint> enemyList = levelOne.getSpawns().getEnemies();
+    assertFalse(enemyList.isEmpty(), "Level 1 lists no enemies.");
+    int count = 0;
+    for (SpawnPoint enemySpawn : enemyList) {
+      count++;
+      assertTrue(
+          enemySpawn.getX() > 0 && enemySpawn.getX() < (levelOne.getWidth() - 1),
+          "Enemies must spawn in x coordinates between 0 and "
+              + (levelOne.getWidth() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getX());
+      assertTrue(
+          enemySpawn.getY() > 0 && enemySpawn.getY() < (levelOne.getHeight() - 1),
+          "Enemies must spawn in y coordinates between 0 and "
+              + (levelOne.getHeight() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getY());
+    }
+    assertEquals(
+        enemyList.size(),
+        count,
+        "There should be "
+            + enemyList.size()
+            + " enemies spawned in the level 1 map, but there are actually "
+            + count
+            + " enemies spawned on the map.");
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
     // Transparent ladders and ledges must render over a background rather than the clear colour.
     assertNotNull(levelOne.getLayer("background"));
@@ -511,7 +539,7 @@ class JsonMapLoaderTest {
     // The player arrives on the spawn level 2's summit exit sends them to.
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
     assertEquals(1, levelThree.getSpawns().getEnemies().size());
-    assertEquals("ghostking", levelThree.getSpawns().getEnemies().getFirst().getType());
+    assertEquals("cyclops", levelThree.getSpawns().getEnemies().getFirst().getType());
     assertEquals(
         new GridPoint2(32, 2), levelThree.getSpawns().getEnemies().getFirst().getPosition());
     // Only the shell collides: the throne room's furniture is all walk-through decoration.

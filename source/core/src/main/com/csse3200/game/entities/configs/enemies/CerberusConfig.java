@@ -3,6 +3,7 @@ package com.csse3200.game.entities.configs.enemies;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
 
+<<<<<<< HEAD
 /**
  * Configuration for Cerberus: a stationary mini-boss who bites very often (three heads, modelled
  * here as a single melee attack with a deliberately short cooldown rather than three separate
@@ -14,6 +15,9 @@ import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
  * <p>Satisfies the team's "boss health near 100" design rule. The "melee range below ranged range"
  * rule does not apply - Cerberus has no ranged attack.
  */
+=======
+/** Cerberus: stationary, natural melee with a short cooldown (three heads). */
+>>>>>>> origin/enemies
 public class CerberusConfig extends BaseEntityConfig {
   public MeleeAttackConfig melee;
 }

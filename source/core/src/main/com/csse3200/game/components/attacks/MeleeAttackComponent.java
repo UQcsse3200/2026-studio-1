@@ -50,7 +50,7 @@ public class MeleeAttackComponent extends Component {
   private Entity pendingTarget;
   private float windupTimeRemaining;
 
-  /** Difficulty's enemy damage multiplier, applied on top of weapon (and charge) damage. */
+  /** Difficulty's enemy damage multiplier, applied on top of weapon damage. */
   private float damageMultiplier = 1f;
 
   private float windupMultiplier = 1f;
@@ -280,6 +280,33 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
+   * Returns the windup length before difficulty scaling.
+   *
+   * @return windup duration in seconds, taken from the weapon (or {@code cooldown - 1} unarmed)
+   */
+  public float getWindupDuration() {
+    return this.windupDuration;
+  }
+
+  /**
+   * Returns how much of the current windup is left.
+   *
+   * @return seconds remaining, or {@code 0f} when no windup is in progress
+   */
+  public float getWindupTimeRemaining() {
+    return this.pendingTarget == null ? 0f : Math.max(0f, this.windupTimeRemaining);
+  }
+
+  /**
+   * Reports whether a swing is currently winding up.
+   *
+   * @return true between an accepted {@code "meleeAttack"} trigger and the swing resolving
+   */
+  public boolean isWindingUp() {
+    return this.pendingTarget != null;
+  }
+
+  /**
    * Attempts to attack the given target entity: validates cooldown and range, then applies damage
    * and knockback if both checks pass and the target has the required component(s).
    *
@@ -324,9 +351,12 @@ public class MeleeAttackComponent extends Component {
 
   /**
    * Called once the windup timer elapses. Re-validates the pending target is still alive and in
-   * range (it may have died or moved away during the windup), and if so, applies weapon damage
-   * (multiplied by any active {@link ChargeComponent} bonus), fires {@code "meleeAttackHit"}, and
-   * applies knockback. A no-op (a "whiff") if the target is no longer valid.
+   * range (it may have died or moved away during the windup). If so, applies weapon damage
+   * (multiplied by the difficulty multiplier), fires {@code "meleeAttackHit"}, and applies
+   * knockback. If not, fires {@code "meleeAttackWhiff"} with the intended target and does nothing
+   * else (the cooldown stays spent).
+   *
+   * <p>The attacker's own base attack is restored after the hit, so repeated hits never drift.
    */
   private void resolveAttack() {
     Entity target = this.pendingTarget;
@@ -334,6 +364,7 @@ public class MeleeAttackComponent extends Component {
     this.windupTimeRemaining = 0;
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
     if (targetStats == null || targetStats.getHealth() <= 0) {
+      entity.getEvents().trigger("meleeAttackWhiff", target);
       return;
     }
     float distance =
@@ -345,22 +376,21 @@ public class MeleeAttackComponent extends Component {
                 target.getPosition().y);
 
     if (distance > this.getRange()) {
+      entity.getEvents().trigger("meleeAttackWhiff", target);
       return;
     }
     // retrieve damage stats from weapon
     int finalDamage = this.getDamage();
 
-    ChargeComponent chargeComponent = entity.getComponent(ChargeComponent.class);
-    if (chargeComponent != null) {
-      // if not charging then 1.0f is the mutiplier
-      finalDamage = (int) (finalDamage * chargeComponent.getDamageMultiplier());
-    }
     if (weapon != null && damageMultiplier != 1f) {
       finalDamage = Math.max(1, Math.round(finalDamage * damageMultiplier));
     }
+    // CombatStatsComponent#hit reads the attacker's base attack, so set it for the hit and put
+    // the attacker's own value back straight afterwards.
+    int originalBaseAttack = combatStats.getBaseAttack();
     combatStats.setBaseAttack(finalDamage);
-
     targetStats.hit(combatStats);
+    combatStats.setBaseAttack(originalBaseAttack);
     // announce a successful hit - useful for triggering special effects
     entity.getEvents().trigger("meleeAttackHit", target);
     // reset cooldown, since an attack just succeeded

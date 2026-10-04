@@ -50,9 +50,24 @@ public class NPCFactory {
       "images/skeleton_weapons/skeleton_bow.atlas";
   private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
   private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
+  private static final String CENTAUR_ATLAS_PATH = "images/enemies/centaur.atlas";
+  private static final String CERBERUS_ATLAS_PATH = "images/enemies/cerberus.atlas";
+  private static final String MEDUSA_ATLAS_PATH = "images/enemies/medusa.atlas";
+  private static final String ZEUS_ATLAS_PATH = "images/enemies/zeus.atlas";
+  // this could be the ranged harpy and the above is the melee one to differentiate
+  // 0on screen but if too hard all g.
+  private static final String HARPY_ATLAS_PATH = "images/enemies/harpy.atlas";
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
+
+  // The speed effect counts down once per frame, so seconds are converted at 60 frames a second.
+  private static final int TICKS_PER_SECOND = 60;
+
+  // Task priorities: chase is 10, so ranged sits above it (the Skeleton pattern) and melee sits
+  // above ranged so a close player is meleed rather than shot.
+  private static final int MELEE_TASK_PRIORITY = 15;
+  private static final int RANGED_TASK_PRIORITY = 12;
 
   /**
    * Creates a skeleton entity.
@@ -307,13 +322,16 @@ public class NPCFactory {
     }
 
     // Configure animation component
-    // TODO: THIS WILL BE CHANGED TO CENTAUR ANIMATION AND SPRITES
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
-    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(CENTAUR_ATLAS_PATH), true);
+    animator.addAnimation("centaur_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_run_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_run_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("centaur_swing_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("centaur_swing_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("centaur_death_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("centaur_death_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Add necessary components to the entity
     centaur
@@ -336,7 +354,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
-        .addComponent(new SkeletonAnimationController());
+        .addComponent(new CentaurAnimationController());
 
     centaur
         .getComponent(RangedAttackComponent.class)
@@ -357,7 +375,7 @@ public class NPCFactory {
                 16,
                 -1)));
 
-    centaur.setScale(scale, scale);
+    centaur.setScale(scale, scale * (53f / 66f));
     PhysicsUtils.setScaledCollider(centaur, collisionScale.x, collisionScale.y);
     return centaur;
   }
@@ -380,13 +398,30 @@ public class NPCFactory {
     InventoryComponent inventory = new InventoryComponent(numGold);
 
     // Configure animation component
-    // TODO: CYCLOPS ATTACK ANIMATION TO DO
     AnimationRenderComponent animator =
         new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_rock_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_rock_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_stomp_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_stomp_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_death_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_death_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_taunt_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_taunt_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_eye_scratch_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("cyclops_eye_scratch_r", 0.1f, Animation.PlayMode.NORMAL);
+
+    // Configure weapon animation component for laser overlay
+    EnemyWeaponAnimationComponent weaponAnimator =
+        new EnemyWeaponAnimationComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH));
+    weaponAnimator.setScaleMultiplier(1.0f);
+    weaponAnimator.setOffset(0f, 0f);
+    weaponAnimator.addAnimation("cyclops_laser_l", 0.1f, Animation.PlayMode.NORMAL);
+    weaponAnimator.addAnimation("cyclops_laser_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Cyclops carries no weapon - natural attacks flow through the same weapon-based attack
     // constructors an armed enemy uses, via WeaponItem.natural(...), rather than each attack
@@ -413,6 +448,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
+        .addComponent(weaponAnimator)
         .addComponent(new CyclopsAnimationController());
 
     cyclops
@@ -434,6 +470,7 @@ public class NPCFactory {
   }
 
   /**
+<<<<<<< HEAD
    * Creates a Medusa entity: a mini-boss who paces near her spawn, melees up close with natural
    * claws, and petrifies the player from range with her gaze.
    *
@@ -459,6 +496,41 @@ public class NPCFactory {
     // Configure animation component
     // TODO: MEDUSA'S OWN SPRITES AND ATTACK ANIMATIONS - reuses the Cyclops atlas as a
     // placeholder mini-boss sprite in the meantime, same as Centaur reuses the Skeleton atlas.
+=======
+   * Creates Medusa, a mini-boss that paces on the spot, bites up close and petrifies the player
+   * with a ranged gaze.
+   *
+   * <p>PLACEHOLDER BUILD: made only from existing classes. She uses the Cyclops atlas and animation
+   * controller, a natural melee weapon and a natural gaze weapon (like the Cyclops), and freezes
+   * the player through the existing {@code "applySpeedEffect"} event (the same one lightning uses)
+   * instead of a petrify component.
+   *
+   * @param target entity to attack (the player); must not be null
+   * @return Medusa, ready to register
+   * @throws IllegalArgumentException if target is null or a design rule is broken
+   */
+  public static Entity createMedusa(Entity target) {
+    if (target == null) {
+      throw new IllegalArgumentException("Medusa needs a target");
+    }
+    MedusaConfig config = configs.medusa;
+    validateMeleeRangeBelowRangedRange(config.melee.range, config.ranged.range);
+    // The attack that petrifies must wait at least twice as long as the petrify lasts.
+    validateCooldownCoversEffect(config.ranged.cooldown, config.petrify.duration);
+
+    float scale = 2.0f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    // TODO (S7): createBaseStationaryNPC() has no chase task and paces with a plain
+    // PlatformWanderTask, which can drift because it re-anchors its range each time it restarts.
+    // Replace the wander task below with BoundedPlatformWanderTask(pacingRadius, 2f, ...).
+    Entity medusa = createBaseStationaryNPC();
+
+    // More gold because no weapon drops (natural weapons never go in the inventory).
+    InventoryComponent inventory = new InventoryComponent(12);
+
+    // TODO (ART): Medusa needs her own atlas (idle, walk, melee, gaze, left and right). Until it
+    // exists she borrows the Cyclops atlas, animations and controller.
+>>>>>>> origin/enemies
     AnimationRenderComponent animator =
         new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
     animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
@@ -466,6 +538,7 @@ public class NPCFactory {
     animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
 
+<<<<<<< HEAD
     // Medusa carries no weapons - both attacks flow through the same weapon-based attack
     // constructors an armed enemy uses, via WeaponItem.natural(...), exactly like Cyclops's fists
     // and rock throw.
@@ -475,24 +548,41 @@ public class NPCFactory {
         WeaponItem.natural("Medusa Gaze", config.baseAttack, config.ranged.cooldown - 1);
 
     // Add necessary components to the entity
+=======
+    WeaponItem bite = WeaponItem.natural("Medusa Bite", config.baseAttack, config.melee.windup);
+    WeaponItem gaze = WeaponItem.natural("Medusa Gaze", config.baseAttack, config.ranged.windup);
+
+>>>>>>> origin/enemies
     medusa
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
+<<<<<<< HEAD
                 config.melee.range, config.melee.cooldown, config.melee.knockback, naturalClaws))
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range, config.ranged.cooldown, config.ranged.knockback, naturalGaze))
+=======
+                config.melee.range, config.melee.cooldown, config.melee.knockback, bite))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback, gaze))
+>>>>>>> origin/enemies
         .addComponent(new EnemyTypeComponent(EnemyType.MEDUSA))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
+<<<<<<< HEAD
+=======
+        // TODO (ART): replace with MedusaAnimationController.
+>>>>>>> origin/enemies
         .addComponent(new CyclopsAnimationController());
 
     medusa
         .getComponent(RangedAttackComponent.class)
         .setProjectileSpeed(config.ranged.projectileSpeed);
+<<<<<<< HEAD
     medusa.getComponent(RangedAttackComponent.class).setPetrifyTicks(config.petrifyTicks);
 
     medusa.getComponent(AnimationRenderComponent.class).scaleEntity();
@@ -503,6 +593,28 @@ public class NPCFactory {
         .getComponent(AITaskComponent.class)
         .addTask(new MeleeAttackTask(target, 10, config.melee.range))
         .addTask(new RangedAttackTask(target, 9, config.ranged.range, ProjectileType.GAZE));
+=======
+
+    // TODO (S7): replace this listener with a PetrifyEffectComponent on Medusa, wired to the same
+    // "rangedAttackHit" event, with the duration read from MedusaConfig.petrify.
+    int petrifyTicks = Math.round(config.petrify.duration * TICKS_PER_SECOND);
+    medusa
+        .getEvents()
+        .addListener(
+            "rangedAttackHit",
+            (Entity hit) -> hit.getEvents().trigger("applySpeedEffect", petrifyTicks, 0f));
+
+    animator.scaleEntity();
+    medusa
+        .getComponent(AITaskComponent.class)
+        .addTask(
+            new PlatformWanderTask(
+                new Vector2(config.pacing.radius * 2f, 2f), 2f, (scale * collisionScale.x) / 2))
+        .addTask(
+            new RangedAttackTask(
+                target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW))
+        .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range));
+>>>>>>> origin/enemies
 
     medusa.setScale(scale, scale * (48f / 64f));
     PhysicsUtils.setScaledCollider(medusa, collisionScale.x, collisionScale.y);
@@ -510,6 +622,7 @@ public class NPCFactory {
   }
 
   /**
+<<<<<<< HEAD
    * Creates a Cerberus entity: a stationary mini-boss who bites very often. Unlike every other
    * enemy in this factory, Cerberus does not wander or chase - he waits at his spawn point and only
    * ever runs a {@link MeleeAttackTask}, which naturally goes idle (a no-op, not an error - see
@@ -762,6 +875,30 @@ public class NPCFactory {
     // Configure animation component
     // TODO: RANGED HARPY'S OWN FLYING SPRITES - reuses the Skeleton atlas as a placeholder in
     // the meantime, same as Centaur/Medusa/Cerberus/Zeus reuse other enemies' atlases.
+=======
+   * Creates Cerberus, a stationary mini-boss that bites anything inside its reach, very often.
+   *
+   * <p>PLACEHOLDER BUILD: skeleton atlas and animation controller, one natural melee weapon. The
+   * melee task's range is her effective aggro radius, because she has no chase task.
+   *
+   * @param target entity to attack; must not be null
+   * @return Cerberus, ready to register
+   * @throws IllegalArgumentException if target is null
+   */
+  public static Entity createCerberus(Entity target) {
+    if (target == null) {
+      throw new IllegalArgumentException("Cerberus needs a target");
+    }
+    CerberusConfig config = configs.cerberus;
+    float scale = 1.5f;
+    Vector2 collisionScale = new Vector2(0.45f, 0.6f);
+    Entity cerberus = createBaseStationaryNPC();
+
+    InventoryComponent inventory = new InventoryComponent(12);
+
+    // TODO (ART): Cerberus needs her own atlas (idle and attack, left and right; she cannot
+    // walk). Until it exists she borrows the skeleton atlas, animations and controller.
+>>>>>>> origin/enemies
     AnimationRenderComponent animator =
         new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
     animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
@@ -769,6 +906,7 @@ public class NPCFactory {
     animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
 
+<<<<<<< HEAD
     // Configure weapon animation component
     EnemyWeaponAnimationComponent weaponAnimator =
         new EnemyWeaponAnimationComponent(loadIndependentAtlas(SKELETON_BOW_ATLAS_PATH));
@@ -781,12 +919,202 @@ public class NPCFactory {
     rangedHarpy
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(new EnemyTypeComponent(EnemyType.RANGED_HARPY))
+=======
+    WeaponItem bite = WeaponItem.natural("Cerberus Bite", config.baseAttack, config.melee.windup);
+
+    cerberus
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range, config.melee.cooldown, config.melee.knockback, bite))
+        .addComponent(new EnemyTypeComponent(EnemyType.CERBERUS))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(animator)
+        // TODO (ART): replace with CerberusAnimationController.
+        .addComponent(new SkeletonAnimationController());
+
+    animator.scaleEntity();
+    cerberus
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range));
+
+    cerberus.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(cerberus, collisionScale.x, collisionScale.y);
+    return cerberus;
+  }
+
+  /**
+   * Creates Zeus, a mini-boss that fights with a tier-2 sword up close and throws lightning from
+   * range. Moves and chases like the other platformer enemies.
+   *
+   * <p>PLACEHOLDER BUILD: Cyclops atlas and animation controller. His sword is a real weapon (so it
+   * drops on death); his lightning is a natural ranged weapon firing the existing LIGHTNING
+   * projectile.
+   *
+   * @param target entity to chase and attack; must not be null
+   * @return Zeus, ready to register
+   * @throws IllegalArgumentException if target is null or a design rule is broken
+   */
+  public static Entity createZeus(Entity target) {
+    if (target == null) {
+      throw new IllegalArgumentException("Zeus needs a target");
+    }
+    ZeusConfig config = configs.zeus;
+    validateMeleeRangeBelowRangedRange(config.melee.range, config.ranged.range);
+
+    float scale = 2.0f;
+    Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    Entity zeus = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+
+    InventoryComponent inventory = new InventoryComponent(3);
+    inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 2));
+
+    // TODO (ART): Zeus needs his own atlas (idle, walk, sword swing, lightning cast). Until it
+    // exists he borrows the Cyclops atlas, animations and controller.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
+    animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
+
+    WeaponItem lightning =
+        WeaponItem.natural("Zeus Lightning", config.baseAttack, config.ranged.windup);
+
+    zeus.addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(
+            new RangedAttackComponent(
+                config.ranged.range, config.ranged.cooldown, config.ranged.knockback, lightning))
+        .addComponent(new EnemyTypeComponent(EnemyType.ZEUS))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(animator)
+        // TODO (ART): replace with ZeusAnimationController.
+        .addComponent(new CyclopsAnimationController());
+
+    zeus.getComponent(RangedAttackComponent.class)
+        .setProjectileSpeed(config.ranged.projectileSpeed);
+    // The aimed flag has no effect on lightning (it falls from above the target) but is read from
+    // the config so every ranged enemy is wired the same way.
+    zeus.getComponent(RangedAttackComponent.class).setAimed(config.ranged.aimed);
+
+    animator.scaleEntity();
+    zeus.getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range))
+        .addTask(
+            new RangedAttackTask(
+                target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.LIGHTNING));
+
+    zeus.setScale(scale, scale * (48f / 64f));
+    PhysicsUtils.setScaledCollider(zeus, collisionScale.x, collisionScale.y);
+    return zeus;
+  }
+
+  /**
+   * Creates a melee Harpy: a flying enemy armed with a tier-1 sword, mirroring the melee Skeleton.
+   *
+   * <p>PLACEHOLDER BUILD: skeleton atlas and animation controller.
+   *
+   * @param target entity to chase; must not be null
+   * @return a flying melee enemy
+   * @throws IllegalArgumentException if target is null
+   */
+  public static Entity createHarpy(Entity target) {
+    if (target == null) {
+      throw new IllegalArgumentException("A Harpy needs a target");
+    }
+    HarpyConfig config = configs.harpy;
+    float scale = 1.0f;
+    Vector2 collisionScale = new Vector2(0.45f, 0.6f);
+    Entity harpy = createBaseFlyingNPC(target, config.flightDamping);
+
+    InventoryComponent inventory = new InventoryComponent(3);
+    inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 1));
+
+    // TODO (ART): the Harpy needs its own atlas (flap and attack, left and right). Until it
+    // exists it borrows the skeleton atlas, animations and controller.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+
+    harpy
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+        .addComponent(
+            new MeleeAttackComponent(
+                config.melee.range,
+                config.melee.cooldown,
+                config.melee.knockback,
+                (WeaponItem) inventory.getItem(1)))
+        .addComponent(new EnemyTypeComponent(EnemyType.HARPY))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(animator)
+        // TODO (ART): replace with HarpyAnimationController.
+        .addComponent(new SkeletonAnimationController());
+
+    animator.scaleEntity();
+    harpy
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range));
+
+    harpy.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(harpy, collisionScale.x, collisionScale.y);
+    return harpy;
+  }
+
+  /**
+   * Creates a ranged Harpy: a flying enemy armed with a tier-1 bow that fires aimed arrows,
+   * mirroring the ranged Skeleton. Aimed arrows let it hit a player above or below it.
+   *
+   * <p>PLACEHOLDER BUILD: skeleton atlas and animation controller.
+   *
+   * @param target entity to chase and shoot; must not be null
+   * @return a flying ranged enemy
+   * @throws IllegalArgumentException if target is null
+   */
+  public static Entity createRangedHarpy(Entity target) {
+    if (target == null) {
+      throw new IllegalArgumentException("A Harpy needs a target");
+    }
+    RangedHarpyConfig config = configs.rangedHarpy;
+    float scale = 1.0f;
+    Vector2 collisionScale = new Vector2(0.45f, 0.6f);
+    Entity harpy = createBaseFlyingNPC(target, config.flightDamping);
+
+    InventoryComponent inventory = new InventoryComponent(3);
+    inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.BOW, 1));
+
+    // TODO (ART): same placeholder atlas as the melee Harpy.
+    AnimationRenderComponent animator =
+        new AnimationRenderComponent(loadIndependentAtlas(SKELETON_ATLAS_PATH), true);
+    animator.addAnimation("idlel", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("idler", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkl", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("walkr", 0.1f, Animation.PlayMode.LOOP);
+
+    harpy
+        .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
+>>>>>>> origin/enemies
         .addComponent(
             new RangedAttackComponent(
                 config.ranged.range,
                 config.ranged.cooldown,
                 config.ranged.knockback,
                 (WeaponItem) inventory.getItem(1)))
+<<<<<<< HEAD
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
@@ -810,6 +1138,30 @@ public class NPCFactory {
     rangedHarpy.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(rangedHarpy, collisionScale.x, collisionScale.y);
     return rangedHarpy;
+=======
+        .addComponent(new EnemyTypeComponent(EnemyType.RANGED_HARPY))
+        .addComponent(inventory)
+        .addComponent(new ItemDropComponent())
+        .addComponent(new EnemyDeathComponent())
+        .addComponent(animator)
+        // TODO (ART): replace with HarpyAnimationController.
+        .addComponent(new SkeletonAnimationController());
+
+    RangedAttackComponent ranged = harpy.getComponent(RangedAttackComponent.class);
+    ranged.setProjectileSpeed(config.ranged.projectileSpeed);
+    ranged.setAimed(config.ranged.aimed);
+
+    animator.scaleEntity();
+    harpy
+        .getComponent(AITaskComponent.class)
+        .addTask(
+            new RangedAttackTask(
+                target, MELEE_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW));
+
+    harpy.setScale(scale, scale);
+    PhysicsUtils.setScaledCollider(harpy, collisionScale.x, collisionScale.y);
+    return harpy;
+>>>>>>> origin/enemies
   }
 
   /**
@@ -996,6 +1348,89 @@ public class NPCFactory {
 
     PhysicsUtils.setScaledCollider(npc, colliderWidthFraction, 0.7f);
     return npc;
+  }
+
+  /**
+   * Creates a grounded NPC with physics, collision and an EMPTY task list, for enemies that never
+   * chase (Medusa, Cerberus). The caller adds whatever tasks it needs. Differs from {@code
+   * createBasePlatformerNPC} by having no wander, chase or default melee task at all.
+   *
+   * @return a base entity with grounded movement switched on
+   */
+  private static Entity createBaseStationaryNPC() {
+    Entity npc =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(new AITaskComponent());
+
+    PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
+    return npc;
+  }
+
+  /**
+   * Creates an NPC that flies: wander and chase tasks like the ground NPC, but free to move in both
+   * axes and unaffected by gravity. No touch damage (attacks are attack components).
+   *
+   * @param target entity to chase
+   * @param flightDamping linear damping on the physics body so knockback fades; not negative
+   * @return a flying base entity
+   */
+  private static Entity createBaseFlyingNPC(Entity target, float flightDamping) {
+    AITaskComponent aiComponent =
+        new AITaskComponent()
+            .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
+            .addTask(new ChaseTask(target, 10, 3f, 4f));
+    Entity npc =
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new PhysicsMovementComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+            .addComponent(aiComponent);
+
+    PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
+    // Not grounded, so the wander and chase tasks steer in both axes.
+    npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(false);
+    // TODO (S7): replace these two lines with .addComponent(new FlightComponent(damping)) above.
+    npc.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
+    npc.getComponent(PhysicsComponent.class).getBody().setLinearDamping(flightDamping);
+    return npc;
+  }
+
+  /**
+   * An enemy with both attacks must out-reach itself with the ranged one: melee range strictly
+   * below ranged range. Otherwise the task priorities that switch between the two attacks behave
+   * confusingly instead of failing clearly.
+   *
+   * @param meleeRange the melee attack's range
+   * @param rangedRange the ranged attack's range
+   * @throws IllegalArgumentException if meleeRange is not strictly less than rangedRange
+   */
+  private static void validateMeleeRangeBelowRangedRange(float meleeRange, float rangedRange) {
+    if (!(meleeRange < rangedRange)) {
+      throw new IllegalArgumentException(
+          "melee range " + meleeRange + " must be below ranged range " + rangedRange);
+    }
+  }
+
+  /**
+   * Team design rule: an attack that applies a timed effect to the player must have a cooldown of
+   * at least twice the effect's duration, so the player always gets a window to act.
+   *
+   * @param cooldown the attack's cooldown in seconds
+   * @param effectSeconds the effect's duration in seconds
+   * @throws IllegalArgumentException if cooldown is less than twice effectSeconds (exactly twice is
+   *     allowed)
+   */
+  private static void validateCooldownCoversEffect(float cooldown, float effectSeconds) {
+    if (cooldown < 2f * effectSeconds) {
+      throw new IllegalArgumentException(
+          "cooldown " + cooldown + " must be at least " + (2f * effectSeconds));
+    }
   }
 
   private NPCFactory() {

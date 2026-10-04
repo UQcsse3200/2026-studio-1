@@ -4,6 +4,7 @@ import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
 import com.csse3200.game.entities.configs.attacks.RangedAttackConfig;
 
+<<<<<<< HEAD
 /**
  * Configuration for Zeus: a mini-boss who fights with a carried sword up close and natural
  * lightning from range. Unlike Medusa/Cerberus/Cyclops, Zeus's melee attack uses a real {@link
@@ -28,4 +29,10 @@ public class ZeusConfig extends BaseEntityConfig {
    * attack) and this freeze duration are wired through to Zeus specifically.
    */
   public int freezeTicks = 120;
+=======
+/** Zeus: sword melee (carried weapon) plus lightning (natural ranged weapon). */
+public class ZeusConfig extends BaseEntityConfig {
+  public MeleeAttackConfig melee;
+  public RangedAttackConfig ranged;
+>>>>>>> origin/enemies
 }

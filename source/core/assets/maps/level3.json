@@ -47,9 +47,9 @@
     "P": {
       "type": "PLAYER"
     },
-    "Z": {
+    "Y": {
       "type": "ENEMY",
-      "enemyType": "ghostking"
+      "enemyType": "cyclops"
     },
     "L": {
       "type": "LOOT"
@@ -124,7 +124,7 @@
       "                                        ",
       "                                        ",
       "                                        ",
-      "  P                 L           Z       ",
+      "  P                 L           Y       ",
       "                                        ",
       "                                        "
     ]

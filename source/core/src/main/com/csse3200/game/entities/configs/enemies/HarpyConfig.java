@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.configs.enemies;
 
+<<<<<<< HEAD
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
 
@@ -9,5 +10,11 @@ import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
  * boss, so health/stats match Skeleton's rather than the "near 100" boss rule.
  */
 public class HarpyConfig extends BaseEntityConfig {
+=======
+import com.csse3200.game.entities.configs.attacks.MeleeAttackConfig;
+
+/** Melee Harpy: flying, sword. */
+public class HarpyConfig extends FlyingEnemyConfig {
+>>>>>>> origin/enemies
   public MeleeAttackConfig melee;
 }
