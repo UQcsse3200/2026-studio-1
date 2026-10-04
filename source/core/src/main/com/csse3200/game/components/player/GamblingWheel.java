@@ -45,20 +45,20 @@ import java.util.Locale;
  */
 public class GamblingWheel extends Stack {
 
-  private static final float DISPLAY_WIDTH = 440f;
-  private static final float DISPLAY_HEIGHT = 300f;
+  private static final float DISPLAY_WIDTH = 380f;
+  private static final float DISPLAY_HEIGHT = 248f;
 
-  private static final float STAGE_WIDTH = 420f;
-  private static final float STAGE_HEIGHT = 118f;
+  private static final float STAGE_WIDTH = 360f;
+  private static final float STAGE_HEIGHT = 90f;
 
-  private static final float ORB_SIZE = 76f;
-  private static final float GLOW_SIZE = 190f;
-  private static final float CARD_WIDTH = 240f;
-  private static final float CARD_HEIGHT = 86f;
-  private static final float CARD_Y = 26f;
+  private static final float ORB_SIZE = 60f;
+  private static final float GLOW_SIZE = 150f;
+  private static final float CARD_WIDTH = 220f;
+  private static final float CARD_HEIGHT = 70f;
+  private static final float CARD_Y = 18f;
 
-  private static final float SLOT_WIDTH = 80f;
-  private static final float SLOT_HEIGHT = 100f;
+  private static final float SLOT_WIDTH = 70f;
+  private static final float SLOT_HEIGHT = 80f;
   private static final float SLOT_GAP = 4f;
   private static final float BAR_WIDTH = SLOT_WIDTH - 16f;
 
@@ -193,10 +193,10 @@ public class GamblingWheel extends Stack {
     statusLabel = new Label("HEXTECH CHEST", labelStyle);
     statusLabel.setAlignment(Align.center);
     statusLabel.setColor(GOLD_TRIM);
-    statusLabel.setFontScale(1.0f);
+    statusLabel.setFontScale(0.9f);
     header.add(headerBar);
     header.add(statusLabel);
-    root.add(header).width(DISPLAY_WIDTH - 6f).height(28f).padTop(3f).row();
+    root.add(header).width(DISPLAY_WIDTH - 6f).height(24f).padTop(3f).row();
 
     Image divider = new Image(whiteDrawable);
     divider.setColor(GOLD_TRIM);
@@ -216,9 +216,9 @@ public class GamblingWheel extends Stack {
     resultLabel = new Label("Choose a catalogue and spin!", labelStyle);
     resultLabel.setAlignment(Align.center);
     resultLabel.setColor(TEXT_COLOR);
-    resultLabel.setFontScale(1.0f);
+    resultLabel.setFontScale(0.9f);
     resultLabel.setWrap(true);
-    root.add(resultLabel).width(DISPLAY_WIDTH - 20f).height(30f).center().padTop(3f);
+    root.add(resultLabel).width(DISPLAY_WIDTH - 20f).height(24f).center().padTop(3f);
   }
 
   /** Builds the animated stage: rays, glow, hint, prize card, orb and flash overlay. */
@@ -235,9 +235,9 @@ public class GamblingWheel extends Stack {
     raysGroup.setPosition(cx, cy);
     for (int i = 0; i < RAY_COUNT; i++) {
       Image ray = new Image(rayDrawable);
-      ray.setSize(14f, 150f);
-      ray.setOrigin(7f, 0f);
-      ray.setPosition(-7f, 0f);
+      ray.setSize(12f, 120f);
+      ray.setOrigin(6f, 0f);
+      ray.setPosition(-6f, 0f);
       ray.setRotation(i * (360f / RAY_COUNT));
       raysGroup.addActor(ray);
     }
@@ -250,9 +250,9 @@ public class GamblingWheel extends Stack {
     hintLabel = new Label("- Click to continue -", labelStyle);
     hintLabel.setAlignment(Align.center);
     hintLabel.setColor(MUTED_TEXT_COLOR);
-    hintLabel.setFontScale(0.85f);
-    hintLabel.setSize(STAGE_WIDTH, 20f);
-    hintLabel.setPosition(0f, 2f);
+    hintLabel.setFontScale(0.7f);
+    hintLabel.setSize(STAGE_WIDTH, 16f);
+    hintLabel.setPosition(0f, 1f);
     hintLabel.setVisible(false);
 
     buildCard();
@@ -267,8 +267,8 @@ public class GamblingWheel extends Stack {
     orbCore.setPosition(4f, 4f);
 
     Image shine = new Image(glowDrawable);
-    shine.setSize(34f, 34f);
-    shine.setPosition(14f, ORB_SIZE - 14f - 34f + 4f);
+    shine.setSize(26f, 26f);
+    shine.setPosition(11f, ORB_SIZE - 11f - 26f + 4f);
 
     Image ring = new Image(shockDrawable);
     ring.setSize(ORB_SIZE, ORB_SIZE);
@@ -277,7 +277,7 @@ public class GamblingWheel extends Stack {
     Label questionMark = new Label("?", labelStyle);
     questionMark.setAlignment(Align.center);
     questionMark.setColor(Color.WHITE);
-    questionMark.setFontScale(2.2f);
+    questionMark.setFontScale(1.8f);
     questionMark.setSize(ORB_SIZE, ORB_SIZE * 0.85f);
 
     orbGroup.addActor(orbCore);
@@ -325,22 +325,22 @@ public class GamblingWheel extends Stack {
     cardRarityLabel = new Label("", labelStyle);
     cardRarityLabel.setAlignment(Align.center);
     cardRarityLabel.setColor(Color.WHITE);
-    cardRarityLabel.setFontScale(0.9f);
+    cardRarityLabel.setFontScale(0.75f);
     banner.add(cardBanner);
     banner.add(cardRarityLabel);
 
     cardNameLabel = new Label("", labelStyle);
     cardNameLabel.setAlignment(Align.center);
     cardNameLabel.setColor(Color.WHITE);
-    cardNameLabel.setFontScale(1.25f);
+    cardNameLabel.setFontScale(1.0f);
     cardNameLabel.setWrap(true);
 
     cardRateLabel = new Label("", labelStyle);
     cardRateLabel.setAlignment(Align.center);
     cardRateLabel.setColor(WIN_TEXT_COLOR);
-    cardRateLabel.setFontScale(0.9f);
+    cardRateLabel.setFontScale(0.75f);
 
-    content.add(banner).growX().height(22f).row();
+    content.add(banner).growX().height(20f).row();
     content.add(cardNameLabel).width(CARD_WIDTH - 24f).expandY().center().row();
     content.add(cardRateLabel).center().padBottom(4f);
 
@@ -377,22 +377,22 @@ public class GamblingWheel extends Stack {
       Label iconLabel = new Label("?", labelStyle);
       iconLabel.setAlignment(Align.center);
       iconLabel.setColor(Color.WHITE);
-      iconLabel.setFontScale(1.0f);
+      iconLabel.setFontScale(0.8f);
       iconStack.add(iconBg);
       iconStack.add(iconLabel);
-      content.add(iconStack).size(30f, 30f).padTop(6f).row();
+      content.add(iconStack).size(26f, 26f).padTop(4f).row();
 
       Label nameLabel = new Label("?", labelStyle);
       nameLabel.setAlignment(Align.center);
       nameLabel.setColor(TEXT_COLOR);
-      nameLabel.setFontScale(0.8f);
+      nameLabel.setFontScale(0.55f);
       nameLabel.setWrap(true);
       content.add(nameLabel).width(SLOT_WIDTH - 8f).expandY().center().row();
 
       Label rateLabel = new Label("", labelStyle);
       rateLabel.setAlignment(Align.center);
       rateLabel.setColor(WIN_TEXT_COLOR);
-      rateLabel.setFontScale(1.05f);
+      rateLabel.setFontScale(0.85f);
       content.add(rateLabel).center().row();
 
       // Drop rate bar.
@@ -406,7 +406,7 @@ public class GamblingWheel extends Stack {
       barFill.setSize(0f, 4f);
       barGroup.addActor(barBg);
       barGroup.addActor(barFill);
-      content.add(barGroup).size(BAR_WIDTH, 4f).padTop(2f).padBottom(6f);
+      content.add(barGroup).size(BAR_WIDTH, 4f).padTop(2f).padBottom(4f);
 
       Image highlight = new Image(drawableOf(highlightTexture));
       highlight.setVisible(false);
@@ -474,7 +474,7 @@ public class GamblingWheel extends Stack {
     resetStageFx();
 
     resultLabel.setColor(TEXT_COLOR);
-    resultLabel.setFontScale(1.0f);
+    resultLabel.setFontScale(0.9f);
     resultLabel.setText("Opening chest...");
     statusLabel.setText("OPENING...");
 
@@ -534,7 +534,7 @@ public class GamblingWheel extends Stack {
     startIdle();
 
     resultLabel.setColor(TEXT_COLOR);
-    resultLabel.setFontScale(1.0f);
+    resultLabel.setFontScale(0.9f);
 
     boolean premium = catalogId == CatalogId.PREMIUM;
     statusLabel.setText(premium ? "PREMIUM HEXTECH CHEST" : "STANDARD HEXTECH CHEST");
@@ -768,7 +768,7 @@ public class GamblingWheel extends Stack {
     statusLabel.setText("WINNER");
     resultLabel.setText("You won: " + getPrizeShortName(prize));
     resultLabel.setColor(WIN_TEXT_COLOR);
-    resultLabel.setFontScale(1.2f);
+    resultLabel.setFontScale(1.0f);
 
     Stack winnerSlot = slotStacks.get(winnerIndex);
     winnerSlot.setTransform(true);
