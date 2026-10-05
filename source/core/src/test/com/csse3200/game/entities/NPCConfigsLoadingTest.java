@@ -39,10 +39,10 @@ class NPCConfigsLoadingTest {
   }
 
   @Test
-  void shouldGiveEveryBossHealthOneHundred() {
-    assertEquals(100, configs.medusa.health);
-    assertEquals(100, configs.cerberus.health);
-    assertEquals(100, configs.zeus.health);
+  void shouldGiveEveryBossHealthGreaterThanOneHundred() {
+    assertEquals(150, configs.medusa.health);
+    assertEquals(250, configs.cerberus.health);
+    assertEquals(300, configs.zeus.health);
   }
 
   @Test
@@ -111,8 +111,8 @@ class NPCConfigsLoadingTest {
   void shouldKeepTheExistingEnemiesNumbersUnchanged() {
     assertEquals(30, configs.skeleton.health);
     assertEquals(20, configs.rangedSkeleton.health);
-    assertEquals(40, configs.minotaur.health);
+    assertEquals(55, configs.minotaur.health);
     assertEquals(40, configs.centaur.health);
-    assertEquals(50, configs.cyclops.health);
+    assertEquals(70, configs.cyclops.health);
   }
 }

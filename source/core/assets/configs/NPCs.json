@@ -72,7 +72,7 @@
     }
   },
   "medusa": {
-    "health": 120,
+    "health": 150,
     "baseAttack": 8,
     "melee": { "range": 2.5, "cooldown": 4, "knockback": 1.5, "windup": 0.8 },
     "ranged": { "range": 7, "cooldown": 7, "projectileSpeed": 10, "knockback": 0, "windup": 1.0 },
@@ -80,7 +80,7 @@
     "pacing": { "radius": 2.0 }
   },
   "cerberus": {
-    "health": 100,
+    "health": 250,
     "baseAttack": 12,
     "melee": { "range": 4, "cooldown": 1.5, "knockback": 2, "windup": 0.5 }
   },
