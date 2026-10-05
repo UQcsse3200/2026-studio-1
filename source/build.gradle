@@ -118,6 +118,9 @@ project(":core") {
         api "org.slf4j:slf4j-api:$slf4jVersion"
         api "org.slf4j:slf4j-jdk14:$slf4jVersion"
 
+        // Box 2D Lighting
+        implementation "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
+
         // Unit Testing
         testImplementation "org.junit.jupiter:junit-jupiter-api:$junit5Version"
         testImplementation "org.junit.jupiter:junit-jupiter-params:$junit5Version"

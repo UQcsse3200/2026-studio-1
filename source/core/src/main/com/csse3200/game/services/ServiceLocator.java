@@ -23,6 +23,7 @@ public class ServiceLocator {
   private static GameTime timeSource;
   private static InputService inputService;
   private static ResourceService resourceService;
+  private static LightService lightService;
 
   public static EntityService getEntityService() {
     return entityService;
@@ -46,6 +47,10 @@ public class ServiceLocator {
 
   public static ResourceService getResourceService() {
     return resourceService;
+  }
+
+  public static LightService getLightService() {
+    return lightService;
   }
 
   public static void registerEntityService(EntityService service) {
@@ -78,6 +83,11 @@ public class ServiceLocator {
     resourceService = source;
   }
 
+  public static void registerLightService(LightService source) {
+    logger.debug("Registering light service {}", source);
+    lightService = source;
+  }
+
   public static void clear() {
     entityService = null;
     renderService = null;
@@ -85,6 +95,7 @@ public class ServiceLocator {
     timeSource = null;
     inputService = null;
     resourceService = null;
+    lightService = null;
   }
 
   private ServiceLocator() {

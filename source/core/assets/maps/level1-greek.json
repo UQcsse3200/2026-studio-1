@@ -36,11 +36,19 @@
     },
     "~": {
       "type": "HAZARD",
-      "texture": "images/level1/river-phlegethon-512px.png"
+      "texture": "images/level1/river-phlegethon-512px.png",
+      "light": "point",
+      "lightColour": "lava_glow",
+      "lightRadius": "1.1",
+      "flicker": "0.2"
     },
     "e": {
       "type": "HAZARD",
-      "texture": "images/level1/hazard-embers-512px.png"
+      "texture": "images/level1/hazard-embers-512px.png",
+      "light": "point",
+      "lightColour": "lava_glow",
+      "lightRadius": "0.8",
+      "flicker": "0.4"
     },
     "W": {
       "type": "WALL",
@@ -85,7 +93,14 @@
     "L": {
       "type": "HAZARD",
       "texture": "images/level1/hazard-firepit-512px.png",
-      "glow": "images/effects/lighting/light-lava.png"
+      "light": "point",
+      "lightColour": "fire_glow",
+      "lightRadius": "1.5",
+      "flicker": "0.4"
+    },
+    "O": {
+      "type": "HAZARD",
+      "texture": "images/level1/hazard-pit-512px.png"
     },
     "l": {
       "type": "LADDER",
@@ -134,7 +149,10 @@
     "A": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-oil-lamp-512px.png",
-      "glow": "images/effects/lighting/light-warm.png"
+      "light": "point",
+      "lightColour": "oil_lamp",
+      "lightRadius": "1.5",
+      "flicker": "0.1"
     },
     "Q": {
       "type": "DECORATIVE",
@@ -179,12 +197,18 @@
     "+": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-tripod-512px.png",
-      "glow": "images/effects/lighting/light-warm.png"
+      "light": "point",
+      "lightColour": "elysian_fade",
+      "lightRadius": "1.5",
+      "flicker": "0.2"
     },
     "k": {
       "type": "DECORATIVE",
       "texture": "images/level1/hazard-flame-jet-512px.png",
-      "glow": "images/effects/lighting/light-warm.png"
+      "light": "point",
+      "lightColour": "fire_glow",
+      "lightRadius": "1.1",
+      "flicker": "0.4"
     },
     ":": {
       "type": "DECORATIVE",
@@ -220,7 +244,11 @@
     },
     "?": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-ember-vent-512px.png"
+      "texture": "images/level1/decor-ember-vent-512px.png",
+      "light": "point",
+      "lightColour": "lava_glow",
+      "lightRadius": "1.1",
+      "flicker": "0.4"
     },
     "h": {
       "type": "DECORATIVE",
@@ -284,6 +312,14 @@
       "type": "MARKER",
       "kind": "npc",
       "id": "npc:wizard"
+    }
+  },
+  "lighting": {
+    "ambient": { "color": "ambient_light", "intensity": 0.25 },
+    "player": { "radius": 3.5, "color": "resinous_torch" },
+    "subLevels": {
+      "dungeon": { "ambient": { "color": "ambient_dark", "intensity": 0.35 } },
+      "nether":  { "ambient": { "color": "ambient_orange", "intensity": 0.2 } }
     }
   },
   "layers": {

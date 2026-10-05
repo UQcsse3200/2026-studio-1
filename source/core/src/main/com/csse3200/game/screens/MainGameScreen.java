@@ -50,6 +50,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.GameTime;
+import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
@@ -117,6 +118,7 @@ public class MainGameScreen extends ScreenAdapter {
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
   private Entity subLevelTravelPromptEntity;
+  private String currentLightSection;
   private final Map<Fixture, Short> noclipFixtureMasks = new IdentityHashMap<>();
   private boolean noclipEnabled;
   private float noclipVerticalDirection;
@@ -139,6 +141,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     ServiceLocator.registerEntityService(new EntityService());
     ServiceLocator.registerRenderService(new RenderService());
+    ServiceLocator.registerLightService(new LightService(physicsEngine.getWorld()));
 
     renderer = RenderFactory.createRenderer();
     renderer.getCamera().getEntity().setPosition(CAMERA_POSITION);
@@ -354,6 +357,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     Vector2 playerPosition = player.getPosition();
 
+    // Determine which named section of this map the player is standing in.
     LevelView level = levelGameArea.getLevel();
 
     float tileSize = level.tileSize();
@@ -361,6 +365,13 @@ public class MainGameScreen extends ScreenAdapter {
     int playerRow = (int) Math.floor(player.getCenterPosition().y / tileSize);
 
     SubLevel section = level.subLevelAt(playerRow);
+
+    // change lighting if needed
+    String sectionId = section == null ? null : section.id();
+    if (!java.util.Objects.equals(sectionId, currentLightSection)) {
+      currentLightSection = sectionId;
+      levelGameArea.fadeAmbientForSection(sectionId, 0.5f);
+    }
 
     boolean inNether = section != null && section != level.subLevels().getFirst();
 
@@ -518,6 +529,9 @@ public class MainGameScreen extends ScreenAdapter {
 
     levelGameArea = nextArea;
 
+    /*
+     * Preserve the current map path for save/load and pause-menu behaviour.
+     */
     currentRoomMapPath = transition.getDestinationMap();
 
     if (saveCheckpoint) {
@@ -525,9 +539,14 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     playerInNether = null;
+    currentLightSection = null;
 
     player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, nextArea.getMapData().getName());
 
+    /*
+     * The lift prompt belongs to any map split into sub-levels,
+     * not just one named file.
+     */
     if (!nextArea.getLevel().subLevels().isEmpty()) {
 
       createSubLevelTravelPrompt(player);
@@ -654,7 +673,7 @@ public class MainGameScreen extends ScreenAdapter {
   public void resize(int width, int height) {
 
     renderer.resize(width, height);
-
+    ServiceLocator.getLightService().resize(width, height);
     logger.trace("Resized renderer: ({} x {})", width, height);
   }
 
@@ -673,7 +692,7 @@ public class MainGameScreen extends ScreenAdapter {
     logger.debug("Disposing main game screen");
 
     ServiceLocator.getEntityService().dispose();
-
+    ServiceLocator.getLightService().dispose();
     physicsEngine.dispose();
 
     renderer.dispose();
@@ -705,6 +724,7 @@ public class MainGameScreen extends ScreenAdapter {
         ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
+
     /*
      * Try Again now revives the player instead of
      * restarting the entire game.
