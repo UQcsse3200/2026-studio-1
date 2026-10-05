@@ -6,9 +6,10 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
+import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 
-/** Handles projectile collisions and damage. */
+/** Handles player projectile collisions and damage. */
 public class PlayerProjectileHitComponent extends Component {
   private final int damage;
   private final Entity owner;
@@ -60,8 +61,14 @@ public class PlayerProjectileHitComponent extends Component {
 
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
 
-    if (targetStats != null) {
+    if (!target.isDisposed() && targetStats != null && !targetStats.isDead()) {
+      // Mark this projectile resolved before notifying any hit listeners.
+      removeProjectile();
       targetStats.hit(ownerCombatStats, damage);
+      if (PhysicsLayer.contains(PhysicsLayer.NPC, other.getFilterData().categoryBits)) {
+        owner.getEvents().trigger("playerAttackHit", target);
+      }
+      return;
     }
 
     removeProjectile();
