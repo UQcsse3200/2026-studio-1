@@ -105,7 +105,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         entity.getEvents().trigger("attack");
         entity.getEvents().trigger("attacking", direction);
         return true;
-      case Keys.R:
+      case Keys.U:
         entity.getEvents().trigger("activateTimeFreeze");
         return true;
       case Keys.F:

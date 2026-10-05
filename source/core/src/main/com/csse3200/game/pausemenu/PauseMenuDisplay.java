@@ -72,6 +72,7 @@ public class PauseMenuDisplay extends UIComponent {
     "Bribe Enemy: R",
     "Drop Item: Q",
     "Equip Shield: B",
+    "Time Freeze: U",
     "Pause: ESC",
     "Back"
   };
