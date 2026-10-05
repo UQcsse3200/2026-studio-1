@@ -12,6 +12,8 @@ import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.BallisticShieldComponent;
+import com.csse3200.game.components.player.BallisticShieldRenderComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathLootDropComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
@@ -104,6 +106,8 @@ public class PlayerFactory {
             .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new ShieldComponent())
             .addComponent(new ShieldRenderComponent())
+            .addComponent(new BallisticShieldComponent())
+            .addComponent(new BallisticShieldRenderComponent())
             .addComponent(new PlayerBuffComponent())
             .addComponent(new PlayerRegenComponent())
             .addComponent(inventory)

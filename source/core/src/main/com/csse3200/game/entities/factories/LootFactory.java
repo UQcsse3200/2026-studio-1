@@ -63,15 +63,23 @@ public class LootFactory {
       BobbingTextureRenderComponent renderer = new BobbingTextureRenderComponent(texturePath);
       loot.addComponent(renderer);
       renderer.scaleEntity(0.6f);
+
     } else if (item instanceof ConsumableItem consumableItem) {
       // Consumables carry their own sprite, and bob gently so they read as collectable.
       BobbingTextureRenderComponent renderer =
           new BobbingTextureRenderComponent(consumableItem.getTexturePath());
       loot.addComponent(renderer);
       renderer.scaleEntity(0.6f);
+
     } else if (item.getItemType() == ItemType.SHIELD) {
-      // Shield loot uses the shield sprite.
+      // Tier 1 Shield loot uses the transparent shield bubble.
       loot.addComponent(new TextureRenderComponent("images/Shield.png"));
+
+    } else if (item.getItemType() == ItemType.BALLISTIC_SHIELD) {
+      // Tier 2 Ballistic Shield loot uses the ballistic (riot) shield sprite.
+      loot.addComponent(new TextureRenderComponent("images/BallisticShield.png"));
+      loot.setScale(0.6f, 0.68f);
+
     } else {
       AnimationRenderComponent animator =
           new AnimationRenderComponent(

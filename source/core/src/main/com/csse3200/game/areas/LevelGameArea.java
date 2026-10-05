@@ -115,7 +115,8 @@ public class LevelGameArea extends GameArea {
     "images/potions/regeneration_potion.png",
     "images/potions/resistance_potion.png",
     "images/items/upgrade_stone.png",
-    "images/Shield.png"
+    "images/Shield.png",
+    "images/BallisticShield.png"
   };
 
   private static final String[] entitySounds = {
@@ -173,7 +174,7 @@ public class LevelGameArea extends GameArea {
    *
    * @param terrainFactory factory used to build the terrain
    * @param mapPath asset path of the map file to load
-   * @param mapLoader loader used to parse the map file
+   * @param mapLoader loader used to parse the map
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
     this(terrainFactory, mapPath, mapLoader, null, null, null);
@@ -181,7 +182,6 @@ public class LevelGameArea extends GameArea {
 
   /**
    * Create a level while retaining an existing player and placing it at a specified entrance.
-   * Reusing the entity preserves all player component state, including health and inventory.
    *
    * @param terrainFactory factory used to build the terrain
    * @param mapPath asset path of the map file to load
@@ -246,18 +246,15 @@ public class LevelGameArea extends GameArea {
   /**
    * The supported way for other systems to read this level.
    *
-   * <p>Prefer this to {@link #getMapData()}: {@link LevelView} is a stable contract, while the map
-   * data behind it is the map package's own structure and changes shape as the format evolves.
-   *
-   * @return a read-only view of the loaded level, or null before {@link #create()} runs
+   * @return a read-only view of the loaded level, or null before create() runs
    */
   public LevelView getLevel() {
     return mapData == null ? null : new MapDataLevelView(mapData);
   }
 
   /**
-   * @return the loaded map data (dimensions, layers, tile types, spawns)
-   * @deprecated prefer {@link #getLevel()}, which does not couple callers to the map format
+   * @return the loaded map data
+   * @deprecated prefer {@link #getLevel()}
    */
   @Deprecated(since = "1.0")
   public LevelMapData getMapData() {
@@ -272,7 +269,7 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the spawned player entity, or null before {@link #create()} runs
+   * @return the spawned player entity, or null before create()
    */
   public Entity getPlayer() {
     return player;
@@ -305,10 +302,9 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Return and clear a doorway request. The screen consumes this after the physics update so the
-   * Box2D world is not modified from inside a contact callback.
+   * Return and clear a doorway request.
    *
-   * @return pending transition, or {@code null}
+   * @return pending transition, or null
    */
   public RoomTransition consumePendingTransition() {
     RoomTransition transition = pendingTransition;
@@ -328,21 +324,21 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the map's width in world units (tiles * tileSize)
+   * @return the map's width in world units
    */
   public float getMapWorldWidth() {
     return mapData.getWidth() * mapData.getTileSize();
   }
 
   /**
-   * @return the map's height in world units (tiles * tileSize)
+   * @return the map's height in world units
    */
   public float getMapWorldHeight() {
     return mapData.getHeight() * mapData.getTileSize();
   }
 
   /**
-   * @return the world-space centre of the map, useful for positioning the camera
+   * @return the world-space centre of the map
    */
   public Vector2 getMapCenter() {
     return new Vector2(getMapWorldWidth() / 2f, getMapWorldHeight() / 2f);
@@ -381,15 +377,12 @@ public class LevelGameArea extends GameArea {
 
     float tileSize = terrain.getTileSize();
 
-    // Merge solid tiles both horizontally and vertically. A straight wall must be one continuous
-    // Box2D fixture; stacked row fixtures create internal edges that can catch the player.
     for (SolidRectangle rectangle : findSolidRectangles(collisionLayer)) {
       spawnSolidRectangle(rectangle, tileSize);
     }
 
     spawnPlatformCollisions(collisionLayer, tileSize);
 
-    // Hazards remain individual.
     spawnHazardCollisions(collisionLayer, tileSize);
     MapLayerData hazardLayer = mapData.getLayer("hazards");
     if (hazardLayer != null && hazardLayer != collisionLayer) {
@@ -447,7 +440,6 @@ public class LevelGameArea extends GameArea {
         }
       }
 
-      // Runs which did not continue into this row are now complete.
       rectangles.addAll(activeRectangles.values());
       activeRectangles = nextActiveRectangles;
     }
@@ -541,8 +533,6 @@ public class LevelGameArea extends GameArea {
       return;
     }
 
-    // tileToWorldPosition is the tile's bottom-left corner; platforms use a thin collider at the
-    // tile's top.
     position.y += tileSize - COLLIDER_HEIGHT;
 
     collider.setPosition(position);
@@ -569,9 +559,6 @@ public class LevelGameArea extends GameArea {
     positionEntityAt(retainedPlayer, spawn, true, true);
     PhysicsComponent physics = retainedPlayer.getComponent(PhysicsComponent.class);
     if (physics != null) {
-      // A room entrance is a teleport, so momentum from the source doorway must not carry over.
-      // Resetting it also prevents a dash/fall from crossing the destination floor on the load
-      // frame.
       physics.getBody().setLinearVelocity(0f, 0f);
       physics.getBody().setAngularVelocity(0f);
       physics.getBody().setAwake(true);
@@ -620,7 +607,6 @@ public class LevelGameArea extends GameArea {
                       CombatStatsComponent stats =
                           newPlayer.getComponent(CombatStatsComponent.class);
 
-                      // Hazards carry their own damage; older maps that set none use the default.
                       HazardDamageComponent hazard =
                           other.getComponent(HazardDamageComponent.class);
                       int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
@@ -675,8 +661,7 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Builds one spawn by name, through {@link EntitySpawnRegistry}, so this area holds no list of
-   * what the game can spawn. A name nobody registered is reported by the registry and skipped.
+   * Builds one spawn by name, through {@link EntitySpawnRegistry}.
    *
    * @param type the spawn name from the map
    * @return the new entity, or null if the name is unknown
@@ -713,6 +698,7 @@ public class LevelGameArea extends GameArea {
    * one item rolled from the weighted loot table, so higher tiers stay rare. A map with no usable
    * ground at all falls back to a starter row beside the player.
    */
+  /** Spawns pickup loot (weapons, consumables, a shield, and a gold coin). */
   private void spawnLoot() {
     List<SpawnPoint> lootSpawns = chooseLootSpawns();
     if (lootSpawns.isEmpty()) {
@@ -741,15 +727,7 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  /**
-   * Chooses the tiles this level's loot goes on.
-   *
-   * <p>A map's own loot spawn points always win, so a map author can place loot by hand. Most maps
-   * declare none, so otherwise {@link #RANDOM_LOOT_COUNT} distinct tiles are picked at random from
-   * the open ground, which spreads the loot out and changes it every run.
-   *
-   * @return the chosen tiles, empty only when the map has no open ground at all
-   */
+  /** Chooses the tiles this level's loot goes on. */
   private List<SpawnPoint> chooseLootSpawns() {
     logger.info("Loot seed for {}: {}", mapData.getName(), lootSeed);
 
@@ -762,12 +740,7 @@ public class LevelGameArea extends GameArea {
     return LootPlacement.pickRandomSpots(ground, RANDOM_LOOT_COUNT, new Random(lootSeed));
   }
 
-  /**
-   * Lays one of everything out in a row next to the player.
-   *
-   * <p>A last resort for a map with no open ground to scatter loot over, so the loot and inventory
-   * features are still reachable while a map is being built.
-   */
+  /** Lays one of everything out in a row next to the player. */
   private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
 
@@ -794,8 +767,7 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the tile position to begin laying out loot: the first map loot spawn, else near the
-   *     player.
+   * @return the tile position to begin laying out loot
    */
   private GridPoint2 lootRowStart() {
     if (!mapData.getSpawns().getLoot().isEmpty()) {
