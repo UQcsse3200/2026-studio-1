@@ -39,6 +39,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private String direction = "Right";
   private boolean wasPaused = false;
   private String SLIDESTRING = "slide";
+  private String WALKSTOPSTRING = "walkStop";
 
   public String getDirection() {
     return this.direction;
@@ -86,7 +87,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         walkingLeft = false;
         walkingRight = false;
         walkingDown = false;
-        entity.getEvents().trigger("walkStop");
+        entity.getEvents().trigger(WALKSTOPSTRING);
         return true;
       }
       return false;
@@ -103,7 +104,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     walkingLeft = false;
     walkingRight = false;
     walkingDown = false;
-    entity.getEvents().trigger("walkStop");
+    entity.getEvents().trigger(WALKSTOPSTRING);
   }
 
   /** Handles the jump key, starting a ladder climb instead when one is available. */
@@ -405,7 +406,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
 
   private void triggerWalkEvent() {
     if (walkDirection.epsilonEquals(Vector2.Zero)) {
-      entity.getEvents().trigger("walkStop");
+      entity.getEvents().trigger(WALKSTOPSTRING);
     } else {
       entity.getEvents().trigger("walk", walkDirection);
     }
