@@ -660,7 +660,7 @@ class JsonMapLoaderTest {
   void loadsLevelThreeThroneRoomWithASingleBoss() {
     LevelMapData levelThree = loader.load("maps/level3.json");
 
-    assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
+    assertEquals("Level 3 - Zeus's Palace", levelThree.getName());
     assertEquals(52, levelThree.getWidth());
     assertEquals(26, levelThree.getHeight());
     // The player arrives on the spawn level 2's summit exit sends them to.
