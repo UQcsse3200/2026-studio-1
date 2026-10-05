@@ -881,8 +881,8 @@
       "height": 2,
       "destinationMap": "maps/level3.json",
       "destinationSpawn": {
-        "x": 2,
-        "y": 2
+        "x": 8,
+        "y": 3
       }
     }
   ]

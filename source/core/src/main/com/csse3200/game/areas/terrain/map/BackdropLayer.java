@@ -21,9 +21,19 @@ package com.csse3200.game.areas.terrain.map;
  * @param driftY for a layer filling the view, constant upward movement in world units per second
  * @param spansMap true to span the map rather than fill the view
  * @param rows the band of the map the layer is seen in, or null to be seen everywhere
+ * @param alpha how opaque the layer is drawn, from 0 (unseen) to 1 (solid)
+ * @param flicker for a layer that is a strip of frames shown now and then, such as distant
+ *     lightning, how it plays; null for an ordinary layer
  */
 public record BackdropLayer(
-    String texture, float scroll, float driftX, float driftY, boolean spansMap, Rows rows) {
+    String texture,
+    float scroll,
+    float driftX,
+    float driftY,
+    boolean spansMap,
+    Rows rows,
+    float alpha,
+    Flicker flicker) {
 
   /** Creates a layer that fills the view and is seen everywhere. */
   public BackdropLayer(String texture, float scroll, float driftX, float driftY) {
@@ -35,6 +45,12 @@ public record BackdropLayer(
     this(texture, scroll, driftX, driftY, spansMap, null);
   }
 
+  /** Creates a solid, ordinary layer. */
+  public BackdropLayer(
+      String texture, float scroll, float driftX, float driftY, boolean spansMap, Rows rows) {
+    this(texture, scroll, driftX, driftY, spansMap, rows, 1f, null);
+  }
+
   /**
    * How strongly the layer shows when the camera is centred on a tile row: fully inside its band,
    * fading out over a few rows either side so weather does not snap on and off.
@@ -43,7 +59,28 @@ public record BackdropLayer(
    * @return opacity from 0 (unseen) to 1 (fully seen)
    */
   public float visibilityAt(float tileY) {
-    return rows == null ? 1f : rows.visibilityAt(tileY);
+    return alpha * (rows == null ? 1f : rows.visibilityAt(tileY));
+  }
+
+  /**
+   * How a layer that is a horizontal strip of frames plays: once through, somewhere new in the
+   * upper part of the view, after a random wait.
+   *
+   * @param frames the number of frames in the strip
+   * @param fps frames shown per second
+   * @param minGap the shortest wait between plays, in seconds
+   * @param maxGap the longest wait between plays, in seconds
+   * @param height the height a frame is drawn at, as a fraction of the view's height
+   */
+  public record Flicker(int frames, float fps, float minGap, float maxGap, float height) {
+    /**
+     * @param sincePlayStarted seconds since the strip last began to play
+     * @return the frame to show, or -1 when the strip is not playing
+     */
+    public int frameAt(float sincePlayStarted) {
+      int frame = (int) (sincePlayStarted * fps);
+      return sincePlayStarted < 0f || frame >= frames ? -1 : frame;
+    }
   }
 
   /**

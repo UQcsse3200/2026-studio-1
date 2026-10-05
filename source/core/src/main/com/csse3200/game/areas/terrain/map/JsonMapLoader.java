@@ -57,9 +57,10 @@ import org.slf4j.LoggerFactory;
  * maps whose art is authored as a single scene rather than per-tile. An optional {@code backdrops}
  * block gives a sub-level a stack of parallax images instead, keyed by the sub-level's id or by
  * {@code "*"} for the whole map, and an {@code overlays} block does the same in front of the tiles,
- * for weather; see {@link BackdropLayer}. Unknown top-level keys are ignored, so maps may carry an
- * {@code authoring} block of design-time data the runtime does not read. Every level map uses this
- * one format; there is no per-level parsing path.
+ * for weather; see {@link BackdropLayer}. A layer may set an {@code alpha}, and a {@code flicker}
+ * block makes it a strip of frames played now and then, for distant lightning. Unknown top-level
+ * keys are ignored, so maps may carry an {@code authoring} block of design-time data the runtime
+ * does not read. Every level map uses this one format; there is no per-level parsing path.
  */
 public class JsonMapLoader implements MapLoader {
   private static final String TYPE_KEY = "type";
@@ -311,7 +312,9 @@ public class JsonMapLoader implements MapLoader {
                 drift == null ? 0f : drift.getFloat("x", 0f),
                 drift == null ? 0f : drift.getFloat("y", 0f),
                 layer.getBoolean("spansMap", false),
-                readRows(layer.get("rows"))));
+                readRows(layer.get("rows")),
+                layer.getFloat("alpha", 1f),
+                readFlicker(layer.get("flicker"))));
       }
       backdrops.put(backdrop.name, layers);
     }
@@ -323,6 +326,18 @@ public class JsonMapLoader implements MapLoader {
     return json == null
         ? null
         : new BackdropLayer.Rows(json.getInt("from", 0), json.getInt("to", Integer.MAX_VALUE));
+  }
+
+  /** Reads an optional flicker object: a strip of frames played now and then. */
+  private static BackdropLayer.Flicker readFlicker(JsonValue json) {
+    return json == null
+        ? null
+        : new BackdropLayer.Flicker(
+            Math.max(1, json.getInt("frames", 1)),
+            json.getFloat("fps", 12f),
+            json.getFloat("minGap", 3f),
+            json.getFloat("maxGap", 8f),
+            json.getFloat("height", 0.35f));
   }
 
   /** Reads an optional {x, y} object as a tile position. */

@@ -18,6 +18,7 @@ import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
+import com.csse3200.game.components.boss.ZeusBossComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
@@ -53,6 +54,7 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.GlowRenderComponent;
 import com.csse3200.game.rendering.MapBackgroundRenderComponent;
 import com.csse3200.game.rendering.ParallaxBackdropRenderComponent;
+import com.csse3200.game.rendering.SheetAnimationRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -120,7 +122,14 @@ public class LevelGameArea extends GameArea {
     "images/potions/speed_potion.png",
     "images/potions/regeneration_potion.png",
     "images/potions/resistance_potion.png",
-    "images/Shield.png"
+    "images/Shield.png",
+    "images/enemies/zeus.png",
+    "images/effects/zeus-bolt-projectile-4f.png",
+    "images/effects/zeus-edge-arrow-4f.png",
+    "images/effects/zeus-ground-strike-6f.png",
+    "images/effects/zeus-shockwave-6f.png",
+    "images/effects/zeus-strike-marker-2f.png",
+    "images/effects/lighting/glow-electric.png"
   };
 
   private static final String[] entitySounds = {
@@ -146,6 +155,7 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
+    "images/enemies/zeus.atlas",
     "images/pet.atlas"
   };
 
@@ -164,6 +174,7 @@ public class LevelGameArea extends GameArea {
   private LevelMapData mapData;
   private Entity player;
   private RoomTransition pendingTransition;
+  private boolean bossDefeated;
 
   /**
    * Create a level area using the default {@link JsonMapLoader}.
@@ -240,6 +251,7 @@ public class LevelGameArea extends GameArea {
     displayUI();
     spawnBackdrop();
     spawnTerrain();
+    spawnAnimatedTiles();
     spawnGlows();
     spawnCollisions();
     player = existingPlayer == null ? spawnPlayer() : adoptPlayer(existingPlayer);
@@ -298,7 +310,30 @@ public class LevelGameArea extends GameArea {
     }
 
     player = spawnPlayer();
+    resetBosses();
     return player;
+  }
+
+  /** Starts every boss fight in this room over, against the newly spawned player. */
+  private void resetBosses() {
+    for (Entity entity : areaEntities) {
+      ZeusBossComponent boss = entity.getComponent(ZeusBossComponent.class);
+      if (boss != null && !entity.isDisposed()) {
+        boss.reset(player);
+      }
+    }
+  }
+
+  /**
+   * Return and clear the news that this room's boss has fallen. The screen consumes this to show
+   * the win screen.
+   *
+   * @return true once, after the boss is defeated
+   */
+  public boolean consumeBossDefeated() {
+    boolean defeated = bossDefeated;
+    bossDefeated = false;
+    return defeated;
   }
 
   /**
@@ -466,6 +501,34 @@ public class LevelGameArea extends GameArea {
                   .addComponent(new GlowRenderComponent(glow, GLOW_TILES * tileSize, x * 1.7f + y));
           light.setPosition((x + 0.5f) * tileSize, (y + 0.5f) * tileSize);
           spawnEntity(light);
+        }
+      }
+    }
+  }
+
+  /**
+   * Sets a looping sprite sheet over every tile whose legend entry names one, such as a brazier's
+   * flame or a charged floor's arcs. The still texture stays beneath it as the tile itself.
+   */
+  private void spawnAnimatedTiles() {
+    float tileSize = mapData.getTileSize();
+    for (MapLayerData layer : mapData.getLayers()) {
+      for (int x = 0; x < layer.getWidth(); x++) {
+        for (int y = 0; y < layer.getHeight(); y++) {
+          TileDefinition tile = layer.get(x, y);
+          String sheet =
+              tile == null ? null : tile.properties().get(LevelMapData.ANIMATION_PROPERTY);
+          if (sheet == null) {
+            continue;
+          }
+          Entity animation =
+              new Entity()
+                  .addComponent(
+                      new SheetAnimationRenderComponent(
+                          sheet, tile.getInt("frames", 1), tile.getFloat("fps", 8f), x * 0.37f));
+          animation.setPosition(x * tileSize, y * tileSize);
+          animation.setScale(tileSize, tileSize);
+          spawnEntity(animation);
         }
       }
     }
@@ -774,6 +837,14 @@ public class LevelGameArea extends GameArea {
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
         enemy.addComponent(new PersistentEnemyIdComponent(id));
+        ZeusBossComponent boss = enemy.getComponent(ZeusBossComponent.class);
+        if (boss != null) {
+          // The boss reads the arena from the map, and the room reports his fall to the screen.
+          boss.setLevel(getLevel());
+          enemy
+              .getEvents()
+              .addListener(ZeusBossComponent.DEFEATED_EVENT, () -> bossDefeated = true);
+        }
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
       }
     }

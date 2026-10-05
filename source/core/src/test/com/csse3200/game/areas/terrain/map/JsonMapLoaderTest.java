@@ -594,7 +594,9 @@ class JsonMapLoaderTest {
     assertEquals(new BackdropLayer.Rows(128, 160), levelTwo.getOverlay("skies").getFirst().rows());
 
     LevelMapData levelThree = loader.load("maps/level3.json");
-    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
+    assertEquals(
+        levelThree.getSpawns().getPlayer(),
+        levelTwo.getTransitions().getFirst().getDestinationSpawn());
   }
 
   @Test
@@ -602,25 +604,64 @@ class JsonMapLoaderTest {
     LevelMapData levelThree = loader.load("maps/level3.json");
 
     assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
-    assertEquals(40, levelThree.getWidth());
-    assertEquals(16, levelThree.getHeight());
+    assertEquals(52, levelThree.getWidth());
+    assertEquals(26, levelThree.getHeight());
     // The player arrives on the spawn level 2's summit exit sends them to.
-    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
+    assertEquals(new GridPoint2(8, 3), levelThree.getSpawns().getPlayer());
     assertEquals(1, levelThree.getSpawns().getEnemies().size());
-    assertEquals("ghostking", levelThree.getSpawns().getEnemies().getFirst().getType());
+    assertEquals("zeus", levelThree.getSpawns().getEnemies().getFirst().getType());
     assertEquals(
-        new GridPoint2(32, 2), levelThree.getSpawns().getEnemies().getFirst().getPosition());
-    // Only the shell collides: the throne room's furniture is all walk-through decoration.
-    for (MapLayerData layer : levelThree.getLayers()) {
-      for (int x = 0; x < levelThree.getWidth(); x++) {
-        for (int y = 0; y < levelThree.getHeight(); y++) {
-          TileDefinition tile = layer.get(x, y);
-          if (tile != null && tile.type() != TileType.WALL) {
-            assertEquals(TileType.DECORATIVE, tile.type());
-          }
+        new GridPoint2(26, 3), levelThree.getSpawns().getEnemies().getFirst().getPosition());
+    assertEquals(5, levelThree.getSpawns().getLoot().size());
+
+    // The throne balcony is a platform over Zeus's spot, and ladders climb both walls.
+    assertEquals(TileType.PLATFORM, levelThree.getTileType(26, 18));
+    assertEquals(TileType.LADDER, levelThree.getTileType(3, 5));
+    assertEquals(TileType.LADDER, levelThree.getTileType(48, 5));
+    // The throne room's furniture is all walk-through decoration, kept out of the collision layer.
+    MapLayerData furniture = levelThree.getLayer("background");
+    for (int x = 0; x < levelThree.getWidth(); x++) {
+      for (int y = 0; y < levelThree.getHeight(); y++) {
+        TileDefinition tile = furniture.get(x, y);
+        if (tile != null) {
+          assertEquals(TileType.DECORATIVE, tile.type());
         }
       }
     }
+  }
+
+  @Test
+  void levelThreeChargedFloorIsSolidGroundUnderAHazard() {
+    LevelMapData levelThree = loader.load("maps/level3.json");
+
+    MapLayerData hazards = levelThree.getLayer("hazards");
+    for (int x : new int[] {10, 11, 40, 41}) {
+      // A hazard is a sensor, so the strip needs real floor beneath it to be stood on.
+      assertEquals(TileType.FLOOR, levelThree.getTileType(x, 2));
+      assertEquals(TileType.HAZARD, hazards.get(x, 2).type());
+    }
+    TileDefinition charged = hazards.get(10, 2);
+    assertEquals("images/effects/lighting/glow-electric.png", charged.get("glow"));
+    assertEquals(4, charged.getInt("frames", 0));
+    assertTrue(levelThree.getTexturePaths().contains(charged.get("animation")));
+  }
+
+  @Test
+  void levelThreeBackdropFlickersLightningBehindTheArches() {
+    LevelMapData levelThree = loader.load("maps/level3.json");
+
+    List<BackdropLayer> backdrop = levelThree.getBackdrop(null);
+    assertEquals(7, backdrop.size());
+    BackdropLayer.Flicker lightning = backdrop.get(1).flicker();
+    assertEquals(4, lightning.frames());
+    assertEquals(0, lightning.frameAt(0f));
+    assertEquals(3, lightning.frameAt(0.3f));
+    assertEquals(-1, lightning.frameAt(0.4f));
+    assertEquals(-1, lightning.frameAt(-1f));
+    assertNull(backdrop.getLast().flicker());
+    // The rain is drawn thin so it never hides an attack's warning.
+    assertEquals(0.8f, levelThree.getOverlay(null).getFirst().alpha(), 0.001f);
+    assertEquals(0.8f, levelThree.getOverlay(null).getFirst().visibilityAt(5f), 0.001f);
   }
 
   @Test

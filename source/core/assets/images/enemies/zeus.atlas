@@ -1,0 +1,523 @@
+zeus.png
+size: 1536,3584
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+zeus-idle-right
+  rotate: false
+  xy: 0, 0
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-idle-right
+  rotate: false
+  xy: 192, 0
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-idle-right
+  rotate: false
+  xy: 384, 0
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-idle-right
+  rotate: false
+  xy: 576, 0
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-float-right
+  rotate: false
+  xy: 0, 256
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-float-right
+  rotate: false
+  xy: 192, 256
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-float-right
+  rotate: false
+  xy: 384, 256
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-float-right
+  rotate: false
+  xy: 576, 256
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-float-right
+  rotate: false
+  xy: 768, 256
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-float-right
+  rotate: false
+  xy: 960, 256
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-melee-right
+  rotate: false
+  xy: 0, 512
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-melee-right
+  rotate: false
+  xy: 192, 512
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-melee-right
+  rotate: false
+  xy: 384, 512
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-melee-right
+  rotate: false
+  xy: 576, 512
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-melee-right
+  rotate: false
+  xy: 768, 512
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-melee-right
+  rotate: false
+  xy: 960, 512
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-cast-right
+  rotate: false
+  xy: 0, 768
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-cast-right
+  rotate: false
+  xy: 192, 768
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-cast-right
+  rotate: false
+  xy: 384, 768
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-cast-right
+  rotate: false
+  xy: 576, 768
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-cast-right
+  rotate: false
+  xy: 768, 768
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-cast-right
+  rotate: false
+  xy: 960, 768
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-cast-right
+  rotate: false
+  xy: 1152, 768
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 6
+zeus-hurt-right
+  rotate: false
+  xy: 0, 1024
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-hurt-right
+  rotate: false
+  xy: 192, 1024
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-enraged-idle-right
+  rotate: false
+  xy: 0, 1280
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-enraged-idle-right
+  rotate: false
+  xy: 192, 1280
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-enraged-idle-right
+  rotate: false
+  xy: 384, 1280
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-enraged-idle-right
+  rotate: false
+  xy: 576, 1280
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-death-right
+  rotate: false
+  xy: 0, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-death-right
+  rotate: false
+  xy: 192, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-death-right
+  rotate: false
+  xy: 384, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-death-right
+  rotate: false
+  xy: 576, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-death-right
+  rotate: false
+  xy: 768, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-death-right
+  rotate: false
+  xy: 960, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-death-right
+  rotate: false
+  xy: 1152, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 6
+zeus-death-right
+  rotate: false
+  xy: 1344, 1536
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 7
+zeus-idle-left
+  rotate: false
+  xy: 0, 1792
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-idle-left
+  rotate: false
+  xy: 192, 1792
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-idle-left
+  rotate: false
+  xy: 384, 1792
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-idle-left
+  rotate: false
+  xy: 576, 1792
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-float-left
+  rotate: false
+  xy: 0, 2048
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-float-left
+  rotate: false
+  xy: 192, 2048
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-float-left
+  rotate: false
+  xy: 384, 2048
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-float-left
+  rotate: false
+  xy: 576, 2048
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-float-left
+  rotate: false
+  xy: 768, 2048
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-float-left
+  rotate: false
+  xy: 960, 2048
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-melee-left
+  rotate: false
+  xy: 0, 2304
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-melee-left
+  rotate: false
+  xy: 192, 2304
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-melee-left
+  rotate: false
+  xy: 384, 2304
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-melee-left
+  rotate: false
+  xy: 576, 2304
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-melee-left
+  rotate: false
+  xy: 768, 2304
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-melee-left
+  rotate: false
+  xy: 960, 2304
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-cast-left
+  rotate: false
+  xy: 0, 2560
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-cast-left
+  rotate: false
+  xy: 192, 2560
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-cast-left
+  rotate: false
+  xy: 384, 2560
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-cast-left
+  rotate: false
+  xy: 576, 2560
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-cast-left
+  rotate: false
+  xy: 768, 2560
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-cast-left
+  rotate: false
+  xy: 960, 2560
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-cast-left
+  rotate: false
+  xy: 1152, 2560
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 6
+zeus-hurt-left
+  rotate: false
+  xy: 0, 2816
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-hurt-left
+  rotate: false
+  xy: 192, 2816
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-enraged-idle-left
+  rotate: false
+  xy: 0, 3072
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-enraged-idle-left
+  rotate: false
+  xy: 192, 3072
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-enraged-idle-left
+  rotate: false
+  xy: 384, 3072
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-enraged-idle-left
+  rotate: false
+  xy: 576, 3072
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-death-left
+  rotate: false
+  xy: 0, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 0
+zeus-death-left
+  rotate: false
+  xy: 192, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 1
+zeus-death-left
+  rotate: false
+  xy: 384, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 2
+zeus-death-left
+  rotate: false
+  xy: 576, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 3
+zeus-death-left
+  rotate: false
+  xy: 768, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 4
+zeus-death-left
+  rotate: false
+  xy: 960, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 5
+zeus-death-left
+  rotate: false
+  xy: 1152, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 6
+zeus-death-left
+  rotate: false
+  xy: 1344, 3328
+  size: 192, 256
+  orig: 192, 256
+  offset: 0, 0
+  index: 7

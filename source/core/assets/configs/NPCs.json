@@ -74,5 +74,17 @@
       "projectileSpeed": 8,
       "knockback": 3
     }
+  },
+  "zeus": {
+    "health": 300,
+    "baseAttack": 15,
+    "boltDamage": 12,
+    "strikeDamage": 18,
+    "shockwaveDamage": 12,
+    "moveSpeed": 2.2,
+    "meleeRange": 1.6,
+    "meleeKnockback": 4,
+    "throneThreshold": 0.7,
+    "enragedThreshold": 0.35
   }
 }

@@ -26,6 +26,9 @@ public class LevelMapData {
   /** Legend property naming the light sprite a tile glows with. */
   public static final String GLOW_PROPERTY = "glow";
 
+  /** Legend property naming a sprite sheet strip that animates over a tile's still texture. */
+  public static final String ANIMATION_PROPERTY = "animation";
+
   /** Fallback layer used for collision when no explicit collision layer exists. */
   public static final String TERRAIN_LAYER = "terrain";
 
@@ -266,6 +269,9 @@ public class LevelMapData {
       }
       if (def.properties().containsKey(GLOW_PROPERTY)) {
         paths.add(def.properties().get(GLOW_PROPERTY));
+      }
+      if (def.properties().containsKey(ANIMATION_PROPERTY)) {
+        paths.add(def.properties().get(ANIMATION_PROPERTY));
       }
     }
     for (RoomTransition transition : transitions) {

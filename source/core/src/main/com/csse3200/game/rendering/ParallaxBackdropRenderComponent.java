@@ -2,12 +2,15 @@ package com.csse3200.game.rendering;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.csse3200.game.areas.terrain.map.BackdropLayer;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Draws a map's parallax backdrops behind its terrain, or its overlays in front of everything in
@@ -18,6 +21,9 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
   private final LevelMapData mapData;
   private final boolean inFront;
   private float elapsed;
+
+  /** For each flickering layer: when it next plays, and where in the view it is placed. */
+  private final Map<BackdropLayer, float[]> flickers = new HashMap<>();
 
   /** Draws the map's backdrops, behind its terrain. */
   public ParallaxBackdropRenderComponent(LevelMapData mapData) {
@@ -74,6 +80,10 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
       }
       batch.setColor(1f, 1f, 1f, visibility);
       Texture texture = texture(layer.texture());
+      if (layer.flicker() != null) {
+        drawFlicker(batch, layer, texture, viewLeft, viewBottom, viewWidth, viewHeight);
+        continue;
+      }
       if (layer.spansMap()) {
         float layerHeight = mapWidth * texture.getHeight() / texture.getWidth();
         float layerBottom = spanningLayerBottom(viewBottom, viewHeight, layerHeight, mapHeight);
@@ -102,6 +112,52 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
     batch.setColor(1f, 1f, 1f, 1f);
     // The terrain draws through its own batch, so anything still queued here would land on top.
     batch.flush();
+  }
+
+  /**
+   * Draws a flickering layer's current frame, if it is mid-play, and schedules its next play
+   * somewhere new in the upper part of the view once it has finished.
+   */
+  private void drawFlicker(
+      SpriteBatch batch,
+      BackdropLayer layer,
+      Texture texture,
+      float viewLeft,
+      float viewBottom,
+      float viewWidth,
+      float viewHeight) {
+    BackdropLayer.Flicker flicker = layer.flicker();
+    // {time the play starts, x in the view, top in the view}, the last two as fractions.
+    float[] state =
+        flickers.computeIfAbsent(layer, key -> new float[] {nextFlicker(flicker), 0.5f, 1f});
+
+    int frame = flicker.frameAt(elapsed - state[0]);
+    if (frame < 0) {
+      if (elapsed > state[0]) {
+        state[0] = nextFlicker(flicker);
+        state[1] = MathUtils.random(0.1f, 0.9f);
+        state[2] = MathUtils.random(0.85f, 1f);
+      }
+      return;
+    }
+
+    float frameWidth = 1f / flicker.frames();
+    float height = viewHeight * flicker.height();
+    float width = height * texture.getWidth() * frameWidth / texture.getHeight();
+    batch.draw(
+        texture,
+        viewLeft + viewWidth * state[1] - width / 2f,
+        viewBottom + viewHeight * state[2] - height,
+        width,
+        height,
+        frame * frameWidth,
+        1f,
+        (frame + 1) * frameWidth,
+        0f);
+  }
+
+  private float nextFlicker(BackdropLayer.Flicker flicker) {
+    return elapsed + MathUtils.random(flicker.minGap(), flicker.maxGap());
   }
 
   /**
@@ -159,7 +215,7 @@ public class ParallaxBackdropRenderComponent extends RenderComponent {
     return (inFront ? mapData.getOverlays() : mapData.getBackdrops())
         .values().stream()
             .flatMap(backdrop -> backdrop.stream())
-            .filter(layer -> !layer.spansMap())
+            .filter(layer -> !layer.spansMap() && layer.flicker() == null)
             .map(BackdropLayer::texture)
             .distinct()
             .toList();
