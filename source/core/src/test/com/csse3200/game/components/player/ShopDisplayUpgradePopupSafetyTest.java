@@ -74,16 +74,17 @@ class ShopDisplayUpgradePopupSafetyTest {
    * slots 2+ empty, because ShopDisplay.setUpgradesDisplay()/syncUpgradeCatalog() didn't exist on
    * this branch at all (confirmed via git history - never a lifecycle timing race). Now that
    * setUpgradesDisplay() is called (see beforeEach()), the catalog must be fully replaced with the
-   * 5 real UpgradeNodes, in UpgradesDisplay.getAllUpgrades() order starting at slot 1.
+   * 6 real UpgradeNodes, in UpgradesDisplay.getAllUpgrades() order starting at slot 1.
    */
   @Test
   void settingUpgradesDisplayReplacesThePlaceholderCatalogWithRealUpgrades() {
-    assertEquals(5, shopComponent.getUpgradeCatalog().size());
+    assertEquals(6, shopComponent.getUpgradeCatalog().size());
     assertEquals("Sword Damage", shopComponent.getUpgradeListing(1).getProduct().getName());
     assertEquals("Attack Speed", shopComponent.getUpgradeListing(2).getProduct().getName());
     assertEquals("Shield Durability", shopComponent.getUpgradeListing(3).getProduct().getName());
     assertEquals("Regen on Kill", shopComponent.getUpgradeListing(4).getProduct().getName());
     assertEquals("Player Speed+", shopComponent.getUpgradeListing(5).getProduct().getName());
+    assertEquals("Endurance", shopComponent.getUpgradeListing(6).getProduct().getName());
   }
 
   private UpgradeNode firstUpgrade() throws Exception {

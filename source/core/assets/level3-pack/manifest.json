@@ -1,0 +1,362 @@
+{
+  "scale": "tiles 16px native exported at 32x (512); sprites and effects at 4x",
+  "files": [
+    {
+      "file": "images/level3/tiles/banner-tail.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/banner-top.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/brazier-sheet-4f.png",
+      "size": "2048x512",
+      "type": "DECORATIVE (animated)",
+      "frames": 4,
+      "frame": "512x512",
+      "fps": 8,
+      "loop": true,
+      "glow": "glow-warm"
+    },
+    {
+      "file": "images/level3/tiles/brazier.png",
+      "size": "512x512",
+      "type": "DECORATIVE",
+      "glow": "glow-warm"
+    },
+    {
+      "file": "images/level3/tiles/ceiling-trim.png",
+      "size": "512x512",
+      "type": "WALL"
+    },
+    {
+      "file": "images/level3/tiles/column-base.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/column-broken-top.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/column-capital.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/column-shaft.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/floor-colonnade-a.png",
+      "size": "512x512",
+      "type": "FLOOR"
+    },
+    {
+      "file": "images/level3/tiles/floor-colonnade-b.png",
+      "size": "512x512",
+      "type": "FLOOR"
+    },
+    {
+      "file": "images/level3/tiles/floor-dais.png",
+      "size": "512x512",
+      "type": "FLOOR"
+    },
+    {
+      "file": "images/level3/tiles/floor-gold-inlay.png",
+      "size": "512x512",
+      "type": "FLOOR"
+    },
+    {
+      "file": "images/level3/tiles/floor-hall-a.png",
+      "size": "512x512",
+      "type": "FLOOR"
+    },
+    {
+      "file": "images/level3/tiles/floor-hall-b.png",
+      "size": "512x512",
+      "type": "FLOOR"
+    },
+    {
+      "file": "images/level3/tiles/hazard-charged-sheet-4f.png",
+      "size": "2048x512",
+      "type": "HAZARD (animated)",
+      "frames": 4,
+      "frame": "512x512",
+      "fps": 12,
+      "loop": true
+    },
+    {
+      "file": "images/level3/tiles/hazard-charged.png",
+      "size": "512x512",
+      "type": "HAZARD",
+      "glow": "glow-electric"
+    },
+    {
+      "file": "images/level3/tiles/ladder.png",
+      "size": "512x512",
+      "type": "LADDER"
+    },
+    {
+      "file": "images/level3/tiles/platform-left.png",
+      "size": "512x512",
+      "type": "PLATFORM"
+    },
+    {
+      "file": "images/level3/tiles/platform-mid.png",
+      "size": "512x512",
+      "type": "PLATFORM"
+    },
+    {
+      "file": "images/level3/tiles/platform-right.png",
+      "size": "512x512",
+      "type": "PLATFORM"
+    },
+    {
+      "file": "images/level3/tiles/statue-base.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/statue-top.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/storm-tuft.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/throne-base-left.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/throne-base-right.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/throne-mid-left.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/throne-mid-right.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/throne-top-left.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/throne-top-right.png",
+      "size": "512x512",
+      "type": "DECORATIVE"
+    },
+    {
+      "file": "images/level3/tiles/wall-a.png",
+      "size": "512x512",
+      "type": "WALL"
+    },
+    {
+      "file": "images/level3/tiles/wall-b.png",
+      "size": "512x512",
+      "type": "WALL"
+    },
+    {
+      "file": "images/level3/tiles/wall-c.png",
+      "size": "512x512",
+      "type": "WALL"
+    },
+    {
+      "file": "images/level3/backdrop/0-night-storm-sky.png",
+      "size": "1280x720",
+      "purpose": "parallax backdrop, seamless left-right",
+      "parallax": 0.05,
+      "drift": null
+    },
+    {
+      "file": "images/level3/backdrop/1-cloud-sea-peaks.png",
+      "size": "1280x720",
+      "purpose": "parallax backdrop, seamless left-right",
+      "parallax": 0.15,
+      "drift": null
+    },
+    {
+      "file": "images/level3/backdrop/2-palace-colonnade.png",
+      "size": "1280x720",
+      "purpose": "parallax backdrop, seamless left-right",
+      "parallax": 0.22,
+      "drift": null
+    },
+    {
+      "file": "images/level3/backdrop/3-drifting-mist.png",
+      "size": "1280x720",
+      "purpose": "parallax backdrop, seamless left-right",
+      "parallax": 0.35,
+      "drift": "6 px/s right"
+    },
+    {
+      "file": "images/level3/weather/wind-rain-sparks.png",
+      "size": "1280x720",
+      "purpose": "overlay in front of everything, seamless both axes; scroll (-40, -220) px/s; alpha 0.8; dais + sky rows only if you prefer"
+    },
+    {
+      "file": "images/effects/lighting/glow-electric.png",
+      "size": "128x128",
+      "purpose": "additive glow, draw centred on the tile",
+      "for": "hazard tiles, bolts, strikes"
+    },
+    {
+      "file": "images/effects/lighting/glow-warm.png",
+      "size": "128x128",
+      "purpose": "additive glow, draw centred on the tile",
+      "for": "braziers"
+    },
+    {
+      "file": "images/effects/zeus-bolt-projectile-4f.png",
+      "size": "384x48",
+      "frames": 4,
+      "frame": "96x48",
+      "native": "24x12",
+      "fps": 14,
+      "loop": true,
+      "note": "flies right; flip for left; speed 260 px/s"
+    },
+    {
+      "file": "images/effects/zeus-edge-arrow-4f.png",
+      "size": "256x64",
+      "frames": 4,
+      "frame": "64x64",
+      "native": "16x16",
+      "fps": 8,
+      "loop": true,
+      "note": "points right; mirror for left; pin to the screen edge at Zeus height"
+    },
+    {
+      "file": "images/effects/zeus-ground-strike-6f.png",
+      "size": "384x384",
+      "frames": 6,
+      "frame": "64x384",
+      "native": "16x96",
+      "fps": 10,
+      "loop": false,
+      "note": "frames 0–1 are the 0.9 s warning (hold, loop 0–1), 2–5 the strike; bottom pixel row sits on the floor top"
+    },
+    {
+      "file": "images/effects/zeus-shockwave-6f.png",
+      "size": "768x64",
+      "frames": 6,
+      "frame": "128x64",
+      "native": "32x16",
+      "fps": 12,
+      "loop": true,
+      "note": "draw on the floor top and move 200 px/s away from Zeus"
+    },
+    {
+      "file": "images/effects/zeus-strike-marker-2f.png",
+      "size": "128x32",
+      "frames": 2,
+      "frame": "64x32",
+      "native": "16x8",
+      "fps": 6,
+      "loop": true,
+      "note": "1-tile ground decal for incoming strikes/bolts"
+    },
+    {
+      "file": "images/enemies/zeus.atlas",
+      "size": "text",
+      "purpose": "libGDX TextureAtlas for zeus.png"
+    },
+    {
+      "file": "images/enemies/zeus.png",
+      "size": "1536x3584",
+      "frame": "192x256 (48x64 native, 4x)",
+      "onScreen": "3 x 4 tiles",
+      "animations": {
+        "idle": [
+          4,
+          6
+        ],
+        "float": [
+          6,
+          8
+        ],
+        "melee": [
+          6,
+          12
+        ],
+        "cast": [
+          7,
+          10
+        ],
+        "hurt": [
+          2,
+          8
+        ],
+        "enraged-idle": [
+          4,
+          8
+        ],
+        "death": [
+          8,
+          8
+        ]
+      },
+      "note": "animation: [frames, fps]; regions zeus-<anim>-right / zeus-<anim>-left, index 0..n-1. Cast frames 1–3 are the wind-up; release is frame 4."
+    },
+    {
+      "file": "maps/level3-arena.txt",
+      "size": "52x26 chars",
+      "purpose": "tile grid, top row first"
+    },
+    {
+      "file": "maps/level3-markers.txt",
+      "size": "52x26 chars",
+      "purpose": "P / Z / L markers"
+    },
+    {
+      "file": "maps/level3-legend.json",
+      "purpose": "character → tile name, type, file"
+    },
+    {
+      "file": "images/level3/backdrop/1b-colossus.png",
+      "size": "1280x720",
+      "purpose": "parallax backdrop, colossal seated Zeus on a far peak, seamless left-right",
+      "parallax": 0.12
+    },
+    {
+      "file": "images/level3/backdrop/4-great-hall-arches.png",
+      "size": "1280x720",
+      "purpose": "nearest backdrop: great-hall arches, transparent inside the arches, seamless left-right",
+      "parallax": 0.55
+    },
+    {
+      "file": "images/level3/backdrop/distant-lightning-4f.png",
+      "size": "512x256",
+      "frames": 4,
+      "frame": "128x256",
+      "fps": 12,
+      "loop": false,
+      "note": "draw on the sky behind the arches at random 3–8 s; frame 3 is empty"
+    }
+  ],
+  "backdropOrder": [
+    "0-night-storm-sky",
+    "distant-lightning-4f",
+    "1-cloud-sea-peaks",
+    "1b-colossus",
+    "2-palace-colonnade",
+    "3-drifting-mist",
+    "4-great-hall-arches"
+  ]
+}
