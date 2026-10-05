@@ -29,6 +29,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
+  private boolean walkingLeft = false;
+  private boolean walkingRight = false;
+  private boolean walkingDown = false;
   private String direction = "Right";
 
   public String getDirection() {
@@ -49,10 +52,25 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     if (travel != null && travel.isControlLocked()) {
       return true;
     }
+    LadderComponent ladder = entity.getComponent(LadderComponent.class);
+    if (ladder != null && ladder.isAutoClimbing()) {
+      return true;
+    }
 
     switch (keycode) {
       case Keys.E:
-        return travel != null && travel.beginTravel();
+        if (travel != null && travel.beginTravel()) {
+          return true;
+        }
+        if (ladder != null && ladder.beginAutoClimb()) {
+          walkDirection.setZero();
+          walkingLeft = false;
+          walkingRight = false;
+          walkingDown = false;
+          entity.getEvents().trigger("walkStop");
+          return true;
+        }
+        return false;
 
       case Keys.R:
         /*
@@ -73,6 +91,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         if (ladderUp != null && ladderUp.beginClimb(1f)) {
           return true;
         }
+        stopClimbing();
         jumpDirection.add(Vector2Utils.UP);
         triggerJumpEvent();
         entity.getEvents().trigger("jumping", direction);
@@ -84,6 +103,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
 
       case Keys.A:
+        stopClimbing();
         walking('a');
         return true;
 
@@ -92,12 +112,17 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         if (ladderDown != null && ladderDown.beginClimb(-1f)) {
           return true;
         }
-        walkDirection.add(Vector2Utils.DOWN);
+        stopClimbing();
+        if (!walkingDown) {
+          walkDirection.add(Vector2Utils.DOWN);
+          walkingDown = true;
+        }
         triggerWalkEvent();
 
         return true;
 
       case Keys.D:
+        stopClimbing();
         walking('d');
         return true;
 
@@ -250,31 +275,45 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyUp(int keycode) {
+    LadderComponent ladder = entity.getComponent(LadderComponent.class);
+    if (ladder != null && ladder.isAutoClimbing() && keycode != Keys.CONTROL_LEFT) {
+      return true;
+    }
     switch (keycode) {
       case Keys.W:
         stopClimbing();
         return true;
 
       case Keys.A:
-        walkDirection.sub(Vector2Utils.LEFT);
-        if (walkDirection.isZero()) {
-          entity.getEvents().trigger("idle", direction);
+        if (walkingLeft) {
+          walkDirection.sub(Vector2Utils.LEFT);
+          walkingLeft = false;
+          if (walkDirection.isZero()) {
+            entity.getEvents().trigger("idle", direction);
+          }
+          triggerWalkEvent();
         }
-        triggerWalkEvent();
         return true;
 
       case Keys.S:
         stopClimbing();
-        walkDirection.sub(Vector2Utils.DOWN);
-        triggerWalkEvent();
+        // Climbing does not add DOWN to walkDirection, so only remove it after ordinary walking.
+        if (walkingDown) {
+          walkDirection.sub(Vector2Utils.DOWN);
+          walkingDown = false;
+          triggerWalkEvent();
+        }
         return true;
 
       case Keys.D:
-        walkDirection.sub(Vector2Utils.RIGHT);
-        if (walkDirection.isZero()) {
-          entity.getEvents().trigger("idle", direction);
+        if (walkingRight) {
+          walkDirection.sub(Vector2Utils.RIGHT);
+          walkingRight = false;
+          if (walkDirection.isZero()) {
+            entity.getEvents().trigger("idle", direction);
+          }
+          triggerWalkEvent();
         }
-        triggerWalkEvent();
         return true;
 
       case Keys.CONTROL_LEFT:
@@ -301,10 +340,16 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private void walking(char key) {
     if (key == 'd') {
       direction = "Right";
-      walkDirection.add(Vector2Utils.RIGHT);
+      if (!walkingRight) {
+        walkDirection.add(Vector2Utils.RIGHT);
+        walkingRight = true;
+      }
     } else if (key == 'a') {
       direction = "Left";
-      walkDirection.add(Vector2Utils.LEFT);
+      if (!walkingLeft) {
+        walkDirection.add(Vector2Utils.LEFT);
+        walkingLeft = true;
+      }
     }
 
     if (crouch) {
