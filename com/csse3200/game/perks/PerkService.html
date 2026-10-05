@@ -39,7 +39,7 @@ loadScripts(document, 'script');</script>
 <p>Summary:</p>
 <ul>
 <li>Nested</li>
-<li>Field</li>
+<li><a href="#field-summary">Field</a></li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -47,7 +47,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Detail:</p>
 <ul>
-<li>Field</li>
+<li><a href="#field-detail">Field</a></li>
 <li>Constr</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -59,13 +59,13 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -102,11 +102,34 @@ loadScripts(document, 'script');</script>
  recordEvent(...) call at the point that milestone happens (e.g. inside the wall-jump code, once
  it exists), plus a new PerkDefinitions entry - nothing about this class changes either way.
 
- <p>Unlocked/in-progress state persists forever via Preferences (achievement-style), the same
- pattern PauseMenuDisplay already uses for audio settings.</div>
+ <p>Unlocked/progress/active state persists via Preferences, the same pattern PauseMenuDisplay
+ already uses for audio settings - but only within one playthrough: it survives death/revive (that
+ never touches this class at all), but <a href="#resetAll()"><code>resetAll()</code></a> is called on every fresh game start
+ (Start or Restart, not Load) - see <code>MainGameScreen</code>'s constructor.
+
+ <p>Unlocking a perk (permanent, once earned) is separate from making it active (up to <a href="#MAX_ACTIVE_PERKS">2</a> at a time, freely toggled via <a href="#activate(java.lang.String)"><code>activate(java.lang.String)</code></a>/<a href="#deactivate(java.lang.String)"><code>deactivate(java.lang.String)</code></a> - see the
+ perk-selection screen shown after death). Only active perks' rewards actually apply - see e.g.
+ ShieldComponent, which checks <a href="Perk.html#isActive()"><code>Perk.isActive()</code></a> when a new player entity is created.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#MAX_ACTIVE_PERKS" class="member-name-link">MAX_ACTIVE_PERKS</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">How many perks the player can have active (equipped) at once.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -118,27 +141,46 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getAllPerks()" class="member-name-link">getAllPerks</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getPerk(java.lang.String)" class="member-name-link">getPerk</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#recordEvent(java.lang.String,int)" class="member-name-link">recordEvent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventKey,
- int&nbsp;amount)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#activate(java.lang.String)" class="member-name-link">activate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Reports progress toward every registered perk listening for this event key.</div>
+<div class="block">Makes an unlocked perk active, if there's room.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register(com.csse3200.game.perks.Perk)" class="member-name-link">register</a><wbr>(<a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a>&nbsp;perk)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#deactivate(java.lang.String)" class="member-name-link">deactivate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Registers a perk definition and loads any previously-saved progress for it.</div>
+<div class="block">Makes a perk inactive.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getActiveCount()" class="member-name-link">getActiveCount</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getAllPerks()" class="member-name-link">getAllPerks</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getPerk(java.lang.String)" class="member-name-link">getPerk</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#recordEvent(java.lang.String,int)" class="member-name-link">recordEvent</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventKey,
+ int&nbsp;amount)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports progress toward every registered perk listening for this event key.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resetAll()" class="member-name-link">resetAll</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register(com.csse3200.game.perks.Perk)" class="member-name-link">register</a><wbr>(<a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a>&nbsp;perk)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Debug/testing hook - clears every registered perk's progress, in memory and on disk.</div>
+<div class="block">Registers a perk definition and loads any previously-saved progress for it.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resetAll()" class="member-name-link">resetAll</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Clears every registered perk's progress/unlocked/active state, in memory and on disk.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resetPerk(java.lang.String)" class="member-name-link">resetPerk</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Debug/testing hook - locks a single perk back to zero progress (and inactive), in memory and on
+ disk.</div>
 </div>
 </div>
 </div>
@@ -152,6 +194,29 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="MAX_ACTIVE_PERKS">
+<h3>MAX_ACTIVE_PERKS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">MAX_ACTIVE_PERKS</span></div>
+<div class="block">How many perks the player can have active (equipped) at once.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../constant-values.html#com.csse3200.game.perks.PerkService.MAX_ACTIVE_PERKS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
@@ -190,10 +255,66 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getActiveCount()">
+<h3>getActiveCount</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getActiveCount</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>how many perks are currently active, out of <a href="#MAX_ACTIVE_PERKS">2</a></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="activate(java.lang.String)">
+<h3>activate</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">activate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
+<div class="block">Makes an unlocked perk active, if there's room. This is the only place a perk's active state is
+ changed, so the <a href="#MAX_ACTIVE_PERKS">2</a>-active rule only needs to live here.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>id</code> - the perk to activate</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> if it's now active - <code>false</code> if the id is unknown, the perk isn't
+     unlocked yet, it was already active, or <a href="#MAX_ACTIVE_PERKS">2</a> perks are already active</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="deactivate(java.lang.String)">
+<h3>deactivate</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deactivate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
+<div class="block">Makes a perk inactive. Safe to call on an already-inactive or unregistered id - a no-op either
+ way.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>id</code> - the perk to deactivate</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="resetAll()">
 <h3>resetAll</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetAll</span>()</div>
-<div class="block">Debug/testing hook - clears every registered perk's progress, in memory and on disk.</div>
+<div class="block">Clears every registered perk's progress/unlocked/active state, in memory and on disk. Called on
+ every fresh game start (Start or Restart, not Load) - see <code>MainGameScreen</code>'s constructor
+ - and usable as a debug/testing hook too.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="resetPerk(java.lang.String)">
+<h3>resetPerk</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetPerk</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
+<div class="block">Debug/testing hook - locks a single perk back to zero progress (and inactive), in memory and on
+ disk. Safe to call for an unregistered id - it's simply a no-op.
+
+ <p>Note this only resets the perk's own tracked state. It does not revert any gameplay reward
+ already applied to a live entity this session (e.g. a shield's extended duration) - that reward
+ was applied directly to that component's state when the perk was active at entity creation, so
+ a fresh player entity (e.g. after a respawn) is needed to see the change reflected.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>id</code> - the perk's id, as passed to its <a href="Perk.html" title="class in com.csse3200.game.perks"><code>Perk</code></a> constructor</dd>
+</dl>
 </section>
 </li>
 </ul>

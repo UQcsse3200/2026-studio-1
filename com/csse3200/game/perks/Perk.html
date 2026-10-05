@@ -147,11 +147,27 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getThreshold()" class="member-name-link">getThreshold</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isUnlocked()" class="member-name-link">isUnlocked</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnUnlocked(java.lang.Runnable)" class="member-name-link">setOnUnlocked</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onUnlocked)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isActive()" class="member-name-link">isActive</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Whether this perk is currently one of the player's up-to-2 equipped perks.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isUnlocked()" class="member-name-link">isUnlocked</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnActivated(java.lang.Runnable)" class="member-name-link">setOnActivated</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onActivated)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Registers what should happen the moment this perk becomes active - e.g.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnDeactivated(java.lang.Runnable)" class="member-name-link">setOnDeactivated</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onDeactivated)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Registers what should happen the moment this perk becomes inactive - the exact inverse of
+ <a href="#setOnActivated(java.lang.Runnable)"><code>setOnActivated(java.lang.Runnable)</code></a>, e.g.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnUnlocked(java.lang.Runnable)" class="member-name-link">setOnUnlocked</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onUnlocked)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -230,9 +246,41 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="isActive()">
+<h3>isActive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isActive</span>()</div>
+<div class="block">Whether this perk is currently one of the player's up-to-2 equipped perks. Unlike <a href="#isUnlocked()"><code>isUnlocked()</code></a> (permanent, once earned), this can toggle freely - see <a href="PerkService.html#activate(java.lang.String)"><code>PerkService.activate(java.lang.String)</code></a> / <a href="PerkService.html#deactivate(java.lang.String)"><code>PerkService.deactivate(java.lang.String)</code></a>, driven by the perk-selection screen
+ shown after death.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>true</code> if currently active</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="setOnUnlocked(java.lang.Runnable)">
 <h3>setOnUnlocked</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setOnUnlocked</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onUnlocked)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="setOnActivated(java.lang.Runnable)">
+<h3>setOnActivated</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setOnActivated</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onActivated)</span></div>
+<div class="block">Registers what should happen the moment this perk becomes active - e.g. <code>ShieldComponent</code>
+ applying its duration bonus. Called by <a href="PerkService.html#activate(java.lang.String)"><code>PerkService.activate(java.lang.String)</code></a>, and also checked directly
+ against <a href="#isActive()"><code>isActive()</code></a> at entity creation (see that class), so a reward is applied
+ correctly whether the perk was already active before this entity existed or becomes active
+ while it's alive.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setOnDeactivated(java.lang.Runnable)">
+<h3>setOnDeactivated</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setOnDeactivated</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onDeactivated)</span></div>
+<div class="block">Registers what should happen the moment this perk becomes inactive - the exact inverse of
+ <a href="#setOnActivated(java.lang.Runnable)"><code>setOnActivated(java.lang.Runnable)</code></a>, e.g. <code>ConsumableUseComponent</code> removing its max-health bonus
+ (clamping current health down if it's above the new, lower cap). Called by <a href="PerkService.html#deactivate(java.lang.String)"><code>PerkService.deactivate(java.lang.String)</code></a>.</div>
 </section>
 </li>
 <li>

@@ -100,8 +100,12 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">KeyboardPlayerInputComponent</span>
 <span class="extends-implements">extends <a href="../../input/InputComponent.html" title="class in com.csse3200.game.input">InputComponent</a></span></div>
-<div class="block">Input handler for the player for keyboard and touch (mouse) input. This input handler only uses
- keyboard input.</div>
+<div class="block">\* Input handler for the player for keyboard and touch (mouse) input. This input handler only
+ uses \* keyboard input. \* \*
+
+ <p>Every action's key is looked up from <a href="../../pausemenu/KeybindSettings.html" title="class in com.csse3200.game.pausemenu"><code>KeybindSettings</code></a> instead of being hardcoded, so \*
+ the player can rebind controls at runtime from the pause menu. The one exception is the developer
+ \* shortcuts in <code>handleDebugKeys(int)</code>, which are fixed keys.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -147,12 +151,12 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#keyDown(int)" class="member-name-link">keyDown</a><wbr>(int&nbsp;keycode)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Triggers player events on specific keycodes.</div>
+<div class="block">\* Triggers player events on specific keycodes.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#keyUp(int)" class="member-name-link">keyUp</a><wbr>(int&nbsp;keycode)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Triggers player events on specific keycodes.</div>
+<div class="block">\* Triggers player events on specific keycodes.</div>
 </div>
 </div>
 </div>
@@ -201,14 +205,13 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="keyDown(int)">
 <h3>keyDown</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">keyDown</span><wbr><span class="parameters">(int&nbsp;keycode)</span></div>
-<div class="block">Triggers player events on specific keycodes.</div>
+<div class="block">\* Triggers player events on specific keycodes. \* \* @return whether the input was processed
+ \* @see InputProcessor#keyDown(int)</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>keyDown</code>&nbsp;in interface&nbsp;<code>com.badlogic.gdx.InputProcessor</code></dd>
 <dt>Overrides:</dt>
 <dd><code><a href="../../input/InputComponent.html#keyDown(int)">keyDown</a></code>&nbsp;in class&nbsp;<code><a href="../../input/InputComponent.html" title="class in com.csse3200.game.input">InputComponent</a></code></dd>
-<dt>Returns:</dt>
-<dd>whether the input was processed</dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">
@@ -222,14 +225,13 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="keyUp(int)">
 <h3>keyUp</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">keyUp</span><wbr><span class="parameters">(int&nbsp;keycode)</span></div>
-<div class="block">Triggers player events on specific keycodes.</div>
+<div class="block">\* Triggers player events on specific keycodes. \* \* @return whether the input was processed
+ \* @see InputProcessor#keyUp(int)</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>keyUp</code>&nbsp;in interface&nbsp;<code>com.badlogic.gdx.InputProcessor</code></dd>
 <dt>Overrides:</dt>
 <dd><code><a href="../../input/InputComponent.html#keyUp(int)">keyUp</a></code>&nbsp;in class&nbsp;<code><a href="../../input/InputComponent.html" title="class in com.csse3200.game.input">InputComponent</a></code></dd>
-<dt>Returns:</dt>
-<dd>whether the input was processed</dd>
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">

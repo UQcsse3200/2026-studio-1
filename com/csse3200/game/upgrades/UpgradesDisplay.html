@@ -106,16 +106,9 @@ loadScripts(document, 'script');</script>
  category, and a detail panel for the selected node's name, description, current tier and
  remaining time/kills.
 
- <p>View-only - there is no purchase action anywhere on this screen. It never calls <a href="UpgradeNode.html#purchaseNextTier()"><code>UpgradeNode.purchaseNextTier()</code></a> itself; the only way to actually buy an upgrade (deduct gold,
- advance its tier) is through <code>ShopDisplay</code>'s real Upgrades-tab buy flow, which applies the
- purchase to the exact same UpgradeNode instances this screen reads from. This screen used to have
- its own Buy button that spent real gold directly, bypassing the shop entirely - that's been
- removed so there is exactly one way to purchase an upgrade.
-
- <p>Every upgrade is temporary - Action upgrades expire after a number of kills, Defence upgrades
- expire after a duration. Buying the same upgrade again (via the shop) while active advances its
- tier and grants a longer expiry window. Once fully expired, it resets to Tier 0 and can be bought
- again from Tier 1.</div>
+ <p>Every upgrade is temporary: Action upgrades expire after a number of kills, Defence upgrades
+ after a duration. Buying an active upgrade again advances its tier and extends the expiry window;
+ once fully expired it resets to Tier 0.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -173,11 +166,14 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAllUpgrades()" class="member-name-link">getAllUpgrades</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPlayer(com.csse3200.game.entities.Entity)" class="member-name-link">setPlayer</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Supplies the player entity so activated upgrades can reach its PlayerActions/
- CombatStatsComponent.</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getShieldHitsRemaining()" class="member-name-link">getShieldHitsRemaining</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPlayer(com.csse3200.game.entities.Entity)" class="member-name-link">setPlayer</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;newPlayer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Supplies the player entity once it's spawned (after this UI entity already exists), so effect
+ code below must not assume player is non-null before this runs.</div>
 </div>
 </div>
 </div>
@@ -241,11 +237,16 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="setPlayer(com.csse3200.game.entities.Entity)">
 <h3>setPlayer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPlayer</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</span></div>
-<div class="block">Supplies the player entity so activated upgrades can reach its PlayerActions/
- CombatStatsComponent. Called by MainGameScreen once the player has actually been spawned (after
- this UI entity is already registered), so effect application/removal below must not assume
- player is non-null at any point before this runs.</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPlayer</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;newPlayer)</span></div>
+<div class="block">Supplies the player entity once it's spawned (after this UI entity already exists), so effect
+ code below must not assume player is non-null before this runs.
+
+ <p>If a player was already set and <code>newPlayer</code> is a different entity (e.g. the player
+ died and was replaced by a brand-new entity on revival), every upgrade is cleared first via
+ <code>clearAllUpgrades()</code> - their effects were applied to the old, now-disposed player, so
+ leaving them "active" in the HUD would be stale and nothing would ever remove them from the new
+ player. The very first call at game start must not clear anything, since there is no prior
+ player to have earned anything from; passing the same entity again is also a no-op.</div>
 </section>
 </li>
 <li>
@@ -254,9 +255,19 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a>&gt;</span>&nbsp;<span class="element-name">getAllUpgrades</span>()</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>a fresh combined list of every upgrade node across all categories (action, defence,
-     movement), for a sibling component (e.g. <a href="ActiveUpgradesHud.html" title="class in com.csse3200.game.upgrades"><code>ActiveUpgradesHud</code></a>) to iterate over.
-     Returned as a new list each call so callers can't mutate the internal per-category lists.</dd>
+<dd>a fresh combined list of every upgrade across all categories, so callers (e.g. <a href="ActiveUpgradesHud.html" title="class in com.csse3200.game.upgrades"><code>ActiveUpgradesHud</code></a>) can't mutate the internal per-category lists.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getShieldHitsRemaining()">
+<h3>getShieldHitsRemaining</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getShieldHitsRemaining</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the player's current shield hits remaining, or 0 if the player isn't set or has no
+     CombatStatsComponent - shield hits live on CombatStatsComponent rather than UpgradeNode, so
+     <a href="ActiveUpgradesHud.html" title="class in com.csse3200.game.upgrades"><code>ActiveUpgradesHud</code></a> needs this to show Shield Durability's remaining hits.</dd>
 </dl>
 </section>
 </li>
