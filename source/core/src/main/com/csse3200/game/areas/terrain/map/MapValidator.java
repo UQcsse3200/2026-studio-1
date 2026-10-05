@@ -310,7 +310,9 @@ public final class MapValidator {
       return false;
     }
     CollisionType collision = tile.type().getCollisionType();
-    return collision == CollisionType.SOLID || collision == CollisionType.PLATFORM;
+    return collision == CollisionType.SOLID
+        || collision == CollisionType.PLATFORM
+        || collision == CollisionType.ONE_WAY_PLATFORM;
   }
 
   private static boolean isSolidColumn(LevelMapData map, int x) {
