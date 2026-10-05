@@ -118,12 +118,11 @@ public class HazardAvoidanceComponent extends Component implements MovementGuard
       return false;
     }
     Shape shape = fixture.getShape();
-    if (!(shape instanceof PolygonShape)) {
+    if (!(shape instanceof PolygonShape polygon)) {
       return false;
     }
 
     // Bounding box of the collider in world space, from its polygon vertices.
-    PolygonShape polygon = (PolygonShape) shape;
     int vertexCount = polygon.getVertexCount();
     if (vertexCount == 0) {
       return false;

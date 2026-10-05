@@ -1,10 +1,6 @@
 package com.csse3200.game.components.npc;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,7 +87,7 @@ class HazardContactDamageComponentTest {
 
     assertEquals(85, health(enemy));
     assertTrue(enemy.getComponent(HazardContactDamageComponent.class).isTouchingHazard());
-    assertTrue(hazard.getComponent(HazardDamageComponent.class).getDamage() == 15);
+    assertEquals(15, hazard.getComponent(HazardDamageComponent.class).getDamage());
   }
 
   @Test
@@ -125,7 +121,7 @@ class HazardContactDamageComponentTest {
 
     assertEquals(100, health(enemy));
     assertFalse(enemy.getComponent(HazardContactDamageComponent.class).isTouchingHazard());
-    assertTrue(notAHazard.getComponent(HazardDamageComponent.class) != null);
+    assertNotNull(notAHazard.getComponent(HazardDamageComponent.class));
   }
 
   @Test

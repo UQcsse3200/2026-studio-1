@@ -238,7 +238,7 @@ class HazardAvoidanceComponentTest {
     Entity walker = createWalker(0f, new HazardAvoidanceComponent(LOOKAHEAD));
     createHazardToTheRight(walker, 1.0f);
     AtomicInteger blocked = new AtomicInteger();
-    walker.getEvents().addListener("movementBlocked", (EventListener0) blocked::incrementAndGet);
+    walker.getEvents().addListener("movementBlocked", blocked::incrementAndGet);
     walker
         .getComponent(PhysicsMovementComponent.class)
         .setTarget(new Vector2(30f, walker.getPosition().y));
