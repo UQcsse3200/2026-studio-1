@@ -591,7 +591,7 @@ public class InventoryComponent extends Component {
     }
 
     for (int slot = 1; slot <= PET_SLOT_COUNT; slot++) {
-      if (!petSlots.containsKey(slot)) {
+      if (petSlots.get(slot) == null) {
         petSlots.put(slot, pet);
         notifyInventoryChanged();
         return true;

@@ -13,6 +13,7 @@ import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -916,9 +917,12 @@ class InventoryComponentTest {
     ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
     inventory.addPet(bird);
 
+    Map<Integer, ShopComponent.Pet> petSlots = inventory.getPetSlots();
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
     assertThrows(
-        UnsupportedOperationException.class,
-        () -> inventory.getPetSlots().put(2, new ShopComponent.Pet("Bat")));
+            UnsupportedOperationException.class,
+            () -> petSlots.put(2, bat));
 
     assertSame(bird, inventory.getPet(1));
     assertNull(inventory.getPet(2));

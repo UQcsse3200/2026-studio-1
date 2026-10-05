@@ -68,8 +68,8 @@ public class ShopDisplay extends UIComponent {
   private static final int SELL_SLOT_COUNT = 5;
 
   private static final String LABEL_STYLE = "small";
-
   private static final String WINDOW_BACKGROUND = "window";
+  private static final String EMPTY_TEXT = "Empty";
 
   // Used only by the Upgrades-tab popup and purchase toast, to visually match the shop's dark
   // green look - "window-c" is a Skin$TintedDrawable (name: window, color: color) with its green
@@ -825,7 +825,7 @@ public class ShopDisplay extends UIComponent {
     card.getColor().set(EMPTY_CARD_TINT);
     addAccentStrip(card, EMPTY_STRIP_TINT);
 
-    Label slotLabel = new Label("Empty", whiteLabelStyle);
+    Label slotLabel = new Label(EMPTY_TEXT, whiteLabelStyle);
     slotLabel.setColor(TEXT_MUTED);
     card.add(slotLabel).center().expand();
   }
@@ -1600,9 +1600,9 @@ public class ShopDisplay extends UIComponent {
     ShopComponent.Pet slot1 = inventory.getPet(1);
     ShopComponent.Pet slot2 = inventory.getPet(2);
 
-    dialog.button("Replace 6. " + (slot1 == null ? "Empty" : slot1.getName()), 1);
+    dialog.button("Replace 6. " + (slot1 == null ? EMPTY_TEXT : slot1.getName()), 1);
 
-    dialog.button("Replace 7. " + (slot2 == null ? "Empty" : slot2.getName()), 2);
+    dialog.button("Replace 7. " + (slot2 == null ? EMPTY_TEXT : slot2.getName()), 2);
 
     dialog.button("Cancel", null);
 
