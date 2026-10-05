@@ -225,6 +225,9 @@ class PetManagerComponentTest {
     owner.addComponent(new CombatStatsComponent(100, 10)).addComponent(manager);
     ServiceLocator.getEntityService().register(owner);
     return manager;
+  }
+
+  @Test
   void shouldNotReplaceActivePetWhenAnotherPetPurchased() {
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
@@ -243,6 +246,42 @@ class PetManagerComponentTest {
     assertSame(birdEntity, manager.getActivePet());
     assertSame(bird, manager.getActivePetType());
     assertTrue(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldReplaceActiveGamblingPetBeforeAnyPlayerHit() {
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet spirit = new ShopComponent.Pet("Spirit");
+    owner.getEvents().trigger("petPurchased", bird);
+    Entity previousPet = manager.getActivePet();
+
+    owner.getEvents().trigger("gamblingPetReplaced", bird, spirit);
+
+    assertTrue(previousPet.isDisposed());
+    assertNotSame(previousPet, manager.getActivePet());
+    assertSame(spirit, manager.getActivePetType());
+  }
+
+  @Test
+  void shouldKeepActivePetWhenInactiveGamblingPetIsReplaced() {
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    owner.getEvents().trigger("petPurchased", bird);
+    Entity activePet = manager.getActivePet();
+
+    owner
+        .getEvents()
+        .trigger(
+            "gamblingPetReplaced", new ShopComponent.Pet("Bat"), new ShopComponent.Pet("Spirit"));
+
+    assertFalse(activePet.isDisposed());
+    assertSame(activePet, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
   }
 
   @Test

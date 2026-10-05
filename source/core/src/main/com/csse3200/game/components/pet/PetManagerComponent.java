@@ -12,8 +12,8 @@ import java.util.function.BiFunction;
  * Manages the player's active companion pet.
  *
  * <p>A player can have at most one active pet at a time. The manager listens for successful pet
- * purchases and activates a pet when the {@code petPurchased} event is triggered. Confirmed player
- * hits are forwarded to the currently active pet for combat assistance.
+ * purchases and activates the first purchased pet. Additional pets remain in the inventory until
+ * selected. Confirmed player hits are forwarded to the currently active pet for combat assistance.
  */
 public class PetManagerComponent extends Component {
   private Entity activePet;
@@ -36,14 +36,14 @@ public class PetManagerComponent extends Component {
   }
 
   /**
-   * Registers the pet manager to listen for successful pet purchases and confirmed player hits.
+   * Registers listeners for pet purchases, gambling replacements, and confirmed player hits.
    *
-   * <p>When the player successfully purchases a pet from the shop, the {@code petPurchased} event
-   * is triggered and a companion pet is activated.
+   * <p>The {@code petPurchased} event activates a companion only when no pet is currently active.
    */
   @Override
   public void create() {
-    entity.getEvents().addListener("petPurchased", this::activatePet);
+    entity.getEvents().addListener("petPurchased", this::handlePetPurchased);
+    entity.getEvents().addListener("gamblingPetReplaced", this::handleGamblingPetReplaced);
     entity.getEvents().addListener("playerAttackHit", this::onPlayerAttackHit);
   }
 
@@ -56,8 +56,6 @@ public class PetManagerComponent extends Component {
     if (combat != null) {
       combat.requestAttack(target);
     }
-    entity.getEvents().addListener("petPurchased", this::handlePetPurchased);
-    entity.getEvents().addListener("gamblingPetReplaced", this::handleGamblingPetReplaced);
   }
 
   /**
