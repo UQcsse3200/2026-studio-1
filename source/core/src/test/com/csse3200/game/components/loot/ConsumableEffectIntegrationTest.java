@@ -50,6 +50,10 @@ class ConsumableEffectIntegrationTest {
   @Test
   void shouldApplyEveryPotionTypeToThePlayer() {
     for (ConsumableType type : ConsumableType.values()) {
+      // The Upgrade Stone acts on a weapon, not the player; WeaponUpgradeEffectTest covers it.
+      if (!type.isPotion()) {
+        continue;
+      }
       ConsumableItem item = generator.generateConsumable(type, 1);
       assertTrue(item.use(player), type + " should have an effect on the player");
     }

@@ -14,6 +14,7 @@ import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
+import com.csse3200.game.areas.terrain.map.Marker;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
@@ -76,12 +77,6 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
-  // Left side of the dungeon floor, next to the doric column decoration at (5, 14)
-  // (level1-greek.json foreground layer) and the platform above it where the key item sits.
-  // x=4 (rather than 5) centers the NPC's collider within the floor patch (world x=[1.0,3.0])
-  // instead of overhanging onto the ladder tile at x=[3.0,3.5) - see createTravelerNPC()'s
-  // wander-range comment for the full margin math.
-  private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
 
   /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
@@ -100,13 +95,14 @@ public class LevelGameArea extends GameArea {
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/enemies/npc_traveler.png",
     "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
     "images/enemies/ghost_king.png",
     "images/enemies/ghost_1.png",
     "images/items/sword.png",
+    "images/items/sword_t2.png",
+    "images/items/sword_t3.png",
     "images/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
@@ -119,6 +115,7 @@ public class LevelGameArea extends GameArea {
     "images/potions/speed_potion.png",
     "images/potions/regeneration_potion.png",
     "images/potions/resistance_potion.png",
+    "images/items/upgrade_stone.png",
     "images/Shield.png"
   };
 
@@ -280,6 +277,7 @@ public class LevelGameArea extends GameArea {
   @Override
   public void create() {
     DefaultEntitySpawns.registerAll();
+    NPCFactory.registerNpcSpawns();
     mapData = mapLoader.load(mapPath);
     loadAssets();
 
@@ -291,7 +289,7 @@ public class LevelGameArea extends GameArea {
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
-    spawnTravelerNPC();
+    spawnNpcs();
     playMusic();
   }
 
@@ -892,8 +890,13 @@ public class LevelGameArea extends GameArea {
     unloadAssets();
   }
 
-  private void spawnTravelerNPC() {
-    Entity travelerNPC = NPCFactory.createTravelerNPC(player);
-    spawnEntityAt(travelerNPC, TRAVELER_NPC_SPAWN, true, true);
+  // Spawns the NPC placed at each "npc" marker in this map.
+  private void spawnNpcs() {
+    for (Marker marker : getLevel().markers("npc")) {
+      Entity npc = EntitySpawnRegistry.create(marker.id(), player);
+      if (npc != null) {
+        spawnEntityAt(npc, marker.position(), true, true);
+      }
+    }
   }
 }

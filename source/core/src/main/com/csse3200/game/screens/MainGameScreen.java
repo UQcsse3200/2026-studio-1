@@ -22,6 +22,7 @@ import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
+import com.csse3200.game.components.story.StoryCutscene;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -91,6 +92,7 @@ public class MainGameScreen extends ScreenAdapter {
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
+  private boolean afterDeathCutsceneShown = false;
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
@@ -414,6 +416,24 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     if (levelGameArea.isPlayerDead()) {
+      if (!afterDeathCutsceneShown) {
+        afterDeathCutsceneShown = true;
+
+        StoryCutscene afterDeathCutscene = StoryCutscene.createAfterDeathCutscene();
+
+        game.setScreen(
+            new StoryCutsceneScreen(
+                this.game,
+                afterDeathCutscene,
+                () -> {
+                  deathScreenShown = true;
+                  deathScreenDisplay.showDeathScreen();
+                  game.setScreen(this);
+                }));
+
+        return;
+      }
+
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
 

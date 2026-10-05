@@ -1,5 +1,6 @@
 package com.csse3200.game.rendering;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,5 +30,34 @@ class TextureRenderComponentTest {
     component.render(spriteBatch);
 
     verify(spriteBatch).draw(texture, 2f, 2f, 1f, 1f);
+  }
+
+  @Test
+  void shouldDrawRotatedTextureAroundItsCentre() {
+    when(entity.getPosition()).thenReturn(new Vector2(2f, 2f));
+    when(entity.getScale()).thenReturn(new Vector2(1f, 1f));
+    TextureRenderComponent component = new TextureRenderComponent(texture);
+    component.setRotationDegrees(45f);
+    component.setEntity(entity);
+    component.render(spriteBatch);
+
+    verify(spriteBatch)
+        .draw(
+            eq(texture),
+            eq(2f),
+            eq(2f),
+            eq(0.5f),
+            eq(0.5f),
+            eq(1f),
+            eq(1f),
+            eq(1f),
+            eq(1f),
+            eq(45f),
+            eq(0),
+            eq(0),
+            eq(0),
+            eq(0),
+            eq(false),
+            eq(false));
   }
 }

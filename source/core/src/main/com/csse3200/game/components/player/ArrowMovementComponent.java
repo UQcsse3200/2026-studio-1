@@ -7,11 +7,10 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
 
-/** Moves an arrow projectile in a fixed direction. */
+/** Moves an arrow projectile in a fixed direction without gravity or speed loss. */
 public class ArrowMovementComponent extends Component {
   private static final float SPEED = 8f;
   private static final float LIFETIME = 4f;
-  private static final float GRAVITY_SCALE = 0.2f;
 
   private final Vector2 direction;
   private float timeAlive;
@@ -32,8 +31,7 @@ public class ArrowMovementComponent extends Component {
     if (physicsComponent != null) {
       body = physicsComponent.getBody();
 
-      // Apply reduced gravity so the arrow follows a gentle arc.
-      body.setGravityScale(GRAVITY_SCALE);
+      body.setGravityScale(0f);
 
       // Prevent damping from slowing the arrow down.
       body.setLinearDamping(0f);

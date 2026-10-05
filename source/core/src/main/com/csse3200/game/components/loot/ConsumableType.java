@@ -18,7 +18,8 @@ public enum ConsumableType {
   /** Restores health gradually over its duration. */
   REGENERATION("images/potions/regeneration_potion.png"),
   /** Temporarily reduces the damage the player takes. */
-  RESISTANCE("images/potions/resistance_potion.png");
+  RESISTANCE("images/potions/resistance_potion.png"),
+  UPGRADE_STONE("images/items/upgrade_stone.png");
 
   private final String texturePath;
 
@@ -33,5 +34,15 @@ public enum ConsumableType {
    */
   public String getTexturePath() {
     return texturePath;
+  }
+
+  /**
+   * Returns whether this consumable is a potion. The Upgrade Stone is a consumable but not a
+   * potion: it acts on a weapon rather than the player, and it has no tiers.
+   *
+   * @return {@code true} for every potion, {@code false} for the Upgrade Stone
+   */
+  public boolean isPotion() {
+    return this != UPGRADE_STONE;
   }
 }

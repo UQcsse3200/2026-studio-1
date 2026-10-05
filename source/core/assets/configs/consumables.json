@@ -27,5 +27,9 @@
     "magnitude": 0.7,
     "durationSeconds": 10.0,
     "maxQuantity": 9
+  },
+  "upgradeStone": {
+    "name": "Upgrade Stone",
+    "maxQuantity": 9
   }
 }
