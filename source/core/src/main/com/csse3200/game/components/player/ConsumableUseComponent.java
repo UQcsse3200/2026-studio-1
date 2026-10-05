@@ -99,7 +99,11 @@ public class ConsumableUseComponent extends Component {
 
     inventory.removeItem(slot, 1);
     logger.debug("Consumed {} from slot {}", consumable.getName(), slot);
+    entity.getEvents().trigger("heal",
+            entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
+    System.out.println("health animation played");
     entity.getEvents().trigger("itemConsumed", consumable);
+
     return true;
   }
 }
