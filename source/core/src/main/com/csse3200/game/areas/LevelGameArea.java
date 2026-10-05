@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
+import com.csse3200.game.areas.terrain.map.*;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.LevelView;
@@ -20,6 +21,10 @@ import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.lighting.EmitterScanner;
+import com.csse3200.game.components.lighting.LightColour;
+import com.csse3200.game.components.lighting.LightComponent;
+import com.csse3200.game.components.lighting.LightingConfig;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
@@ -32,6 +37,8 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.LadderComponent;
+import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.LootFactory;
@@ -45,12 +52,17 @@ import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
+import com.csse3200.game.perks.TortoiseFactory;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.GlowRenderComponent;
 import com.csse3200.game.rendering.MapBackgroundRenderComponent;
+import com.csse3200.game.rendering.ParallaxBackdropRenderComponent;
+import com.csse3200.game.rendering.SheetAnimationRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
+import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -74,6 +86,9 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+  private static final String LEVEL_1_NAME = "Level 1 - Out of the Underworld";
+  private static final String TORTOISE_LEVEL_1_A_ID = "level1_a";
+  private static final GridPoint2 TORTOISE_LEVEL_1_A_SPAWN = new GridPoint2(52, 5);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
 
   /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
@@ -81,6 +96,8 @@ public class LevelGameArea extends GameArea {
 
   /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
   private static final int RANDOM_LOOT_COUNT = 8;
+
+  private static final int LIGHT_BUDGET = 160;
 
   /**
    * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
@@ -138,11 +155,15 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
-    "images/pet.atlas"
+    "images/pet.atlas",
+    "images/tortoise.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
   private static final String[] entityMusic = {BACKGROUND_MUSIC};
+
+  /** How wide a glowing tile's light spreads, in tiles. */
+  private static final float GLOW_TILES = 5f;
 
   private final TerrainFactory terrainFactory;
   private final MapLoader mapLoader;
@@ -229,12 +250,16 @@ public class LevelGameArea extends GameArea {
     displayUI();
     spawnBackdrop();
     spawnTerrain();
+    spawnAnimatedTiles();
+    spawnGlows();
     spawnCollisions();
     player = existingPlayer == null ? spawnPlayer() : adoptPlayer(existingPlayer);
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
+    spawnTortoises();
     spawnNpcs();
+    spawnLighting();
     playMusic();
   }
 
@@ -319,7 +344,66 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the map's width in world units
+   * Returns a player who has completely fallen outside the map to the room's safe spawn.
+   *
+   * <p>The authored collision boundary should normally prevent this. This recovery is a final
+   * safeguard against an accidental map gap or a fast-moving body crossing a boundary fixture.
+   * Player state is retained because the existing entity is repositioned rather than respawned.
+   *
+   * @return true when the player was recovered
+   */
+  public boolean recoverPlayerIfOutOfBounds() {
+    if (player == null
+        || !isOutsideMap(
+            player.getPosition(),
+            player.getScale(),
+            getMapWorldWidth(),
+            getMapWorldHeight(),
+            mapData.getTileSize())) {
+      return false;
+    }
+
+    GridPoint2 safeSpawn = mapData.getSpawns().getPlayer();
+    if (safeSpawn == null) {
+      safeSpawn = entrySpawn;
+    }
+    if (safeSpawn == null) {
+      logger.error("Cannot recover player in '{}': no safe spawn is defined", mapData.getName());
+      return false;
+    }
+
+    logger.warn("Recovering out-of-bounds player in '{}' to {}", mapData.getName(), safeSpawn);
+    positionEntityAt(player, safeSpawn, true, true);
+    PhysicsComponent physics = player.getComponent(PhysicsComponent.class);
+    if (physics != null) {
+      physics.getBody().setLinearVelocity(0f, 0f);
+      physics.getBody().setAngularVelocity(0f);
+      physics.getBody().setGravityScale(1f);
+      physics.getBody().setAwake(true);
+    }
+    LadderComponent ladder = player.getComponent(LadderComponent.class);
+    if (ladder != null) {
+      ladder.setMapData(mapData);
+    }
+    return true;
+  }
+
+  static boolean isOutsideMap(
+      Vector2 position, Vector2 scale, float mapWorldWidth, float mapWorldHeight, float tileSize) {
+    // Once any part of the player is above the map, do not mistake horizontal movement there for
+    // leaving through a side boundary.
+    if (position.y + scale.y > mapWorldHeight) {
+      return false;
+    }
+
+    float margin = tileSize;
+    return position.x + scale.x < -margin
+        || position.x > mapWorldWidth + margin
+        || position.y + scale.y < -margin;
+  }
+
+  /**
+   * @return the map's width in world units (tiles * tileSize)
    */
   public float getMapWorldWidth() {
     return mapData.getWidth() * mapData.getTileSize();
@@ -350,8 +434,18 @@ public class LevelGameArea extends GameArea {
     spawnEntity(new Entity().addComponent(terrain));
   }
 
-  /** Adds a supplied full-map image behind the collision-driven terrain, when the map has one. */
+  /**
+   * Adds the map's art behind the collision-driven terrain: its parallax backdrops, then its
+   * full-map image, for whichever of the two the map has.
+   */
   private void spawnBackdrop() {
+    if (!mapData.getBackdrops().isEmpty()) {
+      spawnEntity(new Entity().addComponent(new ParallaxBackdropRenderComponent(mapData)));
+    }
+    if (!mapData.getOverlays().isEmpty()) {
+      spawnEntity(new Entity().addComponent(new ParallaxBackdropRenderComponent(mapData, true)));
+    }
+
     String backgroundTexture = mapData.getBackgroundTexture();
     if (backgroundTexture == null) {
       return;
@@ -360,6 +454,58 @@ public class LevelGameArea extends GameArea {
         new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
     backdrop.setScale(getMapWorldWidth(), getMapWorldHeight());
     spawnEntity(backdrop);
+  }
+
+  /**
+   * Lights every tile whose legend entry names a glow sprite, such as a lamp or a fire pit. The
+   * light is visual only and is centred on the tile.
+   */
+  private void spawnGlows() {
+    float tileSize = mapData.getTileSize();
+    for (MapLayerData layer : mapData.getLayers()) {
+      for (int x = 0; x < layer.getWidth(); x++) {
+        for (int y = 0; y < layer.getHeight(); y++) {
+          TileDefinition tile = layer.get(x, y);
+          String glow = tile == null ? null : tile.properties().get(LevelMapData.GLOW_PROPERTY);
+          if (glow == null) {
+            continue;
+          }
+          Entity light =
+              new Entity()
+                  .addComponent(new GlowRenderComponent(glow, GLOW_TILES * tileSize, x * 1.7f + y));
+          light.setPosition((x + 0.5f) * tileSize, (y + 0.5f) * tileSize);
+          spawnEntity(light);
+        }
+      }
+    }
+  }
+
+  /**
+   * Sets a looping sprite sheet over every tile whose legend entry names one, such as a brazier's
+   * flame or a charged floor's arcs. The still texture stays beneath it as the tile itself.
+   */
+  private void spawnAnimatedTiles() {
+    float tileSize = mapData.getTileSize();
+    for (MapLayerData layer : mapData.getLayers()) {
+      for (int x = 0; x < layer.getWidth(); x++) {
+        for (int y = 0; y < layer.getHeight(); y++) {
+          TileDefinition tile = layer.get(x, y);
+          String sheet =
+              tile == null ? null : tile.properties().get(LevelMapData.ANIMATION_PROPERTY);
+          if (sheet == null) {
+            continue;
+          }
+          Entity animation =
+              new Entity()
+                  .addComponent(
+                      new SheetAnimationRenderComponent(
+                          sheet, tile.getInt("frames", 1), tile.getFloat("fps", 8f), x * 0.37f));
+          animation.setPosition(x * tileSize, y * tileSize);
+          animation.setScale(tileSize, tileSize);
+          spawnEntity(animation);
+        }
+      }
+    }
   }
 
   /** Spawns collision bodies from the map's collision layer. */
@@ -376,7 +522,8 @@ public class LevelGameArea extends GameArea {
       spawnSolidRectangle(rectangle, tileSize);
     }
 
-    spawnPlatformCollisions(collisionLayer, tileSize);
+    spawnPlatformCollisions(collisionLayer, tileSize, CollisionType.PLATFORM, false);
+    spawnPlatformCollisions(collisionLayer, tileSize, CollisionType.ONE_WAY_PLATFORM, true);
 
     spawnHazardCollisions(collisionLayer, tileSize);
     MapLayerData hazardLayer = mapData.getLayer("hazards");
@@ -385,14 +532,15 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  private void spawnPlatformCollisions(MapLayerData collisionLayer, float tileSize) {
+  private void spawnPlatformCollisions(
+      MapLayerData collisionLayer, float tileSize, CollisionType collisionType, boolean oneWay) {
     for (int y = 0; y < collisionLayer.getHeight(); y++) {
       int x = 0;
 
       while (x < collisionLayer.getWidth()) {
         TileDefinition def = collisionLayer.get(x, y);
 
-        if (def == null || def.type().getCollisionType() != CollisionType.PLATFORM) {
+        if (def == null || def.type().getCollisionType() != collisionType) {
           x++;
           continue;
         }
@@ -401,13 +549,13 @@ public class LevelGameArea extends GameArea {
         while (x + 1 < collisionLayer.getWidth()) {
           TileDefinition next = collisionLayer.get(x + 1, y);
 
-          if (next == null || next.type().getCollisionType() != CollisionType.PLATFORM) {
+          if (next == null || next.type().getCollisionType() != collisionType) {
             break;
           }
           x++;
         }
 
-        spawnPlatformRow(startX, y, x - startX + 1, tileSize);
+        spawnPlatformRow(startX, y, x - startX + 1, tileSize, oneWay);
         x++;
       }
     }
@@ -518,9 +666,12 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize) {
+  private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize, boolean oneWay) {
     float width = tileCount * tileSize;
-    Entity collider = ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
+    Entity collider =
+        oneWay
+            ? ObstacleFactory.createOneWayPlatform(width, COLLIDER_HEIGHT)
+            : ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
 
     Vector2 position = terrain.tileToWorldPosition(startX, y);
 
@@ -547,6 +698,15 @@ public class LevelGameArea extends GameArea {
   }
 
   private Entity adoptPlayer(Entity retainedPlayer) {
+    LadderComponent ladder = retainedPlayer.getComponent(LadderComponent.class);
+    if (ladder != null) {
+      ladder.setMapData(mapData);
+    }
+    SubLevelTravelComponent travel = retainedPlayer.getComponent(SubLevelTravelComponent.class);
+    if (travel != null) {
+      travel.setMapData(mapData);
+    }
+
     GridPoint2 spawn = entrySpawn != null ? entrySpawn : mapData.getSpawns().getPlayer();
     if (spawn == null) {
       spawn = new GridPoint2(0, 0);
@@ -783,6 +943,72 @@ public class LevelGameArea extends GameArea {
     resourceService.unloadAssets(entityMusic);
   }
 
+  /** Spawns the lighting in the level */
+  private void spawnLighting() {
+    // get service
+    LightService ls = ServiceLocator.getLightService();
+
+    // get lighting data from the mapdata
+    LightingConfig cfg = mapData.getLighting();
+
+    // reset the lighting to default if map has no lighting data
+    if (cfg == null) {
+      ls.setAmbient(LightColour.AMBIENT_LIGHT.getColour(), 1f);
+      return;
+    }
+
+    // get current player position (for sublevel lighting)
+    int row = (int) Math.floor(player.getCenterPosition().y / mapData.getTileSize());
+    SubLevel section = mapData.getSubLevelAt(row);
+    LightingConfig.Ambient a = cfg.ambientFor(section == null ? null : section.id());
+    ls.setAmbient(a.color(), a.intensity()); // set ambient to the right sublevel lighting
+
+    Vector2 origin = terrain.tileToWorldPosition(0, 0);
+    if (origin == null) {
+      logger.warn("No terrain origin; skipping tile lights for '{}'", mapData.getName());
+    } else {
+      float ts = mapData.getTileSize();
+      // scan for light sources in the json/mapdata
+      List<EmitterScanner.LightPlacement> placements = EmitterScanner.scan(mapData.getLayers(), ts);
+
+      // if exceeding light budget, skip some lights
+      int step = 1;
+      if (placements.size() > LIGHT_BUDGET) {
+        step = (int) Math.ceil(placements.size() / (double) LIGHT_BUDGET);
+        logger.warn(
+            "Map '{}' wants {} lights, budget {}; keeping 1 in {}",
+            mapData.getName(),
+            placements.size(),
+            LIGHT_BUDGET,
+            step);
+      }
+
+      logger.info("Tile light placements: {}", placements.size());
+
+      // place all light tiles scanned
+      for (int i = 0; i < placements.size(); i += step) {
+        EmitterScanner.LightPlacement p = placements.get(i);
+        Vector2 world = new Vector2(origin.x + p.tileX() * ts, origin.y + p.tileY() * ts);
+        spawnEntity(new Entity().addComponent(new LightComponent(p.spec(), world)));
+      }
+      logger.info(
+          "Spawned {} tile lights for '{}'",
+          (placements.size() + step - 1) / step,
+          mapData.getName());
+    }
+
+    // player light: room-owned, follows the player
+    spawnEntity(new Entity().addComponent(new LightComponent(cfg.player(), player)));
+  }
+
+  /** Fades the ambient to the given sub-level's setting. No-op for maps without lighting. */
+  public void fadeAmbientForSection(String subLevelId, float seconds) {
+    LightingConfig cfg = mapData.getLighting();
+    if (cfg == null) return;
+    LightingConfig.Ambient a = cfg.ambientFor(subLevelId);
+    ServiceLocator.getLightService().fadeAmbientTo(a.color(), a.intensity(), seconds);
+  }
+
   @Override
   public void dispose() {
     super.dispose();
@@ -798,5 +1024,20 @@ public class LevelGameArea extends GameArea {
         spawnEntityAt(npc, marker.position(), true, true);
       }
     }
+  }
+
+  private void spawnTortoises() {
+    if (!LEVEL_1_NAME.equals(mapData.getName())) {
+      return;
+    }
+    spawnTortoiseIfNotFound(TORTOISE_LEVEL_1_A_ID, TORTOISE_LEVEL_1_A_SPAWN);
+  }
+
+  private void spawnTortoiseIfNotFound(String tortoiseId, GridPoint2 position) {
+    if (TortoiseFactory.isFound(tortoiseId)) {
+      return;
+    }
+    Entity tortoise = TortoiseFactory.createTortoise(tortoiseId);
+    spawnEntityAt(tortoise, position, true, true);
   }
 }

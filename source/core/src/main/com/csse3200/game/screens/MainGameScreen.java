@@ -3,7 +3,10 @@ package com.csse3200.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.areas.LevelGameArea;
@@ -11,7 +14,9 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SubLevel;
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.gamearea.SubLevelEvents;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
 import com.csse3200.game.components.loot.LootRegistry;
@@ -20,6 +25,7 @@ import com.csse3200.game.components.maingame.DeathScreenInputComponent;
 import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
+import com.csse3200.game.components.player.NoclipInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
@@ -34,15 +40,25 @@ import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.pausemenu.*;
+import com.csse3200.game.perks.PerkSelectionDisplay;
+import com.csse3200.game.perks.PerkSelectionInputComponent;
+import com.csse3200.game.perks.PerkService;
+import com.csse3200.game.perks.TortoiseFactory;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.GameTime;
+import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
+import com.csse3200.game.ui.terminal.commands.GodModeCommand;
+import com.csse3200.game.ui.terminal.commands.NoclipCommand;
+import com.csse3200.game.ui.terminal.commands.PerkCommand;
+import com.csse3200.game.ui.terminal.commands.TeleportCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
@@ -50,6 +66,7 @@ import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -77,7 +94,11 @@ public class MainGameScreen extends ScreenAdapter {
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
+  private static final String THIRD_ROOM_MAP = "maps/level3.json";
+  private static final GridPoint2 LEVEL_ONE_DUNGEON_SPAWN = new GridPoint2(3, 3);
+  private static final GridPoint2 LEVEL_ONE_NETHER_SPAWN = new GridPoint2(27, 34);
   private static final float GAMEPLAY_ZOOM = 0.95f;
+  private static final float NOCLIP_VERTICAL_SPEED = 7f;
 
   private final GdxGame game;
 
@@ -97,6 +118,11 @@ public class MainGameScreen extends ScreenAdapter {
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
   private Entity subLevelTravelPromptEntity;
+  private String currentLightSection;
+  private final Map<Fixture, Short> noclipFixtureMasks = new IdentityHashMap<>();
+  private boolean noclipEnabled;
+  private float noclipVerticalDirection;
+  private NoclipInputComponent noclipInputComponent;
 
   public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
@@ -115,6 +141,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     ServiceLocator.registerEntityService(new EntityService());
     ServiceLocator.registerRenderService(new RenderService());
+    ServiceLocator.registerLightService(new LightService(physicsEngine.getWorld()));
 
     renderer = RenderFactory.createRenderer();
     renderer.getCamera().getEntity().setPosition(CAMERA_POSITION);
@@ -144,6 +171,9 @@ public class MainGameScreen extends ScreenAdapter {
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
       EnemyRegistry.loadFrom(new ArrayList<>());
+
+      PerkService.resetAll();
+      TortoiseFactory.resetAll();
     }
 
     currentRoomMapPath = initialRoomMap;
@@ -199,23 +229,34 @@ public class MainGameScreen extends ScreenAdapter {
     return new HashMap<>(lootSeedsByRoom);
   }
 
-  /**
-   * Respawns the player in the current room after death.
-   *
-   * <p>The existing LevelGameArea is kept alive so that loot dropped by the dead player remains in
-   * the world. A completely new player is created by LevelGameArea rather than restoring the dead
-   * player's inventory.
-   */
+  /** Respawns the player at the beginning of the level-one dungeon after death. */
   private void revivePlayer() {
-    logger.info("Reviving player in current room '{}'", currentRoomMapPath);
+    logger.info("Reviving player at the start of '{}'", FIRST_ROOM_MAP);
 
     /*
-     * Create a completely fresh player through LevelGameArea.
-     *
-     * This removes the old dead player from the area and creates a
-     * brand-new player through PlayerFactory.
+     * Rebuild level one without retaining the dead player. This creates a completely fresh player
+     * through PlayerFactory at the dungeon spawn and prevents the current or most recently
+     * debug-teleported room from becoming the death respawn location.
      */
-    Entity newPlayer = levelGameArea.respawnPlayer();
+    LevelGameArea previousArea = levelGameArea;
+    removeSubLevelTravelPrompt();
+
+    Long savedSeed = lootSeedsByRoom.get(FIRST_ROOM_MAP);
+    LevelGameArea respawnArea =
+        savedSeed != null
+            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed)
+            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
+
+    respawnArea.create();
+    lootSeedsByRoom.put(FIRST_ROOM_MAP, respawnArea.getLootSeed());
+
+    previousArea.dispose();
+    respawnArea.resumeMusic();
+
+    levelGameArea = respawnArea;
+    currentRoomMapPath = FIRST_ROOM_MAP;
+
+    Entity newPlayer = respawnArea.getPlayer();
 
     /*
      * DeathStateComponent freezes the whole game (timeScale = 0f) when the
@@ -249,14 +290,8 @@ public class MainGameScreen extends ScreenAdapter {
     ServiceLocator.getEntityService()
         .register(new Entity().addComponent(new SubLevelTitleDisplay(newPlayer)));
 
-    /*
-     * Recreate the travel prompt so it references the new player.
-     */
-    removeSubLevelTravelPrompt();
-
-    LevelView level = levelGameArea.getLevel();
-
-    if (level != null && !level.subLevels().isEmpty()) {
+    /* Recreate the travel prompt so it references the new player. */
+    if (!respawnArea.getLevel().subLevels().isEmpty()) {
       createSubLevelTravelPrompt(newPlayer);
     }
 
@@ -275,7 +310,7 @@ public class MainGameScreen extends ScreenAdapter {
     /*
      * Put the camera back onto the newly-created player.
      */
-    fitCameraToMap(levelGameArea);
+    fitCameraToMap(respawnArea);
 
     logger.info("Player revived successfully");
   }
@@ -322,6 +357,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     Vector2 playerPosition = player.getPosition();
 
+    // Determine which named section of this map the player is standing in.
     LevelView level = levelGameArea.getLevel();
 
     float tileSize = level.tileSize();
@@ -329,6 +365,13 @@ public class MainGameScreen extends ScreenAdapter {
     int playerRow = (int) Math.floor(player.getCenterPosition().y / tileSize);
 
     SubLevel section = level.subLevelAt(playerRow);
+
+    // change lighting if needed
+    String sectionId = section == null ? null : section.id();
+    if (!java.util.Objects.equals(sectionId, currentLightSection)) {
+      currentLightSection = sectionId;
+      levelGameArea.fadeAmbientForSection(sectionId, 0.5f);
+    }
 
     boolean inNether = section != null && section != level.subLevels().getFirst();
 
@@ -340,7 +383,7 @@ public class MainGameScreen extends ScreenAdapter {
         && section != null
         && section.title() != null) {
 
-      player.getEvents().trigger("subLevelEntered", section.title());
+      player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, section.title());
     }
 
     playerInNether = inNether;
@@ -405,8 +448,12 @@ public class MainGameScreen extends ScreenAdapter {
      */
     if (pauseMenu == null || !pauseMenu.isPaused()) {
 
+      applyNoclipState();
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
+      if (!noclipEnabled) {
+        levelGameArea.recoverPlayerIfOutOfBounds();
+      }
     }
 
     if (levelGameArea.isPlayerDead()) {
@@ -446,6 +493,10 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   private void transitionTo(RoomTransition transition) {
+    transitionTo(transition, true);
+  }
+
+  private void transitionTo(RoomTransition transition, boolean saveCheckpoint) {
 
     logger.info(
         "Entering '{}' through transition '{}'",
@@ -478,20 +529,127 @@ public class MainGameScreen extends ScreenAdapter {
 
     levelGameArea = nextArea;
 
+    /*
+     * Preserve the current map path for save/load and pause-menu behaviour.
+     */
     currentRoomMapPath = transition.getDestinationMap();
 
-    pauseMenuActions.saveCheckpoint();
+    if (saveCheckpoint) {
+      pauseMenuActions.saveCheckpoint();
+    }
 
     playerInNether = null;
+    currentLightSection = null;
 
-    player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
+    player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, nextArea.getMapData().getName());
 
+    /*
+     * The lift prompt belongs to any map split into sub-levels,
+     * not just one named file.
+     */
     if (!nextArea.getLevel().subLevels().isEmpty()) {
 
       createSubLevelTravelPrompt(player);
     }
 
     fitCameraToMap(nextArea);
+  }
+
+  /** Loads a debug destination while retaining player state without changing normal progression. */
+  private void debugTeleport(String mapPath, GridPoint2 spawn) {
+    RoomTransition debugTransition =
+        new RoomTransition("debug-teleport", new GridPoint2(0, 0), 1, 1, null, mapPath, spawn);
+    transitionTo(debugTransition, false);
+
+    Entity player = levelGameArea.getPlayer();
+    LevelView level = levelGameArea.getLevel();
+    int playerRow = (int) Math.floor(player.getCenterPosition().y / level.tileSize());
+    SubLevel section = level.subLevelAt(playerRow);
+    if (section != null && section.title() != null) {
+      player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, section.title());
+      playerInNether = section != level.subLevels().getFirst();
+    }
+  }
+
+  /** Enables or disables the reversible developer-only noclip state. */
+  private void setNoclipEnabled(boolean enabled) {
+    if (noclipEnabled == enabled) {
+      return;
+    }
+
+    noclipEnabled = enabled;
+    noclipInputComponent.setNoclipEnabled(enabled);
+    if (enabled) {
+      enableNoclipForCurrentPlayer(true);
+      logger.info("Noclip enabled");
+    } else {
+      disableNoclipForCurrentPlayer();
+      logger.info("Noclip disabled");
+    }
+  }
+
+  /** Reapplies noclip before each physics step in case another movement system changed gravity. */
+  private void applyNoclipState() {
+    if (noclipEnabled) {
+      enableNoclipForCurrentPlayer(false);
+    }
+  }
+
+  private void enableNoclipForCurrentPlayer(boolean stopVerticalMovement) {
+    Entity player = getPlayerEntity();
+    PhysicsComponent physics = player == null ? null : player.getComponent(PhysicsComponent.class);
+    if (physics == null) {
+      return;
+    }
+
+    var body = physics.getBody();
+    body.setGravityScale(0f);
+    float verticalVelocity =
+        stopVerticalMovement ? 0f : noclipVerticalDirection * NOCLIP_VERTICAL_SPEED;
+    body.setLinearVelocity(body.getLinearVelocity().x, verticalVelocity);
+
+    for (Fixture fixture : body.getFixtureList()) {
+      noclipFixtureMasks.putIfAbsent(fixture, fixture.getFilterData().maskBits);
+      Filter filter = fixture.getFilterData();
+      filter.maskBits = 0;
+      fixture.setFilterData(filter);
+    }
+  }
+
+  private void disableNoclipForCurrentPlayer() {
+    Entity player = getPlayerEntity();
+    PhysicsComponent physics = player == null ? null : player.getComponent(PhysicsComponent.class);
+    if (physics != null) {
+      var body = physics.getBody();
+      body.setGravityScale(1f);
+      body.setLinearVelocity(body.getLinearVelocity().x, 0f);
+      for (Fixture fixture : body.getFixtureList()) {
+        Short originalMask = noclipFixtureMasks.get(fixture);
+        if (originalMask != null) {
+          Filter filter = fixture.getFilterData();
+          filter.maskBits = originalMask;
+          fixture.setFilterData(filter);
+        }
+      }
+    }
+    noclipFixtureMasks.clear();
+  }
+
+  private void setNoclipVerticalDirection(double direction) {
+    noclipVerticalDirection = (float) Math.clamp(direction, -1d, 1d);
+  }
+
+  private void setGodModeEnabled(boolean enabled) {
+    Entity player = getPlayerEntity();
+    CombatStatsComponent stats =
+        player == null ? null : player.getComponent(CombatStatsComponent.class);
+    if (stats == null) {
+      logger.warn("Cannot change god mode: the current player has no combat stats");
+      return;
+    }
+
+    stats.setInvulnerable(enabled);
+    logger.info("God mode {}", enabled ? "enabled" : "disabled");
   }
 
   private void createSubLevelTravelPrompt(Entity player) {
@@ -515,7 +673,7 @@ public class MainGameScreen extends ScreenAdapter {
   public void resize(int width, int height) {
 
     renderer.resize(width, height);
-
+    ServiceLocator.getLightService().resize(width, height);
     logger.trace("Resized renderer: ({} x {})", width, height);
   }
 
@@ -534,7 +692,7 @@ public class MainGameScreen extends ScreenAdapter {
     logger.debug("Disposing main game screen");
 
     ServiceLocator.getEntityService().dispose();
-
+    ServiceLocator.getLightService().dispose();
     physicsEngine.dispose();
 
     renderer.dispose();
@@ -571,19 +729,39 @@ public class MainGameScreen extends ScreenAdapter {
      * Try Again now revives the player instead of
      * restarting the entire game.
      */
-    deathScreenDisplay = new DeathScreenDisplay(this.game, this::revivePlayer);
+    PerkSelectionDisplay perkSelectionDisplay = new PerkSelectionDisplay(this::revivePlayer);
+    deathScreenDisplay =
+        new DeathScreenDisplay(
+            this.game,
+            () -> {
+              deathScreenDisplay.hideDeathScreen();
+              perkSelectionDisplay.show();
+            });
 
     winScreenDisplay = new WinScreenDisplay(this.game);
 
     Terminal terminal = new Terminal();
 
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
+    terminal.addCommand(
+        "tp",
+        new TeleportCommand(
+            Map.of(
+                "lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
+                "lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
+                "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
+                "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
+    terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
+    terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
+    terminal.addCommand("perk", new PerkCommand());
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
 
     UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
 
     upgradesDisplay = new UpgradesDisplay();
+
+    noclipInputComponent = new NoclipInputComponent(this::setNoclipVerticalDirection);
 
     PauseMenuActions pauseMenuActions =
         new PauseMenuActions(
@@ -595,6 +773,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new PerformanceDisplay())
         .addComponent(terminal)
         .addComponent(inputComponent)
+        .addComponent(noclipInputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
         .addComponent(new KeyboardPauseInput())
@@ -602,6 +781,8 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuActions)
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
+        .addComponent(perkSelectionDisplay)
+        .addComponent(new PerkSelectionInputComponent())
         .addComponent(new DeathScreenInputComponent())
         .addComponent(winScreenDisplay)
         .addComponent(new WinScreenInputComponent())
