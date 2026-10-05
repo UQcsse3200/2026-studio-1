@@ -9,10 +9,7 @@ import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 
-/**
- * Handles player projectile collisions and damage.
- *
- */
+/** Handles player projectile collisions and damage. */
 public class PlayerProjectileHitComponent extends Component {
   private final int damage;
   private final Entity owner;
