@@ -47,10 +47,9 @@ public class NPCFactory {
   private static final String SKELETON_BOW_ATLAS_PATH = "images/enemy_weapons/enemy_bow.atlas";
   private static final String MINOTAUR_ATLAS_PATH = "images/enemies/minotaur.atlas";
   private static final String CYCLOPS_ATLAS_PATH = "images/enemies/cyclops.atlas";
-  private static final String GORGON_ATLAS_PATH = "images/enemies/gorgon.atlas";
   private static final String CENTAUR_ATLAS_PATH = "images/enemies/centaur.atlas";
   private static final String CERBERUS_ATLAS_PATH = "images/enemies/cerberus.atlas";
-  private static final String MEDUSA_ATLAS_PATH = "images/enemies/medusa.atlas";
+  private static final String MEDUSA_ATLAS_PATH = "images/enemies/gorgon.atlas";
   private static final String ZEUS_ATLAS_PATH = "images/enemies/zeus.atlas";
   // Harpy and ranged harpy both use harpy_y atlas
   private static final String HARPY_ATLAS_PATH = "images/enemies/harpy_y.atlas";
@@ -487,10 +486,10 @@ public class NPCFactory {
    * Creates Medusa, a mini-boss that paces on the spot, bites up close and petrifies the player
    * with a ranged gaze.
    *
-   * <p>She uses her real {@code gorgon} atlas and {@link MedusaAnimationController}, a natural
-   * melee weapon and a natural gaze weapon (like the Cyclops), and freezes the player through the
-   * existing {@code "applySpeedEffect"} event (the same one lightning uses) instead of a petrify
-   * component (still a PLACEHOLDER: petrify should become its own component, see the TODO below).
+   * <p>PLACEHOLDER BUILD: made only from existing classes. She uses the Cyclops atlas and animation
+   * controller, a natural melee weapon and a natural gaze weapon (like the Cyclops), and freezes
+   * the player through the existing {@code "applySpeedEffect"} event (the same one lightning uses)
+   * instead of a petrify component.
    *
    * @param target entity to attack (the player); must not be null
    * @return Medusa, ready to register
@@ -515,16 +514,17 @@ public class NPCFactory {
     // More gold because no weapon drops (natural weapons never go in the inventory).
     InventoryComponent inventory = new InventoryComponent(12);
 
+    // Medusa uses gorgon atlas with idle, walk, attack, and death animations
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(GORGON_ATLAS_PATH), true);
+        new AnimationRenderComponent(loadIndependentAtlas(MEDUSA_ATLAS_PATH), true);
     animator.addAnimation("gorgon_idle_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("gorgon_idle_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("gorgon_walk_l", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("gorgon_walk_r", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("gorgon_attack_l", 0.1f, Animation.PlayMode.NORMAL);
     animator.addAnimation("gorgon_attack_r", 0.1f, Animation.PlayMode.NORMAL);
-    animator.addAnimation("gorgon_dead_l", 0.1f, Animation.PlayMode.NORMAL);
-    animator.addAnimation("gorgon_dead_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("gorgon_dead_l", 0.15f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("gorgon_dead_r", 0.15f, Animation.PlayMode.NORMAL);
 
     WeaponItem bite = WeaponItem.natural("Medusa Bite", config.baseAttack, config.melee.windup);
     WeaponItem gaze = WeaponItem.natural("Medusa Gaze", config.baseAttack, config.ranged.windup);
@@ -567,7 +567,7 @@ public class NPCFactory {
                 target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW))
         .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range));
 
-    medusa.setScale(scale, scale * (48f / 64f));
+    medusa.setScale(scale, scale * (91f / 128f));
     PhysicsUtils.setScaledCollider(medusa, collisionScale.x, collisionScale.y);
     return medusa;
   }
@@ -649,14 +649,19 @@ public class NPCFactory {
     InventoryComponent inventory = new InventoryComponent(3);
     inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 2));
 
-    // TODO (ART): Zeus needs his own atlas (idle, walk, sword swing, lightning cast). Until it
-    // exists he borrows the Cyclops atlas, animations and controller.
+    // Zeus uses zeus atlas with idle, walk, strike, slam (lightning cast), and death animations
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
-    animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(ZEUS_ATLAS_PATH), true);
+    animator.addAnimation("zeus_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_walk_l", 0.08f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_walk_r", 0.08f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_p_strike_l", 0.08f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_p_strike_r", 0.08f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_slam_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_slam_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_death_l", 0.15f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_death_r", 0.15f, Animation.PlayMode.NORMAL);
 
     WeaponItem lightning =
         WeaponItem.natural("Zeus Lightning", config.baseAttack, config.ranged.windup);
@@ -676,8 +681,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
-        // TODO (ART): replace with ZeusAnimationController.
-        .addComponent(new CyclopsAnimationController());
+        .addComponent(new ZeusAnimationController());
 
     zeus.getComponent(RangedAttackComponent.class)
         .setProjectileSpeed(config.ranged.projectileSpeed);
@@ -692,7 +696,7 @@ public class NPCFactory {
             new RangedAttackTask(
                 target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.LIGHTNING));
 
-    zeus.setScale(scale, scale * (48f / 64f));
+    zeus.setScale(scale, scale * (68f / 37f));
     PhysicsUtils.setScaledCollider(zeus, collisionScale.x, collisionScale.y);
     return zeus;
   }
@@ -1071,7 +1075,6 @@ public class NPCFactory {
             .addComponent(new ColliderComponent())
             .addComponent(new FlightComponent(flightDamping))
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(new FlightComponent(flightDamping))
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);

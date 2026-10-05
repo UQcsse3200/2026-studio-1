@@ -8,15 +8,11 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 
 /**
- * This class listens to events relevant to Medusa's state and plays the animation when one of the
- * events is triggered. It also updates the animation state based on velocity and attacks (melee
- * bite and ranged gaze), driven by the real {@code gorgon} atlas, which only has idle, walk, attack
- * and dead animations (no separate rock/laser/stomp states like the Cyclops).
- * This class listens to events relevant to a Medusa entity's state and plays the corresponding
- * animations (idle, walk, attack, death) from the gorgon atlas. It updates facing direction and
- * animation state based on velocity, melee bite attacks, and ranged gaze attacks.
+ * This class listens to events relevant to a Zeus entity's state and plays the corresponding
+ * animations (idle, walk, physical strike, slam/lightning cast, death) from the zeus atlas. It uses
+ * the slam animation for the ranged lightning cast and the strike animation for melee attacks.
  */
-public class MedusaAnimationController extends Component {
+public class ZeusAnimationController extends Component {
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
   private AnimationState currentAnimState = null;
@@ -28,8 +24,10 @@ public class MedusaAnimationController extends Component {
     IDLE_RIGHT,
     WALK_LEFT,
     WALK_RIGHT,
-    ATTACK_LEFT,
-    ATTACK_RIGHT,
+    STRIKE_LEFT,
+    STRIKE_RIGHT,
+    SLAM_LEFT,
+    SLAM_RIGHT,
     DEATH_LEFT,
     DEATH_RIGHT
   }
@@ -46,24 +44,31 @@ public class MedusaAnimationController extends Component {
     entity.getEvents().addListener("walkLeftStart", this::animateWalkL);
     entity.getEvents().addListener("walkRightStart", this::animateWalkR);
 
-    // Attack listeners - melee bite and ranged gaze both play the same attack animation, since
-    // the gorgon atlas has one attack animation per side rather than separate melee/ranged ones.
-    entity.getEvents().addListener("attackLeftStart", this::animateAttackL);
-    entity.getEvents().addListener("attackRightStart", this::animateAttackR);
+    // Physical / sword melee strike listeners
+    entity.getEvents().addListener("strikeLeftStart", this::animateStrikeL);
+    entity.getEvents().addListener("strikeRightStart", this::animateStrikeR);
+    entity.getEvents().addListener("meleeLeftStart", this::animateStrikeL);
+    entity.getEvents().addListener("meleeRightStart", this::animateStrikeR);
+    entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
+    entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
+    entity.getEvents().addListener("strike", this::onMeleeAttack);
 
-    // Melee attack listeners (bite)
-    entity.getEvents().addListener("meleeAttack", this::onAttack);
-    entity.getEvents().addListener("meleeAttackWindup", this::onAttack);
-    entity.getEvents().addListener("bite", this::onAttack);
-
-    // Ranged attack listeners (gaze)
-    entity.getEvents().addListener("rangedAttackWindup", this::onAttack);
-    entity.getEvents().addListener("rangedAttackFired", this::onAttack);
-    entity.getEvents().addListener("rangedAttackStart", () -> onAttack(null));
+    // Slam / lightning cast (ranged attack) listeners
+    entity.getEvents().addListener("slamLeftStart", this::animateSlamL);
+    entity.getEvents().addListener("slamRightStart", this::animateSlamR);
+    entity.getEvents().addListener("lightningLeftStart", this::animateSlamL);
+    entity.getEvents().addListener("lightningRightStart", this::animateSlamR);
+    entity.getEvents().addListener("rangedLeftStart", this::animateSlamL);
+    entity.getEvents().addListener("rangedRightStart", this::animateSlamR);
+    entity.getEvents().addListener("rangedAttackWindup", this::onRangedAttack);
+    entity.getEvents().addListener("rangedAttackFired", this::onRangedAttack);
+    entity.getEvents().addListener("rangedAttackStart", () -> onRangedAttack(null));
     entity
         .getEvents()
-        .addListener("rangedAttack", (Entity target, ProjectileType type) -> onAttack(target));
-    entity.getEvents().addListener("gaze", this::onAttack);
+        .addListener(
+            "rangedAttack", (Entity target, ProjectileType type) -> onRangedAttack(target));
+    entity.getEvents().addListener("lightning", this::onRangedAttack);
+    entity.getEvents().addListener("slam", this::onRangedAttack);
 
     // Death listeners
     entity.getEvents().addListener("deathLeftStart", this::animateDeathL);
@@ -98,8 +103,10 @@ public class MedusaAnimationController extends Component {
       }
     } else {
       if (!isAttacking
-          && (currentAnimState == AnimationState.ATTACK_LEFT
-              || currentAnimState == AnimationState.ATTACK_RIGHT)) {
+          && (currentAnimState == AnimationState.STRIKE_LEFT
+              || currentAnimState == AnimationState.STRIKE_RIGHT
+              || currentAnimState == AnimationState.SLAM_LEFT
+              || currentAnimState == AnimationState.SLAM_RIGHT)) {
         currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
         triggerStateEvent(currentAnimState);
       }
@@ -134,11 +141,17 @@ public class MedusaAnimationController extends Component {
       case WALK_RIGHT:
         entity.getEvents().trigger("walkRightStart");
         break;
-      case ATTACK_LEFT:
-        entity.getEvents().trigger("attackLeftStart");
+      case STRIKE_LEFT:
+        entity.getEvents().trigger("strikeLeftStart");
         break;
-      case ATTACK_RIGHT:
-        entity.getEvents().trigger("attackRightStart");
+      case STRIKE_RIGHT:
+        entity.getEvents().trigger("strikeRightStart");
+        break;
+      case SLAM_LEFT:
+        entity.getEvents().trigger("slamLeftStart");
+        break;
+      case SLAM_RIGHT:
+        entity.getEvents().trigger("slamRightStart");
         break;
       case DEATH_LEFT:
         entity.getEvents().trigger("deathLeftStart");
@@ -149,7 +162,7 @@ public class MedusaAnimationController extends Component {
     }
   }
 
-  private void onAttack(Entity target) {
+  private void onMeleeAttack(Entity target) {
     if (isDead) {
       return;
     }
@@ -159,10 +172,29 @@ public class MedusaAnimationController extends Component {
         && entity.getPosition() != null) {
       currentAnimState =
           (target.getPosition().x < entity.getPosition().x)
-              ? AnimationState.ATTACK_LEFT
-              : AnimationState.ATTACK_RIGHT;
+              ? AnimationState.STRIKE_LEFT
+              : AnimationState.STRIKE_RIGHT;
     } else {
-      currentAnimState = isFacingLeft() ? AnimationState.ATTACK_LEFT : AnimationState.ATTACK_RIGHT;
+      currentAnimState = isFacingLeft() ? AnimationState.STRIKE_LEFT : AnimationState.STRIKE_RIGHT;
+    }
+    isAttacking = true;
+    triggerStateEvent(currentAnimState);
+  }
+
+  private void onRangedAttack(Entity target) {
+    if (isDead) {
+      return;
+    }
+    if (target != null
+        && target.getPosition() != null
+        && entity != null
+        && entity.getPosition() != null) {
+      currentAnimState =
+          (target.getPosition().x < entity.getPosition().x)
+              ? AnimationState.SLAM_LEFT
+              : AnimationState.SLAM_RIGHT;
+    } else {
+      currentAnimState = isFacingLeft() ? AnimationState.SLAM_LEFT : AnimationState.SLAM_RIGHT;
     }
     isAttacking = true;
     triggerStateEvent(currentAnimState);
@@ -179,7 +211,7 @@ public class MedusaAnimationController extends Component {
     currentAnimState = AnimationState.IDLE_LEFT;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_idle_l");
+      animator.startAnimation("zeus_idle_l");
     }
   }
 
@@ -187,7 +219,7 @@ public class MedusaAnimationController extends Component {
     currentAnimState = AnimationState.IDLE_RIGHT;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_idle_r");
+      animator.startAnimation("zeus_idle_r");
     }
   }
 
@@ -195,7 +227,7 @@ public class MedusaAnimationController extends Component {
     currentAnimState = AnimationState.WALK_LEFT;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_walk_l");
+      animator.startAnimation("zeus_walk_l");
     }
   }
 
@@ -203,23 +235,39 @@ public class MedusaAnimationController extends Component {
     currentAnimState = AnimationState.WALK_RIGHT;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_walk_r");
+      animator.startAnimation("zeus_walk_r");
     }
   }
 
-  void animateAttackL() {
-    currentAnimState = AnimationState.ATTACK_LEFT;
+  void animateStrikeL() {
+    currentAnimState = AnimationState.STRIKE_LEFT;
     isAttacking = true;
     if (animator != null) {
-      animator.startAnimation("gorgon_attack_l");
+      animator.startAnimation("zeus_p_strike_l");
     }
   }
 
-  void animateAttackR() {
-    currentAnimState = AnimationState.ATTACK_RIGHT;
+  void animateStrikeR() {
+    currentAnimState = AnimationState.STRIKE_RIGHT;
     isAttacking = true;
     if (animator != null) {
-      animator.startAnimation("gorgon_attack_r");
+      animator.startAnimation("zeus_p_strike_r");
+    }
+  }
+
+  void animateSlamL() {
+    currentAnimState = AnimationState.SLAM_LEFT;
+    isAttacking = true;
+    if (animator != null) {
+      animator.startAnimation("zeus_slam_l");
+    }
+  }
+
+  void animateSlamR() {
+    currentAnimState = AnimationState.SLAM_RIGHT;
+    isAttacking = true;
+    if (animator != null) {
+      animator.startAnimation("zeus_slam_r");
     }
   }
 
@@ -228,7 +276,7 @@ public class MedusaAnimationController extends Component {
     isDead = true;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_dead_l");
+      animator.startAnimation("zeus_death_l");
     }
   }
 
@@ -237,21 +285,23 @@ public class MedusaAnimationController extends Component {
     isDead = true;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_dead_r");
+      animator.startAnimation("zeus_death_r");
     }
   }
 
   public boolean isFacingLeft() {
     return currentAnimState == AnimationState.IDLE_LEFT
         || currentAnimState == AnimationState.WALK_LEFT
-        || currentAnimState == AnimationState.ATTACK_LEFT
+        || currentAnimState == AnimationState.STRIKE_LEFT
+        || currentAnimState == AnimationState.SLAM_LEFT
         || currentAnimState == AnimationState.DEATH_LEFT;
   }
 
   public boolean isFacingRight() {
     return currentAnimState == AnimationState.IDLE_RIGHT
         || currentAnimState == AnimationState.WALK_RIGHT
-        || currentAnimState == AnimationState.ATTACK_RIGHT
+        || currentAnimState == AnimationState.STRIKE_RIGHT
+        || currentAnimState == AnimationState.SLAM_RIGHT
         || currentAnimState == AnimationState.DEATH_RIGHT;
   }
 
