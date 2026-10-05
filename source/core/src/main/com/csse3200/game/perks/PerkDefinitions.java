@@ -12,17 +12,17 @@ package com.csse3200.game.perks;
 public final class PerkDefinitions {
   private PerkDefinitions() {}
 
-  // Dont judge me for the perk IDs :D
   public static void registerAll() {
     PerkService.register(
-        new Perk(
-            "shieldMaster", "Shield Enhancement", "Collect shield 5 times", "shieldCollected", 5));
-
-    PerkService.register(new Perk("thickSkin", "Max Health", "Kill 10 enemies", "enemyKilled", 10));
-
-    PerkService.register(new Perk("timeLord", "Time Freeze", "Find the turtle", "Tortoise", 1));
+        new Perk("dash_novice", "Dash Novice", "Use dash 10 times", "dashUsed", 10));
+    PerkService.register(
+        new Perk("dash_master", "Dash Master", "Use dash 100 times", "dashUsed", 100));
 
     PerkService.register(
-        new Perk("snatcher", "Loot Drop", "Spend 120 amount of gold", "GoldSpent", 120));
+        new Perk("wall_jumper", "Wall Jumper", "Perform 25 wall jumps", "wallJumpUsed", 25));
+
+    PerkService.register(new Perk("slayer", "Slayer", "Defeat 50 enemies", "enemyKilled", 50));
+    PerkService.register(
+        new Perk("boss_hunter", "Boss Hunter", "Defeat 5 bosses", "bossDefeated", 5));
   }
 }

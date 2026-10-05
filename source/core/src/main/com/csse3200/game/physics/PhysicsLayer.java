@@ -12,8 +12,6 @@ public class PhysicsLayer {
   public static final short NPC = (1 << 3);
   // Collectible item sensors must not share the hazard bit.
   public static final short ITEM = (1 << 5);
-  // Marker bit for obstacle surfaces which can be crossed from below.
-  public static final short PLATFORM = (1 << 6);
   public static final short ALL = ~0;
 
   public static boolean contains(short filterBits, short layer) {

@@ -226,19 +226,6 @@ public class UpgradeNode {
     }
   }
 
-  /**
-   * Forces this node back to Tier 0 (inactive) without firing {@code onTierChanged} or {@code
-   * onExpired} - unlike natural expiry via {@link #tickTime(float)}/{@link #onEnemyKilled()}, this
-   * is for discarding the upgrade outright (e.g. the player who earned it no longer exists), where
-   * those callbacks' side effects (reverting a now-disposed player's stats, etc.) would be
-   * meaningless or unsafe to run.
-   */
-  public void reset() {
-    currentTier = 0;
-    remainingSeconds = 0;
-    remainingKills = 0;
-  }
-
   /** Human-readable remaining-effect text for the UI, e.g. "7s left" or "3 kills left". */
   public String getRemainingText() {
     if (!isActive()) {

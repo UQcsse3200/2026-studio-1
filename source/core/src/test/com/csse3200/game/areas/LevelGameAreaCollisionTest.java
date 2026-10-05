@@ -1,10 +1,8 @@
 package com.csse3200.game.areas;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.LevelGameArea.SolidRectangle;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
@@ -15,8 +13,6 @@ import org.junit.jupiter.api.Test;
 class LevelGameAreaCollisionTest {
   private static final TileDefinition WALL = new TileDefinition(TileType.WALL, null);
   private static final TileDefinition PLATFORM = new TileDefinition(TileType.PLATFORM, null);
-  private static final TileDefinition ONE_WAY_PLATFORM =
-      new TileDefinition(TileType.ONE_WAY_PLATFORM, null);
 
   @Test
   void mergesStraightWallIntoOneRectangle() {
@@ -69,37 +65,11 @@ class LevelGameAreaCollisionTest {
   }
 
   @Test
-  void leavesPlatformsForThinPlatformCollisionGeneration() {
+  void leavesPlatformsForOneWayPlatformCollisionGeneration() {
     MapLayerData collisionLayer = new MapLayerData("collision", 3, 1);
     fill(collisionLayer, 0, 0, 3, 1, PLATFORM);
 
     assertTrue(LevelGameArea.findSolidRectangles(collisionLayer).isEmpty());
-  }
-
-  @Test
-  void leavesOneWayPlatformsForOneWayCollisionGeneration() {
-    MapLayerData collisionLayer = new MapLayerData("collision", 3, 1);
-    fill(collisionLayer, 0, 0, 3, 1, ONE_WAY_PLATFORM);
-
-    assertTrue(LevelGameArea.findSolidRectangles(collisionLayer).isEmpty());
-  }
-
-  @Test
-  void detectsAPlayerWhoHasCompletelyLeftTheMap() {
-    Vector2 playerScale = new Vector2(0.75f, 0.75f);
-
-    assertTrue(LevelGameArea.isOutsideMap(new Vector2(-1.5f, 2f), playerScale, 10f, 8f, 0.5f));
-    assertTrue(LevelGameArea.isOutsideMap(new Vector2(11f, 2f), playerScale, 10f, 8f, 0.5f));
-    assertTrue(LevelGameArea.isOutsideMap(new Vector2(2f, -1.5f), playerScale, 10f, 8f, 0.5f));
-    assertFalse(LevelGameArea.isOutsideMap(new Vector2(2f, 2f), playerScale, 10f, 8f, 0.5f));
-  }
-
-  @Test
-  void doesNotRecoverAPlayerLeavingAboveTheMap() {
-    Vector2 playerScale = new Vector2(0.75f, 0.75f);
-
-    assertFalse(LevelGameArea.isOutsideMap(new Vector2(2f, 7.5f), playerScale, 10f, 8f, 0.5f));
-    assertFalse(LevelGameArea.isOutsideMap(new Vector2(-1.5f, 8f), playerScale, 10f, 8f, 0.5f));
   }
 
   private static void fill(

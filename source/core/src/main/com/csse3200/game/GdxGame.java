@@ -114,11 +114,12 @@ public class GdxGame extends Game {
 
       case SETTINGS:
         return new SettingsScreen(this);
-      case DEATH_SCREEN:
-        return new DeathScreen(this);
 
       case PERKS:
         return new PerksScreen(this);
+
+      case DEATH_SCREEN:
+        return new DeathScreen(this);
 
       default:
         return null;

@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.CollisionType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -93,11 +92,9 @@ public final class MapValidator {
     }
 
     checkCollisionLayer(map, name, problems);
-    checkCollisionBoundary(map, name, problems);
     checkPlayerSpawn(map, name, problems);
     checkSpawnBounds(map, name, problems);
     checkTransitions(map, name, assetExists, problems);
-    checkBackdrops(map, name, problems);
     checkTextures(map, name, assetExists, problems);
     return problems;
   }
@@ -122,35 +119,6 @@ public final class MapValidator {
                   + "' or '"
                   + LevelMapData.TERRAIN_LAYER
                   + "' layer, so nothing in it is solid. Check the layer names for a typo."));
-    }
-  }
-
-  /** Open side or bottom edges allow the player to leave the physics world and become stuck. */
-  private static void checkCollisionBoundary(
-      LevelMapData map, String name, List<Problem> problems) {
-    MapLayerData layer = map.getCollisionLayer();
-    if (layer == null || layer.getWidth() == 0 || layer.getHeight() == 0) {
-      return;
-    }
-
-    List<String> openEdges = new ArrayList<>();
-    if (!isSolidColumn(map, 0)) {
-      openEdges.add("left");
-    }
-    if (!isSolidColumn(map, map.getWidth() - 1)) {
-      openEdges.add("right");
-    }
-    if (!isSupportingRow(map, 0)) {
-      openEdges.add("bottom");
-    }
-    if (!openEdges.isEmpty()) {
-      problems.add(
-          new Problem(
-              Severity.WARNING,
-              about(name)
-                  + "has an open collision boundary on its "
-                  + String.join(", ", openEdges)
-                  + " edge(s), allowing the player to leave the map"));
     }
   }
 
@@ -246,32 +214,6 @@ public final class MapValidator {
     }
   }
 
-  /** A backdrop or overlay is drawn for the sub-level it names, so one naming nothing is unseen. */
-  private static void checkBackdrops(LevelMapData map, String name, List<Problem> problems) {
-    checkSubLevelKeys(map, name, "a backdrop", map.getBackdrops().keySet(), problems);
-    checkSubLevelKeys(map, name, "an overlay", map.getOverlays().keySet(), problems);
-  }
-
-  private static void checkSubLevelKeys(
-      LevelMapData map, String name, String what, Set<String> keys, List<Problem> problems) {
-    for (String subLevelId : keys) {
-      boolean known =
-          subLevelId.equals(LevelMapData.WHOLE_MAP_BACKDROP)
-              || map.getSubLevels().stream().anyMatch(subLevel -> subLevel.id().equals(subLevelId));
-      if (!known) {
-        problems.add(
-            new Problem(
-                Severity.ERROR,
-                about(name)
-                    + "has "
-                    + what
-                    + " for sub-level '"
-                    + subLevelId
-                    + "', which it does not define"));
-      }
-    }
-  }
-
   private static void checkTextures(
       LevelMapData map, String name, Predicate<String> assetExists, List<Problem> problems) {
     if (assetExists == null) {
@@ -310,26 +252,6 @@ public final class MapValidator {
       return false;
     }
     CollisionType collision = tile.type().getCollisionType();
-    return collision == CollisionType.SOLID
-        || collision == CollisionType.PLATFORM
-        || collision == CollisionType.ONE_WAY_PLATFORM;
-  }
-
-  private static boolean isSolidColumn(LevelMapData map, int x) {
-    for (int y = 0; y < map.getHeight(); y++) {
-      if (!isSolid(map, x, y)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private static boolean isSupportingRow(LevelMapData map, int y) {
-    for (int x = 0; x < map.getWidth(); x++) {
-      if (!isSupporting(map, x, y)) {
-        return false;
-      }
-    }
-    return true;
+    return collision == CollisionType.SOLID || collision == CollisionType.PLATFORM;
   }
 }

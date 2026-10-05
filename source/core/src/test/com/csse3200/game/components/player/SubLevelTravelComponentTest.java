@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.math.Vector2;
-import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.entities.Entity;
 import org.junit.jupiter.api.Test;
 
@@ -29,21 +28,6 @@ class SubLevelTravelComponentTest {
     positionCentre(player, DUNGEON_DOOR_X + 1f, DUNGEON_DOOR_Y);
 
     assertFalse(travel.canTravelToNether());
-  }
-
-  @Test
-  void disablesLevelOneTravelAfterEnteringAnotherRoom() {
-    SubLevelTravelComponent travel = new SubLevelTravelComponent();
-    Entity player = new Entity().addComponent(travel);
-    positionCentre(player, DUNGEON_DOOR_X, DUNGEON_DOOR_Y);
-
-    assertTrue(travel.canTravelToNether());
-
-    LevelMapData levelTwo = LevelMapData.builder("level-two-test").size(1, 1).build();
-    travel.setMapData(levelTwo);
-
-    assertFalse(travel.canTravelToNether());
-    assertFalse(travel.beginTravel());
   }
 
   @Test

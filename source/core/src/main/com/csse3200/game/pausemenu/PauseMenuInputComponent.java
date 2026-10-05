@@ -27,36 +27,36 @@ public class PauseMenuInputComponent extends InputComponent {
       return false;
     }
 
-    if (keycode == Input.Keys.UP && !pauseMenu.isCapturingKeybind()) {
+    if (keycode == Input.Keys.ESCAPE) {
+      entity.getEvents().trigger("escapePressed");
+      return true;
+    }
+
+    if (keycode == Input.Keys.UP) {
       entity.getEvents().trigger("navigateUp");
       return true;
     }
 
-    if (keycode == Input.Keys.DOWN && !pauseMenu.isCapturingKeybind()) {
+    if (keycode == Input.Keys.DOWN) {
       entity.getEvents().trigger("navigateDown");
       return true;
     }
 
-    if (keycode == Input.Keys.LEFT && !pauseMenu.isCapturingKeybind()) {
+    if (keycode == Input.Keys.LEFT) {
       entity.getEvents().trigger("navigateLeft");
       entity.getEvents().trigger("leftPressed");
       return true;
     }
 
-    if (keycode == Input.Keys.RIGHT && !pauseMenu.isCapturingKeybind()) {
+    if (keycode == Input.Keys.RIGHT) {
       entity.getEvents().trigger("navigateRight");
       entity.getEvents().trigger("rightPressed");
       return true;
     }
 
     if (keycode == Input.Keys.ENTER || keycode == Input.Keys.SPACE) {
-      if (!pauseMenu.isCapturingKeybind()) {
-        entity.getEvents().trigger("confirmSelection");
-        return true;
-      } else {
-        entity.getEvents().trigger("keybindCaptured", keycode);
-        return true;
-      }
+      entity.getEvents().trigger("confirmSelection");
+      return true;
     }
 
     return false;

@@ -8,33 +8,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Small always-on HUD, bottom-right, listing every active upgrade (name, tier, remaining
- * time/kills, plus hits left for Shield Durability) on a dark panel. Unlike UpgradesDisplay's own
- * root table, this is NOT gated by UpgradesMenuComponent.isOpen() - it stays visible during normal
- * gameplay.
+ * Small always-on HUD, in the bottom-right corner, listing every currently-active upgrade (name,
+ * tier, remaining time/kills). Unlike UpgradesDisplay's own root table, this is NOT gated by
+ * UpgradesMenuComponent.isOpen() - it stays visible during normal gameplay so the player can see
+ * what's currently buffed without opening the Upgrades screen.
  *
- * <p>Reads the sibling UpgradesDisplay component directly, rather than owning any upgrade state.
- *
- * <p>Layout: root (fill-parent, bottom-right) -> panel (dark background, hidden when nothing is
- * active) -> one Label per active upgrade.
- *
- * <p>Rendering-safety: no setColor() on the panel, root or any Label, no alpha/fade or toFront().
- * The panel's tint is baked into its drawable, and the Pixthulhu default label style is already
- * white text, so nothing here can leave a stray tint in the shared SpriteBatch.
+ * <p>Reads the sibling UpgradesDisplay component's upgrade lists directly (same entity, same
+ * pattern PauseMenuInputComponent uses to reach PauseMenuComponent) rather than owning any upgrade
+ * state itself.
  */
 public class ActiveUpgradesHud extends UIComponent {
-  // Pixthulhu's baked dark drawable - the same one ShopDisplay's purchase toast uses. Tint is fixed
-  // at skin-load time, not applied via setColor().
-  private static final String PANEL_BACKGROUND = "shadow";
-  private static final float PANEL_PADDING = 8f;
-  private static final String SHIELD_DURABILITY_ID = "shield_durability";
-
   private Table root;
-  private Table panel;
   private UpgradesDisplay upgradesDisplay;
 
-  // One Label reused per node across frames - created lazily, then just re-parented in/out of
-  // the panel rather than recreated.
+  // One Label reused per node across frames (rather than allocating new Labels every frame) -
+  // created lazily the first time a node is seen active, and left in this map (just re-parented
+  // into/out of the table) for the rest of the upgrade's lifetime.
   private final Map<UpgradeNode, Label> labelsByNode = new HashMap<>();
 
   @Override
@@ -47,53 +36,34 @@ public class ActiveUpgradesHud extends UIComponent {
     root.bottom()
         .right()
         .pad(10f); // bottom-right - clear of everything else, which is top-anchored
-
-    panel = new Table();
-    panel.setBackground(skin.getDrawable(PANEL_BACKGROUND)); // baked tint - no setColor()
-    panel.pad(PANEL_PADDING);
-    panel.setVisible(false); // shown only while at least one upgrade is active - see draw()
-    root.add(panel);
-
     stage.addActor(root);
   }
 
   @Override
   public void draw(SpriteBatch batch) {
-    panel.clearChildren(); // cheap - re-parents existing Label actors, doesn't recreate them
+    root.clearChildren(); // cheap - re-parents existing Label actors, doesn't recreate them
 
-    boolean anyActive = false;
-
-    if (upgradesDisplay != null) {
-      for (UpgradeNode node : upgradesDisplay.getAllUpgrades()) {
-        if (!node.isActive()) {
-          continue;
-        }
-
-        Label label = labelsByNode.get(node);
-        if (label == null) {
-          label = new Label("", skin);
-          labelsByNode.put(node, label);
-        }
-        label.setText(describe(node));
-        panel.add(label).right().row();
-        anyActive = true;
-      }
+    if (upgradesDisplay == null) {
+      return;
     }
 
-    panel.setVisible(anyActive); // no empty panel box when nothing is active
+    for (UpgradeNode node : upgradesDisplay.getAllUpgrades()) {
+      if (!node.isActive()) {
+        continue;
+      }
+
+      Label label = labelsByNode.get(node);
+      if (label == null) {
+        label = new Label("", skin, "default");
+        labelsByNode.put(node, label);
+      }
+      label.setText(describe(node));
+      root.add(label).right().row();
+    }
   }
 
   private String describe(UpgradeNode node) {
-    String text =
-        node.getName() + " - Tier " + node.getCurrentTier() + " - " + node.getRemainingText();
-
-    if (node.getId().equals(SHIELD_DURABILITY_ID)) {
-      // Shield hits live on CombatStatsComponent, not UpgradeNode, so getRemainingText() (the
-      // shield's time-based duration) doesn't include them - append separately.
-      text += " - " + upgradesDisplay.getShieldHitsRemaining() + " hits left";
-    }
-
-    return text;
+    return node.getName() + " - Tier " + node.getCurrentTier() + " - " + node.getRemainingText();
   }
 
   @Override

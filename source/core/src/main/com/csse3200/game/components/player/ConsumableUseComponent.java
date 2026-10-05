@@ -1,13 +1,10 @@
 package com.csse3200.game.components.player;
 
-import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.perks.Perk;
-import com.csse3200.game.perks.PerkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,9 +22,7 @@ import org.slf4j.LoggerFactory;
 public class ConsumableUseComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(ConsumableUseComponent.class);
 
-  private int maxHealth;
-  private static final String PERK_ID = "thickSkin";
-  private static final int HEALTH_PERK = 50;
+  private final int maxHealth;
 
   /** Slot of the weapon the player last selected, for the Upgrade Stone. 0 means none yet. */
   private int heldWeaponSlot = 0;
@@ -54,15 +49,6 @@ public class ConsumableUseComponent extends Component {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
     if (inventory != null) {
       rememberHeldWeapon(inventory.getActiveSlot());
-    }
-
-    Perk thickSkinPerk = PerkService.getPerk(PERK_ID);
-    if (thickSkinPerk != null) {
-      if (thickSkinPerk.isActive()) {
-        increaseMaxHealth(HEALTH_PERK);
-      }
-      thickSkinPerk.setOnActivated(() -> increaseMaxHealth(HEALTH_PERK));
-      thickSkinPerk.setOnDeactivated(() -> decreaseMaxHealth(HEALTH_PERK));
     }
   }
 
@@ -92,34 +78,6 @@ public class ConsumableUseComponent extends Component {
    */
   public int getHeldWeaponSlot() {
     return heldWeaponSlot;
-  }
-
-  public void increaseMaxHealth(int amount) {
-    if (amount <= 0) {
-      return;
-    }
-    maxHealth += amount;
-    logger.info("Max health increased by {}, now {}", amount, maxHealth);
-
-    CombatStatsComponent stats =
-        entity == null ? null : entity.getComponent(CombatStatsComponent.class);
-    if (stats != null) {
-      stats.addHealth(amount);
-    }
-  }
-
-  public void decreaseMaxHealth(int amount) {
-    if (amount <= 0) {
-      return;
-    }
-    maxHealth = Math.max(0, maxHealth - amount);
-    logger.info("Max health decreased by {}, now {}", amount, maxHealth);
-
-    CombatStatsComponent stats =
-        entity == null ? null : entity.getComponent(CombatStatsComponent.class);
-    if (stats != null && stats.getHealth() > maxHealth) {
-      stats.setHealth(maxHealth);
-    }
   }
 
   /**

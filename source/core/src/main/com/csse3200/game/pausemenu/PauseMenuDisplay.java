@@ -1,7 +1,6 @@
 package com.csse3200.game.pausemenu;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
@@ -13,11 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
@@ -38,20 +35,6 @@ public class PauseMenuDisplay extends UIComponent {
   private static final Color UNSELECTED_TEXT = Color.WHITE;
   private static final float INACTIVE_PANEL_ALPHA = 0.55f;
   private static final float PANEL_GAP = 25f;
-  private static final String WHITE_COLOR = "white";
-
-  /** Share of the screen height the Keybinds list may take up before it starts to scroll. */
-  private static final float KEYBINDS_VIEWPORT_FRACTION = 0.7f;
-
-  private static final Color SCROLL_TRACK_COLOR = new Color(1f, 1f, 1f, 0.15f);
-  private static final Color SCROLL_KNOB_COLOR = new Color(1f, 1f, 1f, 0.6f);
-  private static final float SCROLLBAR_WIDTH = 8f;
-  private static final float SCROLL_KNOB_MIN_HEIGHT = 24f;
-
-  /** Gap between the Keybinds box edge and its rows, and inside each row around its text. */
-  private static final float KEYBINDS_SIDE_PAD = 10f;
-
-  private static final float KEYBINDS_LABEL_PAD = 8f;
   private static final float VOLUME_STEP = 0.05f;
 
   private static final long HOLD_INITIAL_DELAY_MS = 400;
@@ -63,6 +46,7 @@ public class PauseMenuDisplay extends UIComponent {
   private long leftLastRepeat = 0;
   private long rightHoldStart = 0;
   private long rightLastRepeat = 0;
+
   private static final String PREFS_NAME = "pause_menu_settings";
   private static final String MASTER_VOLUME_KEY = "masterVolume";
   private static final String MUSIC_VOLUME_KEY = "musicVolume";
@@ -78,58 +62,20 @@ public class PauseMenuDisplay extends UIComponent {
   };
   private static final int AUDIO_BACK_INDEX = 3;
 
-  /** Action names, matching KeybindSettings exactly. One row per action, plus a Back row. */
-  private static final String[] KEYBIND_ACTIONS = {
-    "moveLeft",
-    "moveRight",
-    "moveDown",
-    "jump",
-    "dash",
-    "slide",
-    "attack",
-    "specialAttack",
-    "areaAttack",
-    "dropItem",
-    "equipShield",
-    "interact",
-    "toggleQuestMenu",
-    "toggleTutorial",
-    "crouch",
-    "pause",
-    "hotbarSlot1",
-    "hotbarSlot2",
-    "hotbarSlot3",
-    "hotbarSlot4",
-    "hotbarSlot5"
+  private static final String[] KEYBIND_ITEMS = {
+    "Move left:  A",
+    "Move right:  D",
+    "Move down:  S",
+    "Jump: W",
+    "Dash: L",
+    "Slide: LShift",
+    "Attack: Space",
+    "Drop Item: Q",
+    "Equip Shield: B",
+    "Pause: ESC",
+    "Back"
   };
-
-  /** Human-readable labels, in the same order as KEYBIND_ACTIONS. */
-  private static final String[] KEYBIND_LABELS = {
-    "Move Left",
-    "Move Right",
-    "Move Down",
-    "Jump",
-    "Dash",
-    "Slide",
-    "Attack",
-    "Special Attack",
-    "Area Attack",
-    "Drop Item",
-    "Equip Shield",
-    "Interact",
-    "Toggle Quest Menu",
-    "Toggle Tutorial",
-    "Crouch",
-    "Pause",
-    "Hotbar Slot 1",
-    "Hotbar Slot 2",
-    "Hotbar Slot 3",
-    "Hotbar Slot 4",
-    "Hotbar Slot 5"
-  };
-
-  private static final int KEYBINDS_BACK_INDEX = KEYBIND_ACTIONS.length;
-  private static final int KEYBINDS_ITEM_COUNT = KEYBIND_ACTIONS.length + 1;
+  private static final int KEYBINDS_BACK_INDEX = KEYBIND_ITEMS.length - 1;
 
   private final Preferences prefs = (Gdx.app != null) ? Gdx.app.getPreferences(PREFS_NAME) : null;
   private float masterVol =
@@ -148,7 +94,6 @@ public class PauseMenuDisplay extends UIComponent {
   private Table detailSlot;
   private Table audioPanel;
   private Table keybindsPanel;
-  private ScrollPane keybindsScroll;
   private Table restartOverlay;
   private Image pauseOverlay;
 
@@ -167,10 +112,6 @@ public class PauseMenuDisplay extends UIComponent {
   private Label masterValueLabel;
   private Label musicValueLabel;
   private Label effectsValueLabel;
-
-  /** Action currently waiting for its next key press, or null when not capturing. */
-  private String capturingAction = null;
-
   // Restart confirmation
   private Label restartConfirmLabel;
   private Label restartConfirmMessageLabel;
@@ -211,8 +152,8 @@ public class PauseMenuDisplay extends UIComponent {
     audioLabels = new Label[AUDIO_ITEMS.length];
     audioPanel = buildAudioPanel();
 
-    keybindsPanel = buildKeybindsPanel();
-    keybindsScroll = buildKeybindsScroll(keybindsPanel);
+    keybindsLabels = new Label[KEYBIND_ITEMS.length];
+    keybindsPanel = buildPanel(KEYBIND_ITEMS, keybindsLabels);
 
     restartConfirmLabel = createLabel("ABANDON THIS JOURNEY?");
     restartConfirmMessageLabel =
@@ -259,7 +200,7 @@ public class PauseMenuDisplay extends UIComponent {
 
     restartConfirmPanel = new Table();
 
-    restartConfirmPanel.setBackground(skin.newDrawable(WHITE_COLOR, Color.BLACK));
+    restartConfirmPanel.setBackground(skin.newDrawable("white", Color.BLACK));
 
     restartConfirmPanel.pad(30f);
 
@@ -347,6 +288,9 @@ public class PauseMenuDisplay extends UIComponent {
     if (items == MAIN_ITEMS) {
       return MenuState.MAIN;
     }
+    if (items == KEYBIND_ITEMS) {
+      return MenuState.KEYBINDS;
+    }
     return MenuState.SETTINGS;
   }
 
@@ -382,7 +326,7 @@ public class PauseMenuDisplay extends UIComponent {
 
   private Table buildAudioPanel() {
     Table panel = new Table();
-    panel.setBackground(skin.newDrawable(WHITE_COLOR, PANEL_COLOR));
+    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
     panel.pad(20f, 30f, 20f, 30f);
     panel.left();
 
@@ -410,87 +354,6 @@ public class PauseMenuDisplay extends UIComponent {
     updateVolumeLabel(effectsValueLabel, effectsVol);
     applyUniformRowWidths(panel);
     return panel;
-  }
-
-  /**
-   * Builds the Keybinds panel: one row per action in KEYBIND_ACTIONS, plus a Back row. Row text
-   * starts empty and is filled in by refreshKeybindLabels() once every row exists, since the
-   * displayed text (label + current key) can change later whenever a rebind happens.
-   */
-  private Table buildKeybindsPanel() {
-    Table panel = new Table();
-    panel.setBackground(skin.newDrawable(WHITE_COLOR, PANEL_COLOR));
-    panel.pad(20f, KEYBINDS_SIDE_PAD, 20f, KEYBINDS_SIDE_PAD);
-
-    keybindsLabels = new Label[KEYBINDS_ITEM_COUNT];
-    for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
-      Label label = createLabel("");
-      keybindsLabels[i] = label;
-      Table row = new Table();
-      row.add(label).pad(6f, KEYBINDS_LABEL_PAD, 6f, KEYBINDS_LABEL_PAD);
-      addRowInteraction(row, MenuState.KEYBINDS, i, true);
-      // growX: every row fills the box width, so it can never be wider than the viewport the
-      // scroll pane lays it out in (fixed row widths overflowed it and were clipped on the right).
-      panel.add(row).growX().padBottom(4f);
-      panel.row();
-    }
-
-    Label backLabel = createLabel("Back");
-    keybindsLabels[KEYBINDS_BACK_INDEX] = backLabel;
-    Table backRow = new Table();
-    backRow.add(backLabel).pad(6f, KEYBINDS_LABEL_PAD, 6f, KEYBINDS_LABEL_PAD);
-    addRowInteraction(backRow, MenuState.KEYBINDS, KEYBINDS_BACK_INDEX, true);
-    panel.add(backRow).growX().padBottom(4f);
-
-    refreshKeybindLabels();
-    return panel;
-  }
-
-  /**
-   * Wraps the Keybinds panel in a vertical scroll pane. Every row is drawn as a full button tile,
-   * so the 20+ rows are far taller than the screen - without this the top and bottom rows (and the
-   * Back button) fall off-screen. The scrollbar overlays the list instead of narrowing it, and
-   * keyboard navigation keeps the selected row in view (see scrollSelectionIntoView).
-   */
-  private ScrollPane buildKeybindsScroll(Table panel) {
-    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
-    style.vScroll = scrollbarDrawable(SCROLL_TRACK_COLOR, 0f);
-    style.vScrollKnob = scrollbarDrawable(SCROLL_KNOB_COLOR, SCROLL_KNOB_MIN_HEIGHT);
-
-    ScrollPane scroll = new ScrollPane(panel, style);
-    scroll.setScrollingDisabled(true, false);
-    scroll.setFadeScrollBars(false);
-    scroll.setScrollbarsOnTop(true);
-    scroll.setOverscroll(false, false);
-    return scroll;
-  }
-
-  private Drawable scrollbarDrawable(Color color, float minHeight) {
-    Drawable drawable = skin.newDrawable(WHITE_COLOR, color);
-    if (drawable != null) {
-      drawable.setMinWidth(SCROLLBAR_WIDTH);
-      drawable.setMinHeight(minHeight);
-    }
-    return drawable;
-  }
-
-  /**
-   * Rewrites every keybind row's text from the current KeybindSettings state. Called after the
-   * panel is built, and again after every rebind or cancelled capture, since a rebind can also
-   * change a different row's text (auto-unbind) and the display must stay in sync.
-   */
-  private void refreshKeybindLabels() {
-    for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
-      String action = KEYBIND_ACTIONS[i];
-      if (action.equals(capturingAction)) {
-        keybindsLabels[i].setText(KEYBIND_LABELS[i] + ": Press any key...");
-        continue;
-      }
-      int keycode = KeybindSettings.getKey(action);
-      String keyName =
-          (keycode == KeybindSettings.UNBOUND) ? "Unbound" : Input.Keys.toString(keycode);
-      keybindsLabels[i].setText(KEYBIND_LABELS[i] + ": " + keyName);
-    }
   }
 
   private Slider buildSlider(
@@ -575,50 +438,16 @@ public class PauseMenuDisplay extends UIComponent {
     entity.getEvents().addListener("leftReleased", this::onLeftReleased);
     entity.getEvents().addListener("rightPressed", this::onRightPressed);
     entity.getEvents().addListener("rightReleased", this::onRightReleased);
-    entity.getEvents().addListener("keybindCaptured", this::onKeybindCaptured);
-    entity.getEvents().addListener("keybindCaptureCancelled", this::onKeybindCaptureCancelled);
-  }
-
-  void onKeybindCaptured(int keycode) {
-    if (capturingAction == null) {
-      return;
-    }
-    KeybindSettings.setKey(capturingAction, keycode);
-    capturingAction = null;
-    pauseMenu.setCapturingKeybind(false);
-    refreshKeybindLabels();
-  }
-
-  void onKeybindCaptureCancelled() {
-    capturingAction = null;
-    pauseMenu.setCapturingKeybind(false);
-    refreshKeybindLabels();
   }
 
   void navigateUp() {
     int count = currentItemCount();
     setCurrentIndex((currentIndex() - 1 + count) % count);
-    scrollSelectionIntoView();
   }
 
   void navigateDown() {
     int count = currentItemCount();
     setCurrentIndex((currentIndex() + 1) % count);
-    scrollSelectionIntoView();
-  }
-
-  /**
-   * Keeps the keyboard-selected Keybinds row inside the scroll pane's viewport. Deliberately only
-   * called from keyboard navigation, not mouse hover: hovering a half-visible edge row would
-   * otherwise scroll it into view, move the content under the cursor, select the next row, and keep
-   * scrolling.
-   */
-  private void scrollSelectionIntoView() {
-    if (state != MenuState.KEYBINDS || keybindsScroll == null) {
-      return;
-    }
-    Actor row = keybindsLabels[keybindsIndex].getParent();
-    keybindsScroll.scrollTo(row.getX(), row.getY(), row.getWidth(), row.getHeight());
   }
 
   private void onLeftPressed() {
@@ -673,7 +502,7 @@ public class PauseMenuDisplay extends UIComponent {
       case MAIN -> MAIN_ITEMS.length;
       case SETTINGS -> SETTINGS_ITEMS.length;
       case AUDIO -> AUDIO_ITEMS.length;
-      case KEYBINDS -> KEYBINDS_ITEM_COUNT;
+      case KEYBINDS -> KEYBIND_ITEMS.length;
       case RESTART_CONFIRM -> 2;
     };
   }
@@ -773,19 +602,12 @@ public class PauseMenuDisplay extends UIComponent {
     }
   }
 
+  /** Keybind rows are informational only - only "Back" actually does anything. */
   private void confirmKeybinds() {
     if (keybindsIndex == KEYBINDS_BACK_INDEX) {
       state = MenuState.SETTINGS;
       refreshPanels();
-      return;
     }
-    beginKeybindCapture(KEYBIND_ACTIONS[keybindsIndex]);
-  }
-
-  private void beginKeybindCapture(String action) {
-    capturingAction = action;
-    pauseMenu.setCapturingKeybind(true);
-    refreshKeybindLabels();
   }
 
   private void handleEscape() {
@@ -822,11 +644,7 @@ public class PauseMenuDisplay extends UIComponent {
     if (state == MenuState.AUDIO) {
       detailSlot.add(audioPanel);
     } else if (state == MenuState.KEYBINDS) {
-      // Cap the visible height; the list scrolls inside it (see buildKeybindsScroll).
-      detailSlot.add(keybindsScroll).height(stage.getHeight() * KEYBINDS_VIEWPORT_FRACTION);
-      keybindsScroll.setScrollY(0f);
-      keybindsScroll.updateVisualScroll();
-      stage.setScrollFocus(keybindsScroll);
+      detailSlot.add(keybindsPanel);
     }
     detailSlot.invalidateHierarchy();
 

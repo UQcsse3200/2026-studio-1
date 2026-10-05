@@ -4,6 +4,5 @@ public enum CollisionType {
   NONE,
   SOLID,
   PLATFORM,
-  ONE_WAY_PLATFORM,
   HAZARD
 }

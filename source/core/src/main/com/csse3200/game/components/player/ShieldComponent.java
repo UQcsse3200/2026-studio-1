@@ -3,8 +3,6 @@ package com.csse3200.game.components.player;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.perks.Perk;
-import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import org.slf4j.Logger;
@@ -27,10 +25,8 @@ import org.slf4j.LoggerFactory;
 public class ShieldComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(ShieldComponent.class);
   private static final long DEFAULT_DURATION_MILLIS = 30000L;
-  private static final String SHIELD_PERK_ID = "shieldMaster";
-  private static final long SHIELD_PERK_DURATION = 10000L;
 
-  private long durationMillis; // changed from final to make it mutable for perks.
+  private final long durationMillis;
   private GameTime timeSource;
   private CombatStatsComponent combatStats;
 
@@ -75,15 +71,6 @@ public class ShieldComponent extends Component {
     }
 
     entity.getEvents().addListener("activateShield", this::activateShield);
-
-    Perk shieldPerk = PerkService.getPerk(SHIELD_PERK_ID);
-    if (shieldPerk != null) {
-      if (shieldPerk.isActive()) {
-        increaseDuration(SHIELD_PERK_DURATION);
-      }
-      shieldPerk.setOnActivated(() -> increaseDuration(SHIELD_PERK_DURATION));
-      shieldPerk.setOnDeactivated(() -> decreaseDuration(SHIELD_PERK_DURATION));
-    }
   }
 
   /**
@@ -168,24 +155,6 @@ public class ShieldComponent extends Component {
    */
   public boolean isActive() {
     return active;
-  }
-
-  public void increaseDuration(long extraMillis) {
-    if (extraMillis <= 0) {
-      return;
-    }
-
-    durationMillis += extraMillis;
-    logger.info("Shield duration increased by {}ms, now {}ms", extraMillis, durationMillis);
-  }
-
-  public void decreaseDuration(long lessMillis) {
-    if (lessMillis <= 0) {
-      return;
-    }
-
-    durationMillis = Math.max(0, durationMillis - lessMillis);
-    logger.info("Shield duration decreased by {}ms, now {}ms", lessMillis, durationMillis);
   }
 
   private void activate() {

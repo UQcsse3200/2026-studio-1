@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
 import com.csse3200.game.components.player.PlayerActions;
-import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
@@ -24,24 +23,32 @@ import java.util.List;
  * category, and a detail panel for the selected node's name, description, current tier and
  * remaining time/kills.
  *
- * <p>Every upgrade is temporary: Action upgrades expire after a number of kills, Defence upgrades
- * after a duration. Buying an active upgrade again advances its tier and extends the expiry window;
- * once fully expired it resets to Tier 0.
+ * <p>View-only - there is no purchase action anywhere on this screen. It never calls {@link
+ * UpgradeNode#purchaseNextTier()} itself; the only way to actually buy an upgrade (deduct gold,
+ * advance its tier) is through {@code ShopDisplay}'s real Upgrades-tab buy flow, which applies the
+ * purchase to the exact same UpgradeNode instances this screen reads from. This screen used to have
+ * its own Buy button that spent real gold directly, bypassing the shop entirely - that's been
+ * removed so there is exactly one way to purchase an upgrade.
+ *
+ * <p>Every upgrade is temporary - Action upgrades expire after a number of kills, Defence upgrades
+ * expire after a duration. Buying the same upgrade again (via the shop) while active advances its
+ * tier and grants a longer expiry window. Once fully expired, it resets to Tier 0 and can be bought
+ * again from Tier 1.
  */
 public class UpgradesDisplay extends UIComponent {
 
-  // Tier -> effect magnitude for each upgrade's gameplay effect. Index 0 = Tier 1, etc.
+  // Tier -> effect magnitude for the two upgrades with real gameplay effects wired up so far.
+  // Index 0 = Tier 1, etc. Attack Speed / Shield Durability / Regen on Kill have no effect wired
+  // yet - they need infrastructure (attack-speed hook, shield component, on-kill heal) that
+  // doesn't exist in the codebase yet.
   private static final float[] PLAYER_SPEED_MULTIPLIER_PER_TIER = {1.15f, 1.3f, 1.5f};
   private static final int[] SWORD_DAMAGE_BONUS_PER_TIER = {5, 10, 15};
   private static final float[] ATTACK_SPEED_COOLDOWN_MULTIPLIER_PER_TIER = {0.8f, 0.6f, 0.4f};
   private static final int[] REGEN_HEAL_PER_KILL_PER_TIER = {5, 10};
-  private static final float[] ENDURANCE_REGEN_MULTIPLIER_PER_TIER = {1.6f, 2.0f, 2.5f};
-  // Fired on the player whenever Sword Damage's bonus changes (including to 0 on expiry), so
-  // WeaponDisplay etc. can react without a direct reference to this class.
+  // Fired on the player entity whenever Sword Damage's bonus changes (including back to 0 on
+  // expiry), so anything else on the player (e.g. WeaponDisplay) can reflect it without needing
+  // a direct reference to this class - see applySwordDamageEffect()/removeSwordDamageEffect().
   private static final String SWORD_DAMAGE_BONUS_EVENT = "swordDamageBonusChanged";
-  // Fired on the player whenever any upgrade activates (purchase or tier-up), so
-  // UpgradeActivationFlashComponent can flash the player sprite without a direct reference here.
-  private static final String UPGRADE_ACTIVATED_EVENT = "upgradeActivated";
 
   private Table root;
   private Table nodeRow;
@@ -54,13 +61,23 @@ public class UpgradesDisplay extends UIComponent {
   private UpgradeNode selectedNode;
   private UpgradesMenuComponent upgradesMenu;
 
-  // Sibling component on the shared "ui" entity, same pattern PauseMenuInputComponent uses.
+  // Fetched off this same entity, the same way PauseMenuInputComponent/PauseMenuDisplay already
+  // do - PauseMenuComponent is a sibling component on the shared "ui" entity in MainGameScreen,
+  // not separately tracked state.
   private PauseMenuComponent pauseMenu;
 
-  // Wired in later via setPlayer() - not available at create() time.
+  // The player entity, so activated upgrades can reach PlayerActions/CombatStatsComponent to
+  // apply real gameplay effects. Not available at create() time - MainGameScreen constructs the
+  // player (via LevelGameArea) after the UI entity is registered - so this is wired in later via
+  // setPlayer() once the player actually exists, the same way MainGameScreen already holds onto
+  // sibling display components (e.g. deathScreenDisplay) to call into them once both sides are
+  // ready.
   private Entity player;
 
-  // Sword Damage's baseAttack before any bonus was applied; null means no bonus is active.
+  // Sword Damage's baseAttack before any bonus from this upgrade was applied. Captured once on
+  // first activation so later tier changes/expiry always compute off the true original value,
+  // not whatever the previous tier's bonus already modified it to. Null means "no bonus applied
+  // right now".
   private Integer swordDamageBaselineAttack;
 
   private final List<UpgradeNode> actionUpgrades = new ArrayList<>();
@@ -78,48 +95,19 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   /**
-   * Supplies the player entity once it's spawned (after this UI entity already exists), so effect
-   * code below must not assume player is non-null before this runs.
-   *
-   * <p>If a player was already set and {@code newPlayer} is a different entity (e.g. the player
-   * died and was replaced by a brand-new entity on revival), every upgrade is cleared first via
-   * {@link #clearAllUpgrades()} - their effects were applied to the old, now-disposed player, so
-   * leaving them "active" in the HUD would be stale and nothing would ever remove them from the new
-   * player. The very first call at game start must not clear anything, since there is no prior
-   * player to have earned anything from; passing the same entity again is also a no-op.
+   * Supplies the player entity so activated upgrades can reach its PlayerActions/
+   * CombatStatsComponent. Called by MainGameScreen once the player has actually been spawned (after
+   * this UI entity is already registered), so effect application/removal below must not assume
+   * player is non-null at any point before this runs.
    */
-  public void setPlayer(Entity newPlayer) {
-    if (this.player != null && this.player != newPlayer) {
-      clearAllUpgrades();
-    }
-    this.player = newPlayer;
-    newPlayer.getEvents().addListener("enemyKilled", this::onEnemyKilled);
-  }
-
-  /**
-   * Forces every upgrade node back to Tier 0 (inactive) without firing their tier-changed/expired
-   * callbacks - those callbacks apply effects to {@link #player}, which by the time this is called
-   * may already be a different (or disposed) entity than the one the upgrade was earned on, so
-   * running them would apply to the wrong player or be meaningless. Also clears
-   * swordDamageBaselineAttack, the one piece of state captured from a player outside UpgradeNode
-   * itself. Does not refund any gold spent.
-   */
-  private void clearAllUpgrades() {
-    for (UpgradeNode node : getAllUpgrades()) {
-      node.reset();
-    }
-    swordDamageBaselineAttack = null;
+  public void setPlayer(Entity player) {
+    this.player = player;
+    player.getEvents().addListener("enemyKilled", this::onEnemyKilled);
   }
 
   private void onEnemyKilled() {
     if (player == null) {
       return;
-    }
-
-    // Counts this kill against every kill-count upgrade. Must run before Regen's early return
-    // below, or it would be skipped whenever Regen on Kill isn't active.
-    for (UpgradeNode node : getAllUpgrades()) {
-      node.onEnemyKilled();
     }
 
     UpgradeNode regenOnKill = null;
@@ -145,22 +133,18 @@ public class UpgradesDisplay extends UIComponent {
       return;
     }
 
-    // Nothing enforces that the player has a ConsumableUseComponent, so heal uncapped if it's
-    // missing rather than throwing or skipping the heal.
-    com.csse3200.game.components.player.ConsumableUseComponent consumableUse =
-        player.getComponent(com.csse3200.game.components.player.ConsumableUseComponent.class);
+    int maxHealth =
+        player
+            .getComponent(com.csse3200.game.components.player.ConsumableUseComponent.class)
+            .getMaxHealth();
 
-    int newHealth = combatStats.getHealth() + healAmount;
-    if (consumableUse != null) {
-      newHealth = Math.min(newHealth, consumableUse.getMaxHealth());
-    }
-
-    combatStats.setHealth(newHealth);
+    combatStats.setHealth(Math.min(combatStats.getHealth() + healAmount, maxHealth));
   }
 
   /**
-   * @return a fresh combined list of every upgrade across all categories, so callers (e.g. {@link
-   *     ActiveUpgradesHud}) can't mutate the internal per-category lists.
+   * @return a fresh combined list of every upgrade node across all categories (action, defence,
+   *     movement), for a sibling component (e.g. {@link ActiveUpgradesHud}) to iterate over.
+   *     Returned as a new list each call so callers can't mutate the internal per-category lists.
    */
   public List<UpgradeNode> getAllUpgrades() {
     List<UpgradeNode> all =
@@ -171,16 +155,6 @@ public class UpgradesDisplay extends UIComponent {
     return all;
   }
 
-  /**
-   * @return the player's current shield hits remaining, or 0 if the player isn't set or has no
-   *     CombatStatsComponent - shield hits live on CombatStatsComponent rather than UpgradeNode, so
-   *     {@link ActiveUpgradesHud} needs this to show Shield Durability's remaining hits.
-   */
-  public int getShieldHitsRemaining() {
-    CombatStatsComponent combatStats = getCombatStats();
-    return combatStats == null ? 0 : combatStats.getShieldHits();
-  }
-
   private void buildUpgradeData() {
     // Action upgrades: expire after a number of kills while active.
     UpgradeNode swordDamage =
@@ -188,7 +162,7 @@ public class UpgradesDisplay extends UIComponent {
             "sword_damage",
             "Sword Damage",
             "Increases melee damage. Stacking tiers also raises the kill threshold.",
-            new int[] {20, 18, 15},
+            new int[] {40, 35, 30},
             new int[] {2, 5, 8});
     swordDamage.setOnTierChanged(() -> applySwordDamageEffect(swordDamage));
     swordDamage.setOnExpired(this::removeSwordDamageEffect);
@@ -199,7 +173,7 @@ public class UpgradesDisplay extends UIComponent {
             "attack_speed",
             "Attack Speed",
             "Reduces the delay between attacks. Stacking tiers also raises the kill threshold.",
-            new int[] {25, 22, 20},
+            new int[] {50, 45, 40},
             new int[] {5, 8, 12});
 
     attackSpeed.setOnTierChanged(() -> applyAttackSpeedEffect(attackSpeed));
@@ -213,7 +187,7 @@ public class UpgradesDisplay extends UIComponent {
             "shield_durability",
             "Shield Durability",
             "Absorbs a limited number of attacks. Stacking tiers increases shield durability.",
-            new int[] {18, 15, 15},
+            new int[] {30, 25, 25},
             new float[] {20f, 35f, 55f});
 
     shieldDurability.setOnTierChanged(() -> applyShieldEffect(shieldDurability));
@@ -226,7 +200,7 @@ public class UpgradesDisplay extends UIComponent {
             "regen_on_kill",
             "Regen on Kill",
             "Heals you when you defeat an enemy. Stacking tiers also extends the duration.",
-            new int[] {30, 25},
+            new int[] {60, 50},
             new float[] {15f, 30f});
 
     regenOnKill.setOnTierChanged(() -> applyRegenEffect(regenOnKill));
@@ -234,61 +208,32 @@ public class UpgradesDisplay extends UIComponent {
 
     defenceUpgrades.add(regenOnKill);
 
-    // Movement upgrades: expire after a fixed duration, same as Defence. Each tier adds its
-    // increment on top of whatever time is currently remaining, rather than resetting it.
+    // Movement upgrades: expire after a fixed duration, same pattern as Defence.
+    // TODO: confirm with the team whether Movement should be time-based like this,
+    // or kill-count-based like Action - defaulted to time-based since a speed
+    // boost reads more naturally as "lasts N seconds" than "lasts N kills".
+    //
+    // Every tier adds a flat +10s on top of whatever time is currently remaining (see
+    // UpgradeNode.purchaseNextTier()'s TIME branch) - buying again before it expires always
+    // extends the timer further rather than resetting it to a bigger flat total.
     UpgradeNode playerSpeed =
         UpgradeNode.timeBased(
             "player_speed",
             "Player Speed+",
             "Increases movement speed. Stacking tiers also adds 10s to the remaining duration.",
-            new int[] {15, 12, 10},
+            new int[] {35, 30, 25},
             new float[] {10f, 10f, 10f});
     playerSpeed.setOnTierChanged(() -> applyPlayerSpeedEffect(playerSpeed));
     playerSpeed.setOnExpired(() -> removePlayerSpeedEffect(playerSpeed));
     movementUpgrades.add(playerSpeed);
-
-    UpgradeNode endurance =
-        UpgradeNode.timeBased(
-            "endurance",
-            "Endurance",
-            "Stamina refills faster. Stacking tiers also adds 10s to the remaining duration.",
-            new int[] {15, 12, 10},
-            new float[] {10f, 10f, 10f});
-    endurance.setOnTierChanged(() -> applyEnduranceEffect(endurance));
-    endurance.setOnExpired(this::removeEnduranceEffect);
-    movementUpgrades.add(endurance);
-  }
-
-  private void applyEnduranceEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
-
-    StaminaComponent stamina = getStamina();
-    if (stamina == null) {
-      return;
-    }
-    stamina.setRegenMultiplier(ENDURANCE_REGEN_MULTIPLIER_PER_TIER[node.getCurrentTier() - 1]);
-  }
-
-  private void removeEnduranceEffect() {
-    StaminaComponent stamina = getStamina();
-    if (stamina != null) {
-      stamina.setRegenMultiplier(1f);
-    }
   }
 
   /**
-   * Applies the Player Speed+ effect. The node is used as the modifier key so removeSpeedModifier()
-   * only removes this upgrade's contribution.
+   * Applies/refreshes the Player Speed+ effect on PlayerActions. The node itself is used as the
+   * modifier key so a later removeSpeedModifier() call can target exactly this upgrade's
+   * contribution without touching any other active speed modifier.
    */
   private void applyPlayerSpeedEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
-
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
       return;
@@ -305,11 +250,6 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyShieldEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
-
     CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
     if (combatStats == null) {
       return;
@@ -329,24 +269,15 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyRegenEffect(UpgradeNode node) {
-    // Regen's heal itself fires from onEnemyKilled(), not from here - but the flash still needs
-    // to fire on activation, same as every other upgrade.
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+    // Regen is triggered when an enemy is killed, so there is no
+    // continuous effect to apply here.
   }
 
   private void removeRegenEffect() {
-    // No-op: Regen has no persistent stat to remove.
+    // Regen has no persistent player stat to remove.
   }
 
   private void applyAttackSpeedEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
-
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
       return;
@@ -365,15 +296,12 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   /**
-   * Applies the Sword Damage effect, recomputed from the stored baseline plus the current tier's
-   * bonus each time - so a later tier replaces the bonus rather than stacking on top of it.
+   * Applies/refreshes the Sword Damage effect on CombatStatsComponent. Recomputes from the stored
+   * baseline (captured on first activation) plus the current tier's bonus every time, rather than
+   * adding on top of the already-modified value - so buying tier 2 after tier 1 replaces the bonus
+   * instead of stacking it twice.
    */
   private void applySwordDamageEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
-
     CombatStatsComponent combatStats = getCombatStats();
     if (combatStats == null) {
       return;
@@ -383,7 +311,7 @@ public class UpgradesDisplay extends UIComponent {
     }
     int bonus = SWORD_DAMAGE_BONUS_PER_TIER[node.getCurrentTier() - 1];
     combatStats.setBaseAttack(swordDamageBaselineAttack + bonus);
-    // combatStats is non-null only if player is too, so this is safe.
+    // combatStats being non-null (from getCombatStats()) means player is non-null too.
     player.getEvents().trigger(SWORD_DAMAGE_BONUS_EVENT, bonus);
   }
 
@@ -404,10 +332,6 @@ public class UpgradesDisplay extends UIComponent {
 
   private PlayerActions getPlayerActions() {
     return player == null ? null : player.getComponent(PlayerActions.class);
-  }
-
-  private StaminaComponent getStamina() {
-    return player == null ? null : player.getComponent(StaminaComponent.class);
   }
 
   private CombatStatsComponent getCombatStats() {
@@ -551,17 +475,24 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void clearDetail() {
-    detailNameLabel.setText(""); // categoryHeaderLabel shows the "Select an upgrade" prompt instead
+    detailNameLabel.setText(""); // the centered categoryHeaderLabel above the node row
+    // handles the "Select an upgrade" prompt instead
     detailDescriptionLabel.setText("");
     detailStatusLabel.setText("");
   }
 
   @Override
   public void draw(SpriteBatch batch) {
-    // Upgrades keep ticking even while this screen is closed (visibility is gated separately
-    // below), but not while paused or the player is dead - matching MainGameScreen's own freeze
-    // of physics/entity updates. No resume logic is needed: tickTime() just picks up again once
-    // both conditions clear.
+    // Active upgrades keep counting down in the background even while this
+    // screen is closed - only visibility is gated on isOpen(), not ticking.
+    //
+    // ...but not while the game is paused or the player is dead - in both cases the game world
+    // itself is frozen (see MainGameScreen.render()'s own pauseMenu.isPaused()/isPlayerDead()
+    // guards around physics/entity updates), so an upgrade's countdown freezing right along with
+    // it is just "don't tick this frame" - no separate resume logic needed, since remainingSeconds/
+    // remainingKills are never touched while frozen, tickTime() picks up from the exact value it
+    // left off at once both conditions are false again. Tier level (currentTier) is never touched
+    // here either way - only the countdown ticking is gated.
     boolean paused = pauseMenu != null && pauseMenu.isPaused();
     DeathStateComponent deathState = getDeathState();
     boolean playerDead = deathState != null && deathState.isDead();
