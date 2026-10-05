@@ -392,11 +392,11 @@
       "TTTTTTTTTTTTTTTTstttttttttttuuuuuuuuuuuuuuuuuuuuuuuuuuTT",
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTTstttttttttttuuuuuuuuuuuuruTT",
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTttttttttttttruTT",
-      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^rv^^",
-      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^rv^^",
+      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^rvvv",
+      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^rvvv",
       "vvv^^vv^vv^^vvv^^^^vvvvvvv^^vvvvvvvvvvvvvvvvvvvvvvvvrvvv",
-      "#####vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvV#",
-      "####vvvvvvvvvvvvvvvvvvvvvvvvvvvv--------------------rv##",
+      "#####vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
+      "####vvvvvvvvvvvvvvvvvvvvvvvvvvvv--------------------rP##",
       "####vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrv##",
       "###V#~~vvvvvvvvvvvvv==========vvvvvvvvvvvvvvvvvvvvvvrvvv",
       "##V#v~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
@@ -415,8 +415,8 @@
       "#Vvvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
       "#vvvv~~v----------vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
       "#vvvv~~vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrvvv",
-      "#vv~~~~~~evvvvvvvvvvvvvvvvvivvvvvvvvvvvvvvvvvvvvvvvvrvvv",
-      "##________________________rP________%%%%%%%%%%%_______##",
+      "#vvvv~~vvvvvvvvvvvvvvvvvvvvivvvvvvvvvvvvvvvvvvvvvvvvrvvv",
+      "##_~~~~~~e________________rP________%%%%%%%%%%%_______##",
       "##########################ri############################",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
@@ -672,6 +672,19 @@
       "height": 3,
       "texture": "images/level1/gate-tartarus-512px.png",
       "destinationMap": "maps/nether-minotaur-labyrinth.json",
+      "destinationSpawn": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "id": "shades-barracks-door",
+      "x": 55,
+      "y": 54,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-shades-barracks.json",
       "destinationSpawn": {
         "x": 4,
         "y": 2

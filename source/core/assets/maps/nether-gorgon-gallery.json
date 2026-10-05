@@ -1,5 +1,5 @@
 {
-  "name": "Hound's Den",
+  "name": "Gorgon's Gallery",
   "tileSize": 0.5,
   "legend": {
     "#": {
@@ -138,28 +138,28 @@
       "#                                              #",
       "#                                              #",
       "#                                              #",
-      "#            -----    -----    -----           #",
+      "#        -----    -----    -----               #",
       "                                               #",
       "                                               #",
-      "                                  XX           #",
+      "                                               #",
       "#______________________________________________#",
       "################################################"
     ],
     "foreground": [
       "                                                ",
       "                                                ",
-      "          j         j         j         j       ",
+      "            j             j           j         ",
+      "                                                ",
+      "                                                ",
+      "                                  q             ",
       "                                                ",
       "                                                ",
       "                                                ",
       "                                                ",
       "                                                ",
       "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "       a           a             a              ",
-      "        h               h   h        b k   k    ",
+      "               a              a                 ",
+      "        s               s            s      s   ",
       "                                                ",
       "                                                "
     ],
@@ -170,21 +170,21 @@
       "                                                ",
       "                                                ",
       "                                                ",
-      "                    H        H                  ",
+      "                H                     H         ",
       "                                                ",
       "                                                ",
-      "               R        R        R              ",
+      "           R        R        R                  ",
       "                                                ",
       "                                                ",
-      "                                                ",
-      "    P      S    S    S    S    S        D   LLL ",
+      "                                  G             ",
+      "    P       S    S    S                 S  L LL ",
       "                                                ",
       "                                                "
     ]
   },
   "transitions": [
     {
-      "id": "nether-hounds-den-back",
+      "id": "nether-gorgon-gallery-back",
       "x": 0,
       "y": 2,
       "width": 1,
@@ -192,8 +192,8 @@
       "texture": "images/level1/gate-exit-512px.png",
       "destinationMap": "maps/level1-greek.json",
       "destinationSpawn": {
-        "x": 50,
-        "y": 34
+        "x": 53,
+        "y": 40
       }
     }
   ]
