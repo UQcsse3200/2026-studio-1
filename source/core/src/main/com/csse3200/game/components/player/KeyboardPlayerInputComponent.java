@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.pausemenu.KeybindSettings;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
@@ -183,7 +184,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     return false;
   }
 
-  /** Handles the five hotbar slot keys. */
+  /** Handles the five item hotbar slots and two pet slots. */
   private boolean handleHotbarKeys(int keycode) {
     if (keycode == KeybindSettings.getKey("hotbarSlot1")) {
       handleInventorySlot(1);
@@ -205,6 +206,17 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       handleInventorySlot(5);
       return true;
     }
+
+    if (keycode == Keys.NUM_6) {
+      handlePetSlot(1);
+      return true;
+    }
+
+    if (keycode == Keys.NUM_7) {
+      handlePetSlot(2);
+      return true;
+    }
+
     return false;
   }
 
@@ -276,6 +288,27 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     inventory.setActiveSlot(slot);
     entity.getEvents().trigger("useItem", slot);
+  }
+
+  /**
+   * Switches the active companion to the pet stored in the specified pet slot.
+   *
+   * @param slot pet inventory slot to select
+   */
+  private void handlePetSlot(int slot) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    PetManagerComponent petManager = entity.getComponent(PetManagerComponent.class);
+
+    if (inventory == null || petManager == null) {
+      return;
+    }
+
+    ShopComponent.Pet pet = inventory.getPet(slot);
+    if (pet == null) {
+      return;
+    }
+
+    petManager.switchActivePet(pet);
   }
 
   /**
