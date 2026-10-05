@@ -1,6 +1,9 @@
 package com.csse3200.game.entities;
 
 import com.badlogic.gdx.utils.Array;
+import com.csse3200.game.components.Component;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +47,17 @@ public class EntityService {
       entity.earlyUpdate();
       entity.update();
     }
+  }
+
+  public <T extends Component> List<Entity> getEntitiesWithComponent(Class<T> componentType) {
+    List<Entity> matches = new ArrayList<>();
+    for (int i = 0; i < entities.size; i++) {
+      Entity candidate = entities.get(i);
+      if (candidate.getComponent(componentType) != null) {
+        matches.add(candidate);
+      }
+    }
+    return matches;
   }
 
   /** Dispose all entities. */
