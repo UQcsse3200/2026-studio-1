@@ -235,4 +235,21 @@ public class QuestGiverComponent extends Component {
     }
     return true;
   }
+  public void setGoldToGive(int goldToGive){
+    if(goldToGive<0){
+      throw new IllegalArgumentException(
+              "A QuestGiverComponent when using the setGoldToGive function used  "
+                      + goldToGive
+                      + " as the goldToGive as a reward but goldToGive should not be negative");
+    }
+    this.goldToGive = goldToGive;
+  }
+  public boolean setItemToGive(Item itemToGive){
+    if(itemToGive==null){
+      throw new IllegalArgumentException(
+              "A QuestGiverComponent when using the setItemToGive function was given null as the item to give as a reward which should not be done.");
+    }
+    this.itemToGive = itemToGive;
+    return true;
+  }
 }
