@@ -73,6 +73,7 @@ public class NPCFactory {
   // above ranged so a close player is meleed rather than shot.
   private static final int MELEE_TASK_PRIORITY = 15;
   private static final int RANGED_TASK_PRIORITY = 12;
+  private static final int LASER_TASK_PRIORITY = 13;
 
   /**
    * Creates a skeleton entity.
@@ -130,6 +131,10 @@ public class NPCFactory {
         .addComponent(new SkeletonAnimationController())
         .addComponent(weaponAnimator)
         .addComponent(new SkeletonWeaponAnimationController());
+
+    boolean grounded = skeleton.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(skeleton, grounded);
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
     skeleton.setScale(scale, scale);
@@ -200,6 +205,11 @@ public class NPCFactory {
         .setProjectileSpeed(config.ranged.projectileSpeed);
 
     rangedSkeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    boolean grounded =
+        rangedSkeleton.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(rangedSkeleton, grounded);
 
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
@@ -277,6 +287,10 @@ public class NPCFactory {
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
     minotaur.getComponent(ChargeComponent.class).setEndOnHit(config.charge.endOnHit);
+
+    boolean grounded = minotaur.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(minotaur, grounded);
 
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
@@ -373,6 +387,10 @@ public class NPCFactory {
 
     centaur.getComponent(AnimationRenderComponent.class).scaleEntity();
 
+    boolean grounded = centaur.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(centaur, grounded);
+
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     centaur
@@ -394,8 +412,12 @@ public class NPCFactory {
   }
 
   /**
-   * Creates a Cyclops (e.g. a mini-boss that has both melee and ranged attacks) that can attack
-   * from close or far away.
+   * Creates a Cyclops (a mini-boss with a stomp, a lobbed rock and an eye laser).
+   *
+   * <p>Task priorities decide which attack runs, because the highest priority among the tasks whose
+   * range covers the target wins and the ranged task ignores cooldown: the stomp (15) up close, the
+   * laser (13) at middle range and the rock (12) only beyond the laser's range. So the rock is
+   * never thrown at close range and the laser is never fired at long range.
    *
    * @param target entity to chase
    * @return Cyclops entity as a mini boss enemy
@@ -437,25 +459,36 @@ public class NPCFactory {
     weaponAnimator.addAnimation("cyclops_laser_r", 0.1f, Animation.PlayMode.NORMAL);
 
     // Cyclops carries no weapon - natural attacks flow through the same weapon-based attack
-    // constructors an armed enemy uses, via WeaponItem.natural(...), rather than each attack
-    // component needing its own parallel no-weapon constructor (see WeaponItem#natural).
-    WeaponItem naturalFists =
-        WeaponItem.natural("Cyclops Fists", config.baseAttack, config.melee.cooldown - 1);
-    WeaponItem naturalRockThrow =
-        WeaponItem.natural("Cyclops Rock Throw", config.baseAttack, config.ranged.cooldown - 1);
+    // constructors an armed enemy uses, via WeaponItem.natural(...). Each windup comes from the
+    // config instead of cooldown - 1.
+    WeaponItem fists = WeaponItem.natural("Cyclops Fists", config.baseAttack, config.melee.windup);
+    WeaponItem rockThrow =
+        WeaponItem.natural("Cyclops Rock Throw", config.baseAttack, config.rock.windup);
+    WeaponItem laserBeam =
+        WeaponItem.natural("Cyclops Laser", config.baseAttack, config.laser.windup);
 
     // Add necessary components to the entity
     cyclops
         .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(
             new MeleeAttackComponent(
-                config.melee.range, config.melee.cooldown, config.melee.knockback, naturalFists))
+                config.melee.range, config.melee.cooldown, config.melee.knockback, fists))
         .addComponent(
-            new RangedAttackComponent(
-                config.ranged.range,
-                config.ranged.cooldown,
-                config.ranged.knockback,
-                naturalRockThrow))
+            new RockAttackComponent(
+                config.rock.range,
+                config.rock.cooldown,
+                config.rock.knockback,
+                rockThrow,
+                config.rock.spawnHeightFraction,
+                config.rock.damageMultiplier))
+        .addComponent(
+            new LaserAttackComponent(
+                config.laser.range,
+                config.laser.cooldown,
+                config.laser.knockback,
+                laserBeam,
+                config.laser.spawnHeightFraction,
+                config.laser.damageMultiplier))
         .addComponent(new EnemyTypeComponent(EnemyType.CYCLOPS))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
@@ -464,18 +497,36 @@ public class NPCFactory {
         .addComponent(weaponAnimator)
         .addComponent(new CyclopsAnimationController());
 
+    // Look the components up by their own class: the base class lookup does not find subclasses.
+    cyclops.getComponent(RockAttackComponent.class).setProjectileSpeed(config.rock.projectileSpeed);
     cyclops
-        .getComponent(RangedAttackComponent.class)
-        .setProjectileSpeed(config.ranged.projectileSpeed);
+        .getComponent(LaserAttackComponent.class)
+        .setProjectileSpeed(config.laser.projectileSpeed);
 
     cyclops.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    // Attack from range instead of flying/chasing all the way onto the target - see
-    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
+    boolean grounded = cyclops.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(cyclops, grounded);
+
+    // All three sit above the chase task (priority 10), so the Cyclops stops to attack.
     cyclops
         .getComponent(AITaskComponent.class)
-        .addTask(new MeleeAttackTask(target, 10, config.melee.range))
-        .addTask(new RangedAttackTask(target, 9, config.ranged.range, ProjectileType.ARROW));
+        .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range))
+        .addTask(
+            new RangedAttackTask(
+                target,
+                LASER_TASK_PRIORITY,
+                config.laser.range,
+                ProjectileType.ARROW,
+                "laserAttack"))
+        .addTask(
+            new RangedAttackTask(
+                target,
+                RANGED_TASK_PRIORITY,
+                config.rock.range,
+                ProjectileType.ARROW,
+                "rockAttack"));
 
     cyclops.setScale(scale, scale * (48f / 64f));
     PhysicsUtils.setScaledCollider(cyclops, collisionScale.x, collisionScale.y);
@@ -557,6 +608,10 @@ public class NPCFactory {
             "rangedAttackHit",
             (Entity hit) -> hit.getEvents().trigger("applySpeedEffect", petrifyTicks, 0f));
 
+    boolean grounded = medusa.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(medusa, grounded);
+
     animator.scaleEntity();
     medusa
         .getComponent(AITaskComponent.class)
@@ -612,6 +667,10 @@ public class NPCFactory {
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new CerberusAnimationController());
+
+    boolean grounded = cerberus.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(cerberus, grounded);
 
     animator.scaleEntity();
     cerberus
@@ -688,6 +747,10 @@ public class NPCFactory {
     // The aimed flag has no effect on lightning (it falls from above the target) but is read from
     // the config so every ranged enemy is wired the same way.
     zeus.getComponent(RangedAttackComponent.class).setAimed(config.ranged.aimed);
+
+    boolean grounded = zeus.getComponent(PhysicsMovementComponent.class).isGroundedMovement();
+
+    addHazardRules(zeus, grounded);
 
     animator.scaleEntity();
     zeus.getComponent(AITaskComponent.class)
@@ -1112,6 +1175,21 @@ public class NPCFactory {
     if (cooldown < 2f * effectSeconds) {
       throw new IllegalArgumentException(
           "cooldown " + cooldown + " must be at least " + (2f * effectSeconds));
+    }
+  }
+
+  /**
+   * Gives an enemy the hazard rules every enemy follows. Every enemy takes hazard damage. Only
+   * grounded enemies also avoid hazards, because a flyer would only ever be stopped by a tile it
+   * can fly over.
+   *
+   * @param npc the enemy being built, not yet created
+   * @param grounded true if the enemy walks on the ground, false if it flies
+   */
+  private static void addHazardRules(Entity npc, boolean grounded) {
+    npc.addComponent(new HazardContactDamageComponent());
+    if (grounded) {
+      npc.addComponent(new HazardAvoidanceComponent());
     }
   }
 

@@ -11,8 +11,10 @@ import static org.mockito.Mockito.mock;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.ChargeComponent;
+import com.csse3200.game.components.attacks.LaserAttackComponent;
 import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.attacks.RockAttackComponent;
 import com.csse3200.game.components.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
@@ -67,9 +69,10 @@ import org.junit.jupiter.params.provider.MethodSource;
  *       non-charging enemies are checked for none, and the charging ones are checked for one.
  *       {@code shouldGiveTheChargingEnemiesATouchAttack} fails until that wiring is in the factory.
  *   <li>Both Harpies carry a {@link FlightComponent} with the configured damping.
- *   <li>The Cyclops, Zeus and Medusa tests only check invariants (config values, both attacks
- *       present, melee shorter than ranged, windup below cooldown), because those enemies' attack
- *       logic is being reworked.
+ *   <li>The Cyclops now holds a melee attack, a {@link RockAttackComponent} and a {@link
+ *       LaserAttackComponent}, each checked against its own config block. The Zeus and Medusa tests
+ *       still only check invariants (config values, both attacks present, melee shorter than
+ *       ranged, windup below cooldown), because those enemies' attack logic is being reworked.
  * </ul>
  */
 @ExtendWith(GameExtension.class)
@@ -198,7 +201,9 @@ class NPCFactoryTest {
 
     assertTrue(
         enemy.getComponent(MeleeAttackComponent.class) != null
-            || enemy.getComponent(RangedAttackComponent.class) != null,
+            || enemy.getComponent(RangedAttackComponent.class) != null
+            || enemy.getComponent(RockAttackComponent.class) != null
+            || enemy.getComponent(LaserAttackComponent.class) != null,
         name + " needs a melee or a ranged attack");
   }
 
@@ -209,12 +214,20 @@ class NPCFactoryTest {
     Entity enemy = factory.apply(player);
     MeleeAttackComponent melee = enemy.getComponent(MeleeAttackComponent.class);
     RangedAttackComponent ranged = enemy.getComponent(RangedAttackComponent.class);
+    RockAttackComponent rock = enemy.getComponent(RockAttackComponent.class);
+    LaserAttackComponent laser = enemy.getComponent(LaserAttackComponent.class);
 
     if (melee != null) {
       assertTrue(melee.getWindupDuration() < melee.getCooldown(), name + " melee windup");
     }
     if (ranged != null) {
       assertTrue(ranged.getWindupDuration() < ranged.getCooldown(), name + " ranged windup");
+    }
+    if (rock != null) {
+      assertTrue(rock.getWindupDuration() < rock.getCooldown(), name + " rock windup");
+    }
+    if (laser != null) {
+      assertTrue(laser.getWindupDuration() < laser.getCooldown(), name + " laser windup");
     }
   }
 
@@ -382,21 +395,75 @@ class NPCFactoryTest {
     assertNull(centaur.getComponent(MeleeAttackComponent.class));
   }
 
-  // ---------- cyclops (invariants only: the attack set is being reworked) ----------
+  // ---------- cyclops: stomp, rock and laser ----------
 
   @Test
-  void shouldGiveTheCyclopsANaturalMeleeAndANaturalRangedAttackFromItsConfig() {
+  void shouldGiveTheCyclopsAStompFromItsConfig() {
     Entity cyclops = NPCFactory.createCyclops(player);
 
     MeleeAttackComponent melee = cyclops.getComponent(MeleeAttackComponent.class);
+    assertNotNull(melee);
     assertEquals(configs.cyclops.melee.range, melee.getRange(), 1e-6f);
     assertEquals(configs.cyclops.melee.cooldown, melee.getCooldown(), 1e-6f);
     assertEquals(configs.cyclops.melee.knockback, melee.getKnockback(), 1e-6f);
+    assertEquals(configs.cyclops.melee.windup, melee.getWindupDuration(), 1e-6f);
+  }
 
-    RangedAttackComponent ranged = cyclops.getComponent(RangedAttackComponent.class);
-    assertEquals(configs.cyclops.ranged.range, ranged.getRange(), 1e-6f);
-    assertEquals(configs.cyclops.ranged.cooldown, ranged.getCooldown(), 1e-6f);
-    assertEquals(configs.cyclops.ranged.projectileSpeed, ranged.getProjectileSpeed(), 1e-6f);
+  @Test
+  void shouldGiveTheCyclopsARockAttackFromItsConfig() {
+    Entity cyclops = NPCFactory.createCyclops(player);
+
+    RockAttackComponent rock = cyclops.getComponent(RockAttackComponent.class);
+    assertNotNull(rock);
+    assertEquals("rockAttack", rock.getEventPrefix());
+    assertEquals(configs.cyclops.rock.range, rock.getRange(), 1e-6f);
+    assertEquals(configs.cyclops.rock.cooldown, rock.getCooldown(), 1e-6f);
+    assertEquals(configs.cyclops.rock.knockback, rock.getKnockback(), 1e-6f);
+    assertEquals(configs.cyclops.rock.windup, rock.getWindupDuration(), 1e-6f);
+    assertEquals(configs.cyclops.rock.projectileSpeed, rock.getProjectileSpeed(), 1e-6f);
+    assertEquals(configs.cyclops.rock.spawnHeightFraction, rock.getSpawnHeightFraction(), 1e-6f);
+    assertEquals(configs.cyclops.rock.damageMultiplier, rock.getDamageMultiplier(), 1e-6f);
+  }
+
+  @Test
+  void shouldGiveTheCyclopsALaserAttackFromItsConfig() {
+    Entity cyclops = NPCFactory.createCyclops(player);
+
+    LaserAttackComponent laser = cyclops.getComponent(LaserAttackComponent.class);
+    assertNotNull(laser);
+    assertEquals("laserAttack", laser.getEventPrefix());
+    assertEquals(configs.cyclops.laser.range, laser.getRange(), 1e-6f);
+    assertEquals(configs.cyclops.laser.cooldown, laser.getCooldown(), 1e-6f);
+    assertEquals(configs.cyclops.laser.knockback, laser.getKnockback(), 1e-6f);
+    assertEquals(configs.cyclops.laser.windup, laser.getWindupDuration(), 1e-6f);
+    assertEquals(configs.cyclops.laser.projectileSpeed, laser.getProjectileSpeed(), 1e-6f);
+    assertEquals(configs.cyclops.laser.spawnHeightFraction, laser.getSpawnHeightFraction(), 1e-6f);
+    assertEquals(configs.cyclops.laser.damageMultiplier, laser.getDamageMultiplier(), 1e-6f);
+  }
+
+  @Test
+  void shouldGiveTheCyclopsThreeAttacksAndNoPlainRangedAttack() {
+    Entity cyclops = NPCFactory.createCyclops(player);
+
+    assertNotNull(cyclops.getComponent(MeleeAttackComponent.class));
+    assertNotNull(cyclops.getComponent(RockAttackComponent.class));
+    assertNotNull(cyclops.getComponent(LaserAttackComponent.class));
+    assertNull(
+        cyclops.getComponent(RangedAttackComponent.class),
+        "the base class lookup does not find the rock or laser");
+  }
+
+  @Test
+  void shouldOrderTheCyclopsRangesStompThenLaserThenRock() {
+    // The task priorities 15, 13 and 12 only give stomp, then laser, then rock as the target
+    // moves away if the ranges grow in that order.
+    Entity cyclops = NPCFactory.createCyclops(player);
+
+    float stomp = cyclops.getComponent(MeleeAttackComponent.class).getRange();
+    float laser = cyclops.getComponent(LaserAttackComponent.class).getRange();
+    float rock = cyclops.getComponent(RockAttackComponent.class).getRange();
+    assertTrue(stomp < laser, "stomp range below laser range");
+    assertTrue(laser < rock, "laser range below rock range");
   }
 
   @Test
