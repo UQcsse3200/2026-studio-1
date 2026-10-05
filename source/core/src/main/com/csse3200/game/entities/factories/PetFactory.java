@@ -8,6 +8,7 @@ import com.csse3200.game.components.pet.PetCombatComponent;
 import com.csse3200.game.components.pet.PetComponent;
 import com.csse3200.game.components.pet.PetMovementComponent;
 import com.csse3200.game.components.pet.PetProjectileSpawnerComponent;
+import com.csse3200.game.components.pet.PetType;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -36,22 +37,8 @@ public class PetFactory {
     TextureAtlas petAtlas = new TextureAtlas(Gdx.files.internal(PET_ATLAS));
     AnimationRenderComponent animator = new AnimationRenderComponent(petAtlas);
 
-    String animationPrefix;
-
-    switch (petData.getName().toLowerCase()) {
-      case "bat":
-        animationPrefix = "bat";
-        break;
-
-      case "spirit":
-        animationPrefix = "spirit";
-        break;
-
-      case "bird":
-      default:
-        animationPrefix = "bird";
-        break;
-    }
+    PetType type = PetType.fromName(petData.getName());
+    String animationPrefix = type.getAnimationPrefix();
 
     animator.addAnimation(animationPrefix + "_left", 0.15f, Animation.PlayMode.LOOP);
 
@@ -59,7 +46,7 @@ public class PetFactory {
 
     Entity pet =
         new Entity()
-            .addComponent(new PetComponent(owner))
+            .addComponent(new PetComponent(owner, type))
             .addComponent(new PetMovementComponent(animationPrefix))
             .addComponent(new PetCombatComponent())
             .addComponent(new PetProjectileSpawnerComponent())

@@ -12,10 +12,6 @@ import com.csse3200.game.physics.components.HitboxComponent;
 /**
  * Handles player projectile collisions and damage.
  *
- * <p>Hits on living NPCs emit {@code playerAttackHit(Entity target)} on the owner after damage is
- * resolved, including shielded and lethal hits. Listeners must check whether the target survived.
- * This event runs inside the collision callback: queue responses and create physics bodies later.
- * Companion projectiles must use their own hit handler so their hits cannot trigger more assists.
  */
 public class PlayerProjectileHitComponent extends Component {
   private final int damage;

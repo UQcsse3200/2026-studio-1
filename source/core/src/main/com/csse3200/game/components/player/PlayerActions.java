@@ -30,10 +30,6 @@ import org.slf4j.LoggerFactory;
  *
  * <p>Handles player movement and attacks, and prevents further player actions after the death event
  * is triggered.
- *
- * <p>Each hit on a living enemy emits {@code playerAttackHit(Entity target)} on the player after
- * damage is resolved, including shielded and lethal hits. Multi-target attacks emit one event per
- * enemy. Listeners must check whether the target survived and defer physics changes to update().
  */
 public class PlayerActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);

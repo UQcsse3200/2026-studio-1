@@ -35,8 +35,8 @@ import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.rendering.PetProjectileRenderComponent;
 import com.csse3200.game.rendering.RenderService;
-import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -49,6 +49,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Exercises real Box2D flight and contacts, with disposal callbacks run on the test thread. */
 @ExtendWith(GameExtension.class)
@@ -91,7 +94,7 @@ class PetProjectileComponentTest {
         new PetManagerComponent(
             (petOwner, petData) ->
                 new Entity()
-                    .addComponent(new PetComponent(petOwner))
+                    .addComponent(new PetComponent(petOwner, PetType.fromName(petData.getName())))
                     .addComponent(new PetCombatComponent())
                     .addComponent(new PetProjectileSpawnerComponent()));
     owner = new Entity().addComponent(new CombatStatsComponent(100, 10)).addComponent(manager);
@@ -143,7 +146,7 @@ class PetProjectileComponentTest {
     runScheduled();
     assertTrue(projectile.isDisposed());
     assertEquals(1, physics.getWorld().getBodyCount());
-    verify(renderer).unregister(projectile.getComponent(TextureRenderComponent.class));
+    verify(renderer).unregister(projectile.getComponent(PetProjectileRenderComponent.class));
   }
 
   @Test
@@ -205,6 +208,105 @@ class PetProjectileComponentTest {
     }
   }
 
+  @ParameterizedTest
+  @ValueSource(floats = {0f, 45f, 90f, 180f})
+  void shouldWaveOnBothSidesOfTheFiringDirection(float angle) {
+    activatePet(PetType.BAT);
+    Vector2 forward = new Vector2(1f, 0f).rotateDeg(angle);
+    Vector2 sideways = new Vector2(-forward.y, forward.x);
+    Vector2 targetPosition = pet.getPosition().mulAdd(forward, 20f);
+    Entity enemy = createEnemy(targetPosition.x, targetPosition.y, 100, null);
+    Entity projectile = fireAt(enemy);
+    Vector2 start = projectile.getCenterPosition();
+    float minOffset = 0f;
+    float maxOffset = 0f;
+    float previousProgress = 0f;
+
+    for (int i = 0; i < 80; i++) {
+      step();
+      assertFalse(projectile.isDisposed());
+      Vector2 travelled = projectile.getCenterPosition().sub(start);
+      float offset = travelled.dot(sideways);
+      minOffset = Math.min(minOffset, offset);
+      maxOffset = Math.max(maxOffset, offset);
+      float progress = travelled.dot(forward);
+      assertTrue(progress > previousProgress, "Wave must continue towards the aimed position");
+      previousProgress = progress;
+    }
+
+    assertTrue(minOffset < -0.2f && maxOffset > 0.2f, "Wave must cross both sides of its axis");
+    assertTrue(minOffset > -0.3f && maxOffset < 0.3f, "Sideways motion must remain bounded");
+    assertEquals(100, health(enemy));
+  }
+
+  @Test
+  void shouldKeepWaveBoundedWhenFrameTimesVary() {
+    activatePet(PetType.BAT);
+    Entity enemy = createEnemy(30f, 3f, 100, null);
+    Entity projectile = fireAt(enemy);
+    float startY = projectile.getCenterPosition().y;
+
+    for (int i = 0; i < 100; i++) {
+      when(ServiceLocator.getTimeSource().getDeltaTime()).thenReturn(i % 2 == 0 ? 0.04f : 0.008f);
+      step();
+      assertFalse(projectile.isDisposed());
+      assertTrue(
+          Math.abs(projectile.getCenterPosition().y - startY) < 0.35f,
+          "Changing frame times must not amplify the wave");
+    }
+  }
+
+  @Test
+  void shouldTurnGraduallyAndHitMovingTargetWithSpiritProjectile() {
+    activatePet(PetType.SPIRIT);
+    Entity enemy = createEnemy(7f, 3f, 100, null);
+    Entity projectile = fireAt(enemy);
+    Body body = projectile.getComponent(PhysicsComponent.class).getBody();
+    for (int i = 0; i < 10; i++) {
+      step();
+    }
+    enemy.setPosition(7f, 6f);
+    step();
+
+    assertTrue(body.getLinearVelocity().angleDeg() > 0f);
+    assertTrue(body.getLinearVelocity().angleDeg() < 6f, "Homing must turn gradually");
+    assertEquals(6f, body.getLinearVelocity().len(), 0.001f);
+    flyUntilDisposed(projectile);
+    assertEquals(95, health(enemy));
+  }
+
+  @Test
+  void shouldTakeShortestTurnAcrossZeroDegrees() {
+    activatePet(PetType.SPIRIT);
+    Vector2 initialPosition = pet.getPosition().add(new Vector2(8f, 0f).rotateDeg(-2f));
+    Entity enemy = createEnemy(initialPosition.x, initialPosition.y, 100, null);
+    Entity projectile = fireAt(enemy);
+    enemy.setPosition(pet.getPosition().add(new Vector2(8f, 0f).rotateDeg(2f)));
+
+    entities.update();
+
+    Vector2 velocity =
+        projectile.getComponent(PhysicsComponent.class).getBody().getLinearVelocity();
+    assertEquals(2f, velocity.angleDeg(), 0.01f);
+    assertEquals(6f, velocity.len(), 0.001f);
+  }
+
+  @Test
+  void shouldKeepBirdDirectionAfterTargetMoves() {
+    Entity enemy = createEnemy(7f, 3f, 100, null);
+    Entity projectile = fireAt(enemy);
+    Body body = projectile.getComponent(PhysicsComponent.class).getBody();
+    Vector2 initialVelocity = body.getLinearVelocity().cpy();
+    enemy.setPosition(7f, 6f);
+
+    for (int i = 0; i < 10; i++) {
+      step();
+    }
+
+    assertTrue(body.getLinearVelocity().epsilonEquals(initialVelocity, 0.001f));
+    assertEquals(100, health(enemy));
+  }
+
   @Test
   void shouldPassOtherEnemiesAndOnlyDamageTheConfirmedTarget() {
     Entity otherEnemy = createEnemy(2f, 3f, 100, null);
@@ -217,8 +319,10 @@ class PetProjectileComponentTest {
     assertEquals(95, health(target));
   }
 
-  @Test
-  void shouldBeBlockedByStaticTerrainBeforeReachingTarget() {
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldBeBlockedByStaticTerrainBeforeReachingTarget(PetType type) {
+    activatePet(type);
     Entity target = createEnemy(5f, 3f, 100, null);
     Entity wall =
         new Entity()
@@ -278,11 +382,13 @@ class PetProjectileComponentTest {
 
     assertEquals(100, health(enemy));
     assertEquals(1, physics.getWorld().getBodyCount());
-    verify(renderer).unregister(projectile.getComponent(TextureRenderComponent.class));
+    verify(renderer).unregister(projectile.getComponent(PetProjectileRenderComponent.class));
   }
 
-  @Test
-  void shouldCancelFlightWhenTargetDiesOrIsRemoved() {
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldCancelFlightWhenTargetDiesOrIsRemoved(PetType type) {
+    activatePet(type);
     Entity deadTarget = createEnemy(4f, 0f, 100, null);
     Entity first = fireAt(deadTarget);
     deadTarget.getComponent(CombatStatsComponent.class).setHealth(0);
@@ -362,6 +468,13 @@ class PetProjectileComponentTest {
     Entity projectile = PetProjectileFactory.createProjectile(pet, enemy);
     entities.register(projectile);
     return projectile;
+  }
+
+  private void activatePet(PetType type) {
+    PetManagerComponent manager = owner.getComponent(PetManagerComponent.class);
+    manager.activatePet(new ShopComponent.Pet(type.name()));
+    pet = manager.getActivePet();
+    pet.setPosition(0f, 3f);
   }
 
   private Entity findPetProjectile() {
