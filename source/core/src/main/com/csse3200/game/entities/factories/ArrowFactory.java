@@ -211,7 +211,7 @@ public class ArrowFactory {
             .addComponent(new HitboxComponent())
             .addComponent(new CombatStatsComponent(1, damage))
             // No blocking layer: lightning strikes through platforms. Pass PhysicsLayer.OBSTACLE
-            // instead if you want ceilings to shield the player.
+            // instead to have ceilings to shield the player.
             .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.NONE, 0f))
             .addComponent(new LightningFreezeComponent(freezeTicks))
             .addComponent(
