@@ -38,7 +38,7 @@ public final class LightingConfigParser {
   private static LightingConfig.Ambient parseAmbient(JsonValue a, Ambient fallback) {
     if (a == null) return fallback;
     String c = a.getString("colour", a.getString("color", null));
-    float intensity = Math.max(0f, Math.min(1f, a.getFloat("intensity", fallback.intensity())));
+    float intensity = Math.max(0f, Math.min(1f, readFloat(a, "intensity", fallback.intensity())));
     return new Ambient(LightColour.parse(c, fallback.color()), intensity);
   }
 
@@ -51,5 +51,14 @@ public final class LightingConfigParser {
         LightColour.parse(c, LightColour.ELYSIAN_FADE.getColour()),
         p.getFloat("radius", 3f),
         p.getFloat("flicker", 0f));
+  }
+
+  private static float readFloat(JsonValue json, String key, float fallback) {
+    try {
+      return json.getFloat(key, fallback);
+    } catch (RuntimeException e) {
+      logger.warn("Lighting value '{}' is not a number, using {}", key, fallback);
+      return fallback;
+    }
   }
 }
