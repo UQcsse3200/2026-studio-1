@@ -12,7 +12,6 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.attacks.TouchAttackComponent;
-import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;

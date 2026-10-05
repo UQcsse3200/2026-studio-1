@@ -328,11 +328,11 @@ public class MeleeAttackComponent extends Component {
     return this.pendingTarget != null;
   }
 
-/**
- * Bribes this enemy for 20 seconds.
- *
- * @return true when the bribe was applied
- */
+  /**
+   * Bribes this enemy for 20 seconds.
+   *
+   * @return true when the bribe was applied
+   */
   public boolean bribe() {
     bribed = true;
     bribedUntil = ServiceLocator.getTimeSource().getTime() + BRIBE_DURATION_MILLIS;
@@ -350,7 +350,7 @@ public class MeleeAttackComponent extends Component {
   public boolean isBribed() {
     return bribed;
   }
-  
+
   /**
    * Attempts to attack the given target entity: validates cooldown and range, then applies damage
    * and knockback if both checks pass and the target has the required component(s).
@@ -460,7 +460,7 @@ public class MeleeAttackComponent extends Component {
 
     if (targetPhysics != null && this.getKnockback() > 0) {
       Body targetBody = targetPhysics.getBody();
-      
+
       Vector2 direction = target.getCenterPosition().sub(entity.getCenterPosition());
 
       Vector2 impulse = direction.setLength(this.getKnockback());

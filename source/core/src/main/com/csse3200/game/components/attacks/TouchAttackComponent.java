@@ -57,7 +57,6 @@ public class TouchAttackComponent extends Component {
    *
    * @param targetLayer The physics layer of the target's collider.
    */
-
   public TouchAttackComponent(short targetLayer) {
     this.targetLayer = targetLayer;
   }
@@ -79,7 +78,7 @@ public class TouchAttackComponent extends Component {
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
   }
-  
+
   @Override
   public void update() {
     if (bribed && ServiceLocator.getTimeSource().getTime() >= bribedUntil) {
@@ -87,7 +86,7 @@ public class TouchAttackComponent extends Component {
       bribedUntil = 0L;
     }
   }
-  
+
   /**
    * Bribes this enemy for 20 seconds.
    *
@@ -96,12 +95,12 @@ public class TouchAttackComponent extends Component {
   public boolean bribe() {
     bribed = true;
     bribedUntil = ServiceLocator.getTimeSource().getTime() + BRIBE_DURATION_MILLIS;
-    
+
     entity.getEvents().trigger("enemyBribed", BRIBE_DURATION_MILLIS);
-    
+
     return true;
   }
-  
+
   public boolean isBribed() {
     return bribed;
   }
