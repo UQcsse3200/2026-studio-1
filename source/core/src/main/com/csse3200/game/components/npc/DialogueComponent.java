@@ -22,9 +22,9 @@ public class DialogueComponent extends Component {
 
   private QuestGiverComponent questGiverComponent;
 
-  private final String questType;
+  private String questType;
 
-  private final int amountXToDo;
+  private int amountXToDo;
 
   private static Logger logger = LoggerFactory.getLogger(DialogueComponent.class);
 
@@ -166,5 +166,16 @@ public class DialogueComponent extends Component {
         break;
     }
     return false; // This should never be reached
+  }
+  //Do NOT call this function outside of NPCFactory
+  public void changeQuestType (String questType){
+    this.questType = questType;
+  }
+  //Do NOT call this function outside of NPCFactory
+  public void changeAmountXToDo(int amountXToDo){
+    if(amountXToDo<=0){
+      return;
+    }
+    this.amountXToDo = amountXToDo;
   }
 }
