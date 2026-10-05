@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import com.badlogic.gdx.Input.Keys;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.entities.Entity;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,5 +117,90 @@ class KeyboardPlayerInputComponentTest {
     assertEquals(3, tierThreeBow.getTier());
     assertEquals(10, tierThreeBow.getProjectileCount());
     assertEquals(5, inventory.getActiveSlot());
+  }
+
+  @Test
+  void shouldSelectFirstPetSlotWhenSixIsPressed() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    InventoryComponent inventory = new InventoryComponent(0);
+    PetManagerComponent petManager = mock(PetManagerComponent.class);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    inventory.addPet(bird);
+
+    new Entity()
+            .addComponent(input)
+            .addComponent(inventory)
+            .addComponent(petManager);
+
+    assertTrue(input.keyDown(Keys.NUM_6));
+
+    verify(petManager).switchActivePet(bird);
+  }
+
+  @Test
+  void shouldSelectSecondPetSlotWhenSevenIsPressed() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    InventoryComponent inventory = new InventoryComponent(0);
+    PetManagerComponent petManager = mock(PetManagerComponent.class);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    inventory.addPet(bird);
+    inventory.addPet(bat);
+
+    new Entity()
+            .addComponent(input)
+            .addComponent(inventory)
+            .addComponent(petManager);
+
+    assertTrue(input.keyDown(Keys.NUM_7));
+
+    verify(petManager).switchActivePet(bat);
+  }
+
+  @Test
+  void shouldIgnoreEmptyPetSlot() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    InventoryComponent inventory = new InventoryComponent(0);
+    PetManagerComponent petManager = mock(PetManagerComponent.class);
+
+    new Entity()
+            .addComponent(input)
+            .addComponent(inventory)
+            .addComponent(petManager);
+
+    assertTrue(input.keyDown(Keys.NUM_6));
+
+    verify(petManager, never()).switchActivePet(
+            org.mockito.ArgumentMatchers.any());
+  }
+
+  @Test
+  void shouldNotChangeActiveItemSlotWhenSelectingPet() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    InventoryComponent inventory = new InventoryComponent(0);
+    PetManagerComponent petManager = mock(PetManagerComponent.class);
+
+    WeaponItem sword =
+            new WeaponItem("Sword", WeaponType.SWORD, 10, 1, 1);
+    inventory.addItem(sword);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    inventory.addPet(bird);
+
+    new Entity()
+            .addComponent(input)
+            .addComponent(inventory)
+            .addComponent(petManager);
+
+    assertEquals(1, inventory.getActiveSlot());
+
+    assertTrue(input.keyDown(Keys.NUM_6));
+
+    assertEquals(1, inventory.getActiveSlot());
+    assertSame(sword, inventory.getActiveItem());
+    verify(petManager).switchActivePet(bird);
   }
 }

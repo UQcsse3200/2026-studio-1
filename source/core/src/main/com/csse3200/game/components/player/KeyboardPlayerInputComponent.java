@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
 import org.slf4j.Logger;
@@ -122,6 +123,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       case Keys.NUM_5:
         handleInventorySlot(5);
         return true;
+      case Keys.NUM_6:
+        handlePetSlot(1);
+        return true;
+      case Keys.NUM_7:
+        handlePetSlot(2);
+        return true;
       case Keys.F6:
         grantTestBow(2);
         return true;
@@ -174,6 +181,28 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     inventory.setActiveSlot(slot);
 
     entity.getEvents().trigger("useItem", slot);
+  }
+
+  /**
+   * Selects a pet from one of the dedicated pet inventory slots.
+   *
+   * @param slot pet inventory slot to select
+   */
+  private void handlePetSlot(int slot) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    PetManagerComponent petManager = entity.getComponent(PetManagerComponent.class);
+
+    if (inventory == null || petManager == null) {
+      return;
+    }
+
+    var pet = inventory.getPet(slot);
+
+    if (pet == null) {
+      return;
+    }
+
+    petManager.switchActivePet(pet);
   }
 
   /**

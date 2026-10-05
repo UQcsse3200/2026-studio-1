@@ -479,8 +479,8 @@ public class ShopComponent extends Component {
   /**
    * Purchases a pet from the specified catalog slot.
    *
-   * <p>The purchase fails if the pet does not exist, the player does not
-   * have enough gold, the pet is already owned, or the pet inventory is full.
+   * <p>The purchase fails if the pet does not exist, the player does not have enough gold, the pet
+   * is already owned, or the pet inventory is full.
    *
    * @param catalogSlot catalog slot containing the pet
    * @return true if the purchase was successful

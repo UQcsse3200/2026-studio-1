@@ -1,6 +1,7 @@
 package com.csse3200.game.components.pet;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.PetFactory;
@@ -106,5 +107,30 @@ public class PetManagerComponent extends Component {
     if (!hasActivePet()) {
       activatePet(pet);
     }
+  }
+
+  /**
+   * Switches the active companion to an owned pet.
+   *
+   * @param pet pet to activate
+   * @return true if the active pet was switched
+   */
+  public boolean switchActivePet(ShopComponent.Pet pet) {
+    if (pet == null) {
+      return false;
+    }
+
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null || !inventory.containsPet(pet)) {
+      return false;
+    }
+
+    if (activePetType != null && activePetType.getName().equals(pet.getName())) {
+      return false;
+    }
+
+    activatePet(pet);
+    return true;
   }
 }

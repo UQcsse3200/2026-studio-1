@@ -917,8 +917,8 @@ class InventoryComponentTest {
     inventory.addPet(bird);
 
     assertThrows(
-            UnsupportedOperationException.class,
-            () -> inventory.getPetSlots().put(2, new ShopComponent.Pet("Bat")));
+        UnsupportedOperationException.class,
+        () -> inventory.getPetSlots().put(2, new ShopComponent.Pet("Bat")));
 
     assertSame(bird, inventory.getPet(1));
     assertNull(inventory.getPet(2));

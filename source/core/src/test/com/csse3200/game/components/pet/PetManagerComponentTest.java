@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
@@ -76,8 +77,7 @@ class PetManagerComponentTest {
 
   @Test
   void shouldRemoveActivePet() {
-    PetManagerComponent manager =
-            new PetManagerComponent((petOwner, petData) -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);
 
@@ -119,8 +119,7 @@ class PetManagerComponentTest {
 
   @Test
   void shouldNotReplaceActivePetWhenAnotherPetPurchased() {
-    PetManagerComponent manager =
-            new PetManagerComponent((petOwner, petData) -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);
     ServiceLocator.getEntityService().register(owner);
@@ -137,5 +136,77 @@ class PetManagerComponentTest {
     assertSame(birdEntity, manager.getActivePet());
     assertSame(bird, manager.getActivePetType());
     assertTrue(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldSwitchToOwnedPet() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    owner.addComponent(inventory);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    inventory.addPet(bird);
+    inventory.addPet(bat);
+
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+
+    owner.addComponent(manager);
+
+    manager.activatePet(bird);
+    Entity birdEntity = manager.getActivePet();
+
+    assertTrue(manager.switchActivePet(bat));
+
+    assertNotSame(birdEntity, manager.getActivePet());
+    assertSame(bat, manager.getActivePetType());
+
+    // Switching does not remove pets from inventory.
+    assertSame(bird, inventory.getPet(1));
+    assertSame(bat, inventory.getPet(2));
+  }
+
+  @Test
+  void shouldNotSwitchToUnownedPet() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    owner.addComponent(inventory);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    inventory.addPet(bird);
+
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+
+    owner.addComponent(manager);
+    manager.activatePet(bird);
+
+    Entity birdEntity = manager.getActivePet();
+
+    assertFalse(manager.switchActivePet(bat));
+
+    assertSame(birdEntity, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
+  }
+
+  @Test
+  void shouldNotSwitchToAlreadyActivePet() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    owner.addComponent(inventory);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    inventory.addPet(bird);
+
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+
+    owner.addComponent(manager);
+    manager.activatePet(bird);
+
+    Entity birdEntity = manager.getActivePet();
+
+    assertFalse(manager.switchActivePet(bird));
+
+    assertSame(birdEntity, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
   }
 }

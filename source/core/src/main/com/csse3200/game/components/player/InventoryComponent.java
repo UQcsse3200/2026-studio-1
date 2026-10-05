@@ -613,7 +613,7 @@ public class InventoryComponent extends Component {
     }
 
     return petSlots.values().stream()
-            .anyMatch(storedPet -> storedPet.getName().equals(pet.getName()));
+        .anyMatch(storedPet -> storedPet.getName().equals(pet.getName()));
   }
 
   /** Returns whether both pet slots are occupied. */
