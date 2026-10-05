@@ -152,6 +152,7 @@ public class LevelGameArea extends GameArea {
     "images/LeftKnight.atlas",
     "images/skeleton_weapons/skeleton_sword.atlas",
     "images/enemies/ghost.atlas",
+    "images/KnightEffects.atlas",
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",

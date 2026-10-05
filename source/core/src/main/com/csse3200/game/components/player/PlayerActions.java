@@ -35,9 +35,10 @@ import org.slf4j.LoggerFactory;
  */
 public class PlayerActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
-
-  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f);
-  private static final float SlideMaxTime = 0.5f;
+  // Thank you Lachlan, you beautiful, beautiful man
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
+  private static final Vector2 MAX_JUMP_SPEED = new Vector2(10f, 10f); // Metres per second
+  private static final float SLIDE_MAX_TIME = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
   private static final float SPECIAL_ATTACK_COOLDOWN = 3f;
   private static final int SPECIAL_ATTACK_DAMAGE_MULTIPLIER = 3;
@@ -56,6 +57,7 @@ public class PlayerActions extends Component {
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
   private PlatformerComponent platformerComponent;
+  private PlayerAnimationController playerAnimationControllerComponent;
   private StaminaComponent staminaComponent;
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
@@ -101,6 +103,7 @@ public class PlayerActions extends Component {
     platformerComponent = entity.getComponent(PlatformerComponent.class);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
+    playerAnimationControllerComponent = entity.getComponent(PlayerAnimationController.class);
     staminaComponent = entity.getComponent(StaminaComponent.class);
 
     System.out.println(
@@ -176,16 +179,20 @@ public class PlayerActions extends Component {
 
   private void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
-
+    boolean hurtPlaying = playerAnimationControllerComponent.hurtPlaying;
+    if (hurtPlaying && animator.isFinished()) {
+      playerAnimationControllerComponent.hurtPlaying = false;
+    }
     if (animator.isFinished()
         && !animator.getCurrentAnimation().equals("crouchidle")
         && !animator.getCurrentAnimation().equals("Leftcrouchidle")
         && !animator.getCurrentAnimation().equals("Run")
-        && !animator.getCurrentAnimation().equals("LeftRun")) {
+        && !animator.getCurrentAnimation().equals("LeftRun")
+        && !animator.getCurrentAnimation().equals("climb")) {
 
       if (animator.getCurrentAnimation().equals("Jump")
-          || animator.getCurrentAnimation().equals("LeftJump")) {
-
+          || animator.getCurrentAnimation().equals("LeftJump")
+          || animator.getCurrentAnimation().equals("climb")) {
         if (!walkDirection.isZero()) {
           entity.getEvents().trigger("run", direction);
         } else {
@@ -284,8 +291,8 @@ public class PlayerActions extends Component {
     if (platformerComponent.getJumpingBool()) {
       Quest.incrementGlobalJumps();
     }
-
-    platformerComponent.updateJump(MAX_SPEED);
+    // For the jump portion
+    platformerComponent.updateJump(MAX_JUMP_SPEED);
   }
 
   public void addSpeedModifier(Object key, float multiplier) {
@@ -566,7 +573,7 @@ public class PlayerActions extends Component {
 
     SlideTimer += Gdx.graphics.getDeltaTime();
 
-    if (SlideTimer >= SlideMaxTime) {
+    if (SlideTimer >= SLIDE_MAX_TIME) {
       sliding = false;
     }
   }
@@ -696,6 +703,9 @@ public class PlayerActions extends Component {
     Body body = physicsComponent.getBody();
 
     body.setLinearVelocity(Vector2.Zero);
+    entity
+        .getEvents()
+        .trigger("dead", entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
   }
 
   public boolean getDashing() {
