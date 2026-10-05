@@ -1,0 +1,110 @@
+package com.csse3200.game.components.tasks;
+
+import com.badlogic.gdx.math.Vector2;
+
+public class BoundedPlatformWanderTask extends PlatformWanderTask {
+  private boolean anchored;
+  private float radius;
+  private float anchorX;
+
+  /**
+   * Creates a wander that never strays further than radius from where it first starts.
+   *
+   * @param radius how far either side of the spawn point the entity may go; greater than zero and
+   *     finite (radius 2 means 4 units of total travel)
+   * @param waitTime seconds to wait between wanders, passed to the parent unchanged
+   * @param rayCastPositionScale 0 to 0.5, where the ledge raycasts sit, passed to the parent
+   *     unchanged
+   * @throws IllegalArgumentException if radius is zero, negative, not a number or infinite
+   */
+  public BoundedPlatformWanderTask(float radius, float waitTime, float rayCastPositionScale) {
+    super(checkedWidth(radius), waitTime, rayCastPositionScale);
+    // CALL the parent constructor WITH
+    //   wander range <- a vector of (checkedWidth(radius) = radius TIMES 2, 0)
+    //   waitTime, rayCastPositionScale
+    //   (the parent call must come first, so do the radius check inside the argument: a small
+    //    private static helper that RAISES error "radius must be greater than zero" when
+    //    radius <= 0 OR radius is not a number OR radius is infinite, and otherwise gives back
+    // radius TIMES 2)
+    this.radius = radius;
+    anchored = false;
+  }
+
+  /** Captures the spawn anchor the first time the task starts, then starts as the parent does. */
+  @Override
+  public void start() {
+    // IF anchored is false THEN
+    //   anchorX <- the horizontal position of the owning entity
+    //   anchored <- true
+    // END IF
+    // CALL the parent start       (it calls getRandomPosInRange, so the anchor must be set first)
+
+    if (!isAnchored()) {
+      anchorX = owner.getEntity().getPosition().x;
+      anchored = true;
+    }
+    super.start();
+  }
+
+  /**
+   * Picks a target the way the parent does, then limits its horizontal position to the anchor plus
+   * or minus the radius. The vertical position is left as the parent chose it.
+   *
+   * @return a wander target no further than the radius from the anchor
+   */
+  @Override
+  protected Vector2 getRandomPosInRange() {
+    // candidate <- the parent's getRandomPosInRange
+    Vector2 candidate = super.getRandomPosInRange();
+    // IF anchored is false THEN RETURN candidate
+    if (!isAnchored()) {
+      return candidate;
+    }
+    // lowest <- anchorX MINUS radius
+    float lowestX = this.getAnchorX() - this.getRadius();
+    // highest <- anchorX PLUS radius
+    float highestX = this.getAnchorX() + this.getRadius();
+    // IF the x of candidate < lowest THEN set the x of candidate TO lowest
+    if (candidate.x < lowestX) {
+      candidate.x = lowestX;
+    } else if (candidate.x > highestX) {
+      candidate.x = highestX;
+    }
+    return candidate;
+  }
+
+  /**
+   * @return the maximum distance from the anchor, in world units
+   */
+  public float getRadius() {
+    return radius;
+  }
+
+  /**
+   * @return the horizontal position the radius is measured from (meaningful after the first start)
+   */
+  public float getAnchorX() {
+    return this.anchorX;
+  }
+
+  /**
+   * @return true once the task has started at least once and captured its anchor
+   */
+  public boolean isAnchored() {
+    return anchored;
+  }
+
+  private static Vector2 checkedWidth(float radius) {
+    if (radius <= 0) {
+      throw new IllegalArgumentException("Radius must be greater than 0.");
+    }
+    if (radius == Float.NEGATIVE_INFINITY || radius == Float.POSITIVE_INFINITY) {
+      throw new IllegalArgumentException("Radius must be a finite number.");
+    }
+
+    if (Float.isNaN(radius)) {
+      throw new IllegalArgumentException("Radius must be a valid number.");
+    }
+    return new Vector2(radius * 2, 0);
+  }
+}

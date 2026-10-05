@@ -35,16 +35,18 @@ public final class DefaultEntitySpawns {
     EntitySpawnRegistry.registerIfAbsent("skeleton", NPCFactory::createSkeleton);
     EntitySpawnRegistry.registerIfAbsent("enemy-skeleton-hoplite", NPCFactory::createSkeleton);
     EntitySpawnRegistry.registerIfAbsent("ranged-skeleton", NPCFactory::createRangedSkeleton);
-    EntitySpawnRegistry.registerIfAbsent("ranged-skeleton", NPCFactory::createRangedSkeleton);
     EntitySpawnRegistry.registerIfAbsent("cyclops", NPCFactory::createCyclops);
     EntitySpawnRegistry.registerIfAbsent("minotaur", NPCFactory::createMinotaur);
     EntitySpawnRegistry.registerIfAbsent("centaur", NPCFactory::createCentaur);
     EntitySpawnRegistry.registerIfAbsent("enemy-centaur", NPCFactory::createCentaur);
     EntitySpawnRegistry.registerIfAbsent("cerberus", NPCFactory::createCerberus);
     EntitySpawnRegistry.registerIfAbsent("enemy-cerberus", NPCFactory::createCerberus);
-
-    // NPC team.
-    EntitySpawnRegistry.registerIfAbsent("npc:traveler", NPCFactory::createTravelerNPC);
+    EntitySpawnRegistry.registerIfAbsent("medusa", NPCFactory::createMedusa);
+    EntitySpawnRegistry.registerIfAbsent("enemy-medusa", NPCFactory::createMedusa);
+    EntitySpawnRegistry.registerIfAbsent("zeus", NPCFactory::createZeus);
+    EntitySpawnRegistry.registerIfAbsent("enemy-zeus", NPCFactory::createZeus);
+    EntitySpawnRegistry.registerIfAbsent("harpy", NPCFactory::createHarpy);
+    EntitySpawnRegistry.registerIfAbsent("ranged-harpy", NPCFactory::createRangedHarpy);
   }
 
   /** Allows tests to re-run {@link #registerAll()} from a known state. */
