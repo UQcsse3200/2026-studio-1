@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
@@ -214,7 +215,7 @@ class CyclopsAnimationControllerTest {
     Entity target = new Entity();
     target.setPosition(2f, 0f);
 
-    entity.getEvents().trigger("laserAttack", target);
+    entity.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
 
     verify(laserLCallback, times(1)).handle();
     verify(weaponAnimator).startAnimation("cyclops_laser_l");
@@ -237,7 +238,7 @@ class CyclopsAnimationControllerTest {
     Entity target = new Entity();
     target.setPosition(5f, 0f);
 
-    entity.getEvents().trigger("laserAttack", target);
+    entity.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
 
     verify(laserRCallback, times(1)).handle();
     verify(weaponAnimator).startAnimation("cyclops_laser_r");
@@ -343,7 +344,7 @@ class CyclopsAnimationControllerTest {
     Entity target = new Entity();
     target.setPosition(5f, 0f);
 
-    entity.getEvents().trigger("laserAttack", target);
+    entity.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
 
     when(weaponAnimator.isFinished()).thenReturn(true);
     when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
@@ -352,5 +353,77 @@ class CyclopsAnimationControllerTest {
 
     verify(weaponAnimator).stopAnimation();
     org.junit.jupiter.api.Assertions.assertFalse(controller.isAttacking());
+  }
+
+  @Test
+  void shouldTriggerLaserOnLaserAttackStart() {
+    EventListener0 laserRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("laserRightStart", laserRCallback);
+
+    entity.create();
+    entity.getEvents().trigger("laserAttackStart");
+
+    verify(laserRCallback, times(1)).handle();
+    org.junit.jupiter.api.Assertions.assertTrue(controller.isAttacking());
+  }
+
+  @Test
+  void shouldTriggerLaserOnLaserAttackWindup() {
+    EventListener0 laserLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("laserLeftStart", laserLCallback);
+
+    entity.create();
+    entity.setPosition(5f, 0f);
+    Entity target = new Entity();
+    target.setPosition(2f, 0f);
+
+    entity.getEvents().trigger("laserAttackWindup", target);
+
+    verify(laserLCallback, times(1)).handle();
+    org.junit.jupiter.api.Assertions.assertTrue(controller.isAttacking());
+  }
+
+  @Test
+  void shouldTriggerRockOnRockAttackStart() {
+    EventListener0 rockRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("rockThrowRightStart", rockRCallback);
+
+    entity.create();
+    entity.getEvents().trigger("rockAttackStart");
+
+    verify(rockRCallback, times(1)).handle();
+    org.junit.jupiter.api.Assertions.assertTrue(controller.isAttacking());
+  }
+
+  @Test
+  void shouldTriggerRockOnRockAttack() {
+    EventListener0 rockLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("rockThrowLeftStart", rockLCallback);
+
+    entity.create();
+    entity.setPosition(5f, 0f);
+    Entity target = new Entity();
+    target.setPosition(2f, 0f);
+
+    entity.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
+
+    verify(rockLCallback, times(1)).handle();
+    org.junit.jupiter.api.Assertions.assertTrue(controller.isAttacking());
+  }
+
+  @Test
+  void shouldTriggerRockOnRockAttackWindup() {
+    EventListener0 rockRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("rockThrowRightStart", rockRCallback);
+
+    entity.create();
+    entity.setPosition(2f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    entity.getEvents().trigger("rockAttackWindup", target);
+
+    verify(rockRCallback, times(1)).handle();
+    org.junit.jupiter.api.Assertions.assertTrue(controller.isAttacking());
   }
 }
