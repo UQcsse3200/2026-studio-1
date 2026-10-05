@@ -3,6 +3,7 @@ package com.csse3200.game.components.loot;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.player.BallisticShieldComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.entities.Entity;
@@ -48,6 +49,17 @@ public class LootPickupComponent extends Component {
    * @param pickupBlockedPlayer player temporarily prevented from collecting the item
    * @param pickupDelayMillis duration of the pickup block in milliseconds
    */
+  public LootPickupComponent(Entity pickupBlockedPlayer, Item item, long pickupDelayMillis) {
+    this(item, pickupBlockedPlayer, pickupDelayMillis);
+  }
+
+  /**
+   * Creates loot with a temporary pickup block for the entity that dropped it.
+   *
+   * @param item item that will be added to the player's inventory
+   * @param pickupBlockedPlayer player temporarily prevented from collecting the item
+   * @param pickupDelayMillis duration of the pickup block in milliseconds
+   */
   public LootPickupComponent(Item item, Entity pickupBlockedPlayer, long pickupDelayMillis) {
     this.item = item;
     this.pickupBlockedPlayer = pickupBlockedPlayer;
@@ -58,9 +70,11 @@ public class LootPickupComponent extends Component {
   public void create() {
     hitboxComponent = entity.getComponent(HitboxComponent.class);
     timeSource = ServiceLocator.getTimeSource();
+
     if (pickupBlockedPlayer != null && timeSource != null) {
       pickupBlockedUntil = timeSource.getTime() + pickupDelayMillis;
     }
+
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
   }
 
@@ -82,6 +96,7 @@ public class LootPickupComponent extends Component {
     switch (item.getItemType()) {
       case CURRENCY -> handleCurrencyPickup(inventory);
       case SHIELD -> handleShieldPickup(player);
+      case BALLISTIC_SHIELD -> handleBallisticShieldPickup(player);
       default -> handleInventoryPickup(inventory);
     }
   }
@@ -101,23 +116,47 @@ public class LootPickupComponent extends Component {
 
   private void handleCurrencyPickup(InventoryComponent inventory) {
     int amount = item.getQuantity();
+
     if (amount <= 0) {
       return;
     }
+
     inventory.addGold(amount);
     collected = true;
+
     logger.info("Picked up {}. Gold: {}", item.getName(), inventory.getGold());
+
     disposeLootEntity();
   }
 
   private void handleShieldPickup(Entity player) {
     ShieldComponent shieldComponent = player.getComponent(ShieldComponent.class);
+
     if (shieldComponent == null) {
       return;
     }
+
     shieldComponent.grantShield();
     collected = true;
+
     logger.info("Picked up {}. Press the shield key to activate.", item.getName());
+
+    disposeLootEntity();
+  }
+
+  private void handleBallisticShieldPickup(Entity player) {
+    BallisticShieldComponent ballisticShieldComponent =
+        player.getComponent(BallisticShieldComponent.class);
+
+    if (ballisticShieldComponent == null) {
+      return;
+    }
+
+    ballisticShieldComponent.grantShield();
+    collected = true;
+
+    logger.info("Picked up Ballistic Shield. Press the shield key to activate.");
+
     disposeLootEntity();
   }
 
@@ -128,8 +167,10 @@ public class LootPickupComponent extends Component {
     // Only remove the loot if the entire item was added.
     if (remaining == 0) {
       collected = true;
+
       logger.info(
           "Picked up {}. Inventory quantity: {}", item.getName(), inventory.getTotalQuantity(item));
+
       disposeLootEntity();
     } else {
       // Keep only the quantity that did not fit in the world entity. Without this, leaving and
