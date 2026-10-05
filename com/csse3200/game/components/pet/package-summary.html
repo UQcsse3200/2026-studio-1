@@ -84,21 +84,39 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="caption"><span>Classes</span></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button></div>
+<div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PetComponent.html" title="class in com.csse3200.game.components.pet">PetComponent</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PetCombatComponent.html" title="class in com.csse3200.game.components.pet">PetCombatComponent</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Repeatedly attacks the enemy selected by confirmed player hits.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PetComponent.html" title="class in com.csse3200.game.components.pet">PetComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Core component for a companion pet.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Manages the player's active companion pet.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PetMovementComponent.html" title="class in com.csse3200.game.components.pet">PetMovementComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PetMovementComponent.html" title="class in com.csse3200.game.components.pet">PetMovementComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Keeps a companion pet hovering above and behind its owner.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PetProjectileComponent.html" title="class in com.csse3200.game.components.pet">PetProjectileComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Controls a pet projectile's flight, contact damage, and deferred cleanup.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PetProjectileSpawnerComponent.html" title="class in com.csse3200.game.components.pet">PetProjectileSpawnerComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Creates projectiles for the attack requests emitted by <a href="PetCombatComponent.html#update()"><code>PetCombatComponent.update()</code></a>.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="PetType.html" title="enum class in com.csse3200.game.components.pet">PetType</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">
+<div class="block">Companion types, shared by pet animations and projectile selection.</div>
+</div>
 </div>
 </div>
 </div>
