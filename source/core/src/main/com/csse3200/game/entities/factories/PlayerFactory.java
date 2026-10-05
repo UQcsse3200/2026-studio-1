@@ -36,6 +36,7 @@ import com.csse3200.game.components.player.SpecialAttackEffectComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.Tutorial;
+import com.csse3200.game.components.player.UpgradeActivationFlashComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -43,6 +44,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.PlayerConfig;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.input.InputComponent;
+import com.csse3200.game.perks.TimeFreezeComponent;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -106,10 +108,12 @@ public class PlayerFactory {
             .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new ShieldComponent())
             .addComponent(new ShieldRenderComponent())
+            .addComponent(new UpgradeActivationFlashComponent())
             .addComponent(new BallisticShieldComponent())
             .addComponent(new BallisticShieldRenderComponent())
             .addComponent(new PlayerBuffComponent())
             .addComponent(new PlayerRegenComponent())
+            .addComponent(new TimeFreezeComponent())
             .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)

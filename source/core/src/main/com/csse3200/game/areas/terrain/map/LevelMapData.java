@@ -1,6 +1,7 @@
 package com.csse3200.game.areas.terrain.map;
 
 import com.csse3200.game.areas.terrain.TileType;
+import com.csse3200.game.components.lighting.LightingConfig;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ public class LevelMapData {
   private final List<RoomTransition> transitions;
   private final String backgroundTexture;
   private final List<SubLevel> subLevels;
+  private final LightingConfig lighting;
   private final Map<String, List<BackdropLayer>> backdrops;
   private final Map<String, List<BackdropLayer>> overlays;
 
@@ -89,6 +91,7 @@ public class LevelMapData {
     this.backgroundTexture = backgroundTexture;
     this.backdrops = builder.backdrops;
     this.overlays = builder.overlays;
+    this.lighting = builder.lighting;
   }
 
   public String getName() {
@@ -108,6 +111,13 @@ public class LevelMapData {
 
   public int getHeight() {
     return height;
+  }
+
+  /**
+   * @return this map's lighting, or null if it is lit normally
+   */
+  public LightingConfig getLighting() {
+    return lighting;
   }
 
   /**
@@ -324,6 +334,7 @@ public class LevelMapData {
     private List<RoomTransition> transitions = Collections.emptyList();
     private String backgroundTexture;
     private List<SubLevel> subLevels = Collections.emptyList();
+    private LightingConfig lighting;
     private Map<String, List<BackdropLayer>> backdrops = Collections.emptyMap();
     private Map<String, List<BackdropLayer>> overlays = Collections.emptyMap();
 
@@ -337,6 +348,15 @@ public class LevelMapData {
      */
     public Builder tileSize(float tileSize) {
       this.tileSize = tileSize;
+      return this;
+    }
+
+    /**
+     * @param lighting ligting config
+     * @return this builder
+     */
+    public Builder lighting(LightingConfig lighting) {
+      this.lighting = lighting;
       return this;
     }
 

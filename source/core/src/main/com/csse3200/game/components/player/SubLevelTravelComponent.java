@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.gamearea.SubLevelEvents;
 import com.csse3200.game.physics.components.PhysicsComponent;
 
 /** Runs the locked, automatic lift sequence between the dungeon and Nether sub-levels. */
@@ -106,7 +107,9 @@ public class SubLevelTravelComponent extends Component {
       travelling = false;
       entity
           .getEvents()
-          .trigger("subLevelEntered", destination == NETHER_LANDING ? "NETHER" : "DUNGEON");
+          .trigger(
+              SubLevelEvents.SUB_LEVEL_ENTERED,
+              destination == NETHER_LANDING ? "NETHER" : "DUNGEON");
     }
   }
 
