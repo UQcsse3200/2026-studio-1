@@ -9,6 +9,7 @@ com.csse3200.game.components.attacks
 com.csse3200.game.components.difficulty
 com.csse3200.game.components.effects
 com.csse3200.game.components.gamearea
+com.csse3200.game.components.lighting
 com.csse3200.game.components.loot
 com.csse3200.game.components.maingame
 com.csse3200.game.components.mainmenu
