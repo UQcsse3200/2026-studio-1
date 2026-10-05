@@ -40,6 +40,10 @@ import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.input.InputDecorator;
 import com.csse3200.game.input.InputService;
 import com.csse3200.game.pausemenu.*;
+import com.csse3200.game.perks.PerkSelectionDisplay;
+import com.csse3200.game.perks.PerkSelectionInputComponent;
+import com.csse3200.game.perks.PerkService;
+import com.csse3200.game.perks.TortoiseFactory;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -52,6 +56,7 @@ import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
 import com.csse3200.game.ui.terminal.commands.GodModeCommand;
 import com.csse3200.game.ui.terminal.commands.NoclipCommand;
+import com.csse3200.game.ui.terminal.commands.PerkCommand;
 import com.csse3200.game.ui.terminal.commands.TeleportCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import com.csse3200.game.ui.terminal.commands.WinCommand;
@@ -163,6 +168,9 @@ public class MainGameScreen extends ScreenAdapter {
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
       EnemyRegistry.loadFrom(new ArrayList<>());
+
+      PerkService.resetAll();
+      TortoiseFactory.resetAll();
     }
 
     currentRoomMapPath = initialRoomMap;
@@ -697,12 +705,18 @@ public class MainGameScreen extends ScreenAdapter {
         ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
-
     /*
      * Try Again now revives the player instead of
      * restarting the entire game.
      */
-    deathScreenDisplay = new DeathScreenDisplay(this.game, this::revivePlayer);
+    PerkSelectionDisplay perkSelectionDisplay = new PerkSelectionDisplay(this::revivePlayer);
+    deathScreenDisplay =
+        new DeathScreenDisplay(
+            this.game,
+            () -> {
+              deathScreenDisplay.hideDeathScreen();
+              perkSelectionDisplay.show();
+            });
 
     winScreenDisplay = new WinScreenDisplay(this.game);
 
@@ -719,6 +733,7 @@ public class MainGameScreen extends ScreenAdapter {
                 "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
+    terminal.addCommand("perk", new PerkCommand());
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
 
@@ -746,6 +761,8 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(pauseMenuActions)
         .addComponent(new PauseMenuInputComponent())
         .addComponent(deathScreenDisplay)
+        .addComponent(perkSelectionDisplay)
+        .addComponent(new PerkSelectionInputComponent())
         .addComponent(new DeathScreenInputComponent())
         .addComponent(winScreenDisplay)
         .addComponent(new WinScreenInputComponent())
