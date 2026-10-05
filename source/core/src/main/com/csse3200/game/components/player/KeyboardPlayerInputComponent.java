@@ -137,6 +137,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       entity.getEvents().trigger("activateShield");
       return true;
     }
+    if (keycode == KeybindSettings.getKey("activateBallisticShield")) {
+      activateAvailableShield();
+      return true;
+    }
     if (keycode == KeybindSettings.getKey("toggleQuestMenu")) {
       entity.getEvents().trigger("toggleQuestMenu");
       return true;
