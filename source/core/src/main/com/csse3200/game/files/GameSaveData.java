@@ -25,4 +25,5 @@ public class GameSaveData {
   public List<SavedBuff> buffs = new ArrayList<>();
   public int regenHealPerTick;
   public float regenRemainingSeconds;
+  public List<SavedLoot> droppedLoot = new ArrayList<>();
 }

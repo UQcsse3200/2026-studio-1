@@ -16,6 +16,9 @@ import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.entities.factories.LootFactory;
+import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
 import java.util.List;
 
@@ -47,6 +50,7 @@ public class LoadService {
     loadPets(player, data);
     loadUpgrades(player, data, upgrades);
     loadBuffs(player, data);
+    loadDroppedLoot(data, mapWidth, mapHeight);
   }
 
   private static void loadHealth(Entity player, GameSaveData data) {
@@ -115,16 +119,10 @@ public class LoadService {
     inventory.setGold(data.gold);
 
     for (SavedItem savedItem : data.items) {
-      Item item = createItem(savedItem);
+      Item item = restoreItem(savedItem);
 
       if (item == null) {
         continue;
-      }
-
-      // Rebuilding an item resets these, so put the saved values back.
-      item.setQuantity(savedItem.quantity);
-      if (savedItem.sellPrice != null && savedItem.sellPrice >= 0) {
-        item.setSellPrice(savedItem.sellPrice);
       }
 
       // Put the item back in the exact slot it was saved from. If that slot is
@@ -183,6 +181,45 @@ public class LoadService {
     if (stats != null && data.shieldHits != null) {
       stats.setShieldHits(data.shieldHits);
     }
+  }
+
+  private static void loadDroppedLoot(GameSaveData data, float mapWidth, float mapHeight) {
+    EntityService entityService = ServiceLocator.getEntityService();
+    if (entityService == null || data.droppedLoot == null) {
+      return;
+    }
+
+    for (SavedLoot saved : data.droppedLoot) {
+      if (saved == null) {
+        continue;
+      }
+
+      boolean insideMap =
+          saved.x >= 0 && saved.x <= mapWidth && saved.y >= 0 && saved.y <= mapHeight;
+      Item item = restoreItem(saved.item);
+      if (!insideMap || item == null) {
+        continue;
+      }
+
+      Entity loot = LootFactory.createLoot(item);
+      loot.setPosition(saved.x, saved.y);
+      entityService.register(loot);
+    }
+  }
+
+  private static Item restoreItem(SavedItem savedItem) {
+    Item item = createItem(savedItem);
+
+    if (item == null) {
+      return null;
+    }
+
+    // Rebuilding an item resets these, so put the saved values back.
+    item.setQuantity(savedItem.quantity);
+    if (savedItem.sellPrice != null && savedItem.sellPrice >= 0) {
+      item.setSellPrice(savedItem.sellPrice);
+    }
+    return item;
   }
 
   private static Item createItem(SavedItem savedItem) {

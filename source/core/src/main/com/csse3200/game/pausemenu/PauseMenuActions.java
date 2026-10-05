@@ -4,7 +4,9 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.LootPickupComponent;
 import com.csse3200.game.components.loot.LootRegistry;
+import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.ActiveBuff;
@@ -15,11 +17,13 @@ import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedBuff;
 import com.csse3200.game.files.SavedItem;
+import com.csse3200.game.files.SavedLoot;
 import com.csse3200.game.files.SavedUpgrade;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
@@ -174,27 +178,50 @@ public class PauseMenuActions extends Component {
     }
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
-      Item item = entry.getValue();
+      data.items.add(toSavedItem(entry.getValue(), entry.getKey()));
+    }
 
-      SavedItem saved = new SavedItem();
-      saved.slot = entry.getKey();
-      saved.name = item.getName();
-      saved.itemType = item.getItemType().name();
-      saved.quantity = item.getQuantity();
-      saved.maxQuantity = item.getMaxQuantity();
-      saved.sellPrice = item.getSellPrice();
+    EntityService entityService = ServiceLocator.getEntityService();
+    if (entityService != null) {
+      for (Entity loot : entityService.getEntitiesWithComponent(LootPickupComponent.class)) {
+        LootPickupComponent pickup = loot.getComponent(LootPickupComponent.class);
 
-      if (item instanceof WeaponItem weapon) {
-        saved.weaponType = weapon.getWeaponType().name();
-        saved.damage = weapon.getDamage();
-        saved.weaponTier = weapon.getTier();
-      } else if (item instanceof ConsumableItem consumable) {
-        saved.consumableType = consumable.getConsumableType().name();
+        // Loot placed by the level is already tracked by LootRegistry. Only loot dropped during
+        // play is saved here.
+        if (loot.getComponent(PersistentLootIdComponent.class) != null
+            || pickup.isCollected()
+            || pickup.getItem() == null) {
+          continue;
+        }
+
+        SavedLoot saved = new SavedLoot();
+        saved.item = toSavedItem(pickup.getItem(), 0);
+        saved.x = loot.getPosition().x;
+        saved.y = loot.getPosition().y;
+        data.droppedLoot.add(saved);
       }
-
-      data.items.add(saved);
     }
 
     return data;
+  }
+
+  private static SavedItem toSavedItem(Item item, int slot) {
+    SavedItem saved = new SavedItem();
+    saved.slot = slot;
+    saved.name = item.getName();
+    saved.itemType = item.getItemType().name();
+    saved.quantity = item.getQuantity();
+    saved.maxQuantity = item.getMaxQuantity();
+    saved.sellPrice = item.getSellPrice();
+
+    if (item instanceof WeaponItem weapon) {
+      saved.weaponType = weapon.getWeaponType().name();
+      saved.damage = weapon.getDamage();
+      saved.weaponTier = weapon.getTier();
+    } else if (item instanceof ConsumableItem consumable) {
+      saved.consumableType = consumable.getConsumableType().name();
+    }
+
+    return saved;
   }
 }
