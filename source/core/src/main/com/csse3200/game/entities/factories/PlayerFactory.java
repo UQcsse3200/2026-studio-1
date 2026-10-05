@@ -124,7 +124,7 @@ public class PlayerFactory {
             .addComponent(new SpecialAttackEffectComponent())
             .addComponent(new WeaponRenderComponent())
             .addComponent(new ShopComponent().seedDefaultCatalog())
-            .addComponent(new ShopDisplay())
+            .addComponent(new ShopDisplay());
             
     PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas, effectsAtlas);
 
