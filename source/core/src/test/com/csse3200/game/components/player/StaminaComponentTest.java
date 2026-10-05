@@ -74,11 +74,6 @@ class StaminaComponentTest {
   }
 
   @Test
-  void testAttackCost() {
-    assertEquals(5f, staminaComponent.getAttackCost());
-  }
-
-  @Test
   void testSlideCost() {
     assertEquals(15f, staminaComponent.getSlideCost());
   }

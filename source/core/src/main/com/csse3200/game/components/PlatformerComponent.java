@@ -199,25 +199,24 @@ public class PlatformerComponent extends Component {
     // Normal jump code
     else if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
 
-      if (staminaComponent == null
-          || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
-        return;
-      }
-
       this.jumpDirection.y *= baseJumpScaler;
 
       if (!isGrounded()) {
+        if (staminaComponent == null
+            || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
+          return;
+        }
+
         doubleJumpRemaining--;
+        staminaComponent.useStamina(staminaComponent.getJumpCost());
       }
 
       if (superJumpPowerup) {
         this.jumpDirection.y *= superJumpScaler;
       }
 
-      staminaComponent.useStamina(staminaComponent.getJumpCost());
       jumping = true;
     }
-
     if (doubleJumpPowerup && isGrounded()) {
       doubleJumpRemaining = maxDoubleJump;
     }

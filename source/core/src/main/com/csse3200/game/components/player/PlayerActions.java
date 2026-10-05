@@ -363,13 +363,6 @@ public class PlayerActions extends Component {
       return;
     }
 
-    if (staminaComponent == null
-        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
-      return;
-    }
-
-    staminaComponent.useStamina(staminaComponent.getAttackCost());
-
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
 
