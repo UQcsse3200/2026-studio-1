@@ -20,6 +20,15 @@ public class LevelMapData {
   /** Preferred name of the layer used to derive collision, if present. */
   public static final String COLLISION_LAYER = "collision";
 
+  /** Backdrop key for a backdrop shown everywhere a sub-level has none of its own. */
+  public static final String WHOLE_MAP_BACKDROP = "*";
+
+  /** Legend property naming the light sprite a tile glows with. */
+  public static final String GLOW_PROPERTY = "glow";
+
+  /** Legend property naming a sprite sheet strip that animates over a tile's still texture. */
+  public static final String ANIMATION_PROPERTY = "animation";
+
   /** Fallback layer used for collision when no explicit collision layer exists. */
   public static final String TERRAIN_LAYER = "terrain";
 
@@ -33,6 +42,8 @@ public class LevelMapData {
   private final List<RoomTransition> transitions;
   private final String backgroundTexture;
   private final List<SubLevel> subLevels;
+  private final Map<String, List<BackdropLayer>> backdrops;
+  private final Map<String, List<BackdropLayer>> overlays;
 
   /**
    * Creates map data with no transitions, background or sub-levels. For anything more, use {@link
@@ -76,6 +87,8 @@ public class LevelMapData {
     this.spawns = spawns;
     this.transitions = transitions;
     this.backgroundTexture = backgroundTexture;
+    this.backdrops = builder.backdrops;
+    this.overlays = builder.overlays;
   }
 
   public String getName() {
@@ -189,6 +202,53 @@ public class LevelMapData {
   }
 
   /**
+   * The parallax backdrop drawn behind a sub-level's tiles: its own if it has one, otherwise the
+   * map's {@link #WHOLE_MAP_BACKDROP}.
+   *
+   * @param subLevelId a sub-level's id, or null for a part of the map outside every sub-level
+   * @return the backdrop layers, back to front (unmodifiable), empty if there are none
+   */
+  public List<BackdropLayer> getBackdrop(String subLevelId) {
+    return layersFor(backdrops, subLevelId);
+  }
+
+  /**
+   * The layers drawn in front of a sub-level's tiles and characters, such as rain: its own if it
+   * has any, otherwise the map's {@link #WHOLE_MAP_BACKDROP}.
+   *
+   * @param subLevelId a sub-level's id, or null for a part of the map outside every sub-level
+   * @return the overlay layers, back to front (unmodifiable), empty if there are none
+   */
+  public List<BackdropLayer> getOverlay(String subLevelId) {
+    return layersFor(overlays, subLevelId);
+  }
+
+  /**
+   * @return every overlay in this map, keyed by sub-level id or {@link #WHOLE_MAP_BACKDROP}
+   *     (unmodifiable)
+   */
+  public Map<String, List<BackdropLayer>> getOverlays() {
+    return Collections.unmodifiableMap(overlays);
+  }
+
+  private static List<BackdropLayer> layersFor(
+      Map<String, List<BackdropLayer>> stacks, String subLevelId) {
+    List<BackdropLayer> layers = subLevelId == null ? null : stacks.get(subLevelId);
+    if (layers == null) {
+      layers = stacks.getOrDefault(WHOLE_MAP_BACKDROP, List.of());
+    }
+    return Collections.unmodifiableList(layers);
+  }
+
+  /**
+   * @return every backdrop in this map, keyed by sub-level id or {@link #WHOLE_MAP_BACKDROP}
+   *     (unmodifiable)
+   */
+  public Map<String, List<BackdropLayer>> getBackdrops() {
+    return Collections.unmodifiableMap(backdrops);
+  }
+
+  /**
    * @return an optional composed background image which spans this entire map
    */
   public String getBackgroundTexture() {
@@ -196,8 +256,8 @@ public class LevelMapData {
   }
 
   /**
-   * All distinct, non-null texture paths referenced by the legend. Used by a game area to know
-   * which textures to load before building the terrain.
+   * All distinct, non-null texture paths this map draws with. Used by a game area to know which
+   * textures to load before building the terrain.
    *
    * @return the set of texture asset paths
    */
@@ -207,6 +267,12 @@ public class LevelMapData {
       if (def.texture() != null) {
         paths.add(def.texture());
       }
+      if (def.properties().containsKey(GLOW_PROPERTY)) {
+        paths.add(def.properties().get(GLOW_PROPERTY));
+      }
+      if (def.properties().containsKey(ANIMATION_PROPERTY)) {
+        paths.add(def.properties().get(ANIMATION_PROPERTY));
+      }
     }
     for (RoomTransition transition : transitions) {
       if (transition.getTexture() != null) {
@@ -215,6 +281,16 @@ public class LevelMapData {
     }
     if (backgroundTexture != null) {
       paths.add(backgroundTexture);
+    }
+    for (List<BackdropLayer> backdrop : backdrops.values()) {
+      for (BackdropLayer layer : backdrop) {
+        paths.add(layer.texture());
+      }
+    }
+    for (List<BackdropLayer> overlay : overlays.values()) {
+      for (BackdropLayer layer : overlay) {
+        paths.add(layer.texture());
+      }
     }
     return paths;
   }
@@ -248,6 +324,8 @@ public class LevelMapData {
     private List<RoomTransition> transitions = Collections.emptyList();
     private String backgroundTexture;
     private List<SubLevel> subLevels = Collections.emptyList();
+    private Map<String, List<BackdropLayer>> backdrops = Collections.emptyMap();
+    private Map<String, List<BackdropLayer>> overlays = Collections.emptyMap();
 
     private Builder(String name) {
       this.name = name;
@@ -324,6 +402,25 @@ public class LevelMapData {
      */
     public Builder subLevels(List<SubLevel> subLevels) {
       this.subLevels = subLevels == null ? Collections.emptyList() : subLevels;
+      return this;
+    }
+
+    /**
+     * @param backdrops parallax backdrop layers keyed by sub-level id, empty if the map has none
+     * @return this builder
+     */
+    public Builder backdrops(Map<String, List<BackdropLayer>> backdrops) {
+      this.backdrops = backdrops == null ? Collections.emptyMap() : backdrops;
+      return this;
+    }
+
+    /**
+     * @param overlays layers drawn in front of the tiles, keyed by sub-level id, empty if the map
+     *     has none
+     * @return this builder
+     */
+    public Builder overlays(Map<String, List<BackdropLayer>> overlays) {
+      this.overlays = overlays == null ? Collections.emptyMap() : overlays;
       return this;
     }
 
