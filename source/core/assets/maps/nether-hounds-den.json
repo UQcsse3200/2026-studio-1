@@ -1,0 +1,200 @@
+{
+  "name": "Hound's Den",
+  "tileSize": 0.5,
+  "legend": {
+    "#": {
+      "type": "WALL",
+      "texture": "images/level1/cavern-rock-512px.png"
+    },
+    "^": {
+      "type": "WALL",
+      "texture": "images/level1/cavern-ceiling-512px.png"
+    },
+    "_": {
+      "type": "FLOOR",
+      "texture": "images/level1/cavern-floor-ash-512px.png"
+    },
+    "-": {
+      "type": "PLATFORM",
+      "texture": "images/level1/ledge-basalt-512px.png"
+    },
+    "X": {
+      "type": "HAZARD",
+      "texture": "images/level1/hazard-firepit-512px.png",
+      "damage": "15"
+    },
+    "v": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/bg-cavern-512px.png"
+    },
+    "h": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-stalagmite-512px.png"
+    },
+    "j": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-stalactite-512px.png"
+    },
+    "b": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-bone-pile-512px.png"
+    },
+    "a": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-oil-lamp-512px.png"
+    },
+    "q": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-gorgoneion-512px.png"
+    },
+    "k": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-skull-512px.png"
+    },
+    "t": {
+      "type": "DECORATIVE",
+      "texture": "images/level1/decor-tripod-512px.png"
+    },
+    "s": {
+      "type": "DECORATIVE",
+      "texture": "images/level2/petrified-climber-512px.png"
+    }
+  },
+  "entityLegend": {
+    "P": {
+      "type": "PLAYER"
+    },
+    "S": {
+      "type": "ENEMY",
+      "enemyType": "skeleton"
+    },
+    "R": {
+      "type": "ENEMY",
+      "enemyType": "ranged-skeleton"
+    },
+    "M": {
+      "type": "ENEMY",
+      "enemyType": "minotaur"
+    },
+    "C": {
+      "type": "ENEMY",
+      "enemyType": "centaur"
+    },
+    "Y": {
+      "type": "ENEMY",
+      "enemyType": "cyclops"
+    },
+    "G": {
+      "type": "ENEMY",
+      "enemyType": "medusa"
+    },
+    "D": {
+      "type": "ENEMY",
+      "enemyType": "cerberus"
+    },
+    "H": {
+      "type": "ENEMY",
+      "enemyType": "harpy"
+    },
+    "B": {
+      "type": "ENEMY",
+      "enemyType": "ranged-harpy"
+    },
+    "Z": {
+      "type": "ENEMY",
+      "enemyType": "zeus"
+    },
+    "L": {
+      "type": "LOOT"
+    }
+  },
+  "layers": {
+    "background": [
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+    ],
+    "terrain": [
+      "################################################",
+      "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
+      "#                                              #",
+      "#                                              #",
+      "#                                              #",
+      "#                                              #",
+      "#                                              #",
+      "#                                              #",
+      "#                                              #",
+      "#                                              #",
+      "#            -----    -----    -----           #",
+      "                                               #",
+      "                                               #",
+      "                                  XX           #",
+      "#______________________________________________#",
+      "################################################"
+    ],
+    "foreground": [
+      "                                                ",
+      "                                                ",
+      "          j         j         j         j       ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "       a           a             a              ",
+      "        h               h   h        b k   k    ",
+      "                                                ",
+      "                                                "
+    ],
+    "entities": [
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                    H        H                  ",
+      "                                                ",
+      "                                                ",
+      "               R        R        R              ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "    P      S    S    S    S    S        D   LLL ",
+      "                                                ",
+      "                                                "
+    ]
+  },
+  "transitions": [
+    {
+      "id": "nether-hounds-den-back",
+      "x": 0,
+      "y": 2,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-exit-512px.png",
+      "destinationMap": "maps/level1-greek.json",
+      "destinationSpawn": {
+        "x": 50,
+        "y": 34
+      }
+    }
+  ]
+}

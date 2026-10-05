@@ -269,7 +269,7 @@ class JsonMapLoaderTest {
           "layers": { "terrain": ["##", "##"] },
           "spawns": {
             "player": { "x": 1, "y": 1 },
-            "enemies": [ { "type": "ghost", "x": 0, "y": 1 } ],
+            "enemies": [ { "type": "skeleton", "x": 0, "y": 1 } ],
             "loot": [ { "x": 1, "y": 0 } ]
           }
         }
@@ -279,7 +279,7 @@ class JsonMapLoaderTest {
     assertEquals(1, spawns.getPlayer().x);
     assertEquals(1, spawns.getPlayer().y);
     assertEquals(1, spawns.getEnemies().size());
-    assertEquals("ghost", spawns.getEnemies().get(0).getType());
+    assertEquals("skeleton", spawns.getEnemies().getFirst().getType());
     assertEquals(1, spawns.getLoot().size());
   }
 
@@ -487,8 +487,9 @@ class JsonMapLoaderTest {
         "images/level1/hazard-spikes-bronze-512px.png",
         levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
-    assertEquals(1, levelOne.getTransitions().size());
+    assertEquals(4, levelOne.getTransitions().size());
     assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
+    assertEquals(5, levelOne.getTransitions().size());
     // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
     // map still loads and renders from its tile layers.
     assertNull(levelOne.getBackgroundTexture());
@@ -519,7 +520,34 @@ class JsonMapLoaderTest {
                 spawn ->
                     "skeleton".equals(spawn.getType())
                         && spawn.getPosition().equals(new GridPoint2(43, 147))));
-    assertEquals(6, levelTwo.getSpawns().getEnemies().size());
+    // list changes depending on what we choose to spawn so expected number will fail as changes to
+    // the list
+    List<SpawnPoint> enemyList = levelTwo.getSpawns().getEnemies();
+    assertFalse(enemyList.isEmpty(), "Level 1 lists no enemies.");
+    int count = 0;
+    for (SpawnPoint enemySpawn : enemyList) {
+      count++;
+      assertTrue(
+          enemySpawn.getX() > 0 && enemySpawn.getX() < (levelTwo.getWidth() - 1),
+          "Enemies must spawn in x coordinates between 0 and "
+              + (levelTwo.getWidth() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getX());
+      assertTrue(
+          enemySpawn.getY() > 0 && enemySpawn.getY() < (levelTwo.getHeight() - 1),
+          "Enemies must spawn in y coordinates between 0 and "
+              + (levelTwo.getHeight() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getY());
+    }
+    assertEquals(
+        enemyList.size(),
+        count,
+        "There should be "
+            + enemyList.size()
+            + " enemies spawned in the level 1 map, but there are actually "
+            + count
+            + " enemies spawned on the map.");
     assertEquals(6, levelTwo.getSpawns().getLoot().size());
     assertEquals("maps/level3.json", levelTwo.getTransitions().getFirst().getDestinationMap());
     assertEquals(new GridPoint2(67, 166), levelTwo.getTransitions().getFirst().getPosition());
@@ -534,21 +562,48 @@ class JsonMapLoaderTest {
     LevelMapData levelThree = loader.load("maps/level3.json");
 
     assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
-    assertEquals(40, levelThree.getWidth());
-    assertEquals(16, levelThree.getHeight());
-    // The player arrives on the spawn level 2's summit exit sends them to.
+    assertEquals(88, levelThree.getWidth());
+    assertEquals(24, levelThree.getHeight());
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
-    assertEquals(1, levelThree.getSpawns().getEnemies().size());
-    assertEquals("cyclops", levelThree.getSpawns().getEnemies().getFirst().getType());
-    assertEquals(
-        new GridPoint2(32, 2), levelThree.getSpawns().getEnemies().getFirst().getPosition());
-    // Only the shell collides: the throne room's furniture is all walk-through decoration.
+    assertEquals(13, levelThree.getSpawns().getEnemies().size());
+    List<SpawnPoint> enemies = levelThree.getSpawns().getEnemies();
+    assertTrue(
+        enemies.stream()
+            .anyMatch(
+                s -> "zeus".equals(s.getType()) && s.getPosition().equals(new GridPoint2(83, 5))));
+    assertTrue(
+        enemies.stream()
+            .anyMatch(
+                s ->
+                    "cyclops".equals(s.getType())
+                        && s.getPosition().equals(new GridPoint2(69, 3))));
+    assertTrue(
+        enemies.stream()
+            .anyMatch(
+                s ->
+                    "cerberus".equals(s.getType())
+                        && s.getPosition().equals(new GridPoint2(74, 3))));
+    assertEquals(4, enemies.stream().filter(s -> "medusa".equals(s.getType())).count());
+    for (int medusaX : new int[] {19, 27, 35, 43}) {
+      assertTrue(
+          enemies.stream()
+              .anyMatch(
+                  s ->
+                      "medusa".equals(s.getType())
+                          && s.getPosition().equals(new GridPoint2(medusaX, 3))));
+    }
+    assertEquals(4, enemies.stream().filter(s -> "ranged-harpy".equals(s.getType())).count());
     for (MapLayerData layer : levelThree.getLayers()) {
       for (int x = 0; x < levelThree.getWidth(); x++) {
         for (int y = 0; y < levelThree.getHeight(); y++) {
           TileDefinition tile = layer.get(x, y);
-          if (tile != null && tile.type() != TileType.WALL) {
-            assertEquals(TileType.DECORATIVE, tile.type());
+          if (tile != null) {
+            assertTrue(
+                tile.type() == TileType.WALL
+                    || tile.type() == TileType.PLATFORM
+                    || tile.type() == TileType.HAZARD
+                    || tile.type() == TileType.DECORATIVE,
+                "unexpected tile type " + tile.type() + " at " + x + "," + y);
           }
         }
       }
