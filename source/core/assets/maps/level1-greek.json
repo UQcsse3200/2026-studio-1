@@ -107,7 +107,7 @@
       "type": "HAZARD",
       "texture": "images/level1/hazard-firepit-512px.png",
       "light": "point",
-      "lightColour": "lava_glow",
+      "lightColour": "fire_glow",
       "lightRadius": "1.5",
       "flicker": "0.4"
     },
@@ -219,7 +219,7 @@
       "type": "DECORATIVE",
       "texture": "images/level1/hazard-flame-jet-512px.png",
       "light": "point",
-      "lightColour": "lava_glow",
+      "lightColour": "fire_glow",
       "lightRadius": "1.1",
       "flicker": "0.4"
     },
