@@ -10,6 +10,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import com.csse3200.game.events.listeners.EventListener1;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -32,7 +33,8 @@ class PetCombatComponentTest {
     combat = new PetCombatComponent(timeSource);
     pet = new Entity().addComponent(new PetComponent(owner)).addComponent(combat);
     ServiceLocator.getEntityService().register(pet);
-    pet.getEvents().addListener("petAttack", (Entity target) -> attacks.add(target));
+    pet.getEvents()
+    .addListener("petAttack", (EventListener1<Entity>) attacks::add);
   }
 
   @AfterEach

@@ -16,6 +16,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import com.csse3200.game.events.listeners.EventListener1;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -124,7 +125,8 @@ class PetManagerComponentTest {
     manager.activatePet(new ShopComponent.Pet("Bird"));
     Entity pet = manager.getActivePet();
     List<Entity> attacks = new ArrayList<>();
-    pet.getEvents().addListener("petAttack", (Entity enemy) -> attacks.add(enemy));
+    EventListener1<Entity> attackListener = attacks::add;
+    pet.getEvents().addListener("petAttack", attackListener);
 
     owner.getEvents().trigger("playerAttackHit", target);
     assertTrue(attacks.isEmpty());
@@ -140,7 +142,9 @@ class PetManagerComponentTest {
     manager.activatePet(new ShopComponent.Pet("Bird"));
     Entity first = manager.getActivePet();
     List<Entity> oldPetAttacks = new ArrayList<>();
-    first.getEvents().addListener("petAttack", (Entity enemy) -> oldPetAttacks.add(enemy));
+    EventListener1<Entity> oldAttackListener = oldPetAttacks::add;
+    first.getEvents().addListener("petAttack", oldAttackListener);
+
     owner.getEvents().trigger("playerAttackHit", target);
     first.update();
     assertEquals(List.of(target), oldPetAttacks);
@@ -148,7 +152,9 @@ class PetManagerComponentTest {
     manager.activatePet(new ShopComponent.Pet("Bat"));
     Entity second = manager.getActivePet();
     List<Entity> newPetAttacks = new ArrayList<>();
-    second.getEvents().addListener("petAttack", (Entity enemy) -> newPetAttacks.add(enemy));
+    
+    EventListener1<Entity> newAttackListener = newPetAttacks::add;
+    second.getEvents().addListener("petAttack", newAttackListener);
     second.update();
     assertTrue(newPetAttacks.isEmpty());
 
@@ -184,7 +190,9 @@ class PetManagerComponentTest {
     manager.activatePet(new ShopComponent.Pet("Bird"));
     Entity pet = manager.getActivePet();
     List<Entity> attacks = new ArrayList<>();
-    pet.getEvents().addListener("petAttack", (Entity enemy) -> attacks.add(enemy));
+    EventListener1<Entity> attackListener = attacks::add;
+
+    pet.getEvents().addListener("petAttack", attackListener);
     owner.getEvents().trigger("playerAttackHit", target);
 
     owner.dispose();

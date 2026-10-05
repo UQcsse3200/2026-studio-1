@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsEngine;
@@ -55,7 +56,8 @@ class PlayerActionsSpecialAttackTest {
     enemy.setPosition(1f, 0f);
     AtomicReference<Entity> effectTarget = new AtomicReference<>();
     List<Entity> hitTargets = new ArrayList<>();
-    player.getEvents().addListener("playerAttackHit", (Entity target) -> hitTargets.add(target));
+    EventListener1<Entity> hitTargetListener = hitTargets::add;
+    player.getEvents().addListener("playerAttackHit", hitTargetListener);
     player.getEvents().addListener("specialAttackHit", effectTarget::set);
     player.getEvents().trigger("collisionStart", playerFixture, npcFixtureFor(enemy));
 
@@ -95,7 +97,8 @@ class PlayerActionsSpecialAttackTest {
 
       AtomicReference<Entity> lastHit = new AtomicReference<>();
       List<Entity> hitTargets = new ArrayList<>();
-      player.getEvents().addListener("playerAttackHit", (Entity target) -> hitTargets.add(target));
+      EventListener1<Entity> hitTargetListener = hitTargets::add;
+      player.getEvents().addListener("playerAttackHit", hitTargetListener);
       AtomicInteger hitCount = new AtomicInteger();
       AtomicInteger areaAttackCount = new AtomicInteger();
       player

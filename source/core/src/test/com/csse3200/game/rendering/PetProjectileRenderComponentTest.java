@@ -1,7 +1,6 @@
 package com.csse3200.game.rendering;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
@@ -96,21 +95,21 @@ class PetProjectileRenderComponentTest {
   private void verifyDraw(SpriteBatch batch, Texture texture, float angle) {
     verify(batch)
         .draw(
-            eq(texture),
-            eq(2f),
-            eq(3f),
-            eq(0.2f),
-            eq(0.1f),
-            eq(0.4f),
-            eq(0.2f),
-            eq(1f),
-            eq(1f),
-            eq(angle),
-            eq(0),
-            eq(0),
-            eq(32),
-            eq(16),
-            eq(false),
-            eq(false));
+          texture,
+          2f,
+          3f,
+          0.2f,
+          0.1f,
+          0.4f,
+          0.2f,
+          1f,
+          1f,
+          angle,
+          0,
+          0,
+          32,
+          16,
+          false,
+          false);
   }
 }

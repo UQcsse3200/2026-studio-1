@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -41,7 +42,8 @@ class PlayerProjectileHitComponentTest {
     ServiceLocator.registerEntityService(new EntityService());
     owner = new Entity().addComponent(new CombatStatsComponent(100, 10));
     owner.create();
-    owner.getEvents().addListener("playerAttackHit", (Entity target) -> hitTargets.add(target));
+    EventListener1<Entity> hitTargetListener = hitTargets::add;
+    owner.getEvents().addListener("playerAttackHit", hitTargetListener);
   }
 
   @AfterEach

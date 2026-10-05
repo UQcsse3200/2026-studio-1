@@ -27,6 +27,8 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.ArrowFactory;
 import com.csse3200.game.entities.factories.PetProjectileFactory;
+import com.csse3200.game.events.listeners.EventListener0;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsEngine;
@@ -86,8 +88,9 @@ class PetProjectileComponentTest {
     renderer = mock(RenderService.class);
     ServiceLocator.registerRenderService(renderer);
     ResourceService resources = mock(ResourceService.class);
+    Texture arrowTexture = mock(Texture.class);
     when(resources.getAsset("images/items/arrow.png", Texture.class))
-        .thenReturn(mock(Texture.class));
+        .thenReturn(arrowTexture);
     ServiceLocator.registerResourceService(resources);
 
     PetManagerComponent manager =
@@ -156,7 +159,8 @@ class PetProjectileComponentTest {
     Entity enemy = createEnemy(4f, 0f, 25, mock(ItemDropComponent.class));
     List<Entity> playerHits = new ArrayList<>();
     List<Entity> petAttacks = new ArrayList<>();
-    pet.getEvents().addListener("petAttack", (Entity target) -> petAttacks.add(target));
+    EventListener1<Entity> petAttackListener = petAttacks::add;
+    pet.getEvents().addListener("petAttack", petAttackListener);
     owner
         .getEvents()
         .addListener(
@@ -205,7 +209,8 @@ class PetProjectileComponentTest {
     Entity first = createEnemy(4f, 0f, 100, null);
     Entity second = createEnemy(7f, 3f, 100, null);
     List<Entity> petAttacks = new ArrayList<>();
-    pet.getEvents().addListener("petAttack", (Entity target) -> petAttacks.add(target));
+    EventListener1<Entity> petAttackListener = petAttacks::add;
+    pet.getEvents().addListener("petAttack", petAttackListener);
     owner.getEvents().trigger("playerAttackHit", first);
     entities.update();
     Entity firstShot = findPetProjectile();
@@ -396,7 +401,8 @@ class PetProjectileComponentTest {
     when(dropper.dropFirstStack()).thenReturn(true, false);
     Entity enemy = createEnemy(4f, 0f, 5, dropper);
     AtomicInteger kills = new AtomicInteger();
-    owner.getEvents().addListener("enemyKilled", kills::incrementAndGet);
+    EventListener0 enemyKilledListener = kills::incrementAndGet;
+    owner.getEvents().addListener("enemyKilled", enemyKilledListener);
     List<Entity> playerHits = new ArrayList<>();
     owner.getEvents().addListener("playerAttackHit", (Entity target) -> playerHits.add(target));
     Entity projectile = fireAt(enemy);
