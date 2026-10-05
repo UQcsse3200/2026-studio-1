@@ -1,0 +1,114 @@
+KnightEffects.png
+size: 59, 1728
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+pma: false
+climb
+  bounds: 0, 0, 59, 48
+  index: 1
+climb
+  bounds: 0, 48, 59, 48
+  index: 2
+climb
+  bounds: 0, 96, 59, 48
+  index: 3
+climb
+  bounds: 0, 144, 59, 48
+  index: 4
+climb
+  bounds: 0, 192, 59, 48
+  index: 5
+climb
+  bounds: 0, 240, 59, 48
+  index: 6
+death
+  bounds: 0, 288, 59, 48
+  index: 1
+death
+  bounds: 0, 336, 59, 48
+  index: 2
+death
+  bounds: 0, 384, 59, 48
+  index: 3
+death
+  bounds: 0, 432, 59, 48
+  index: 4
+health
+  bounds: 0, 480, 59, 48
+  index: 1
+health
+  bounds: 0, 528, 59, 48
+  index: 2
+health
+  bounds: 0, 576, 59, 48
+  index: 3
+health
+  bounds: 0, 624, 59, 48
+  index: 4
+health
+  bounds: 0, 672, 59, 48
+  index: 5
+health
+  bounds: 0, 720, 59, 48
+  index: 6
+health
+  bounds: 0, 768, 59, 48
+  index: 7
+health
+  bounds: 0, 816, 59, 48
+  index: 8
+hurt
+  bounds: 0, 864, 59, 48
+  index: 1
+hurt
+  bounds: 0, 912, 59, 48
+  index: 2
+hurt
+  bounds: 0, 960, 59, 48
+  index: 3
+leftdeath
+  bounds: 0, 1008, 59, 48
+  index: 1
+leftdeath
+  bounds: 0, 1056, 59, 48
+  index: 2
+leftdeath
+  bounds: 0, 1104, 59, 48
+  index: 3
+leftdeath
+  bounds: 0, 1152, 59, 48
+  index: 4
+lefthealth
+  bounds: 0, 1200, 59, 48
+  index: 1
+lefthealth
+  bounds: 0, 1248, 59, 48
+  index: 2
+lefthealth
+  bounds: 0, 1296, 59, 48
+  index: 3
+lefthealth
+  bounds: 0, 1344, 59, 48
+  index: 4
+lefthealth
+  bounds: 0, 1392, 59, 48
+  index: 5
+lefthealth
+  bounds: 0, 1440, 59, 48
+  index: 6
+lefthealth
+  bounds: 0, 1488, 59, 48
+  index: 7
+lefthealth
+  bounds: 0, 1536, 59, 48
+  index: 8
+lefthurt
+  bounds: 0, 1584, 59, 48
+  index: 1
+lefthurt
+  bounds: 0, 1632, 59, 48
+  index: 2
+lefthurt
+  bounds: 0, 1680, 59, 48
+  index: 3
