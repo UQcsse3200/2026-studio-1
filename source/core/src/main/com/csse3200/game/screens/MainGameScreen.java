@@ -161,7 +161,9 @@ public class MainGameScreen extends ScreenAdapter {
       LootRegistry.loadFrom(new ArrayList<>());
       EnemyRegistry.loadFrom(new ArrayList<>());
 
-      DifficultyService.setCurrent(Difficulty.NORMAL);
+      if (loadsave) {
+        DifficultyService.setCurrent(Difficulty.NORMAL);
+      }
 
       PerkService.resetAll();
       TortoiseFactory.resetAll();
