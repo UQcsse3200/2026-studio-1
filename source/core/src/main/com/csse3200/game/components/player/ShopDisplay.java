@@ -12,12 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
@@ -67,8 +69,8 @@ public class ShopDisplay extends UIComponent {
   private static final int SELL_SLOT_COUNT = 5;
 
   private static final String LABEL_STYLE = "small";
-
   private static final String WINDOW_BACKGROUND = "window";
+  private static final String EMPTY_TEXT = "Empty";
 
   // Used only by the Upgrades-tab popup and purchase toast, to visually match the shop's dark
   // green look - "window-c" is a Skin$TintedDrawable (name: window, color: color) with its green
@@ -824,7 +826,7 @@ public class ShopDisplay extends UIComponent {
     card.getColor().set(EMPTY_CARD_TINT);
     addAccentStrip(card, EMPTY_STRIP_TINT);
 
-    Label slotLabel = new Label("Empty", whiteLabelStyle);
+    Label slotLabel = new Label(EMPTY_TEXT, whiteLabelStyle);
     slotLabel.setColor(TEXT_MUTED);
     card.add(slotLabel).center().expand();
   }
@@ -1497,6 +1499,10 @@ public class ShopDisplay extends UIComponent {
           gamblingResultLabel.setText("You won: " + getPrizeName(result));
           gamblingResultLabel.setColor(GOLD_COLOR);
           refreshGamblingWheel();
+
+          if (shop.getPendingPetReplacement() != null) {
+            showPetReplacementDialog(shop);
+          }
         });
   }
 
@@ -1557,5 +1563,74 @@ public class ShopDisplay extends UIComponent {
     selectionArrow.addAction(
         Actions.forever(
             Actions.sequence(Actions.moveBy(0f, 5f, 0.25f), Actions.moveBy(0f, -5f, 0.25f))));
+  }
+
+  private void showPetReplacementDialog(ShopComponent shop) {
+    ShopComponent.Pet pendingPet = shop.getPendingPetReplacement();
+    if (pendingPet == null) {
+      return;
+    }
+
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null) {
+      shop.cancelPendingPetReplacement();
+      return;
+    }
+
+    Dialog dialog = new Dialog("Pet Inventory Full", skin, "default");
+
+    dialog.text(
+        "You won "
+            + pendingPet.getName()
+            + ", but both pet slots are full.\n"
+            + "Choose a pet to replace, or cancel.");
+
+    ShopComponent.Pet slot1 = inventory.getPet(1);
+    ShopComponent.Pet slot2 = inventory.getPet(2);
+
+    TextButton replaceSlot1Button =
+        new TextButton("Replace 6. " + (slot1 == null ? EMPTY_TEXT : slot1.getName()), skin);
+
+    TextButton replaceSlot2Button =
+        new TextButton("Replace 7. " + (slot2 == null ? EMPTY_TEXT : slot2.getName()), skin);
+
+    TextButton cancelButton = new TextButton("Cancel", skin);
+
+    replaceSlot1Button.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            shop.replacePetWithPendingPrize(1);
+            dialog.hide();
+            refreshGamblingWheel();
+          }
+        });
+
+    replaceSlot2Button.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            shop.replacePetWithPendingPrize(2);
+            dialog.hide();
+            refreshGamblingWheel();
+          }
+        });
+
+    cancelButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            shop.cancelPendingPetReplacement();
+            dialog.hide();
+            refreshGamblingWheel();
+          }
+        });
+
+    dialog.getButtonTable().add(replaceSlot1Button);
+    dialog.getButtonTable().add(replaceSlot2Button);
+    dialog.getButtonTable().add(cancelButton);
+
+    dialog.show(stage);
   }
 }

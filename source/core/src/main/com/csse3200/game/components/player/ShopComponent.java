@@ -50,6 +50,7 @@ public class ShopComponent extends Component {
   private ConsumableGenerator consumableGenerator;
   private WeaponGenerator weaponGenerator;
   private final Random random;
+  private Pet pendingPetReplacement;
 
   /** Creates a shop with empty item, Upgrade, and pet catalogs. */
   public ShopComponent() {
@@ -477,13 +478,13 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Buys the pet in a catalog slot using gold only. Does not use item slots.
+   * Purchases a pet from the specified catalog slot.
    *
-   * <p>On success, records the purchase and triggers {@code petPurchased}. Does not spawn a pet
-   * entity.
+   * <p>The purchase fails if the pet does not exist, the player does not have enough gold, the pet
+   * is already owned, or the pet inventory is full.
    *
-   * @param catalogSlot pet catalog slot
-   * @return {@code true} if gold was deducted and the purchase was recorded
+   * @param catalogSlot catalog slot containing the pet
+   * @return true if the purchase was successful
    */
   public boolean buyPet(int catalogSlot) {
     InventoryComponent inventory = getInventory();
@@ -496,14 +497,27 @@ public class ShopComponent extends Component {
       return false;
     }
 
+    Pet pet = listing.getProduct();
+
     if (!inventory.hasGold(listing.getBuyPrice())) {
+      return false;
+    }
+
+    if (inventory.containsPet(pet) || inventory.isPetInventoryFull()) {
+      return false;
+    }
+
+    if (!inventory.addPet(pet)) {
       return false;
     }
 
     inventory.addGold(-listing.getBuyPrice());
     Quest.addGlobalGoldSpent(listing.getBuyPrice());
-    purchasedPets.add(listing.getProduct());
-    notifyPetPurchased(listing.getProduct());
+
+    // Retained for backwards compatibility with the existing Shop API.
+    purchasedPets.add(pet);
+
+    notifyPetPurchased(pet);
     return true;
   }
 
@@ -637,7 +651,25 @@ public class ShopComponent extends Component {
    */
   private boolean deliverPrize(Object product, InventoryComponent inventory) {
     if (product instanceof Pet pet) {
-      purchasedPets.add(pet);
+      // Duplicate gambling pets are consumed results.
+      // The spin still succeeds and remains charged.
+      if (inventory.containsPet(pet)) {
+        return true;
+      }
+
+      // Store normally when a pet slot is available.
+      if (!inventory.isPetInventoryFull()) {
+        if (!inventory.addPet(pet)) {
+          return false;
+        }
+
+        purchasedPets.add(pet);
+        return true;
+      }
+
+      // Inventory is full. The spin still succeeds and is charged,
+      // but the player must decide whether to replace an owned pet.
+      pendingPetReplacement = pet;
       return true;
     }
     if (product instanceof Upgrade upgrade) {
@@ -665,7 +697,11 @@ public class ShopComponent extends Component {
    */
   private void notifyPrizeDelivered(Object product) {
     if (product instanceof Pet pet) {
-      notifyPetPurchased(pet);
+      InventoryComponent inventory = getInventory();
+
+      if (inventory != null && inventory.containsPet(pet) && pendingPetReplacement == null) {
+        notifyPetPurchased(pet);
+      }
     } else if (product instanceof Upgrade) {
       notifyUpgradePurchased();
     }
@@ -797,6 +833,54 @@ public class ShopComponent extends Component {
   private static GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize(
       GamblingCatalogs.Prize product, int weight) {
     return new GamblingCatalogs.PrizeEntry<>(product, weight);
+  }
+
+  /**
+   * Returns the pet waiting for a replacement decision after a gambling win.
+   *
+   * @return pending pet, or null if no replacement is required
+   */
+  public Pet getPendingPetReplacement() {
+    return pendingPetReplacement;
+  }
+
+  /**
+   * Replaces an owned pet with the pending gambling pet.
+   *
+   * @param petSlot pet inventory slot to replace
+   * @return true if the replacement succeeded
+   */
+  public boolean replacePetWithPendingPrize(int petSlot) {
+    if (pendingPetReplacement == null) {
+      return false;
+    }
+
+    InventoryComponent inventory = getInventory();
+    if (inventory == null) {
+      return false;
+    }
+
+    Pet replacedPet = inventory.getPet(petSlot);
+
+    if (!inventory.replacePet(petSlot, pendingPetReplacement)) {
+      return false;
+    }
+
+    Pet newPet = pendingPetReplacement;
+    pendingPetReplacement = null;
+
+    purchasedPets.add(newPet);
+
+    if (entity != null) {
+      entity.getEvents().trigger("gamblingPetReplaced", replacedPet, newPet);
+    }
+
+    return true;
+  }
+
+  /** Discards the pending gambling pet without refunding the spin cost. */
+  public void cancelPendingPetReplacement() {
+    pendingPetReplacement = null;
   }
 
   /**

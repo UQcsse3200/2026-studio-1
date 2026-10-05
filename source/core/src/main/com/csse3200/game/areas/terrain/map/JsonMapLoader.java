@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.areas.terrain.TileType;
+import com.csse3200.game.components.lighting.LightingConfigParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -155,6 +156,8 @@ public class JsonMapLoader implements MapLoader {
         .transitions(transitions)
         .backgroundTexture(resolveBackgroundTexture(root, name))
         .subLevels(parseSubLevels(root.get("subLevels"), name))
+        .subLevels(parseSubLevels(root.get("subLevels"), name))
+        .lighting(LightingConfigParser.parse(root.get("lighting"), name))
         .backdrops(parseBackdrops(root.get("backdrops"), "backdrops", name))
         .overlays(parseBackdrops(root.get("overlays"), "overlays", name))
         .build();
