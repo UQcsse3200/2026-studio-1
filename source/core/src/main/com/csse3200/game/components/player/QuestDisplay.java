@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Align;
 import com.csse3200.game.Quests.*;
 import com.csse3200.game.Quests.JumpQuest;
 import com.csse3200.game.Quests.Quest;
+import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.ui.UIComponent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -89,6 +90,12 @@ public class QuestDisplay extends UIComponent {
     Label completedTitle = new Label("COMPLETED", skin);
     questTable.add(completedTitle).expandX().fillX().left().padBottom(5f).row();
 
+    if(PerkService.getPerk("timeLord").isUnlocked()){
+      Label questToDisplay = new Label("• Find the tortoise!", skin);
+
+      questTable.add(questToDisplay).expandX().fillX().left().row();
+    }
+
     if (!completedJumpQuests.isEmpty()) {
       for (JumpQuest quest : completedJumpQuests) {
         Label completedQuest = new Label("✓ Jump Quest", skin);
@@ -113,7 +120,8 @@ public class QuestDisplay extends UIComponent {
         questTable.add(completedQuest).left().row();
       }
     }
-    if (completedEnemiesKilledQuest.isEmpty()
+    if (!PerkService.getPerk("timeLord").isUnlocked()&&
+            completedEnemiesKilledQuest.isEmpty()
         && completedJumpQuests.isEmpty()
         && completedGoldSpentQuest.isEmpty()
         && completedShieldsCollectedQuest.isEmpty()) {
@@ -126,6 +134,12 @@ public class QuestDisplay extends UIComponent {
     questTable.add(remainingTitle).expandX().fillX().left().padTop(10f).padBottom(5f).row();
 
     boolean hasRemainingQuests = false;
+
+    if(!PerkService.getPerk("timeLord").isUnlocked()){
+      Label questToDisplay = new Label("• Find the tortoise!", skin);
+
+      questTable.add(questToDisplay).expandX().fillX().left().row();
+    }
 
     if (jumpQuestsToDisplay != null) {
       for (JumpQuest quest : jumpQuestsToDisplay) {
@@ -197,7 +211,7 @@ public class QuestDisplay extends UIComponent {
       }
     }
 
-    if (!hasRemainingQuests) {
+    if (!hasRemainingQuests && PerkService.getPerk("timeLord").isUnlocked()) {
       Label noRemaining = new Label("No remaining quests", skin);
       questTable.add(noRemaining).expandX().fillX().left().row();
     }
