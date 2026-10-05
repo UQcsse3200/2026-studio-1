@@ -12,8 +12,8 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -920,9 +920,7 @@ class InventoryComponentTest {
     Map<Integer, ShopComponent.Pet> petSlots = inventory.getPetSlots();
     ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
 
-    assertThrows(
-            UnsupportedOperationException.class,
-            () -> petSlots.put(2, bat));
+    assertThrows(UnsupportedOperationException.class, () -> petSlots.put(2, bat));
 
     assertSame(bird, inventory.getPet(1));
     assertNull(inventory.getPet(2));
