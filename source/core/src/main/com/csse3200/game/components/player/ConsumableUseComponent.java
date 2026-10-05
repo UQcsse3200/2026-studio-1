@@ -4,6 +4,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.perks.Perk;
 import com.csse3200.game.perks.PerkService;
@@ -28,6 +29,9 @@ public class ConsumableUseComponent extends Component {
   private static final String PERK_ID = "thickSkin";
   private static final int HEALTH_PERK = 50;
 
+  /** Slot of the weapon the player last selected, for the Upgrade Stone. 0 means none yet. */
+  private int heldWeaponSlot = 0;
+
   /**
    * Creates a use handler with an explicit health cap.
    *
@@ -41,10 +45,16 @@ public class ConsumableUseComponent extends Component {
     this.maxHealth = maxHealth;
   }
 
-  /** Registers the {@code "useItem"} listener. */
+  /** Registers the {@code "useItem"} listener and starts tracking the held weapon. */
   @Override
   public void create() {
     entity.getEvents().addListener("useItem", this::useItem);
+    entity.getEvents().addListener("activeSlotChanged", this::rememberHeldWeapon);
+
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory != null) {
+      rememberHeldWeapon(inventory.getActiveSlot());
+    }
 
     Perk thickSkinPerk = PerkService.getPerk(PERK_ID);
     if (thickSkinPerk != null) {
@@ -54,6 +64,34 @@ public class ConsumableUseComponent extends Component {
       thickSkinPerk.setOnActivated(() -> increaseMaxHealth(HEALTH_PERK));
       thickSkinPerk.setOnDeactivated(() -> decreaseMaxHealth(HEALTH_PERK));
     }
+  }
+
+  /**
+   * Remembers the slot whenever the player selects a weapon.
+   *
+   * <p>Pressing an item's slot key both selects that slot and uses the item, so by the time an
+   * Upgrade Stone is used, the stone's own slot is selected. Remembering the last weapon the player
+   * selected lets the stone upgrade the weapon they were holding just before.
+   *
+   * @param slot slot that was just selected
+   */
+  private void rememberHeldWeapon(int slot) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory != null && inventory.getItem(slot) instanceof WeaponItem) {
+      heldWeaponSlot = slot;
+    }
+  }
+
+  /**
+   * Returns the slot of the weapon the player last selected.
+   *
+   * <p>The slot may no longer hold a weapon (it could have been dropped or thrown), so callers must
+   * check what is in it.
+   *
+   * @return the slot number, or 0 if the player has not held a weapon yet
+   */
+  public int getHeldWeaponSlot() {
+    return heldWeaponSlot;
   }
 
   public void increaseMaxHealth(int amount) {
