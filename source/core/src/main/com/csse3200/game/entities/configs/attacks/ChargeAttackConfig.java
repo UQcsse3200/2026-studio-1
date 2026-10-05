@@ -28,4 +28,10 @@ public class ChargeAttackConfig {
 
   /* Aggression radius that triggers the charge task */
   public float aggroRadius = 10;
+
+  /* Knockback added caused by charge attack */
+  public float knockback = 3.0f;
+
+  /* boolean to tell that they are supposed to end the charge once the target has been hit */
+  public boolean endOnHit = true;
 }
