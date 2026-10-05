@@ -71,7 +71,9 @@ public class MapDataLevelView implements LevelView {
   @Override
   public boolean isSupporting(int x, int y) {
     CollisionType collision = collisionAt(x, y);
-    return collision == CollisionType.SOLID || collision == CollisionType.PLATFORM;
+    return collision == CollisionType.SOLID
+        || collision == CollisionType.PLATFORM
+        || collision == CollisionType.ONE_WAY_PLATFORM;
   }
 
   @Override

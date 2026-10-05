@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 
@@ -45,7 +46,6 @@ public class PauseMenuDisplay extends UIComponent {
   private long leftLastRepeat = 0;
   private long rightHoldStart = 0;
   private long rightLastRepeat = 0;
-
   private static final String PREFS_NAME = "pause_menu_settings";
   private static final String MASTER_VOLUME_KEY = "masterVolume";
   private static final String MUSIC_VOLUME_KEY = "musicVolume";
@@ -69,6 +69,7 @@ public class PauseMenuDisplay extends UIComponent {
     "Dash: L",
     "Slide: LShift",
     "Attack: Space",
+    "Bribe Enemy: R",
     "Drop Item: Q",
     "Equip Shield: B",
     "Pause: ESC",
@@ -96,6 +97,11 @@ public class PauseMenuDisplay extends UIComponent {
   private Table restartOverlay;
   private Image pauseOverlay;
 
+  // Non-selectable - deliberately kept out of MAIN_ITEMS/mainLabels so keyboard and mouse
+  // navigation (which iterate those) are unaffected. Package-private for test access, matching
+  // the existing convention on other fields in this class (e.g. musicSlider, mainIndex).
+  Label difficultyLabel;
+
   private Label[] mainLabels;
   private Label[] settingsLabels;
   private Label[] audioLabels;
@@ -106,6 +112,7 @@ public class PauseMenuDisplay extends UIComponent {
   private Label masterValueLabel;
   private Label musicValueLabel;
   private Label effectsValueLabel;
+
   // Restart confirmation
   private Label restartConfirmLabel;
   private Label restartConfirmMessageLabel;
@@ -136,6 +143,9 @@ public class PauseMenuDisplay extends UIComponent {
   private void addActors() {
     mainLabels = new Label[MAIN_ITEMS.length];
     mainPanel = buildPanel(MAIN_ITEMS, mainLabels);
+    difficultyLabel = createLabel("");
+    mainPanel.add(difficultyLabel).padTop(10f);
+    refreshDifficultyLabel();
 
     settingsLabels = new Label[SETTINGS_ITEMS.length];
     settingsPanel = buildPanel(SETTINGS_ITEMS, settingsLabels);
@@ -247,6 +257,12 @@ public class PauseMenuDisplay extends UIComponent {
     style.fontColor = UNSELECTED_TEXT;
     label.setStyle(style);
     return label;
+  }
+
+  /** E.g. "Difficulty: Hard" - refreshed every time the pause menu opens, in draw(). */
+  private void refreshDifficultyLabel() {
+    String name = DifficultyService.getCurrent().name();
+    difficultyLabel.setText("Difficulty: " + name.charAt(0) + name.substring(1).toLowerCase());
   }
 
   private Table buildPanel(String[] items, Label[] labelsOut) {
@@ -725,6 +741,7 @@ public class PauseMenuDisplay extends UIComponent {
       settingsIndex = 0;
       audioIndex = 0;
       keybindsIndex = 0;
+      refreshDifficultyLabel();
       refreshPanels();
     }
     wasPaused = isPaused;

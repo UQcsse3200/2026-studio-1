@@ -4,43 +4,135 @@
   "legend": {
     "#": {
       "type": "WALL",
-      "texture": "images/level2/summit-marble-512px.png"
+      "texture": "images/level3/tiles/wall-a.png"
     },
-    "G": {
+    "%": {
       "type": "WALL",
-      "texture": "images/level2/summit-gold-inlay-512px.png"
+      "texture": "images/level3/tiles/wall-b.png"
     },
-    "F": {
+    "&": {
       "type": "WALL",
-      "texture": "images/level1/floor-marble-512px.png"
+      "texture": "images/level3/tiles/wall-c.png"
+    },
+    "^": {
+      "type": "WALL",
+      "texture": "images/level3/tiles/ceiling-trim.png"
+    },
+    "h": {
+      "type": "FLOOR",
+      "texture": "images/level3/tiles/floor-hall-a.png"
+    },
+    "i": {
+      "type": "FLOOR",
+      "texture": "images/level3/tiles/floor-hall-b.png"
+    },
+    "c": {
+      "type": "FLOOR",
+      "texture": "images/level3/tiles/floor-colonnade-a.png"
+    },
+    "d": {
+      "type": "FLOOR",
+      "texture": "images/level3/tiles/floor-colonnade-b.png"
+    },
+    "t": {
+      "type": "FLOOR",
+      "texture": "images/level3/tiles/floor-dais.png"
+    },
+    "g": {
+      "type": "FLOOR",
+      "texture": "images/level3/tiles/floor-gold-inlay.png"
+    },
+    "<": {
+      "type": "PLATFORM",
+      "texture": "images/level3/tiles/platform-left.png"
+    },
+    "-": {
+      "type": "PLATFORM",
+      "texture": "images/level3/tiles/platform-mid.png"
+    },
+    ">": {
+      "type": "PLATFORM",
+      "texture": "images/level3/tiles/platform-right.png"
+    },
+    "H": {
+      "type": "LADDER",
+      "texture": "images/level3/tiles/ladder.png"
+    },
+    "!": {
+      "type": "HAZARD",
+      "texture": "images/level3/tiles/hazard-charged.png",
+      "glow": "images/effects/lighting/glow-electric.png",
+      "animation": "images/level3/tiles/hazard-charged-sheet-4f.png",
+      "frames": 4,
+      "fps": 12
+    },
+    "k": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/column-capital.png"
+    },
+    "C": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/column-shaft.png"
     },
     "b": {
       "type": "DECORATIVE",
-      "texture": "images/level2/bg-sky-summit-512px.png"
+      "texture": "images/level3/tiles/column-base.png"
     },
-    "|": {
+    "K": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-column-doric-512px.png"
+      "texture": "images/level3/tiles/column-broken-top.png"
+    },
+    "F": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/brazier.png",
+      "glow": "images/effects/lighting/glow-warm.png",
+      "animation": "images/level3/tiles/brazier-sheet-4f.png",
+      "frames": 4,
+      "fps": 8
+    },
+    "Q": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/statue-top.png"
     },
     "q": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-gorgoneion-512px.png"
+      "texture": "images/level3/tiles/statue-base.png"
     },
-    "t": {
+    "n": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-tripod-512px.png"
+      "texture": "images/level3/tiles/banner-top.png"
+    },
+    "N": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/banner-tail.png"
+    },
+    "T": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/throne-top-left.png"
+    },
+    "U": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/throne-top-right.png"
+    },
+    "V": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/throne-mid-left.png"
+    },
+    "W": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/throne-mid-right.png"
+    },
+    "X": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/throne-base-left.png"
+    },
+    "Y": {
+      "type": "DECORATIVE",
+      "texture": "images/level3/tiles/throne-base-right.png"
     },
     "o": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-oil-lamp-512px.png"
-    },
-    "v": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/decor-shrine-votive-512px.png"
-    },
-    "^": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/cloud-storm-512px.png"
+      "texture": "images/level3/tiles/storm-tuft.png"
     }
   },
   "entityLegend": {
@@ -49,7 +141,7 @@
     },
     "Z": {
       "type": "ENEMY",
-      "enemyType": "ghostking"
+      "enemyType": "zeus"
     },
     "L": {
       "type": "LOOT"
@@ -57,76 +149,171 @@
   },
   "layers": {
     "background": [
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      "                                                    ",
+      "                                                    ",
+      "         n        n              n        n         ",
+      "         N        N              N        N         ",
+      "                         TU                         ",
+      "                         VW                         ",
+      "                     F   XY   F                     ",
+      "                                                    ",
+      "                       k    k                       ",
+      "                       C    C                       ",
+      "                       C    C                       ",
+      "                       C    C                       ",
+      "             o         C    C         o             ",
+      "                       C    C                       ",
+      "                       C    C                       ",
+      "                       C    C                       ",
+      "                  o    C    C    o                  ",
+      "                       C    C                       ",
+      "        F              C    C              F        ",
+      "                       C    C                       ",
+      "                       C    C                       ",
+      "      Q                C    C                Q      ",
+      "      q      F      K  b    b  K      F      q      ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    "
     ],
     "terrain": [
-      "########################################",
-      "#GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG#",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF#",
-      "########################################"
+      "#%#%#&#&%&%#%#%#&#&%&%#%#%#&#&%&%#%#%#&#&%&%#%#%#&#&",
+      "&#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#%",
+      "%#                                                &#",
+      "#&                                                %#",
+      "&%                                                #&",
+      "%#                                                &%",
+      "%&                                                %#",
+      "#%                 <------------>                 %&",
+      "&%                                                #%",
+      "%#                                                &%",
+      "#&                                                %#",
+      "#%         <---->                  <---->         #&",
+      "&#                                                #%",
+      "%#                                                &#",
+      "#&                                                %#",
+      "&% H--->        <---->        <---->        <---H #&",
+      "%# H                                            H &%",
+      "%& H                                            H %#",
+      "#% H                                            H %&",
+      "&% H   <---->                          <---->   H #%",
+      "%# H                                            H &%",
+      "#& H            #%                &%            H %#",
+      "#% H            &#                %#            H #&",
+      "&#ihhhhihhcccdcccdcccdtttggtttcccdcccdccccihhhhihh#%",
+      "%#%#%#&#&%&%#%#%#&#&%&%#%#%#&#&%&%#%#%#&#&%&%#%#%#&#",
+      "#&#&%&%#%#%#&#&%&%#%#%#&#&%&%#%#%#&#&%&%#%#%#&#&%&%#"
     ],
-    "foreground": [
-      "                                        ",
-      "                                        ",
-      "          ^         ^         ^         ",
-      "                   q                    ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "        |     |           |             ",
-      "        |     |           |             ",
-      "     o  |   t |         t |   o     v   ",
-      "                                        ",
-      "                                        "
+    "hazards": [
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "          !!                            !!          ",
+      "                                                    ",
+      "                                                    "
     ],
     "entities": [
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "  P                 L           Z       ",
-      "                                        ",
-      "                                        "
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                    L          L                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "             L                                      ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "    L                                          L    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    ",
+      "        P                 Z                         ",
+      "                                                    ",
+      "                                                    ",
+      "                                                    "
+    ]
+  },
+  "backdrops": {
+    "*": [
+      {
+        "texture": "images/level3/backdrop/0-night-storm-sky.png",
+        "scroll": 0.05
+      },
+      {
+        "texture": "images/level3/backdrop/distant-lightning-4f.png",
+        "flicker": {
+          "frames": 4,
+          "fps": 12,
+          "minGap": 3,
+          "maxGap": 8,
+          "height": 0.36
+        }
+      },
+      {
+        "texture": "images/level3/backdrop/1-cloud-sea-peaks.png",
+        "scroll": 0.15
+      },
+      {
+        "texture": "images/level3/backdrop/1b-colossus.png",
+        "scroll": 0.12
+      },
+      {
+        "texture": "images/level3/backdrop/2-palace-colonnade.png",
+        "scroll": 0.22
+      },
+      {
+        "texture": "images/level3/backdrop/3-drifting-mist.png",
+        "scroll": 0.35,
+        "drift": {
+          "x": 0.09,
+          "y": 0
+        }
+      },
+      {
+        "texture": "images/level3/backdrop/4-great-hall-arches.png",
+        "scroll": 0.55
+      }
+    ]
+  },
+  "overlays": {
+    "*": [
+      {
+        "texture": "images/level3/weather/wind-rain-sparks.png",
+        "scroll": 1,
+        "drift": {
+          "x": -0.6,
+          "y": -3.3
+        },
+        "alpha": 0.8
+      }
     ]
   }
 }

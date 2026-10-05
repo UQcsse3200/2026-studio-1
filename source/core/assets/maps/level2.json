@@ -1,7 +1,7 @@
 {
   "name": "Level 2 — Climb Mount Olympus",
   "tileSize": 0.5,
-  "backgroundTexture": "images/level2/level2-map.png",
+  "backgroundTexture": "images/level2/level2-foreground.png",
   "legend": {
     "O": {
       "type": "WALL",
@@ -36,23 +36,23 @@
       "name": "cliff-shelf"
     },
     "c": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-solid"
     },
     "d": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-drift"
     },
     "f": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-fade"
     },
     "t": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-thermal"
     },
     "m": {
-      "type": "PLATFORM",
+      "type": "ONE_WAY_PLATFORM",
       "name": "cloud-storm"
     },
     "P": {
@@ -82,6 +82,16 @@
     },
     "L": {
       "type": "LOOT"
+    },
+    "1": {
+      "type": "MARKER",
+      "kind": "npc",
+      "id": "npc:philosopher"
+    },
+    "3": {
+      "type": "MARKER",
+      "kind": "npc",
+      "id": "npc:satyr"
     }
   },
   "layers": {
@@ -664,7 +674,7 @@
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
-      "                                           S    L  L                            ",
+      "                                           S    L 3L                            ",
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
@@ -784,7 +794,7 @@
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
-      "                                                                                ",
+      "                                     1                                          ",
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
@@ -812,6 +822,42 @@
       "   P                                                                            ",
       "                                                                                ",
       "                                                                                "
+    ]
+  },
+  "backdrops": {
+    "*": [
+      {
+        "texture": "images/level2/backdrop/0-sky.png",
+        "spansMap": true
+      },
+      {
+        "texture": "images/level2/backdrop/1-far-sea.png",
+        "spansMap": true
+      },
+      {
+        "texture": "images/level2/backdrop/2-ranges.png",
+        "spansMap": true
+      },
+      {
+        "texture": "images/level2/backdrop/3-haze.png",
+        "spansMap": true
+      }
+    ]
+  },
+  "overlays": {
+    "*": [
+      {
+        "texture": "images/level2/weather/storm-rain-loop.png",
+        "scroll": 1,
+        "drift": {
+          "x": -0.6,
+          "y": -3.9
+        },
+        "rows": {
+          "from": 128,
+          "to": 160
+        }
+      }
     ]
   },
   "subLevels": [
@@ -845,8 +891,8 @@
       "height": 2,
       "destinationMap": "maps/level3.json",
       "destinationSpawn": {
-        "x": 2,
-        "y": 2
+        "x": 8,
+        "y": 3
       }
     }
   ]

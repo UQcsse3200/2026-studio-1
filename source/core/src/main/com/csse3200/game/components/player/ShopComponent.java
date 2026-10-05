@@ -1,5 +1,6 @@
 package com.csse3200.game.components.player;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
@@ -392,6 +393,7 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
+    Quest.addGlobalGoldSpent(listing.getBuyPrice());
     itemCatalog.remove(catalogSlot);
     notifyShopChanged();
     return true;
@@ -468,6 +470,7 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
+    Quest.addGlobalGoldSpent(listing.getBuyPrice());
     purchasedUpgrades.add(listing.getProduct());
     notifyUpgradePurchased();
     return true;
@@ -498,6 +501,7 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-listing.getBuyPrice());
+    Quest.addGlobalGoldSpent(listing.getBuyPrice());
     purchasedPets.add(listing.getProduct());
     notifyPetPurchased(listing.getProduct());
     return true;

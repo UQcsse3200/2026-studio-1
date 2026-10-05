@@ -21,9 +21,13 @@ import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.services.GameTime;
+import com.csse3200.game.services.ServiceLocator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -37,6 +41,12 @@ class LadderComponentTest {
 
   @Mock PhysicsEngine engine;
   @Mock Body body;
+  @Mock GameTime timeSource;
+
+  @AfterEach
+  void clearServices() {
+    ServiceLocator.clear();
+  }
 
   @Test
   void beginsClimbingWhenPlayerCentreIsInLadderColumn() {
@@ -165,6 +175,62 @@ class LadderComponentTest {
     assertEquals(2.895f, player.getCenterPosition().y, 0.001f);
     verify(body).setGravityScale(1f);
     assertFalse(ladder.canAutoClimb());
+  }
+
+  @Test
+  void releasingControlDuringAutoClimbStopsCrouching() {
+    when(engine.createBody(any())).thenReturn(body);
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player =
+        new Entity()
+            .addComponent(new PhysicsComponent(engine))
+            .addComponent(ladder)
+            .addComponent(input);
+    player.setScale(0.75f, 0.75f);
+    positionCentreAtTile(player, 1, 2);
+    ladder.create();
+    AtomicBoolean crouching = new AtomicBoolean();
+    player.getEvents().addListener("ctrlChanged", crouching::set);
+
+    assertTrue(input.keyDown(Keys.CONTROL_LEFT));
+    assertTrue(crouching.get());
+    assertTrue(input.keyDown(Keys.E));
+    assertTrue(ladder.isAutoClimbing());
+
+    assertTrue(input.keyUp(Keys.CONTROL_LEFT));
+
+    assertFalse(crouching.get());
+  }
+
+  @Test
+  void autoClimbUsesScaledGameTime() {
+    when(engine.createBody(any())).thenReturn(body);
+    when(timeSource.getDeltaTime()).thenReturn(0f, 10f);
+    ServiceLocator.registerTimeSource(timeSource);
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player =
+        new Entity()
+            .addComponent(new PhysicsComponent(engine))
+            .addComponent(ladder)
+            .addComponent(input);
+    player.setScale(0.75f, 0.75f);
+    positionCentreAtTile(player, 1, 2);
+    ladder.create();
+    Vector2 startingPosition = player.getPosition().cpy();
+
+    assertTrue(input.keyDown(Keys.E));
+    ladder.update();
+
+    assertEquals(startingPosition, player.getPosition());
+    assertTrue(ladder.isAutoClimbing());
+
+    ladder.update();
+
+    assertFalse(ladder.isAutoClimbing());
+    assertEquals(0.75f, player.getCenterPosition().x, 0.001f);
+    assertEquals(2.895f, player.getCenterPosition().y, 0.001f);
   }
 
   @Test
