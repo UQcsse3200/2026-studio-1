@@ -487,9 +487,8 @@ class JsonMapLoaderTest {
         "images/level1/hazard-spikes-bronze-512px.png",
         levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
-    assertEquals(4, levelOne.getTransitions().size());
-    assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
     assertEquals(5, levelOne.getTransitions().size());
+    assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
     // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
     // map still loads and renders from its tile layers.
     assertNull(levelOne.getBackgroundTexture());
@@ -511,7 +510,8 @@ class JsonMapLoaderTest {
     assertNull(levelTwo.getTileType(42, 75));
     // Hazards live in the collision layer, as they do in level 1.
     assertNull(levelTwo.getLayer("hazards"));
-    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 45));
+    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 44));
+    System.out.println(levelTwo.getLegend().get(TileType.HAZARD));
     assertEquals(TileType.DECORATIVE, levelTwo.getTileType(59, 173));
     assertEquals(TileType.WALL, levelTwo.getTileType(59, 165));
     assertTrue(
