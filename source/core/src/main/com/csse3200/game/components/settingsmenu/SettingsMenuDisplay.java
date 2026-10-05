@@ -3,9 +3,12 @@ package com.csse3200.game.components.settingsmenu;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.Graphics.Monitor;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
@@ -13,26 +16,77 @@ import com.csse3200.game.GdxGame;
 import com.csse3200.game.GdxGame.ScreenType;
 import com.csse3200.game.files.UserSettings;
 import com.csse3200.game.files.UserSettings.DisplaySettings;
+import com.csse3200.game.pausemenu.KeybindSettings;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 import com.csse3200.game.utils.StringDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Settings menu display and logic. If you bork the settings, they can be changed manually in
- * DECO2800Game/settings.json under your home directory (This is C:/users/[username] on Windows).
- */
 public class SettingsMenuDisplay extends UIComponent {
   private static final Logger logger = LoggerFactory.getLogger(SettingsMenuDisplay.class);
+  private static final String[] KEYBIND_ACTIONS = {
+    "moveLeft",
+    "moveRight",
+    "moveDown",
+    "jump",
+    "dash",
+    "slide",
+    "attack",
+    "specialAttack",
+    "areaAttack",
+    "bribe",
+    "dropItem",
+    "equipShield",
+    "interact",
+    "toggleQuestMenu",
+    "toggleTutorial",
+    "crouch",
+    "timeFreeze",
+    "pause",
+    "hotbarSlot1",
+    "hotbarSlot2",
+    "hotbarSlot3",
+    "hotbarSlot4",
+    "hotbarSlot5"
+  };
+  private static final String[] KEYBIND_LABELS = {
+    "Move Left",
+    "Move Right",
+    "Move Down",
+    "Jump",
+    "Dash",
+    "Slide",
+    "Attack",
+    "Special Attack",
+    "Area Attack",
+    "Bribe",
+    "Drop Item",
+    "Equip Shield",
+    "Interact",
+    "Toggle Quest Menu",
+    "Toggle Tutorial",
+    "Crouch",
+    "Time Freeze",
+    "Pause",
+    "Hotbar Slot 1",
+    "Hotbar Slot 2",
+    "Hotbar Slot 3",
+    "Hotbar Slot 4",
+    "Hotbar Slot 5"
+  };
   private final GdxGame game;
-
   private Table rootTable;
+  private Table settingsTable;
+  private Table keybindsTable;
+  private Stack contentStack;
   private TextField fpsText;
   private CheckBox fullScreenCheck;
   private CheckBox vsyncCheck;
   private Slider uiScaleSlider;
   private SelectBox<StringDecorator<DisplayMode>> displayModeSelect;
+  private String capturingAction;
+  private Label[] keybindLabels;
 
   public SettingsMenuDisplay(GdxGame game) {
     super();
@@ -44,94 +98,187 @@ public class SettingsMenuDisplay extends UIComponent {
     super.create();
     addActors();
     entity.getEvents().addListener("exitSettings", this::exitMenu);
+    entity.getEvents().addListener("keybindChanged", this::endKeyCapture);
+    entity.getEvents().addListener("keybindCaptureCancelled", this::endKeyCapture);
+  }
+
+  private void endKeyCapture() {
+    capturingAction = null;
+    refreshKeybindLabels();
   }
 
   private void addActors() {
     Label title = new Label("Settings", skin, "title");
-    Table settingsTable = makeSettingsTable();
+    settingsTable = makeSettingsTable();
     Table menuBtns = makeMenuBtns();
+    keybindsTable = makeKeybindsTable();
+    keybindsTable.setVisible(false);
+
+    contentStack = new Stack();
+    contentStack.add(settingsTable);
+    contentStack.add(keybindsTable);
 
     rootTable = new Table();
     rootTable.setFillParent(true);
-
-    rootTable.add(title).expandX().top().padTop(20f);
-
-    rootTable.row().padTop(30f);
-    rootTable.add(settingsTable).expandX().expandY();
-
+    rootTable.top().left();
+    rootTable.add(title).left().padLeft(270f).padTop(20f).height(90f);
     rootTable.row();
-    rootTable.add(menuBtns).fillX();
-
+    rootTable.add(contentStack).left().expand().padLeft(20f);
+    rootTable.row();
+    rootTable.add(menuBtns).fillX().expandX().bottom();
     stage.addActor(rootTable);
   }
 
   private Table makeSettingsTable() {
-    // Get current values
     UserSettings.Settings settings = UserSettings.get();
-
-    // Create components
     Label fpsLabel = new Label("FPS Cap:", skin);
     fpsText = new TextField(Integer.toString(settings.fps), skin);
-
     Label fullScreenLabel = new Label("Fullscreen:", skin);
     fullScreenCheck = new CheckBox("", skin);
     fullScreenCheck.setChecked(settings.fullscreen);
-
     Label vsyncLabel = new Label("VSync:", skin);
     vsyncCheck = new CheckBox("", skin);
     vsyncCheck.setChecked(settings.vsync);
-
     Label uiScaleLabel = new Label("ui Scale (Unused):", skin);
     uiScaleSlider = new Slider(0.2f, 2f, 0.1f, false, skin);
     uiScaleSlider.setValue(settings.uiScale);
     Label uiScaleValue = new Label(String.format("%.2fx", settings.uiScale), skin);
-
     Label displayModeLabel = new Label("Resolution:", skin);
     displayModeSelect = new SelectBox<>(skin);
     Monitor selectedMonitor = Gdx.graphics.getMonitor();
     displayModeSelect.setItems(getDisplayModes(selectedMonitor));
     displayModeSelect.setSelected(getActiveMode(displayModeSelect.getItems()));
 
-    // Position Components on table
     Table table = new Table();
-
     table.add(fpsLabel).right().padRight(15f);
     table.add(fpsText).width(100).left();
-
     table.row().padTop(10f);
     table.add(fullScreenLabel).right().padRight(15f);
     table.add(fullScreenCheck).left();
-
     table.row().padTop(10f);
     table.add(vsyncLabel).right().padRight(15f);
     table.add(vsyncCheck).left();
-
     table.row().padTop(10f);
     Table uiScaleTable = new Table();
     uiScaleTable.add(uiScaleSlider).width(100).left();
     uiScaleTable.add(uiScaleValue).left().padLeft(5f).expandX();
-
     table.add(uiScaleLabel).right().padRight(15f);
     table.add(uiScaleTable).left();
-
     table.row().padTop(10f);
     table.add(displayModeLabel).right().padRight(15f);
     table.add(displayModeSelect).left();
 
-    // Events on inputs
     uiScaleSlider.addListener(
         (Event event) -> {
           float value = uiScaleSlider.getValue();
           uiScaleValue.setText(String.format("%.2fx", value));
           return true;
         });
-
     return table;
+  }
+
+  private Table makeKeybindsTable() {
+    Table outer = new Table();
+    outer.pad(10f);
+    Label title = new Label("Keybinds", skin, "title");
+    outer.add(title).center().row();
+
+    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
+    ScrollPane scroll = new ScrollPane(buildKeybindRows(), style);
+    scroll.setScrollingDisabled(true, false);
+    scroll.setFadeScrollBars(false);
+    scroll.setOverscroll(false, false);
+    scroll.setForceScroll(false, true);
+    outer.add(scroll).width(650f).height(560f).left().row();
+
+    return outer;
+  }
+
+  private Table buildKeybindRows() {
+    Table table = new Table();
+    table.pad(10f);
+    keybindLabels = new Label[KEYBIND_ACTIONS.length];
+
+    for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
+      final String action = KEYBIND_ACTIONS[i];
+      Table row = new Table();
+      row.setBackground(skin.getDrawable("button"));
+      Label label = new Label("", skin);
+      row.add(label).expandX().left().pad(8f);
+      refreshKeybindLabel(label, action);
+      keybindLabels[i] = label;
+
+      row.addListener(
+          new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              if (capturingAction == null) {
+                beginKeyCapture(action, label);
+              }
+              // Consume the press either way, so a click while already capturing does nothing.
+              return true;
+            }
+          });
+
+      table.add(row).growX().padBottom(4f).row();
+    }
+
+    TextButton backButton = new TextButton("Back", skin);
+    backButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            showSettings();
+          }
+        });
+    table.add(backButton).growX().padTop(10f);
+    return table;
+  }
+
+  private void refreshKeybindLabels() {
+    if (keybindLabels == null) {
+      return;
+    }
+    for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
+      refreshKeybindLabel(keybindLabels[i], KEYBIND_ACTIONS[i]);
+    }
+  }
+
+  private void beginKeyCapture(String action, Label label) {
+    capturingAction = action;
+    label.setText(KEYBIND_LABELS[indexOfAction(action)] + ": Press any key...");
+    SettingsInputComponent input = entity.getComponent(SettingsInputComponent.class);
+    if (input != null) {
+      input.startKeyCapture(action);
+    }
+  }
+
+  private void refreshKeybindLabel(Label label, String action) {
+    int keycode = KeybindSettings.getKey(action);
+    String keyName = keycode == KeybindSettings.UNBOUND ? "Unbound" : Input.Keys.toString(keycode);
+    label.setText(KEYBIND_LABELS[indexOfAction(action)] + ": " + keyName);
+  }
+
+  private int indexOfAction(String action) {
+    for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
+      if (KEYBIND_ACTIONS[i].equals(action)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  private void showSettings() {
+    capturingAction = null;
+    stage.setKeyboardFocus(null);
+    settingsTable.setVisible(true);
+    keybindsTable.setVisible(false);
+    refreshKeybindLabels();
+    rootTable.invalidateHierarchy();
   }
 
   private StringDecorator<DisplayMode> getActiveMode(Array<StringDecorator<DisplayMode>> modes) {
     DisplayMode active = Gdx.graphics.getDisplayMode();
-
     for (StringDecorator<DisplayMode> stringMode : modes) {
       DisplayMode mode = stringMode.object;
       if (active.width == mode.width
@@ -146,11 +293,9 @@ public class SettingsMenuDisplay extends UIComponent {
   private Array<StringDecorator<DisplayMode>> getDisplayModes(Monitor monitor) {
     DisplayMode[] displayModes = Gdx.graphics.getDisplayModes(monitor);
     Array<StringDecorator<DisplayMode>> arr = new Array<>();
-
     for (DisplayMode displayMode : displayModes) {
       arr.add(new StringDecorator<>(displayMode, this::prettyPrint));
     }
-
     return arr;
   }
 
@@ -161,6 +306,7 @@ public class SettingsMenuDisplay extends UIComponent {
   private Table makeMenuBtns() {
     TextButton exitBtn = new TextButton("Exit", skin);
     TextButton applyBtn = new TextButton("Apply", skin);
+    TextButton keybindsBtn = new TextButton("Keybinds", skin);
 
     exitBtn.addListener(
         new ChangeListener() {
@@ -180,15 +326,26 @@ public class SettingsMenuDisplay extends UIComponent {
           }
         });
 
+    keybindsBtn.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent changeEvent, Actor actor) {
+            logger.debug("Keybinds button clicked");
+            settingsTable.setVisible(false);
+            keybindsTable.setVisible(true);
+            rootTable.invalidateHierarchy();
+          }
+        });
+
     Table table = new Table();
     table.add(exitBtn).expandX().left().pad(0f, 15f, 15f, 0f);
+    table.add(keybindsBtn).expandX().center().pad(0f, 15f, 15f, 15f);
     table.add(applyBtn).expandX().right().pad(0f, 0f, 15f, 15f);
     return table;
   }
 
   private void applyChanges() {
     UserSettings.Settings settings = UserSettings.get();
-
     Integer fpsVal = parseOrNull(fpsText.getText());
     if (fpsVal != null) {
       settings.fps = fpsVal;
@@ -197,7 +354,6 @@ public class SettingsMenuDisplay extends UIComponent {
     settings.uiScale = uiScaleSlider.getValue();
     settings.displayMode = new DisplaySettings(displayModeSelect.getSelected().object);
     settings.vsync = vsyncCheck.isChecked();
-
     UserSettings.set(settings, true);
   }
 
@@ -215,7 +371,7 @@ public class SettingsMenuDisplay extends UIComponent {
 
   @Override
   protected void draw(SpriteBatch batch) {
-    // draw is handled by the stage
+    // Nothing to draw here: the Stage renders this menu's actors.
   }
 
   @Override
