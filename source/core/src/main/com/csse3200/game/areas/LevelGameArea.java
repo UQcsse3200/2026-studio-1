@@ -13,6 +13,7 @@ import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.MapLayerData;
 import com.csse3200.game.areas.terrain.map.MapLoader;
+import com.csse3200.game.areas.terrain.map.Marker;
 import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
@@ -79,12 +80,6 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
-  // Left side of the dungeon floor, next to the doric column decoration at (5, 14)
-  // (level1-greek.json foreground layer) and the platform above it where the key item sits.
-  // x=4 (rather than 5) centers the NPC's collider within the floor patch (world x=[1.0,3.0])
-  // instead of overhanging onto the ladder tile at x=[3.0,3.5) - see createTravelerNPC()'s
-  // wander-range comment for the full margin math.
-  private static final GridPoint2 TRAVELER_NPC_SPAWN = new GridPoint2(4, 13);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
 
   /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
@@ -101,7 +96,6 @@ public class LevelGameArea extends GameArea {
 
   /** Entity textures needed by the player, enemies, and loot items. */
   private static final String[] entityTextures = {
-    "images/enemies/npc_traveler.png",
     "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
@@ -122,7 +116,9 @@ public class LevelGameArea extends GameArea {
     "images/potions/speed_potion.png",
     "images/potions/regeneration_potion.png",
     "images/potions/resistance_potion.png",
+    "images/items/upgrade_stone.png",
     "images/Shield.png",
+    "images/BallisticShield.png",
     "images/enemies/zeus.png",
     "images/effects/zeus-bolt-projectile-4f.png",
     "images/effects/zeus-edge-arrow-4f.png",
@@ -191,7 +187,7 @@ public class LevelGameArea extends GameArea {
    *
    * @param terrainFactory factory used to build the terrain
    * @param mapPath asset path of the map file to load
-   * @param mapLoader loader used to parse the map file
+   * @param mapLoader loader used to parse the map
    */
   public LevelGameArea(TerrainFactory terrainFactory, String mapPath, MapLoader mapLoader) {
     this(terrainFactory, mapPath, mapLoader, null, null, null);
@@ -199,7 +195,6 @@ public class LevelGameArea extends GameArea {
 
   /**
    * Create a level while retaining an existing player and placing it at a specified entrance.
-   * Reusing the entity preserves all player component state, including health and inventory.
    *
    * @param terrainFactory factory used to build the terrain
    * @param mapPath asset path of the map file to load
@@ -245,6 +240,7 @@ public class LevelGameArea extends GameArea {
   @Override
   public void create() {
     DefaultEntitySpawns.registerAll();
+    NPCFactory.registerNpcSpawns();
     mapData = mapLoader.load(mapPath);
     loadAssets();
 
@@ -258,25 +254,22 @@ public class LevelGameArea extends GameArea {
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
-    spawnTravelerNPC();
+    spawnNpcs();
     playMusic();
   }
 
   /**
    * The supported way for other systems to read this level.
    *
-   * <p>Prefer this to {@link #getMapData()}: {@link LevelView} is a stable contract, while the map
-   * data behind it is the map package's own structure and changes shape as the format evolves.
-   *
-   * @return a read-only view of the loaded level, or null before {@link #create()} runs
+   * @return a read-only view of the loaded level, or null before create() runs
    */
   public LevelView getLevel() {
     return mapData == null ? null : new MapDataLevelView(mapData);
   }
 
   /**
-   * @return the loaded map data (dimensions, layers, tile types, spawns)
-   * @deprecated prefer {@link #getLevel()}, which does not couple callers to the map format
+   * @return the loaded map data
+   * @deprecated prefer {@link #getLevel()}
    */
   @Deprecated(since = "1.0")
   public LevelMapData getMapData() {
@@ -291,7 +284,7 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the spawned player entity, or null before {@link #create()} runs
+   * @return the spawned player entity, or null before create()
    */
   public Entity getPlayer() {
     return player;
@@ -347,10 +340,9 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Return and clear a doorway request. The screen consumes this after the physics update so the
-   * Box2D world is not modified from inside a contact callback.
+   * Return and clear a doorway request.
    *
-   * @return pending transition, or {@code null}
+   * @return pending transition, or null
    */
   public RoomTransition consumePendingTransition() {
     RoomTransition transition = pendingTransition;
@@ -436,14 +428,14 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the map's height in world units (tiles * tileSize)
+   * @return the map's height in world units
    */
   public float getMapWorldHeight() {
     return mapData.getHeight() * mapData.getTileSize();
   }
 
   /**
-   * @return the world-space centre of the map, useful for positioning the camera
+   * @return the world-space centre of the map
    */
   public Vector2 getMapCenter() {
     return new Vector2(getMapWorldWidth() / 2f, getMapWorldHeight() / 2f);
@@ -544,8 +536,6 @@ public class LevelGameArea extends GameArea {
 
     float tileSize = terrain.getTileSize();
 
-    // Merge solid tiles both horizontally and vertically. A straight wall must be one continuous
-    // Box2D fixture; stacked row fixtures create internal edges that can catch the player.
     for (SolidRectangle rectangle : findSolidRectangles(collisionLayer)) {
       spawnSolidRectangle(rectangle, tileSize);
     }
@@ -553,7 +543,6 @@ public class LevelGameArea extends GameArea {
     spawnPlatformCollisions(collisionLayer, tileSize, CollisionType.PLATFORM, false);
     spawnPlatformCollisions(collisionLayer, tileSize, CollisionType.ONE_WAY_PLATFORM, true);
 
-    // Hazards remain individual.
     spawnHazardCollisions(collisionLayer, tileSize);
     MapLayerData hazardLayer = mapData.getLayer("hazards");
     if (hazardLayer != null && hazardLayer != collisionLayer) {
@@ -612,7 +601,6 @@ public class LevelGameArea extends GameArea {
         }
       }
 
-      // Runs which did not continue into this row are now complete.
       rectangles.addAll(activeRectangles.values());
       activeRectangles = nextActiveRectangles;
     }
@@ -709,8 +697,6 @@ public class LevelGameArea extends GameArea {
       return;
     }
 
-    // tileToWorldPosition is the tile's bottom-left corner; platforms use a thin collider at the
-    // tile's top.
     position.y += tileSize - COLLIDER_HEIGHT;
 
     collider.setPosition(position);
@@ -746,9 +732,6 @@ public class LevelGameArea extends GameArea {
     positionEntityAt(retainedPlayer, spawn, true, true);
     PhysicsComponent physics = retainedPlayer.getComponent(PhysicsComponent.class);
     if (physics != null) {
-      // A room entrance is a teleport, so momentum from the source doorway must not carry over.
-      // Resetting it also prevents a dash/fall from crossing the destination floor on the load
-      // frame.
       physics.getBody().setLinearVelocity(0f, 0f);
       physics.getBody().setAngularVelocity(0f);
       physics.getBody().setAwake(true);
@@ -797,7 +780,6 @@ public class LevelGameArea extends GameArea {
                       CombatStatsComponent stats =
                           newPlayer.getComponent(CombatStatsComponent.class);
 
-                      // Hazards carry their own damage; older maps that set none use the default.
                       HazardDamageComponent hazard =
                           other.getComponent(HazardDamageComponent.class);
                       int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
@@ -856,8 +838,7 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * Builds one spawn by name, through {@link EntitySpawnRegistry}, so this area holds no list of
-   * what the game can spawn. A name nobody registered is reported by the registry and skipped.
+   * Builds one spawn by name, through {@link EntitySpawnRegistry}.
    *
    * @param type the spawn name from the map
    * @return the new entity, or null if the name is unknown
@@ -866,16 +847,7 @@ public class LevelGameArea extends GameArea {
     return EntitySpawnRegistry.create(type, player);
   }
 
-  /**
-   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
-   * features work in this level.
-   *
-   * <p>Loot goes on the spots chosen by {@link #chooseLootSpawns()}. The shield is guaranteed on
-   * the first spot, the same way the gold coin is always placed directly rather than rolled, since
-   * leaving the shield to the weighted table risked it never appearing. Every remaining spot gets
-   * one item rolled from the weighted loot table, so higher tiers stay rare. A map with no usable
-   * ground at all falls back to a starter row beside the player.
-   */
+  /** Spawns pickup loot (weapons, consumables, a shield, and a gold coin). */
   private void spawnLoot() {
     List<SpawnPoint> lootSpawns = chooseLootSpawns();
     if (lootSpawns.isEmpty()) {
@@ -904,15 +876,7 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  /**
-   * Chooses the tiles this level's loot goes on.
-   *
-   * <p>A map's own loot spawn points always win, so a map author can place loot by hand. Most maps
-   * declare none, so otherwise {@link #RANDOM_LOOT_COUNT} distinct tiles are picked at random from
-   * the open ground, which spreads the loot out and changes it every run.
-   *
-   * @return the chosen tiles, empty only when the map has no open ground at all
-   */
+  /** Chooses the tiles this level's loot goes on. */
   private List<SpawnPoint> chooseLootSpawns() {
     logger.info("Loot seed for {}: {}", mapData.getName(), lootSeed);
 
@@ -925,12 +889,7 @@ public class LevelGameArea extends GameArea {
     return LootPlacement.pickRandomSpots(ground, RANDOM_LOOT_COUNT, new Random(lootSeed));
   }
 
-  /**
-   * Lays one of everything out in a row next to the player.
-   *
-   * <p>A last resort for a map with no open ground to scatter loot over, so the loot and inventory
-   * features are still reachable while a map is being built.
-   */
+  /** Lays one of everything out in a row next to the player. */
   private void spawnStarterLootRow() {
     List<Entity> items = new ArrayList<>();
 
@@ -957,8 +916,7 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
-   * @return the tile position to begin laying out loot: the first map loot spawn, else near the
-   *     player.
+   * @return the tile position to begin laying out loot
    */
   private GridPoint2 lootRowStart() {
     if (!mapData.getSpawns().getLoot().isEmpty()) {
@@ -1018,8 +976,13 @@ public class LevelGameArea extends GameArea {
     unloadAssets();
   }
 
-  private void spawnTravelerNPC() {
-    Entity travelerNPC = NPCFactory.createTravelerNPC(player);
-    spawnEntityAt(travelerNPC, TRAVELER_NPC_SPAWN, true, true);
+  // Spawns the NPC placed at each "npc" marker in this map.
+  private void spawnNpcs() {
+    for (Marker marker : getLevel().markers("npc")) {
+      Entity npc = EntitySpawnRegistry.create(marker.id(), player);
+      if (npc != null) {
+        spawnEntityAt(npc, marker.position(), true, true);
+      }
+    }
   }
 }

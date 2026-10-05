@@ -56,6 +56,9 @@ public class Tutorial extends UIComponent {
     Label shield = new Label("B - Shield (When Picked Up)", skin);
     tutorialTable.add(shield).expandX().fillX().left().row();
 
+    Label bribe = new Label("R - Bribe Enemy", skin);
+    tutorialTable.add(bribe).expandX().fillX().left().row();
+
     Label interact = new Label("E - Interact", skin);
     tutorialTable.add(interact).expandX().fillX().left().row();
 
