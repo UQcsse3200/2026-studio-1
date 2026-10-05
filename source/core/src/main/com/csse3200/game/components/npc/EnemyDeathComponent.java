@@ -5,6 +5,7 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
+import com.csse3200.game.perks.BonusLootDrop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,7 @@ public class EnemyDeathComponent extends Component {
             "Enemy {} dropped item", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
       }
     }
+    BonusLootDrop.tryBonusDrop(entity);
 
     logger.info(
         "Enemy {} died at x:{} y:{}",

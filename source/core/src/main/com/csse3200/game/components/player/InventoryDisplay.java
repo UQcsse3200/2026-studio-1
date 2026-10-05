@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.ui.UIComponent;
 
 /** A HUD-style UI component for displaying the player's inventory. */
@@ -32,6 +33,7 @@ public class InventoryDisplay extends UIComponent {
 
     entity.getEvents().addListener("inventoryChanged", this::refreshInventory);
     entity.getEvents().addListener("activeSlotChanged", this::refreshActiveSlot);
+    entity.getEvents().addListener("activePetChanged", this::refreshActivePet);
 
     createInventory();
   }
@@ -48,12 +50,30 @@ public class InventoryDisplay extends UIComponent {
 
     goldLabel = new Label("Gold: " + inventory.getGold(), skin, LABEL_STYLE);
 
-    inventoryTable.add(goldLabel).left().growX().padBottom(6f);
+    inventoryTable.add(goldLabel).left().growX().padBottom(8f);
+    inventoryTable.row();
 
+    // Item inventory
+    Label itemsLabel = new Label("Items", skin, LABEL_STYLE);
+    itemsLabel.setColor(FILLED_TEXT_COLOR);
+
+    inventoryTable.add(itemsLabel).left().padBottom(4f);
     inventoryTable.row();
 
     for (int slotNumber = 1; slotNumber <= inventory.getMaxSlots(); slotNumber++) {
       addSlot(inventory.getItem(slotNumber), slotNumber);
+      inventoryTable.row();
+    }
+
+    // Separate pet inventory from normal item slots.
+    Label petsLabel = new Label("Pets", skin, LABEL_STYLE);
+    petsLabel.setColor(FILLED_TEXT_COLOR);
+
+    inventoryTable.add(petsLabel).left().padTop(12f).padBottom(4f);
+    inventoryTable.row();
+
+    for (int petSlot = 1; petSlot <= inventory.getPetSlotCount(); petSlot++) {
+      addPetSlot(inventory.getPet(petSlot), petSlot);
       inventoryTable.row();
     }
 
@@ -108,6 +128,53 @@ public class InventoryDisplay extends UIComponent {
   }
 
   /**
+   * Adds one pet inventory slot.
+   *
+   * <p>Pet slots are displayed as keyboard slots 6 and 7 and are independent from the normal item
+   * inventory slots.
+   *
+   * @param pet pet contained in the slot, or null if empty
+   * @param petSlot pet inventory slot number
+   */
+  private void addPetSlot(ShopComponent.Pet pet, int petSlot) {
+    Table slot = new Table();
+
+    PetManagerComponent petManager = entity.getComponent(PetManagerComponent.class);
+
+    boolean isActive =
+        pet != null
+            && petManager != null
+            && petManager.getActivePetType() != null
+            && petManager.getActivePetType().getName().equals(pet.getName());
+
+    if (isActive) {
+      slot.setBackground(skin.newDrawable(SLOT_BACKGROUND, ACTIVE_SLOT_COLOR));
+    } else {
+      slot.setBackground(skin.getDrawable(SLOT_BACKGROUND));
+    }
+
+    slot.pad(4f, 8f, 4f, 8f);
+
+    // Pet slots 1 and 2 correspond to keyboard keys 6 and 7.
+    int keyNumber = petSlot + 5;
+
+    Label slotNumberLabel = new Label(keyNumber + ".", skin, LABEL_STYLE);
+    slotNumberLabel.setColor(EMPTY_TEXT_COLOR);
+
+    boolean isEmpty = pet == null;
+    String petName = isEmpty ? "Empty" : pet.getName();
+
+    Label petLabel = new Label(petName, skin, LABEL_STYLE);
+    petLabel.setEllipsis(true);
+    petLabel.setColor(isEmpty ? EMPTY_TEXT_COLOR : FILLED_TEXT_COLOR);
+
+    slot.add(slotNumberLabel).left().padRight(4f).width(14f);
+    slot.add(petLabel).left().growX();
+
+    inventoryTable.add(slot).size(SLOT_WIDTH, SLOT_HEIGHT).pad(SLOT_GAP);
+  }
+
+  /**
    * Refreshes the inventory UI when the inventory changes.
    *
    * <p>This updates both gold and item quantities.
@@ -152,6 +219,10 @@ public class InventoryDisplay extends UIComponent {
   }
 
   private void refreshActiveSlot(int activeSlot) {
+    refreshInventory();
+  }
+
+  private void refreshActivePet(ShopComponent.Pet pet) {
     refreshInventory();
   }
 }
