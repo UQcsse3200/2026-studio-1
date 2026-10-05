@@ -566,7 +566,8 @@ public class NPCFactory {
     Entity npc = createAnimatedNPC(player, "Hermes", SHOP_NPC_ATLAS_PATH);
     npc.addComponent(new ShopkeeperComponent(player));
     npc.getComponent(DialogueComponent.class).changeQuestType("shieldscollectedquest");
-    npc.getComponent(QuestGiverComponent.class).setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.BOW,2));
+    npc.getComponent(QuestGiverComponent.class)
+        .setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.BOW, 2));
     npc.getComponent(DialogueComponent.class).changeAmountXToDo(2);
     return npc;
   }
@@ -601,7 +602,9 @@ public class NPCFactory {
         .getComponent(AITaskComponent.class)
         .addTask(new RetaliateTask(player, 10, throwRange, "throwPoisonPotion"));
     wizard.getComponent(DialogueComponent.class).changeQuestType("enemiesquest");
-    wizard.getComponent(QuestGiverComponent.class).setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.SWORD,3));
+    wizard
+        .getComponent(QuestGiverComponent.class)
+        .setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 3));
     wizard.getComponent(DialogueComponent.class).changeAmountXToDo(3);
     return wizard;
   }
@@ -675,9 +678,7 @@ public class NPCFactory {
     npc.addComponent(new PhysicsComponent())
         .addComponent(new PhysicsMovementComponent())
         .addComponent(new ColliderComponent())
-        .addComponent(
-            new QuestGiverComponent(
-                player))
+        .addComponent(new QuestGiverComponent(player))
         // NPC dialogue
         .addComponent(
             new DialogueComponent(

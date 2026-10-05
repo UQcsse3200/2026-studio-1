@@ -90,7 +90,7 @@ public class QuestDisplay extends UIComponent {
     Label completedTitle = new Label("COMPLETED", skin);
     questTable.add(completedTitle).expandX().fillX().left().padBottom(5f).row();
 
-    if(PerkService.getPerk("timeLord").isUnlocked()){
+    if (PerkService.getPerk("timeLord").isUnlocked()) {
       Label questToDisplay = new Label("• Find the tortoise!", skin);
 
       questTable.add(questToDisplay).expandX().fillX().left().row();
@@ -120,8 +120,8 @@ public class QuestDisplay extends UIComponent {
         questTable.add(completedQuest).left().row();
       }
     }
-    if (!PerkService.getPerk("timeLord").isUnlocked()&&
-            completedEnemiesKilledQuest.isEmpty()
+    if (!PerkService.getPerk("timeLord").isUnlocked()
+        && completedEnemiesKilledQuest.isEmpty()
         && completedJumpQuests.isEmpty()
         && completedGoldSpentQuest.isEmpty()
         && completedShieldsCollectedQuest.isEmpty()) {
@@ -135,7 +135,7 @@ public class QuestDisplay extends UIComponent {
 
     boolean hasRemainingQuests = false;
 
-    if(!PerkService.getPerk("timeLord").isUnlocked()){
+    if (!PerkService.getPerk("timeLord").isUnlocked()) {
       Label questToDisplay = new Label("• Find the tortoise!", skin);
 
       questTable.add(questToDisplay).expandX().fillX().left().row();

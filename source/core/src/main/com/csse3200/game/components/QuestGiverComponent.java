@@ -105,7 +105,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkEnemiesKilledQuestComplete())) return false;
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
-    PerkService.recordEvent("enemyKilled",amountXToDo);
+    PerkService.recordEvent("enemyKilled", amountXToDo);
     return true;
   }
 
@@ -152,7 +152,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkGoldSpentQuestComplete())) return false;
     Quest.clearGoldSpentQuest(uniqueNPCID);
-    PerkService.recordEvent("GoldSpent",amountXToDo);
+    PerkService.recordEvent("GoldSpent", amountXToDo);
     return true;
   }
 
@@ -179,7 +179,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkShieldsCollectedQuestComplete())) return false;
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
-    PerkService.recordEvent("shieldCollected",amountXToDo);
+    PerkService.recordEvent("shieldCollected", amountXToDo);
     return true;
   }
 
@@ -244,19 +244,21 @@ public class QuestGiverComponent extends Component {
     }
     return true;
   }
-  public void setGoldToGive(int goldToGive){
-    if(goldToGive<0){
+
+  public void setGoldToGive(int goldToGive) {
+    if (goldToGive < 0) {
       throw new IllegalArgumentException(
-              "A QuestGiverComponent when using the setGoldToGive function used  "
-                      + goldToGive
-                      + " as the goldToGive as a reward but goldToGive should not be negative");
+          "A QuestGiverComponent when using the setGoldToGive function used  "
+              + goldToGive
+              + " as the goldToGive as a reward but goldToGive should not be negative");
     }
     this.goldToGive = goldToGive;
   }
-  public boolean setItemToGive(Item itemToGive){
-    if(itemToGive==null){
+
+  public boolean setItemToGive(Item itemToGive) {
+    if (itemToGive == null) {
       throw new IllegalArgumentException(
-              "A QuestGiverComponent when using the setItemToGive function was given null as the item to give as a reward which should not be done.");
+          "A QuestGiverComponent when using the setItemToGive function was given null as the item to give as a reward which should not be done.");
     }
     this.itemToGive = itemToGive;
     return true;

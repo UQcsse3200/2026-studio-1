@@ -167,13 +167,15 @@ public class DialogueComponent extends Component {
     }
     return false; // This should never be reached
   }
-  //Do NOT call this function outside of NPCFactory
-  public void changeQuestType (String questType){
+
+  // Do NOT call this function outside of NPCFactory
+  public void changeQuestType(String questType) {
     this.questType = questType;
   }
-  //Do NOT call this function outside of NPCFactory
-  public void changeAmountXToDo(int amountXToDo){
-    if(amountXToDo<=0){
+
+  // Do NOT call this function outside of NPCFactory
+  public void changeAmountXToDo(int amountXToDo) {
+    if (amountXToDo <= 0) {
       return;
     }
     this.amountXToDo = amountXToDo;
