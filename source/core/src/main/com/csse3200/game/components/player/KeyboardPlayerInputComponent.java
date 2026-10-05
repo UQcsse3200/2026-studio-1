@@ -255,10 +255,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return true;
     }
     if (keycode == KeybindSettings.getKey("equipShield")) {
-      entity.getEvents().trigger("activateShield");
-      return true;
-    }
-    if (keycode == KeybindSettings.getKey("activateBallisticShield")) {
+      // Ballistic shield first if one is held, otherwise the normal shield (see the method doc).
       activateAvailableShield();
       return true;
     }
