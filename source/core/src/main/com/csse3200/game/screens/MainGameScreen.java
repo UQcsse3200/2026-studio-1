@@ -97,6 +97,7 @@ public class MainGameScreen extends ScreenAdapter {
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
   private Entity subLevelTravelPromptEntity;
+  private String currentLightSection;
 
   public MainGameScreen(GdxGame game, boolean loadsave) {
     this.game = game;
@@ -239,6 +240,13 @@ public class MainGameScreen extends ScreenAdapter {
     int playerRow = (int) Math.floor(player.getCenterPosition().y / tileSize);
     SubLevel section = level.subLevelAt(playerRow);
 
+    // change lighting if needed
+    String sectionId = section == null ? null : section.id();
+    if (!java.util.Objects.equals(sectionId, currentLightSection)) {
+      currentLightSection = sectionId;
+      levelGameArea.fadeAmbientForSection(sectionId, 0.5f);
+    }
+
     boolean inNether = section != null && section != level.subLevels().getFirst();
 
     SubLevelTravelComponent travel = player.getComponent(SubLevelTravelComponent.class);
@@ -369,6 +377,7 @@ public class MainGameScreen extends ScreenAdapter {
     pauseMenuActions.saveCheckpoint();
 
     playerInNether = null;
+    currentLightSection = null;
 
     player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
 

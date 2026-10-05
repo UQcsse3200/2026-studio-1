@@ -12,7 +12,7 @@ public enum LightColour {
   ELYSIAN_FADE(new Color(0.88f, 0.66f, 0.44f, 1f)),
   LAVA_GLOW(new Color(0.55f, 0.16f, 0.11f, 1f)),
   AMBIENT_LIGHT(new Color(1.0f, 0.95f, 0.74f, 1.0f)),
-  AMBIENT_ORANGE(new Color(0.85f, 0.25f, 0.0f, 1.0f)),
+  AMBIENT_ORANGE(new Color(0.40f, 0.15f, 0.02f, 1.0f)),
   FIRE_GLOW(new Color(0.95f, 0.48f, 0.0f, 1.0f));
 
   private final Color colour;

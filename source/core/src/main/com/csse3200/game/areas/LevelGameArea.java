@@ -843,16 +843,6 @@ public class LevelGameArea extends GameArea {
         EmitterScanner.LightPlacement p = placements.get(i);
         Vector2 world = new Vector2(origin.x + p.tileX() * ts, origin.y + p.tileY() * ts);
         spawnEntity(new Entity().addComponent(new LightComponent(p.spec(), world)));
-
-        logger.info(
-            "tile light {} at tile ({}, {}) -> world ({}, {}), r={}, flicker={}",
-            i,
-            p.tileX(),
-            p.tileY(),
-            world.x,
-            world.y,
-            p.spec().radius(),
-            p.spec().flicker());
       }
       logger.info(
           "Spawned {} tile lights for '{}'",
@@ -862,6 +852,14 @@ public class LevelGameArea extends GameArea {
 
     // player light: room-owned, follows the player
     spawnEntity(new Entity().addComponent(new LightComponent(cfg.player(), player)));
+  }
+
+  /** Fades the ambient to the given sub-level's setting. No-op for maps without lighting. */
+  public void fadeAmbientForSection(String subLevelId, float seconds) {
+    LightingConfig cfg = mapData.getLighting();
+    if (cfg == null) return;
+    LightingConfig.Ambient a = cfg.ambientFor(subLevelId);
+    ServiceLocator.getLightService().fadeAmbientTo(a.color(), a.intensity(), seconds);
   }
 
   @Override
