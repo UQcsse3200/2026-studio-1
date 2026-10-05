@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.LightningFreezeComponent;
-import com.csse3200.game.components.attacks.PetrifyEffectComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
 import com.csse3200.game.components.projectile.*;

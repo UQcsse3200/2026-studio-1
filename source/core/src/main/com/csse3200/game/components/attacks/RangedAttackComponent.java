@@ -74,7 +74,6 @@ public class RangedAttackComponent extends Component {
   // Ticks (about 60/second) a LIGHTNING hit freezes its target for - only meaningful for that
   // projectile type; see getLightningFreezeTicks()/setLightningFreezeTicks(). Defaults to 120 to
   // match this class's previous hardcoded behaviour for any shooter that doesn't configure it.
-  private int lightningFreezeTicks = 120;
   private float windupTimeRemaining;
   private float timeSinceLastAttack;
   private int lightningFreezeTicks = DEFAULT_LIGHTNING_FREEZE_TICKS;
@@ -286,15 +285,6 @@ public class RangedAttackComponent extends Component {
       return this.combatStats.getBaseAttack();
     }
     return this.weapon.getDamage();
-  }
-
-  /**
-   * Returns how many ticks a lightning bolt from this shooter freezes its victim for.
-   *
-   * @return freeze length in ticks, 120 unless changed
-   */
-  public int getLightningFreezeTicks() {
-    return lightningFreezeTicks;
   }
 
   /**

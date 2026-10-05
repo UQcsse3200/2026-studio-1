@@ -37,16 +37,16 @@ import org.slf4j.LoggerFactory;
  */
 public class MeleeAttackComponent extends Component {
   private static final long BRIBE_DURATION_MILLIS = 20000L;
-
   private float range;
   private float cooldown;
   private float knockback;
-  private float damage;
+  private boolean bribed;
+  private long bribedUntil;
   private WeaponItem weapon;
   /* This is set in the {@link WeaponItem} creation rather than here as animation is per weapon
    * Adjustments can be made as public setter and getter for the value is avaliable.
    */
-  private float windupDuration;
+  private final float windupDuration;
   private float timeSinceLastAttack;
   private CombatStatsComponent combatStats;
   private Entity pendingTarget;
@@ -56,9 +56,6 @@ public class MeleeAttackComponent extends Component {
   private float damageMultiplier = 1f;
 
   private float windupMultiplier = 1f;
-
-  private boolean bribed = false;
-  private long bribedUntil = 0L;
 
   private static final Logger logger = LoggerFactory.getLogger(MeleeAttackComponent.class);
 
@@ -75,11 +72,9 @@ public class MeleeAttackComponent extends Component {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-
     if (weapon == null) {
       throw new IllegalArgumentException("weapon cannot be null");
     }
-
     this.weapon = weapon;
 
     if (weapon.getWeaponType() == WeaponType.BOW) {
@@ -118,7 +113,6 @@ public class MeleeAttackComponent extends Component {
     }
     this.windupDuration = this.getCooldown() - 1;
     this.timeSinceLastAttack = cooldown;
-    this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
 
   /**
@@ -141,22 +135,8 @@ public class MeleeAttackComponent extends Component {
   @Override
   public void update() {
     timeSinceLastAttack += ServiceLocator.getTimeSource().getDeltaTime();
-
-    if (bribed && ServiceLocator.getTimeSource().getTime() >= bribedUntil) {
-      bribed = false;
-      bribedUntil = 0L;
-      logger.info("Enemy {} is no longer bribed", entity.getId());
-    }
-
     if (pendingTarget != null) {
-      if (bribed) {
-        pendingTarget = null;
-        windupTimeRemaining = 0f;
-        return;
-      }
-
       windupTimeRemaining -= ServiceLocator.getTimeSource().getDeltaTime();
-
       if (windupTimeRemaining <= 0) {
         resolveAttack();
       }
@@ -173,7 +153,7 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
-   * 3 3 Updates the melee range.
+   * Updates the melee range.
    *
    * @param range new range value
    * @throws IllegalArgumentException if {@code range} is negative
@@ -328,6 +308,10 @@ public class MeleeAttackComponent extends Component {
     return this.pendingTarget != null;
   }
 
+  public boolean isBribed() {
+    return bribed;
+  }
+
   /**
    * Bribes this enemy for 20 seconds.
    *
@@ -347,9 +331,17 @@ public class MeleeAttackComponent extends Component {
     return true;
   }
 
-  public boolean isBribed() {
-    return bribed;
-  }
+  /**
+   * Attempts to attack the given target entity: validates cooldown and range, then applies damage
+   * and knockback if both checks pass and the target has the required component(s).
+   *
+   * @param target the entity being attacked
+   *     <p>Expected effect: may reduce target's health and/or apply an impulse to target's physics
+   *     body.
+   *     <p><b>Limitation:</b> behaviour when {@code target} is {@code null} must be explicitly
+   *     decided — either guard against it here, or document that callers must never trigger the
+   *     event with a null target.
+   */
 
   /**
    * Attempts to attack the given target entity: validates cooldown and range, then applies damage
@@ -363,7 +355,8 @@ public class MeleeAttackComponent extends Component {
    *     event with a null target.
    */
   private void attemptAttack(Entity target) {
-    if (target == null || bribed) {
+    // guarding against a malformed trigger i.e. considering when target is null
+    if (target == null) {
       return;
     }
     // cooldown check
@@ -384,15 +377,12 @@ public class MeleeAttackComponent extends Component {
     }
     // handle whether target has a combat stats component
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
-
     if (targetStats == null) {
       return;
     }
-
     this.pendingTarget = target;
     this.windupTimeRemaining = this.windupDuration * this.windupMultiplier;
     timeSinceLastAttack = 0;
-
     entity.getEvents().trigger("meleeAttackWindup", this.pendingTarget);
   }
 
@@ -409,18 +399,11 @@ public class MeleeAttackComponent extends Component {
     Entity target = this.pendingTarget;
     this.pendingTarget = null;
     this.windupTimeRemaining = 0;
-
-    if (bribed || target == null) {
-      return;
-    }
-
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
-
     if (targetStats == null || targetStats.getHealth() <= 0) {
       entity.getEvents().trigger("meleeAttackWhiff", target);
       return;
     }
-
     float distance =
         (float)
             distance(
@@ -435,12 +418,6 @@ public class MeleeAttackComponent extends Component {
     }
     // retrieve damage stats from weapon
     int finalDamage = this.getDamage();
-
-    ChargeComponent chargeComponent = entity.getComponent(ChargeComponent.class);
-
-    if (chargeComponent != null) {
-      finalDamage = (int) (finalDamage * chargeComponent.getDamageMultiplier());
-    }
 
     if (weapon != null && damageMultiplier != 1f) {
       finalDamage = Math.max(1, Math.round(finalDamage * damageMultiplier));
@@ -457,14 +434,10 @@ public class MeleeAttackComponent extends Component {
     this.timeSinceLastAttack = 0;
     // check whether knockback = 0 --> knockback is disabled
     PhysicsComponent targetPhysics = target.getComponent(PhysicsComponent.class);
-
     if (targetPhysics != null && this.getKnockback() > 0) {
       Body targetBody = targetPhysics.getBody();
-
       Vector2 direction = target.getCenterPosition().sub(entity.getCenterPosition());
-
       Vector2 impulse = direction.setLength(this.getKnockback());
-
       targetBody.applyLinearImpulse(impulse, targetBody.getWorldCenter(), true);
     }
   }

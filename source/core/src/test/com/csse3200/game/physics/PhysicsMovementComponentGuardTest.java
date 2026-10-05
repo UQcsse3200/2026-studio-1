@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.MovementGuard;
