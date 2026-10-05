@@ -40,8 +40,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean walkingDown = false;
   private String direction = "Right";
   private boolean wasPaused = false;
-  private String SLIDESTRING = "slide";
-  private String WALKSTOPSTRING = "walkStop";
+  private String SLIDE_STRING = "slide";
+  private String WALK_STOP = "walkStop";
+  private String MOVE_LEFT = "moveLeft";
+  private String MOVE_RIGHT = "moveRight";
+  private String MOVE_DOWN = "moveDown";
+  private String CROUCH_STRING = "crouch";
+  private String CTRL_CHANGED = "ctrlChanged";
 
   public String getDirection() {
     return this.direction;
@@ -80,17 +85,17 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   private void releaseWalkDirectionsNoLongerHeld() {
     boolean released = false;
-    if (walkingLeft && !isKeyHeld("moveLeft")) {
+    if (walkingLeft && !isKeyHeld(MOVE_LEFT)) {
       walkDirection.sub(Vector2Utils.LEFT);
       walkingLeft = false;
       released = true;
     }
-    if (walkingRight && !isKeyHeld("moveRight")) {
+    if (walkingRight && !isKeyHeld(MOVE_RIGHT)) {
       walkDirection.sub(Vector2Utils.RIGHT);
       walkingRight = false;
       released = true;
     }
-    if (walkingDown && !isKeyHeld("moveDown")) {
+    if (walkingDown && !isKeyHeld(MOVE_DOWN)) {
       walkDirection.sub(Vector2Utils.DOWN);
       walkingDown = false;
       released = true;
@@ -108,8 +113,8 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    * lost.
    */
   private void releaseCrouchIfNoLongerHeld() {
-    if (crouch && !isKeyHeld("crouch")) {
-      entity.getEvents().trigger("ctrlChanged", false);
+    if (crouch && !isKeyHeld(CROUCH_STRING)) {
+      entity.getEvents().trigger(CTRL_CHANGED, false);
       entity.getEvents().trigger("idle", direction);
       crouch = false;
     }
@@ -157,7 +162,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         walkingLeft = false;
         walkingRight = false;
         walkingDown = false;
-        entity.getEvents().trigger(WALKSTOPSTRING);
+        entity.getEvents().trigger(WALK_STOP);
         return true;
       }
       return false;
@@ -174,7 +179,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     walkingLeft = false;
     walkingRight = false;
     walkingDown = false;
-    entity.getEvents().trigger(WALKSTOPSTRING);
+    entity.getEvents().trigger(WALK_STOP);
   }
 
   /** Handles the jump key, starting a ladder climb instead when one is available. */
@@ -200,12 +205,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       dashing(); // makes player dash
       return true;
     }
-    if (keycode == KeybindSettings.getKey("moveLeft")) {
+    if (keycode == KeybindSettings.getKey(MOVE_LEFT)) {
       stopClimbing();
       walking('a'); // makes player walk left
       return true;
     }
-    if (keycode == KeybindSettings.getKey("moveDown")) {
+    if (keycode == KeybindSettings.getKey(MOVE_DOWN)) {
       LadderComponent ladderDown = entity.getComponent(LadderComponent.class);
       if (ladderDown != null && ladderDown.beginClimb(-1f)) {
         return true;
@@ -218,7 +223,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       }
       return true;
     }
-    if (keycode == KeybindSettings.getKey("moveRight")) {
+    if (keycode == KeybindSettings.getKey(MOVE_RIGHT)) {
       stopClimbing();
       walking('d'); // makes player walk right
       return true;
@@ -265,14 +270,14 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       entity.getEvents().trigger("toggleTutorial");
       return true;
     }
-    if (keycode == KeybindSettings.getKey("crouch")) {
-      entity.getEvents().trigger("ctrlChanged", true);
+    if (keycode == KeybindSettings.getKey(CROUCH_STRING)) {
+      entity.getEvents().trigger(CTRL_CHANGED, true);
       entity.getEvents().trigger("crouchidle", direction);
       crouch = true;
       return true;
     }
-    if (keycode == KeybindSettings.getKey(SLIDESTRING)) {
-      entity.getEvents().trigger(SLIDESTRING, true);
+    if (keycode == KeybindSettings.getKey(SLIDE_STRING)) {
+      entity.getEvents().trigger(SLIDE_STRING, true);
       return true;
     }
     return false;
@@ -384,14 +389,16 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return false;
     }
     LadderComponent ladder = entity.getComponent(LadderComponent.class);
-    if (ladder != null && ladder.isAutoClimbing() && keycode != KeybindSettings.getKey("crouch")) {
+    if (ladder != null
+        && ladder.isAutoClimbing()
+        && keycode != KeybindSettings.getKey(CROUCH_STRING)) {
       return true;
     }
     if (keycode == KeybindSettings.getKey("jump")) {
       stopClimbing();
       return true;
     }
-    if (keycode == KeybindSettings.getKey("moveLeft")) {
+    if (keycode == KeybindSettings.getKey(MOVE_LEFT)) {
       if (walkingLeft) {
         walkDirection.sub(Vector2Utils.LEFT);
         walkingLeft = false;
@@ -402,7 +409,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       triggerWalkEvent();
       return true;
     }
-    if (keycode == KeybindSettings.getKey("moveDown")) {
+    if (keycode == KeybindSettings.getKey(MOVE_DOWN)) {
       stopClimbing();
       if (walkingDown) {
         walkDirection.sub(Vector2Utils.DOWN);
@@ -411,7 +418,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       triggerWalkEvent();
       return true;
     }
-    if (keycode == KeybindSettings.getKey("moveRight")) {
+    if (keycode == KeybindSettings.getKey(MOVE_RIGHT)) {
       if (walkingRight) {
         walkDirection.sub(Vector2Utils.RIGHT);
         walkingRight = false;
@@ -422,13 +429,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       triggerWalkEvent();
       return true;
     }
-    if (keycode == KeybindSettings.getKey("crouch")) {
-      entity.getEvents().trigger("ctrlChanged", false);
+    if (keycode == KeybindSettings.getKey(CROUCH_STRING)) {
+      entity.getEvents().trigger(CTRL_CHANGED, false);
       entity.getEvents().trigger("idle", direction);
       crouch = false;
       return true;
     }
-    if (keycode == KeybindSettings.getKey(SLIDESTRING)) {
+    if (keycode == KeybindSettings.getKey(SLIDE_STRING)) {
       return true;
     }
     return false;
@@ -476,7 +483,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
 
   private void triggerWalkEvent() {
     if (walkDirection.epsilonEquals(Vector2.Zero)) {
-      entity.getEvents().trigger(WALKSTOPSTRING);
+      entity.getEvents().trigger(WALK_STOP);
     } else {
       entity.getEvents().trigger("walk", walkDirection);
     }

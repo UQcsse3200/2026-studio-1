@@ -217,15 +217,10 @@ public class SettingsMenuDisplay extends UIComponent {
           new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-              if (capturingAction != null) {
-                return true;
+              if (capturingAction == null) {
+                beginKeyCapture(action, label);
               }
-              capturingAction = action;
-              label.setText(KEYBIND_LABELS[indexOfAction(action)] + ": Press any key...");
-              SettingsInputComponent input = entity.getComponent(SettingsInputComponent.class);
-              if (input != null) {
-                input.startKeyCapture(action);
-              }
+              // Consume the press either way, so a click while already capturing does nothing.
               return true;
             }
           });
@@ -251,6 +246,15 @@ public class SettingsMenuDisplay extends UIComponent {
     }
     for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
       refreshKeybindLabel(keybindLabels[i], KEYBIND_ACTIONS[i]);
+    }
+  }
+
+  private void beginKeyCapture(String action, Label label) {
+    capturingAction = action;
+    label.setText(KEYBIND_LABELS[indexOfAction(action)] + ": Press any key...");
+    SettingsInputComponent input = entity.getComponent(SettingsInputComponent.class);
+    if (input != null) {
+      input.startKeyCapture(action);
     }
   }
 
