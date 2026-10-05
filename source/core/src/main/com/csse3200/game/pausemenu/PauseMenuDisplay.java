@@ -13,9 +13,11 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
@@ -36,6 +38,19 @@ public class PauseMenuDisplay extends UIComponent {
   private static final Color UNSELECTED_TEXT = Color.WHITE;
   private static final float INACTIVE_PANEL_ALPHA = 0.55f;
   private static final float PANEL_GAP = 25f;
+
+  /** Share of the screen height the Keybinds list may take up before it starts to scroll. */
+  private static final float KEYBINDS_VIEWPORT_FRACTION = 0.7f;
+
+  private static final Color SCROLL_TRACK_COLOR = new Color(1f, 1f, 1f, 0.15f);
+  private static final Color SCROLL_KNOB_COLOR = new Color(1f, 1f, 1f, 0.6f);
+  private static final float SCROLLBAR_WIDTH = 8f;
+  private static final float SCROLL_KNOB_MIN_HEIGHT = 24f;
+
+  /** Gap between the Keybinds box edge and its rows, and inside each row around its text. */
+  private static final float KEYBINDS_SIDE_PAD = 10f;
+
+  private static final float KEYBINDS_LABEL_PAD = 8f;
   private static final float VOLUME_STEP = 0.05f;
 
   private static final long HOLD_INITIAL_DELAY_MS = 400;
@@ -133,6 +148,7 @@ public class PauseMenuDisplay extends UIComponent {
   private Table detailSlot;
   private Table audioPanel;
   private Table keybindsPanel;
+  private ScrollPane keybindsScroll;
   private Table restartOverlay;
   private Image pauseOverlay;
 
@@ -196,6 +212,7 @@ public class PauseMenuDisplay extends UIComponent {
     audioPanel = buildAudioPanel();
 
     keybindsPanel = buildKeybindsPanel();
+    keybindsScroll = buildKeybindsScroll(keybindsPanel);
 
     restartConfirmLabel = createLabel("ABANDON THIS JOURNEY?");
     restartConfirmMessageLabel =
@@ -403,30 +420,58 @@ public class PauseMenuDisplay extends UIComponent {
   private Table buildKeybindsPanel() {
     Table panel = new Table();
     panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
-    panel.pad(20f, 30f, 20f, 30f);
-    panel.left();
+    panel.pad(20f, KEYBINDS_SIDE_PAD, 20f, KEYBINDS_SIDE_PAD);
 
     keybindsLabels = new Label[KEYBINDS_ITEM_COUNT];
     for (int i = 0; i < KEYBIND_ACTIONS.length; i++) {
       Label label = createLabel("");
       keybindsLabels[i] = label;
       Table row = new Table();
-      row.add(label).pad(6f, 15f, 6f, 15f).left();
+      row.add(label).pad(6f, KEYBINDS_LABEL_PAD, 6f, KEYBINDS_LABEL_PAD);
       addRowInteraction(row, MenuState.KEYBINDS, i, true);
-      panel.add(row).left().padBottom(4f).fillX();
+      // growX: every row fills the box width, so it can never be wider than the viewport the
+      // scroll pane lays it out in (fixed row widths overflowed it and were clipped on the right).
+      panel.add(row).growX().padBottom(4f);
       panel.row();
     }
 
     Label backLabel = createLabel("Back");
     keybindsLabels[KEYBINDS_BACK_INDEX] = backLabel;
     Table backRow = new Table();
-    backRow.add(backLabel).pad(6f, 15f, 6f, 15f).left();
+    backRow.add(backLabel).pad(6f, KEYBINDS_LABEL_PAD, 6f, KEYBINDS_LABEL_PAD);
     addRowInteraction(backRow, MenuState.KEYBINDS, KEYBINDS_BACK_INDEX, true);
-    panel.add(backRow).left().padBottom(4f).fillX();
+    panel.add(backRow).growX().padBottom(4f);
 
     refreshKeybindLabels();
-    applyUniformRowWidths(panel);
     return panel;
+  }
+
+  /**
+   * Wraps the Keybinds panel in a vertical scroll pane. Every row is drawn as a full button tile,
+   * so the 20+ rows are far taller than the screen - without this the top and bottom rows (and the
+   * Back button) fall off-screen. The scrollbar overlays the list instead of narrowing it, and
+   * keyboard navigation keeps the selected row in view (see scrollSelectionIntoView).
+   */
+  private ScrollPane buildKeybindsScroll(Table panel) {
+    ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
+    style.vScroll = scrollbarDrawable(SCROLL_TRACK_COLOR, 0f);
+    style.vScrollKnob = scrollbarDrawable(SCROLL_KNOB_COLOR, SCROLL_KNOB_MIN_HEIGHT);
+
+    ScrollPane scroll = new ScrollPane(panel, style);
+    scroll.setScrollingDisabled(true, false);
+    scroll.setFadeScrollBars(false);
+    scroll.setScrollbarsOnTop(true);
+    scroll.setOverscroll(false, false);
+    return scroll;
+  }
+
+  private Drawable scrollbarDrawable(Color color, float minHeight) {
+    Drawable drawable = skin.newDrawable("white", color);
+    if (drawable != null) {
+      drawable.setMinWidth(SCROLLBAR_WIDTH);
+      drawable.setMinHeight(minHeight);
+    }
+    return drawable;
   }
 
   /**
@@ -553,11 +598,27 @@ public class PauseMenuDisplay extends UIComponent {
   void navigateUp() {
     int count = currentItemCount();
     setCurrentIndex((currentIndex() - 1 + count) % count);
+    scrollSelectionIntoView();
   }
 
   void navigateDown() {
     int count = currentItemCount();
     setCurrentIndex((currentIndex() + 1) % count);
+    scrollSelectionIntoView();
+  }
+
+  /**
+   * Keeps the keyboard-selected Keybinds row inside the scroll pane's viewport. Deliberately only
+   * called from keyboard navigation, not mouse hover: hovering a half-visible edge row would
+   * otherwise scroll it into view, move the content under the cursor, select the next row, and keep
+   * scrolling.
+   */
+  private void scrollSelectionIntoView() {
+    if (state != MenuState.KEYBINDS || keybindsScroll == null) {
+      return;
+    }
+    Actor row = keybindsLabels[keybindsIndex].getParent();
+    keybindsScroll.scrollTo(row.getX(), row.getY(), row.getWidth(), row.getHeight());
   }
 
   private void onLeftPressed() {
@@ -761,7 +822,11 @@ public class PauseMenuDisplay extends UIComponent {
     if (state == MenuState.AUDIO) {
       detailSlot.add(audioPanel);
     } else if (state == MenuState.KEYBINDS) {
-      detailSlot.add(keybindsPanel);
+      // Cap the visible height; the list scrolls inside it (see buildKeybindsScroll).
+      detailSlot.add(keybindsScroll).height(stage.getHeight() * KEYBINDS_VIEWPORT_FRACTION);
+      keybindsScroll.setScrollY(0f);
+      keybindsScroll.updateVisualScroll();
+      stage.setScrollFocus(keybindsScroll);
     }
     detailSlot.invalidateHierarchy();
 
