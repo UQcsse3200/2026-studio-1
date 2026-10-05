@@ -85,7 +85,7 @@
       "type": "DECORATIVE",
       "texture": "images/level3/tiles/brazier.png",
       "light": "point",
-      "lightColour": "elysian_fade",
+      "lightColour": "oil_lamp",
       "lightRadius": "1.5",
       "flicker": "0.15"
     },
@@ -145,6 +145,10 @@
     "L": {
       "type": "LOOT"
     }
+  },
+  "lighting": {
+    "ambient": { "color": "elysian_fade", "intensity": 0.15 },
+    "player": { "radius": 3.5, "color": "resinous_torch" }
   },
   "layers": {
     "background": [
