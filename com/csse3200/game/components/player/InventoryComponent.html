@@ -286,10 +286,16 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets the player's gold.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
- int&nbsp;splitQty)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setItem(int,com.csse3200.game.components.loot.Item)" class="member-name-link">setItem</a><wbr>(int&nbsp;slot,
+ <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Places an item directly into a specific slot, replacing anything already there.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
+ int&nbsp;splitQty)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Splits part of an occupied stack into the lowest empty slot.</div>
 </div>
 </div>
@@ -579,6 +585,24 @@ loadScripts(document, 'script');</script>
 <dd><code>slot</code> - slot containing the item</dd>
 <dt>Returns:</dt>
 <dd>removed item, or <code>null</code> if the slot is invalid or empty</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setItem(int,com.csse3200.game.components.loot.Item)">
+<h3>setItem</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">setItem</span><wbr><span class="parameters">(int&nbsp;slot,
+ <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</span></div>
+<div class="block">Places an item directly into a specific slot, replacing anything already there.
+
+ <p>Unlike <a href="#addItem(com.csse3200.game.components.loot.Item)"><code>addItem(Item)</code></a>, this does not stack or search for an empty slot. Intended for
+ restoring a saved inventory exactly as it was.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - slot index in the range 1 to <code>maxSlots</code></dd>
+<dd><code>item</code> - item to store</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> if the item was placed</dd>
 </dl>
 </section>
 </li>

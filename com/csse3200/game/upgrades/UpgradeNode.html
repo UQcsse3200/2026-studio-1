@@ -169,6 +169,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Human-readable description of what the NEXT tier purchase would grant, e.g.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRemainingKills()" class="member-name-link">getRemainingKills</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRemainingSeconds()" class="member-name-link">getRemainingSeconds</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRemainingText()" class="member-name-link">getRemainingText</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -206,30 +212,38 @@ loadScripts(document, 'script');</script>
  onExpired</code> - unlike natural expiry via <a href="#tickTime(float)"><code>tickTime(float)</code></a>/<a href="#onEnemyKilled()"><code>onEnemyKilled()</code></a>, this
  is for discarding the upgrade outright (e.g.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnExpired(java.lang.Runnable)" class="member-name-link">setOnExpired</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onExpired)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#restore(int,float,int)" class="member-name-link">restore</a><wbr>(int&nbsp;tier,
+ float&nbsp;seconds,
+ int&nbsp;kills)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Registers a callback fired once the upgrade fully expires and resets to Tier 0 (via <a href="#tickTime(float)"><code>tickTime(float)</code></a> or <a href="#onEnemyKilled()"><code>onEnemyKilled()</code></a> running out).</div>
+<div class="block">Restores this upgrade to a previously saved state and re-applies its effect by firing the
+ tier-changed callback.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnTierChanged(java.lang.Runnable)" class="member-name-link">setOnTierChanged</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onTierChanged)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnExpired(java.lang.Runnable)" class="member-name-link">setOnExpired</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onExpired)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Registers a callback fired once the upgrade fully expires and resets to Tier 0 (via <a href="#tickTime(float)"><code>tickTime(float)</code></a> or <a href="#onEnemyKilled()"><code>onEnemyKilled()</code></a> running out).</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setOnTierChanged(java.lang.Runnable)" class="member-name-link">setOnTierChanged</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onTierChanged)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Registers a callback fired every time <a href="#purchaseNextTier()"><code>purchaseNextTier()</code></a> successfully changes tier
  (covers both first activation and later tier advances - inspect <a href="#getCurrentTier()"><code>getCurrentTier()</code></a>
  inside the callback to tell them apart).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#tickTime(float)" class="member-name-link">tickTime</a><wbr>(float&nbsp;deltaSeconds)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#tickTime(float)" class="member-name-link">tickTime</a><wbr>(float&nbsp;deltaSeconds)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Call every frame with the time elapsed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#timeBased(java.lang.String,java.lang.String,java.lang.String,int%5B%5D,float%5B%5D)" class="member-name-link">timeBased</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#timeBased(java.lang.String,java.lang.String,java.lang.String,int%5B%5D,float%5B%5D)" class="member-name-link">timeBased</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;description,
  int[]&nbsp;tierCosts,
  float[]&nbsp;tierIncrementsSeconds)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">tierCosts and tierIncrementsSeconds must be the same length.</div>
 </div>
 </div>
@@ -319,6 +333,36 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getExpiryType()">
 <h3>getExpiryType</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="UpgradeNode.ExpiryType.html" title="enum class in com.csse3200.game.upgrades">UpgradeNode.ExpiryType</a></span>&nbsp;<span class="element-name">getExpiryType</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRemainingSeconds()">
+<h3>getRemainingSeconds</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getRemainingSeconds</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRemainingKills()">
+<h3>getRemainingKills</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getRemainingKills</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="restore(int,float,int)">
+<h3>restore</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">restore</span><wbr><span class="parameters">(int&nbsp;tier,
+ float&nbsp;seconds,
+ int&nbsp;kills)</span></div>
+<div class="block">Restores this upgrade to a previously saved state and re-applies its effect by firing the
+ tier-changed callback. Does nothing if the saved state is not a valid active upgrade.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>tier</code> - saved tier, from 1 to <a href="#getMaxTier()"><code>getMaxTier()</code></a></dd>
+<dd><code>seconds</code> - saved time remaining, used by TIME upgrades</dd>
+<dd><code>kills</code> - saved kills remaining, used by KILL_COUNT upgrades</dd>
+<dt>Returns:</dt>
+<dd>true if the upgrade was restored</dd>
+</dl>
 </section>
 </li>
 <li>

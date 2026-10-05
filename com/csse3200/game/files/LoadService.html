@@ -108,10 +108,20 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#load(com.csse3200.game.entities.Entity,float,float)" class="member-name-link">load</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#apply(com.csse3200.game.entities.Entity,com.csse3200.game.files.GameSaveData,float,float,java.util.List)" class="member-name-link">apply</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+ <a href="GameSaveData.html" title="class in com.csse3200.game.files">GameSaveData</a>&nbsp;data,
  float&nbsp;mapWidth,
- float&nbsp;mapHeight)</code></div>
+ float&nbsp;mapHeight,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../upgrades/UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a>&gt;&nbsp;upgrades)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Applies already-loaded save data to the given player.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#load(com.csse3200.game.entities.Entity,float,float,java.util.List)" class="member-name-link">load</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+ float&nbsp;mapWidth,
+ float&nbsp;mapHeight,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../upgrades/UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a>&gt;&nbsp;upgrades)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Loads saved player data and applies it to the given player.</div>
 </div>
 </div>
@@ -132,15 +142,38 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="load(com.csse3200.game.entities.Entity,float,float)">
+<section class="detail" id="load(com.csse3200.game.entities.Entity,float,float,java.util.List)">
 <h3>load</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">load</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
  float&nbsp;mapWidth,
- float&nbsp;mapHeight)</span></div>
+ float&nbsp;mapHeight,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../upgrades/UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a>&gt;&nbsp;upgrades)</span></div>
 <div class="block">Loads saved player data and applies it to the given player.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>player</code> - player entity to restore</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="apply(com.csse3200.game.entities.Entity,com.csse3200.game.files.GameSaveData,float,float,java.util.List)">
+<h3>apply</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">apply</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player,
+ <a href="GameSaveData.html" title="class in com.csse3200.game.files">GameSaveData</a>&nbsp;data,
+ float&nbsp;mapWidth,
+ float&nbsp;mapHeight,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../upgrades/UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a>&gt;&nbsp;upgrades)</span></div>
+<div class="block">Applies already-loaded save data to the given player.
+
+ <p>Kept separate from <a href="#load(com.csse3200.game.entities.Entity,float,float,java.util.List)"><code>load(Entity, float, float, List)</code></a> so the restore logic can be
+ unit tested without reading a save file from disk.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>player</code> - player entity to restore</dd>
+<dd><code>data</code> - save data to apply</dd>
+<dd><code>mapWidth</code> - width of the current map, used to validate saved positions</dd>
+<dd><code>mapHeight</code> - height of the current map, used to validate saved positions</dd>
+<dd><code>upgrades</code> - the game's upgrade nodes, so saved upgrades can be restored onto them</dd>
 </dl>
 </section>
 </li>
