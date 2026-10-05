@@ -149,10 +149,14 @@ class PetProjectileComponentTest {
     verify(renderer).unregister(projectile.getComponent(PetProjectileRenderComponent.class));
   }
 
-  @Test
-  void shouldCreateAssistAfterPlayerArrowCollisionHasFinishedWithoutChainingMoreAssists() {
-    Entity enemy = createEnemy(4f, 0f, 100, null);
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldKeepFiringAfterOnePlayerArrowHitUntilEnemyDies(PetType type) {
+    activatePet(type);
+    Entity enemy = createEnemy(4f, 0f, 25, mock(ItemDropComponent.class));
     List<Entity> playerHits = new ArrayList<>();
+    List<Entity> petAttacks = new ArrayList<>();
+    pet.getEvents().addListener("petAttack", (Entity target) -> petAttacks.add(target));
     owner
         .getEvents()
         .addListener(
@@ -168,7 +172,7 @@ class PetProjectileComponentTest {
       physics.update();
     }
     assertEquals(List.of(enemy), playerHits);
-    assertEquals(90, health(enemy));
+    assertEquals(15, health(enemy));
     assertNull(findPetProjectile());
 
     entities.update();
@@ -176,14 +180,50 @@ class PetProjectileComponentTest {
     assertNotNull(assist);
     runScheduled();
     flyUntilDisposed(assist);
-    assertEquals(85, health(enemy));
+    assertEquals(10, health(enemy));
+
+    for (int i = 0; i < 300 && !enemy.isDisposed(); i++) {
+      step();
+    }
+    assertTrue(enemy.isDisposed());
+    assertEquals(0, health(enemy));
+    assertEquals(List.of(enemy, enemy, enemy), petAttacks);
 
     for (int i = 0; i < 100; i++) {
       step();
     }
     assertEquals(List.of(enemy), playerHits);
+    assertEquals(List.of(enemy, enemy, enemy), petAttacks);
     assertNull(findPetProjectile());
-    assertEquals(1, physics.getWorld().getBodyCount());
+    assertEquals(0, physics.getWorld().getBodyCount());
+  }
+
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldRedirectRepeatedShotsWhenPlayerHitsAnotherEnemy(PetType type) {
+    activatePet(type);
+    Entity first = createEnemy(4f, 0f, 100, null);
+    Entity second = createEnemy(7f, 3f, 100, null);
+    List<Entity> petAttacks = new ArrayList<>();
+    pet.getEvents().addListener("petAttack", (Entity target) -> petAttacks.add(target));
+    owner.getEvents().trigger("playerAttackHit", first);
+    entities.update();
+    Entity firstShot = findPetProjectile();
+    assertNotNull(firstShot);
+    flyUntilDisposed(firstShot);
+    assertEquals(95, health(first));
+
+    owner.getEvents().trigger("playerAttackHit", second);
+    for (int i = 0; i < 200; i++) {
+      step();
+    }
+
+    assertEquals(95, health(first));
+    assertTrue(health(second) < 100);
+    assertEquals(first, petAttacks.getFirst());
+    assertTrue(petAttacks.size() >= 3);
+    assertTrue(
+        petAttacks.subList(1, petAttacks.size()).stream().allMatch(target -> target == second));
   }
 
   @Test

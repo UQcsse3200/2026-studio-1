@@ -7,12 +7,13 @@ import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 
 /**
- * Converts confirmed player hits into individual pet attack requests.
+ * Repeatedly attacks the enemy selected by confirmed player hits.
  *
  * <p>Hits are queued until {@link #update()} so listeners can safely create projectile physics
- * bodies outside collision callbacks. A ready pet emits {@code petAttack(Entity target)} on its own
- * entity once, then waits for another player hit. Projectile creation and damage are handled
- * separately.
+ * bodies outside collision callbacks. The pet retains the selected enemy and emits {@code
+ * petAttack(Entity target)} on its own entity every cooldown until that enemy dies or is removed. A
+ * new player hit selects a new target without resetting the cooldown. Projectile creation and
+ * damage are handled separately.
  */
 public class PetCombatComponent extends Component {
   private static final float ATTACK_COOLDOWN = 0.8f;
@@ -20,6 +21,7 @@ public class PetCombatComponent extends Component {
   private final GameTime timeSource;
   private Entity owner;
   private Entity pendingTarget;
+  private Entity currentTarget;
   private float cooldownRemaining;
 
   /** Creates pet combat using the game's time source. */
@@ -44,11 +46,11 @@ public class PetCombatComponent extends Component {
   }
 
   /**
-   * Queues an assist against an enemy just hit by the owner, without modifying the physics world.
+   * Queues a target selection from an enemy just hit by the owner, without modifying physics.
    *
-   * <p>If several enemies are hit before the next update, prefer the one nearest to the owner;
-   * equal distances are resolved by entity ID. Only confirmed hit targets are considered. This
-   * keeps area attacks independent of the order in which their hit events arrive.
+   * <p>If several enemies are hit before the next update, prefer the nearest living one; equal
+   * distances are resolved by entity ID. A lethal hit with no surviving candidate clears the old
+   * target. Only confirmed hit targets are considered, so other nearby enemies cannot steal focus.
    *
    * @param target enemy reported by the owner's {@code playerAttackHit} event
    */
@@ -56,48 +58,62 @@ public class PetCombatComponent extends Component {
     if (!enabled
         || entity.isDisposed()
         || !isAlive(owner)
+        || target == null
         || target == owner
         || target == entity
-        || !isAlive(target)) {
+        || target.getComponent(CombatStatsComponent.class) == null) {
       return;
     }
 
-    if (!isAlive(pendingTarget) || preferTarget(target)) {
+    if (pendingTarget == null
+        || (isAlive(target) && (!isAlive(pendingTarget) || preferTarget(target)))) {
       pendingTarget = target;
     }
   }
 
   @Override
   public void update() {
+    if (!enabled || entity.isDisposed() || !isAlive(owner)) {
+      clearTarget();
+      return;
+    }
+
     float deltaTime = Math.max(0f, timeSource.getDeltaTime());
     cooldownRemaining = Math.max(0f, cooldownRemaining - deltaTime);
 
-    // Consume the request even during cooldown, so it cannot cause a delayed automatic attack.
-    Entity target = pendingTarget;
-    pendingTarget = null;
-    if (!enabled
-        || entity.isDisposed()
-        || cooldownRemaining > 0f
-        || !isAlive(owner)
-        || !isAlive(target)) {
+    // Accept target changes during cooldown; subsequent shots use the latest selection.
+    if (pendingTarget != null) {
+      currentTarget = pendingTarget;
+      pendingTarget = null;
+    }
+    if (!isAlive(currentTarget)) {
+      currentTarget = null;
+      return;
+    }
+    if (deltaTime <= 0f || cooldownRemaining > 0f) {
       return;
     }
 
     cooldownRemaining = ATTACK_COOLDOWN;
-    entity.getEvents().trigger("petAttack", target);
+    entity.getEvents().trigger("petAttack", currentTarget);
   }
 
   @Override
   public void setEnabled(boolean enabled) {
     super.setEnabled(enabled);
     if (!enabled) {
-      pendingTarget = null;
+      clearTarget();
     }
   }
 
   @Override
   public void dispose() {
     setEnabled(false);
+  }
+
+  private void clearTarget() {
+    pendingTarget = null;
+    currentTarget = null;
   }
 
   private boolean preferTarget(Entity candidate) {

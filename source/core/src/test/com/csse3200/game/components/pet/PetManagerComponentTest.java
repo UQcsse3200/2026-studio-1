@@ -134,7 +134,7 @@ class PetManagerComponentTest {
   }
 
   @Test
-  void shouldCancelOldPetRequestAndForwardOnlyNewHitsToReplacement() {
+  void shouldStopOldPetAttacksAndRequireANewHitForReplacement() {
     PetManagerComponent manager = createCombatManager();
     Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
     manager.activatePet(new ShopComponent.Pet("Bird"));
@@ -142,6 +142,8 @@ class PetManagerComponentTest {
     List<Entity> oldPetAttacks = new ArrayList<>();
     first.getEvents().addListener("petAttack", (Entity enemy) -> oldPetAttacks.add(enemy));
     owner.getEvents().trigger("playerAttackHit", target);
+    first.update();
+    assertEquals(List.of(target), oldPetAttacks);
 
     manager.activatePet(new ShopComponent.Pet("Bat"));
     Entity second = manager.getActivePet();
@@ -151,11 +153,13 @@ class PetManagerComponentTest {
     assertTrue(newPetAttacks.isEmpty());
 
     owner.getEvents().trigger("playerAttackHit", target);
-    first.update();
+    for (int i = 0; i < 10; i++) {
+      first.update();
+    }
     second.update();
 
     assertTrue(first.isDisposed());
-    assertTrue(oldPetAttacks.isEmpty());
+    assertEquals(List.of(target), oldPetAttacks);
     assertEquals(List.of(target), newPetAttacks);
   }
 

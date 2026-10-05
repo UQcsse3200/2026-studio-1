@@ -42,7 +42,7 @@ class PetCombatComponentTest {
   }
 
   @Test
-  void shouldDeferAttackUntilUpdateAndNeverRepeatWithoutAnotherHit() {
+  void shouldDeferFirstAttackThenRepeatWithoutAnotherPlayerHit() {
     Entity target = createCombatEntity(2f, 0f);
 
     pet.update();
@@ -55,11 +55,11 @@ class PetCombatComponentTest {
     when(timeSource.getDeltaTime()).thenReturn(1f);
     pet.update();
     pet.update();
-    assertEquals(List.of(target), attacks);
+    assertEquals(List.of(target, target, target), attacks);
   }
 
   @Test
-  void shouldDiscardHitsDuringCooldownAndRequireANewHitAfterwards() {
+  void shouldSwitchTargetDuringCooldownAndKeepAttackingNewTarget() {
     Entity first = createCombatEntity(2f, 0f);
     Entity second = createCombatEntity(3f, 0f);
     combat.requestAttack(first);
@@ -67,13 +67,12 @@ class PetCombatComponentTest {
 
     combat.requestAttack(second);
     pet.update();
+    assertEquals(List.of(first), attacks);
     when(timeSource.getDeltaTime()).thenReturn(1f);
     pet.update();
-    assertEquals(List.of(first), attacks);
-
-    combat.requestAttack(second);
-    pet.update();
     assertEquals(List.of(first, second), attacks);
+    pet.update();
+    assertEquals(List.of(first, second, second), attacks);
   }
 
   @Test
@@ -84,7 +83,6 @@ class PetCombatComponentTest {
     pet.update();
 
     when(timeSource.getDeltaTime()).thenReturn(1f);
-    pet.update();
     combat.requestAttack(second);
     pet.update();
 
@@ -103,7 +101,6 @@ class PetCombatComponentTest {
     pet.update();
 
     when(timeSource.getDeltaTime()).thenReturn(1f);
-    pet.update();
     combat.requestAttack(near);
     combat.requestAttack(far);
     pet.update();
@@ -225,6 +222,114 @@ class PetCombatComponentTest {
     pet.update();
     pet.update();
 
+    assertEquals(List.of(target), attacks);
+  }
+
+  @Test
+  void shouldStayIdleUntilPlayerSelectsAnEnemy() {
+    createCombatEntity(1f, 0f);
+    when(timeSource.getDeltaTime()).thenReturn(1f);
+
+    pet.update();
+    pet.update();
+
+    assertTrue(attacks.isEmpty());
+  }
+
+  @Test
+  void shouldRespectCooldownEvenWhenPlayerKeepsHittingTheSameEnemy() {
+    Entity target = createCombatEntity(2f, 0f);
+    combat.requestAttack(target);
+    pet.update();
+    when(timeSource.getDeltaTime()).thenReturn(0.4f);
+
+    combat.requestAttack(target);
+    pet.update();
+    assertEquals(List.of(target), attacks);
+    pet.update();
+    assertEquals(List.of(target, target), attacks);
+  }
+
+  @Test
+  void shouldForgetDeadTargetWithoutAcquiringAnotherEnemy() {
+    Entity target = createCombatEntity(2f, 0f);
+    createCombatEntity(1f, 0f);
+    combat.requestAttack(target);
+    pet.update();
+
+    target.getComponent(CombatStatsComponent.class).setHealth(0);
+    when(timeSource.getDeltaTime()).thenReturn(1f);
+    pet.update();
+    target.getComponent(CombatStatsComponent.class).setHealth(100);
+    pet.update();
+
+    assertEquals(List.of(target), attacks);
+  }
+
+  @Test
+  void shouldStopOldTargetWhenPlayerKillsADifferentEnemy() {
+    Entity first = createCombatEntity(2f, 0f);
+    Entity second = createCombatEntity(3f, 0f);
+    combat.requestAttack(first);
+    pet.update();
+
+    second.getComponent(CombatStatsComponent.class).setHealth(0);
+    combat.requestAttack(second);
+    when(timeSource.getDeltaTime()).thenReturn(1f);
+    pet.update();
+    pet.update();
+
+    assertEquals(List.of(first), attacks);
+  }
+
+  @Test
+  void shouldForgetNewTargetIfItDiesDuringCooldown() {
+    Entity first = createCombatEntity(2f, 0f);
+    Entity second = createCombatEntity(3f, 0f);
+    combat.requestAttack(first);
+    pet.update();
+    combat.requestAttack(second);
+    pet.update();
+    second.getComponent(CombatStatsComponent.class).setHealth(0);
+
+    when(timeSource.getDeltaTime()).thenReturn(1f);
+    pet.update();
+    pet.update();
+
+    assertEquals(List.of(first), attacks);
+  }
+
+  @Test
+  void shouldStopRepeatedAttacksAfterOwnerDeathOrComponentDisable() {
+    Entity target = createCombatEntity(2f, 0f);
+    combat.requestAttack(target);
+    pet.update();
+    owner.getComponent(CombatStatsComponent.class).setHealth(0);
+    pet.update();
+    owner.getComponent(CombatStatsComponent.class).setHealth(100);
+    when(timeSource.getDeltaTime()).thenReturn(1f);
+    pet.update();
+    assertEquals(List.of(target), attacks);
+
+    combat.requestAttack(target);
+    pet.update();
+    combat.setEnabled(false);
+    combat.setEnabled(true);
+    pet.update();
+
+    assertEquals(List.of(target, target), attacks);
+  }
+
+  @Test
+  void shouldWaitForGameTimeToResumeBeforeFirstShot() {
+    Entity target = createCombatEntity(2f, 0f);
+    combat.requestAttack(target);
+    when(timeSource.getDeltaTime()).thenReturn(0f);
+    pet.update();
+    assertTrue(attacks.isEmpty());
+
+    when(timeSource.getDeltaTime()).thenReturn(0.1f);
+    pet.update();
     assertEquals(List.of(target), attacks);
   }
 
