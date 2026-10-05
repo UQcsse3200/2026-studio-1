@@ -139,29 +139,6 @@
     "P": {
       "type": "PLAYER"
     },
-    "G": {
-      "type": "ENEMY",
-      "enemyType": "medusa"
-    },
-    "B": {
-      "type": "ENEMY",
-      "enemyType": "ranged-harpy"
-    },
-    "M": {
-      "type": "ENEMY",
-      "enemyType": "minotaur"
-    },
-    "C": {
-      "type": "ENEMY",
-      "enemyType": "centaur"
-    },
-    "Y": {
-      "type": "ENEMY",
-      "enemyType": "cyclops"
-    },
-    "D": {
-      "enemyType": "cerberus"
-    },
     "Z": {
       "type": "ENEMY",
       "enemyType": "zeus"
@@ -277,8 +254,8 @@
       "                                                    ",
       "                                                    ",
       "                                                    ",
-      "                                                    ",
-      "        P        G     G  Z  G     L       G  Y     ",
+      "                          Z                         ",
+      "        P                                           ",
       "                                                    ",
       "                                                    ",
       "                                                    "
