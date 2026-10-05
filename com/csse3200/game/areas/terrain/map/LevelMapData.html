@@ -128,14 +128,29 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#COLLISION_LAYER" class="member-name-link">COLLISION_LAYER</a></code></div>
+<div class="col-second even-row-color"><code><a href="#ANIMATION_PROPERTY" class="member-name-link">ANIMATION_PROPERTY</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Legend property naming a sprite sheet strip that animates over a tile's still texture.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#COLLISION_LAYER" class="member-name-link">COLLISION_LAYER</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Preferred name of the layer used to derive collision, if present.</div>
+</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#GLOW_PROPERTY" class="member-name-link">GLOW_PROPERTY</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Legend property naming the light sprite a tile glows with.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#TERRAIN_LAYER" class="member-name-link">TERRAIN_LAYER</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">Fallback layer used for collision when no explicit collision layer exists.</div>
+</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#WHOLE_MAP_BACKDROP" class="member-name-link">WHOLE_MAP_BACKDROP</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Backdrop key for a backdrop shown everywhere a sub-level has none of its own.</div>
 </div>
 </div>
 </section>
@@ -177,6 +192,15 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Starts building map data.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBackdrop(java.lang.String)" class="member-name-link">getBackdrop</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subLevelId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">The parallax backdrop drawn behind a sub-level's tiles: its own if it has one, otherwise the
+ map's <a href="#WHOLE_MAP_BACKDROP"><code>WHOLE_MAP_BACKDROP</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBackdrops()" class="member-name-link">getBackdrops</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBackgroundTexture()" class="member-name-link">getBackgroundTexture</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -203,6 +227,15 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName()" class="member-name-link">getName</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOverlay(java.lang.String)" class="member-name-link">getOverlay</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subLevelId)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">The layers drawn in front of a sub-level's tiles and characters, such as rain: its own if it
+ has any, otherwise the map's <a href="#WHOLE_MAP_BACKDROP"><code>WHOLE_MAP_BACKDROP</code></a>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOverlays()" class="member-name-link">getOverlays</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="MapSpawns.html" title="class in com.csse3200.game.areas.terrain.map">MapSpawns</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSpawns()" class="member-name-link">getSpawns</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -220,7 +253,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTexturePaths()" class="member-name-link">getTexturePaths</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">All distinct, non-null texture paths referenced by the legend.</div>
+<div class="block">All distinct, non-null texture paths this map draws with.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTileSize()" class="member-name-link">getTileSize</a>()</code></div>
@@ -267,6 +300,51 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="tag-list">
 <li><a href="../../../../../../constant-values.html#com.csse3200.game.areas.terrain.map.LevelMapData.COLLISION_LAYER">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="WHOLE_MAP_BACKDROP">
+<h3>WHOLE_MAP_BACKDROP</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">WHOLE_MAP_BACKDROP</span></div>
+<div class="block">Backdrop key for a backdrop shown everywhere a sub-level has none of its own.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.areas.terrain.map.LevelMapData.WHOLE_MAP_BACKDROP">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="GLOW_PROPERTY">
+<h3>GLOW_PROPERTY</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">GLOW_PROPERTY</span></div>
+<div class="block">Legend property naming the light sprite a tile glows with.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.areas.terrain.map.LevelMapData.GLOW_PROPERTY">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="ANIMATION_PROPERTY">
+<h3>ANIMATION_PROPERTY</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">ANIMATION_PROPERTY</span></div>
+<div class="block">Legend property naming a sprite sheet strip that animates over a tile's still texture.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.areas.terrain.map.LevelMapData.ANIMATION_PROPERTY">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -444,6 +522,56 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getBackdrop(java.lang.String)">
+<h3>getBackdrop</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;</span>&nbsp;<span class="element-name">getBackdrop</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subLevelId)</span></div>
+<div class="block">The parallax backdrop drawn behind a sub-level's tiles: its own if it has one, otherwise the
+ map's <a href="#WHOLE_MAP_BACKDROP"><code>WHOLE_MAP_BACKDROP</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>subLevelId</code> - a sub-level's id, or null for a part of the map outside every sub-level</dd>
+<dt>Returns:</dt>
+<dd>the backdrop layers, back to front (unmodifiable), empty if there are none</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getOverlay(java.lang.String)">
+<h3>getOverlay</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;</span>&nbsp;<span class="element-name">getOverlay</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;subLevelId)</span></div>
+<div class="block">The layers drawn in front of a sub-level's tiles and characters, such as rain: its own if it
+ has any, otherwise the map's <a href="#WHOLE_MAP_BACKDROP"><code>WHOLE_MAP_BACKDROP</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>subLevelId</code> - a sub-level's id, or null for a part of the map outside every sub-level</dd>
+<dt>Returns:</dt>
+<dd>the overlay layers, back to front (unmodifiable), empty if there are none</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getOverlays()">
+<h3>getOverlays</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;&gt;</span>&nbsp;<span class="element-name">getOverlays</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>every overlay in this map, keyed by sub-level id or <a href="#WHOLE_MAP_BACKDROP"><code>WHOLE_MAP_BACKDROP</code></a>
+     (unmodifiable)</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getBackdrops()">
+<h3>getBackdrops</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a>&gt;&gt;</span>&nbsp;<span class="element-name">getBackdrops</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>every backdrop in this map, keyed by sub-level id or <a href="#WHOLE_MAP_BACKDROP"><code>WHOLE_MAP_BACKDROP</code></a>
+     (unmodifiable)</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="getBackgroundTexture()">
 <h3>getBackgroundTexture</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getBackgroundTexture</span>()</div>
@@ -457,8 +585,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getTexturePaths()">
 <h3>getTexturePaths</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">getTexturePaths</span>()</div>
-<div class="block">All distinct, non-null texture paths referenced by the legend. Used by a game area to know
- which textures to load before building the terrain.</div>
+<div class="block">All distinct, non-null texture paths this map draws with. Used by a game area to know which
+ textures to load before building the terrain.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the set of texture asset paths</dd>

@@ -135,9 +135,13 @@ implements <a href="MapLoader.html" title="interface in com.csse3200.game.areas.
  feature can add per-tile data without changing this loader. See <a href="TileDefinition.html" title="class in com.csse3200.game.areas.terrain.map"><code>TileDefinition</code></a>.
 
  <p>An optional <code>backgroundTexture</code> renders one composed image behind the tile layers, for
- maps whose art is authored as a single scene rather than per-tile. Unknown top-level keys are
- ignored, so maps may carry an <code>authoring</code> block of design-time data the runtime does not
- read. Every level map uses this one format; there is no per-level parsing path.</div>
+ maps whose art is authored as a single scene rather than per-tile. An optional <code>backdrops</code>
+ block gives a sub-level a stack of parallax images instead, keyed by the sub-level's id or by
+ <code>"*"</code> for the whole map, and an <code>overlays</code> block does the same in front of the tiles,
+ for weather; see <a href="BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map"><code>BackdropLayer</code></a>. A layer may set an <code>alpha</code>, and a <code>flicker</code>
+ block makes it a strip of frames played now and then, for distant lightning. Unknown top-level
+ keys are ignored, so maps may carry an <code>authoring</code> block of design-time data the runtime
+ does not read. Every level map uses this one format; there is no per-level parsing path.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

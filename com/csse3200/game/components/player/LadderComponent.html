@@ -132,14 +132,32 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#beginClimb(float)" class="member-name-link">beginClimb</a><wbr>(float&nbsp;newDirection)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#beginAutoClimb()" class="member-name-link">beginAutoClimb</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Starts a hands-free climb to the nearest supported landing above an ordinary ladder.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#beginClimb(float)" class="member-name-link">beginClimb</a><wbr>(float&nbsp;newDirection)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Starts moving up (<code>1</code>) or down (<code>-1</code>) when the player is at a ladder.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canAutoClimb()" class="member-name-link">canAutoClimb</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Whether E can take the player up a regular Level 1 ladder.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the entity is created and registered.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isAutoClimbing()" class="member-name-link">isAutoClimbing</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMapData(com.csse3200.game.areas.terrain.map.LevelMapData)" class="member-name-link">setMapData</a><wbr>(<a href="../../areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a>&nbsp;mapData)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the tile map used for ladder detection after the player enters another room.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopClimbing()" class="member-name-link">stopClimbing</a>()</code></div>
@@ -186,6 +204,13 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="setMapData(com.csse3200.game.areas.terrain.map.LevelMapData)">
+<h3>setMapData</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMapData</span><wbr><span class="parameters">(<a href="../../areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a>&nbsp;mapData)</span></div>
+<div class="block">Updates the tile map used for ladder detection after the player enters another room.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="create()">
 <h3>create</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">create</span>()</div>
@@ -210,6 +235,26 @@ loadScripts(document, 'script');</script>
 <h3>stopClimbing</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopClimbing</span>()</div>
 <div class="block">Releases the ladder and restores ordinary gravity.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="canAutoClimb()">
+<h3>canAutoClimb</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canAutoClimb</span>()</div>
+<div class="block">Whether E can take the player up a regular Level 1 ladder. The sub-level lift is excluded.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="beginAutoClimb()">
+<h3>beginAutoClimb</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">beginAutoClimb</span>()</div>
+<div class="block">Starts a hands-free climb to the nearest supported landing above an ordinary ladder.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isAutoClimbing()">
+<h3>isAutoClimbing</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isAutoClimbing</span>()</div>
 </section>
 </li>
 <li>

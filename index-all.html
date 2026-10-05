@@ -214,6 +214,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/physics/raycast/AllHitCallback.html#%3Cinit%3E()" class="member-name-link">AllHitCallback()</a> - Constructor for class com.csse3200.game.physics.raycast.<a href="com/csse3200/game/physics/raycast/AllHitCallback.html" title="class in com.csse3200.game.physics.raycast">AllHitCallback</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#alpha()" class="member-name-link">alpha()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-alpha"><code>alpha</code></a> record component.</div>
+</dd>
 <dt><a href="com/csse3200/game/utils/math/Vector2Utils.html#angleFromTo(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2)" class="member-name-link">angleFromTo(Vector2, Vector2)</a> - Static method in class com.csse3200.game.utils.math.<a href="com/csse3200/game/utils/math/Vector2Utils.html" title="class in com.csse3200.game.utils.math">Vector2Utils</a></dt>
 <dd>
 <div class="block">Calculate the angle in degrees between two vectors</div>
@@ -230,6 +234,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/npc/SkeletonWeaponAnimationController.html#animateSwordR()" class="member-name-link">animateSwordR()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/SkeletonWeaponAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonWeaponAnimationController</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#ANIMATION_PROPERTY" class="member-name-link">ANIMATION_PROPERTY</a> - Static variable in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
+<dd>
+<div class="block">Legend property naming a sprite sheet strip that animates over a tile's still texture.</div>
+</dd>
 <dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html#animationPlayTime" class="member-name-link">animationPlayTime</a> - Variable in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html" class="type-name-link" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a> - Class in <a href="com/csse3200/game/rendering/package-summary.html">com.csse3200.game.rendering</a></dt>
@@ -300,6 +308,37 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:B">B</h2>
 <dl class="index">
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" class="type-name-link" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a> - Record Class in <a href="com/csse3200/game/areas/terrain/map/package-summary.html">com.csse3200.game.areas.terrain.map</a></dt>
+<dd>
+<div class="block">One image of a parallax backdrop or overlay, drawn behind or in front of the tile layers.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#%3Cinit%3E(java.lang.String,float,float,float)" class="member-name-link">BackdropLayer(String, float, float, float)</a> - Constructor for record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Creates a layer that fills the view and is seen everywhere.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#%3Cinit%3E(java.lang.String,float,float,float,boolean)" class="member-name-link">BackdropLayer(String, float, float, float, boolean)</a> - Constructor for record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Creates a layer that is seen everywhere.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#%3Cinit%3E(java.lang.String,float,float,float,boolean,com.csse3200.game.areas.terrain.map.BackdropLayer.Rows)" class="member-name-link">BackdropLayer(String, float, float, float, boolean, BackdropLayer.Rows)</a> - Constructor for record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Creates a solid, ordinary layer.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#%3Cinit%3E(java.lang.String,float,float,float,boolean,com.csse3200.game.areas.terrain.map.BackdropLayer.Rows,float,com.csse3200.game.areas.terrain.map.BackdropLayer.Flicker)" class="member-name-link">BackdropLayer(String, float, float, float, boolean, BackdropLayer.Rows, float, BackdropLayer.Flicker)</a> - Constructor for record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>BackdropLayer</code> record class.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" class="type-name-link" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a> - Record Class in <a href="com/csse3200/game/areas/terrain/map/package-summary.html">com.csse3200.game.areas.terrain.map</a></dt>
+<dd>
+<div class="block">How a layer that is a horizontal strip of frames plays: once through, somewhere new in the
+ upper part of the view, after a random wait.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html" class="type-name-link" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Rows</a> - Record Class in <a href="com/csse3200/game/areas/terrain/map/package-summary.html">com.csse3200.game.areas.terrain.map</a></dt>
+<dd>
+<div class="block">A band of tile rows, counted from the bottom of the map.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.Builder.html#backdrops(java.util.Map)" class="member-name-link">backdrops(Map&lt;String, List&lt;BackdropLayer&gt;&gt;)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.Builder.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.Builder.html#backgroundTexture(java.lang.String)" class="member-name-link">backgroundTexture(String)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.Builder.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData.Builder</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/ItemType.html#BALLISTIC_SHIELD" class="member-name-link">BALLISTIC_SHIELD</a> - Enum constant in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ItemType.html" title="enum class in com.csse3200.game.components.loot">ItemType</a></dt>
@@ -327,6 +366,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/entities/configs/BaseEntityConfig.html#%3Cinit%3E()" class="member-name-link">BaseEntityConfig()</a> - Constructor for class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/BaseEntityConfig.html" title="class in com.csse3200.game.entities.configs">BaseEntityConfig</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/LadderComponent.html#beginAutoClimb()" class="member-name-link">beginAutoClimb()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LadderComponent.html" title="class in com.csse3200.game.components.player">LadderComponent</a></dt>
+<dd>
+<div class="block">Starts a hands-free climb to the nearest supported landing above an ordinary ladder.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/LadderComponent.html#beginClimb(float)" class="member-name-link">beginClimb(float)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LadderComponent.html" title="class in com.csse3200.game.components.player">LadderComponent</a></dt>
 <dd>
 <div class="block">Starts moving up (<code>1</code>) or down (<code>-1</code>) when the player is at a ladder.</div>
@@ -435,6 +478,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html#canAttack()" class="member-name-link">canAttack()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/LadderComponent.html#canAutoClimb()" class="member-name-link">canAutoClimb()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LadderComponent.html" title="class in com.csse3200.game.components.player">LadderComponent</a></dt>
+<dd>
+<div class="block">Whether E can take the player up a regular Level 1 ladder.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#canCharge()" class="member-name-link">canCharge()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
 <dd>
 <div class="block">Checks whether a new charge may begin right now.</div>
@@ -995,9 +1042,15 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Registers for rendering and stores the game clock.</div>
 </dd>
+<dt><a href="com/csse3200/game/rendering/GlowRenderComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/GlowRenderComponent.html" title="class in com.csse3200.game.rendering">GlowRenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/PlayerRenderComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/PlayerRenderComponent.html" title="class in com.csse3200.game.rendering">PlayerRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/RenderComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ui/terminal/KeyboardTerminalInputComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.ui.terminal.<a href="com/csse3200/game/ui/terminal/KeyboardTerminalInputComponent.html" title="class in com.csse3200.game.ui.terminal">KeyboardTerminalInputComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -1115,6 +1168,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/entities/factories/NPCFactory.html#createMinotaur(com.csse3200.game.entities.Entity)" class="member-name-link">createMinotaur(Entity)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/NPCFactory.html" title="class in com.csse3200.game.entities.factories">NPCFactory</a></dt>
 <dd>
 <div class="block">Creates a Minotaur entity (e.g.</div>
+</dd>
+<dt><a href="com/csse3200/game/entities/factories/ObstacleFactory.html#createOneWayPlatform(float,float)" class="member-name-link">createOneWayPlatform(float, float)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/ObstacleFactory.html" title="class in com.csse3200.game.entities.factories">ObstacleFactory</a></dt>
+<dd>
+<div class="block">Creates a thin static one-way platform collider.</div>
 </dd>
 <dt><a href="com/csse3200/game/entities/factories/PetFactory.html#createPet(com.csse3200.game.entities.Entity,com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">createPet(Entity, ShopComponent.Pet)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/PetFactory.html" title="class in com.csse3200.game.entities.factories">PetFactory</a></dt>
 <dd>
@@ -1531,12 +1588,18 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/EnemyWeaponAnimationComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/EnemyWeaponAnimationComponent.html" title="class in com.csse3200.game.rendering">EnemyWeaponAnimationComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/GlowRenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/GlowRenderComponent.html" title="class in com.csse3200.game.rendering">GlowRenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/PlayerRenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/PlayerRenderComponent.html" title="class in com.csse3200.game.rendering">PlayerRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/RenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></dt>
 <dd>
 <div class="block">Draw the renderable.</div>
 </dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/SpinningTextureRenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SpinningTextureRenderComponent.html" title="class in com.csse3200.game.rendering">SpinningTextureRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/TextureRenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/TextureRenderComponent.html" title="class in com.csse3200.game.rendering">TextureRenderComponent</a></dt>
@@ -1562,6 +1625,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/rendering/DebugRenderer.html#drawRectangle(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,com.badlogic.gdx.graphics.Color,float)" class="member-name-link">drawRectangle(Vector2, Vector2, Color, float)</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/DebugRenderer.html" title="class in com.csse3200.game.rendering">DebugRenderer</a></dt>
 <dd>
 <div class="block">Draw a rectangle</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#driftX()" class="member-name-link">driftX()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-driftX"><code>driftX</code></a> record component.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#driftY()" class="member-name-link">driftY()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-driftY"><code>driftY</code></a> record component.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropActiveStack()" class="member-name-link">dropActiveStack()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
 <dd>
@@ -1653,6 +1724,18 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/entities/spawn/EntitySpawnRegistry.SpawnFactory.html" class="type-name-link" title="interface in com.csse3200.game.entities.spawn">EntitySpawnRegistry.SpawnFactory</a> - Interface in <a href="com/csse3200/game/entities/spawn/package-summary.html">com.csse3200.game.entities.spawn</a></dt>
 <dd>
 <div class="block">Builds one entity for a spawn point.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Rows</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/MapValidator.Problem.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/MapValidator.Problem.html" title="class in com.csse3200.game.areas.terrain.map">MapValidator.Problem</a></dt>
 <dd>
@@ -1761,6 +1844,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Reads a property as a boolean flag.</div>
 </dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#flicker()" class="member-name-link">flicker()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-flicker"><code>flicker</code></a> record component.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#%3Cinit%3E(int,float,float,float,float)" class="member-name-link">Flicker(int, float, float, float, float)</a> - Constructor for record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>Flicker</code> record class.</div>
+</dd>
 <dt><a href="com/csse3200/game/input/InputComponent.html#fling(float,float,int)" class="member-name-link">fling(float, float, int)</a> - Method in class com.csse3200.game.input.<a href="com/csse3200/game/input/InputComponent.html" title="class in com.csse3200.game.input">InputComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/input/InputService.html#fling(float,float,int)" class="member-name-link">fling(float, float, int)</a> - Method in class com.csse3200.game.input.<a href="com/csse3200/game/input/InputService.html" title="class in com.csse3200.game.input">InputService</a></dt>
@@ -1779,6 +1870,22 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/files/UserSettings.Settings.html#fps" class="member-name-link">fps</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/UserSettings.Settings.html" title="class in com.csse3200.game.files">UserSettings.Settings</a></dt>
 <dd>
 <div class="block">FPS cap of the game.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#fps()" class="member-name-link">fps()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#param-fps"><code>fps</code></a> record component.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#frameAt(float)" class="member-name-link">frameAt(float)</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html#frameAt(float,int,float)" class="member-name-link">frameAt(float, int, float)</a> - Static method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#frames()" class="member-name-link">frames()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#param-frames"><code>frames</code></a> record component.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#from()" class="member-name-link">from()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Rows</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#param-from"><code>from</code></a> record component.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponTier.html#fromTierNumber(int)" class="member-name-link">fromTierNumber(int)</a> - Static method in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a></dt>
 <dd>&nbsp;</dd>
@@ -1942,6 +2049,13 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/PlayerActions.html#getAttackSpeedMultiplier()" class="member-name-link">getAttackSpeedMultiplier()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerActions.html" title="class in com.csse3200.game.components.player">PlayerActions</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/difficulty/Difficulty.html#getAttackWindupMultiplier()" class="member-name-link">getAttackWindupMultiplier()</a> - Method in enum class com.csse3200.game.difficulty.<a href="com/csse3200/game/difficulty/Difficulty.html" title="enum class in com.csse3200.game.difficulty">Difficulty</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getBackdrop(java.lang.String)" class="member-name-link">getBackdrop(String)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
+<dd>
+<div class="block">The parallax backdrop drawn behind a sub-level's tiles: its own if it has one, otherwise the
+ map's <a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#WHOLE_MAP_BACKDROP"><code>LevelMapData.WHOLE_MAP_BACKDROP</code></a>.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getBackdrops()" class="member-name-link">getBackdrops()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getBackgroundTexture()" class="member-name-link">getBackgroundTexture()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>&nbsp;</dd>
@@ -2272,14 +2386,26 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/components/ColliderComponent.html#getLayer()" class="member-name-link">getLayer()</a> - Method in class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/ColliderComponent.html" title="class in com.csse3200.game.physics.components">ColliderComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/GlowRenderComponent.html#getLayer()" class="member-name-link">getLayer()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/GlowRenderComponent.html" title="class in com.csse3200.game.rendering">GlowRenderComponent</a></dt>
+<dd>
+<div class="block">Lights sit on the terrain's layer, drawn after it and before the characters.</div>
+</dd>
 <dt><a href="com/csse3200/game/rendering/MapBackgroundRenderComponent.html#getLayer()" class="member-name-link">getLayer()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/MapBackgroundRenderComponent.html" title="class in com.csse3200.game.rendering">MapBackgroundRenderComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html#getLayer()" class="member-name-link">getLayer()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a></dt>
+<dd>
+<div class="block">Backdrops sit below the terrain; overlays share the characters' layer and are drawn last.</div>
+</dd>
 <dt><a href="com/csse3200/game/rendering/Renderable.html#getLayer()" class="member-name-link">getLayer()</a> - Method in interface com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/Renderable.html" title="interface in com.csse3200.game.rendering">Renderable</a></dt>
 <dd>
 <div class="block">Layer to be rendered in.</div>
 </dd>
 <dt><a href="com/csse3200/game/rendering/RenderComponent.html#getLayer()" class="member-name-link">getLayer()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html#getLayer()" class="member-name-link">getLayer()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a></dt>
+<dd>
+<div class="block">Animated tiles sit on the terrain's layer, over their still tile and under its glow.</div>
+</dd>
 <dt><a href="com/csse3200/game/ui/UIComponent.html#getLayer()" class="member-name-link">getLayer()</a> - Method in class com.csse3200.game.ui.<a href="com/csse3200/game/ui/UIComponent.html" title="class in com.csse3200.game.ui">UIComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getLayer(java.lang.String)" class="member-name-link">getLayer(String)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
@@ -2403,6 +2529,13 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainTile.html#getOffsetY()" class="member-name-link">getOffsetY()</a> - Method in class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/EnemyWeaponAnimationComponent.html#getOffsetY()" class="member-name-link">getOffsetY()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/EnemyWeaponAnimationComponent.html" title="class in com.csse3200.game.rendering">EnemyWeaponAnimationComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getOverlay(java.lang.String)" class="member-name-link">getOverlay(String)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
+<dd>
+<div class="block">The layers drawn in front of a sub-level's tiles and characters, such as rain: its own if it
+ has any, otherwise the map's <a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#WHOLE_MAP_BACKDROP"><code>LevelMapData.WHOLE_MAP_BACKDROP</code></a>.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getOverlays()" class="member-name-link">getOverlays()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/pet/PetComponent.html#getOwner()" class="member-name-link">getOwner()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetComponent.html" title="class in com.csse3200.game.components.pet">PetComponent</a></dt>
 <dd>
@@ -2668,7 +2801,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#getTexturePaths()" class="member-name-link">getTexturePaths()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
 <dd>
-<div class="block">All distinct, non-null texture paths referenced by the legend.</div>
+<div class="block">All distinct, non-null texture paths this map draws with.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainTile.html#getTextureRegion()" class="member-name-link">getTextureRegion()</a> - Method in class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></dt>
 <dd>&nbsp;</dd>
@@ -2762,13 +2895,19 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/EnemyWeaponAnimationComponent.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/EnemyWeaponAnimationComponent.html" title="class in com.csse3200.game.rendering">EnemyWeaponAnimationComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/GlowRenderComponent.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/GlowRenderComponent.html" title="class in com.csse3200.game.rendering">GlowRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/MapBackgroundRenderComponent.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/MapBackgroundRenderComponent.html" title="class in com.csse3200.game.rendering">MapBackgroundRenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/Renderable.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in interface com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/Renderable.html" title="interface in com.csse3200.game.rendering">Renderable</a></dt>
 <dd>
 <div class="block">Z index controls rendering order within a layer.</div>
 </dd>
 <dt><a href="com/csse3200/game/rendering/RenderComponent.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ui/terminal/TerminalDisplay.html#getZIndex()" class="member-name-link">getZIndex()</a> - Method in class com.csse3200.game.ui.terminal.<a href="com/csse3200/game/ui/terminal/TerminalDisplay.html" title="class in com.csse3200.game.ui.terminal">TerminalDisplay</a></dt>
 <dd>&nbsp;</dd>
@@ -2792,6 +2931,17 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/entities/configs/GhostKingConfig.html#%3Cinit%3E()" class="member-name-link">GhostKingConfig()</a> - Constructor for class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/GhostKingConfig.html" title="class in com.csse3200.game.entities.configs">GhostKingConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/Quests/Quest.html#giveOutUniqueNPCID()" class="member-name-link">giveOutUniqueNPCID()</a> - Static method in class com.csse3200.game.Quests.<a href="com/csse3200/game/Quests/Quest.html" title="class in com.csse3200.game.Quests">Quest</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#GLOW_PROPERTY" class="member-name-link">GLOW_PROPERTY</a> - Static variable in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
+<dd>
+<div class="block">Legend property naming the light sprite a tile glows with.</div>
+</dd>
+<dt><a href="com/csse3200/game/rendering/GlowRenderComponent.html" class="type-name-link" title="class in com.csse3200.game.rendering">GlowRenderComponent</a> - Class in <a href="com/csse3200/game/rendering/package-summary.html">com.csse3200.game.rendering</a></dt>
+<dd>
+<div class="block">Draws a soft pool of light over the terrain, for a tile that should look lit such as a lamp or a
+ fire.</div>
+</dd>
+<dt><a href="com/csse3200/game/rendering/GlowRenderComponent.html#%3Cinit%3E(java.lang.String,float,float)" class="member-name-link">GlowRenderComponent(String, float, float)</a> - Constructor for class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/GlowRenderComponent.html" title="class in com.csse3200.game.rendering">GlowRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/PlayerConfig.html#gold" class="member-name-link">gold</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/PlayerConfig.html" title="class in com.csse3200.game.entities.configs">PlayerConfig</a></dt>
 <dd>&nbsp;</dd>
@@ -2869,6 +3019,18 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#hasGold(int)" class="member-name-link">hasGold(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
 <div class="block">Returns if the player has a certain amount of gold.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Rows</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/MapValidator.Problem.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/MapValidator.Problem.html" title="class in com.csse3200.game.areas.terrain.map">MapValidator.Problem</a></dt>
 <dd>
@@ -2955,6 +3117,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/files/UserSettings.DisplaySettings.html#height" class="member-name-link">height</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/UserSettings.DisplaySettings.html" title="class in com.csse3200.game.files">UserSettings.DisplaySettings</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#height()" class="member-name-link">height()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#param-height"><code>height</code></a> record component.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelView.html#height()" class="member-name-link">height()</a> - Method in interface com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelView.html" title="interface in com.csse3200.game.areas.terrain.map">LevelView</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/MapDataLevelView.html#height()" class="member-name-link">height()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/MapDataLevelView.html" title="class in com.csse3200.game.areas.terrain.map">MapDataLevelView</a></dt>
@@ -3084,6 +3250,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns whether this fight's next attack is ready to start.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/LadderComponent.html#isAutoClimbing()" class="member-name-link">isAutoClimbing()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LadderComponent.html" title="class in com.csse3200.game.components.player">LadderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/GamblingWheel.html#isAwaitingClick()" class="member-name-link">isAwaitingClick()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/GamblingWheel.html" title="class in com.csse3200.game.components.player">GamblingWheel</a></dt>
 <dd>
 <div class="block">Returns whether the result is revealed and waiting for the player to click.</div>
@@ -3742,6 +3910,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Maximum occupied listings per catalog; matches the shop UI grid size.</div>
 </dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#maxGap()" class="member-name-link">maxGap()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#param-maxGap"><code>maxGap</code></a> record component.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/ConsumableUseComponent.html#maxHealthOf(com.csse3200.game.entities.Entity)" class="member-name-link">maxHealthOf(Entity)</a> - Static method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ConsumableUseComponent.html" title="class in com.csse3200.game.components.player">ConsumableUseComponent</a></dt>
 <dd>
 <div class="block">Returns the maximum health declared for an entity.</div>
@@ -3790,6 +3962,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/utils/math/Vector2Utils.html#MIN" class="member-name-link">MIN</a> - Static variable in class com.csse3200.game.utils.math.<a href="com/csse3200/game/utils/math/Vector2Utils.html" title="class in com.csse3200.game.utils.math">Vector2Utils</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#minGap()" class="member-name-link">minGap()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#param-minGap"><code>minGap</code></a> record component.</div>
+</dd>
 <dt><a href="com/csse3200/game/entities/configs/NPCConfigs.html#minotaur" class="member-name-link">minotaur</a> - Variable in class com.csse3200.game.entities.configs.<a href="com/csse3200/game/entities/configs/NPCConfigs.html" title="class in com.csse3200.game.entities.configs">NPCConfigs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/npc/MinotaurAnimationController.html" class="type-name-link" title="class in com.csse3200.game.components.npc">MinotaurAnimationController</a> - Class in <a href="com/csse3200/game/components/npc/package-summary.html">com.csse3200.game.components.npc</a></dt>
@@ -3884,6 +4060,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/utils/math/Vector2Utils.html#ONE" class="member-name-link">ONE</a> - Static variable in class com.csse3200.game.utils.math.<a href="com/csse3200/game/utils/math/Vector2Utils.html" title="class in com.csse3200.game.utils.math">Vector2Utils</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/CollisionType.html#ONE_WAY_PLATFORM" class="member-name-link">ONE_WAY_PLATFORM</a> - Enum constant in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/CollisionType.html" title="enum class in com.csse3200.game.areas.terrain">CollisionType</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/TileType.html#ONE_WAY_PLATFORM" class="member-name-link">ONE_WAY_PLATFORM</a> - Enum constant in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TileType.html" title="enum class in com.csse3200.game.areas.terrain">TileType</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/upgrades/UpgradeNode.html#onEnemyKilled()" class="member-name-link">onEnemyKilled()</a> - Method in class com.csse3200.game.upgrades.<a href="com/csse3200/game/upgrades/UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a></dt>
 <dd>
 <div class="block">Call whenever the player gets a kill.</div>
@@ -3904,6 +4084,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainComponent.TerrainOrientation.html#ORTHOGONAL" class="member-name-link">ORTHOGONAL</a> - Enum constant in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainComponent.TerrainOrientation.html" title="enum class in com.csse3200.game.areas.terrain">TerrainComponent.TerrainOrientation</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.Builder.html#overlays(java.util.Map)" class="member-name-link">overlays(Map&lt;String, List&lt;BackdropLayer&gt;&gt;)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.Builder.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ai/tasks/DefaultTask.html#owner" class="member-name-link">owner</a> - Variable in class com.csse3200.game.ai.tasks.<a href="com/csse3200/game/ai/tasks/DefaultTask.html" title="class in com.csse3200.game.ai.tasks">DefaultTask</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -3923,6 +4105,18 @@ loadScripts(document, 'script');</script>
 <div class="block">Iterates over registered input handlers in descending priority and stops as soon as the input
  is processed</div>
 </dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" class="type-name-link" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a> - Class in <a href="com/csse3200/game/rendering/package-summary.html">com.csse3200.game.rendering</a></dt>
+<dd>
+<div class="block">Draws a map's parallax backdrops behind its terrain, or its overlays in front of everything in
+ the world: for whichever sub-level the camera is in, that sub-level's stack of images, each
+ moving at its own rate as the camera does.</div>
+</dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html#%3Cinit%3E(com.csse3200.game.areas.terrain.map.LevelMapData)" class="member-name-link">ParallaxBackdropRenderComponent(LevelMapData)</a> - Constructor for class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a></dt>
+<dd>
+<div class="block">Draws the map's backdrops, behind its terrain.</div>
+</dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html#%3Cinit%3E(com.csse3200.game.areas.terrain.map.LevelMapData,boolean)" class="member-name-link">ParallaxBackdropRenderComponent(LevelMapData, boolean)</a> - Constructor for class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/JsonMapLoader.html#parse(java.lang.String)" class="member-name-link">parse(String)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/JsonMapLoader.html" title="class in com.csse3200.game.areas.terrain.map">JsonMapLoader</a></dt>
 <dd>
 <div class="block">Parse map JSON content into <a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map"><code>LevelMapData</code></a>.</div>
@@ -4100,6 +4294,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/areas/terrain/CollisionType.html#PLATFORM" class="member-name-link">PLATFORM</a> - Enum constant in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/CollisionType.html" title="enum class in com.csse3200.game.areas.terrain">CollisionType</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/TileType.html#PLATFORM" class="member-name-link">PLATFORM</a> - Enum constant in enum class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TileType.html" title="enum class in com.csse3200.game.areas.terrain">TileType</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/physics/PhysicsLayer.html#PLATFORM" class="member-name-link">PLATFORM</a> - Static variable in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsLayer.html" title="class in com.csse3200.game.physics">PhysicsLayer</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/PlatformerComponent.html" class="type-name-link" title="class in com.csse3200.game.components">PlatformerComponent</a> - Class in <a href="com/csse3200/game/components/package-summary.html">com.csse3200.game.components</a></dt>
 <dd>&nbsp;</dd>
@@ -4423,6 +4619,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Reports progress toward every registered perk listening for this event key.</div>
 </dd>
+<dt><a href="com/csse3200/game/areas/LevelGameArea.html#recoverPlayerIfOutOfBounds()" class="member-name-link">recoverPlayerIfOutOfBounds()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/LevelGameArea.html" title="class in com.csse3200.game.areas">LevelGameArea</a></dt>
+<dd>
+<div class="block">Returns a player who has completely fallen outside the map to the room's safe spawn.</div>
+</dd>
 <dt><a href="com/csse3200/game/files/UserSettings.DisplaySettings.html#refreshRate" class="member-name-link">refreshRate</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/UserSettings.DisplaySettings.html" title="class in com.csse3200.game.files">UserSettings.DisplaySettings</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/StaminaComponent.html#regenerate(float)" class="member-name-link">regenerate(float)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/StaminaComponent.html" title="class in com.csse3200.game.components.player">StaminaComponent</a></dt>
@@ -4698,6 +4898,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/room/RoomTransitionComponent.html#%3Cinit%3E(com.csse3200.game.areas.terrain.map.RoomTransition,com.csse3200.game.entities.Entity,java.util.function.Consumer)" class="member-name-link">RoomTransitionComponent(RoomTransition, Entity, Consumer&lt;RoomTransition&gt;)</a> - Constructor for class com.csse3200.game.components.room.<a href="com/csse3200/game/components/room/RoomTransitionComponent.html" title="class in com.csse3200.game.components.room">RoomTransitionComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#rows()" class="member-name-link">rows()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-rows"><code>rows</code></a> record component.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#%3Cinit%3E(int,int)" class="member-name-link">Rows(int, int)</a> - Constructor for record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Rows</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>Rows</code> record class.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:S">S</h2>
 <dl class="index">
@@ -4736,6 +4944,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/entities/Entity.html#scaleWidth(float)" class="member-name-link">scaleWidth(float)</a> - Method in class com.csse3200.game.entities.<a href="com/csse3200/game/entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></dt>
 <dd>
 <div class="block">Set the entity's width and scale the height to maintain aspect ratio.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#scroll()" class="member-name-link">scroll()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-scroll"><code>scroll</code></a> record component.</div>
 </dd>
 <dt><a href="com/csse3200/game/input/InputComponent.html#scrolled(float,float)" class="member-name-link">scrolled(float, float)</a> - Method in class com.csse3200.game.input.<a href="com/csse3200/game/input/InputComponent.html" title="class in com.csse3200.game.input">InputComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -4892,6 +5104,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/physics/components/ColliderComponent.html#setLayer(short)" class="member-name-link">setLayer(short)</a> - Method in class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/ColliderComponent.html" title="class in com.csse3200.game.physics.components">ColliderComponent</a></dt>
 <dd>
 <div class="block">Set the collider layer, used in collision logic</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/LadderComponent.html#setMapData(com.csse3200.game.areas.terrain.map.LevelMapData)" class="member-name-link">setMapData(LevelMapData)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LadderComponent.html" title="class in com.csse3200.game.components.player">LadderComponent</a></dt>
+<dd>
+<div class="block">Updates the tile map used for ladder detection after the player enters another room.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/SubLevelTravelComponent.html#setMapData(com.csse3200.game.areas.terrain.map.LevelMapData)" class="member-name-link">setMapData(LevelMapData)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/SubLevelTravelComponent.html" title="class in com.csse3200.game.components.player">SubLevelTravelComponent</a></dt>
+<dd>
+<div class="block">Enables the Dungeon/Nether lift only while the retained player is in Level 1.</div>
 </dd>
 <dt><a href="com/csse3200/game/physics/components/ColliderComponent.html#setMask(short)" class="member-name-link">setMask(short)</a> - Method in class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/ColliderComponent.html" title="class in com.csse3200.game.physics.components">ColliderComponent</a></dt>
 <dd>
@@ -5088,6 +5308,13 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/MapValidator.Problem.html#param-severity"><code>severity</code></a> record component.</div>
 </dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" class="type-name-link" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a> - Class in <a href="com/csse3200/game/rendering/package-summary.html">com.csse3200.game.rendering</a></dt>
+<dd>
+<div class="block">Loops a sprite sheet strip over the entity's position and scale, for a tile that moves, such as a
+ brazier's flame.</div>
+</dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html#%3Cinit%3E(java.lang.String,int,float,float)" class="member-name-link">SheetAnimationRenderComponent(String, int, float, float)</a> - Constructor for class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/ItemType.html#SHIELD" class="member-name-link">SHIELD</a> - Enum constant in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ItemType.html" title="enum class in com.csse3200.game.components.loot">ItemType</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ShieldComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">ShieldComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
@@ -5208,6 +5435,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/utils/SortedIntMap.html#%3Cinit%3E(int)" class="member-name-link">SortedIntMap(int)</a> - Constructor for class com.csse3200.game.utils.<a href="com/csse3200/game/utils/SortedIntMap.html" title="class in com.csse3200.game.utils">SortedIntMap</a></dt>
 <dd>
 <div class="block">Create a sorted intmap with the specified capacity</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#spansMap()" class="member-name-link">spansMap()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-spansMap"><code>spansMap</code></a> record component.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/GameArea.html#spawnEntity(com.csse3200.game.entities.Entity)" class="member-name-link">spawnEntity(Entity)</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/GameArea.html" title="class in com.csse3200.game.areas">GameArea</a></dt>
 <dd>
@@ -5491,9 +5722,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/SubLevelTravelComponent.html#%3Cinit%3E()" class="member-name-link">SubLevelTravelComponent()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/SubLevelTravelComponent.html" title="class in com.csse3200.game.components.player">SubLevelTravelComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/SubLevelTravelComponent.html#%3Cinit%3E(com.csse3200.game.areas.terrain.map.LevelMapData)" class="member-name-link">SubLevelTravelComponent(LevelMapData)</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/SubLevelTravelComponent.html" title="class in com.csse3200.game.components.player">SubLevelTravelComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/gamearea/SubLevelTravelPromptDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.gamearea">SubLevelTravelPromptDisplay</a> - Class in <a href="com/csse3200/game/components/gamearea/package-summary.html">com.csse3200.game.components.gamearea</a></dt>
 <dd>
-<div class="block">Displays an interaction prompt while the player can use the dungeon lift to reach the Nether.</div>
+<div class="block">Displays the Level 1 lift prompt or an ordinary ladder's automatic ascent prompt.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/gamearea/SubLevelTravelPromptDisplay.html#%3Cinit%3E(com.csse3200.game.entities.Entity,com.badlogic.gdx.graphics.Camera)" class="member-name-link">SubLevelTravelPromptDisplay(Entity, Camera)</a> - Constructor for class com.csse3200.game.components.gamearea.<a href="com/csse3200/game/components/gamearea/SubLevelTravelPromptDisplay.html" title="class in com.csse3200.game.components.gamearea">SubLevelTravelPromptDisplay</a></dt>
 <dd>&nbsp;</dd>
@@ -5566,6 +5799,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainTile.html#%3Cinit%3E(com.badlogic.gdx.graphics.g2d.TextureRegion,com.csse3200.game.areas.terrain.TileType)" class="member-name-link">TerrainTile(TextureRegion, TileType)</a> - Constructor for class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#texture()" class="member-name-link">texture()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.html#param-texture"><code>texture</code></a> record component.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/TileDefinition.html#texture()" class="member-name-link">texture()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/TileDefinition.html" title="class in com.csse3200.game.areas.terrain.map">TileDefinition</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/TileDefinition.html#param-texture"><code>texture</code></a> record component.</div>
@@ -5635,6 +5872,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/SubLevel.html#param-title"><code>title</code></a> record component.</div>
 </dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#to()" class="member-name-link">to()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Rows</a></dt>
+<dd>
+<div class="block">Returns the value of the <a href="./com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#param-to"><code>to</code></a> record component.</div>
+</dd>
 <dt><a href="com/csse3200/game/ui/terminal/Terminal.html#toggleIsOpen()" class="member-name-link">toggleIsOpen()</a> - Method in class com.csse3200.game.ui.terminal.<a href="com/csse3200/game/ui/terminal/Terminal.html" title="class in com.csse3200.game.ui.terminal">Terminal</a></dt>
 <dd>
 <div class="block">Toggles between the terminal being open and closed.</div>
@@ -5647,6 +5888,18 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/components/PhysicsComponent.AlignY.html#TOP" class="member-name-link">TOP</a> - Enum constant in enum class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/PhysicsComponent.AlignY.html" title="enum class in com.csse3200.game.physics.components">PhysicsComponent.AlignY</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html#toString()" class="member-name-link">toString()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Flicker.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Flicker</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html#toString()" class="member-name-link">toString()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.Rows.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer.Rows</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#toString()" class="member-name-link">toString()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/MapValidator.Problem.html#toString()" class="member-name-link">toString()</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/MapValidator.Problem.html" title="class in com.csse3200.game.areas.terrain.map">MapValidator.Problem</a></dt>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
@@ -5980,6 +6233,12 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/PhysicsEngine.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsEngine.html" title="class in com.csse3200.game.physics">PhysicsEngine</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/GlowRenderComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/GlowRenderComponent.html" title="class in com.csse3200.game.rendering">GlowRenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/ParallaxBackdropRenderComponent.html" title="class in com.csse3200.game.rendering">ParallaxBackdropRenderComponent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SheetAnimationRenderComponent.html" title="class in com.csse3200.game.rendering">SheetAnimationRenderComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/rendering/SpinningTextureRenderComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/SpinningTextureRenderComponent.html" title="class in com.csse3200.game.rendering">SpinningTextureRenderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/projectile/ProjectileMovementStrategy.html#update(com.csse3200.game.entities.Entity,float)" class="member-name-link">update(Entity, float)</a> - Method in interface com.csse3200.game.components.projectile.<a href="com/csse3200/game/components/projectile/ProjectileMovementStrategy.html" title="interface in com.csse3200.game.components.projectile">ProjectileMovementStrategy</a></dt>
@@ -6251,6 +6510,11 @@ the order they are declared.</div>
 <dd>
 <div class="block">Contains additional utility constants and functions for common Vector2 operations.</div>
 </dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html#visibilityAt(float)" class="member-name-link">visibilityAt(float)</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/BackdropLayer.html" title="class in com.csse3200.game.areas.terrain.map">BackdropLayer</a></dt>
+<dd>
+<div class="block">How strongly the layer shows when the camera is centred on a tile row: fully inside its band,
+ fading out over a few rows either side so weather does not snap on and off.</div>
+</dd>
 <dt><a href="com/csse3200/game/files/UserSettings.Settings.html#vsync" class="member-name-link">vsync</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/UserSettings.Settings.html" title="class in com.csse3200.game.files">UserSettings.Settings</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -6332,6 +6596,10 @@ the order they are declared.</div>
 <dt><a href="com/csse3200/game/components/player/GamblingCatalogs.PrizeEntry.html#weight()" class="member-name-link">weight()</a> - Method in record class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="./com/csse3200/game/components/player/GamblingCatalogs.PrizeEntry.html#param-weight"><code>weight</code></a> record component.</div>
+</dd>
+<dt><a href="com/csse3200/game/areas/terrain/map/LevelMapData.html#WHOLE_MAP_BACKDROP" class="member-name-link">WHOLE_MAP_BACKDROP</a> - Static variable in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></dt>
+<dd>
+<div class="block">Backdrop key for a backdrop shown everywhere a sub-level has none of its own.</div>
 </dd>
 <dt><a href="com/csse3200/game/files/UserSettings.DisplaySettings.html#width" class="member-name-link">width</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/UserSettings.DisplaySettings.html" title="class in com.csse3200.game.files">UserSettings.DisplaySettings</a></dt>
 <dd>&nbsp;</dd>
