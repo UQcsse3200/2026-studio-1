@@ -3,6 +3,7 @@ package com.csse3200.game.pausemenu;
 import com.badlogic.gdx.audio.Music;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +14,13 @@ public class PauseMenuComponent extends Component {
   // the music
   private boolean isPaused = false;
   private boolean capturingKeybind = false;
-  private static volatile boolean gamePause = false;
+  private static final AtomicBoolean gamePause = new AtomicBoolean(false);
 
   public boolean isPaused() {
     return isPaused;
   }
 
-  public static boolean isGamePaused() {
+  public static AtomicBoolean isGamePaused() {
     return gamePause;
   }
 
@@ -34,7 +35,7 @@ public class PauseMenuComponent extends Component {
 
   public void toggleIsPaused() {
     isPaused = !isPaused;
-    gamePause = !gamePause;
+    gamePause.set(isPaused);
     logger.info(
         "Paused: {}",
         isPaused); // resturns paused state in console, can be removed later if not needed

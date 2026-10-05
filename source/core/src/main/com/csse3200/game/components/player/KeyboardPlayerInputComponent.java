@@ -35,7 +35,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean dashed = false;
   private boolean crouch = false;
   private String direction = "Right";
-  private String SlideString = "slide";
+  private String SLIDESTRING = "slide";
 
   public String getDirection() {
     return this.direction;
@@ -49,7 +49,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyDown(int keycode) {
-    if (PauseMenuComponent.isGamePaused()) {
+    if (PauseMenuComponent.isGamePaused().get()) {
       return false;
     }
     entity.getEvents().trigger("idle", direction);
@@ -149,8 +149,8 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       crouch = true;
       return true;
     }
-    if (keycode == KeybindSettings.getKey(SlideString)) {
-      entity.getEvents().trigger(SlideString, true);
+    if (keycode == KeybindSettings.getKey(SLIDESTRING)) {
+      entity.getEvents().trigger(SLIDESTRING, true);
       return true;
     }
     return false;
@@ -249,7 +249,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyUp(int keycode) {
-    if (PauseMenuComponent.isGamePaused()) {
+    if (PauseMenuComponent.isGamePaused().get()) {
       stopClimbing();
       return false;
     }
@@ -286,7 +286,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       crouch = false;
       return true;
     }
-    if (keycode == KeybindSettings.getKey(SlideString)) {
+    if (keycode == KeybindSettings.getKey(SLIDESTRING)) {
       return true;
     }
 

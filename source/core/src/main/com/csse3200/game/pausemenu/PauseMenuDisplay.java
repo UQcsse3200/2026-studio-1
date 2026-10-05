@@ -38,6 +38,7 @@ public class PauseMenuDisplay extends UIComponent {
   private static final Color UNSELECTED_TEXT = Color.WHITE;
   private static final float INACTIVE_PANEL_ALPHA = 0.55f;
   private static final float PANEL_GAP = 25f;
+  private static final String WHITE_COLOR = "white";
 
   /** Share of the screen height the Keybinds list may take up before it starts to scroll. */
   private static final float KEYBINDS_VIEWPORT_FRACTION = 0.7f;
@@ -259,7 +260,7 @@ public class PauseMenuDisplay extends UIComponent {
 
     restartConfirmPanel = new Table();
 
-    restartConfirmPanel.setBackground(skin.newDrawable("white", Color.BLACK));
+    restartConfirmPanel.setBackground(skin.newDrawable(WHITE_COLOR, Color.BLACK));
 
     restartConfirmPanel.pad(30f);
 
@@ -382,7 +383,7 @@ public class PauseMenuDisplay extends UIComponent {
 
   private Table buildAudioPanel() {
     Table panel = new Table();
-    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    panel.setBackground(skin.newDrawable(WHITE_COLOR, PANEL_COLOR));
     panel.pad(20f, 30f, 20f, 30f);
     panel.left();
 
@@ -419,7 +420,7 @@ public class PauseMenuDisplay extends UIComponent {
    */
   private Table buildKeybindsPanel() {
     Table panel = new Table();
-    panel.setBackground(skin.newDrawable("white", PANEL_COLOR));
+    panel.setBackground(skin.newDrawable(WHITE_COLOR, PANEL_COLOR));
     panel.pad(20f, KEYBINDS_SIDE_PAD, 20f, KEYBINDS_SIDE_PAD);
 
     keybindsLabels = new Label[KEYBINDS_ITEM_COUNT];
@@ -466,7 +467,7 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private Drawable scrollbarDrawable(Color color, float minHeight) {
-    Drawable drawable = skin.newDrawable("white", color);
+    Drawable drawable = skin.newDrawable(WHITE_COLOR, color);
     if (drawable != null) {
       drawable.setMinWidth(SCROLLBAR_WIDTH);
       drawable.setMinHeight(minHeight);
