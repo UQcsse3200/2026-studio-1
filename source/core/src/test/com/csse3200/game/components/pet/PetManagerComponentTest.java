@@ -1,15 +1,23 @@
 package com.csse3200.game.components.pet;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +33,7 @@ class PetManagerComponentTest {
 
   @AfterEach
   void tearDown() {
+    ServiceLocator.getEntityService().dispose();
     ServiceLocator.clear();
   }
 
@@ -106,5 +115,94 @@ class PetManagerComponentTest {
 
     assertSame(pet, manager.getActivePet());
     assertTrue(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldForwardPlayerHitToActivePetOnItsNextUpdate() {
+    PetManagerComponent manager = createCombatManager();
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity pet = manager.getActivePet();
+    List<Entity> attacks = new ArrayList<>();
+    pet.getEvents().addListener("petAttack", (Entity enemy) -> attacks.add(enemy));
+
+    owner.getEvents().trigger("playerAttackHit", target);
+    assertTrue(attacks.isEmpty());
+    pet.update();
+
+    assertEquals(List.of(target), attacks);
+  }
+
+  @Test
+  void shouldCancelOldPetRequestAndForwardOnlyNewHitsToReplacement() {
+    PetManagerComponent manager = createCombatManager();
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity first = manager.getActivePet();
+    List<Entity> oldPetAttacks = new ArrayList<>();
+    first.getEvents().addListener("petAttack", (Entity enemy) -> oldPetAttacks.add(enemy));
+    owner.getEvents().trigger("playerAttackHit", target);
+
+    manager.activatePet(new ShopComponent.Pet("Bat"));
+    Entity second = manager.getActivePet();
+    List<Entity> newPetAttacks = new ArrayList<>();
+    second.getEvents().addListener("petAttack", (Entity enemy) -> newPetAttacks.add(enemy));
+    second.update();
+    assertTrue(newPetAttacks.isEmpty());
+
+    owner.getEvents().trigger("playerAttackHit", target);
+    first.update();
+    second.update();
+
+    assertTrue(first.isDisposed());
+    assertTrue(oldPetAttacks.isEmpty());
+    assertEquals(List.of(target), newPetAttacks);
+  }
+
+  @Test
+  void shouldIgnoreHitsWhenNoPetOrPetHasNoCombatComponent() {
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+
+    assertDoesNotThrow(() -> owner.getEvents().trigger("playerAttackHit", target));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    assertDoesNotThrow(() -> owner.getEvents().trigger("playerAttackHit", target));
+    manager.removePet();
+    assertDoesNotThrow(() -> owner.getEvents().trigger("playerAttackHit", target));
+  }
+
+  @Test
+  void shouldCancelPendingAssistWhenOwnerIsDisposed() {
+    PetManagerComponent manager = createCombatManager();
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity pet = manager.getActivePet();
+    List<Entity> attacks = new ArrayList<>();
+    pet.getEvents().addListener("petAttack", (Entity enemy) -> attacks.add(enemy));
+    owner.getEvents().trigger("playerAttackHit", target);
+
+    owner.dispose();
+    owner.getEvents().trigger("playerAttackHit", target);
+    pet.update();
+
+    assertTrue(attacks.isEmpty());
+    assertTrue(pet.isDisposed());
+    assertFalse(manager.hasActivePet());
+  }
+
+  private PetManagerComponent createCombatManager() {
+    GameTime timeSource = mock(GameTime.class);
+    when(timeSource.getDeltaTime()).thenReturn(0.1f);
+    PetManagerComponent manager =
+        new PetManagerComponent(
+            (petOwner, petData) ->
+                new Entity()
+                    .addComponent(new PetComponent(petOwner))
+                    .addComponent(new PetCombatComponent(timeSource)));
+    owner.addComponent(new CombatStatsComponent(100, 10)).addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    return manager;
   }
 }

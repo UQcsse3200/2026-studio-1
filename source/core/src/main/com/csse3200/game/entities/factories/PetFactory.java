@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.csse3200.game.components.pet.PetCombatComponent;
 import com.csse3200.game.components.pet.PetComponent;
 import com.csse3200.game.components.pet.PetMovementComponent;
 import com.csse3200.game.components.player.ShopComponent;
@@ -59,6 +60,7 @@ public class PetFactory {
         new Entity()
             .addComponent(new PetComponent(owner))
             .addComponent(new PetMovementComponent(animationPrefix))
+            .addComponent(new PetCombatComponent())
             .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
             .addComponent(new ColliderComponent())
             .addComponent(animator);
