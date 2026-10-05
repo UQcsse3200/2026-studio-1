@@ -268,9 +268,7 @@ public class NPCFactory {
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
-        .addComponent(
-            new TouchAttackComponent(
-                PhysicsLayer.PLAYER, config.charge.knockback))
+        .addComponent(new TouchAttackComponent(PhysicsLayer.PLAYER, config.charge.knockback))
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
@@ -359,9 +357,7 @@ public class NPCFactory {
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
-        .addComponent(
-            new TouchAttackComponent(
-               PhysicsLayer.PLAYER, config.charge.knockback))
+        .addComponent(new TouchAttackComponent(PhysicsLayer.PLAYER, config.charge.knockback))
         .addComponent(new EnemyTypeComponent(EnemyType.CENTAUR))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
