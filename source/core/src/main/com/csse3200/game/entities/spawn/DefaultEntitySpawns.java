@@ -1,7 +1,6 @@
 package com.csse3200.game.entities.spawn;
 
 import com.csse3200.game.entities.factories.NPCFactory;
-import com.csse3200.game.entities.factories.ZeusFactory;
 
 /**
  * The spawn names that ship with the game, registered in one place so existing maps keep working.
@@ -44,7 +43,6 @@ public final class DefaultEntitySpawns {
     EntitySpawnRegistry.registerIfAbsent("minotaur", NPCFactory::createMinotaur);
     EntitySpawnRegistry.registerIfAbsent("centaur", NPCFactory::createCentaur);
     EntitySpawnRegistry.registerIfAbsent("enemy-centaur", NPCFactory::createCentaur);
-    EntitySpawnRegistry.registerIfAbsent("zeus", ZeusFactory::createZeus);
   }
 
   /** Allows tests to re-run {@link #registerAll()} from a known state. */

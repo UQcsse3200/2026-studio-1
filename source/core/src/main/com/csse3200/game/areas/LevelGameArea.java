@@ -19,7 +19,6 @@ import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
-import com.csse3200.game.components.boss.ZeusBossComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
@@ -118,14 +117,7 @@ public class LevelGameArea extends GameArea {
     "images/potions/resistance_potion.png",
     "images/items/upgrade_stone.png",
     "images/Shield.png",
-    "images/BallisticShield.png",
-    "images/enemies/zeus.png",
-    "images/effects/zeus-bolt-projectile-4f.png",
-    "images/effects/zeus-edge-arrow-4f.png",
-    "images/effects/zeus-ground-strike-6f.png",
-    "images/effects/zeus-shockwave-6f.png",
-    "images/effects/zeus-strike-marker-2f.png",
-    "images/effects/lighting/glow-electric.png"
+    "images/BallisticShield.png"
   };
 
   private static final String[] entitySounds = {
@@ -151,7 +143,6 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
-    "images/enemies/zeus.atlas",
     "images/pet.atlas"
   };
 
@@ -170,7 +161,6 @@ public class LevelGameArea extends GameArea {
   private LevelMapData mapData;
   private Entity player;
   private RoomTransition pendingTransition;
-  private boolean bossDefeated;
 
   /**
    * Create a level area using the default {@link JsonMapLoader}.
@@ -303,30 +293,7 @@ public class LevelGameArea extends GameArea {
     }
 
     player = spawnPlayer();
-    resetBosses();
     return player;
-  }
-
-  /** Starts every boss fight in this room over, against the newly spawned player. */
-  private void resetBosses() {
-    for (Entity entity : areaEntities) {
-      ZeusBossComponent boss = entity.getComponent(ZeusBossComponent.class);
-      if (boss != null && !entity.isDisposed()) {
-        boss.reset(player);
-      }
-    }
-  }
-
-  /**
-   * Return and clear the news that this room's boss has fallen. The screen consumes this to show
-   * the win screen.
-   *
-   * @return true once, after the boss is defeated
-   */
-  public boolean consumeBossDefeated() {
-    boolean defeated = bossDefeated;
-    bossDefeated = false;
-    return defeated;
   }
 
   /**
@@ -824,14 +791,6 @@ public class LevelGameArea extends GameArea {
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
         enemy.addComponent(new PersistentEnemyIdComponent(id));
-        ZeusBossComponent boss = enemy.getComponent(ZeusBossComponent.class);
-        if (boss != null) {
-          // The boss reads the arena from the map, and the room reports his fall to the screen.
-          boss.setLevel(getLevel());
-          enemy
-              .getEvents()
-              .addListener(ZeusBossComponent.DEFEATED_EVENT, () -> bossDefeated = true);
-        }
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
       }
     }

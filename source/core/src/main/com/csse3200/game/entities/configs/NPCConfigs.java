@@ -11,5 +11,4 @@ public class NPCConfigs {
   public MinotaurConfig minotaur = new MinotaurConfig();
   public CentaurConfig centaur = new CentaurConfig();
   public CyclopsConfig cyclops = new CyclopsConfig();
-  public ZeusConfig zeus = new ZeusConfig();
 }

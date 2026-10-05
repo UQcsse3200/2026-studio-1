@@ -436,10 +436,6 @@ public class MainGameScreen extends ScreenAdapter {
       return;
     }
 
-    if (levelGameArea.consumeBossDefeated()) {
-      winScreenDisplay.showWinScreen();
-    }
-
     RoomTransition transition = levelGameArea.consumePendingTransition();
 
     if (transition != null) {

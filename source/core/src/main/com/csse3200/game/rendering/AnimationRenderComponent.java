@@ -105,23 +105,6 @@ public class AnimationRenderComponent extends RenderComponent {
     return true;
   }
 
-  /**
-   * Change how long each frame of an added animation is shown for, so one animation can be played
-   * at more than one speed.
-   *
-   * @param name Name of the previously added animation.
-   * @param frameDuration How long, in seconds, to show each frame
-   * @return true if changed, false if animation was not found.
-   */
-  public boolean setFrameDuration(String name, float frameDuration) {
-    Animation<TextureRegion> animation = animations.get(name);
-    if (animation == null) {
-      return false;
-    }
-    animation.setFrameDuration(frameDuration);
-    return true;
-  }
-
   /** Scale the entity to a width of 1 and a height matching the texture's ratio */
   public void scaleEntity() {
     TextureRegion defaultTexture = this.atlas.findRegion("default");
