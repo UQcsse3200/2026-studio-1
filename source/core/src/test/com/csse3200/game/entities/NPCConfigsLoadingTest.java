@@ -97,8 +97,9 @@ class NPCConfigsLoadingTest {
   @Test
   void shouldFallBackToTheDefaultWindupWhenTheJsonHasNone() {
     // The Cyclops melee block has no "windup" key, so it takes the class default.
-    assertEquals(0.5f, configs.cyclops.melee.windup, 1e-6f);
-    assertEquals(0.5f, configs.cyclops.ranged.windup, 1e-6f);
+    assertEquals(0.4f, configs.cyclops.melee.windup, 1e-6f);
+    assertEquals(1.1f, configs.cyclops.rock.windup, 1e-6f);
+    assertEquals(0.5f, configs.cyclops.laser.windup, 1e-6f);
   }
 
   @Test
