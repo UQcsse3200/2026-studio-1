@@ -16,6 +16,9 @@ import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedItem;
+import com.csse3200.game.files.SavedUpgrade;
+import com.csse3200.game.upgrades.UpgradeNode;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -25,14 +28,24 @@ public class PauseMenuActions extends Component {
   private final Supplier<Entity> playerSupplier;
   private final Supplier<Map<String, Long>> lootSeedsSupplier;
   private final Supplier<String> levelSupplier;
+  private final Supplier<List<UpgradeNode>> upgradesSupplier;
 
   public PauseMenuActions(
       Supplier<Entity> playerSupplier,
       Supplier<Map<String, Long>> lootSeedsSupplier,
       Supplier<String> levelSupplier) {
+    this(playerSupplier, lootSeedsSupplier, levelSupplier, List::of);
+  }
+
+  public PauseMenuActions(
+      Supplier<Entity> playerSupplier,
+      Supplier<Map<String, Long>> lootSeedsSupplier,
+      Supplier<String> levelSupplier,
+      Supplier<List<UpgradeNode>> upgradesSupplier) {
     this.playerSupplier = playerSupplier;
     this.lootSeedsSupplier = lootSeedsSupplier;
     this.levelSupplier = levelSupplier;
+    this.upgradesSupplier = upgradesSupplier;
   }
 
   @Override
@@ -114,6 +127,21 @@ public class PauseMenuActions extends Component {
     }
 
     data.difficulty = DifficultyService.getCurrent().name();
+
+    data.shieldHits = stats.getShieldHits();
+
+    for (UpgradeNode node : upgradesSupplier.get()) {
+      if (!node.isActive()) {
+        continue;
+      }
+
+      SavedUpgrade saved = new SavedUpgrade();
+      saved.id = node.getId();
+      saved.tier = node.getCurrentTier();
+      saved.remainingSeconds = node.getRemainingSeconds();
+      saved.remainingKills = node.getRemainingKills();
+      data.upgrades.add(saved);
+    }
 
     for (Map.Entry<Integer, Item> entry : inventory.getInventorySlots().entrySet()) {
       Item item = entry.getValue();

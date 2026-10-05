@@ -189,7 +189,8 @@ public class MainGameScreen extends ScreenAdapter {
       LoadService.load(
           levelGameArea.getPlayer(),
           levelGameArea.getMapWorldWidth(),
-          levelGameArea.getMapWorldHeight());
+          levelGameArea.getMapWorldHeight(),
+          upgradesDisplay.getAllUpgrades());
     }
 
     fitCameraToMap(levelGameArea);
@@ -599,7 +600,10 @@ public class MainGameScreen extends ScreenAdapter {
 
     PauseMenuActions pauseMenuActions =
         new PauseMenuActions(
-            this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
+            this::getPlayerEntity,
+            this::getLootSeedsByRoom,
+            () -> currentRoomMapPath,
+            () -> upgradesDisplay.getAllUpgrades());
 
     this.pauseMenuActions = pauseMenuActions;
 

@@ -20,4 +20,6 @@ public class GameSaveData {
   public List<String> ownedPetNames = new ArrayList<>();
   public String activePetName;
   public String difficulty;
+  public List<SavedUpgrade> upgrades = new ArrayList<>();
+  public Integer shieldHits;
 }

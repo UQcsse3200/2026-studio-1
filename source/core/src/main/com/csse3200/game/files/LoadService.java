@@ -13,6 +13,8 @@ import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.upgrades.UpgradeNode;
+import java.util.List;
 
 /** Applies saved game data to a newly created player. */
 public class LoadService {
@@ -22,7 +24,8 @@ public class LoadService {
    *
    * @param player player entity to restore
    */
-  public static void load(Entity player, float mapWidth, float mapHeight) {
+  public static void load(
+      Entity player, float mapWidth, float mapHeight, List<UpgradeNode> upgrades) {
     if (player == null) {
       return;
     }
@@ -39,8 +42,8 @@ public class LoadService {
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
     loadPets(player, data);
+    loadUpgrades(player, data, upgrades);
   }
-
 
   private static void loadHealth(Entity player, GameSaveData data) {
     CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
@@ -107,10 +110,10 @@ public class LoadService {
       int notAdded = inventory.addItem(item);
       if (notAdded > 0) {
         org.slf4j.LoggerFactory.getLogger(LoadService.class)
-                .warn(
-                        "Inventory full - could not fully restore saved item: {} ({} not added)",
-                        savedItem.name,
-                        notAdded);
+            .warn(
+                "Inventory full - could not fully restore saved item: {} ({} not added)",
+                savedItem.name,
+                notAdded);
       }
     }
 
@@ -128,6 +131,31 @@ public class LoadService {
       if (petManager != null) {
         petManager.activatePet(new ShopComponent.Pet(data.activePetName));
       }
+    }
+  }
+
+  private static void loadUpgrades(Entity player, GameSaveData data, List<UpgradeNode> upgrades) {
+    if (upgrades == null || data.upgrades == null) {
+      return;
+    }
+
+    for (SavedUpgrade saved : data.upgrades) {
+      if (saved == null || saved.id == null) {
+        continue;
+      }
+
+      for (UpgradeNode node : upgrades) {
+        if (saved.id.equals(node.getId())) {
+          node.restore(saved.tier, saved.remainingSeconds, saved.remainingKills);
+          break;
+        }
+      }
+    }
+
+    // Restoring the shield upgrade refills its hits, so put back the saved remaining count.
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    if (stats != null && data.shieldHits != null) {
+      stats.setShieldHits(data.shieldHits);
     }
   }
 
