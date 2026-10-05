@@ -13,6 +13,9 @@ public class PhysicsMovementComponent extends Component implements MovementContr
   private static final Logger logger = LoggerFactory.getLogger(PhysicsMovementComponent.class);
   private static final Vector2 maxSpeed = Vector2Utils.ONE;
 
+  /** Optional veto over the walking direction. Null means no guard, exactly as today. */
+  private MovementGuard movementGuard;
+
   private PhysicsComponent physicsComponent;
   private Vector2 targetPosition;
   private boolean movementEnabled = true;
@@ -91,8 +94,18 @@ public class PhysicsMovementComponent extends Component implements MovementContr
   }
 
   private void updateDirection(Body body) {
-    Vector2 desiredVelocity = getDirection().scl(maxSpeed);
-    setToVelocity(body, desiredVelocity);
+    Vector2 direction = this.getDirection();
+    boolean blocked = false;
+    if (this.getMovementGuard() != null && direction.len() > 0) {
+      blocked = this.getMovementGuard().blocks(direction);
+    }
+    if (blocked) {
+      this.setToVelocity(body, Vector2.Zero.cpy());
+      this.getEntity().getEvents().trigger("movementBlocked");
+    } else {
+      Vector2 directionMaxSpeed = getDirection().scl(maxSpeed);
+      setToVelocity(body, directionMaxSpeed);
+    }
   }
 
   private void setToVelocity(Body body, Vector2 desiredVelocity) {
@@ -144,5 +157,21 @@ public class PhysicsMovementComponent extends Component implements MovementContr
       this.speedMultiplier = 1.0f;
     }
     this.speedMultiplier = speedMultiplier;
+  }
+
+  /**
+   * Sets the guard that may stop this entity walking in a direction. Replaces any earlier guard.
+   *
+   * @param guard the guard to ask each fram, or null to remove the current one.
+   */
+  public void setMovementGuard(MovementGuard guard) {
+    this.movementGuard = guard;
+  }
+
+  /**
+   * @return the current guard, or null if there is none.
+   */
+  public MovementGuard getMovementGuard() {
+    return movementGuard;
   }
 }

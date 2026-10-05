@@ -65,6 +65,8 @@ public class CyclopsAnimationController extends Component {
     entity.getEvents().addListener("stompLeftStart", this::animateStompL);
     entity.getEvents().addListener("stompRightStart", this::animateStompR);
     entity.getEvents().addListener("stomp", this::onMeleeAttack);
+    entity.getEvents().addListener("rockAttackWindup", this::onRockThrow);
+    entity.getEvents().addListener("laserAttackWindup", this::onLaserAttack);
     entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
     entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
 

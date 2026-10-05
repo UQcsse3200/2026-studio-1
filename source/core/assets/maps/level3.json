@@ -14,6 +14,15 @@
       "type": "WALL",
       "texture": "images/level1/floor-marble-512px.png"
     },
+    "p": {
+      "type": "PLATFORM",
+      "texture": "images/level1/platform-marble-512px.png"
+    },
+    "X": {
+      "type": "HAZARD",
+      "texture": "images/level1/hazard-firepit-512px.png",
+      "damage": "15"
+    },
     "b": {
       "type": "DECORATIVE",
       "texture": "images/level2/bg-sky-summit-512px.png"
@@ -47,13 +56,33 @@
     "P": {
       "type": "PLAYER"
     },
+    "G": {
+      "type": "ENEMY",
+      "enemyType": "medusa"
+    },
+    "B": {
+      "type": "ENEMY",
+      "enemyType": "ranged-harpy"
+    },
+    "M": {
+      "type": "ENEMY",
+      "enemyType": "minotaur"
+    },
+    "C": {
+      "type": "ENEMY",
+      "enemyType": "centaur"
+    },
     "Y": {
       "type": "ENEMY",
       "enemyType": "cyclops"
     },
-    "G": {
+    "D": {
       "type": "ENEMY",
-      "enemyType": "medusa"
+      "enemyType": "cerberus"
+    },
+    "Z": {
+      "type": "ENEMY",
+      "enemyType": "zeus"
     },
     "L": {
       "type": "LOOT"
@@ -61,76 +90,108 @@
   },
   "layers": {
     "background": [
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     ],
     "terrain": [
-      "########################################",
-      "#GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG#",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF#",
-      "########################################"
+      "########################################################################################",
+      "#GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG#",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 ###############                      #",
+      "#                                                 GGGGGGGGGGGGGGG                      #",
+      "#                                                                                      #",
+      "#                                                                                      #",
+      "#          pppppp   pppppp   pppppp   pppppppppp                                       #",
+      "#                                                                                      #",
+      "#                                                                                      #",
+      "#    pppp                                       pp                 ppppp               #",
+      "#                                                                               FFFFFFF#",
+      "#                                                                             FFFFFFFFF#",
+      "#FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFXXFFFFFFFFF#",
+      "########################################################################################"
     ],
     "foreground": [
-      "                                        ",
-      "                                        ",
-      "          ^         ^         ^         ",
-      "                   q                    ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "        |     |           |             ",
-      "        |     |           |             ",
-      "     o  |   t |         t |   o     v   ",
-      "                                        ",
-      "                                        "
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "      ^        ^        ^        ^        ^        ^        ^        ^        ^     ^   ",
+      "                                                                                        ",
+      "                                                                                   q    ",
+      "                                                                                        ",
+      "                   q       q       q       q                                            ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "        |       |       |       |       |       |                                       ",
+      "        |       |       |       |       |       |                                       ",
+      "                                                                  |   |   |   |   |     ",
+      "                                                                  |   |   |   |   |     ",
+      "                                                                  |   |   |   |   |     ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                 v   v  ",
+      "                                                                                        ",
+      "    o     t  o    t   o   t    o  t     o t          o   t  o      to   o  t            ",
+      "                                                                                        ",
+      "                                                                                        "
     ],
     "entities": [
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "                                        ",
-      "  P       G      G  L G      G  Y       ",
-      "                                        ",
-      "                                        "
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                                        B       B       ",
+      "                                                                                        ",
+      "                          B               B                                             ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "              L                  L                                                      ",
+      "                                                                                        ",
+      "                                                                                        ",
+      "                                                        M     C                    Z    ",
+      "                                                                                        ",
+      "                   G       G       G       G                         Y    D             ",
+      "  P        L           L       L       L            L             L                     ",
+      "                                                                                        ",
+      "                                                                                        "
     ]
   }
 }
