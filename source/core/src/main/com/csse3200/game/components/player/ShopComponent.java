@@ -683,9 +683,7 @@ public class ShopComponent extends Component {
     if (product instanceof Pet pet) {
       InventoryComponent inventory = getInventory();
 
-      if (inventory != null
-              && inventory.containsPet(pet)
-              && pendingPetReplacement == null) {
+      if (inventory != null && inventory.containsPet(pet) && pendingPetReplacement == null) {
         notifyPetPurchased(pet);
       }
     } else if (product instanceof Upgrade) {
@@ -858,8 +856,7 @@ public class ShopComponent extends Component {
     purchasedPets.add(newPet);
 
     if (entity != null) {
-      entity.getEvents().trigger(
-              "gamblingPetReplaced", replacedPet, newPet);
+      entity.getEvents().trigger("gamblingPetReplaced", replacedPet, newPet);
     }
 
     return true;

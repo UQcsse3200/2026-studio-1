@@ -43,8 +43,7 @@ public class PetManagerComponent extends Component {
   @Override
   public void create() {
     entity.getEvents().addListener("petPurchased", this::handlePetPurchased);
-    entity.getEvents().addListener(
-            "gamblingPetReplaced", this::handleGamblingPetReplaced);
+    entity.getEvents().addListener("gamblingPetReplaced", this::handleGamblingPetReplaced);
   }
 
   /**
@@ -136,8 +135,7 @@ public class PetManagerComponent extends Component {
     return true;
   }
 
-  private void handleGamblingPetReplaced(
-          ShopComponent.Pet replacedPet, ShopComponent.Pet newPet) {
+  private void handleGamblingPetReplaced(ShopComponent.Pet replacedPet, ShopComponent.Pet newPet) {
 
     if (replacedPet == null || newPet == null || activePetType == null) {
       return;

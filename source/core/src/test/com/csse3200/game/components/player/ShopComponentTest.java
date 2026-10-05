@@ -1451,19 +1451,19 @@ class ShopComponentTest {
     inventory.addPet(new ShopComponent.Pet("Spirit"));
 
     ShopComponent shop =
-            new ShopComponent(
-                    new java.util.Random() {
-                      @Override
-                      public int nextInt(int bound) {
-                        return 99; // Standard slot 5: Bird
-                      }
-                    });
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 99; // Standard slot 5: Bird
+              }
+            });
 
     attach(inventory, shop);
     shop.seedDefaultCatalog();
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
-            shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
+        shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
 
     assertNotNull(prize);
 
@@ -1484,13 +1484,13 @@ class ShopComponentTest {
     inventory.addPet(new ShopComponent.Pet("Spirit"));
 
     ShopComponent shop =
-            new ShopComponent(
-                    new java.util.Random() {
-                      @Override
-                      public int nextInt(int bound) {
-                        return 99;
-                      }
-                    });
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 99;
+              }
+            });
 
     attach(inventory, shop);
     shop.seedDefaultCatalog();
@@ -1515,13 +1515,13 @@ class ShopComponentTest {
     inventory.addPet(new ShopComponent.Pet("Spirit"));
 
     ShopComponent shop =
-            new ShopComponent(
-                    new java.util.Random() {
-                      @Override
-                      public int nextInt(int bound) {
-                        return 99;
-                      }
-                    });
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 99;
+              }
+            });
 
     attach(inventory, shop);
     shop.seedDefaultCatalog();

@@ -1493,16 +1493,16 @@ public class ShopDisplay extends UIComponent {
     spinButton.setTouchable(Touchable.disabled);
 
     gamblingWheel.spinToSlot(
-            winningSlot,
-            () -> {
-              gamblingResultLabel.setText("You won: " + getPrizeName(result));
-              gamblingResultLabel.setColor(GOLD_COLOR);
-              refreshGamblingWheel();
+        winningSlot,
+        () -> {
+          gamblingResultLabel.setText("You won: " + getPrizeName(result));
+          gamblingResultLabel.setColor(GOLD_COLOR);
+          refreshGamblingWheel();
 
-              if (shop.getPendingPetReplacement() != null) {
-                showPetReplacementDialog(shop);
-              }
-            });
+          if (shop.getPendingPetReplacement() != null) {
+            showPetReplacementDialog(shop);
+          }
+        });
   }
 
   private int findPrizeSlot(
@@ -1570,8 +1570,7 @@ public class ShopDisplay extends UIComponent {
       return;
     }
 
-    InventoryComponent inventory =
-            entity.getComponent(InventoryComponent.class);
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
     if (inventory == null) {
       shop.cancelPendingPetReplacement();
@@ -1579,35 +1578,31 @@ public class ShopDisplay extends UIComponent {
     }
 
     Dialog dialog =
-            new Dialog("Pet Inventory Full", skin, "default") {
-              @Override
-              protected void result(Object object) {
-                if (object instanceof Integer petSlot) {
-                  shop.replacePetWithPendingPrize(petSlot);
-                } else {
-                  shop.cancelPendingPetReplacement();
-                }
+        new Dialog("Pet Inventory Full", skin, "default") {
+          @Override
+          protected void result(Object object) {
+            if (object instanceof Integer petSlot) {
+              shop.replacePetWithPendingPrize(petSlot);
+            } else {
+              shop.cancelPendingPetReplacement();
+            }
 
-                refreshGamblingWheel();
-              }
-            };
+            refreshGamblingWheel();
+          }
+        };
 
     dialog.text(
-            "You won "
-                    + pendingPet.getName()
-                    + ", but both pet slots are full.\n"
-                    + "Choose a pet to replace, or cancel.");
+        "You won "
+            + pendingPet.getName()
+            + ", but both pet slots are full.\n"
+            + "Choose a pet to replace, or cancel.");
 
     ShopComponent.Pet slot1 = inventory.getPet(1);
     ShopComponent.Pet slot2 = inventory.getPet(2);
 
-    dialog.button(
-            "Replace 6. " + (slot1 == null ? "Empty" : slot1.getName()),
-            1);
+    dialog.button("Replace 6. " + (slot1 == null ? "Empty" : slot1.getName()), 1);
 
-    dialog.button(
-            "Replace 7. " + (slot2 == null ? "Empty" : slot2.getName()),
-            2);
+    dialog.button("Replace 7. " + (slot2 == null ? "Empty" : slot2.getName()), 2);
 
     dialog.button("Cancel", null);
 

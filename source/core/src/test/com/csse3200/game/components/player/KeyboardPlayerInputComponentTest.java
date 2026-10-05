@@ -128,10 +128,7 @@ class KeyboardPlayerInputComponentTest {
     ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
     inventory.addPet(bird);
 
-    new Entity()
-            .addComponent(input)
-            .addComponent(inventory)
-            .addComponent(petManager);
+    new Entity().addComponent(input).addComponent(inventory).addComponent(petManager);
 
     assertTrue(input.keyDown(Keys.NUM_6));
 
@@ -150,10 +147,7 @@ class KeyboardPlayerInputComponentTest {
     inventory.addPet(bird);
     inventory.addPet(bat);
 
-    new Entity()
-            .addComponent(input)
-            .addComponent(inventory)
-            .addComponent(petManager);
+    new Entity().addComponent(input).addComponent(inventory).addComponent(petManager);
 
     assertTrue(input.keyDown(Keys.NUM_7));
 
@@ -166,15 +160,11 @@ class KeyboardPlayerInputComponentTest {
     InventoryComponent inventory = new InventoryComponent(0);
     PetManagerComponent petManager = mock(PetManagerComponent.class);
 
-    new Entity()
-            .addComponent(input)
-            .addComponent(inventory)
-            .addComponent(petManager);
+    new Entity().addComponent(input).addComponent(inventory).addComponent(petManager);
 
     assertTrue(input.keyDown(Keys.NUM_6));
 
-    verify(petManager, never()).switchActivePet(
-            org.mockito.ArgumentMatchers.any());
+    verify(petManager, never()).switchActivePet(org.mockito.ArgumentMatchers.any());
   }
 
   @Test
@@ -183,17 +173,13 @@ class KeyboardPlayerInputComponentTest {
     InventoryComponent inventory = new InventoryComponent(0);
     PetManagerComponent petManager = mock(PetManagerComponent.class);
 
-    WeaponItem sword =
-            new WeaponItem("Sword", WeaponType.SWORD, 10, 1, 1);
+    WeaponItem sword = new WeaponItem("Sword", WeaponType.SWORD, 10, 1, 1);
     inventory.addItem(sword);
 
     ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
     inventory.addPet(bird);
 
-    new Entity()
-            .addComponent(input)
-            .addComponent(inventory)
-            .addComponent(petManager);
+    new Entity().addComponent(input).addComponent(inventory).addComponent(petManager);
 
     assertEquals(1, inventory.getActiveSlot());
 
