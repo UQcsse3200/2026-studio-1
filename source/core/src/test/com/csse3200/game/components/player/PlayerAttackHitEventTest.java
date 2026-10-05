@@ -51,6 +51,9 @@ class PlayerAttackHitEventTest {
 
     Body physicsBody = mock(Body.class);
     when(physics.getBody()).thenReturn(physicsBody);
+    // PlayerActions reads the facing direction when emitting the death animation event.
+    KeyboardPlayerInputComponent keyboardInput = mock(KeyboardPlayerInputComponent.class);
+    when(keyboardInput.getDirection()).thenReturn("Right");
     stamina = new StaminaComponent();
     player =
         new Entity()
@@ -58,6 +61,7 @@ class PlayerAttackHitEventTest {
             .addComponent(stamina)
             .addComponent(hitbox)
             .addComponent(physics)
+            .addComponent(keyboardInput)
             .addComponent(new PlayerActions());
     player.create();
     EventListener1<Entity> hitTargetListener = hitTargets::add;
