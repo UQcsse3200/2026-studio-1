@@ -35,6 +35,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
+  private boolean walkingLeft = false;
+  private boolean walkingRight = false;
+  private boolean walkingDown = false;
   private String direction = "Right";
   private String SLIDESTRING = "slide";
 
@@ -57,6 +60,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
 
     SubLevelTravelComponent travel = entity.getComponent(SubLevelTravelComponent.class);
     if (travel != null && travel.isControlLocked()) {
+      return true;
+    }
+    LadderComponent ladder = entity.getComponent(LadderComponent.class);
+    if (ladder != null && ladder.isAutoClimbing()) {
       return true;
     }
 
@@ -334,10 +341,16 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private void walking(char key) {
     if (key == 'd') {
       direction = "Right";
-      walkDirection.add(Vector2Utils.RIGHT);
+      if (!walkingRight) {
+        walkDirection.add(Vector2Utils.RIGHT);
+        walkingRight = true;
+      }
     } else if (key == 'a') {
       direction = "Left";
-      walkDirection.add(Vector2Utils.LEFT);
+      if (!walkingLeft) {
+        walkDirection.add(Vector2Utils.LEFT);
+        walkingLeft = true;
+      }
     }
 
     if (crouch) {

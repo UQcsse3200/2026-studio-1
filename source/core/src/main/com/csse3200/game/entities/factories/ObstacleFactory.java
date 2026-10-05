@@ -110,6 +110,28 @@ public class ObstacleFactory {
   }
 
   /**
+   * Creates a thin static one-way platform collider.
+   *
+   * <p>The obstacle bit preserves existing terrain interactions, while the platform bit allows the
+   * contact listener to apply one-way collision behaviour.
+   *
+   * @param width width of the platform
+   * @param height height of the collision surface
+   * @return static one-way platform collider
+   */
+  public static Entity createOneWayPlatform(float width, float height) {
+    Entity platform =
+        new Entity()
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+            .addComponent(
+                new ColliderComponent()
+                    .setLayer((short) (PhysicsLayer.OBSTACLE | PhysicsLayer.PLATFORM)));
+
+    platform.setScale(width, height);
+    return platform;
+  }
+
+  /**
    * Creates a hazard terrain tile collider.
    *
    * <p>The hazard is a sensor, meaning it detects contact with the player without physically
