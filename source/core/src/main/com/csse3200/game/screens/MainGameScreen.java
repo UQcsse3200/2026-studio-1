@@ -407,6 +407,7 @@ public class MainGameScreen extends ScreenAdapter {
 
       physicsEngine.update();
       ServiceLocator.getEntityService().update();
+      levelGameArea.recoverPlayerIfOutOfBounds();
     }
 
     if (levelGameArea.isPlayerDead()) {
