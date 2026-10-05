@@ -1,6 +1,6 @@
 package com.csse3200.game.components.player;
+
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
@@ -11,22 +11,25 @@ import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
- \* Input handler for the player for keyboard and touch (mouse) input. This input handler only uses
- \* keyboard input.
- \*
- \* <p>Every action's key is looked up from {@link KeybindSettings} instead of being hardcoded, so
- \* the player can rebind controls at runtime from the pause menu. The one exception is the developer
- \* shortcuts in {@link #handleDebugKeys}, which are fixed keys.
+ * \* Input handler for the player for keyboard and touch (mouse) input. This input handler only
+ * uses \* keyboard input. \* \*
+ *
+ * <p>Every action's key is looked up from {@link KeybindSettings} instead of being hardcoded, so \*
+ * the player can rebind controls at runtime from the pause menu. The one exception is the developer
+ * \* shortcuts in {@link #handleDebugKeys}, which are fixed keys.
  */
 public class KeyboardPlayerInputComponent extends InputComponent {
   private static final Logger logger = LoggerFactory.getLogger(KeyboardPlayerInputComponent.class);
   private final Vector2 walkDirection = Vector2.Zero.cpy();
   private final Vector2 jumpDirection = Vector2.Zero.cpy();
   private final Vector2 dashDirection = Vector2.Zero.cpy();
+
   public KeyboardPlayerInputComponent() {
     super(5);
   }
+
   private boolean jumped = false;
   private boolean dashed = false;
   private boolean crouch = false;
@@ -35,14 +38,14 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean walkingDown = false;
   private String direction = "Right";
   private String SLIDESTRING = "slide";
+
   public String getDirection() {
     return this.direction;
   }
+
   /**
-   \* Triggers player events on specific keycodes.
-   \*
-   \* @return whether the input was processed
-   \* @see InputProcessor#keyDown(int)
+   * \* Triggers player events on specific keycodes. \* \* @return whether the input was processed
+   * \* @see InputProcessor#keyDown(int)
    */
   @Override
   public boolean keyDown(int keycode) {
@@ -78,6 +81,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         || handleHotbarKeys(keycode)
         || handleDebugKeys(keycode);
   }
+
   /** Handles the jump key, starting a ladder climb instead when one is available. */
   private boolean handleJumpKey(int keycode) {
     if (keycode != KeybindSettings.getKey("jump")) {
@@ -94,6 +98,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     jumped = true;
     return true;
   }
+
   /** Handles dash and the walk / ladder-down directional keys. */
   private boolean handleMovementKeys(int keycode) {
     if (keycode == KeybindSettings.getKey("dash")) {
@@ -125,6 +130,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     return false;
   }
+
   /** Handles attacks, item/shield use, the quest and tutorial toggles, crouch and slide. */
   private boolean handleCombatAndItemKeys(int keycode) {
     if (keycode == KeybindSettings.getKey("attack")) {
@@ -176,6 +182,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     return false;
   }
+
   /** Handles the five hotbar slot keys. */
   private boolean handleHotbarKeys(int keycode) {
     if (keycode == KeybindSettings.getKey("hotbarSlot1")) {
@@ -200,10 +207,11 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     return false;
   }
+
   /**
-   \* Developer shortcuts that grant a test bow. Deliberately fixed keys, not rebindable (no row in
-   \* the pause menu's Keybinds panel), and checked after every rebindable action so a player's own
-   \* binding always wins over them.
+   * \* Developer shortcuts that grant a test bow. Deliberately fixed keys, not rebindable (no row
+   * in \* the pause menu's Keybinds panel), and checked after every rebindable action so a player's
+   * own \* binding always wins over them.
    */
   private boolean handleDebugKeys(int keycode) {
     if (keycode == Keys.F6) {
@@ -216,11 +224,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     return false;
   }
+
   /**
-   \* Activates the Ballistic Shield if the player is holding one.
-   \*
-   \* <p>If the player does not have a Ballistic Shield, the normal Tier 1 Shield is activated
-   \* instead. This keeps the existing B-key behaviour for the normal Shield.
+   * \* Activates the Ballistic Shield if the player is holding one. \* \*
+   *
+   * <p>If the player does not have a Ballistic Shield, the normal Tier 1 Shield is activated \*
+   * instead. This keeps the existing B-key behaviour for the normal Shield.
    */
   private void activateAvailableShield() {
     BallisticShieldComponent ballisticShield = entity.getComponent(BallisticShieldComponent.class);
@@ -232,6 +241,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     logger.info("B key pressed - activating normal Shield");
     entity.getEvents().trigger("activateShield");
   }
+
   private void grantTestBow(int tier) {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
     if (inventory == null) {
@@ -254,10 +264,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     throw new IllegalStateException("Granted tier {} bow was not found in inventory.");
   }
+
   /**
-   \* Selects an inventory slot and attempts to use the item in that slot.
-   \*
-   \* @param slot inventory slot to select
+   * \* Selects an inventory slot and attempts to use the item in that slot. \* \* @param slot
+   * inventory slot to select
    */
   private void handleInventorySlot(int slot) {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
@@ -267,11 +277,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     inventory.setActiveSlot(slot);
     entity.getEvents().trigger("useItem", slot);
   }
+
   /**
-   \* Triggers player events on specific keycodes.
-   \*
-   \* @return whether the input was processed
-   \* @see InputProcessor#keyUp(int)
+   * \* Triggers player events on specific keycodes. \* \* @return whether the input was processed
+   * \* @see InputProcessor#keyUp(int)
    */
   @Override
   public boolean keyUp(int keycode) {
@@ -280,9 +289,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return false;
     }
     LadderComponent ladder = entity.getComponent(LadderComponent.class);
-    if (ladder != null
-        && ladder.isAutoClimbing()
-        && keycode != KeybindSettings.getKey("crouch")) {
+    if (ladder != null && ladder.isAutoClimbing() && keycode != KeybindSettings.getKey("crouch")) {
       return true;
     }
     if (keycode == KeybindSettings.getKey("jump")) {
@@ -331,12 +338,14 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     return false;
   }
+
   private void stopClimbing() {
     LadderComponent ladder = entity.getComponent(LadderComponent.class);
     if (ladder != null) {
       ladder.stopClimbing();
     }
   }
+
   private void walking(char key) {
     if (key == 'd') {
       direction = "Right";
@@ -358,6 +367,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     triggerWalkEvent();
   }
+
   private void dashing() {
     if (direction.equals("Left")) {
       dashDirection.add(Vector2Utils.LEFT);
@@ -368,6 +378,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     entity.getEvents().trigger("rolling", direction);
     dashed = true;
   }
+
   private void triggerWalkEvent() {
     if (walkDirection.epsilonEquals(Vector2.Zero)) {
       entity.getEvents().trigger("walkStop");
@@ -375,11 +386,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       entity.getEvents().trigger("walk", walkDirection);
     }
   }
+
   private void triggerJumpEvent() {
     entity.getEvents().trigger("jump", jumpDirection);
     jumpDirection.y = 0;
     jumped = false;
   }
+
   private void triggerDashEvent() {
     entity.getEvents().trigger("dash", dashDirection);
     dashDirection.x = 0;
