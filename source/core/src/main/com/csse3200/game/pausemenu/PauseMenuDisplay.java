@@ -69,10 +69,13 @@ public class PauseMenuDisplay extends UIComponent {
     "dash",
     "slide",
     "attack",
+    "specialAttack",
+    "areaAttack",
     "dropItem",
     "equipShield",
     "interact",
     "toggleQuestMenu",
+    "toggleTutorial",
     "crouch",
     "pause",
     "hotbarSlot1",
@@ -91,10 +94,13 @@ public class PauseMenuDisplay extends UIComponent {
     "Dash",
     "Slide",
     "Attack",
+    "Special Attack",
+    "Area Attack",
     "Drop Item",
     "Equip Shield",
     "Interact",
     "Toggle Quest Menu",
+    "Toggle Tutorial",
     "Crouch",
     "Pause",
     "Hotbar Slot 1",
@@ -665,7 +671,6 @@ public class PauseMenuDisplay extends UIComponent {
     }
   }
 
-  /** Keybind rows are informational only - only "Back" actually does anything. */
   private void confirmKeybinds() {
     if (keybindsIndex == KEYBINDS_BACK_INDEX) {
       state = MenuState.SETTINGS;

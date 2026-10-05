@@ -34,10 +34,13 @@ public final class KeybindSettings {
     defaultKeys.put("dash", Input.Keys.L);
     defaultKeys.put("slide", Input.Keys.SHIFT_LEFT);
     defaultKeys.put("attack", Input.Keys.SPACE);
+    defaultKeys.put("specialAttack", Input.Keys.F);
+    defaultKeys.put("areaAttack", Input.Keys.G);
     defaultKeys.put("dropItem", Input.Keys.Q);
     defaultKeys.put("equipShield", Input.Keys.B);
     defaultKeys.put("interact", Input.Keys.E);
     defaultKeys.put("toggleQuestMenu", Input.Keys.J);
+    defaultKeys.put("toggleTutorial", Input.Keys.T);
     defaultKeys.put("crouch", Input.Keys.CONTROL_LEFT);
     defaultKeys.put("pause", Input.Keys.ESCAPE);
     defaultKeys.put("hotbarSlot1", Input.Keys.NUM_1);
