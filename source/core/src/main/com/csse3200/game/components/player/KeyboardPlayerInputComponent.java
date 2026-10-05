@@ -129,6 +129,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       entity.getEvents().trigger("areaAttack");
       return true;
     }
+    if (keycode == KeybindSettings.getKey("timeFreeze")) {
+      entity.getEvents().trigger("activateTimeFreeze");
+      return true;
+    }
     if (keycode == KeybindSettings.getKey("dropItem")) {
       entity.getEvents().trigger("dropItem");
       return true;
