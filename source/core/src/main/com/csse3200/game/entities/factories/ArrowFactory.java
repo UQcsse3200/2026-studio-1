@@ -6,11 +6,7 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.LightningFreezeComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
-import com.csse3200.game.components.projectile.AimedLineMovementStrategy;
-import com.csse3200.game.components.projectile.ProjectileComponent;
-import com.csse3200.game.components.projectile.ProjectileHitComponent;
-import com.csse3200.game.components.projectile.StraightLineMovementStrategy;
-import com.csse3200.game.components.projectile.VerticalMovementStrategy;
+import com.csse3200.game.components.projectile.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
@@ -223,6 +219,82 @@ public class ArrowFactory {
     bolt.setPosition(targetPosition.x - scale.x / 2f, targetPosition.y + skyOffset);
 
     return bolt;
+  }
+
+  /**
+   * Builds the parts every enemy projectile shares and hands the entity back for the caller to
+   * finish.
+   *
+   * <p>The entity is returned NOT yet created and NOT yet registered, so a caller may still add its
+   * own components (a petrify effect, a freeze effect) before the entity service creates it.
+   *
+   * <p>Flight: the body is set up as a bullet with no gravity and no damping. A projectile that
+   * needs gravity switches it back on itself when its movement strategy starts (the rock's arc
+   * does), so the base never has to know about arcs.
+   *
+   * <p>Position is the entity's bottom-left corner, as everywhere else in this factory. A caller
+   * that works from a centre converts it before calling.
+   *
+   * <p>Numbers are not re-checked here: the projectile component already rejects a range that is
+   * not positive, and each movement strategy rejects a bad speed or direction. Only missing objects
+   * are rejected, so existing callers keep their current behaviour.
+   *
+   * @param texturePath image to draw; not null and not blank
+   * @param bodyType physics body type: dynamic for anything that must touch a wall, kinematic for
+   *     the ones that already pass through; not null
+   * @param movement how the projectile moves once created; not null
+   * @param maxRange distance in world units before it despawns; checked by the projectile component
+   * @param damage damage dealt on contact with the target layer; 0 is allowed (a pure effect)
+   * @param knockback knockback on a hit; 0 switches it off
+   * @param targetLayer the physics layer it damages
+   * @param blockingLayer the layer that stops it without damage; use the none layer for a
+   *     projectile that passes through everything, like lightning
+   * @param position where its bottom-left corner starts; not null
+   * @param scale its width and height in world units; not null
+   * @param mirrored true to flip the picture horizontally, for a shot travelling to the left
+   * @return the unfinished projectile entity
+   * @throws IllegalArgumentException if the texture path, body type, movement, position or scale is
+   *     missing
+   */
+  static Entity createProjectileBase(
+      String texturePath,
+      BodyType bodyType,
+      ProjectileMovementStrategy movement,
+      float maxRange,
+      int damage,
+      float knockback,
+      short targetLayer,
+      short blockingLayer,
+      Vector2 position,
+      Vector2 scale,
+      boolean mirrored) {
+    if (texturePath == null || texturePath.isEmpty()) {
+      throw new IllegalArgumentException("texturePath must not be blank");
+    }
+    if (bodyType == null) {
+      throw new IllegalArgumentException("bodyType must not be null");
+    }
+    if (movement == null) {
+      throw new IllegalArgumentException("movement must not be null");
+    }
+    if (position == null) {
+      throw new IllegalArgumentException("position must not be null.");
+    }
+    if (scale == null) {}
+
+    Entity projectile = new Entity();
+    projectile
+        .addComponent(new TextureRenderComponent(texturePath))
+        .addComponent(new PhysicsComponent().setBodyType(bodyType))
+        .addComponent(new HitboxComponent())
+        .addComponent(new CombatStatsComponent(1, damage))
+        .addComponent(new ProjectileHitComponent(targetLayer, blockingLayer, knockback))
+        .addComponent(new ProjectileComponent(movement, maxRange));
+    configureFlightBody(projectile);
+    projectile.setPosition(position);
+    projectile.setScale(scale);
+    projectile.getComponent(TextureRenderComponent.class).setFlipX(mirrored);
+    return projectile;
   }
 
   private ArrowFactory() {
