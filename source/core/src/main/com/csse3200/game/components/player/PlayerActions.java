@@ -715,9 +715,9 @@ public class PlayerActions extends Component {
     Body body = physicsComponent.getBody();
 
     body.setLinearVelocity(Vector2.Zero);
-    entity
-        .getEvents()
-        .trigger("dead", entity.getComponent(KeyboardPlayerInputComponent.class).getDirection());
+    KeyboardPlayerInputComponent input = entity.getComponent(KeyboardPlayerInputComponent.class);
+    String direction = input == null ? "Right" : input.getDirection();
+    entity.getEvents().trigger("dead", direction);
   }
 
   public boolean getDashing() {

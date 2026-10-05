@@ -79,6 +79,11 @@ public class PetManagerComponent extends Component {
     return activePet;
   }
 
+  /** Returns the name of the currently active pet, or null if there is no active pet. */
+  public String getActivePetName() {
+    return activePetType == null ? null : activePetType.getName();
+  }
+
   /** Returns whether this player currently has an active pet. */
   public boolean hasActivePet() {
     return activePet != null;
