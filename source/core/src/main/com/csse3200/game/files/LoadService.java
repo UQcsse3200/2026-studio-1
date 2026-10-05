@@ -92,6 +92,12 @@ public class LoadService {
         continue;
       }
 
+      // Rebuilding an item resets these, so put the saved values back.
+      item.setQuantity(savedItem.quantity);
+      if (savedItem.sellPrice != null && savedItem.sellPrice >= 0) {
+        item.setSellPrice(savedItem.sellPrice);
+      }
+
       // Put the item back in the exact slot it was saved from. If that slot is
       // invalid, fall back to the normal add so the item isn't lost.
       if (inventory.setItem(savedItem.slot, item)) {

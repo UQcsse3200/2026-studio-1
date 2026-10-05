@@ -6,7 +6,7 @@ public class SavedItem {
   public String itemType;
   public int quantity;
   public int maxQuantity;
-
+  public Integer sellPrice;
   public String weaponType;
   public Integer damage;
   public Integer weaponTier;

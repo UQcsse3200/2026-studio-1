@@ -124,6 +124,7 @@ public class PauseMenuActions extends Component {
       saved.itemType = item.getItemType().name();
       saved.quantity = item.getQuantity();
       saved.maxQuantity = item.getMaxQuantity();
+      saved.sellPrice = item.getSellPrice();
 
       if (item instanceof WeaponItem weapon) {
         saved.weaponType = weapon.getWeaponType().name();
