@@ -123,9 +123,9 @@
       "#                                                          #",
       "#                                                          #",
       "#                                                          #",
-      "#                                                          #",
-      "#                                                          #",
-      "#                                                          #",
+      "#                                                           ",
+      "#                                                           ",
+      "#                                                           ",
       "####   #####################################################",
       "#                               ##                         #",
       "#                               ##                         #",
@@ -195,6 +195,19 @@
       "id": "nether-shades-barracks-back",
       "x": 0,
       "y": 2,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-exit-512px.png",
+      "destinationMap": "maps/level1-greek.json",
+      "destinationSpawn": {
+        "x": 53,
+        "y": 54
+      }
+    },
+    {
+      "id": "nether-shades-barracks-exit",
+      "x": 59,
+      "y": 14,
       "width": 1,
       "height": 3,
       "texture": "images/level1/gate-exit-512px.png",

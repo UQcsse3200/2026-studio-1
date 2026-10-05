@@ -119,9 +119,9 @@
       "########################################",
       "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
       "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
+      "#                                       ",
+      "#                                       ",
+      "#                                       ",
       "####   #################################",
       "#             ######                   #",
       "#             ######                   #",
@@ -187,6 +187,19 @@
       "id": "olympus-cyclops-forge-back",
       "x": 0,
       "y": 2,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-exit-512px.png",
+      "destinationMap": "maps/level2.json",
+      "destinationSpawn": {
+        "x": 35,
+        "y": 39
+      }
+    },
+    {
+      "id": "olympus-cyclops-forge-exit",
+      "x": 39,
+      "y": 14,
       "width": 1,
       "height": 3,
       "texture": "images/level1/gate-exit-512px.png",
