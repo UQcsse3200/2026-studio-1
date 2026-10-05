@@ -832,26 +832,33 @@ public class LevelGameArea extends GameArea {
 
   /** Spawns the lighting in the level */
   private void spawnLighting() {
+    // get service
     LightService ls = ServiceLocator.getLightService();
+
+    // get lighting data from the mapdata
     LightingConfig cfg = mapData.getLighting();
 
-    if (cfg == null) { // always reset, the service outlives rooms
+    // reset the lighting to default if map has no lighting data
+    if (cfg == null) {
       ls.setAmbient(LightColour.AMBIENT_LIGHT.getColour(), 1f);
       return;
     }
 
+    // get current player position (for sublevel lighting)
     int row = (int) Math.floor(player.getCenterPosition().y / mapData.getTileSize());
     SubLevel section = mapData.getSubLevelAt(row);
     LightingConfig.Ambient a = cfg.ambientFor(section == null ? null : section.id());
-    ls.setAmbient(a.color(), a.intensity());
+    ls.setAmbient(a.color(), a.intensity()); // set ambient to the right sublevel lighting
 
     Vector2 origin = terrain.tileToWorldPosition(0, 0);
     if (origin == null) {
       logger.warn("No terrain origin; skipping tile lights for '{}'", mapData.getName());
     } else {
       float ts = mapData.getTileSize();
+      // scan for light sources in the json/mapdata
       List<EmitterScanner.LightPlacement> placements = EmitterScanner.scan(mapData.getLayers(), ts);
 
+      // if exceeding light budget, skip some lights
       int step = 1;
       if (placements.size() > LIGHT_BUDGET) {
         step = (int) Math.ceil(placements.size() / (double) LIGHT_BUDGET);
@@ -864,6 +871,8 @@ public class LevelGameArea extends GameArea {
       }
 
       logger.info("Tile light placements: {}", placements.size());
+
+      // place all light tiles scanned
       for (int i = 0; i < placements.size(); i += step) {
         EmitterScanner.LightPlacement p = placements.get(i);
         Vector2 world = new Vector2(origin.x + p.tileX() * ts, origin.y + p.tileY() * ts);
