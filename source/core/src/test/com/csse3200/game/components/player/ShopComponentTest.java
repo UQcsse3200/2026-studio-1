@@ -294,6 +294,12 @@ class ShopComponentTest {
 
     assertEquals(80, inventory.getGold());
     assertEquals(occupied, inventory.getOccupiedSlots());
+
+    // Pet inventory
+    assertSame(listing.getProduct(), inventory.getPet(1));
+    assertNull(inventory.getPet(2));
+
+    // Existing Shop behaviour
     assertEquals(1, shop.getPurchasedPets().size());
     assertSame(listing.getProduct(), shop.getPurchasedPets().get(0));
     assertNotNull(shop.getPetListing(1));
@@ -1362,5 +1368,76 @@ class ShopComponentTest {
 
     assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.PREMIUM));
     assertEquals(1, upgradeEvents.get());
+  }
+
+  @Test
+  void shouldStoreTwoPurchasedPetsInPetInventory() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+
+    ShopComponent.ShopListing<ShopComponent.Pet> bird = petListing("Bird", 20);
+    ShopComponent.ShopListing<ShopComponent.Pet> bat = petListing("Bat", 30);
+
+    shop.setPetListing(1, bird);
+    shop.setPetListing(2, bat);
+
+    assertTrue(shop.buyPet(1));
+    assertTrue(shop.buyPet(2));
+
+    assertSame(bird.getProduct(), inventory.getPet(1));
+    assertSame(bat.getProduct(), inventory.getPet(2));
+    assertTrue(inventory.isPetInventoryFull());
+
+    assertEquals(50, inventory.getGold());
+    assertEquals(2, shop.getPurchasedPets().size());
+  }
+
+  @Test
+  void shouldRejectPetPurchaseWhenPetInventoryFull() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+
+    ShopComponent.ShopListing<ShopComponent.Pet> bird = petListing("Bird", 20);
+    ShopComponent.ShopListing<ShopComponent.Pet> bat = petListing("Bat", 30);
+    ShopComponent.ShopListing<ShopComponent.Pet> spirit = petListing("Spirit", 40);
+
+    shop.setPetListing(1, bird);
+    shop.setPetListing(2, bat);
+    shop.setPetListing(3, spirit);
+
+    assertTrue(shop.buyPet(1));
+    assertTrue(shop.buyPet(2));
+
+    int goldBefore = inventory.getGold();
+
+    assertFalse(shop.buyPet(3));
+
+    assertEquals(goldBefore, inventory.getGold());
+    assertSame(bird.getProduct(), inventory.getPet(1));
+    assertSame(bat.getProduct(), inventory.getPet(2));
+    assertEquals(2, shop.getPurchasedPets().size());
+  }
+
+  @Test
+  void shouldRejectDuplicatePetWithoutDeductingGold() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+
+    ShopComponent.ShopListing<ShopComponent.Pet> bird = petListing("Bird", 20);
+    shop.setPetListing(1, bird);
+
+    assertTrue(shop.buyPet(1));
+
+    int goldBefore = inventory.getGold();
+
+    assertFalse(shop.buyPet(1));
+
+    assertEquals(goldBefore, inventory.getGold());
+    assertSame(bird.getProduct(), inventory.getPet(1));
+    assertNull(inventory.getPet(2));
+    assertEquals(1, shop.getPurchasedPets().size());
   }
 }

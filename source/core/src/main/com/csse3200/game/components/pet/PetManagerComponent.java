@@ -15,6 +15,7 @@ import java.util.function.BiFunction;
  */
 public class PetManagerComponent extends Component {
   private Entity activePet;
+  private ShopComponent.Pet activePetType;
   private final BiFunction<Entity, ShopComponent.Pet, Entity> petFactory;
 
   /** Creates a pet manager using the normal game pet factory. */
@@ -40,7 +41,7 @@ public class PetManagerComponent extends Component {
    */
   @Override
   public void create() {
-    entity.getEvents().addListener("petPurchased", this::activatePet);
+    entity.getEvents().addListener("petPurchased", this::handlePetPurchased);
   }
 
   /**
@@ -52,7 +53,11 @@ public class PetManagerComponent extends Component {
     removePet();
 
     activePet = petFactory.apply(entity, pet);
+    activePetType = pet;
+
     ServiceLocator.getEntityService().register(activePet);
+
+    entity.getEvents().trigger("activePetChanged", pet);
   }
 
   /** Returns the currently active pet, or null if there is no active pet. */
@@ -65,19 +70,41 @@ public class PetManagerComponent extends Component {
     return activePet != null;
   }
 
+  /**
+   * Returns the data for the currently active pet.
+   *
+   * @return active pet data, or null if no pet is active
+   */
+  public ShopComponent.Pet getActivePetType() {
+    return activePetType;
+  }
+
   /** Removes the currently active pet. */
   public void removePet() {
     if (activePet == null) {
+      activePetType = null;
       return;
     }
 
     activePet.dispose();
     activePet = null;
+    activePetType = null;
   }
 
   /** Removes the active pet when this component is disposed. */
   @Override
   public void dispose() {
     removePet();
+  }
+
+  /**
+   * Activates the purchased pet if the player does not already have an active pet.
+   *
+   * <p>Additional purchased pets remain in the pet inventory until explicitly selected.
+   */
+  private void handlePetPurchased(ShopComponent.Pet pet) {
+    if (!hasActivePet()) {
+      activatePet(pet);
+    }
   }
 }

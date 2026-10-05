@@ -33,20 +33,23 @@ class PetManagerComponentTest {
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     assertNull(manager.getActivePet());
+    assertNull(manager.getActivePetType());
     assertFalse(manager.hasActivePet());
   }
 
   @Test
   void shouldActivatePet() {
     Entity pet = new Entity();
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
 
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> pet);
 
     owner.addComponent(manager);
 
-    manager.activatePet(new ShopComponent.Pet("Bird"));
+    manager.activatePet(bird);
 
     assertSame(pet, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
     assertTrue(manager.hasActivePet());
   }
 
@@ -56,20 +59,25 @@ class PetManagerComponentTest {
 
     owner.addComponent(manager);
 
-    manager.activatePet(new ShopComponent.Pet("Bird"));
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    manager.activatePet(bird);
     Entity firstPet = manager.getActivePet();
 
-    manager.activatePet(new ShopComponent.Pet("Bat"));
+    manager.activatePet(bat);
     Entity secondPet = manager.getActivePet();
 
     assertNotSame(firstPet, secondPet);
     assertSame(secondPet, manager.getActivePet());
+    assertSame(bat, manager.getActivePetType());
     assertTrue(manager.hasActivePet());
   }
 
   @Test
   void shouldRemoveActivePet() {
-    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+    PetManagerComponent manager =
+            new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);
 
@@ -77,6 +85,7 @@ class PetManagerComponentTest {
     manager.removePet();
 
     assertNull(manager.getActivePet());
+    assertNull(manager.getActivePetType());
     assertFalse(manager.hasActivePet());
   }
 
@@ -105,6 +114,28 @@ class PetManagerComponentTest {
     owner.getEvents().trigger("petPurchased", new ShopComponent.Pet("Bird"));
 
     assertSame(pet, manager.getActivePet());
+    assertTrue(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldNotReplaceActivePetWhenAnotherPetPurchased() {
+    PetManagerComponent manager =
+            new PetManagerComponent((petOwner, petData) -> new Entity());
+
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    owner.getEvents().trigger("petPurchased", bird);
+
+    Entity birdEntity = manager.getActivePet();
+
+    owner.getEvents().trigger("petPurchased", bat);
+
+    assertSame(birdEntity, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
     assertTrue(manager.hasActivePet());
   }
 }

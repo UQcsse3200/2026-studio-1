@@ -477,13 +477,13 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Buys the pet in a catalog slot using gold only. Does not use item slots.
+   * Purchases a pet from the specified catalog slot.
    *
-   * <p>On success, records the purchase and triggers {@code petPurchased}. Does not spawn a pet
-   * entity.
+   * <p>The purchase fails if the pet does not exist, the player does not
+   * have enough gold, the pet is already owned, or the pet inventory is full.
    *
-   * @param catalogSlot pet catalog slot
-   * @return {@code true} if gold was deducted and the purchase was recorded
+   * @param catalogSlot catalog slot containing the pet
+   * @return true if the purchase was successful
    */
   public boolean buyPet(int catalogSlot) {
     InventoryComponent inventory = getInventory();
@@ -496,14 +496,27 @@ public class ShopComponent extends Component {
       return false;
     }
 
+    Pet pet = listing.getProduct();
+
     if (!inventory.hasGold(listing.getBuyPrice())) {
+      return false;
+    }
+
+    if (inventory.containsPet(pet) || inventory.isPetInventoryFull()) {
+      return false;
+    }
+
+    if (!inventory.addPet(pet)) {
       return false;
     }
 
     inventory.addGold(-listing.getBuyPrice());
     Quest.addGlobalGoldSpent(listing.getBuyPrice());
-    purchasedPets.add(listing.getProduct());
-    notifyPetPurchased(listing.getProduct());
+
+    // Retained for backwards compatibility with the existing Shop API.
+    purchasedPets.add(pet);
+
+    notifyPetPurchased(pet);
     return true;
   }
 
