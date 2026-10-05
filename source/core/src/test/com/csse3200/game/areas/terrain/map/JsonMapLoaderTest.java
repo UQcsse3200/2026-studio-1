@@ -466,9 +466,10 @@ class JsonMapLoaderTest {
             + count
             + " enemies spawned on the map.");
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
-    // Transparent ladders and ledges must render over a background rather than the clear colour.
+    // Transparent ladders and ledges render over the parallax backdrops, so the background layer
+    // is kept for parity with the other levels but holds no tiles.
     assertNotNull(levelOne.getLayer("background"));
-    assertEquals(TileType.DECORATIVE, levelOne.getLayer("background").get(26, 33).type());
+    assertNull(levelOne.getLayer("background").get(26, 33));
     // The Nether endpoint keeps the ladder passage open beside its solid marble landing.
     assertEquals(TileType.LADDER, levelOne.getTileType(26, 33));
     assertEquals(TileType.PLATFORM, levelOne.getTileType(27, 33));
@@ -492,6 +493,95 @@ class JsonMapLoaderTest {
     // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
     // map still loads and renders from its tile layers.
     assertNull(levelOne.getBackgroundTexture());
+    // The dungeon and the Nether each draw their own parallax backdrop instead of background tiles.
+    assertEquals(4, levelOne.getBackdrop("dungeon").size());
+    assertEquals(4, levelOne.getBackdrop("nether").size());
+  }
+
+  @Test
+  void readsBackdropLayersForASubLevel() {
+    String json =
+        """
+        {
+          "name": "Cavern",
+          "legend": { "#": { "type": "WALL", "texture": "wall.png" } },
+          "layers": { "terrain": ["#"] },
+          "backdrops": {
+            "cave": [
+              { "texture": "far.png" },
+              { "texture": "fog.png", "scroll": 0.6, "drift": { "x": 0.15, "y": 0.4 } }
+            ],
+            "*": [ { "texture": "sky.png", "spansMap": true } ]
+          }
+        }
+        """;
+
+    LevelMapData map = loader.parse(json);
+
+    assertEquals(
+        List.of(
+            new BackdropLayer("far.png", 0f, 0f, 0f),
+            new BackdropLayer("fog.png", 0.6f, 0.15f, 0.4f)),
+        map.getBackdrop("cave"));
+    // Anywhere without a backdrop of its own falls back to the map-wide one.
+    List<BackdropLayer> wholeMap = List.of(new BackdropLayer("sky.png", 0f, 0f, 0f, true));
+    assertEquals(wholeMap, map.getBackdrop("elsewhere"));
+    assertEquals(wholeMap, map.getBackdrop(null));
+    assertTrue(
+        map.getTexturePaths().containsAll(List.of("wall.png", "far.png", "fog.png", "sky.png")));
+  }
+
+  @Test
+  void readsOverlaysAndTheRowsTheyAreSeenIn() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["#"] },
+          "overlays": {
+            "*": [ { "texture": "rain.png", "scroll": 1, "rows": { "from": 10, "to": 20 } } ]
+          }
+        }
+        """;
+
+    LevelMapData map = loader.parse(json);
+
+    BackdropLayer rain = map.getOverlay(null).getFirst();
+    assertEquals(new BackdropLayer.Rows(10, 20), rain.rows());
+    assertEquals(1f, rain.visibilityAt(15f));
+    assertEquals(0.5f, rain.visibilityAt(24f));
+    assertEquals(0f, rain.visibilityAt(40f));
+    assertTrue(map.getBackdrop(null).isEmpty());
+    assertTrue(map.getTexturePaths().contains("rain.png"));
+  }
+
+  @Test
+  void loadsTheLightSpriteOfAGlowingTile() {
+    String json =
+        """
+        {
+          "legend": { "L": { "type": "DECORATIVE", "texture": "lamp.png", "glow": "light.png" } },
+          "layers": { "terrain": ["L"] }
+        }
+        """;
+
+    LevelMapData map = loader.parse(json);
+
+    assertTrue(map.getTexturePaths().containsAll(List.of("lamp.png", "light.png")));
+  }
+
+  @Test
+  void rejectsABackdropLayerWithNoTexture() {
+    String json =
+        """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["#"] },
+          "backdrops": { "cave": [ { "scroll": 0.5 } ] }
+        }
+        """;
+
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
   @Test
@@ -503,14 +593,15 @@ class JsonMapLoaderTest {
     assertEquals(180, levelTwo.getHeight());
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());
     assertEquals(TileType.WALL, levelTwo.getTileType(1, 1));
-    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 155));
-    // Storm clouds stay walkable; only explicitly authored hazards damage the player.
-    assertEquals(TileType.PLATFORM, levelTwo.getTileType(27, 143));
-    assertEquals(TileType.PLATFORM, levelTwo.getTileType(31, 131));
+    assertEquals(TileType.ONE_WAY_PLATFORM, levelTwo.getTileType(27, 155));
+    // Clouds use one-way physics, while stone shelves remain ordinary solid platforms.
+    assertEquals(TileType.ONE_WAY_PLATFORM, levelTwo.getTileType(27, 143));
+    assertEquals(TileType.ONE_WAY_PLATFORM, levelTwo.getTileType(31, 131));
+    assertEquals(TileType.PLATFORM, levelTwo.getTileType(55, 162));
     assertNull(levelTwo.getTileType(42, 75));
     // Hazards live in the collision layer, as they do in level 1.
     assertNull(levelTwo.getLayer("hazards"));
-    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 44));
+    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 45));
     System.out.println(levelTwo.getLegend().get(TileType.HAZARD));
     assertEquals(TileType.DECORATIVE, levelTwo.getTileType(59, 173));
     assertEquals(TileType.WALL, levelTwo.getTileType(59, 165));
@@ -551,10 +642,18 @@ class JsonMapLoaderTest {
     assertEquals(6, levelTwo.getSpawns().getLoot().size());
     assertEquals("maps/level3.json", levelTwo.getTransitions().getFirst().getDestinationMap());
     assertEquals(new GridPoint2(67, 166), levelTwo.getTransitions().getFirst().getPosition());
-    assertEquals("images/level2/level2-map.png", levelTwo.getBackgroundTexture());
+    assertEquals("images/level2/level2-foreground.png", levelTwo.getBackgroundTexture());
+    // One sky spans the whole climb, so both sub-levels share the map-wide backdrop.
+    assertEquals(4, levelTwo.getBackdrop("base").size());
+    assertEquals(levelTwo.getBackdrop("base"), levelTwo.getBackdrop("skies"));
+    assertTrue(levelTwo.getBackdrop("skies").getFirst().spansMap());
+    // Rain falls only around the storm clouds near the top of the climb.
+    assertEquals(new BackdropLayer.Rows(128, 160), levelTwo.getOverlay("skies").getFirst().rows());
 
     LevelMapData levelThree = loader.load("maps/level3.json");
-    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
+    assertEquals(
+        levelThree.getSpawns().getPlayer(),
+        levelTwo.getTransitions().getFirst().getDestinationSpawn());
   }
 
   @Test
@@ -562,52 +661,49 @@ class JsonMapLoaderTest {
     LevelMapData levelThree = loader.load("maps/level3.json");
 
     assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
-    assertEquals(88, levelThree.getWidth());
-    assertEquals(24, levelThree.getHeight());
-    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
-    assertEquals(13, levelThree.getSpawns().getEnemies().size());
-    List<SpawnPoint> enemies = levelThree.getSpawns().getEnemies();
-    assertTrue(
-        enemies.stream()
-            .anyMatch(
-                s -> "zeus".equals(s.getType()) && s.getPosition().equals(new GridPoint2(83, 5))));
-    assertTrue(
-        enemies.stream()
-            .anyMatch(
-                s ->
-                    "cyclops".equals(s.getType())
-                        && s.getPosition().equals(new GridPoint2(69, 3))));
-    assertTrue(
-        enemies.stream()
-            .anyMatch(
-                s ->
-                    "cerberus".equals(s.getType())
-                        && s.getPosition().equals(new GridPoint2(74, 3))));
-    assertEquals(4, enemies.stream().filter(s -> "medusa".equals(s.getType())).count());
-    for (int medusaX : new int[] {19, 27, 35, 43}) {
-      assertTrue(
-          enemies.stream()
-              .anyMatch(
-                  s ->
-                      "medusa".equals(s.getType())
-                          && s.getPosition().equals(new GridPoint2(medusaX, 3))));
-    }
-    assertEquals(4, enemies.stream().filter(s -> "ranged-harpy".equals(s.getType())).count());
-    for (MapLayerData layer : levelThree.getLayers()) {
-      for (int x = 0; x < levelThree.getWidth(); x++) {
-        for (int y = 0; y < levelThree.getHeight(); y++) {
-          TileDefinition tile = layer.get(x, y);
-          if (tile != null) {
-            assertTrue(
-                tile.type() == TileType.WALL
-                    || tile.type() == TileType.PLATFORM
-                    || tile.type() == TileType.HAZARD
-                    || tile.type() == TileType.DECORATIVE,
-                "unexpected tile type " + tile.type() + " at " + x + "," + y);
-          }
+    assertEquals(52, levelThree.getWidth());
+    assertEquals(26, levelThree.getHeight());
+    // The player arrives on the spawn level 2's summit exit sends them to.
+    assertEquals(new GridPoint2(8, 3), levelThree.getSpawns().getPlayer());
+    assertEquals(1, levelThree.getSpawns().getEnemies().size());
+    assertEquals("zeus", levelThree.getSpawns().getEnemies().getFirst().getType());
+    // Zeus is placed one tile above the floor he stands on, which is where his sprite is anchored.
+    assertEquals(
+        new GridPoint2(26, 4), levelThree.getSpawns().getEnemies().getFirst().getPosition());
+    assertEquals(5, levelThree.getSpawns().getLoot().size());
+
+    // The throne balcony is a platform over Zeus's spot, and ladders climb both walls.
+    assertEquals(TileType.PLATFORM, levelThree.getTileType(26, 18));
+    assertEquals(TileType.LADDER, levelThree.getTileType(3, 5));
+    assertEquals(TileType.LADDER, levelThree.getTileType(48, 5));
+    // The throne room's furniture is all walk-through decoration, kept out of the collision layer.
+    MapLayerData furniture = levelThree.getLayer("background");
+    for (int x = 0; x < levelThree.getWidth(); x++) {
+      for (int y = 0; y < levelThree.getHeight(); y++) {
+        TileDefinition tile = furniture.get(x, y);
+        if (tile != null) {
+          assertEquals(TileType.DECORATIVE, tile.type());
         }
       }
     }
+  }
+
+  @Test
+  void levelThreeBackdropFlickersLightningBehindTheArches() {
+    LevelMapData levelThree = loader.load("maps/level3.json");
+
+    List<BackdropLayer> backdrop = levelThree.getBackdrop(null);
+    assertEquals(7, backdrop.size());
+    BackdropLayer.Flicker lightning = backdrop.get(1).flicker();
+    assertEquals(4, lightning.frames());
+    assertEquals(0, lightning.frameAt(0f));
+    assertEquals(3, lightning.frameAt(0.3f));
+    assertEquals(-1, lightning.frameAt(0.4f));
+    assertEquals(-1, lightning.frameAt(-1f));
+    assertNull(backdrop.getLast().flicker());
+    // The rain is drawn thin so it never hides an attack's warning.
+    assertEquals(0.8f, levelThree.getOverlay(null).getFirst().alpha(), 0.001f);
+    assertEquals(0.8f, levelThree.getOverlay(null).getFirst().visibilityAt(5f), 0.001f);
   }
 
   @Test

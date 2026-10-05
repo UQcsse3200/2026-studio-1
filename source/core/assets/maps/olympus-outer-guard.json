@@ -4,24 +4,19 @@
   "legend": {
     "#": {
       "type": "WALL",
-      "texture": "images/level2/quarry-marble-cut-512px.png"
+      "texture": "images/level2/cliff-granite-512px.png"
     },
     "^": {
       "type": "WALL",
-      "texture": "images/level2/summit-gold-inlay-512px.png"
+      "texture": "images/level2/quarry-marble-cut-512px.png"
     },
     "_": {
       "type": "FLOOR",
-      "texture": "images/level1/floor-marble-512px.png"
+      "texture": "images/level2/summit-marble-512px.png"
     },
-    "-": {
-      "type": "PLATFORM",
-      "texture": "images/level1/platform-marble-512px.png"
-    },
-    "X": {
-      "type": "HAZARD",
-      "texture": "images/level2/hazard-rockslide-512px.png",
-      "damage": "15"
+    "=": {
+      "type": "ONE_WAY_PLATFORM",
+      "texture": "images/level2/cloud-solid-512px.png"
     },
     "v": {
       "type": "DECORATIVE",
@@ -29,15 +24,11 @@
     },
     "h": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-column-doric-512px.png"
-    },
-    "j": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/cloud-storm-512px.png"
+      "texture": "images/level2/decor-herm-512px.png"
     },
     "b": {
       "type": "DECORATIVE",
-      "texture": "images/level2/decor-fallen-pillar-512px.png"
+      "texture": "images/level2/decor-shrine-votive-512px.png"
     },
     "a": {
       "type": "DECORATIVE",
@@ -49,15 +40,11 @@
     },
     "k": {
       "type": "DECORATIVE",
-      "texture": "images/level2/decor-herm-512px.png"
+      "texture": "images/level2/decor-cypress-512px.png"
     },
-    "t": {
+    "c": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-tripod-512px.png"
-    },
-    "s": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/decor-shrine-votive-512px.png"
+      "texture": "images/level1/decor-column-doric-512px.png"
     }
   },
   "entityLegend": {
@@ -125,6 +112,16 @@
       "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
       "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
       "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
       "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
     ],
     "terrain": [
@@ -138,28 +135,48 @@
       "#                                              #",
       "#                                              #",
       "#                                              #",
-      "#        -----   ----- -----                   #",
+      "#                                              #",
+      "#################################              #",
+      "#                                              #",
+      "#                                ====          #",
+      "#                                              #",
+      "#                                     =====    #",
+      "#                                              #",
+      "#                                              #",
+      "#             ##################################",
+      "#                                              #",
+      "#                                              #",
+      "      =====                                    #",
       "                                               #",
       "                                               #",
-      "                                               #",
-      "#_________________________________XX___________#",
+      "#______________________________________________#",
       "################################################"
     ],
     "foreground": [
       "                                                ",
       "                                                ",
       "                                                ",
-      "                  j                 j           ",
-      "                                                ",
-      "                                         q      ",
       "                                                ",
       "                                                ",
       "                                                ",
+      "      q                                         ",
+      "          a         a         a                 ",
+      "                                                ",
+      "                                                ",
+      "        h       b                               ",
       "                                                ",
       "                                                ",
       "                                                ",
-      "            a               a                   ",
-      "       h              h         t     h      h  ",
+      "                  a         a                   ",
+      "                                                ",
+      "                                                ",
+      "                h         b                   k ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "            h       c         h         c   h   ",
       "                                                ",
       "                                                "
     ],
@@ -170,14 +187,24 @@
       "                                                ",
       "                                                ",
       "                                                ",
-      "               H                 H              ",
+      "                                        H       ",
       "                                                ",
       "                                                ",
-      "           R       R     R                      ",
+      "                        G                       ",
+      "  LLL       R                                   ",
       "                                                ",
       "                                                ",
-      "                              Y          G      ",
-      "    P     S   S   S                         LLL ",
+      "                                                ",
+      "         H                                      ",
+      "                                                ",
+      "                                Y               ",
+      "                    R                      R    ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "                                                ",
+      "    P           S       S           S           ",
       "                                                ",
       "                                                "
     ]
@@ -192,8 +219,8 @@
       "texture": "images/level1/gate-exit-512px.png",
       "destinationMap": "maps/level2.json",
       "destinationSpawn": {
-        "x": 51,
-        "y": 135
+        "x": 35,
+        "y": 51
       }
     }
   ]

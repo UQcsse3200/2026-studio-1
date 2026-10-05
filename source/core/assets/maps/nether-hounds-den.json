@@ -14,8 +14,8 @@
       "type": "FLOOR",
       "texture": "images/level1/cavern-floor-ash-512px.png"
     },
-    "-": {
-      "type": "PLATFORM",
+    "=": {
+      "type": "ONE_WAY_PLATFORM",
       "texture": "images/level1/ledge-basalt-512px.png"
     },
     "X": {
@@ -31,10 +31,6 @@
       "type": "DECORATIVE",
       "texture": "images/level1/decor-stalagmite-512px.png"
     },
-    "j": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-stalactite-512px.png"
-    },
     "b": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-bone-pile-512px.png"
@@ -43,21 +39,9 @@
       "type": "DECORATIVE",
       "texture": "images/level1/decor-oil-lamp-512px.png"
     },
-    "q": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-gorgoneion-512px.png"
-    },
     "k": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-skull-512px.png"
-    },
-    "t": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-tripod-512px.png"
-    },
-    "s": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/petrified-climber-512px.png"
     }
   },
   "entityLegend": {
@@ -110,76 +94,92 @@
   },
   "layers": {
     "background": [
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
     ],
     "terrain": [
-      "################################################",
-      "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#            -----    -----    -----           #",
-      "                                               #",
-      "                                               #",
-      "                                               #",
-      "#_________________________________XX___________#",
-      "################################################"
+      "########################################################",
+      "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
+      "#                                                      #",
+      "#                                                      #",
+      "#                                                      #",
+      "#                                                      #",
+      "############################################   #########",
+      "#                                                      #",
+      "#                                                      #",
+      "#                                              ====    #",
+      "#                                                      #",
+      "#                                                      #",
+      "##############   ###################   #################",
+      "#                   ##                                 #",
+      "#                   ##                                 #",
+      "          ====      ##          ====                   #",
+      "                    ##                                 #",
+      "                    ##                                 #",
+      "#_________________________________________XX___________#",
+      "########################################################"
     ],
     "foreground": [
-      "                                                ",
-      "                                                ",
-      "          j         j         j         j       ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "       a           a             a              ",
-      "        h               h   h        b k   k    ",
-      "                                                ",
-      "                                                "
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                a                       a               ",
+      "                                                        ",
+      "          b                                       h     ",
+      "                                                        ",
+      "                                                        ",
+      "          a                         a                   ",
+      "                                                        ",
+      "                                                        ",
+      "      h           b                                 k   ",
+      "                                                        ",
+      "                                                        ",
+      "        a                   a                a          ",
+      "                                                        ",
+      "                                                        ",
+      "       b         k      b                     b   k     ",
+      "                                                        ",
+      "                                                        "
     ],
     "entities": [
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                    H        H                  ",
-      "                                                ",
-      "                                                ",
-      "               R        R        R              ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "    P      S    S    S    S    S        D   LLL ",
-      "                                                ",
-      "                                                "
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "  L                   R           R                     ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                            H           H               ",
+      "                                                        ",
+      "                        S       S                       ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "    P       S             S   R         S       D   LLL ",
+      "                                                        ",
+      "                                                        "
     ]
   },
   "transitions": [

@@ -53,20 +53,31 @@ public class CyclopsAnimationController extends Component {
     entity.getEvents().addListener("rockLeftStart", this::animateRockThrowL);
     entity.getEvents().addListener("rockRightStart", this::animateRockThrowR);
     entity.getEvents().addListener("rockThrow", this::onRockThrow);
+    entity
+        .getEvents()
+        .addListener(
+            "rockAttack", (Entity target, ProjectileType projectile) -> onRockThrow(target));
+    entity.getEvents().addListener("rockAttackStart", this::onRockStart);
+    entity.getEvents().addListener("rockAttackWindup", this::onRockThrow);
+    entity.getEvents().addListener("rockAttackFired", this::onRockThrow);
+    entity.getEvents().addListener("rockStart", this::onRockStart);
 
     // Laser attack listeners
     entity.getEvents().addListener("laserLeftStart", this::animateLaserL);
     entity.getEvents().addListener("laserRightStart", this::animateLaserR);
-    entity.getEvents().addListener("laserAttack", this::onLaserAttack);
-    entity.getEvents().addListener("laserAttackStart", this::onLaserAttack);
+    entity
+        .getEvents()
+        .addListener(
+            "laserAttack", (Entity target, ProjectileType projectile) -> onLaserAttack(target));
+    entity.getEvents().addListener("laserAttackStart", this::onLaserStart);
+    entity.getEvents().addListener("laserAttackWindup", this::onLaserAttack);
+    entity.getEvents().addListener("laserAttackFired", this::onLaserAttack);
     entity.getEvents().addListener("laserStart", this::onLaserStart);
 
     // Melee stomp listeners
     entity.getEvents().addListener("stompLeftStart", this::animateStompL);
     entity.getEvents().addListener("stompRightStart", this::animateStompR);
     entity.getEvents().addListener("stomp", this::onMeleeAttack);
-    entity.getEvents().addListener("rockAttackWindup", this::onRockThrow);
-    entity.getEvents().addListener("laserAttackWindup", this::onLaserAttack);
     entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
     entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
 
@@ -74,6 +85,7 @@ public class CyclopsAnimationController extends Component {
     entity.getEvents().addListener("rangedAttackWindup", this::onRockThrow);
     entity.getEvents().addListener("rangedAttackFired", this::onRockThrow);
     entity.getEvents().addListener("rangedAttack", this::onRangedAttack);
+    entity.getEvents().addListener("rangedAttackStart", this::onRockStart);
 
     // Trigger a default starting state
     entity.getEvents().trigger("idleRightStart");
@@ -210,6 +222,10 @@ public class CyclopsAnimationController extends Component {
     currentAnimState =
         isTargetToLeft(target) ? AnimationState.LASER_LEFT : AnimationState.LASER_RIGHT;
     triggerStateEvent(currentAnimState);
+  }
+
+  private void onRockStart() {
+    onRockThrow(null);
   }
 
   private void onLaserStart() {

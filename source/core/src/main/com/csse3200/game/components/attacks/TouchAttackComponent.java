@@ -31,10 +31,14 @@ import com.csse3200.game.services.ServiceLocator;
  * <p>Fires {@code "touchAttackHit"} (the entity that was hit) each time a hit damages a target.
  */
 public class TouchAttackComponent extends Component {
+  private static final long BRIBE_DURATION_MILLIS = 20000L;
+
   private short targetLayer;
   private float knockbackForce = 0f;
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
+  private boolean bribed = false;
+  private long bribedUntil = 0L;
 
   /** True while contacts cause damage. Defaults to true, as before. */
   private boolean active = true;
@@ -73,6 +77,32 @@ public class TouchAttackComponent extends Component {
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
+  }
+
+  @Override
+  public void update() {
+    if (bribed && ServiceLocator.getTimeSource().getTime() >= bribedUntil) {
+      bribed = false;
+      bribedUntil = 0L;
+    }
+  }
+
+  /**
+   * Bribes this enemy for 20 seconds.
+   *
+   * @return true when the bribe was applied
+   */
+  public boolean bribe() {
+    bribed = true;
+    bribedUntil = ServiceLocator.getTimeSource().getTime() + BRIBE_DURATION_MILLIS;
+
+    entity.getEvents().trigger("enemyBribed", BRIBE_DURATION_MILLIS);
+
+    return true;
+  }
+
+  public boolean isBribed() {
+    return bribed;
   }
 
   /**
@@ -189,7 +219,7 @@ public class TouchAttackComponent extends Component {
   }
 
   private void onCollisionStart(Fixture me, Fixture other) {
-    if (hitboxComponent.getFixture() != me) {
+    if (hitboxComponent.getFixture() != me || bribed) {
       // Not triggered by hitbox, ignore
       return;
     }
@@ -199,7 +229,9 @@ public class TouchAttackComponent extends Component {
       return;
     }
 
+    // Try to attack target.
     Entity target = ((BodyUserData) other.getBody().getUserData()).entity;
+
     tryHit(target);
   }
 
@@ -217,6 +249,7 @@ public class TouchAttackComponent extends Component {
     }
 
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+
     if (targetStats != null) {
       // The (int) cast rounds down. The two-argument hit takes the amount directly, so this
       // entity's own base attack is never changed, even temporarily.
@@ -229,10 +262,14 @@ public class TouchAttackComponent extends Component {
 
     // Apply knockback
     PhysicsComponent physicsComponent = target.getComponent(PhysicsComponent.class);
+
     if (physicsComponent != null && knockbackForce > 0f) {
       Body targetBody = physicsComponent.getBody();
+
       Vector2 direction = target.getCenterPosition().sub(entity.getCenterPosition());
+
       Vector2 impulse = direction.setLength(knockbackForce);
+
       targetBody.applyLinearImpulse(impulse, targetBody.getWorldCenter(), true);
     }
   }

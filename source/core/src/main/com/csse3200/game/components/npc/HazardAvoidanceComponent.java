@@ -142,18 +142,8 @@ public class HazardAvoidanceComponent extends Component implements MovementGuard
 
     float edgeX = side > 0 ? maxX : minX;
     float rayY = minY + RAY_HEIGHT;
-    System.out.println("Start and End Y coordinate " + minY + " + " + RAY_HEIGHT + " = " + rayY);
     Vector2 start = new Vector2(edgeX, rayY);
-    System.out.println("Start x coordinate: " + edgeX);
     Vector2 end = new Vector2(edgeX + side * lookahead, rayY);
-    System.out.println(
-        "End x coordinate "
-            + edgeX
-            + " + "
-            + side * lookahead
-            + " = "
-            + (edgeX + (side * lookahead)));
-
     return ServiceLocator.getPhysicsService()
         .getPhysics()
         .raycast(start, end, PhysicsLayer.HAZARD, hit);

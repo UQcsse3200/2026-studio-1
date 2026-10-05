@@ -5,6 +5,25 @@ import com.csse3200.game.physics.components.PhysicsComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Makes an entity fly: zeroes its physics body's gravity scale once created, so the world's gravity
+ * never pulls it down between steering updates, and applies linear damping so knockback impulses
+ * fade out instead of carrying the entity away indefinitely (ground NPCs get the same effect for
+ * free from floor friction, which a flying entity has none of).
+ *
+ * <p>Pairs with a {@link com.csse3200.game.physics.components.PhysicsMovementComponent} left in its
+ * default (non-grounded) mode, which already steers toward the full 2D direction to a target -
+ * including the vertical component that a grounded entity deliberately ignores (see {@link
+ * com.csse3200.game.physics.components.PhysicsMovementComponent#setGroundedMovement}). With gravity
+ * zeroed, that steering becomes the only vertical force acting on the entity, which is what keeps a
+ * flying enemy (Harpy, Ranged Harpy) airborne while it wanders or chases instead of sinking like a
+ * grounded one.
+ *
+ * <p>Must be added to an entity that also has a {@link PhysicsComponent}, and relies on {@link
+ * PhysicsComponent#create()} having already run - true for every entity built the normal way, where
+ * component creation order follows {@code addComponent} order and {@code PhysicsComponent} is
+ * always added first (see {@code NPCFactory}'s {@code createBaseFlyingNPC}).
+ */
 public class FlightComponent extends Component {
   private float linearDamping;
   private static final Logger logger = LoggerFactory.getLogger(FlightComponent.class);

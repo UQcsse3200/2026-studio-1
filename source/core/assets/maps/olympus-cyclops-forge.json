@@ -4,38 +4,30 @@
   "legend": {
     "#": {
       "type": "WALL",
-      "texture": "images/level2/quarry-marble-cut-512px.png"
+      "texture": "images/level2/cliff-granite-512px.png"
     },
     "^": {
       "type": "WALL",
-      "texture": "images/level2/summit-gold-inlay-512px.png"
+      "texture": "images/level2/quarry-marble-cut-512px.png"
     },
     "_": {
       "type": "FLOOR",
-      "texture": "images/level1/floor-marble-512px.png"
+      "texture": "images/level2/summit-marble-512px.png"
     },
-    "-": {
-      "type": "PLATFORM",
-      "texture": "images/level1/platform-marble-512px.png"
+    "=": {
+      "type": "ONE_WAY_PLATFORM",
+      "texture": "images/level2/cloud-solid-512px.png"
     },
     "X": {
       "type": "HAZARD",
-      "texture": "images/level2/hazard-rockslide-512px.png",
+      "texture": "images/level1/hazard-firepit-512px.png",
       "damage": "15"
     },
     "v": {
       "type": "DECORATIVE",
       "texture": "images/level2/bg-sky-storm-512px.png"
     },
-    "h": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-column-doric-512px.png"
-    },
     "j": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/cloud-storm-512px.png"
-    },
-    "b": {
       "type": "DECORATIVE",
       "texture": "images/level2/decor-fallen-pillar-512px.png"
     },
@@ -43,21 +35,13 @@
       "type": "DECORATIVE",
       "texture": "images/level1/decor-oil-lamp-512px.png"
     },
-    "q": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-gorgoneion-512px.png"
-    },
-    "k": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/decor-herm-512px.png"
-    },
     "t": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-tripod-512px.png"
     },
-    "s": {
+    "u": {
       "type": "DECORATIVE",
-      "texture": "images/level2/decor-shrine-votive-512px.png"
+      "texture": "images/level1/decor-urn-512px.png"
     }
   },
   "entityLegend": {
@@ -110,76 +94,92 @@
   },
   "layers": {
     "background": [
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
     ],
     "terrain": [
-      "################################################",
-      "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#                                              #",
-      "#             -----     -----                  #",
-      "                                               #",
-      "                                               #",
-      "                                               #",
-      "#_____________________________XX_______________#",
-      "################################################"
+      "########################################",
+      "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "#                                      #",
+      "####   #################################",
+      "#             ######                   #",
+      "#             ######                   #",
+      "#      ====                            #",
+      "#                                      #",
+      "#                                      #",
+      "##################################   ###",
+      "#                                      #",
+      "#                                      #",
+      "                              ====     #",
+      "             ==    ==                  #",
+      "                                       #",
+      "#_____________XXXXXX___________________#",
+      "########################################"
     ],
     "foreground": [
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                j               j               ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "          a                             a       ",
-      "      h             h        t    h         h   ",
-      "                                                ",
-      "                                                "
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "          a         a             a     ",
+      "                                        ",
+      "                  j     t          t    ",
+      "                                        ",
+      "                                        ",
+      "            a                 a         ",
+      "                                        ",
+      "                                        ",
+      "                t               j   u   ",
+      "                                        ",
+      "                                        ",
+      "        a               a               ",
+      "                                        ",
+      "                                        ",
+      "       u    t         t       u         ",
+      "                                        ",
+      "                                        "
     ],
     "entities": [
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                R         R                     ",
-      "                                                ",
-      "                                                ",
-      "                                     Y          ",
-      "    P       S    S    S                    L L  ",
-      "                                                ",
-      "                                                "
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                              Y         ",
+      "              R                      LL ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                      S     R           ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "                                        ",
+      "    P     S               S             ",
+      "                                        ",
+      "                                        "
     ]
   },
   "transitions": [
@@ -192,8 +192,8 @@
       "texture": "images/level1/gate-exit-512px.png",
       "destinationMap": "maps/level2.json",
       "destinationSpawn": {
-        "x": 38,
-        "y": 15
+        "x": 35,
+        "y": 39
       }
     }
   ]

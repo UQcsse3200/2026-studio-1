@@ -71,6 +71,9 @@ public class RangedAttackComponent extends Component {
   private float damage;
   private WeaponItem weapon;
   private float windupDuration;
+  // Ticks (about 60/second) a LIGHTNING hit freezes its target for - only meaningful for that
+  // projectile type; see getLightningFreezeTicks()/setLightningFreezeTicks(). Defaults to 120 to
+  // match this class's previous hardcoded behaviour for any shooter that doesn't configure it.
   private float windupTimeRemaining;
   private float timeSinceLastAttack;
   private int lightningFreezeTicks = DEFAULT_LIGHTNING_FREEZE_TICKS;
@@ -285,15 +288,6 @@ public class RangedAttackComponent extends Component {
   }
 
   /**
-   * Returns how many ticks a lightning bolt from this shooter freezes its victim for.
-   *
-   * @return freeze length in ticks, 120 unless changed
-   */
-  public int getLightningFreezeTicks() {
-    return lightningFreezeTicks;
-  }
-
-  /**
    * Returns the configured projectile speed.
    *
    * @return projectile speed, in world units/second
@@ -364,6 +358,29 @@ public class RangedAttackComponent extends Component {
 
   public void setWindupDuration(float windupDuration) {
     this.windupDuration = windupDuration;
+  }
+
+  /**
+   * Returns how long, in ticks (about 60/second), a target is frozen for after being struck by a
+   * LIGHTNING projectile fired by this component. Not meaningful for any other projectile type.
+   *
+   * @return freeze duration in ticks
+   */
+  public int getLightningFreezeTicks() {
+    return this.lightningFreezeTicks;
+  }
+
+  /**
+   * Updates how long a LIGHTNING hit freezes its target for.
+   *
+   * @param lightningFreezeTicks new freeze duration, in ticks (about 60/second)
+   * @throws IllegalArgumentException if {@code lightningFreezeTicks} is negative
+   */
+  public void setLightningFreezeTicks(int lightningFreezeTicks) {
+    if (lightningFreezeTicks < 0) {
+      throw new IllegalArgumentException("lightningFreezeTicks must not be negative");
+    }
+    this.lightningFreezeTicks = lightningFreezeTicks;
   }
 
   /**

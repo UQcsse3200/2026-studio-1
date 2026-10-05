@@ -8,5 +8,6 @@ public enum ItemType {
   CONSUMABLE,
   WEAPON,
   CURRENCY,
-  SHIELD
+  SHIELD,
+  BALLISTIC_SHIELD
 }
