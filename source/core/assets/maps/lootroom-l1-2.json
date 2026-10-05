@@ -25,7 +25,10 @@
       "texture": "images/level1/platform-marble-512px.png"
     }
   },
-
+  "lighting": {
+    "ambient": { "color": "ambient_dark", "intensity": 0.25 },
+    "player": { "radius": 3.5, "color": "resinous_torch" }
+  },
   "entityLegend": {
     "P": {
       "type": "PLAYER"
