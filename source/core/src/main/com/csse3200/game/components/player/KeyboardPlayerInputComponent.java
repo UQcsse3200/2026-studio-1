@@ -343,6 +343,17 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     entity.getEvents().trigger("activateShield");
   }
 
+  /**
+   * Bribes the enemy that most recently damaged the player, if there is one and the player can
+   * afford it. {@code PlayerActions} shows the success / no-gold / no-target message itself.
+   */
+  private void tryBribe() {
+    PlayerActions playerActions = entity.getComponent(PlayerActions.class);
+    if (playerActions != null && playerActions.bribeLastAttacker()) {
+      logger.info("Bribe key pressed - enemy bribed");
+    }
+  }
+
   private void grantTestBow(int tier) {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
     if (inventory == null) {
