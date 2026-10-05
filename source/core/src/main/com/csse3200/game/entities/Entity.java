@@ -4,9 +4,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.ComponentType;
 import com.csse3200.game.events.EventHandler;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -229,6 +231,9 @@ public class Entity {
       return;
     }
     createdComponents = components.values().toArray();
+    createdComponents.sort(
+        Comparator.comparingInt(
+            c -> c.getPrio() == null ? ComponentPriority.LOW.getValue() : c.getPrio().getValue()));
     for (Component component : createdComponents) {
       component.create();
     }
@@ -293,5 +298,14 @@ public class Entity {
   @Override
   public String toString() {
     return String.format("Entity{id=%d}", id);
+  }
+
+  /**
+   * Gets whether the event has already been disposed.
+   *
+   * @return disposed boolean
+   */
+  public boolean isDisposed() {
+    return disposed;
   }
 }

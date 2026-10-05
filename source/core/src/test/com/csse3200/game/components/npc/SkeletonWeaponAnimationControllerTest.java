@@ -3,6 +3,7 @@ package com.csse3200.game.components.npc;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
@@ -25,6 +26,7 @@ class SkeletonWeaponAnimationControllerTest {
     entity = new Entity();
     controller = new SkeletonWeaponAnimationController();
 
+    lenient().when(weaponAnimator.getPrio()).thenReturn(ComponentPriority.LOW);
     lenient().when(weaponAnimator.hasAnimation("default_r")).thenReturn(true);
     lenient().when(weaponAnimator.hasAnimation("default_l")).thenReturn(true);
     lenient().when(weaponAnimator.hasAnimation("sword_r")).thenReturn(true);

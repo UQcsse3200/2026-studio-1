@@ -20,6 +20,15 @@ public class LevelMapData {
   /** Preferred name of the layer used to derive collision, if present. */
   public static final String COLLISION_LAYER = "collision";
 
+  /** Backdrop key for a backdrop shown everywhere a sub-level has none of its own. */
+  public static final String WHOLE_MAP_BACKDROP = "*";
+
+  /** Legend property naming the light sprite a tile glows with. */
+  public static final String GLOW_PROPERTY = "glow";
+
+  /** Legend property naming a sprite sheet strip that animates over a tile's still texture. */
+  public static final String ANIMATION_PROPERTY = "animation";
+
   /** Fallback layer used for collision when no explicit collision layer exists. */
   public static final String TERRAIN_LAYER = "terrain";
 
@@ -32,35 +41,13 @@ public class LevelMapData {
   private final MapSpawns spawns;
   private final List<RoomTransition> transitions;
   private final String backgroundTexture;
-
-  public LevelMapData(
-      String name,
-      float tileSize,
-      int width,
-      int height,
-      Map<String, TileDefinition> legend,
-      List<MapLayerData> layers,
-      MapSpawns spawns) {
-    this(name, tileSize, width, height, legend, layers, spawns, Collections.emptyList());
-  }
-
-  public LevelMapData(
-      String name,
-      float tileSize,
-      int width,
-      int height,
-      Map<String, TileDefinition> legend,
-      List<MapLayerData> layers,
-      MapSpawns spawns,
-      List<RoomTransition> transitions) {
-    this(name, tileSize, width, height, legend, layers, spawns, transitions, null);
-  }
+  private final List<SubLevel> subLevels;
+  private final Map<String, List<BackdropLayer>> backdrops;
+  private final Map<String, List<BackdropLayer>> overlays;
 
   /**
-   * Creates map data with an optional full-map background image.
-   *
-   * <p>This is used by authored maps whose supplied artwork is a single composed image while their
-   * tile data remains the authoritative source for collisions.
+   * Creates map data with no transitions, background or sub-levels. For anything more, use {@link
+   * #builder(String)}.
    */
   public LevelMapData(
       String name,
@@ -69,9 +56,28 @@ public class LevelMapData {
       int height,
       Map<String, TileDefinition> legend,
       List<MapLayerData> layers,
-      MapSpawns spawns,
-      List<RoomTransition> transitions,
-      String backgroundTexture) {
+      MapSpawns spawns) {
+    this(
+        builder(name)
+            .tileSize(tileSize)
+            .size(width, height)
+            .legend(legend)
+            .layers(layers)
+            .spawns(spawns));
+  }
+
+  private LevelMapData(Builder builder) {
+    String name = builder.name;
+    float tileSize = builder.tileSize;
+    int width = builder.width;
+    int height = builder.height;
+    Map<String, TileDefinition> legend = builder.legend;
+    List<MapLayerData> layers = builder.layers;
+    MapSpawns spawns = builder.spawns;
+    List<RoomTransition> transitions = builder.transitions;
+    String backgroundTexture = builder.backgroundTexture;
+    List<SubLevel> subLevels = builder.subLevels;
+    this.subLevels = subLevels == null ? Collections.emptyList() : subLevels;
     this.name = name;
     this.tileSize = tileSize;
     this.width = width;
@@ -81,6 +87,8 @@ public class LevelMapData {
     this.spawns = spawns;
     this.transitions = transitions;
     this.backgroundTexture = backgroundTexture;
+    this.backdrops = builder.backdrops;
+    this.overlays = builder.overlays;
   }
 
   public String getName() {
@@ -169,6 +177,78 @@ public class LevelMapData {
   }
 
   /**
+   * The named sections of this map the game treats as separate places, such as level 1's dungeon
+   * and Nether. Empty for a map that is one place.
+   *
+   * @return the sub-levels in file order (unmodifiable)
+   */
+  public List<SubLevel> getSubLevels() {
+    return Collections.unmodifiableList(subLevels);
+  }
+
+  /**
+   * Finds the sub-level a tile row falls in.
+   *
+   * @param tileY tile y
+   * @return the sub-level containing that row, or null if the map has none or none match
+   */
+  public SubLevel getSubLevelAt(int tileY) {
+    for (SubLevel subLevel : subLevels) {
+      if (subLevel.containsRow(tileY)) {
+        return subLevel;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * The parallax backdrop drawn behind a sub-level's tiles: its own if it has one, otherwise the
+   * map's {@link #WHOLE_MAP_BACKDROP}.
+   *
+   * @param subLevelId a sub-level's id, or null for a part of the map outside every sub-level
+   * @return the backdrop layers, back to front (unmodifiable), empty if there are none
+   */
+  public List<BackdropLayer> getBackdrop(String subLevelId) {
+    return layersFor(backdrops, subLevelId);
+  }
+
+  /**
+   * The layers drawn in front of a sub-level's tiles and characters, such as rain: its own if it
+   * has any, otherwise the map's {@link #WHOLE_MAP_BACKDROP}.
+   *
+   * @param subLevelId a sub-level's id, or null for a part of the map outside every sub-level
+   * @return the overlay layers, back to front (unmodifiable), empty if there are none
+   */
+  public List<BackdropLayer> getOverlay(String subLevelId) {
+    return layersFor(overlays, subLevelId);
+  }
+
+  /**
+   * @return every overlay in this map, keyed by sub-level id or {@link #WHOLE_MAP_BACKDROP}
+   *     (unmodifiable)
+   */
+  public Map<String, List<BackdropLayer>> getOverlays() {
+    return Collections.unmodifiableMap(overlays);
+  }
+
+  private static List<BackdropLayer> layersFor(
+      Map<String, List<BackdropLayer>> stacks, String subLevelId) {
+    List<BackdropLayer> layers = subLevelId == null ? null : stacks.get(subLevelId);
+    if (layers == null) {
+      layers = stacks.getOrDefault(WHOLE_MAP_BACKDROP, List.of());
+    }
+    return Collections.unmodifiableList(layers);
+  }
+
+  /**
+   * @return every backdrop in this map, keyed by sub-level id or {@link #WHOLE_MAP_BACKDROP}
+   *     (unmodifiable)
+   */
+  public Map<String, List<BackdropLayer>> getBackdrops() {
+    return Collections.unmodifiableMap(backdrops);
+  }
+
+  /**
    * @return an optional composed background image which spans this entire map
    */
   public String getBackgroundTexture() {
@@ -176,8 +256,8 @@ public class LevelMapData {
   }
 
   /**
-   * All distinct, non-null texture paths referenced by the legend. Used by a game area to know
-   * which textures to load before building the terrain.
+   * All distinct, non-null texture paths this map draws with. Used by a game area to know which
+   * textures to load before building the terrain.
    *
    * @return the set of texture asset paths
    */
@@ -186,6 +266,12 @@ public class LevelMapData {
     for (TileDefinition def : legend.values()) {
       if (def.texture() != null) {
         paths.add(def.texture());
+      }
+      if (def.properties().containsKey(GLOW_PROPERTY)) {
+        paths.add(def.properties().get(GLOW_PROPERTY));
+      }
+      if (def.properties().containsKey(ANIMATION_PROPERTY)) {
+        paths.add(def.properties().get(ANIMATION_PROPERTY));
       }
     }
     for (RoomTransition transition : transitions) {
@@ -196,6 +282,16 @@ public class LevelMapData {
     if (backgroundTexture != null) {
       paths.add(backgroundTexture);
     }
+    for (List<BackdropLayer> backdrop : backdrops.values()) {
+      for (BackdropLayer layer : backdrop) {
+        paths.add(layer.texture());
+      }
+    }
+    for (List<BackdropLayer> overlay : overlays.values()) {
+      for (BackdropLayer layer : overlay) {
+        paths.add(layer.texture());
+      }
+    }
     return paths;
   }
 
@@ -204,5 +300,135 @@ public class LevelMapData {
    */
   public boolean isEmpty() {
     return layers.isEmpty() || width == 0 || height == 0;
+  }
+
+  /**
+   * Starts building map data.
+   *
+   * @param name the map's name
+   * @return a builder with empty legend, layers, spawns, transitions and sub-levels
+   */
+  public static Builder builder(String name) {
+    return new Builder(name);
+  }
+
+  /** Assembles a {@link LevelMapData} one part at a time. */
+  public static final class Builder {
+    private final String name;
+    private float tileSize = 0.5f;
+    private int width;
+    private int height;
+    private Map<String, TileDefinition> legend = Collections.emptyMap();
+    private List<MapLayerData> layers = Collections.emptyList();
+    private MapSpawns spawns = new MapSpawns();
+    private List<RoomTransition> transitions = Collections.emptyList();
+    private String backgroundTexture;
+    private List<SubLevel> subLevels = Collections.emptyList();
+    private Map<String, List<BackdropLayer>> backdrops = Collections.emptyMap();
+    private Map<String, List<BackdropLayer>> overlays = Collections.emptyMap();
+
+    private Builder(String name) {
+      this.name = name;
+    }
+
+    /**
+     * @param tileSize the world size of one tile
+     * @return this builder
+     */
+    public Builder tileSize(float tileSize) {
+      this.tileSize = tileSize;
+      return this;
+    }
+
+    /**
+     * @param width width in tiles
+     * @param height height in tiles
+     * @return this builder
+     */
+    public Builder size(int width, int height) {
+      this.width = width;
+      this.height = height;
+      return this;
+    }
+
+    /**
+     * @param legend symbols to tile definitions
+     * @return this builder
+     */
+    public Builder legend(Map<String, TileDefinition> legend) {
+      this.legend = legend;
+      return this;
+    }
+
+    /**
+     * @param layers tile layers in draw order, back to front
+     * @return this builder
+     */
+    public Builder layers(List<MapLayerData> layers) {
+      this.layers = layers;
+      return this;
+    }
+
+    /**
+     * @param spawns the map's spawn data
+     * @return this builder
+     */
+    public Builder spawns(MapSpawns spawns) {
+      this.spawns = spawns;
+      return this;
+    }
+
+    /**
+     * @param transitions doorways out of the map
+     * @return this builder
+     */
+    public Builder transitions(List<RoomTransition> transitions) {
+      this.transitions = transitions == null ? Collections.emptyList() : transitions;
+      return this;
+    }
+
+    /**
+     * @param backgroundTexture one image stretched over the whole map, or null
+     * @return this builder
+     */
+    public Builder backgroundTexture(String backgroundTexture) {
+      this.backgroundTexture = backgroundTexture;
+      return this;
+    }
+
+    /**
+     * @param subLevels named sections of the map, empty if it is one place
+     * @return this builder
+     */
+    public Builder subLevels(List<SubLevel> subLevels) {
+      this.subLevels = subLevels == null ? Collections.emptyList() : subLevels;
+      return this;
+    }
+
+    /**
+     * @param backdrops parallax backdrop layers keyed by sub-level id, empty if the map has none
+     * @return this builder
+     */
+    public Builder backdrops(Map<String, List<BackdropLayer>> backdrops) {
+      this.backdrops = backdrops == null ? Collections.emptyMap() : backdrops;
+      return this;
+    }
+
+    /**
+     * @param overlays layers drawn in front of the tiles, keyed by sub-level id, empty if the map
+     *     has none
+     * @return this builder
+     */
+    public Builder overlays(Map<String, List<BackdropLayer>> overlays) {
+      this.overlays = overlays == null ? Collections.emptyMap() : overlays;
+      return this;
+    }
+
+    /**
+     * @return the assembled map data
+     */
+    public LevelMapData build() {
+      return new LevelMapData(this);
+    }
   }
 }

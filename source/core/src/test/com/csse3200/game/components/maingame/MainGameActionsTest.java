@@ -16,7 +16,7 @@ class MainGameActionsTest {
 
     ui.getEvents().trigger("restartGame");
 
-    verify(game).setScreenDeferred(GdxGame.ScreenType.MAIN_GAME);
+    verify(game).setScreenDeferred(GdxGame.ScreenType.RESTART_GAME);
   }
 
   @Test

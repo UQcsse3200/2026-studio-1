@@ -2,6 +2,7 @@ package com.csse3200.game.components;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -24,6 +25,7 @@ public class PlatformerComponent extends Component {
   private PhysicsComponent physicsComponent;
   private PhysicsEngine physics;
   ColliderComponent collider;
+  private StaminaComponent staminaComponent;
 
   public PlatformerComponent(int baseJumpScaler) {
     this.baseJumpScaler = baseJumpScaler;
@@ -49,6 +51,7 @@ public class PlatformerComponent extends Component {
     physics = ServiceLocator.getPhysicsService().getPhysics();
     entity.getEvents().addListener("jump", this::jump);
     collider = entity.getComponent(ColliderComponent.class);
+    staminaComponent = entity.getComponent(StaminaComponent.class);
   }
 
   /*
@@ -135,11 +138,26 @@ public class PlatformerComponent extends Component {
     this.jumpDirection.y = direction.y;
     // Normal jump code
     if (isGrounded() || (doubleJumpPowerup && doubleJumpRemaining > 0)) {
+
+      if (staminaComponent == null
+          || !staminaComponent.hasEnoughStamina(staminaComponent.getJumpCost())) {
+        return;
+      }
+
       this.jumpDirection.y *= baseJumpScaler;
-      if (!isGrounded()) doubleJumpRemaining--;
-      if (superJumpPowerup) this.jumpDirection.y *= superJumpScaler;
+
+      if (!isGrounded()) {
+        doubleJumpRemaining--;
+      }
+
+      if (superJumpPowerup) {
+        this.jumpDirection.y *= superJumpScaler;
+      }
+
+      staminaComponent.useStamina(staminaComponent.getJumpCost());
       jumping = true;
     }
+
     if (doubleJumpPowerup && isGrounded()) {
       doubleJumpRemaining = maxDoubleJump;
     }

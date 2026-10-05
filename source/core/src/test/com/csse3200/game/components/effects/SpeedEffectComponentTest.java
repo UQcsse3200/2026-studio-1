@@ -3,6 +3,7 @@ package com.csse3200.game.components.effects;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
@@ -20,6 +21,7 @@ class SpeedEffectComponentTest {
   void setUp() {
     entity = new Entity();
     playerActions = mock(PlayerActions.class);
+    when(playerActions.getPrio()).thenReturn(ComponentPriority.LOW);
     entity.addComponent(playerActions);
   }
 

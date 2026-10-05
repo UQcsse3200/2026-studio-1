@@ -8,13 +8,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.ui.UIComponent;
 
-/** Displays an interaction prompt while the player can use the dungeon lift to reach the Nether. */
+/** Displays the Level 1 lift prompt or an ordinary ladder's automatic ascent prompt. */
 public class SubLevelTravelPromptDisplay extends UIComponent {
   static final String PROMPT_TEXT = "Press \"E\" To go to the Nether";
+  static final String LADDER_PROMPT_TEXT = "Press \"E\" to go up";
   private static final float WORLD_VERTICAL_OFFSET = 0.35f;
 
   private final Entity player;
@@ -29,7 +31,7 @@ public class SubLevelTravelPromptDisplay extends UIComponent {
   @Override
   public void create() {
     super.create();
-    Label.LabelStyle style = new Label.LabelStyle(skin.get("large", Label.LabelStyle.class));
+    Label.LabelStyle style = new Label.LabelStyle(skin.get("subtitle", Label.LabelStyle.class));
     style.fontColor = Color.WHITE;
     prompt = new Label(PROMPT_TEXT, style);
     prompt.setTouchable(Touchable.disabled);
@@ -42,7 +44,17 @@ public class SubLevelTravelPromptDisplay extends UIComponent {
   @Override
   public void update() {
     SubLevelTravelComponent travel = player.getComponent(SubLevelTravelComponent.class);
-    prompt.setVisible(travel != null && travel.canTravelToNether());
+    LadderComponent ladder = player.getComponent(LadderComponent.class);
+    boolean showNether = travel != null && travel.canTravelToNether();
+    boolean showLadder = !showNether && ladder != null && ladder.canAutoClimb();
+    if (showNether || showLadder) {
+      String text = showNether ? PROMPT_TEXT : LADDER_PROMPT_TEXT;
+      if (!prompt.getText().toString().equals(text)) {
+        prompt.setText(text);
+        prompt.pack();
+      }
+    }
+    prompt.setVisible(showNether || showLadder);
   }
 
   @Override
