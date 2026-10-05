@@ -34,11 +34,14 @@ public final class KeybindSettings {
     defaultKeys.put("dash", Input.Keys.L);
     defaultKeys.put("slide", Input.Keys.SHIFT_LEFT);
     defaultKeys.put("attack", Input.Keys.SPACE);
+    defaultKeys.put("specialAttack", Input.Keys.F);
+    defaultKeys.put("areaAttack", Input.Keys.G);
     defaultKeys.put("bribe", Input.Keys.R);
     defaultKeys.put("dropItem", Input.Keys.Q);
     defaultKeys.put("equipShield", Input.Keys.B);
     defaultKeys.put("interact", Input.Keys.E);
     defaultKeys.put("toggleQuestMenu", Input.Keys.J);
+    defaultKeys.put("toggleTutorial", Input.Keys.T);
     defaultKeys.put("crouch", Input.Keys.CONTROL_LEFT);
     defaultKeys.put("TimeFreeze", Input.Keys.R);
     defaultKeys.put("pause", Input.Keys.ESCAPE);
@@ -65,10 +68,10 @@ public final class KeybindSettings {
     return keycode != null ? keycode : UNBOUND;
   }
 
-  /*
-   Binds action to keycode. If any other action currently holds keycode, that action is
-   unbound first (set to UNBOUND), so no two actions can ever share the same key.
-  */
+  /**
+   * Binds action to keycode. If any other action currently holds keycode, that action is unbound
+   * first (set to UNBOUND), so no two actions can ever share the same key.
+   */
   public static void setKey(String action, int keycode) {
     if (!currentKeys.containsKey(action)) {
       return;
@@ -87,7 +90,7 @@ public final class KeybindSettings {
     saveKey(action, keycode);
   }
 
-  // Resets every action back to its default key.
+  /** Resets every action back to its default key. */
   public static void resetToDefaults() {
     for (Map.Entry<String, Integer> entry : defaultKeys.entrySet()) {
       currentKeys.put(entry.getKey(), entry.getValue());

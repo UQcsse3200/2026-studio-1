@@ -7,6 +7,8 @@ import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.input.InputComponent;
+import com.csse3200.game.pausemenu.KeybindSettings;
+import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Input handler for the player for keyboard and touch (mouse) input. This input handler only uses
  * keyboard input.
+ *
+ * <p>Every action's key is looked up from {@link KeybindSettings} instead of being hardcoded, so
+ * the player can rebind controls at runtime from the pause menu. The one exception is the developer
+ * shortcuts in {@link #handleDebugKeys}, which are fixed keys.
  */
 public class KeyboardPlayerInputComponent extends InputComponent {
   private static final Logger logger = LoggerFactory.getLogger(KeyboardPlayerInputComponent.class);
@@ -30,6 +36,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean dashed = false;
   private boolean crouch = false;
   private String direction = "Right";
+  private String SLIDESTRING = "slide";
 
   public String getDirection() {
     return this.direction;
@@ -43,6 +50,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyDown(int keycode) {
+    if (PauseMenuComponent.isGamePaused().get()) {
+      return false;
+    }
     entity.getEvents().trigger("idle", direction);
 
     SubLevelTravelComponent travel = entity.getComponent(SubLevelTravelComponent.class);
@@ -50,134 +60,148 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return true;
     }
 
-    switch (keycode) {
-      case Keys.E:
-        return travel != null && travel.beginTravel();
-
-      case Keys.R:
-        /*
-         * R attempts to bribe the enemy that most recently damaged
-         * the player.
-         */
-        PlayerActions playerActions = entity.getComponent(PlayerActions.class);
-
-        if (playerActions != null && playerActions.bribeLastAttacker()) {
-          logger.info("R key pressed - enemy bribe successful");
-          return true;
-        }
-
-        return true;
-
-      case Keys.W:
-        LadderComponent ladderUp = entity.getComponent(LadderComponent.class);
-        if (ladderUp != null && ladderUp.beginClimb(1f)) {
-          return true;
-        }
-        jumpDirection.add(Vector2Utils.UP);
-        triggerJumpEvent();
-        entity.getEvents().trigger("jumping", direction);
-        jumped = true;
-        return true;
-
-      case Keys.L:
-        dashing();
-        return true;
-
-      case Keys.A:
-        walking('a');
-        return true;
-
-      case Keys.S:
-        LadderComponent ladderDown = entity.getComponent(LadderComponent.class);
-        if (ladderDown != null && ladderDown.beginClimb(-1f)) {
-          return true;
-        }
-        walkDirection.add(Vector2Utils.DOWN);
-        triggerWalkEvent();
-
-        return true;
-
-      case Keys.D:
-        walking('d');
-        return true;
-
-      case Keys.SPACE:
-        entity.getEvents().trigger("attack");
-        entity.getEvents().trigger("attacking", direction);
-        return true;
-      case Keys.U:
-        entity.getEvents().trigger("activateTimeFreeze");
-        return true;
-      case Keys.F:
-        entity.getEvents().trigger("specialAttack");
-        return true;
-
-      case Keys.G:
-        entity.getEvents().trigger("areaAttack");
-        return true;
-
-      case Keys.Q:
-        entity.getEvents().trigger("dropItem");
-        return true;
-
-      case Keys.B:
-        activateAvailableShield();
-        return true;
-
-      case Keys.C:
-        logger.info("C key pressed - triggering activateArmour");
-        entity.getEvents().trigger("activateArmour");
-        return true;
-
-      case Keys.J:
-        entity.getEvents().trigger("toggleQuestMenu");
-        return true;
-
-      case Keys.T:
-        entity.getEvents().trigger("toggleTutorial");
-        return true;
-
-      case Keys.CONTROL_LEFT:
-        entity.getEvents().trigger("ctrlChanged", true);
-        entity.getEvents().trigger("crouchidle", direction);
-        crouch = true;
-        return true;
-
-      case Keys.SHIFT_LEFT:
-        entity.getEvents().trigger("slide", true);
-        return true;
-
-      case Keys.NUM_1:
-        handleInventorySlot(1);
-        return true;
-
-      case Keys.NUM_2:
-        handleInventorySlot(2);
-        return true;
-
-      case Keys.NUM_3:
-        handleInventorySlot(3);
-        return true;
-
-      case Keys.NUM_4:
-        handleInventorySlot(4);
-        return true;
-
-      case Keys.NUM_5:
-        handleInventorySlot(5);
-        return true;
-
-      case Keys.F6:
-        grantTestBow(2);
-        return true;
-
-      case Keys.F7:
-        grantTestBow(3);
-        return true;
-
-      default:
-        return false;
+    if (keycode == KeybindSettings.getKey("interact")) {
+      return travel != null && travel.beginTravel();
     }
+
+    return handleJumpKey(keycode)
+        || handleMovementKeys(keycode)
+        || handleCombatAndItemKeys(keycode)
+        || handleHotbarKeys(keycode)
+        || handleDebugKeys(keycode);
+  }
+
+  /** Handles the jump key, starting a ladder climb instead when one is available. */
+  private boolean handleJumpKey(int keycode) {
+    if (keycode != KeybindSettings.getKey("jump")) {
+      return false;
+    }
+
+    LadderComponent ladderUp = entity.getComponent(LadderComponent.class);
+    if (ladderUp != null && ladderUp.beginClimb(1f)) {
+      return true;
+    }
+    jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
+    triggerJumpEvent();
+    entity.getEvents().trigger("jumping", direction);
+    jumped = true;
+    return true;
+  }
+
+  /** Handles dash and the walk / ladder-down directional keys. */
+  private boolean handleMovementKeys(int keycode) {
+    if (keycode == KeybindSettings.getKey("dash")) {
+      dashing(); // makes player dash
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("moveLeft")) {
+      walking('a'); // makes player walk left
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("moveDown")) {
+      LadderComponent ladderDown = entity.getComponent(LadderComponent.class);
+      if (ladderDown != null && ladderDown.beginClimb(-1f)) {
+        return true;
+      }
+      walkDirection.add(Vector2Utils.DOWN);
+      triggerWalkEvent();
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("moveRight")) {
+      walking('d'); // makes player walk right
+      return true;
+    }
+    return false;
+  }
+
+  /** Handles attacks, item/shield use, the quest and tutorial toggles, crouch and slide. */
+  private boolean handleCombatAndItemKeys(int keycode) {
+    if (keycode == KeybindSettings.getKey("attack")) {
+      entity.getEvents().trigger("attack");
+      entity.getEvents().trigger("attacking", direction);
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("specialAttack")) {
+      entity.getEvents().trigger("specialAttack");
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("areaAttack")) {
+      entity.getEvents().trigger("areaAttack");
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("dropItem")) {
+      entity.getEvents().trigger("dropItem");
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("equipShield")) {
+      entity.getEvents().trigger("activateShield");
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("activateBallisticShield")) {
+      activateAvailableShield();
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("toggleQuestMenu")) {
+      entity.getEvents().trigger("toggleQuestMenu");
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("toggleTutorial")) {
+      entity.getEvents().trigger("toggleTutorial");
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("crouch")) {
+      entity.getEvents().trigger("ctrlChanged", true);
+      entity.getEvents().trigger("crouchidle", direction);
+      crouch = true;
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey(SLIDESTRING)) {
+      entity.getEvents().trigger(SLIDESTRING, true);
+      return true;
+    }
+    return false;
+  }
+
+  /** Handles the five hotbar slot keys. */
+  private boolean handleHotbarKeys(int keycode) {
+    if (keycode == KeybindSettings.getKey("hotbarSlot1")) {
+      handleInventorySlot(1);
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("hotbarSlot2")) {
+      handleInventorySlot(2);
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("hotbarSlot3")) {
+      handleInventorySlot(3);
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("hotbarSlot4")) {
+      handleInventorySlot(4);
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("hotbarSlot5")) {
+      handleInventorySlot(5);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Developer shortcuts that grant a test bow. Deliberately fixed keys, not rebindable (no row in
+   * the pause menu's Keybinds panel), and checked after every rebindable action so a player's own
+   * binding always wins over them.
+   */
+  private boolean handleDebugKeys(int keycode) {
+    if (keycode == Keys.F6) {
+      grantTestBow(2);
+      return true;
+    }
+    if (keycode == Keys.F7) {
+      grantTestBow(3);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -252,45 +276,48 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    */
   @Override
   public boolean keyUp(int keycode) {
-    switch (keycode) {
-      case Keys.W:
-        stopClimbing();
-        return true;
-
-      case Keys.A:
-        walkDirection.sub(Vector2Utils.LEFT);
-        if (walkDirection.isZero()) {
-          entity.getEvents().trigger("idle", direction);
-        }
-        triggerWalkEvent();
-        return true;
-
-      case Keys.S:
-        stopClimbing();
-        walkDirection.sub(Vector2Utils.DOWN);
-        triggerWalkEvent();
-        return true;
-
-      case Keys.D:
-        walkDirection.sub(Vector2Utils.RIGHT);
-        if (walkDirection.isZero()) {
-          entity.getEvents().trigger("idle", direction);
-        }
-        triggerWalkEvent();
-        return true;
-
-      case Keys.CONTROL_LEFT:
-        entity.getEvents().trigger("ctrlChanged", false);
-        entity.getEvents().trigger("idle", direction);
-        crouch = false;
-        return true;
-
-      case Keys.SHIFT_LEFT:
-        return true;
-
-      default:
-        return false;
+    if (PauseMenuComponent.isGamePaused().get()) {
+      stopClimbing();
+      return false;
     }
+
+    if (keycode == KeybindSettings.getKey("jump")) {
+      stopClimbing();
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("moveLeft")) {
+      walkDirection.sub(Vector2Utils.LEFT);
+      if (walkDirection.isZero()) {
+        entity.getEvents().trigger("idle", direction);
+      }
+      triggerWalkEvent();
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("moveDown")) {
+      stopClimbing();
+      walkDirection.sub(Vector2Utils.DOWN);
+      triggerWalkEvent();
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("moveRight")) {
+      walkDirection.sub(Vector2Utils.RIGHT);
+      if (walkDirection.isZero()) {
+        entity.getEvents().trigger("idle", direction);
+      }
+      triggerWalkEvent();
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey("crouch")) {
+      entity.getEvents().trigger("ctrlChanged", false);
+      entity.getEvents().trigger("idle", direction);
+      crouch = false;
+      return true;
+    }
+    if (keycode == KeybindSettings.getKey(SLIDESTRING)) {
+      return true;
+    }
+
+    return false;
   }
 
   private void stopClimbing() {
