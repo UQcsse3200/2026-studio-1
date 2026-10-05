@@ -1,6 +1,8 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
@@ -46,8 +48,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   }
 
   /**
-   * \* Triggers player events on specific keycodes. \* \* @return whether the input was processed
-   * \* @see InputProcessor#keyDown(int)
+   * Per-frame upkeep: stops walking if the game was just paused, and lets go of any held direction
+   * or crouch whose key was released while a menu was consuming the input (see {@link
+   * #releaseWalkDirectionsNoLongerHeld()}).
    */
   @Override
   public void update() {
@@ -58,8 +61,75 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
 
     wasPaused = paused;
+
+    if (!paused) {
+      releaseWalkDirectionsNoLongerHeld();
+      releaseCrouchIfNoLongerHeld();
+    }
   }
 
+  /**
+   * Lets go of any held walk direction whose key is no longer down.
+   *
+   * <p>A key release only reaches this component if no higher-priority handler consumes it first,
+   * and while the game is paused the pause menu consumes them: it takes every Left/Right release
+   * (to drive its sliders) and {@code KeyboardPauseInput} takes the rest. So hold Left, pause,
+   * release Left, unpause would leave {@code walkingLeft} set with no release ever coming, and the
+   * player would keep walking on its own. Losing window focus mid-press does the same. Checking the
+   * real keyboard each frame repairs it however the release got lost.
+   */
+  private void releaseWalkDirectionsNoLongerHeld() {
+    boolean released = false;
+    if (walkingLeft && !isKeyHeld("moveLeft")) {
+      walkDirection.sub(Vector2Utils.LEFT);
+      walkingLeft = false;
+      released = true;
+    }
+    if (walkingRight && !isKeyHeld("moveRight")) {
+      walkDirection.sub(Vector2Utils.RIGHT);
+      walkingRight = false;
+      released = true;
+    }
+    if (walkingDown && !isKeyHeld("moveDown")) {
+      walkDirection.sub(Vector2Utils.DOWN);
+      walkingDown = false;
+      released = true;
+    }
+    if (released) {
+      if (walkDirection.isZero()) {
+        entity.getEvents().trigger("idle", direction);
+      }
+      triggerWalkEvent();
+    }
+  }
+
+  /**
+   * Same repair as {@link #releaseWalkDirectionsNoLongerHeld()}, for a crouch whose key-up was
+   * lost.
+   */
+  private void releaseCrouchIfNoLongerHeld() {
+    if (crouch && !isKeyHeld("crouch")) {
+      entity.getEvents().trigger("ctrlChanged", false);
+      entity.getEvents().trigger("idle", direction);
+      crouch = false;
+    }
+  }
+
+  /**
+   * @param action the action name, as used with {@link KeybindSettings#getKey(String)}
+   * @return whether the key currently bound to that action is physically held down
+   */
+  boolean isKeyHeld(String action) {
+    int key = KeybindSettings.getKey(action);
+    return key >= 0 && Gdx.input != null && Gdx.input.isKeyPressed(key);
+  }
+
+  /**
+   * Triggers player events on specific keycodes.
+   *
+   * @return whether the input was processed
+   * @see InputProcessor#keyDown(int)
+   */
   @Override
   public boolean keyDown(int keycode) {
     if (PauseMenuComponent.isGamePaused().get()) {
