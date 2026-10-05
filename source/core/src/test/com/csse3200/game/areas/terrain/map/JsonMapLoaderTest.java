@@ -466,10 +466,9 @@ class JsonMapLoaderTest {
             + count
             + " enemies spawned on the map.");
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
-    // Transparent ladders and ledges render over the parallax backdrops, so the background layer
-    // is kept for parity with the other levels but holds no tiles.
+    // Transparent ladders and ledges must render over a background rather than the clear colour.
     assertNotNull(levelOne.getLayer("background"));
-    assertNull(levelOne.getLayer("background").get(26, 33));
+    assertEquals(TileType.DECORATIVE, levelOne.getLayer("background").get(26, 33).type());
     // The Nether endpoint keeps the ladder passage open beside its solid marble landing.
     assertEquals(TileType.LADDER, levelOne.getTileType(26, 33));
     assertEquals(TileType.PLATFORM, levelOne.getTileType(27, 33));
@@ -488,9 +487,10 @@ class JsonMapLoaderTest {
         "images/level1/hazard-spikes-bronze-512px.png",
         levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
-    assertEquals(1, levelOne.getTransitions().size());
+    assertEquals(5, levelOne.getTransitions().size());
     assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
-    // Level 1 is drawn from its tiles, with no composed image behind them.
+    // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
+    // map still loads and renders from its tile layers.
     assertNull(levelOne.getBackgroundTexture());
     // The dungeon and the Nether each draw their own parallax backdrop instead of background tiles.
     assertEquals(4, levelOne.getBackdrop("dungeon").size());
@@ -600,7 +600,7 @@ class JsonMapLoaderTest {
     assertNull(levelTwo.getTileType(42, 75));
     // Hazards live in the collision layer, as they do in level 1.
     assertNull(levelTwo.getLayer("hazards"));
-    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 44));
+    assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 45));
     System.out.println(levelTwo.getLegend().get(TileType.HAZARD));
     assertEquals(TileType.DECORATIVE, levelTwo.getTileType(59, 173));
     assertEquals(TileType.WALL, levelTwo.getTileType(59, 165));
@@ -660,7 +660,7 @@ class JsonMapLoaderTest {
     LevelMapData levelThree = loader.load("maps/level3.json");
 
     assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
-    assertEquals(88, levelThree.getWidth());
+    assertEquals(52, levelThree.getWidth());
     assertEquals(24, levelThree.getHeight());
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
     assertEquals(13, levelThree.getSpawns().getEnemies().size());
@@ -706,6 +706,7 @@ class JsonMapLoaderTest {
         }
       }
     }
+    MapLayerData hazards = levelThree.getCollisionLayer();
     TileDefinition charged = hazards.get(10, 2);
     assertEquals("images/effects/lighting/glow-electric.png", charged.get("glow"));
     assertEquals(4, charged.getInt("frames", 0));

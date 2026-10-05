@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.CombatStatsComponent;
@@ -65,6 +66,9 @@ public final class AttackTestWorld {
     when(texture.getHeight()).thenReturn(16);
     ResourceService resourceService = mock(ResourceService.class);
     when(resourceService.getAsset(anyString(), eq(Texture.class))).thenReturn(texture);
+
+    Sound zapSound = mock(Sound.class);
+    when(resourceService.getAsset(anyString(), eq(Sound.class))).thenReturn(zapSound);
 
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(DELTA);
