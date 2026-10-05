@@ -29,15 +29,17 @@ import org.junit.jupiter.params.provider.MethodSource;
  * Tests every side room, one parameterised case per room, against the same table of what each room
  * is meant to contain. The table is the specification: adding a room means adding one row here.
  *
- * <p>Every room has its own size and layout, given in the table. What they share is one doorway cut
- * into the left wall that leads back to the parent map, a player arrival tile at (4, 2), one boss
- * with a mob, and some loot past the boss. The rules:
+ * <p>Every room has its own size and layout, given in the table. What they share is a player
+ * arrival tile at (4, 2), an entry doorway cut into the left wall beside it, an exit doorway cut
+ * into a side wall of the top storey so a cleared room is left from where it ends, one boss with a
+ * mob, and some loot past the boss. Both doorways lead back to the parent map. The rules:
  *
  * <ul>
  *   <li>the room loads, has the expected name and size, and the player arrival tile has ground
  *       under it
- *   <li>it has exactly one doorway: on the left wall, three tiles high, back to the right parent,
- *       and arriving on a tile that is not inside the parent's own door back to this room
+ *   <li>it has exactly two doorways, each three tiles high and back to the right parent: the entry
+ *       on the left wall at the arrival tile's height, and the exit on a side wall above it
+ *   <li>neither doorway arrives on a tile that is inside the parent's own door back to this room
  *   <li>the parent map has a doorway that leads to this room and arrives at the room's own spawn
  *   <li>the enemies are exactly the ones in the table, counted by type
  *   <li>a stationary boss (the Cerberus) comes with at least eight other enemies, any other boss
@@ -56,6 +58,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 @ExtendWith(GameExtension.class)
 class SideRoomsTest {
   private static final GridPoint2 ARRIVAL = new GridPoint2(4, 2);
+  private static final int STOREY_HEIGHT = 6; // floors are at least six tiles apart in every room
   private static final int AMBUSH_RADIUS =
       5; // a skeleton's melee reach is 2 units, which is 4 tiles
   private static final int BOSS_MIN_DISTANCE = 20;
@@ -212,33 +215,59 @@ class SideRoomsTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("rooms")
-  void shouldHaveExactlyOneDoorwayOnTheLeftWallLeadingBackToItsParent(Room room) {
+  void shouldHaveAnEntryOnTheLeftWallAndAnExitOnTheTopStoreyBothLeadingBackToItsParent(Room room) {
     LevelMapData map = loader.load(room.path());
 
-    assertEquals(1, map.getTransitions().size(), "one way in, one way out");
-    RoomTransition door = map.getTransitions().get(0);
-    assertEquals(0, door.getPosition().x, "cut into the left wall");
-    assertEquals(3, door.getHeight());
-    assertEquals(1, door.getWidth());
-    assertEquals(room.parent(), door.getDestinationMap());
-    assertEquals(room.parentArrival(), door.getDestinationSpawn());
-    assertNotNull(door.getTexture(), "a visible door");
+    assertEquals(2, map.getTransitions().size(), "the way in, and the way out at the top");
+    RoomTransition entry = map.getTransitions().get(0);
+    RoomTransition exit = map.getTransitions().get(1);
+    assertEquals(0, entry.getPosition().x, "the entry is cut into the left wall");
+    assertEquals(ARRIVAL.y, entry.getPosition().y, "beside the arrival tile");
+    int exitX = exit.getPosition().x;
+    assertTrue(exitX == 0 || exitX == room.width() - 1, "the exit is cut into a side wall");
+    assertTrue(
+        exit.getPosition().y >= entry.getPosition().y + STOREY_HEIGHT,
+        "the exit is at least a storey above the entry");
+    for (RoomTransition door : map.getTransitions()) {
+      assertEquals(3, door.getHeight());
+      assertEquals(1, door.getWidth());
+      assertEquals(room.parent(), door.getDestinationMap());
+      assertEquals(room.parentArrival(), door.getDestinationSpawn());
+      assertNotNull(door.getTexture(), "a visible door");
+    }
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rooms")
+  void shouldHaveNoFloorAboveTheExit(Room room) {
+    LevelMapData map = loader.load(room.path());
+    LevelView view = new MapDataLevelView(map);
+    RoomTransition exit = map.getTransitions().get(1);
+    int inside = exit.getPosition().x == 0 ? 1 : room.width() - 2;
+
+    assertTrue(view.isSupporting(inside, exit.getPosition().y - 1), "the exit stands on a floor");
+    // The top two rows are the ceiling; anything standable between it and the exit is a storey.
+    for (int y = exit.getPosition().y; y < room.height() - 2; y++) {
+      assertFalse(view.isSupporting(inside, y), "the exit is on the top storey, nothing above it");
+    }
   }
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("rooms")
   void shouldNotStandTheArrivingPlayerInsideTheDoorBackToTheRoom(Room room) {
     LevelMapData parent = loader.load(room.parent());
-    GridPoint2 arrival = loader.load(room.path()).getTransitions().get(0).getDestinationSpawn();
 
-    for (RoomTransition door : parent.getTransitions()) {
-      if (door.getDestinationMap().equals(room.path())) {
-        boolean inside =
-            arrival.x >= door.getPosition().x
-                && arrival.x < door.getPosition().x + door.getWidth()
-                && arrival.y >= door.getPosition().y
-                && arrival.y < door.getPosition().y + door.getHeight();
-        assertFalse(inside, "arriving back would bounce the player straight into the room again");
+    for (RoomTransition back : loader.load(room.path()).getTransitions()) {
+      GridPoint2 arrival = back.getDestinationSpawn();
+      for (RoomTransition door : parent.getTransitions()) {
+        if (door.getDestinationMap().equals(room.path())) {
+          boolean inside =
+              arrival.x >= door.getPosition().x
+                  && arrival.x < door.getPosition().x + door.getWidth()
+                  && arrival.y >= door.getPosition().y
+                  && arrival.y < door.getPosition().y + door.getHeight();
+          assertFalse(inside, "arriving back would bounce the player straight into the room again");
+        }
       }
     }
   }

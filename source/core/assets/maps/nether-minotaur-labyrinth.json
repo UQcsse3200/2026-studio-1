@@ -141,9 +141,9 @@
       "#                                      #",
       "#                                      #",
       "#                                      #",
-      "#                                      #",
-      "#                                      #",
-      "#                                      #",
+      "                                       #",
+      "                                       #",
+      "                                       #",
       "#################################   ####",
       "#                 ##                   #",
       "#                 ##                   #",
@@ -267,6 +267,19 @@
       "id": "nether-minotaur-labyrinth-back",
       "x": 0,
       "y": 2,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-exit-512px.png",
+      "destinationMap": "maps/level1-greek.json",
+      "destinationSpawn": {
+        "x": 53,
+        "y": 48
+      }
+    },
+    {
+      "id": "nether-minotaur-labyrinth-exit",
+      "x": 0,
+      "y": 32,
       "width": 1,
       "height": 3,
       "texture": "images/level1/gate-exit-512px.png",
