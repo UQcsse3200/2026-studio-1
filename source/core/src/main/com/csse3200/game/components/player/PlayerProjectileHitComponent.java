@@ -6,9 +6,17 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
+import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 
-/** Handles projectile collisions and damage. */
+/**
+ * Handles player projectile collisions and damage.
+ *
+ * <p>Hits on living NPCs emit {@code playerAttackHit(Entity target)} on the owner after damage is
+ * resolved, including shielded and lethal hits. Listeners must check whether the target survived.
+ * This event runs inside the collision callback: queue responses and create physics bodies later.
+ * Companion projectiles must use their own hit handler so their hits cannot trigger more assists.
+ */
 public class PlayerProjectileHitComponent extends Component {
   private final int damage;
   private final Entity owner;
@@ -60,8 +68,14 @@ public class PlayerProjectileHitComponent extends Component {
 
     CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
 
-    if (targetStats != null) {
+    if (!target.isDisposed() && targetStats != null && !targetStats.isDead()) {
+      // Mark this projectile resolved before notifying any hit listeners.
+      removeProjectile();
       targetStats.hit(ownerCombatStats, damage);
+      if (PhysicsLayer.contains(PhysicsLayer.NPC, other.getFilterData().categoryBits)) {
+        owner.getEvents().trigger("playerAttackHit", target);
+      }
+      return;
     }
 
     removeProjectile();

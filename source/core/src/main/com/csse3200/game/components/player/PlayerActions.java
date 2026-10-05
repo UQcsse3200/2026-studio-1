@@ -30,6 +30,10 @@ import org.slf4j.LoggerFactory;
  *
  * <p>Handles player movement and attacks, and prevents further player actions after the death event
  * is triggered.
+ *
+ * <p>Each hit on a living enemy emits {@code playerAttackHit(Entity target)} on the player after
+ * damage is resolved, including shielded and lethal hits. Multi-target attacks emit one event per
+ * enemy. Listeners must check whether the target survived and defer physics changes to update().
  */
 public class PlayerActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
@@ -408,12 +412,10 @@ public class PlayerActions extends Component {
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
-      CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
-
-      if (enemyStats != null) {
-        enemyStats.hit(combatStats);
-
-        logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+      if (hitEnemy(enemy, combatStats.getBaseAttack())) {
+        logger.info(
+            "Enemy health decreased; health = {}",
+            enemy.getComponent(CombatStatsComponent.class).getHealth());
 
         attackSound.play(AudioSettings.getEffectiveEffectsVolume());
       }
@@ -446,8 +448,9 @@ public class PlayerActions extends Component {
             Math.min(
                 (long) combatStats.getBaseAttack() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
                 Integer.MAX_VALUE);
-    target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
-    entity.getEvents().trigger("specialAttackHit", target);
+    if (hitEnemy(target, damage)) {
+      entity.getEvents().trigger("specialAttackHit", target);
+    }
     specialAttackCooldownRemaining = SPECIAL_ATTACK_COOLDOWN;
   }
 
@@ -457,7 +460,8 @@ public class PlayerActions extends Component {
     Vector2 playerPosition = entity.getPosition();
 
     for (Entity enemy : enemiesInRange) {
-      if (enemy.getComponent(CombatStatsComponent.class) == null) {
+      CombatStatsComponent stats = enemy.getComponent(CombatStatsComponent.class);
+      if (enemy.isDisposed() || stats == null || stats.isDead()) {
         continue;
       }
 
@@ -494,10 +498,23 @@ public class PlayerActions extends Component {
                 (long) combatStats.getBaseAttack() * AREA_ATTACK_DAMAGE_MULTIPLIER,
                 Integer.MAX_VALUE);
     for (Entity target : targets) {
-      target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
-      entity.getEvents().trigger("areaAttackHit", target);
+      if (hitEnemy(target, damage)) {
+        entity.getEvents().trigger("areaAttackHit", target);
+      }
     }
     areaAttackCooldownRemaining = AREA_ATTACK_COOLDOWN;
+  }
+
+  /** Resolves a player hit before notifying listeners of the enemy that was struck. */
+  private boolean hitEnemy(Entity target, int damage) {
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+    if (target.isDisposed() || targetStats == null || targetStats.isDead()) {
+      return false;
+    }
+
+    targetStats.hit(combatStats, damage);
+    entity.getEvents().trigger("playerAttackHit", target);
+    return true;
   }
 
   private Set<Entity> getEnemiesInAreaAttackRange() {
@@ -520,7 +537,9 @@ public class PlayerActions extends Component {
           }
 
           Entity target = bodyUserData.entity;
-          if (center.dst2(target.getCenterPosition()) <= radiusSquared) {
+          if (!target.isDisposed()
+              && !target.getComponent(CombatStatsComponent.class).isDead()
+              && center.dst2(target.getCenterPosition()) <= radiusSquared) {
             targets.add(target);
           }
           return true;
