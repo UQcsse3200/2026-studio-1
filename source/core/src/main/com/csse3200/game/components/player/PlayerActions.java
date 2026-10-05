@@ -38,7 +38,7 @@ public class PlayerActions extends Component {
   // Thank you Lachlan, you beautiful, beautiful man
   private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
   private static final Vector2 MAX_JUMP_SPEED = new Vector2(10f, 10f); // Metres per second
-  private static final float SlideMaxTime = 0.5f; // slide will finifh in 0.5 second
+  private static final float SLIDE_MAX_TIME = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
   private static final float SPECIAL_ATTACK_COOLDOWN = 3f;
   private static final int SPECIAL_ATTACK_DAMAGE_MULTIPLIER = 3;
@@ -573,7 +573,7 @@ public class PlayerActions extends Component {
 
     SlideTimer += Gdx.graphics.getDeltaTime();
 
-    if (SlideTimer >= SlideMaxTime) {
+    if (SlideTimer >= SLIDE_MAX_TIME) {
       sliding = false;
     }
   }

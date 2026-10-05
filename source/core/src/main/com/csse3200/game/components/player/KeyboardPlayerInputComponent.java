@@ -290,16 +290,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         return true;
 
       case Keys.A:
-        if (walkingLeft) {
-          walkDirection.sub(Vector2Utils.LEFT);
-          walkingLeft = false;
-          if (walkDirection.isZero()) {
-            entity.getEvents().trigger("idle", direction);
-          }
-          triggerWalkEvent();
-        }
-        return true;
-
+        keyUpWalking('a');
       case Keys.S:
         stopClimbing();
         // Climbing does not add DOWN to walkDirection, so only remove it after ordinary walking.
@@ -309,18 +300,8 @@ public class KeyboardPlayerInputComponent extends InputComponent {
           triggerWalkEvent();
         }
         return true;
-
       case Keys.D:
-        if (walkingRight) {
-          walkDirection.sub(Vector2Utils.RIGHT);
-          walkingRight = false;
-          if (walkDirection.isZero()) {
-            entity.getEvents().trigger("idle", direction);
-          }
-          triggerWalkEvent();
-        }
-        return true;
-
+        keyUpWalking('d');
       case Keys.CONTROL_LEFT:
         entity.getEvents().trigger("ctrlChanged", false);
         entity.getEvents().trigger("idle", direction);
@@ -356,7 +337,6 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         walkingLeft = true;
       }
     }
-
     if (crouch) {
       entity.getEvents().trigger("crouchidle", direction);
     } else {
@@ -364,6 +344,26 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
 
     triggerWalkEvent();
+  }
+
+  private boolean keyUpWalking(char key) {
+    if (key == 'a') {
+      if (walkingLeft) {
+        walkDirection.sub(Vector2Utils.LEFT);
+        walkingLeft = false;
+      }
+    }
+    if (key == 'd') {
+      if (walkingRight) {
+        walkDirection.sub(Vector2Utils.RIGHT);
+        walkingRight = false;
+      }
+    }
+    if (walkDirection.isZero()) {
+      entity.getEvents().trigger("idle", direction);
+    }
+    triggerWalkEvent();
+    return true;
   }
 
   private void dashing() {
