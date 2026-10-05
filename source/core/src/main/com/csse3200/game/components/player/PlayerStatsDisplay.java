@@ -127,7 +127,7 @@ public class PlayerStatsDisplay extends UIComponent {
 
     // Calculate how much health the player lost
     int damageTaken = previousHealth - health;
-    String direction = entity.getComponent(KeyboardPlayerInputComponent.class).getDirection();
+    KeyboardPlayerInputComponent input = entity.getComponent(KeyboardPlayerInputComponent.class);
     // Play different sounds depending on the amount of damage
     if (damageTaken == 25) {
       // Crowned ghost hit
@@ -135,14 +135,18 @@ public class PlayerStatsDisplay extends UIComponent {
           ServiceLocator.getResourceService().getAsset("sounds/player-hit-crown.ogg", Sound.class);
 
       crownHitSound.play(AudioSettings.getEffectiveEffectsVolume());
-      entity.getEvents().trigger("hurt", direction);
+      if (input != null){
+        entity.getEvents().trigger("hurt", input.getDirection());
+      }
     } else if (damageTaken > 0) {
       // Regular damage
       Sound hitSound =
           ServiceLocator.getResourceService().getAsset("sounds/player-hit.ogg", Sound.class);
 
       hitSound.play(AudioSettings.getEffectiveEffectsVolume());
-      entity.getEvents().trigger("hurt", direction);
+      if (input != null){
+        entity.getEvents().trigger("hurt", input.getDirection());
+      }
     }
 
     previousHealth = health;

@@ -39,32 +39,35 @@ public class PlayerRenderComponent extends AnimationRenderComponent {
     Array<TextureAtlas.AtlasRegion> regions = rightAtlas.findRegions(name);
     Array<TextureAtlas.AtlasRegion> leftregions = this.leftAtlas.findRegions(name);
     Array<TextureAtlas.AtlasRegion> effectsregions = this.effectsAtlas.findRegions(name);
+
+    if (animations.containsKey(name)) {
+      logger.warn(
+              "Animation {} already added in texture atlas. Animations should only be added once.",
+              name);
+      return false;
+    }
+
     if (!(regions == null || regions.size == 0)) {
       Animation<TextureRegion> animation = new Animation<>(frameDuration, regions, playMode);
       animations.put(name, animation);
       logger.debug("Adding animation {}", name);
       return true;
-    } if (!(leftregions == null || leftregions.size == 0)) {
+    }
+
+    if (!(leftregions == null || leftregions.size == 0)) {
       Animation<TextureRegion> animation = new Animation<>(frameDuration, leftregions, playMode);
       animations.put(name, animation);
       logger.debug("Adding animation {}", name);
       return true;
-    } else if (!(effectsregions == null || effectsregions.size == 0)) {
+    }
+
+    if (!(effectsregions == null || effectsregions.size == 0)) {
       Animation<TextureRegion> animation = new Animation<>(frameDuration, effectsregions, playMode);
       animations.put(name, animation);
       logger.debug("Adding animation {}", name);
       return true;
-    } else if ((regions == null || regions.size == 0)
-        && (leftregions == null || leftregions.size == 0)
-            && (effectsregions == null || effectsregions.size == 0)) {
-      logger.warn("Animation {} not found in texture atlas", name);
-      return false;
-    } else if (animations.containsKey(name)) {
-      logger.warn(
-          "Animation {} already added in texture atlas. Animations should only be added once.",
-          name);
-      return false;
     }
+    logger.warn("Animation {} not found in texture atlas", name);
     return false;
   }
 
