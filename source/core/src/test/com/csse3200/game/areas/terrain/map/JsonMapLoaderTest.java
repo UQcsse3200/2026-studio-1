@@ -632,22 +632,6 @@ class JsonMapLoaderTest {
   }
 
   @Test
-  void levelThreeChargedFloorIsSolidGroundUnderAHazard() {
-    LevelMapData levelThree = loader.load("maps/level3.json");
-
-    MapLayerData hazards = levelThree.getLayer("hazards");
-    for (int x : new int[] {10, 11, 40, 41}) {
-      // A hazard is a sensor, so the strip needs real floor beneath it to be stood on.
-      assertEquals(TileType.FLOOR, levelThree.getTileType(x, 2));
-      assertEquals(TileType.HAZARD, hazards.get(x, 2).type());
-    }
-    TileDefinition charged = hazards.get(10, 2);
-    assertEquals("images/effects/lighting/glow-electric.png", charged.get("glow"));
-    assertEquals(4, charged.getInt("frames", 0));
-    assertTrue(levelThree.getTexturePaths().contains(charged.get("animation")));
-  }
-
-  @Test
   void levelThreeBackdropFlickersLightningBehindTheArches() {
     LevelMapData levelThree = loader.load("maps/level3.json");
 

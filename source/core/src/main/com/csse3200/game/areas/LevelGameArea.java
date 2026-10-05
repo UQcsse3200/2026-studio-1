@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.areas.terrain.CollisionType;
 import com.csse3200.game.areas.terrain.TerrainFactory;
+import com.csse3200.game.areas.terrain.map.*;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.LevelView;
@@ -20,6 +21,10 @@ import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
+import com.csse3200.game.components.lighting.EmitterScanner;
+import com.csse3200.game.components.lighting.LightColour;
+import com.csse3200.game.components.lighting.LightComponent;
+import com.csse3200.game.components.lighting.LightingConfig;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
@@ -47,6 +52,7 @@ import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
+import com.csse3200.game.perks.TortoiseFactory;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -56,6 +62,7 @@ import com.csse3200.game.rendering.MapBackgroundRenderComponent;
 import com.csse3200.game.rendering.ParallaxBackdropRenderComponent;
 import com.csse3200.game.rendering.SheetAnimationRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
+import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -79,6 +86,9 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+  private static final String LEVEL_1_NAME = "Level 1 - Out of the Underworld";
+  private static final String TORTOISE_LEVEL_1_A_ID = "level1_a";
+  private static final GridPoint2 TORTOISE_LEVEL_1_A_SPAWN = new GridPoint2(52, 5);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
 
   /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
@@ -86,6 +96,8 @@ public class LevelGameArea extends GameArea {
 
   /** How many pieces of loot to scatter over a map that declares no loot spawn points. */
   private static final int RANDOM_LOOT_COUNT = 8;
+
+  private static final int LIGHT_BUDGET = 160;
 
   /**
    * Seed for this level's loot. A new seed is picked every run so the loot changes each time, and
@@ -144,7 +156,8 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
-    "images/pet.atlas"
+    "images/pet.atlas",
+    "images/tortoise.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
@@ -245,7 +258,9 @@ public class LevelGameArea extends GameArea {
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
+    spawnTortoises();
     spawnNpcs();
+    spawnLighting();
     playMusic();
   }
 
@@ -929,6 +944,72 @@ public class LevelGameArea extends GameArea {
     resourceService.unloadAssets(entityMusic);
   }
 
+  /** Spawns the lighting in the level */
+  private void spawnLighting() {
+    // get service
+    LightService ls = ServiceLocator.getLightService();
+
+    // get lighting data from the mapdata
+    LightingConfig cfg = mapData.getLighting();
+
+    // reset the lighting to default if map has no lighting data
+    if (cfg == null) {
+      ls.setAmbient(LightColour.AMBIENT_LIGHT.getColour(), 1f);
+      return;
+    }
+
+    // get current player position (for sublevel lighting)
+    int row = (int) Math.floor(player.getCenterPosition().y / mapData.getTileSize());
+    SubLevel section = mapData.getSubLevelAt(row);
+    LightingConfig.Ambient a = cfg.ambientFor(section == null ? null : section.id());
+    ls.setAmbient(a.color(), a.intensity()); // set ambient to the right sublevel lighting
+
+    Vector2 origin = terrain.tileToWorldPosition(0, 0);
+    if (origin == null) {
+      logger.warn("No terrain origin; skipping tile lights for '{}'", mapData.getName());
+    } else {
+      float ts = mapData.getTileSize();
+      // scan for light sources in the json/mapdata
+      List<EmitterScanner.LightPlacement> placements = EmitterScanner.scan(mapData.getLayers(), ts);
+
+      // if exceeding light budget, skip some lights
+      int step = 1;
+      if (placements.size() > LIGHT_BUDGET) {
+        step = (int) Math.ceil(placements.size() / (double) LIGHT_BUDGET);
+        logger.warn(
+            "Map '{}' wants {} lights, budget {}; keeping 1 in {}",
+            mapData.getName(),
+            placements.size(),
+            LIGHT_BUDGET,
+            step);
+      }
+
+      logger.info("Tile light placements: {}", placements.size());
+
+      // place all light tiles scanned
+      for (int i = 0; i < placements.size(); i += step) {
+        EmitterScanner.LightPlacement p = placements.get(i);
+        Vector2 world = new Vector2(origin.x + p.tileX() * ts, origin.y + p.tileY() * ts);
+        spawnEntity(new Entity().addComponent(new LightComponent(p.spec(), world)));
+      }
+      logger.info(
+          "Spawned {} tile lights for '{}'",
+          (placements.size() + step - 1) / step,
+          mapData.getName());
+    }
+
+    // player light: room-owned, follows the player
+    spawnEntity(new Entity().addComponent(new LightComponent(cfg.player(), player)));
+  }
+
+  /** Fades the ambient to the given sub-level's setting. No-op for maps without lighting. */
+  public void fadeAmbientForSection(String subLevelId, float seconds) {
+    LightingConfig cfg = mapData.getLighting();
+    if (cfg == null) return;
+    LightingConfig.Ambient a = cfg.ambientFor(subLevelId);
+    ServiceLocator.getLightService().fadeAmbientTo(a.color(), a.intensity(), seconds);
+  }
+
   @Override
   public void dispose() {
     super.dispose();
@@ -944,5 +1025,20 @@ public class LevelGameArea extends GameArea {
         spawnEntityAt(npc, marker.position(), true, true);
       }
     }
+  }
+
+  private void spawnTortoises() {
+    if (!LEVEL_1_NAME.equals(mapData.getName())) {
+      return;
+    }
+    spawnTortoiseIfNotFound(TORTOISE_LEVEL_1_A_ID, TORTOISE_LEVEL_1_A_SPAWN);
+  }
+
+  private void spawnTortoiseIfNotFound(String tortoiseId, GridPoint2 position) {
+    if (TortoiseFactory.isFound(tortoiseId)) {
+      return;
+    }
+    Entity tortoise = TortoiseFactory.createTortoise(tortoiseId);
+    spawnEntityAt(tortoise, position, true, true);
   }
 }

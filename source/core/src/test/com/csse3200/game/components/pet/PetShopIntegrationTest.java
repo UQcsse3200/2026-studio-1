@@ -3,7 +3,7 @@ package com.csse3200.game.components.pet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -76,51 +76,104 @@ class PetShopIntegrationTest {
   }
 
   @Test
-  void shouldPurchaseReplaceAndMoveAllPetsWithShopDisplay() {
-    String[] prefixes = {"bird", "bat", "spirit"};
-    Entity previousPet = null;
+  void shouldPurchaseAndKeepFirstPetActive() {
+    InventoryComponent inventory = owner.getComponent(InventoryComponent.class);
 
-    for (int slot = 1; slot <= prefixes.length; slot++) {
-      owner.setPosition(10f, 5f);
-      // Both ShopDisplay and PetManagerComponent must accept the purchased pet argument.
-      assertTrue(shop.buyPet(slot));
+    // Purchase Bird - first pet should be stored and automatically activated.
+    owner.setPosition(10f, 5f);
+    assertTrue(shop.buyPet(1));
 
-      Entity pet = manager.getActivePet();
-      assertNotNull(pet);
-      assertNotSame(previousPet, pet);
-      assertSame(owner, pet.getComponent(PetComponent.class).getOwner());
-      assertEquals(1, ServiceLocator.getPhysicsService().getPhysics().getWorld().getBodyCount());
-      AnimationRenderComponent animator = pet.getComponent(AnimationRenderComponent.class);
-      String prefix = prefixes[slot - 1];
-      assertEquals(prefix + "_right", animator.getCurrentAnimation());
-      assertTrue(pet.getPosition().x < owner.getPosition().x);
-      assertTrue(pet.getPosition().y > owner.getPosition().y + owner.getScale().y);
+    Entity birdEntity = manager.getActivePet();
 
-      Vector2 start = pet.getPosition();
-      owner.setPosition(11f, 6f);
-      updateAndRender();
-      assertTrue(pet.getPosition().x > start.x && pet.getPosition().x < start.x + 1f);
-      assertTrue(pet.getPosition().y > start.y && pet.getPosition().y < start.y + 1f);
+    assertNotNull(birdEntity);
+    assertSame(shop.getPetListing(1).getProduct(), inventory.getPet(1));
+    assertSame(shop.getPetListing(1).getProduct(), manager.getActivePetType());
+    assertSame(owner, birdEntity.getComponent(PetComponent.class).getOwner());
+    assertEquals(1, ServiceLocator.getPhysicsService().getPhysics().getWorld().getBodyCount());
 
-      owner.setPosition(10f, 6f);
-      updateAndRender();
-      assertEquals(prefix + "_left", animator.getCurrentAnimation());
+    AnimationRenderComponent birdAnimator = birdEntity.getComponent(AnimationRenderComponent.class);
 
-      owner.setPosition(30f, 20f);
-      updateAndRender();
-      assertEquals(prefix + "_right", animator.getCurrentAnimation());
-      assertEquals(30f - pet.getScale().x - 0.25f, pet.getPosition().x, 0.001f);
-      assertEquals(23.25f, pet.getPosition().y, 0.001f);
-      assertTrue(
-          pet.getPosition()
-              .epsilonEquals(pet.getComponent(PhysicsComponent.class).getBody().getPosition()));
-      previousPet = pet;
-    }
+    assertEquals("bird_right", birdAnimator.getCurrentAnimation());
+    assertTrue(birdEntity.getPosition().x < owner.getPosition().x);
+    assertTrue(birdEntity.getPosition().y > owner.getPosition().y + owner.getScale().y);
 
-    assertEquals(10, owner.getComponent(InventoryComponent.class).getGold());
+    // Purchase Bat - it should occupy the second pet slot,
+    // but Bird should remain active.
+    assertTrue(shop.buyPet(2));
+
+    assertSame(shop.getPetListing(2).getProduct(), inventory.getPet(2));
+    assertTrue(inventory.isPetInventoryFull());
+    assertSame(birdEntity, manager.getActivePet());
+    assertSame(shop.getPetListing(1).getProduct(), manager.getActivePetType());
+    assertEquals(1, ServiceLocator.getPhysicsService().getPhysics().getWorld().getBodyCount());
+
+    // Purchasing Spirit should fail because both pet slots are occupied.
+    int goldBeforeFailedPurchase = inventory.getGold();
+
+    assertFalse(shop.buyPet(3));
+
+    assertEquals(goldBeforeFailedPurchase, inventory.getGold());
+    assertSame(birdEntity, manager.getActivePet());
+    assertSame(shop.getPetListing(1).getProduct(), manager.getActivePetType());
+
+    // Bird costs 20 and Bat costs 30. Failed Spirit purchase costs nothing.
+    assertEquals(50, inventory.getGold());
+  }
+
+  @Test
+  void shouldMoveAndAnimateActivePet() {
+    owner.setPosition(10f, 5f);
+    assertTrue(shop.buyPet(1));
+
+    Entity birdEntity = manager.getActivePet();
+    assertNotNull(birdEntity);
+
+    AnimationRenderComponent birdAnimator = birdEntity.getComponent(AnimationRenderComponent.class);
+
+    // The active Bird should follow the player.
+    Vector2 start = birdEntity.getPosition();
+
+    owner.setPosition(11f, 6f);
+    updateAndRender();
+
+    assertTrue(birdEntity.getPosition().x > start.x && birdEntity.getPosition().x < start.x + 1f);
+    assertTrue(birdEntity.getPosition().y > start.y && birdEntity.getPosition().y < start.y + 1f);
+
+    // Check direction animation.
+    owner.setPosition(10f, 6f);
+    updateAndRender();
+
+    assertEquals("bird_left", birdAnimator.getCurrentAnimation());
+
+    // Moving far away should cause the active pet to catch up.
+    owner.setPosition(30f, 20f);
+    updateAndRender();
+
+    assertEquals("bird_right", birdAnimator.getCurrentAnimation());
+    assertEquals(30f - birdEntity.getScale().x - 0.25f, birdEntity.getPosition().x, 0.001f);
+    assertEquals(23.25f, birdEntity.getPosition().y, 0.001f);
+
+    assertTrue(
+        birdEntity
+            .getPosition()
+            .epsilonEquals(
+                birdEntity.getComponent(PhysicsComponent.class).getBody().getPosition()));
+  }
+
+  @Test
+  void shouldDisposeActivePetWhenOwnerIsDisposed() {
+    assertTrue(shop.buyPet(1));
+
+    assertTrue(manager.hasActivePet());
+    assertNotNull(manager.getActivePetType());
+    assertEquals(1, ServiceLocator.getPhysicsService().getPhysics().getWorld().getBodyCount());
+
     owner.dispose();
+
     assertFalse(manager.hasActivePet());
+    assertNull(manager.getActivePetType());
     assertEquals(0, ServiceLocator.getPhysicsService().getPhysics().getWorld().getBodyCount());
+
     updateAndRender();
   }
 

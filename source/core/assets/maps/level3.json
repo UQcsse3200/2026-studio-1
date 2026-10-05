@@ -61,10 +61,9 @@
     "!": {
       "type": "HAZARD",
       "texture": "images/level3/tiles/hazard-charged.png",
-      "glow": "images/effects/lighting/glow-electric.png",
-      "animation": "images/level3/tiles/hazard-charged-sheet-4f.png",
-      "frames": 4,
-      "fps": 12
+      "light": "point",
+      "lightColour": "divine_lightning",
+      "lightRadius": "1.4"
     },
     "k": {
       "type": "DECORATIVE",
@@ -85,10 +84,10 @@
     "F": {
       "type": "DECORATIVE",
       "texture": "images/level3/tiles/brazier.png",
-      "glow": "images/effects/lighting/glow-warm.png",
-      "animation": "images/level3/tiles/brazier-sheet-4f.png",
-      "frames": 4,
-      "fps": 8
+      "light": "point",
+      "lightColour": "oil_lamp",
+      "lightRadius": "1.5",
+      "flicker": "0.15"
     },
     "Q": {
       "type": "DECORATIVE",
@@ -146,6 +145,10 @@
     "L": {
       "type": "LOOT"
     }
+  },
+  "lighting": {
+    "ambient": { "color": "elysian_fade", "intensity": 0.15 },
+    "player": { "radius": 3.5, "color": "resinous_torch" }
   },
   "layers": {
     "background": [
