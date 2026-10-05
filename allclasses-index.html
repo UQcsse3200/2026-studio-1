@@ -87,6 +87,14 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/pausemenu/AudioSettings.html" title="class in com.csse3200.game.pausemenu">AudioSettings</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/components/player/BallisticShieldComponent.html" title="class in com.csse3200.game.components.player">BallisticShieldComponent</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Tier 2 defensive shield.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/components/player/BallisticShieldRenderComponent.html" title="class in com.csse3200.game.components.player">BallisticShieldRenderComponent</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Draws the Ballistic Shield energy bubble around the player while it is active.</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/entities/configs/BaseEntityConfig.html" title="class in com.csse3200.game.entities.configs">BaseEntityConfig</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Defines a basic set of properties stored in entities config files to be loaded by Entity
@@ -138,9 +146,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/csse3200/game/areas/terrain/CollisionType.html" title="enum class in com.csse3200.game.areas.terrain">CollisionType</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab3">&nbsp;</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/components/CombatStatsComponent.html" title="class in com.csse3200.game.components">CombatStatsComponent</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Component used to store information related to combat such as health, attack, etc.</div>
-</div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="com/csse3200/game/ui/terminal/commands/Command.html" title="interface in com.csse3200.game.ui.terminal.commands">Command</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">A generic command class.</div>
@@ -540,7 +546,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/components/loot/LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Picks a random item from a weighted list of potions and weapons.</div>
+<div class="block">Picks a random item from a weighted list of potions, weapons and shields.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/components/maingame/MainGameActions.html" title="class in com.csse3200.game.components.maingame">MainGameActions</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -608,7 +614,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/components/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Deals melee damage and knockback to a target entity when triggered, provided the target is within
- <code>range</code> and this component is off cooldown.</div>
+ range and this component is off cooldown.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/entities/configs/attacks/MeleeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks">MeleeAttackConfig</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -1079,7 +1085,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab3">&nbsp;</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/components/attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks">TouchAttackComponent</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">When this entity touches a valid enemy's hitbox, deal damage to them and apply a knockback.</div>
+<div class="block">When this entity touches a valid target's hitbox, deal damage to them and apply a knockback.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/csse3200/game/input/TouchInputFactory.html" title="class in com.csse3200.game.input">TouchInputFactory</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>

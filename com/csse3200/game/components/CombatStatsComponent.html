@@ -94,9 +94,6 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CombatStatsComponent</span>
 <span class="extends-implements">extends <a href="Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
-<div class="block">Component used to store information related to combat such as health, attack, etc. Any entities
- which engage it combat should have an instance of this class registered. This class can be
- extended for more specific combat needs.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -136,19 +133,13 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addHealth(int)" class="member-name-link">addHealth</a><wbr>(int&nbsp;health)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Adds to the player's health.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBaseAttack()" class="member-name-link">getBaseAttack</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the entity's base attack damage.</div>
-</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHealth()" class="member-name-link">getHealth</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the entity's health.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getShieldHits()" class="member-name-link">getShieldHits</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -161,19 +152,13 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDead()" class="member-name-link">isDead</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns true if the entity's has 0 health, otherwise false.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setBaseAttack(int)" class="member-name-link">setBaseAttack</a><wbr>(int&nbsp;attack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Sets the entity's attack damage.</div>
-</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setHealth(int)" class="member-name-link">setHealth</a><wbr>(int&nbsp;health)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Sets the entity's health.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setShieldHits(int)" class="member-name-link">setShieldHits</a><wbr>(int&nbsp;shieldHits)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -216,55 +201,30 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="isDead()">
 <h3>isDead</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a></span>&nbsp;<span class="element-name">isDead</span>()</div>
-<div class="block">Returns true if the entity's has 0 health, otherwise false.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>is player dead</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getHealth()">
 <h3>getHealth</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getHealth</span>()</div>
-<div class="block">Returns the entity's health.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>entity's health</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setHealth(int)">
 <h3>setHealth</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setHealth</span><wbr><span class="parameters">(int&nbsp;health)</span></div>
-<div class="block">Sets the entity's health. Health has a minimum bound of 0.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>health</code> - health</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="addHealth(int)">
 <h3>addHealth</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addHealth</span><wbr><span class="parameters">(int&nbsp;health)</span></div>
-<div class="block">Adds to the player's health. The amount added can be negative.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>health</code> - health to add</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getBaseAttack()">
 <h3>getBaseAttack</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getBaseAttack</span>()</div>
-<div class="block">Returns the entity's base attack damage.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>base attack damage</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -283,11 +243,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="setBaseAttack(int)">
 <h3>setBaseAttack</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setBaseAttack</span><wbr><span class="parameters">(int&nbsp;attack)</span></div>
-<div class="block">Sets the entity's attack damage. Attack damage has a minimum bound of 0.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>attack</code> - Attack damage</dd>
-</dl>
 </section>
 </li>
 <li>

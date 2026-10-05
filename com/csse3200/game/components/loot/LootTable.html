@@ -92,12 +92,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">LootTable</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Picks a random item from a weighted list of potions and weapons.
+<div class="block">Picks a random item from a weighted list of potions, weapons and shields.
 
  <p>Each entry has a weight, and an entry is chosen with a probability of its weight over the
- total weight of the table. Rarity is therefore just a smaller weight: in the standard table built
- by <a href="#createDefault(long)"><code>createDefault(long)</code></a>, each weapon tier uses the loot weight declared in <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a> (currently 60, 30 and 10), so a tier 3 weapon turns up roughly once every ten
- weapons.
+ total weight of the table. Smaller weights therefore represent rarer loot.
 
  <p>The random numbers come from a seeded <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Random.html" title="class or interface in java.util" class="external-link"><code>Random</code></a>, so the same seed always produces the
  same run. That makes a bug found while playing reproducible instead of a one-off.</div>
@@ -135,42 +133,47 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addConsumable(com.csse3200.game.components.loot.ConsumableType,int,int)" class="member-name-link">addConsumable</a><wbr>(<a href="ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a>&nbsp;type,
- int&nbsp;tier,
- int&nbsp;weight)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addBallisticShield(int)" class="member-name-link">addBallisticShield</a><wbr>(int&nbsp;weight)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Adds a potion to the table.</div>
+<div class="block">Adds the rare Advanced Ballistic Shield to the table.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addShield(int)" class="member-name-link">addShield</a><wbr>(int&nbsp;weight)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Adds a shield to the table.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addWeapon(com.csse3200.game.components.loot.WeaponType,int,int)" class="member-name-link">addWeapon</a><wbr>(<a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;type,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addConsumable(com.csse3200.game.components.loot.ConsumableType,int,int)" class="member-name-link">addConsumable</a><wbr>(<a href="ConsumableType.html" title="enum class in com.csse3200.game.components.loot">ConsumableType</a>&nbsp;type,
  int&nbsp;tier,
  int&nbsp;weight)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds a potion to the table.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addShield(int)" class="member-name-link">addShield</a><wbr>(int&nbsp;weight)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds a normal Tier 1 Shield to the table.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addWeapon(com.csse3200.game.components.loot.WeaponType,int,int)" class="member-name-link">addWeapon</a><wbr>(<a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;type,
+ int&nbsp;tier,
+ int&nbsp;weight)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Adds a weapon to the table.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createDefault(long)" class="member-name-link">createDefault</a><wbr>(long&nbsp;seed)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, the Upgrade Stone and the shield.</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createDefault(long)" class="member-name-link">createDefault</a><wbr>(long&nbsp;seed)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, the Upgrade Stone, the normal Shield, and the rare Advanced Ballistic Shield.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty()" class="member-name-link">isEmpty</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty()" class="member-name-link">isEmpty</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether the table has anything to roll.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#roll()" class="member-name-link">roll</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#roll()" class="member-name-link">roll</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Rolls a single item and wraps it in a pickup entity ready to be placed in the world.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rollItem()" class="member-name-link">rollItem</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#rollItem()" class="member-name-link">rollItem</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Rolls a single item from the table, with its tier already applied.</div>
 </div>
 </div>
@@ -226,10 +229,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createDefault(long)">
 <h3>createDefault</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></span>&nbsp;<span class="element-name">createDefault</span><wbr><span class="parameters">(long&nbsp;seed)</span></div>
-<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, the Upgrade Stone and the shield. Higher tiers are weighted to be rarer.
+<div class="block">Builds the standard loot table: every potion at tiers 1 to 3, every weapon type at every <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, the Upgrade Stone, the normal Shield, and the rare Advanced Ballistic Shield.
 
- <p>Weapons are built straight from <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a> and <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a>, so a new weapon
- type or a new tier added there shows up in the loot table without any change here.</div>
+ <p>Higher-tier weapons and the Advanced Ballistic Shield use lower weights so they appear less
+ frequently.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>seed</code> - seed for the table's random number generator</dd>
@@ -280,7 +283,22 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="addShield(int)">
 <h3>addShield</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></span>&nbsp;<span class="element-name">addShield</span><wbr><span class="parameters">(int&nbsp;weight)</span></div>
-<div class="block">Adds a shield to the table. Shields have no tier, so only a weight is required.</div>
+<div class="block">Adds a normal Tier 1 Shield to the table.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>weight</code> - how often it is picked relative to other entries; must be <code>&gt; 0</code></dd>
+<dt>Returns:</dt>
+<dd>this table, so entries can be chained</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if weight is not positive</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addBallisticShield(int)">
+<h3>addBallisticShield</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></span>&nbsp;<span class="element-name">addBallisticShield</span><wbr><span class="parameters">(int&nbsp;weight)</span></div>
+<div class="block">Adds the rare Advanced Ballistic Shield to the table.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>weight</code> - how often it is picked relative to other entries; must be <code>&gt; 0</code></dd>

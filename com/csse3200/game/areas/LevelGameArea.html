@@ -196,7 +196,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#getMapData()" class="member-name-link">getMapData</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4 method-summary-table-tab6">
 <div class="block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">prefer <a href="#getLevel()"><code>getLevel()</code></a>, which does not couple callers to the map format</div>
+<div class="deprecation-comment">prefer <a href="#getLevel()"><code>getLevel()</code></a></div>
 </div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
@@ -270,7 +270,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>terrainFactory</code> - factory used to build the terrain</dd>
 <dd><code>mapPath</code> - asset path of the map file to load</dd>
-<dd><code>mapLoader</code> - loader used to parse the map file</dd>
+<dd><code>mapLoader</code> - loader used to parse the map</dd>
 </dl>
 </section>
 </li>
@@ -281,8 +281,7 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
  <a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;existingPlayer,
  com.badlogic.gdx.math.GridPoint2&nbsp;entrySpawn)</span></div>
-<div class="block">Create a level while retaining an existing player and placing it at a specified entrance.
- Reusing the entity preserves all player component state, including health and inventory.</div>
+<div class="block">Create a level while retaining an existing player and placing it at a specified entrance.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>terrainFactory</code> - factory used to build the terrain</dd>
@@ -332,13 +331,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getLevel()">
 <h3>getLevel</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="terrain/map/LevelView.html" title="interface in com.csse3200.game.areas.terrain.map">LevelView</a></span>&nbsp;<span class="element-name">getLevel</span>()</div>
-<div class="block">The supported way for other systems to read this level.
-
- <p>Prefer this to <a href="#getMapData()"><code>getMapData()</code></a>: <a href="terrain/map/LevelView.html" title="interface in com.csse3200.game.areas.terrain.map"><code>LevelView</code></a> is a stable contract, while the map
- data behind it is the map package's own structure and changes shape as the format evolves.</div>
+<div class="block">The supported way for other systems to read this level.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>a read-only view of the loaded level, or null before <a href="#create()"><code>create()</code></a> runs</dd>
+<dd>a read-only view of the loaded level, or null before create() runs</dd>
 </dl>
 </section>
 </li>
@@ -348,11 +344,11 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html#since()" title="class or interface in java.lang" class="external-link">since</a>="1.0")
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a></span>&nbsp;<span class="element-name">getMapData</span>()</div>
 <div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">prefer <a href="#getLevel()"><code>getLevel()</code></a>, which does not couple callers to the map format</div>
+<div class="deprecation-comment">prefer <a href="#getLevel()"><code>getLevel()</code></a></div>
 </div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the loaded map data (dimensions, layers, tile types, spawns)</dd>
+<dd>the loaded map data</dd>
 </dl>
 </section>
 </li>
@@ -372,7 +368,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">getPlayer</span>()</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the spawned player entity, or null before <a href="#create()"><code>create()</code></a> runs</dd>
+<dd>the spawned player entity, or null before create()</dd>
 </dl>
 </section>
 </li>
@@ -402,11 +398,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="consumePendingTransition()">
 <h3>consumePendingTransition</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="terrain/map/RoomTransition.html" title="class in com.csse3200.game.areas.terrain.map">RoomTransition</a></span>&nbsp;<span class="element-name">consumePendingTransition</span>()</div>
-<div class="block">Return and clear a doorway request. The screen consumes this after the physics update so the
- Box2D world is not modified from inside a contact callback.</div>
+<div class="block">Return and clear a doorway request.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>pending transition, or <code>null</code></dd>
+<dd>pending transition, or null</dd>
 </dl>
 </section>
 </li>
@@ -426,7 +421,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getMapWorldWidth</span>()</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the map's width in world units (tiles * tileSize)</dd>
+<dd>the map's width in world units</dd>
 </dl>
 </section>
 </li>
@@ -436,7 +431,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getMapWorldHeight</span>()</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the map's height in world units (tiles * tileSize)</dd>
+<dd>the map's height in world units</dd>
 </dl>
 </section>
 </li>
@@ -446,7 +441,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.badlogic.gdx.math.Vector2</span>&nbsp;<span class="element-name">getMapCenter</span>()</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the world-space centre of the map, useful for positioning the camera</dd>
+<dd>the world-space centre of the map</dd>
 </dl>
 </section>
 </li>

@@ -95,22 +95,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">MeleeAttackComponent</span>
 <span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
 <div class="block">Deals melee damage and knockback to a target entity when triggered, provided the target is within
- <code>range</code> and this component is off cooldown. Does not use physics-engine collision detection
- — attacks are triggered externally (e.g. by an <a href="../../ai/tasks/AITaskComponent.html" title="class in com.csse3200.game.ai.tasks"><code>AITaskComponent</code></a>-driven attack task) via an event, and range is
- checked as an explicit distance calculation between entity positions.
-
- <p>This design was chosen over extending <a href="TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>TouchAttackComponent</code></a> because: (1)
- hitbox/collider size varies significantly between enemy types based on physical body size (e.g. a
- giant vs. a skeleton), and should not be assumed to correspond to melee attack reach; (2) <a href="TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>TouchAttackComponent</code></a>'s fields and collision handler are <code>private</code>, making cooldown/range
- logic impossible to add via inheritance without fully duplicating its internals anyway.
-
- <p>Requires <a href="../CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> on this entity. Damage is only applied if the target
- entity also has a <a href="../CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a>. Knockback is only applied if the target entity
- has a <a href="../../physics/components/PhysicsComponent.html" title="class in com.csse3200.game.physics.components"><code>PhysicsComponent</code></a>.
-
- <p><b>Limitation:</b> this class does not determine when an attack should be attempted — it
- relies entirely on being triggered externally with a target entity. If nothing ever triggers the
- configured event, this component will never attack.</div>
+ range and this component is off cooldown.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -134,10 +119,7 @@ loadScripts(document, 'script');</script>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float)" class="member-name-link">MeleeAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
- for any attacks i.e.</div>
-</div>
+<div class="col-last even-row-color">&nbsp;</div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">MeleeAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback,
@@ -158,52 +140,49 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canAttack()" class="member-name-link">canAttack</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bribe()" class="member-name-link">bribe</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Checks whether enough time has elapsed since the last attack for a new one to be attempted.</div>
+<div class="block">Bribes this enemy for 20 seconds.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Resolves this entity's <a href="../CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> and registers a listener for the
- attack-trigger event.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCooldown()" class="member-name-link">getCooldown</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canAttack()" class="member-name-link">canAttack</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the configured cooldown duration.</div>
+<div class="block">Called when the entity is created and registered.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCooldown()" class="member-name-link">getCooldown</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the damage for this attack, either the configured base attack from the config file or
  the equipped weapon's damage.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamageMultiplier()" class="member-name-link">getDamageMultiplier</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamageMultiplier()" class="member-name-link">getDamageMultiplier</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the difficulty damage multiplier applied to this melee attacker's damage.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockback()" class="member-name-link">getKnockback</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the configured knockback magnitude.</div>
-</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRange()" class="member-name-link">getRange</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the configured melee range.</div>
-</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockback()" class="member-name-link">getKnockback</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWindupMultiplier()" class="member-name-link">getWindupMultiplier</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRange()" class="member-name-link">getRange</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWindupMultiplier()" class="member-name-link">getWindupMultiplier</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the difficulty multiplier applied to this melee attacker's wind-up duration.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBribed()" class="member-name-link">isBribed</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCooldown(float)" class="member-name-link">setCooldown</a><wbr>(float&nbsp;cooldown)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates the cooldown duration.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDamageMultiplier(float)" class="member-name-link">setDamageMultiplier</a><wbr>(float&nbsp;damageMultiplier)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -211,14 +190,10 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKnockback(float)" class="member-name-link">setKnockback</a><wbr>(float&nbsp;knockback)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates the knockback magnitude.</div>
-</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRange(float)" class="member-name-link">setRange</a><wbr>(float&nbsp;range)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates the melee range.</div>
-</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWindupMultiplier(float)" class="member-name-link">setWindupMultiplier</a><wbr>(float&nbsp;windupMultiplier)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -227,7 +202,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Advances the internal cooldown timer by the time elapsed since the last frame.</div>
+<div class="block">Called once per frame of the game, and should be used for most component logic.</div>
 </div>
 </div>
 </div>
@@ -258,14 +233,8 @@ loadScripts(document, 'script');</script>
  <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon)</span>
                      throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
 <dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>range</code> - melee reach — this wielder's own property, not the weapon's</dd>
-<dd><code>cooldown</code> - minimum time, in seconds, between attacks</dd>
-<dd><code>knockback</code> - knockback magnitude on a successful hit — this wielder's own property</dd>
-<dd><code>weapon</code> - supplies damage only</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if weapon is null, range/cooldown are non-positive, knockback
-     is negative, or windupDuration is negative or &gt;= cooldown</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
 </dl>
 </section>
 </li>
@@ -275,16 +244,6 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">MeleeAttackComponent</span><wbr><span class="parameters">(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback)</span></div>
-<div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
- for any attacks i.e. the rocks where no weapons are in the inventory.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>range</code> - attack reach, checked as a direct distance calculation between this entity's and
-     the target's positions; also used as the fired arrow's maximum flight distance.</dd>
-<dd><code>cooldown</code> - minimum time, in seconds, between successive shots being fired.</dd>
-<dd><code>knockback</code> - knockback magnitude applied to the target on a successful hit; <code>0f</code>
-     results in no knockback.</dd>
-</dl>
 </section>
 </li>
 </ul>
@@ -299,12 +258,9 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="create()">
 <h3>create</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">create</span>()</div>
-<div class="block">Resolves this entity's <a href="../CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> and registers a listener for the
- attack-trigger event.
-
- <p><b>Limitation:</b> the event name used here must exactly match whatever name the triggering
- AI task uses elsewhere — there is no compile-time link between them; a mismatch fails silently
- (the listener simply never fires).</div>
+<div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="../Component.html#create()">Component</a></code></span></div>
+<div class="block">Called when the entity is created and registered. Initial logic such as calls to GetComponent
+ should be made here, not in the constructor which is called before an entity is finished.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../Component.html#create()">create</a></code>&nbsp;in class&nbsp;<code><a href="../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>
@@ -315,7 +271,9 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="update()">
 <h3>update</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">update</span>()</div>
-<div class="block">Advances the internal cooldown timer by the time elapsed since the last frame.</div>
+<div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="../Component.html#update()">Component</a></code></span></div>
+<div class="block">Called once per frame of the game, and should be used for most component logic. Not called if
+ component is disabled.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../Component.html#update()">update</a></code>&nbsp;in class&nbsp;<code><a href="../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>
@@ -326,11 +284,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getRange()">
 <h3>getRange</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getRange</span>()</div>
-<div class="block">Returns the configured melee range.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>melee range, in world units</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -338,12 +291,9 @@ loadScripts(document, 'script');</script>
 <h3>setRange</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRange</span><wbr><span class="parameters">(float&nbsp;range)</span>
               throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
-<div class="block">Updates the melee range.</div>
 <dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>range</code> - new range value</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>range</code> is negative</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
 </dl>
 </section>
 </li>
@@ -351,11 +301,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getCooldown()">
 <h3>getCooldown</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getCooldown</span>()</div>
-<div class="block">Returns the configured cooldown duration.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>cooldown, in seconds</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -363,12 +308,9 @@ loadScripts(document, 'script');</script>
 <h3>setCooldown</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCooldown</span><wbr><span class="parameters">(float&nbsp;cooldown)</span>
                  throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
-<div class="block">Updates the cooldown duration.</div>
 <dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>cooldown</code> - new cooldown value, in seconds</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>cooldown</code> is zero or negative</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
 </dl>
 </section>
 </li>
@@ -376,11 +318,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getKnockback()">
 <h3>getKnockback</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getKnockback</span>()</div>
-<div class="block">Returns the configured knockback magnitude.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>knockback magnitude</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -388,13 +325,9 @@ loadScripts(document, 'script');</script>
 <h3>setKnockback</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setKnockback</span><wbr><span class="parameters">(float&nbsp;knockback)</span>
                   throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
-<div class="block">Updates the knockback magnitude. A value of <code>0f</code> is valid and intentionally disables
- knockback (see <code>attemptAttack(Entity)</code>).</div>
 <dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>knockback</code> - new knockback magnitude</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>knockback</code> is negative</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
 </dl>
 </section>
 </li>
@@ -468,11 +401,23 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="canAttack()">
 <h3>canAttack</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canAttack</span>()</div>
-<div class="block">Checks whether enough time has elapsed since the last attack for a new one to be attempted.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="bribe()">
+<h3>bribe</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">bribe</span>()</div>
+<div class="block">Bribes this enemy for 20 seconds.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>true if the cooldown has fully elapsed</dd>
+<dd>true when the bribe was applied</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isBribed()">
+<h3>isBribed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isBribed</span>()</div>
 </section>
 </li>
 </ul>
