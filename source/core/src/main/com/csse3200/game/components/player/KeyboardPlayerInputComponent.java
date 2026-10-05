@@ -224,6 +224,32 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     throw new IllegalStateException("Granted tier " + tier + " bow was not found in inventory.");
   }
 
+  private void grantTestBow(int tier) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory == null) {
+      logger.warn("Cannot grant a tier {} test bow: player has no inventory", tier);
+      return;
+    }
+
+    WeaponItem bow = new WeaponGenerator().generateWeapon(WeaponType.BOW, tier);
+    if (inventory.addItem(bow) > 0) {
+      logger.warn("Cannot grant a tier {} test bow: inventory is full", tier);
+      return;
+    }
+
+    for (var entry : inventory.getInventorySlots().entrySet()) {
+      if (entry.getValue() instanceof WeaponItem inventoryWeapon
+          && inventoryWeapon.getWeaponType() == WeaponType.BOW
+          && inventoryWeapon.getTier() == tier) {
+        inventory.setActiveSlot(entry.getKey());
+        logger.info("Granted and equipped tier {} test bow in slot {}", tier, entry.getKey());
+        return;
+      }
+    }
+
+    throw new IllegalStateException("Granted tier " + tier + " bow was not found in inventory.");
+  }
+
   /**
    * Selects an inventory slot and attempts to use the item in that slot.
    *

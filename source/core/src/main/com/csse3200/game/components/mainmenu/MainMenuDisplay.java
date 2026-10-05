@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -12,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +23,8 @@ public class MainMenuDisplay extends UIComponent {
   private static final Color SELECTED_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
   private static final Color SELECTED_TEXT = Color.CYAN;
   private static final Color UNSELECTED_TEXT = Color.WHITE;
-  private static final float LEFT_PANEL_WIDTH_FRACTION = 0.30f;
-  private static final float TITLE_WIDTH_FRACTION = 0.45f;
   private static final float TITLE_SPLIT_FRACTION = 0.55f;
   private static final float MENU_ITEM_FONT_SCALE = 1.6f;
-  private static final float OPTIONS_WIDTH_FRACTION = 0.75f;
 
   private static final String[] MENU_ITEMS = {"Start", "Load", "Settings", "Perks", "Exit"};
 
@@ -44,10 +39,13 @@ public class MainMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
+    Image background = new Image(new Texture(Gdx.files.internal("images/ui/main-menu-bg.png")));
+    background.setFillParent(true);
+    stage.addActor(background);
+
     Table titleStack = buildTitleStack();
 
     Table optionsPanel = new Table();
-    optionsPanel.setBackground(skin.newDrawable("white", PANEL_COLOR));
     optionsPanel.center();
 
     buttons = new Label[MENU_ITEMS.length];
@@ -55,26 +53,21 @@ public class MainMenuDisplay extends UIComponent {
       Label label = createLabel(MENU_ITEMS[i]);
       buttons[i] = label;
       Table row = new Table();
-      row.add(label).pad(6f, 15f, 6f, 15f).left();
+      row.setBackground(skin.getDrawable("button"));
+      row.add(label).pad(12f, 25f, 12f, 25f).center();
       addRowInteraction(row, i);
-      optionsPanel.add(row).left().padBottom(4f).fillX();
+      optionsPanel.add(row).center().padBottom(8f).fillX();
       optionsPanel.row();
     }
     float screenWidth = Gdx.graphics.getWidth();
     float screenHeight = Gdx.graphics.getHeight();
-    float panelWidth = screenWidth * LEFT_PANEL_WIDTH_FRACTION;
-    applyUniformRowWidths(optionsPanel, panelWidth * OPTIONS_WIDTH_FRACTION);
     Table root = new Table();
     root.setFillParent(true);
-    root.left().top();
+    root.center();
 
-    root.add(optionsPanel)
-        .width(screenWidth * LEFT_PANEL_WIDTH_FRACTION)
-        .height(screenHeight)
-        .left()
-        .padLeft(0f);
+    root.add(titleStack).width(screenWidth * 0.45f).center().padRight(50f);
 
-    root.add(titleStack).width(screenWidth * TITLE_WIDTH_FRACTION).padRight(40f);
+    root.add(optionsPanel).width(screenWidth * 0.28f).center().padLeft(40f);
 
     stage.addActor(root);
 
@@ -82,28 +75,23 @@ public class MainMenuDisplay extends UIComponent {
   }
 
   private Table buildTitleStack() {
-    Texture titleTexture =
-        ServiceLocator.getResourceService().getAsset("images/ui/box_boy_title.png", Texture.class);
-
-    int splitX = (int) (titleTexture.getWidth() * TITLE_SPLIT_FRACTION);
-    TextureRegion boxRegion =
-        new TextureRegion(titleTexture, 0, 0, splitX, titleTexture.getHeight());
-    TextureRegion boyRegion =
-        new TextureRegion(
-            titleTexture, splitX, 0, titleTexture.getWidth() - splitX, titleTexture.getHeight());
-
     Table titleStack = new Table();
-    titleStack.add(new Image(boxRegion)).row();
-    titleStack.add(new Image(boyRegion)).padTop(10f);
+
+    Label title = new Label("ASCENT", skin, "title");
+    Label subtitle = new Label("OF THE MORTAL", skin, "title");
+
+    title.setFontScale(1.2f);
+    subtitle.setFontScale(0.8f);
+
+    titleStack.add(title).center().row();
+    titleStack.add(subtitle).center().padTop(8f);
+
     return titleStack;
   }
 
   private Label createLabel(String text) {
-    Label label = new Label(text, skin);
-    Label.LabelStyle style = new Label.LabelStyle(label.getStyle());
-    style.fontColor = UNSELECTED_TEXT;
-    label.setStyle(style);
-    label.setFontScale(MENU_ITEM_FONT_SCALE);
+    Label label = new Label(text, skin, "subtitle");
+    label.setFontScale(1.15f);
     return label;
   }
 
@@ -151,9 +139,13 @@ public class MainMenuDisplay extends UIComponent {
   void updateHighlight() {
     for (int i = 0; i < buttons.length; i++) {
       boolean selected = i == selectedIndex;
-      buttons[i].getStyle().fontColor = selected ? SELECTED_TEXT : UNSELECTED_TEXT;
-      Table row = (Table) buttons[i].getParent();
-      row.setBackground(selected ? skin.newDrawable("white", SELECTED_BG) : null);
+
+      Label label = buttons[i];
+      Table row = (Table) label.getParent();
+
+      row.setBackground(skin.getDrawable(selected ? "button-pressed" : "button"));
+
+      label.getStyle().fontColor = Color.WHITE;
     }
   }
 

@@ -1,5 +1,6 @@
 package com.csse3200.game.entities.spawn;
 
+import com.csse3200.game.difficulty.DifficultyScaler;
 import com.csse3200.game.entities.Entity;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -99,7 +100,9 @@ public final class EntitySpawnRegistry {
           factories.keySet());
       return null;
     }
-    return factory.create(player);
+    Entity entity = factory.create(player);
+    DifficultyScaler.apply(entity);
+    return entity;
   }
 
   /**

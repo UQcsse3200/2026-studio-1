@@ -1,0 +1,181 @@
+
+npc3.png
+size: 128,288
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+default
+  rotate: false
+  xy: 0, 0
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+walkr
+  rotate: false
+  xy: 0, 0
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+walkr
+  rotate: false
+  xy: 32, 0
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+walkr
+  rotate: false
+  xy: 64, 0
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 2
+walkr
+  rotate: false
+  xy: 96, 0
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 3
+walkl
+  rotate: false
+  xy: 0, 48
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+walkl
+  rotate: false
+  xy: 32, 48
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+walkl
+  rotate: false
+  xy: 64, 48
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 2
+walkl
+  rotate: false
+  xy: 96, 48
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 3
+idler
+  rotate: false
+  xy: 0, 0
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+idlel
+  rotate: false
+  xy: 0, 48
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+windupr
+  rotate: false
+  xy: 0, 96
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+windupr
+  rotate: false
+  xy: 32, 96
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+headbuttr
+  rotate: false
+  xy: 64, 96
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+windupl
+  rotate: false
+  xy: 0, 144
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+windupl
+  rotate: false
+  xy: 32, 144
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+headbuttl
+  rotate: false
+  xy: 64, 144
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: -1
+charger
+  rotate: false
+  xy: 0, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+charger
+  rotate: false
+  xy: 32, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+charger
+  rotate: false
+  xy: 64, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 2
+charger
+  rotate: false
+  xy: 96, 192
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 3
+chargel
+  rotate: false
+  xy: 0, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 0
+chargel
+  rotate: false
+  xy: 32, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 1
+chargel
+  rotate: false
+  xy: 64, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 2
+chargel
+  rotate: false
+  xy: 96, 240
+  size: 32, 48
+  orig: 32, 48
+  offset: 0, 0
+  index: 3
