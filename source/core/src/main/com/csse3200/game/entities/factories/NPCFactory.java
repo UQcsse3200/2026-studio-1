@@ -51,7 +51,7 @@ public class NPCFactory {
   private static final String CERBERUS_ATLAS_PATH = "images/enemies/cerberus.atlas";
   private static final String MEDUSA_ATLAS_PATH = "images/enemies/medusa.atlas";
   private static final String ZEUS_ATLAS_PATH = "images/enemies/zeus.atlas";
-   // Harpy and ranged harpy both use harpy_y atlas
+  // Harpy and ranged harpy both use harpy_y atlas
   private static final String HARPY_ATLAS_PATH = "images/enemies/harpy_y.atlas";
   private static final String SHOP_NPC_ATLAS_PATH = "images/npcs/npc_shop.atlas";
   private static final String WIZARD_NPC_ATLAS_PATH = "images/npcs/npc2.atlas";
@@ -62,7 +62,6 @@ public class NPCFactory {
   private static final float FRIENDLY_NPC_WANDER_RANGE = 1.5f;
   private static final int FRIENDLY_NPC_HEALTH = 50;
   private static final int FRIENDLY_NPC_STAND_PRIORITY = 5;
- 
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
