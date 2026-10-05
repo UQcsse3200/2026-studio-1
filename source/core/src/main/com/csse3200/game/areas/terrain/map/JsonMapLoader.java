@@ -55,9 +55,13 @@ import org.slf4j.LoggerFactory;
  * feature can add per-tile data without changing this loader. See {@link TileDefinition}.
  *
  * <p>An optional {@code backgroundTexture} renders one composed image behind the tile layers, for
- * maps whose art is authored as a single scene rather than per-tile. Unknown top-level keys are
- * ignored, so maps may carry an {@code authoring} block of design-time data the runtime does not
- * read. Every level map uses this one format; there is no per-level parsing path.
+ * maps whose art is authored as a single scene rather than per-tile. An optional {@code backdrops}
+ * block gives a sub-level a stack of parallax images instead, keyed by the sub-level's id or by
+ * {@code "*"} for the whole map, and an {@code overlays} block does the same in front of the tiles,
+ * for weather; see {@link BackdropLayer}. A layer may set an {@code alpha}, and a {@code flicker}
+ * block makes it a strip of frames played now and then, for distant lightning. Unknown top-level
+ * keys are ignored, so maps may carry an {@code authoring} block of design-time data the runtime
+ * does not read. Every level map uses this one format; there is no per-level parsing path.
  */
 public class JsonMapLoader implements MapLoader {
   private static final String TYPE_KEY = "type";
@@ -154,6 +158,8 @@ public class JsonMapLoader implements MapLoader {
         .subLevels(parseSubLevels(root.get("subLevels"), name))
         .subLevels(parseSubLevels(root.get("subLevels"), name))
         .lighting(LightingConfigParser.parse(root.get("lighting"), name))
+        .backdrops(parseBackdrops(root.get("backdrops"), "backdrops", name))
+        .overlays(parseBackdrops(root.get("overlays"), "overlays", name))
         .build();
   }
 
@@ -262,6 +268,79 @@ public class JsonMapLoader implements MapLoader {
       index++;
     }
     return subLevels;
+  }
+
+  /**
+   * Reads the optional {@code backdrops} or {@code overlays} block: for each sub-level id, the
+   * images drawn behind or in front of its tiles, listed back to front. The key {@code "*"} applies
+   * to the whole map.
+   *
+   * @param backdropsJson the block, or null if the map has none
+   * @param blockName the block's key, for error messages
+   * @param mapName the map's name, for error messages
+   * @return the backdrop layers keyed by sub-level id, empty if the map declares none
+   */
+  private Map<String, List<BackdropLayer>> parseBackdrops(
+      JsonValue backdropsJson, String blockName, String mapName) {
+    if (backdropsJson == null) {
+      return Map.of();
+    }
+    if (!backdropsJson.isObject()) {
+      throw new MapLoadException("Map '" + mapName + "' '" + blockName + "' must be a JSON object");
+    }
+
+    Map<String, List<BackdropLayer>> backdrops = new LinkedHashMap<>();
+    for (JsonValue backdrop = backdropsJson.child; backdrop != null; backdrop = backdrop.next) {
+      if (!backdrop.isArray()) {
+        throw new MapLoadException(
+            "Backdrop '" + backdrop.name + "' in map '" + mapName + "' must be an array of layers");
+      }
+
+      List<BackdropLayer> layers = new ArrayList<>();
+      for (JsonValue layer = backdrop.child; layer != null; layer = layer.next) {
+        String texture = layer.getString(TEXTURE_KEY, null);
+        if (texture == null || texture.isBlank()) {
+          throw new MapLoadException(
+              "Backdrop '"
+                  + backdrop.name
+                  + "' in map '"
+                  + mapName
+                  + "' has a layer with no texture");
+        }
+        JsonValue drift = layer.get("drift");
+        layers.add(
+            new BackdropLayer(
+                texture,
+                layer.getFloat("scroll", 0f),
+                drift == null ? 0f : drift.getFloat("x", 0f),
+                drift == null ? 0f : drift.getFloat("y", 0f),
+                layer.getBoolean("spansMap", false),
+                readRows(layer.get("rows")),
+                layer.getFloat("alpha", 1f),
+                readFlicker(layer.get("flicker"))));
+      }
+      backdrops.put(backdrop.name, layers);
+    }
+    return backdrops;
+  }
+
+  /** Reads an optional {from, to} object as a band of tile rows. */
+  private static BackdropLayer.Rows readRows(JsonValue json) {
+    return json == null
+        ? null
+        : new BackdropLayer.Rows(json.getInt("from", 0), json.getInt("to", Integer.MAX_VALUE));
+  }
+
+  /** Reads an optional flicker object: a strip of frames played now and then. */
+  private static BackdropLayer.Flicker readFlicker(JsonValue json) {
+    return json == null
+        ? null
+        : new BackdropLayer.Flicker(
+            Math.max(1, json.getInt("frames", 1)),
+            json.getFloat("fps", 12f),
+            json.getFloat("minGap", 3f),
+            json.getFloat("maxGap", 8f),
+            json.getFloat("height", 0.35f));
   }
 
   /** Reads an optional {x, y} object as a tile position. */
