@@ -1,9 +1,6 @@
 package com.csse3200.game.components.attacks;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -275,6 +272,27 @@ class RangedAttackEventContractTest {
 
     assertEquals(1, fired.size(), "The task must send both values or the attack never happens");
     assertEquals(1, registered.size());
+  }
+
+  @Test
+  void shouldTriggerRangedAttackWithConfiguredProjectileType() {
+    Entity target = new Entity();
+    target.setPosition(1, 0);
+    Entity owner =
+        new Entity()
+            .addComponent(
+                new AITaskComponent()
+                    .addTask(new RangedAttackTask(target, 10, 5f, ProjectileType.LIGHTNING)));
+    owner.create();
+    owner.setPosition(0, 0);
+
+    List<ProjectileType> seen = new ArrayList<>();
+    owner.getEvents().addListener("rangedAttack", (Entity t, ProjectileType p) -> seen.add(p));
+
+    owner.update();
+
+    assertFalse(seen.isEmpty());
+    assertEquals(ProjectileType.LIGHTNING, seen.getFirst());
   }
 
   // ---------- helpers ----------

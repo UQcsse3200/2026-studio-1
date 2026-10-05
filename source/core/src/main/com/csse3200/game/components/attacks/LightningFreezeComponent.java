@@ -18,6 +18,12 @@ public class LightningFreezeComponent extends Component {
     entity.getEvents().addListener("projectileHit", this::onHit);
   }
 
+  /**
+   * Carries out logic for what happens when lightning hits an entity. Freezes the entity and plays
+   * a zap sound effect.
+   *
+   * @param target the entity getting hit by lightning
+   */
   private void onHit(Entity target) {
     Sound zapSound = ServiceLocator.getResourceService().getAsset("sounds/zap.mp3", Sound.class);
     zapSound.play(AudioSettings.getEffectiveEffectsVolume());

@@ -4,6 +4,12 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
 
+/**
+ * Creates a projectile moving straight down.
+ *
+ * <p>Requires the projectile entity to already have a {@link PhysicsComponent} when {@link
+ * #start(Entity)} runs.
+ */
 public class VerticalMovementStrategy implements ProjectileMovementStrategy {
   private final float speed;
 
@@ -17,7 +23,9 @@ public class VerticalMovementStrategy implements ProjectileMovementStrategy {
   @Override
   public void start(Entity projectile) {
     Body body = projectile.getComponent(PhysicsComponent.class).getBody();
-    body.setLinearVelocity(0f, -speed); // straight down
+    if (body != null) {
+      body.setLinearVelocity(0f, -speed); // straight down
+    }
   }
 
   @Override
