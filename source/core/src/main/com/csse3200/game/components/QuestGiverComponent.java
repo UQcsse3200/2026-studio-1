@@ -4,6 +4,7 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.perks.PerkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ public class QuestGiverComponent extends Component {
   public Item itemToGive = null;
   private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
   private Entity player;
+  private int amountXToDo;
 
   public QuestGiverComponent(Entity player) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
@@ -48,6 +50,7 @@ public class QuestGiverComponent extends Component {
   // Jump quest functions start here
   public boolean logJumpQuest(int jumpsToDo) {
     if (Quest.logJumpQuest(uniqueNPCID, jumpsToDo)) {
+      amountXToDo = jumpsToDo;
       return true;
     } else {
       return false;
@@ -83,6 +86,7 @@ public class QuestGiverComponent extends Component {
   // EnemiesKilledQuest functions start here
   public boolean logEnemiesKilledQuest(int enemiesToKill) {
     if (Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill)) {
+      amountXToDo = enemiesToKill;
       return true;
     } else {
       return false;
@@ -101,6 +105,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkEnemiesKilledQuestComplete())) return false;
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
+    PerkService.recordEvent("enemyKilled",amountXToDo);
     return true;
   }
 
@@ -118,6 +123,7 @@ public class QuestGiverComponent extends Component {
   // GoldSpentQuest functions start here
   public boolean logGoldSpentQuest(int amountToSpend) {
     if (Quest.logGoldSpentQuest(uniqueNPCID, amountToSpend)) {
+      amountXToDo = amountToSpend;
       return true;
     } else {
       return false;
@@ -146,6 +152,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkGoldSpentQuestComplete())) return false;
     Quest.clearGoldSpentQuest(uniqueNPCID);
+    PerkService.recordEvent("GoldSpent",amountXToDo);
     return true;
   }
 
@@ -153,6 +160,7 @@ public class QuestGiverComponent extends Component {
   // ShieldsCollectedQuest functions start here
   public boolean logShieldsCollectedQuest(int shieldsToCollect) {
     if (Quest.logShieldsCollectedQuest(uniqueNPCID, shieldsToCollect)) {
+      amountXToDo = shieldsToCollect;
       return true;
     } else {
       return false;
@@ -171,6 +179,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkShieldsCollectedQuestComplete())) return false;
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
+    PerkService.recordEvent("shieldCollected",amountXToDo);
     return true;
   }
 
