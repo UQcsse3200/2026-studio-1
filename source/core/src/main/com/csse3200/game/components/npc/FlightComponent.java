@@ -1,14 +1,15 @@
 package com.csse3200.game.components.npc;
 
-import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Makes an entity fly: zeroes its physics body's gravity scale once created, so the world's gravity
- * never pulls it down between steering updates, and optionally applies linear damping so knockback
- * impulses fade out instead of carrying the entity away indefinitely (ground NPCs get the same
- * effect for free from floor friction, which a flying entity has none of).
+ * never pulls it down between steering updates, and applies linear damping so knockback impulses
+ * fade out instead of carrying the entity away indefinitely (ground NPCs get the same effect for
+ * free from floor friction, which a flying entity has none of).
  *
  * <p>Pairs with a {@link com.csse3200.game.physics.components.PhysicsMovementComponent} left in its
  * default (non-grounded) mode, which already steers toward the full 2D direction to a target -
@@ -24,37 +25,47 @@ import com.csse3200.game.physics.components.PhysicsComponent;
  * always added first (see {@code NPCFactory}'s {@code createBaseFlyingNPC}).
  */
 public class FlightComponent extends Component {
-  private final float linearDamping;
-
-  /** Creates a flight component that only zeroes gravity, leaving linear damping untouched. */
-  public FlightComponent() {
-    this(0f);
-  }
+  private float linearDamping;
+  private static final Logger logger = LoggerFactory.getLogger(FlightComponent.class);
 
   /**
-   * Creates a flight component that zeroes gravity and applies the given linear damping, so a
-   * knockback impulse on this entity fades out over time instead of persisting forever (there is no
-   * ground friction to do this for a flying entity otherwise).
+   * Creates a flight component.
    *
-   * @param linearDamping linear damping to apply to the physics body; not negative
-   * @throws IllegalArgumentException if {@code linearDamping} is negative
+   * @param linearDamping how quickly velocity fades when nothing is steering; must not be negative
+   *     (0 means no damping)
+   * @throws IllegalArgumentException if negative or not a finite number
    */
-  public FlightComponent(float linearDamping) {
+  public FlightComponent(float linearDamping) throws IllegalArgumentException {
     if (linearDamping < 0) {
-      throw new IllegalArgumentException("linearDamping must not be negative");
+      throw new IllegalArgumentException("LinearDamping must not be negative.");
+    }
+    if (linearDamping == Float.POSITIVE_INFINITY || linearDamping == Float.NEGATIVE_INFINITY) {
+      throw new IllegalArgumentException("LinearDamping must be a finite number.");
+    }
+    if (Float.isNaN(linearDamping)) {
+      throw new IllegalArgumentException("LinearDamping must be a number.");
     }
     this.linearDamping = linearDamping;
   }
 
+  /** Removes gravity from this entity's body and applies the configured damping. */
   @Override
   public void create() {
-    PhysicsComponent physicsComponent = entity.getComponent(PhysicsComponent.class);
-    if (physicsComponent != null) {
-      Body body = physicsComponent.getBody();
-      if (body != null) {
-        body.setGravityScale(0f);
-        body.setLinearDamping(this.linearDamping);
-      }
+    PhysicsComponent physics = this.entity.getComponent(PhysicsComponent.class);
+    if (physics == null || physics.getBody() == null) {
+      logger.error("flight cannot be enabled on {}: it has no physics body", entity);
+      return;
     }
+    physics.getBody().setGravityScale(0f);
+    physics.getBody().setLinearDamping(linearDamping);
+  }
+
+  /**
+   * Returns the configured damping.
+   *
+   * @return the damping passed to the constructor
+   */
+  public float getLinearDamping() {
+    return this.linearDamping;
   }
 }

@@ -269,12 +269,15 @@ public class NPCFactory {
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
+        .addComponent(new TouchAttackComponent(PhysicsLayer.PLAYER, config.charge.knockback))
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
         .addComponent(new MinotaurAnimationController());
 
     minotaur.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    minotaur.getComponent(ChargeComponent.class).setEndOnHit(config.charge.endOnHit);
 
     // Attack from range instead of flying/chasing all the way onto the target - see
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
@@ -355,12 +358,15 @@ public class NPCFactory {
                 config.charge.cooldown,
                 config.charge.damageMultiplier,
                 config.charge.speedMultiplier))
+        .addComponent(new TouchAttackComponent(PhysicsLayer.PLAYER, config.charge.knockback))
         .addComponent(new EnemyTypeComponent(EnemyType.CENTAUR))
         .addComponent(inventory)
         .addComponent(new ItemDropComponent())
         .addComponent(animator)
         .addComponent(new EnemyDeathComponent())
         .addComponent(new CentaurAnimationController());
+
+    centaur.getComponent(ChargeComponent.class).setEndOnHit(config.charge.endOnHit);
 
     centaur
         .getComponent(RangedAttackComponent.class)
@@ -372,7 +378,9 @@ public class NPCFactory {
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     centaur
         .getComponent(AITaskComponent.class)
-        .addTask(new RangedAttackTask(target, 10, config.ranged.range, ProjectileType.ARROW))
+        .addTask(
+            new RangedAttackTask(
+                target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW))
         .addTask(
             (new ChargeTask(
                 target,
@@ -553,8 +561,7 @@ public class NPCFactory {
     medusa
         .getComponent(AITaskComponent.class)
         .addTask(
-            new PlatformWanderTask(
-                new Vector2(config.pacing.radius * 2f, 2f), 2f, (scale * collisionScale.x) / 2))
+            new BoundedPlatformWanderTask(config.pacing.radius, 2f, (scale * collisionScale.x) / 2))
         .addTask(
             new RangedAttackTask(
                 target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW))
@@ -1062,6 +1069,7 @@ public class NPCFactory {
             .addComponent(new PhysicsComponent())
             .addComponent(new PhysicsMovementComponent())
             .addComponent(new ColliderComponent())
+            .addComponent(new FlightComponent(flightDamping))
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
             .addComponent(new FlightComponent(flightDamping))
             .addComponent(aiComponent);
