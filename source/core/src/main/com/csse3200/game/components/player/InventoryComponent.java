@@ -602,6 +602,27 @@ public class InventoryComponent extends Component {
   }
 
   /**
+   * Replaces the pet stored in a specific pet inventory slot.
+   *
+   * @param slot pet inventory slot to replace
+   * @param pet new pet to store
+   * @return true if the pet was replaced
+   */
+  public boolean replacePet(int slot, ShopComponent.Pet pet) {
+    if (!isValidPetSlot(slot) || pet == null || petSlots.get(slot) == null) {
+      return false;
+    }
+
+    if (containsPet(pet)) {
+      return false;
+    }
+
+    petSlots.put(slot, pet);
+    notifyInventoryChanged();
+    return true;
+  }
+
+  /**
    * Checks whether a pet with the same name is already stored.
    *
    * @param pet pet to check

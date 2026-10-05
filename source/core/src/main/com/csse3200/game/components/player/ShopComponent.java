@@ -50,6 +50,7 @@ public class ShopComponent extends Component {
   private ConsumableGenerator consumableGenerator;
   private WeaponGenerator weaponGenerator;
   private final Random random;
+  private Pet pendingPetReplacement;
 
   /** Creates a shop with empty item, Upgrade, and pet catalogs. */
   public ShopComponent() {
@@ -634,7 +635,25 @@ public class ShopComponent extends Component {
    */
   private boolean deliverPrize(Object product, InventoryComponent inventory) {
     if (product instanceof Pet pet) {
-      purchasedPets.add(pet);
+      // Duplicate gambling pets are consumed results.
+      // The spin still succeeds and remains charged.
+      if (inventory.containsPet(pet)) {
+        return true;
+      }
+
+      // Store normally when a pet slot is available.
+      if (!inventory.isPetInventoryFull()) {
+        if (!inventory.addPet(pet)) {
+          return false;
+        }
+
+        purchasedPets.add(pet);
+        return true;
+      }
+
+      // Inventory is full. The spin still succeeds and is charged,
+      // but the player must decide whether to replace an owned pet.
+      pendingPetReplacement = pet;
       return true;
     }
     if (product instanceof Upgrade upgrade) {
@@ -662,7 +681,13 @@ public class ShopComponent extends Component {
    */
   private void notifyPrizeDelivered(Object product) {
     if (product instanceof Pet pet) {
-      notifyPetPurchased(pet);
+      InventoryComponent inventory = getInventory();
+
+      if (inventory != null
+              && inventory.containsPet(pet)
+              && pendingPetReplacement == null) {
+        notifyPetPurchased(pet);
+      }
     } else if (product instanceof Upgrade) {
       notifyUpgradePurchased();
     }
@@ -794,6 +819,55 @@ public class ShopComponent extends Component {
   private static GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize(
       GamblingCatalogs.Prize product, int weight) {
     return new GamblingCatalogs.PrizeEntry<>(product, weight);
+  }
+
+  /**
+   * Returns the pet waiting for a replacement decision after a gambling win.
+   *
+   * @return pending pet, or null if no replacement is required
+   */
+  public Pet getPendingPetReplacement() {
+    return pendingPetReplacement;
+  }
+
+  /**
+   * Replaces an owned pet with the pending gambling pet.
+   *
+   * @param petSlot pet inventory slot to replace
+   * @return true if the replacement succeeded
+   */
+  public boolean replacePetWithPendingPrize(int petSlot) {
+    if (pendingPetReplacement == null) {
+      return false;
+    }
+
+    InventoryComponent inventory = getInventory();
+    if (inventory == null) {
+      return false;
+    }
+
+    Pet replacedPet = inventory.getPet(petSlot);
+
+    if (!inventory.replacePet(petSlot, pendingPetReplacement)) {
+      return false;
+    }
+
+    Pet newPet = pendingPetReplacement;
+    pendingPetReplacement = null;
+
+    purchasedPets.add(newPet);
+
+    if (entity != null) {
+      entity.getEvents().trigger(
+              "gamblingPetReplaced", replacedPet, newPet);
+    }
+
+    return true;
+  }
+
+  /** Discards the pending gambling pet without refunding the spin cost. */
+  public void cancelPendingPetReplacement() {
+    pendingPetReplacement = null;
   }
 
   /**

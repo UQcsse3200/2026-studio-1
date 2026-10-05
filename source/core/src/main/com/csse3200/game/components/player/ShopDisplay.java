@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -1492,12 +1493,16 @@ public class ShopDisplay extends UIComponent {
     spinButton.setTouchable(Touchable.disabled);
 
     gamblingWheel.spinToSlot(
-        winningSlot,
-        () -> {
-          gamblingResultLabel.setText("You won: " + getPrizeName(result));
-          gamblingResultLabel.setColor(GOLD_COLOR);
-          refreshGamblingWheel();
-        });
+            winningSlot,
+            () -> {
+              gamblingResultLabel.setText("You won: " + getPrizeName(result));
+              gamblingResultLabel.setColor(GOLD_COLOR);
+              refreshGamblingWheel();
+
+              if (shop.getPendingPetReplacement() != null) {
+                showPetReplacementDialog(shop);
+              }
+            });
   }
 
   private int findPrizeSlot(
@@ -1557,5 +1562,55 @@ public class ShopDisplay extends UIComponent {
     selectionArrow.addAction(
         Actions.forever(
             Actions.sequence(Actions.moveBy(0f, 5f, 0.25f), Actions.moveBy(0f, -5f, 0.25f))));
+  }
+
+  private void showPetReplacementDialog(ShopComponent shop) {
+    ShopComponent.Pet pendingPet = shop.getPendingPetReplacement();
+    if (pendingPet == null) {
+      return;
+    }
+
+    InventoryComponent inventory =
+            entity.getComponent(InventoryComponent.class);
+
+    if (inventory == null) {
+      shop.cancelPendingPetReplacement();
+      return;
+    }
+
+    Dialog dialog =
+            new Dialog("Pet Inventory Full", skin, "default") {
+              @Override
+              protected void result(Object object) {
+                if (object instanceof Integer petSlot) {
+                  shop.replacePetWithPendingPrize(petSlot);
+                } else {
+                  shop.cancelPendingPetReplacement();
+                }
+
+                refreshGamblingWheel();
+              }
+            };
+
+    dialog.text(
+            "You won "
+                    + pendingPet.getName()
+                    + ", but both pet slots are full.\n"
+                    + "Choose a pet to replace, or cancel.");
+
+    ShopComponent.Pet slot1 = inventory.getPet(1);
+    ShopComponent.Pet slot2 = inventory.getPet(2);
+
+    dialog.button(
+            "Replace 6. " + (slot1 == null ? "Empty" : slot1.getName()),
+            1);
+
+    dialog.button(
+            "Replace 7. " + (slot2 == null ? "Empty" : slot2.getName()),
+            2);
+
+    dialog.button("Cancel", null);
+
+    dialog.show(stage);
   }
 }

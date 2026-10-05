@@ -968,4 +968,54 @@ class InventoryComponentTest {
     assertTrue(inventory.isFull());
     assertTrue(inventory.isPetInventoryFull());
   }
+
+  @Test
+  void shouldReplacePetInSpecifiedSlot() {
+    InventoryComponent inventory = new InventoryComponent(100);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+    ShopComponent.Pet spirit = new ShopComponent.Pet("Spirit");
+
+    assertTrue(inventory.addPet(bird));
+    assertTrue(inventory.addPet(bat));
+
+    assertTrue(inventory.replacePet(2, spirit));
+
+    assertEquals("Bird", inventory.getPet(1).getName());
+    assertEquals("Spirit", inventory.getPet(2).getName());
+  }
+
+  @Test
+  void shouldRejectInvalidPetReplacement() {
+    InventoryComponent inventory = new InventoryComponent(100);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    assertTrue(inventory.addPet(bird));
+
+    assertFalse(inventory.replacePet(0, bat));
+    assertFalse(inventory.replacePet(3, bat));
+    assertFalse(inventory.replacePet(2, bat));
+    assertFalse(inventory.replacePet(1, null));
+
+    assertEquals("Bird", inventory.getPet(1).getName());
+  }
+
+  @Test
+  void shouldRejectReplacementWithOwnedPet() {
+    InventoryComponent inventory = new InventoryComponent(100);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    assertTrue(inventory.addPet(bird));
+    assertTrue(inventory.addPet(bat));
+
+    assertFalse(inventory.replacePet(1, bat));
+
+    assertEquals("Bird", inventory.getPet(1).getName());
+    assertEquals("Bat", inventory.getPet(2).getName());
+  }
 }

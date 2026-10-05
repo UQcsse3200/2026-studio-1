@@ -1218,6 +1218,9 @@ class ShopComponentTest {
     assertEquals(80, inventory.getGold());
     assertEquals(1, shop.getPurchasedPets().size());
     assertEquals("Bird", shop.getPurchasedPets().get(0).getName());
+    assertNotNull(inventory.getPet(1));
+    assertEquals("Bird", inventory.getPet(1).getName());
+    assertNull(shop.getPendingPetReplacement());
   }
 
   @Test
@@ -1439,5 +1442,101 @@ class ShopComponentTest {
     assertSame(bird.getProduct(), inventory.getPet(1));
     assertNull(inventory.getPet(2));
     assertEquals(1, shop.getPurchasedPets().size());
+  }
+
+  @Test
+  void shouldKeepGamblingPetPendingWhenPetInventoryIsFull() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    inventory.addPet(new ShopComponent.Pet("Bat"));
+    inventory.addPet(new ShopComponent.Pet("Spirit"));
+
+    ShopComponent shop =
+            new ShopComponent(
+                    new java.util.Random() {
+                      @Override
+                      public int nextInt(int bound) {
+                        return 99; // Standard slot 5: Bird
+                      }
+                    });
+
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
+            shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
+
+    assertNotNull(prize);
+
+    // Spin is consumed even though Bird cannot immediately enter inventory.
+    assertEquals(80, inventory.getGold());
+
+    assertEquals("Bat", inventory.getPet(1).getName());
+    assertEquals("Spirit", inventory.getPet(2).getName());
+
+    assertNotNull(shop.getPendingPetReplacement());
+    assertEquals("Bird", shop.getPendingPetReplacement().getName());
+  }
+
+  @Test
+  void shouldReplaceSelectedPetWithPendingGamblingPrize() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    inventory.addPet(new ShopComponent.Pet("Bat"));
+    inventory.addPet(new ShopComponent.Pet("Spirit"));
+
+    ShopComponent shop =
+            new ShopComponent(
+                    new java.util.Random() {
+                      @Override
+                      public int nextInt(int bound) {
+                        return 99;
+                      }
+                    });
+
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertNotNull(shop.getPendingPetReplacement());
+
+    assertTrue(shop.replacePetWithPendingPrize(2));
+
+    assertEquals("Bat", inventory.getPet(1).getName());
+    assertEquals("Bird", inventory.getPet(2).getName());
+    assertNull(shop.getPendingPetReplacement());
+
+    // No additional charge for resolving the replacement.
+    assertEquals(80, inventory.getGold());
+  }
+
+  @Test
+  void shouldCancelPendingPetReplacementWithoutRefund() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    inventory.addPet(new ShopComponent.Pet("Bat"));
+    inventory.addPet(new ShopComponent.Pet("Spirit"));
+
+    ShopComponent shop =
+            new ShopComponent(
+                    new java.util.Random() {
+                      @Override
+                      public int nextInt(int bound) {
+                        return 99;
+                      }
+                    });
+
+    attach(inventory, shop);
+    shop.seedDefaultCatalog();
+
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertEquals(80, inventory.getGold());
+    assertNotNull(shop.getPendingPetReplacement());
+
+    shop.cancelPendingPetReplacement();
+
+    assertNull(shop.getPendingPetReplacement());
+    assertEquals("Bat", inventory.getPet(1).getName());
+    assertEquals("Spirit", inventory.getPet(2).getName());
+
+    // Cancel does not refund the consumed spin.
+    assertEquals(80, inventory.getGold());
   }
 }
