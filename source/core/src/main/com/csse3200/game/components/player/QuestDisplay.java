@@ -3,6 +3,8 @@ package com.csse3200.game.components.player;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
+import com.csse3200.game.Quests.*;
 import com.csse3200.game.Quests.JumpQuest;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.ui.UIComponent;
@@ -16,20 +18,22 @@ public class QuestDisplay extends UIComponent {
   private Table rootTable;
   private Table questTable;
   private ArrayList<JumpQuest> jumpQuestsToDisplay;
+  private ArrayList<EnemiesKilledQuest> enemiesKilledQuestsToDisplay;
+  private ArrayList<GoldSpentQuest> goldSpentQuestsToDisplay;
+  private ArrayList<ShieldsCollectedQuest> shieldsCollectedQuestsToDisplay;
 
-  private final Set<JumpQuest> completedQuests = new HashSet<>();
-
-  // Only proof of concept for now delete later
-  int NPCID = 1;
+  private final Set<JumpQuest> completedJumpQuests = new HashSet<>();
+  private final Set<EnemiesKilledQuest> completedEnemiesKilledQuest = new HashSet<>();
+  private final Set<GoldSpentQuest> completedGoldSpentQuest = new HashSet<>();
+  private final Set<ShieldsCollectedQuest> completedShieldsCollectedQuest = new HashSet<>();
 
   @Override
   public void create() {
     super.create();
-
-    // Only proof of concept for now delete later
-    NPCID = Quest.giveOutUniqueNPCID();
-    Quest.logJumpQuest(NPCID, 5);
     jumpQuestsToDisplay = Quest.getJumpQuests();
+    enemiesKilledQuestsToDisplay = Quest.getEnemiesKilledQuests();
+    goldSpentQuestsToDisplay = Quest.getGoldSpentQuests();
+    shieldsCollectedQuestsToDisplay = Quest.getShieldsCollectedQuests();
 
     addActors();
 
@@ -50,22 +54,25 @@ public class QuestDisplay extends UIComponent {
     rootTable.padTop(75f).padRight(20f);
 
     questTable = new Table();
-    questTable.setBackground(skin.getDrawable("window-w"));
-    questTable.pad(14f);
+    questTable.setBackground(skin.getDrawable("window"));
+    questTable.pad(10f);
 
-    Label title = new Label("QUEST", skin, "large");
-    questTable.add(title).left().padBottom(10f).row();
+    Label title = new Label("QUEST", skin);
+    title.setAlignment(Align.center);
+    questTable.add(title).expandX().fillX().padBottom(10f).row();
 
-    rootTable.add(questTable).width(400f);
+    rootTable.add(questTable).width(300f);
 
     stage.addActor(rootTable);
   }
 
-  /** Updates the quest list and handles the quest menu toggle. */
+  /** Updates the quest list. */
   @Override
   public void update() {
-
     jumpQuestsToDisplay = Quest.getJumpQuests();
+    enemiesKilledQuestsToDisplay = Quest.getEnemiesKilledQuests();
+    goldSpentQuestsToDisplay = Quest.getGoldSpentQuests();
+    shieldsCollectedQuestsToDisplay = Quest.getShieldsCollectedQuests();
 
     refreshQuestTable();
   }
@@ -74,42 +81,115 @@ public class QuestDisplay extends UIComponent {
   private void refreshQuestTable() {
     questTable.clear();
 
-    Label title = new Label("QUEST", skin, "large");
-    questTable.add(title).left().padBottom(10f).row();
+    Label title = new Label("QUEST", skin, "subtitle");
+    title.setAlignment(Align.center);
+    questTable.add(title).expandX().fillX().padBottom(10f).row();
 
     // Completed quests section
     Label completedTitle = new Label("COMPLETED", skin);
-    questTable.add(completedTitle).left().padBottom(5f).row();
+    questTable.add(completedTitle).expandX().fillX().left().padBottom(5f).row();
 
-    if (!completedQuests.isEmpty()) {
-      for (JumpQuest quest : completedQuests) {
+    if (!completedJumpQuests.isEmpty()) {
+      for (JumpQuest quest : completedJumpQuests) {
         Label completedQuest = new Label("✓ Jump Quest", skin);
+        questTable.add(completedQuest).expandX().fillX().left().row();
+      }
+    }
+    if (!completedEnemiesKilledQuest.isEmpty()) {
+      for (EnemiesKilledQuest quest : completedEnemiesKilledQuest) {
+        Label completedQuest = new Label("✓ Enemies Killed Quest", skin);
         questTable.add(completedQuest).left().row();
       }
-    } else {
+    }
+    if (!completedGoldSpentQuest.isEmpty()) {
+      for (GoldSpentQuest quest : completedGoldSpentQuest) {
+        Label completedQuest = new Label("✓ Gold Spent Quest", skin);
+        questTable.add(completedQuest).left().row();
+      }
+    }
+    if (!completedShieldsCollectedQuest.isEmpty()) {
+      for (ShieldsCollectedQuest quest : completedShieldsCollectedQuest) {
+        Label completedQuest = new Label("✓ Shields Collected Quest", skin);
+        questTable.add(completedQuest).left().row();
+      }
+    }
+    if (completedEnemiesKilledQuest.isEmpty()
+        && completedJumpQuests.isEmpty()
+        && completedGoldSpentQuest.isEmpty()
+        && completedShieldsCollectedQuest.isEmpty()) {
       Label noCompleted = new Label("No completed quests", skin);
-      questTable.add(noCompleted).left().row();
+      questTable.add(noCompleted).expandX().fillX().left().row();
     }
 
     // Remaining quests section
     Label remainingTitle = new Label("REMAINING", skin);
-    questTable.add(remainingTitle).left().padTop(10f).padBottom(5f).row();
+    questTable.add(remainingTitle).expandX().fillX().left().padTop(10f).padBottom(5f).row();
 
     boolean hasRemainingQuests = false;
 
     if (jumpQuestsToDisplay != null) {
       for (JumpQuest quest : jumpQuestsToDisplay) {
         if (quest != null) {
-          quest.checkGlobalJumps();
 
           int progress = quest.checkQuestProgress();
 
           if (progress >= 100) {
-            completedQuests.add(quest);
+            completedJumpQuests.add(quest);
           } else {
             hasRemainingQuests = true;
 
             Label questToDisplay = new Label("• Jump Quest - " + progress + "%", skin);
+
+            questTable.add(questToDisplay).expandX().fillX().left().row();
+          }
+        }
+      }
+    }
+    if (enemiesKilledQuestsToDisplay != null) {
+      for (EnemiesKilledQuest quest : enemiesKilledQuestsToDisplay) {
+        if (quest != null) {
+
+          int progress = quest.checkQuestProgress();
+
+          if (progress >= 100) {
+            completedEnemiesKilledQuest.add(quest);
+          } else {
+            hasRemainingQuests = true;
+            Label questToDisplay = new Label("• Enemies Killed Quest - " + progress + "%", skin);
+
+            questTable.add(questToDisplay).left().row();
+          }
+        }
+      }
+    }
+    if (goldSpentQuestsToDisplay != null) {
+      for (GoldSpentQuest quest : goldSpentQuestsToDisplay) {
+        if (quest != null) {
+
+          int progress = quest.checkQuestProgress();
+
+          if (progress >= 100) {
+            completedGoldSpentQuest.add(quest);
+          } else {
+            hasRemainingQuests = true;
+            Label questToDisplay = new Label("• Gold Spent Quest - " + progress + "%", skin);
+
+            questTable.add(questToDisplay).left().row();
+          }
+        }
+      }
+    }
+    if (shieldsCollectedQuestsToDisplay != null) {
+      for (ShieldsCollectedQuest quest : shieldsCollectedQuestsToDisplay) {
+        if (quest != null) {
+
+          int progress = quest.checkQuestProgress();
+
+          if (progress >= 100) {
+            completedShieldsCollectedQuest.add(quest);
+          } else {
+            hasRemainingQuests = true;
+            Label questToDisplay = new Label("• Shields Collected Quest - " + progress + "%", skin);
 
             questTable.add(questToDisplay).left().row();
           }
@@ -119,7 +199,7 @@ public class QuestDisplay extends UIComponent {
 
     if (!hasRemainingQuests) {
       Label noRemaining = new Label("No remaining quests", skin);
-      questTable.add(noRemaining).left().row();
+      questTable.add(noRemaining).expandX().fillX().left().row();
     }
   }
 

@@ -22,6 +22,7 @@ import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
+import com.csse3200.game.components.story.StoryCutscene;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -79,7 +80,6 @@ public class MainGameScreen extends ScreenAdapter {
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
   private static final float GAMEPLAY_ZOOM = 0.95f;
 
-  /** The crust seam in the 56x64 Greek map (32 tiles at 0.5 world units). */
   private final GdxGame game;
 
   private final Renderer renderer;
@@ -93,6 +93,7 @@ public class MainGameScreen extends ScreenAdapter {
   private WinScreenDisplay winScreenDisplay;
   private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
+  private boolean afterDeathCutsceneShown = false;
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
@@ -193,6 +194,87 @@ public class MainGameScreen extends ScreenAdapter {
 
   public Map<String, Long> getLootSeedsByRoom() {
     return new HashMap<>(lootSeedsByRoom);
+  }
+
+  /**
+   * Respawns the player in the current room after death.
+   *
+   * <p>The existing LevelGameArea is kept alive so that loot dropped by the dead player remains in
+   * the world. A completely new player is created by LevelGameArea rather than restoring the dead
+   * player's inventory.
+   */
+  private void revivePlayer() {
+    logger.info("Reviving player in current room '{}'", currentRoomMapPath);
+
+    /*
+     * Create a completely fresh player through LevelGameArea.
+     *
+     * This removes the old dead player from the area and creates a
+     * brand-new player through PlayerFactory.
+     */
+    Entity newPlayer = levelGameArea.respawnPlayer();
+
+    /*
+     * DeathStateComponent freezes the whole game (timeScale = 0f) when the
+     * player dies so that only death-screen input is processed. That freeze
+     * is global, not tied to the dead entity, so it must be explicitly
+     * lifted here. Otherwise the new player (and every other system that
+     * depends on delta time, e.g. physics/movement) will keep receiving a
+     * delta time of 0 every frame and will appear stuck in place even
+     * though it has been spawned correctly.
+     */
+    ServiceLocator.getTimeSource().setTimeScale(1f);
+
+    /*
+     * Reconnect the upgrades display to the new player.
+     */
+    upgradesDisplay.setPlayer(newPlayer);
+
+    /*
+     * Reconnect the shop display to the upgrades display.
+     */
+    ShopDisplay shopDisplay = newPlayer.getComponent(ShopDisplay.class);
+
+    if (shopDisplay != null) {
+      shopDisplay.setUpgradesDisplay(upgradesDisplay);
+    }
+
+    /*
+     * Create a new sub-level title display because the old one
+     * referenced the dead player.
+     */
+    ServiceLocator.getEntityService()
+        .register(new Entity().addComponent(new SubLevelTitleDisplay(newPlayer)));
+
+    /*
+     * Recreate the travel prompt so it references the new player.
+     */
+    removeSubLevelTravelPrompt();
+
+    LevelView level = levelGameArea.getLevel();
+
+    if (level != null && !level.subLevels().isEmpty()) {
+      createSubLevelTravelPrompt(newPlayer);
+    }
+
+    /*
+     * The player is alive again, so stop showing the death screen.
+     */
+    deathScreenShown = false;
+    deathScreenDisplay.hideDeathScreen();
+
+    /*
+     * Reset the sub-level tracking state so entering the current
+     * section is handled normally after revival.
+     */
+    playerInNether = null;
+
+    /*
+     * Put the camera back onto the newly-created player.
+     */
+    fitCameraToMap(levelGameArea);
+
+    logger.info("Player revived successfully");
   }
 
   /**
@@ -325,6 +407,24 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     if (levelGameArea.isPlayerDead()) {
+      if (!afterDeathCutsceneShown) {
+        afterDeathCutsceneShown = true;
+
+        StoryCutscene afterDeathCutscene = StoryCutscene.createAfterDeathCutscene();
+
+        game.setScreen(
+            new StoryCutsceneScreen(
+                this.game,
+                afterDeathCutscene,
+                () -> {
+                  deathScreenShown = true;
+                  deathScreenDisplay.showDeathScreen();
+                  game.setScreen(this);
+                }));
+
+        return;
+      }
+
       deathScreenShown = true;
       deathScreenDisplay.showDeathScreen();
       renderer.render();
@@ -429,9 +529,6 @@ public class MainGameScreen extends ScreenAdapter {
   public void dispose() {
     logger.debug("Disposing main game screen");
 
-    /*
-     * Dispose components while their services and physics world are still alive.
-     */
     ServiceLocator.getEntityService().dispose();
     ServiceLocator.getLightService().dispose();
     physicsEngine.dispose();
@@ -462,7 +559,11 @@ public class MainGameScreen extends ScreenAdapter {
 
     Entity ui = new Entity();
 
-    deathScreenDisplay = new DeathScreenDisplay(this.game);
+    /*
+     * Try Again now revives the player instead of
+     * restarting the entire game.
+     */
+    deathScreenDisplay = new DeathScreenDisplay(this.game, this::revivePlayer);
 
     winScreenDisplay = new WinScreenDisplay(this.game);
 

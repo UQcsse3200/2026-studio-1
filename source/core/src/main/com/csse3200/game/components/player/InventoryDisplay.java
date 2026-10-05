@@ -10,13 +10,13 @@ import com.csse3200.game.ui.UIComponent;
 /** A HUD-style UI component for displaying the player's inventory. */
 public class InventoryDisplay extends UIComponent {
 
-  private static final float SLOT_WIDTH = 130f;
+  private static final float SLOT_WIDTH = 220f;
   private static final float SLOT_HEIGHT = 36f;
   private static final float SLOT_GAP = 4f;
   private static final float PANEL_PADDING = 10f;
   private static final float RIGHT_MARGIN = 16f;
-  private static final String LABEL_STYLE = "small";
-  private static final String SLOT_BACKGROUND = "button-c";
+  private static final String LABEL_STYLE = "default";
+  private static final String SLOT_BACKGROUND = "button";
 
   private static final Color EMPTY_TEXT_COLOR = new Color(1f, 1f, 1f, 0.55f);
   private static final Color FILLED_TEXT_COLOR = Color.WHITE;
@@ -44,7 +44,7 @@ public class InventoryDisplay extends UIComponent {
 
     inventoryTable.top().center();
     inventoryTable.pad(PANEL_PADDING);
-    inventoryTable.setBackground(skin.getDrawable("window-w"));
+    inventoryTable.setBackground(skin.getDrawable("window"));
 
     goldLabel = new Label("Gold: " + inventory.getGold(), skin, LABEL_STYLE);
 
@@ -100,9 +100,9 @@ public class InventoryDisplay extends UIComponent {
     Label quantityLabel = new Label(quantity, skin, LABEL_STYLE);
     quantityLabel.setColor(FILLED_TEXT_COLOR);
 
-    slot.add(slotNumberLabel).left().padRight(6f).width(14f);
-    slot.add(itemLabel).left().expandX().fillX();
-    slot.add(quantityLabel).right().padLeft(6f);
+    slot.add(slotNumberLabel).left().padRight(4f).width(14f);
+    slot.add(itemLabel).left().width(125f);
+    slot.add(quantityLabel).right().padLeft(4f).width(28f);
 
     inventoryTable.add(slot).size(SLOT_WIDTH, SLOT_HEIGHT).pad(SLOT_GAP);
   }

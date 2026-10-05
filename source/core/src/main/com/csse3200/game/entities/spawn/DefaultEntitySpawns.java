@@ -43,9 +43,6 @@ public final class DefaultEntitySpawns {
     EntitySpawnRegistry.registerIfAbsent("minotaur", NPCFactory::createMinotaur);
     EntitySpawnRegistry.registerIfAbsent("centaur", NPCFactory::createCentaur);
     EntitySpawnRegistry.registerIfAbsent("enemy-centaur", NPCFactory::createCentaur);
-
-    // NPC team.
-    EntitySpawnRegistry.registerIfAbsent("npc:traveler", NPCFactory::createTravelerNPC);
   }
 
   /** Allows tests to re-run {@link #registerAll()} from a known state. */
