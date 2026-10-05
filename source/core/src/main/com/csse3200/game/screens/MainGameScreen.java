@@ -518,9 +518,7 @@ public class MainGameScreen extends ScreenAdapter {
 
     playerInNether = null;
 
-    player
-        .getEvents()
-        .trigger(SubLevelEvents.SUB_LEVEL_ENTERED, nextArea.getMapData().getName());
+    player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, nextArea.getMapData().getName());
 
     if (!nextArea.getLevel().subLevels().isEmpty()) {
 
