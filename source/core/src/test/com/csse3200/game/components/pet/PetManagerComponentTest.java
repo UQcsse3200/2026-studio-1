@@ -14,9 +14,9 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
-import com.csse3200.game.events.listeners.EventListener1;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -152,7 +152,7 @@ class PetManagerComponentTest {
     manager.activatePet(new ShopComponent.Pet("Bat"));
     Entity second = manager.getActivePet();
     List<Entity> newPetAttacks = new ArrayList<>();
-    
+
     EventListener1<Entity> newAttackListener = newPetAttacks::add;
     second.getEvents().addListener("petAttack", newAttackListener);
     second.update();

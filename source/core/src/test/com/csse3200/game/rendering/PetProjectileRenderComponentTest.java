@@ -94,22 +94,6 @@ class PetProjectileRenderComponentTest {
 
   private void verifyDraw(SpriteBatch batch, Texture texture, float angle) {
     verify(batch)
-        .draw(
-          texture,
-          2f,
-          3f,
-          0.2f,
-          0.1f,
-          0.4f,
-          0.2f,
-          1f,
-          1f,
-          angle,
-          0,
-          0,
-          32,
-          16,
-          false,
-          false);
+        .draw(texture, 2f, 3f, 0.2f, 0.1f, 0.4f, 0.2f, 1f, 1f, angle, 0, 0, 32, 16, false, false);
   }
 }

@@ -89,8 +89,7 @@ class PetProjectileComponentTest {
     ServiceLocator.registerRenderService(renderer);
     ResourceService resources = mock(ResourceService.class);
     Texture arrowTexture = mock(Texture.class);
-    when(resources.getAsset("images/items/arrow.png", Texture.class))
-        .thenReturn(arrowTexture);
+    when(resources.getAsset("images/items/arrow.png", Texture.class)).thenReturn(arrowTexture);
     ServiceLocator.registerResourceService(resources);
 
     PetManagerComponent manager =
@@ -404,7 +403,8 @@ class PetProjectileComponentTest {
     EventListener0 enemyKilledListener = kills::incrementAndGet;
     owner.getEvents().addListener("enemyKilled", enemyKilledListener);
     List<Entity> playerHits = new ArrayList<>();
-    owner.getEvents().addListener("playerAttackHit", (Entity target) -> playerHits.add(target));
+    EventListener1<Entity> playerHitListener = playerHits::add;
+    owner.getEvents().addListener("playerAttackHit", playerHitListener);
     Entity projectile = fireAt(enemy);
 
     flyUntilDisposed(projectile);

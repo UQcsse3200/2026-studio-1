@@ -17,7 +17,7 @@ public class CombatStatsComponent extends Component {
     setBaseAttack(baseAttack);
   }
 
-  public Boolean isDead() {
+  public boolean isDead() {
     return health == 0;
   }
 
