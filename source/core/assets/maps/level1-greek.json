@@ -101,7 +101,6 @@
     "O": {
       "type": "HAZARD",
       "texture": "images/level1/hazard-pit-512px.png"
-      "texture": "images/level1/hazard-firepit-512px.png",
     },
     "l": {
       "type": "LADDER",
@@ -198,7 +197,10 @@
     "+": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-tripod-512px.png",
-      "glow": "images/effects/lighting/light-warm.png"
+      "light": "point",
+      "lightColour": "elysian_fade",
+      "lightRadius": "1.5",
+      "flicker": "0.2"
     },
     "k": {
       "type": "DECORATIVE",
