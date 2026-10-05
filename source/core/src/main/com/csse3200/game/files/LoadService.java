@@ -42,6 +42,30 @@ public class LoadService {
     }
 
     GameSaveData data = SaveService.load();
+    apply(player, data, mapWidth, mapHeight, upgrades);
+  }
+
+  /**
+   * Applies already-loaded save data to the given player.
+   *
+   * <p>Kept separate from {@link #load(Entity, float, float, List)} so the restore logic can be
+   * unit tested without reading a save file from disk.
+   *
+   * @param player player entity to restore
+   * @param data save data to apply
+   * @param mapWidth width of the current map, used to validate saved positions
+   * @param mapHeight height of the current map, used to validate saved positions
+   * @param upgrades the game's upgrade nodes, so saved upgrades can be restored onto them
+   */
+  public static void apply(
+      Entity player,
+      GameSaveData data,
+      float mapWidth,
+      float mapHeight,
+      List<UpgradeNode> upgrades) {
+    if (player == null || data == null) {
+      return;
+    }
 
     loadHealth(player, data);
     loadStamina(player, data);
