@@ -40,13 +40,13 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean walkingDown = false;
   private String direction = "Right";
   private boolean wasPaused = false;
-  private String SLIDE_STRING = "slide";
-  private String WALK_STOP = "walkStop";
-  private String MOVE_LEFT = "moveLeft";
-  private String MOVE_RIGHT = "moveRight";
-  private String MOVE_DOWN = "moveDown";
-  private String CROUCH_STRING = "crouch";
-  private String CTRL_CHANGED = "ctrlChanged";
+  private static final String SLIDE_STRING = "slide";
+  private static final String WALK_STOP = "walkStop";
+  private static final String MOVE_LEFT = "moveLeft";
+  private static final String MOVE_RIGHT = "moveRight";
+  private static final String MOVE_DOWN = "moveDown";
+  private static final String CROUCH_STRING = "crouch";
+  private static final String CTRL_CHANGED = "ctrlChanged";
 
   public String getDirection() {
     return this.direction;

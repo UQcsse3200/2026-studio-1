@@ -98,16 +98,11 @@ public class SettingsMenuDisplay extends UIComponent {
     super.create();
     addActors();
     entity.getEvents().addListener("exitSettings", this::exitMenu);
-    entity.getEvents().addListener("keybindChanged", this::handleKeybindChanged);
-    entity.getEvents().addListener("keybindCaptureCancelled", this::handleKeybindCaptureCancelled);
+    entity.getEvents().addListener("keybindChanged", this::endKeyCapture);
+    entity.getEvents().addListener("keybindCaptureCancelled", this::endKeyCapture);
   }
 
-  private void handleKeybindChanged() {
-    capturingAction = null;
-    refreshKeybindLabels();
-  }
-
-  private void handleKeybindCaptureCancelled() {
+  private void endKeyCapture() {
     capturingAction = null;
     refreshKeybindLabels();
   }
@@ -278,7 +273,6 @@ public class SettingsMenuDisplay extends UIComponent {
     stage.setKeyboardFocus(null);
     settingsTable.setVisible(true);
     keybindsTable.setVisible(false);
-    capturingAction = null;
     refreshKeybindLabels();
     rootTable.invalidateHierarchy();
   }
@@ -376,7 +370,9 @@ public class SettingsMenuDisplay extends UIComponent {
   }
 
   @Override
-  protected void draw(SpriteBatch batch) {}
+  protected void draw(SpriteBatch batch) {
+    // Nothing to draw here: the Stage renders this menu's actors.
+  }
 
   @Override
   public void update() {
