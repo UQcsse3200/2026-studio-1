@@ -157,7 +157,7 @@ public class PlayerStatsDisplay extends UIComponent {
 
     staminaBar.setValue(100f);
 
-    staminaTable.add(staminaBar).width(250f).height(20f).left();
+    staminaTable.add(staminaBar).width(180f).height(20f).left();
 
     stage.addActor(staminaTable);
     stage.addActor(table);
