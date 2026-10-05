@@ -28,8 +28,6 @@ import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
 import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
-import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -42,8 +40,6 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterEach;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,7 +92,7 @@ class NPCFactoryTest {
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER));
     configs = FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
   }
-  
+
   @AfterEach
   void resetRegistry() {
     EntitySpawnRegistry.clear();
@@ -570,11 +566,11 @@ class NPCFactoryTest {
       assertTrue(animator.hasAnimation("harpy_y_r"), "right-facing animation");
     }
   }
-  
+
   @Test
   void shouldRegisterAllNpcSpawns() {
     NPCFactory.registerNpcSpawns();
-    
+
     assertTrue(EntitySpawnRegistry.isRegistered("npc:shop"));
     assertTrue(EntitySpawnRegistry.isRegistered("npc:wizard"));
     assertTrue(EntitySpawnRegistry.isRegistered("npc:philosopher"));
