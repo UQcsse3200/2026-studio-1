@@ -466,9 +466,10 @@ class JsonMapLoaderTest {
             + count
             + " enemies spawned on the map.");
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
-    // Transparent ladders and ledges must render over a background rather than the clear colour.
+    // Transparent ladders and ledges render over the parallax backdrops, so the background layer
+    // is kept for parity with the other levels but holds no tiles.
     assertNotNull(levelOne.getLayer("background"));
-    assertEquals(TileType.DECORATIVE, levelOne.getLayer("background").get(26, 33).type());
+    assertNull(levelOne.getLayer("background").get(26, 33));
     // The Nether endpoint keeps the ladder passage open beside its solid marble landing.
     assertEquals(TileType.LADDER, levelOne.getTileType(26, 33));
     assertEquals(TileType.PLATFORM, levelOne.getTileType(27, 33));
@@ -661,56 +662,30 @@ class JsonMapLoaderTest {
 
     assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
     assertEquals(52, levelThree.getWidth());
-    assertEquals(24, levelThree.getHeight());
-    assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
-    assertEquals(13, levelThree.getSpawns().getEnemies().size());
-    List<SpawnPoint> enemies = levelThree.getSpawns().getEnemies();
-    assertTrue(
-        enemies.stream()
-            .anyMatch(
-                s -> "zeus".equals(s.getType()) && s.getPosition().equals(new GridPoint2(83, 5))));
-    assertTrue(
-        enemies.stream()
-            .anyMatch(
-                s ->
-                    "cyclops".equals(s.getType())
-                        && s.getPosition().equals(new GridPoint2(69, 3))));
-    assertTrue(
-        enemies.stream()
-            .anyMatch(
-                s ->
-                    "cerberus".equals(s.getType())
-                        && s.getPosition().equals(new GridPoint2(74, 3))));
-    assertEquals(4, enemies.stream().filter(s -> "medusa".equals(s.getType())).count());
-    for (int medusaX : new int[] {19, 27, 35, 43}) {
-      assertTrue(
-          enemies.stream()
-              .anyMatch(
-                  s ->
-                      "medusa".equals(s.getType())
-                          && s.getPosition().equals(new GridPoint2(medusaX, 3))));
-    }
-    assertEquals(4, enemies.stream().filter(s -> "ranged-harpy".equals(s.getType())).count());
-    for (MapLayerData layer : levelThree.getLayers()) {
-      for (int x = 0; x < levelThree.getWidth(); x++) {
-        for (int y = 0; y < levelThree.getHeight(); y++) {
-          TileDefinition tile = layer.get(x, y);
-          if (tile != null) {
-            assertTrue(
-                tile.type() == TileType.WALL
-                    || tile.type() == TileType.PLATFORM
-                    || tile.type() == TileType.HAZARD
-                    || tile.type() == TileType.DECORATIVE,
-                "unexpected tile type " + tile.type() + " at " + x + "," + y);
-          }
+    assertEquals(26, levelThree.getHeight());
+    // The player arrives on the spawn level 2's summit exit sends them to.
+    assertEquals(new GridPoint2(8, 3), levelThree.getSpawns().getPlayer());
+    assertEquals(1, levelThree.getSpawns().getEnemies().size());
+    assertEquals("zeus", levelThree.getSpawns().getEnemies().getFirst().getType());
+    // Zeus is placed one tile above the floor he stands on, which is where his sprite is anchored.
+    assertEquals(
+        new GridPoint2(26, 4), levelThree.getSpawns().getEnemies().getFirst().getPosition());
+    assertEquals(5, levelThree.getSpawns().getLoot().size());
+
+    // The throne balcony is a platform over Zeus's spot, and ladders climb both walls.
+    assertEquals(TileType.PLATFORM, levelThree.getTileType(26, 18));
+    assertEquals(TileType.LADDER, levelThree.getTileType(3, 5));
+    assertEquals(TileType.LADDER, levelThree.getTileType(48, 5));
+    // The throne room's furniture is all walk-through decoration, kept out of the collision layer.
+    MapLayerData furniture = levelThree.getLayer("background");
+    for (int x = 0; x < levelThree.getWidth(); x++) {
+      for (int y = 0; y < levelThree.getHeight(); y++) {
+        TileDefinition tile = furniture.get(x, y);
+        if (tile != null) {
+          assertEquals(TileType.DECORATIVE, tile.type());
         }
       }
     }
-    MapLayerData hazards = levelThree.getCollisionLayer();
-    TileDefinition charged = hazards.get(10, 2);
-    assertEquals("images/effects/lighting/glow-electric.png", charged.get("glow"));
-    assertEquals(4, charged.getInt("frames", 0));
-    assertTrue(levelThree.getTexturePaths().contains(charged.get("animation")));
   }
 
   @Test

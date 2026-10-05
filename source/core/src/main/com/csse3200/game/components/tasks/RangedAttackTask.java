@@ -74,8 +74,7 @@ public class RangedAttackTask extends DefaultTask implements PriorityTask {
   @Override
   public void start() {
     super.start();
-    this.eventName.concat("Start");
-    owner.getEntity().getEvents().trigger(eventName);
+    owner.getEntity().getEvents().trigger(eventName + "Start");
   }
 
   /** Triggers the stored event name with the target and the projectile type. */

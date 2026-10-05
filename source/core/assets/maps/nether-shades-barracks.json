@@ -14,10 +14,6 @@
       "type": "FLOOR",
       "texture": "images/level1/cavern-floor-ash-512px.png"
     },
-    "-": {
-      "type": "PLATFORM",
-      "texture": "images/level1/ledge-basalt-512px.png"
-    },
     "=": {
       "type": "ONE_WAY_PLATFORM",
       "texture": "images/level1/ledge-basalt-512px.png"
@@ -31,14 +27,6 @@
       "type": "DECORATIVE",
       "texture": "images/level1/bg-cavern-512px.png"
     },
-    "h": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-stalagmite-512px.png"
-    },
-    "j": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-stalactite-512px.png"
-    },
     "b": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-bone-pile-512px.png"
@@ -47,21 +35,13 @@
       "type": "DECORATIVE",
       "texture": "images/level1/decor-oil-lamp-512px.png"
     },
-    "q": {
-      "type": "DECORATIVE",
-      "texture": "images/level1/decor-gorgoneion-512px.png"
-    },
     "k": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-skull-512px.png"
     },
-    "t": {
+    "u": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-tripod-512px.png"
-    },
-    "s": {
-      "type": "DECORATIVE",
-      "texture": "images/level2/petrified-climber-512px.png"
+      "texture": "images/level1/decor-urn-512px.png"
     }
   },
   "entityLegend": {
@@ -114,83 +94,107 @@
   },
   "layers": {
     "background": [
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
-      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+      "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
     ],
     "terrain": [
-      "################################################",
-      "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
-      "                                               #",
-      "                                               #",
-      "                                               #",
-      "#==================                            #",
-      "#                                              #",
-      "#                                              #",
-      "#            =====                             #",
-      "#                                              #",
-      "#                                              #",
-      "#      =====                                   #",
-      "#                                              #",
-      "#                                              #",
-      "#______________________________________________#",
-      "################################################"
+      "############################################################",
+      "#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#",
+      "#                                                          #",
+      "#                                                          #",
+      "#                                                          #",
+      "#                                                          #",
+      "#                                                          #",
+      "#                                                          #",
+      "####   #####################################################",
+      "#                               ##                         #",
+      "#                               ##                         #",
+      "#      ====                                                #",
+      "#                                                          #",
+      "#                                                          #",
+      "##################################################   #######",
+      "#                                                          #",
+      "#                                                          #",
+      "          =====       =====       =====              ====  #",
+      "                                                           #",
+      "                                                           #",
+      "#_____________________________________________XX___________#",
+      "############################################################"
     ],
     "foreground": [
-      "                                                ",
-      "                                                ",
-      "            j             j             j       ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "         a             a                        ",
-      "      b                           b  k      h   ",
-      "                                                ",
-      "                                                "
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "          a                       a                 a       ",
+      "                                                            ",
+      "                                                            ",
+      "                  u           b                 k           ",
+      "                                                            ",
+      "                                                            ",
+      "            a             a                   a             ",
+      "                                                            ",
+      "                                                            ",
+      "                        b               k             u     ",
+      "                                                            ",
+      "                                                            ",
+      "         a          a                       a               ",
+      "                                                            ",
+      "                                                            ",
+      "      u b       k           b       u     b                 ",
+      "                                                            ",
+      "                                                            "
     ],
     "entities": [
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "          R  R  R                               ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                                ",
-      "                                        M       ",
-      "                                                ",
-      "                                                ",
-      "    P     S  S  S  S  S  S  S  S R          LLL ",
-      "                                                ",
-      "                                                "
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                        M                   ",
+      "                                                            ",
+      "                                                            ",
+      "              R       R                                 LLL ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "                                                            ",
+      "              R     R       S       S       S               ",
+      "                                                            ",
+      "                                                            ",
+      "            S                                               ",
+      "                                                            ",
+      "                                                            ",
+      "    P             S     S     S         S                   ",
+      "                                                            ",
+      "                                                            "
     ]
   },
   "transitions": [
     {
       "id": "nether-shades-barracks-back",
       "x": 0,
-      "y": 11,
+      "y": 2,
       "width": 1,
       "height": 3,
       "texture": "images/level1/gate-exit-512px.png",

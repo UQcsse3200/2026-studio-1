@@ -29,9 +29,9 @@ import org.junit.jupiter.params.provider.MethodSource;
  * Tests every side room, one parameterised case per room, against the same table of what each room
  * is meant to contain. The table is the specification: adding a room means adding one row here.
  *
- * <p>Each room is 48 by 16 tiles, has one doorway cut into its left wall that leads back to its
- * parent map, a player arrival tile at (4, 2), one boss with a mob, and some loot at the far end.
- * The rules:
+ * <p>Every room has its own size and layout, given in the table. What they share is one doorway cut
+ * into the left wall that leads back to the parent map, a player arrival tile at (4, 2), one boss
+ * with a mob, and some loot past the boss. The rules:
  *
  * <ul>
  *   <li>the room loads, has the expected name and size, and the player arrival tile has ground
@@ -55,8 +55,6 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 @ExtendWith(GameExtension.class)
 class SideRoomsTest {
-  private static final int ROOM_WIDTH = 48;
-  private static final int ROOM_HEIGHT = 16;
   private static final GridPoint2 ARRIVAL = new GridPoint2(4, 2);
   private static final int AMBUSH_RADIUS =
       5; // a skeleton's melee reach is 2 units, which is 4 tiles
@@ -73,6 +71,8 @@ class SideRoomsTest {
   private record Room(
       String path,
       String name,
+      int width,
+      int height,
       String parent,
       GridPoint2 parentArrival,
       String parentDoorId,
@@ -93,6 +93,8 @@ class SideRoomsTest {
             new Room(
                 "maps/nether-hounds-den.json",
                 "Hound's Den",
+                56,
+                20,
                 "maps/level1-greek.json",
                 new GridPoint2(50, 34),
                 "hounds-den-door",
@@ -102,6 +104,8 @@ class SideRoomsTest {
             new Room(
                 "maps/nether-gorgon-gallery.json",
                 "Gorgon's Gallery",
+                44,
+                22,
                 "maps/level1-greek.json",
                 new GridPoint2(53, 40),
                 "gorgon-gallery-door",
@@ -111,6 +115,8 @@ class SideRoomsTest {
             new Room(
                 "maps/nether-minotaur-labyrinth.json",
                 "Minotaur's Labyrinth",
+                40,
+                40,
                 "maps/level1-greek.json",
                 new GridPoint2(53, 48),
                 "minotaur-labyrinth-door",
@@ -120,6 +126,8 @@ class SideRoomsTest {
             new Room(
                 "maps/nether-shades-barracks.json",
                 "Shades' Barracks",
+                60,
+                22,
                 "maps/level1-greek.json",
                 new GridPoint2(53, 54),
                 "shades-barracks-door",
@@ -129,8 +137,10 @@ class SideRoomsTest {
             new Room(
                 "maps/olympus-cyclops-forge.json",
                 "Cyclops Forge",
+                40,
+                20,
                 "maps/level2.json",
-                new GridPoint2(38, 15),
+                new GridPoint2(35, 39),
                 "cyclops-forge-door",
                 counts("cyclops", 1, "skeleton", 3, "ranged-skeleton", 2),
                 2)),
@@ -138,8 +148,10 @@ class SideRoomsTest {
             new Room(
                 "maps/olympus-centaur-pavilion.json",
                 "Centaur Pavilion",
+                64,
+                22,
                 "maps/level2.json",
-                new GridPoint2(47, 87),
+                new GridPoint2(35, 27),
                 "centaur-pavilion-door",
                 counts("centaur", 2, "skeleton", 2, "ranged-skeleton", 2, "harpy", 2),
                 2)),
@@ -147,8 +159,10 @@ class SideRoomsTest {
             new Room(
                 "maps/olympus-outer-guard.json",
                 "Zeus's Outer Guard",
+                48,
+                26,
                 "maps/level2.json",
-                new GridPoint2(51, 135),
+                new GridPoint2(35, 51),
                 "outer-guard-door",
                 counts("cyclops", 1, "medusa", 1, "skeleton", 3, "ranged-skeleton", 3, "harpy", 2),
                 3)),
@@ -156,8 +170,10 @@ class SideRoomsTest {
             new Room(
                 "maps/olympus-thunder-hall.json",
                 "Zeus's Thunder Hall",
+                56,
+                26,
                 "maps/level2.json",
-                new GridPoint2(54, 159),
+                new GridPoint2(35, 3),
                 "thunder-hall-door",
                 counts("zeus", 1, "skeleton", 2, "ranged-skeleton", 2, "ranged-harpy", 2),
                 3)));
@@ -177,8 +193,8 @@ class SideRoomsTest {
     LevelMapData map = loader.load(room.path());
 
     assertEquals(room.name(), map.getName());
-    assertEquals(ROOM_WIDTH, map.getWidth());
-    assertEquals(ROOM_HEIGHT, map.getHeight());
+    assertEquals(room.width(), map.getWidth());
+    assertEquals(room.height(), map.getHeight());
   }
 
   @ParameterizedTest(name = "{0}")
