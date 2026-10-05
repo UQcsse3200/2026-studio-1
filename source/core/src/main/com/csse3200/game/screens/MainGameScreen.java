@@ -16,6 +16,7 @@ import com.csse3200.game.areas.terrain.map.RoomTransition;
 import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.gamearea.PerformanceDisplay;
+import com.csse3200.game.components.gamearea.SubLevelEvents;
 import com.csse3200.game.components.gamearea.SubLevelTitleDisplay;
 import com.csse3200.game.components.gamearea.SubLevelTravelPromptDisplay;
 import com.csse3200.game.components.loot.LootRegistry;
@@ -363,7 +364,7 @@ public class MainGameScreen extends ScreenAdapter {
         && section != null
         && section.title() != null) {
 
-      player.getEvents().trigger("subLevelEntered", section.title());
+      player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, section.title());
     }
 
     playerInNether = inNether;
@@ -517,7 +518,9 @@ public class MainGameScreen extends ScreenAdapter {
 
     playerInNether = null;
 
-    player.getEvents().trigger("subLevelEntered", nextArea.getMapData().getName());
+    player
+        .getEvents()
+        .trigger(SubLevelEvents.SUB_LEVEL_ENTERED, nextArea.getMapData().getName());
 
     if (!nextArea.getLevel().subLevels().isEmpty()) {
 
@@ -538,7 +541,7 @@ public class MainGameScreen extends ScreenAdapter {
     int playerRow = (int) Math.floor(player.getCenterPosition().y / level.tileSize());
     SubLevel section = level.subLevelAt(playerRow);
     if (section != null && section.title() != null) {
-      player.getEvents().trigger("subLevelEntered", section.title());
+      player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, section.title());
       playerInNether = section != level.subLevels().getFirst();
     }
   }
