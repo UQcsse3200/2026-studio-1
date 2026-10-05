@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.CyclopsAnimationController;
@@ -663,8 +664,21 @@ public class NPCFactory {
     npc.addComponent(new PhysicsComponent())
         .addComponent(new PhysicsMovementComponent())
         .addComponent(new ColliderComponent())
+        .addComponent(
+            new QuestGiverComponent(
+                player, new WeaponGenerator().generateWeapon(WeaponType.SWORD, 3)))
         // NPC dialogue
-        .addComponent(new DialogueComponent(new String[] {"Hello", "Good luck"}))
+        .addComponent(
+            new DialogueComponent(
+                new String[] {
+                  "Hello, here's a quest!",
+                  "Here's the progress of your quest: ",
+                  "I've cleared your quest!",
+                  "Thanks for the help",
+                  "Hmm, something went wrong with completing your quest..."
+                },
+                "enemiesquest",
+                1))
         .addComponent(new DisplayDialogue(speakerName))
         .addComponent(new DialogueProximityComponent(player, 2f));
 
