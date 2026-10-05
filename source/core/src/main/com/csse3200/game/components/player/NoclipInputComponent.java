@@ -8,7 +8,7 @@ import java.util.function.DoubleConsumer;
 /** Handles direct vertical movement input while the developer-only noclip mode is enabled. */
 public class NoclipInputComponent extends InputComponent {
   private final DoubleConsumer setVerticalDirection;
-  private boolean enabled;
+  private boolean noclipEnabled;
   private boolean movingUp;
   private boolean movingDown;
 
@@ -19,7 +19,7 @@ public class NoclipInputComponent extends InputComponent {
 
   /** Enables or disables noclip input and clears any movement left over from held keys. */
   public void setNoclipEnabled(boolean enabled) {
-    this.enabled = enabled;
+    noclipEnabled = enabled;
     movingUp = false;
     movingDown = false;
     updateVerticalDirection();
@@ -27,7 +27,7 @@ public class NoclipInputComponent extends InputComponent {
 
   @Override
   public boolean keyDown(int keycode) {
-    if (!enabled) {
+    if (!noclipEnabled) {
       return false;
     }
 
@@ -48,7 +48,7 @@ public class NoclipInputComponent extends InputComponent {
 
   @Override
   public boolean keyUp(int keycode) {
-    if (!enabled) {
+    if (!noclipEnabled) {
       return false;
     }
 
