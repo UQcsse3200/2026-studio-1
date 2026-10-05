@@ -23,11 +23,14 @@ public class SubLevelTitleDisplay extends UIComponent {
   private static final float BACKGROUND_ALPHA = 0.68f;
   private static final float BLUR_ALPHA = 0.8f;
   private static final int BLUR_DOWNSCALE = 10;
+  private static final float MAX_TITLE_WIDTH = 0.8f;
+  private static final float MAX_TITLE_SCALE = 3.2f;
 
   private final Entity player;
   private Image blurredBackground;
   private Image backgroundVeil;
   private Label title;
+  private float unscaledTitleWidth;
   private Texture blurredTexture;
   private float elapsed;
   private boolean captureRequested = true;
@@ -56,9 +59,8 @@ public class SubLevelTitleDisplay extends UIComponent {
     stage.addActor(backgroundVeil);
 
     title = new Label("DUNGEON", style);
-    title.setFontScale(3.2f);
     title.setColor(1f, 1f, 1f, 0f);
-    title.pack();
+    unscaledTitleWidth = title.getPrefWidth();
     stage.addActor(title);
     player.getEvents().addListener("subLevelEntered", this::showTitle);
   }
@@ -89,6 +91,8 @@ public class SubLevelTitleDisplay extends UIComponent {
     blurredBackground.setPosition(0f, 0f);
     backgroundVeil.setSize(width, height);
     backgroundVeil.setPosition(0f, 0f);
+    title.setFontScale(titleScale(unscaledTitleWidth, width));
+    title.pack();
     title.setPosition((width - title.getWidth()) / 2f, (height - title.getHeight()) / 2f);
   }
 
@@ -105,9 +109,25 @@ public class SubLevelTitleDisplay extends UIComponent {
 
   private void showTitle(String name) {
     title.setText(name);
-    title.pack();
+    title.setFontScale(1f);
+    unscaledTitleWidth = title.getPrefWidth();
     elapsed = 0f;
     captureRequested = true;
+  }
+
+  /**
+   * Picks the scale that keeps a title on screen: the usual size for a short name, shrinking a long
+   * one such as a level name rather than letting it run off both edges.
+   *
+   * @param unscaledWidth the title's width at scale 1
+   * @param stageWidth the width available
+   * @return a scale of at most {@value #MAX_TITLE_SCALE}
+   */
+  static float titleScale(float unscaledWidth, float stageWidth) {
+    if (unscaledWidth <= 0f) {
+      return MAX_TITLE_SCALE;
+    }
+    return Math.min(MAX_TITLE_SCALE, stageWidth * MAX_TITLE_WIDTH / unscaledWidth);
   }
 
   private void captureBlurredBackground() {

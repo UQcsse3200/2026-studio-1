@@ -10,6 +10,8 @@ import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.BallisticShieldComponent;
+import com.csse3200.game.components.player.BallisticShieldRenderComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathLootDropComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
@@ -32,6 +34,7 @@ import com.csse3200.game.components.player.SpecialAttackEffectComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.Tutorial;
+import com.csse3200.game.components.player.UpgradeActivationFlashComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -39,6 +42,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.PlayerConfig;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.input.InputComponent;
+import com.csse3200.game.perks.TimeFreezeComponent;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -102,8 +106,12 @@ public class PlayerFactory {
             .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new ShieldComponent())
             .addComponent(new ShieldRenderComponent())
+            .addComponent(new UpgradeActivationFlashComponent())
+            .addComponent(new BallisticShieldComponent())
+            .addComponent(new BallisticShieldRenderComponent())
             .addComponent(new PlayerBuffComponent())
             .addComponent(new PlayerRegenComponent())
+            .addComponent(new TimeFreezeComponent())
             .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
@@ -145,7 +153,7 @@ public class PlayerFactory {
 
     if (mapData != null) {
       player.addComponent(new LadderComponent(mapData));
-      player.addComponent(new SubLevelTravelComponent());
+      player.addComponent(new SubLevelTravelComponent(mapData));
     }
 
     // The map uses 0.5 world units per tile. Keep the player just over one tile wide

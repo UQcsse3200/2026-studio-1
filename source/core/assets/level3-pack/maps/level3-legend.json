@@ -1,0 +1,173 @@
+{
+  "width": 52,
+  "height": 26,
+  "tilePx": 16,
+  "empty": " ",
+  "tiles": {
+    "#": {
+      "tile": "wall-a",
+      "type": "WALL",
+      "file": "images/level3/tiles/wall-a.png"
+    },
+    "%": {
+      "tile": "wall-b",
+      "type": "WALL",
+      "file": "images/level3/tiles/wall-b.png"
+    },
+    "&": {
+      "tile": "wall-c",
+      "type": "WALL",
+      "file": "images/level3/tiles/wall-c.png"
+    },
+    "^": {
+      "tile": "ceiling-trim",
+      "type": "WALL",
+      "file": "images/level3/tiles/ceiling-trim.png"
+    },
+    "h": {
+      "tile": "floor-hall-a",
+      "type": "FLOOR",
+      "file": "images/level3/tiles/floor-hall-a.png"
+    },
+    "i": {
+      "tile": "floor-hall-b",
+      "type": "FLOOR",
+      "file": "images/level3/tiles/floor-hall-b.png"
+    },
+    "c": {
+      "tile": "floor-colonnade-a",
+      "type": "FLOOR",
+      "file": "images/level3/tiles/floor-colonnade-a.png"
+    },
+    "d": {
+      "tile": "floor-colonnade-b",
+      "type": "FLOOR",
+      "file": "images/level3/tiles/floor-colonnade-b.png"
+    },
+    "t": {
+      "tile": "floor-dais",
+      "type": "FLOOR",
+      "file": "images/level3/tiles/floor-dais.png"
+    },
+    "g": {
+      "tile": "floor-gold-inlay",
+      "type": "FLOOR",
+      "file": "images/level3/tiles/floor-gold-inlay.png"
+    },
+    "<": {
+      "tile": "platform-left",
+      "type": "PLATFORM",
+      "file": "images/level3/tiles/platform-left.png"
+    },
+    "-": {
+      "tile": "platform-mid",
+      "type": "PLATFORM",
+      "file": "images/level3/tiles/platform-mid.png"
+    },
+    ">": {
+      "tile": "platform-right",
+      "type": "PLATFORM",
+      "file": "images/level3/tiles/platform-right.png"
+    },
+    "H": {
+      "tile": "ladder",
+      "type": "LADDER",
+      "file": "images/level3/tiles/ladder.png"
+    },
+    "!": {
+      "tile": "hazard-charged",
+      "type": "HAZARD",
+      "file": "images/level3/tiles/hazard-charged.png"
+    },
+    "k": {
+      "tile": "column-capital",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/column-capital.png"
+    },
+    "C": {
+      "tile": "column-shaft",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/column-shaft.png"
+    },
+    "b": {
+      "tile": "column-base",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/column-base.png"
+    },
+    "K": {
+      "tile": "column-broken-top",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/column-broken-top.png"
+    },
+    "F": {
+      "tile": "brazier",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/brazier.png"
+    },
+    "Q": {
+      "tile": "statue-top",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/statue-top.png"
+    },
+    "q": {
+      "tile": "statue-base",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/statue-base.png"
+    },
+    "n": {
+      "tile": "banner-top",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/banner-top.png"
+    },
+    "N": {
+      "tile": "banner-tail",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/banner-tail.png"
+    },
+    "T": {
+      "tile": "throne-top-left",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/throne-top-left.png"
+    },
+    "U": {
+      "tile": "throne-top-right",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/throne-top-right.png"
+    },
+    "V": {
+      "tile": "throne-mid-left",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/throne-mid-left.png"
+    },
+    "W": {
+      "tile": "throne-mid-right",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/throne-mid-right.png"
+    },
+    "X": {
+      "tile": "throne-base-left",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/throne-base-left.png"
+    },
+    "Y": {
+      "tile": "throne-base-right",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/throne-base-right.png"
+    },
+    "o": {
+      "tile": "storm-tuft",
+      "type": "DECORATIVE",
+      "file": "images/level3/tiles/storm-tuft.png"
+    }
+  },
+  "markers": {
+    "P": "player start",
+    "Z": "Zeus start (feet, centre of 3-wide body)",
+    "L": "loot spot"
+  },
+  "glow": {
+    "F": "warm",
+    "!": "electric"
+  },
+  "validation": "118 standing spots, all reachable from P (4-tile jump, 4-tile reach, ladders, drop-through); every one can return to P"
+}
