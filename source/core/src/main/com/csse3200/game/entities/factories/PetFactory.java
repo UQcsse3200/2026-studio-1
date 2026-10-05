@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.pet.PetCombatComponent;
 import com.csse3200.game.components.pet.PetComponent;
 import com.csse3200.game.components.pet.PetMovementComponent;
+import com.csse3200.game.components.pet.PetProjectileSpawnerComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -61,6 +62,7 @@ public class PetFactory {
             .addComponent(new PetComponent(owner))
             .addComponent(new PetMovementComponent(animationPrefix))
             .addComponent(new PetCombatComponent())
+            .addComponent(new PetProjectileSpawnerComponent())
             .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
             .addComponent(new ColliderComponent())
             .addComponent(animator);
