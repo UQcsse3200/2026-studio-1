@@ -1,16 +1,25 @@
 package com.csse3200.game.components.pet;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
+import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +35,7 @@ class PetManagerComponentTest {
 
   @AfterEach
   void tearDown() {
+    ServiceLocator.getEntityService().dispose();
     ServiceLocator.clear();
   }
 
@@ -118,6 +128,106 @@ class PetManagerComponentTest {
   }
 
   @Test
+  void shouldForwardPlayerHitToActivePetOnItsNextUpdate() {
+    PetManagerComponent manager = createCombatManager();
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity pet = manager.getActivePet();
+    List<Entity> attacks = new ArrayList<>();
+    EventListener1<Entity> attackListener = attacks::add;
+    pet.getEvents().addListener("petAttack", attackListener);
+
+    owner.getEvents().trigger("playerAttackHit", target);
+    assertTrue(attacks.isEmpty());
+    pet.update();
+
+    assertEquals(List.of(target), attacks);
+  }
+
+  @Test
+  void shouldStopOldPetAttacksAndRequireANewHitForReplacement() {
+    PetManagerComponent manager = createCombatManager();
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity first = manager.getActivePet();
+    List<Entity> oldPetAttacks = new ArrayList<>();
+    EventListener1<Entity> oldAttackListener = oldPetAttacks::add;
+    first.getEvents().addListener("petAttack", oldAttackListener);
+
+    owner.getEvents().trigger("playerAttackHit", target);
+    first.update();
+    assertEquals(List.of(target), oldPetAttacks);
+
+    manager.activatePet(new ShopComponent.Pet("Bat"));
+    Entity second = manager.getActivePet();
+    List<Entity> newPetAttacks = new ArrayList<>();
+
+    EventListener1<Entity> newAttackListener = newPetAttacks::add;
+    second.getEvents().addListener("petAttack", newAttackListener);
+    second.update();
+    assertTrue(newPetAttacks.isEmpty());
+
+    owner.getEvents().trigger("playerAttackHit", target);
+    for (int i = 0; i < 10; i++) {
+      first.update();
+    }
+    second.update();
+
+    assertTrue(first.isDisposed());
+    assertEquals(List.of(target), oldPetAttacks);
+    assertEquals(List.of(target), newPetAttacks);
+  }
+
+  @Test
+  void shouldIgnoreHitsWhenNoPetOrPetHasNoCombatComponent() {
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+
+    assertDoesNotThrow(() -> owner.getEvents().trigger("playerAttackHit", target));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    assertDoesNotThrow(() -> owner.getEvents().trigger("playerAttackHit", target));
+    manager.removePet();
+    assertDoesNotThrow(() -> owner.getEvents().trigger("playerAttackHit", target));
+  }
+
+  @Test
+  void shouldCancelPendingAssistWhenOwnerIsDisposed() {
+    PetManagerComponent manager = createCombatManager();
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 10));
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity pet = manager.getActivePet();
+    List<Entity> attacks = new ArrayList<>();
+    EventListener1<Entity> attackListener = attacks::add;
+
+    pet.getEvents().addListener("petAttack", attackListener);
+    owner.getEvents().trigger("playerAttackHit", target);
+
+    owner.dispose();
+    owner.getEvents().trigger("playerAttackHit", target);
+    pet.update();
+
+    assertTrue(attacks.isEmpty());
+    assertTrue(pet.isDisposed());
+    assertFalse(manager.hasActivePet());
+  }
+
+  private PetManagerComponent createCombatManager() {
+    GameTime timeSource = mock(GameTime.class);
+    when(timeSource.getDeltaTime()).thenReturn(0.1f);
+    PetManagerComponent manager =
+        new PetManagerComponent(
+            (petOwner, petData) ->
+                new Entity()
+                    .addComponent(new PetComponent(petOwner))
+                    .addComponent(new PetCombatComponent(timeSource)));
+    owner.addComponent(new CombatStatsComponent(100, 10)).addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    return manager;
+  }
+
+  @Test
   void shouldNotReplaceActivePetWhenAnotherPetPurchased() {
     PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
@@ -136,6 +246,42 @@ class PetManagerComponentTest {
     assertSame(birdEntity, manager.getActivePet());
     assertSame(bird, manager.getActivePetType());
     assertTrue(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldReplaceActiveGamblingPetBeforeAnyPlayerHit() {
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet spirit = new ShopComponent.Pet("Spirit");
+    owner.getEvents().trigger("petPurchased", bird);
+    Entity previousPet = manager.getActivePet();
+
+    owner.getEvents().trigger("gamblingPetReplaced", bird, spirit);
+
+    assertTrue(previousPet.isDisposed());
+    assertNotSame(previousPet, manager.getActivePet());
+    assertSame(spirit, manager.getActivePetType());
+  }
+
+  @Test
+  void shouldKeepActivePetWhenInactiveGamblingPetIsReplaced() {
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
+    owner.addComponent(manager);
+    ServiceLocator.getEntityService().register(owner);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    owner.getEvents().trigger("petPurchased", bird);
+    Entity activePet = manager.getActivePet();
+
+    owner
+        .getEvents()
+        .trigger(
+            "gamblingPetReplaced", new ShopComponent.Pet("Bat"), new ShopComponent.Pet("Spirit"));
+
+    assertFalse(activePet.isDisposed());
+    assertSame(activePet, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
   }
 
   @Test

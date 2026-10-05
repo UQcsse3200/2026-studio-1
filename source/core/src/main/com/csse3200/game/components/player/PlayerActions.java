@@ -35,9 +35,10 @@ import org.slf4j.LoggerFactory;
  */
 public class PlayerActions extends Component {
   private static final Logger logger = LoggerFactory.getLogger(PlayerActions.class);
-
-  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f);
-  private static final float SlideMaxTime = 0.5f;
+  // Thank you Lachlan, you beautiful, beautiful man
+  private static final Vector2 MAX_SPEED = new Vector2(30f, 10f); // Metres per second
+  private static final Vector2 MAX_JUMP_SPEED = new Vector2(10f, 10f); // Metres per second
+  private static final float SLIDE_MAX_TIME = 0.5f; // slide will finifh in 0.5 second
   private static final float BASE_ATTACK_COOLDOWN = 0.5f;
   private static final float SPECIAL_ATTACK_COOLDOWN = 3f;
   private static final int SPECIAL_ATTACK_DAMAGE_MULTIPLIER = 3;
@@ -56,6 +57,7 @@ public class PlayerActions extends Component {
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
   private PlatformerComponent platformerComponent;
+  private PlayerAnimationController playerAnimationControllerComponent;
   private StaminaComponent staminaComponent;
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
@@ -101,6 +103,7 @@ public class PlayerActions extends Component {
     platformerComponent = entity.getComponent(PlatformerComponent.class);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
+    playerAnimationControllerComponent = entity.getComponent(PlayerAnimationController.class);
     staminaComponent = entity.getComponent(StaminaComponent.class);
 
     System.out.println(
@@ -176,16 +179,20 @@ public class PlayerActions extends Component {
 
   private void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
-
+    boolean hurtPlaying = playerAnimationControllerComponent.hurtPlaying;
+    if (hurtPlaying && animator.isFinished()) {
+      playerAnimationControllerComponent.hurtPlaying = false;
+    }
     if (animator.isFinished()
         && !animator.getCurrentAnimation().equals("crouchidle")
         && !animator.getCurrentAnimation().equals("Leftcrouchidle")
         && !animator.getCurrentAnimation().equals("Run")
-        && !animator.getCurrentAnimation().equals("LeftRun")) {
+        && !animator.getCurrentAnimation().equals("LeftRun")
+        && !animator.getCurrentAnimation().equals("climb")) {
 
       if (animator.getCurrentAnimation().equals("Jump")
-          || animator.getCurrentAnimation().equals("LeftJump")) {
-
+          || animator.getCurrentAnimation().equals("LeftJump")
+          || animator.getCurrentAnimation().equals("climb")) {
         if (!walkDirection.isZero()) {
           entity.getEvents().trigger("run", direction);
         } else {
@@ -284,8 +291,8 @@ public class PlayerActions extends Component {
     if (platformerComponent.getJumpingBool()) {
       Quest.incrementGlobalJumps();
     }
-
-    platformerComponent.updateJump(MAX_SPEED);
+    // For the jump portion
+    platformerComponent.updateJump(MAX_JUMP_SPEED);
   }
 
   public void addSpeedModifier(Object key, float multiplier) {
@@ -350,12 +357,10 @@ public class PlayerActions extends Component {
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
 
     for (Entity enemy : enemiesInRange) {
-      CombatStatsComponent enemyStats = enemy.getComponent(CombatStatsComponent.class);
-
-      if (enemyStats != null) {
-        enemyStats.hit(combatStats);
-
-        logger.info("Enemy health decreased; health = {}", enemyStats.getHealth());
+      if (hitEnemy(enemy, combatStats.getBaseAttack())) {
+        logger.info(
+            "Enemy health decreased; health = {}",
+            enemy.getComponent(CombatStatsComponent.class).getHealth());
 
         attackSound.play(AudioSettings.getEffectiveEffectsVolume());
       }
@@ -382,10 +387,9 @@ public class PlayerActions extends Component {
             Math.min(
                 (long) combatStats.getBaseAttack() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
                 Integer.MAX_VALUE);
-
-    target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
-    entity.getEvents().trigger("specialAttackHit", target);
-
+    if (hitEnemy(target, damage)) {
+      entity.getEvents().trigger("specialAttackHit", target);
+    }
     specialAttackCooldownRemaining = SPECIAL_ATTACK_COOLDOWN;
   }
 
@@ -395,7 +399,8 @@ public class PlayerActions extends Component {
     Vector2 playerPosition = entity.getPosition();
 
     for (Entity enemy : enemiesInRange) {
-      if (enemy.getComponent(CombatStatsComponent.class) == null) {
+      CombatStatsComponent stats = enemy.getComponent(CombatStatsComponent.class);
+      if (enemy.isDisposed() || stats == null || stats.isDead()) {
         continue;
       }
 
@@ -430,11 +435,24 @@ public class PlayerActions extends Component {
                 Integer.MAX_VALUE);
 
     for (Entity target : targets) {
-      target.getComponent(CombatStatsComponent.class).hit(combatStats, damage);
-      entity.getEvents().trigger("areaAttackHit", target);
+      if (hitEnemy(target, damage)) {
+        entity.getEvents().trigger("areaAttackHit", target);
+      }
     }
 
     areaAttackCooldownRemaining = AREA_ATTACK_COOLDOWN;
+  }
+
+  /** Resolves a player hit before notifying listeners of the enemy that was struck. */
+  private boolean hitEnemy(Entity target, int damage) {
+    CombatStatsComponent targetStats = target.getComponent(CombatStatsComponent.class);
+    if (target.isDisposed() || targetStats == null || targetStats.isDead()) {
+      return false;
+    }
+
+    targetStats.hit(combatStats, damage);
+    entity.getEvents().trigger("playerAttackHit", target);
+    return true;
   }
 
   private Set<Entity> getEnemiesInAreaAttackRange() {
@@ -458,8 +476,9 @@ public class PlayerActions extends Component {
           }
 
           Entity target = bodyUserData.entity;
-
-          if (center.dst2(target.getCenterPosition()) <= radiusSquared) {
+          if (!target.isDisposed()
+              && !target.getComponent(CombatStatsComponent.class).isDead()
+              && center.dst2(target.getCenterPosition()) <= radiusSquared) {
             targets.add(target);
           }
 
@@ -548,7 +567,7 @@ public class PlayerActions extends Component {
 
     SlideTimer += Gdx.graphics.getDeltaTime();
 
-    if (SlideTimer >= SlideMaxTime) {
+    if (SlideTimer >= SLIDE_MAX_TIME) {
       sliding = false;
     }
   }
@@ -678,6 +697,9 @@ public class PlayerActions extends Component {
     Body body = physicsComponent.getBody();
 
     body.setLinearVelocity(Vector2.Zero);
+    KeyboardPlayerInputComponent input = entity.getComponent(KeyboardPlayerInputComponent.class);
+    String direction = input == null ? "Right" : input.getDirection();
+    entity.getEvents().trigger("dead", direction);
   }
 
   public boolean getDashing() {

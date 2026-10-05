@@ -29,6 +29,8 @@ import com.csse3200.game.components.player.NoclipInputComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
+import com.csse3200.game.difficulty.Difficulty;
+import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
@@ -106,7 +108,6 @@ public class MainGameScreen extends ScreenAdapter {
   private final PhysicsEngine physicsEngine;
   private LevelGameArea levelGameArea;
   private String currentRoomMapPath = FIRST_ROOM_MAP;
-  private GameSaveData levelCheckpoint;
   private PauseMenuActions pauseMenuActions;
   private Map<String, Long> lootSeedsByRoom = new HashMap<>();
   private DeathScreenDisplay deathScreenDisplay;
@@ -156,12 +157,22 @@ public class MainGameScreen extends ScreenAdapter {
     String initialRoomMap = FIRST_ROOM_MAP;
     Long savedSeed = null;
 
-    if (loadsave) {
+    if (loadsave && SaveService.hasSave()) {
       GameSaveData saveData = SaveService.load();
 
       LootRegistry.loadFrom(saveData.collectedLootIds);
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
+
+      Difficulty savedDifficulty = Difficulty.NORMAL;
+      if (saveData.difficulty != null && !saveData.difficulty.isBlank()) {
+        try {
+          savedDifficulty = Difficulty.valueOf(saveData.difficulty);
+        } catch (IllegalArgumentException e) {
+          // Unknown difficulty name in the save file - keep NORMAL.
+        }
+      }
+      DifficultyService.setCurrent(savedDifficulty);
 
       if (saveData.level != null && !saveData.level.isBlank()) {
         initialRoomMap = saveData.level;
@@ -171,6 +182,10 @@ public class MainGameScreen extends ScreenAdapter {
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
       EnemyRegistry.loadFrom(new ArrayList<>());
+
+      if (loadsave) {
+        DifficultyService.setCurrent(Difficulty.NORMAL);
+      }
 
       PerkService.resetAll();
       TortoiseFactory.resetAll();
@@ -207,7 +222,8 @@ public class MainGameScreen extends ScreenAdapter {
       LoadService.load(
           levelGameArea.getPlayer(),
           levelGameArea.getMapWorldWidth(),
-          levelGameArea.getMapWorldHeight());
+          levelGameArea.getMapWorldHeight(),
+          upgradesDisplay.getAllUpgrades());
     }
 
     fitCameraToMap(levelGameArea);
@@ -765,7 +781,10 @@ public class MainGameScreen extends ScreenAdapter {
 
     PauseMenuActions pauseMenuActions =
         new PauseMenuActions(
-            this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
+            this::getPlayerEntity,
+            this::getLootSeedsByRoom,
+            () -> currentRoomMapPath,
+            () -> upgradesDisplay.getAllUpgrades());
 
     this.pauseMenuActions = pauseMenuActions;
 

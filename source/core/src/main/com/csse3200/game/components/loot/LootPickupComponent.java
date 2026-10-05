@@ -66,6 +66,24 @@ public class LootPickupComponent extends Component {
     this.pickupDelayMillis = Math.max(0L, pickupDelayMillis);
   }
 
+  /**
+   * Returns the item this loot gives when collected.
+   *
+   * @return the loot's item
+   */
+  public Item getItem() {
+    return item;
+  }
+
+  /**
+   * Returns whether this loot has already been picked up and is waiting to be removed.
+   *
+   * @return {@code true} once collected
+   */
+  public boolean isCollected() {
+    return collected;
+  }
+
   @Override
   public void create() {
     hitboxComponent = entity.getComponent(HitboxComponent.class);

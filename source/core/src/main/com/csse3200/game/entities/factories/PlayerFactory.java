@@ -61,6 +61,7 @@ public class PlayerFactory {
   static Texture size = new Texture("images/knight_default.png");
   static TextureAtlas rightAtlas = new TextureAtlas("images/knight.atlas");
   static TextureAtlas leftAtlas = new TextureAtlas("images/LeftKnight.atlas");
+  static TextureAtlas effectsAtlas = new TextureAtlas("images/KnightEffects.atlas");
   private static final PlayerConfig stats =
       FileLoader.readClass(PlayerConfig.class, "configs/player.json");
 
@@ -116,7 +117,7 @@ public class PlayerFactory {
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
             .addComponent(new PetManagerComponent())
-            .addComponent(new PlatformerComponent(5, true, 1, false, 1))
+            .addComponent(new PlatformerComponent(2, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new SpecialAttackCooldownDisplay())
             .addComponent(new QuestDisplay())
@@ -129,7 +130,7 @@ public class PlayerFactory {
             .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay());
 
-    PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas);
+    PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas, effectsAtlas);
 
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);
@@ -146,8 +147,15 @@ public class PlayerFactory {
     animator.addAnimation("LeftSlide", 0.1f, Animation.PlayMode.NORMAL);
     animator.addAnimation("LeftRun", 0.1f, Animation.PlayMode.LOOP);
 
-    player.addComponent(animator).addComponent(new PlayerAnimationController());
+    animator.addAnimation("climb", 0.15f, Animation.PlayMode.LOOP);
+    animator.addAnimation("hurt", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("death", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("health", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("lefthurt", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("leftdeath", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("lefthealth", 0.1f, Animation.PlayMode.NORMAL);
 
+    player.addComponent(animator).addComponent(new PlayerAnimationController());
     player.setScale(0.75f, (float) size.getHeight() / size.getWidth());
     animator.startAnimation("Idle");
 

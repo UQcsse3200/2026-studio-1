@@ -12,7 +12,8 @@ import java.util.function.BiFunction;
  * Manages the player's active companion pet.
  *
  * <p>A player can have at most one active pet at a time. The manager listens for successful pet
- * purchases and activates a pet when the {@code petPurchased} event is triggered.
+ * purchases and activates the first purchased pet. Additional pets remain in the inventory until
+ * selected. Confirmed player hits are forwarded to the currently active pet for combat assistance.
  */
 public class PetManagerComponent extends Component {
   private Entity activePet;
@@ -35,15 +36,26 @@ public class PetManagerComponent extends Component {
   }
 
   /**
-   * Registers the pet manager to listen for successful pet purchases.
+   * Registers listeners for pet purchases, gambling replacements, and confirmed player hits.
    *
-   * <p>When the player successfully purchases a pet from the shop, the {@code petPurchased} event
-   * is triggered and a companion pet is activated.
+   * <p>The {@code petPurchased} event activates a companion only when no pet is currently active.
    */
   @Override
   public void create() {
     entity.getEvents().addListener("petPurchased", this::handlePetPurchased);
     entity.getEvents().addListener("gamblingPetReplaced", this::handleGamblingPetReplaced);
+    entity.getEvents().addListener("playerAttackHit", this::onPlayerAttackHit);
+  }
+
+  private void onPlayerAttackHit(Entity target) {
+    if (!enabled || entity.isDisposed() || activePet == null || activePet.isDisposed()) {
+      return;
+    }
+    // Listen on the owner once; replacing a pet must not leave old pets subscribed to hits.
+    PetCombatComponent combat = activePet.getComponent(PetCombatComponent.class);
+    if (combat != null) {
+      combat.requestAttack(target);
+    }
   }
 
   /**
@@ -65,6 +77,11 @@ public class PetManagerComponent extends Component {
   /** Returns the currently active pet, or null if there is no active pet. */
   public Entity getActivePet() {
     return activePet;
+  }
+
+  /** Returns the name of the currently active pet, or null if there is no active pet. */
+  public String getActivePetName() {
+    return activePetType == null ? null : activePetType.getName();
   }
 
   /** Returns whether this player currently has an active pet. */

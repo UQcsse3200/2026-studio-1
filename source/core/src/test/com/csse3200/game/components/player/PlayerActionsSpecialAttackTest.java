@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsEngine;
@@ -23,6 +24,9 @@ import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
@@ -51,6 +55,9 @@ class PlayerActionsSpecialAttackTest {
     Entity enemy = new Entity().addComponent(enemyStats);
     enemy.setPosition(1f, 0f);
     AtomicReference<Entity> effectTarget = new AtomicReference<>();
+    List<Entity> hitTargets = new ArrayList<>();
+    EventListener1<Entity> hitTargetListener = hitTargets::add;
+    player.getEvents().addListener("playerAttackHit", hitTargetListener);
     player.getEvents().addListener("specialAttackHit", effectTarget::set);
     player.getEvents().trigger("collisionStart", playerFixture, npcFixtureFor(enemy));
 
@@ -60,6 +67,7 @@ class PlayerActionsSpecialAttackTest {
     assertEquals(70, enemyStats.getHealth());
     assertEquals(100f, stamina.getStamina());
     assertEquals(enemy, effectTarget.get());
+    assertEquals(List.of(enemy), hitTargets);
   }
 
   @Test
@@ -88,6 +96,9 @@ class PlayerActionsSpecialAttackTest {
       createNpc(world, distantStats, 2.5f, 0f);
 
       AtomicReference<Entity> lastHit = new AtomicReference<>();
+      List<Entity> hitTargets = new ArrayList<>();
+      EventListener1<Entity> hitTargetListener = hitTargets::add;
+      player.getEvents().addListener("playerAttackHit", hitTargetListener);
       AtomicInteger hitCount = new AtomicInteger();
       AtomicInteger areaAttackCount = new AtomicInteger();
       player
@@ -107,6 +118,8 @@ class PlayerActionsSpecialAttackTest {
       assertEquals(80, secondStats.getHealth());
       assertEquals(100, distantStats.getHealth());
       assertEquals(2, hitCount.get());
+      assertEquals(2, hitTargets.size());
+      assertEquals(Set.of(firstEnemy, secondEnemy), Set.copyOf(hitTargets));
       assertEquals(1, areaAttackCount.get());
       assertTrue(lastHit.get() == firstEnemy || lastHit.get() == secondEnemy);
       assertEquals(100f, stamina.getStamina());
