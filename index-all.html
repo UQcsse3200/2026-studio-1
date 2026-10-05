@@ -184,6 +184,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Records a marker under its kind.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/InventoryComponent.html#addPet(com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">addPet(ShopComponent.Pet)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
+<dd>
+<div class="block">Adds a pet to the first available pet slot.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/loot/Item.html#addQuantity(int)" class="member-name-link">addQuantity(int)</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/loot/LootTable.html#addShield(int)" class="member-name-link">addShield(int)</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/LootTable.html" title="class in com.csse3200.game.components.loot">LootTable</a></dt>
@@ -474,7 +478,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ShopComponent.html#buyPet(int)" class="member-name-link">buyPet(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
 <dd>
-<div class="block">Buys the pet in a catalog slot using gold only.</div>
+<div class="block">Purchases a pet from the specified catalog slot.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ShopComponent.html#buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)" class="member-name-link">buySpin(GamblingCatalogs.CatalogId)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
 <dd>
@@ -498,6 +502,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/LadderComponent.html#canAutoClimb()" class="member-name-link">canAutoClimb()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LadderComponent.html" title="class in com.csse3200.game.components.player">LadderComponent</a></dt>
 <dd>
 <div class="block">Whether E can take the player up a regular Level 1 ladder.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/ShopComponent.html#cancelPendingPetReplacement()" class="member-name-link">cancelPendingPetReplacement()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
+<dd>
+<div class="block">Discards the pending gambling pet without refunding the spin cost.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/attacks/ChargeComponent.html#canCharge()" class="member-name-link">canCharge()</a> - Method in class com.csse3200.game.components.attacks.<a href="com/csse3200/game/components/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></dt>
 <dd>
@@ -840,6 +848,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/utils/SortedIntMap.html#containsKey(int)" class="member-name-link">containsKey(int)</a> - Method in class com.csse3200.game.utils.<a href="com/csse3200/game/utils/SortedIntMap.html" title="class in com.csse3200.game.utils">SortedIntMap</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/InventoryComponent.html#containsPet(com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">containsPet(ShopComponent.Pet)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
+<dd>
+<div class="block">Checks whether a pet with the same name is already stored.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/SubLevel.html#containsRow(int)" class="member-name-link">containsRow(int)</a> - Method in record class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/SubLevel.html" title="class in com.csse3200.game.areas.terrain.map">SubLevel</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/entities/configs/attacks/ChargeAttackConfig.html#cooldown" class="member-name-link">cooldown</a> - Variable in class com.csse3200.game.entities.configs.attacks.<a href="com/csse3200/game/entities/configs/attacks/ChargeAttackConfig.html" title="class in com.csse3200.game.entities.configs.attacks">ChargeAttackConfig</a></dt>
@@ -2064,6 +2076,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the currently active pet, or null if there is no active pet.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#getActivePetType()" class="member-name-link">getActivePetType()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
+<dd>
+<div class="block">Returns the data for the currently active pet.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getActiveSlot()" class="member-name-link">getActiveSlot()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
 <div class="block">Returns the currently selected inventory slot.</div>
@@ -2591,8 +2607,16 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Gets the player that owns this pet.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/ShopComponent.html#getPendingPetReplacement()" class="member-name-link">getPendingPetReplacement()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
+<dd>
+<div class="block">Returns the pet waiting for a replacement decision after a gambling win.</div>
+</dd>
 <dt><a href="com/csse3200/game/perks/PerkService.html#getPerk(java.lang.String)" class="member-name-link">getPerk(String)</a> - Static method in class com.csse3200.game.perks.<a href="com/csse3200/game/perks/PerkService.html" title="class in com.csse3200.game.perks">PerkService</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getPet(int)" class="member-name-link">getPet(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
+<dd>
+<div class="block">Returns the pet stored in the specified pet slot.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/ShopComponent.html#getPetCatalog()" class="member-name-link">getPetCatalog()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
 <dd>
 <div class="block">Returns an unmodifiable view of occupied pet catalog slots.</div>
@@ -2600,6 +2624,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/ShopComponent.html#getPetListing(int)" class="member-name-link">getPetListing(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
 <dd>
 <div class="block">Returns the pet listing in a catalog slot.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getPetSlotCount()" class="member-name-link">getPetSlotCount()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
+<dd>
+<div class="block">Returns the number of available pet slots.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/InventoryComponent.html#getPetSlots()" class="member-name-link">getPetSlots()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
+<dd>
+<div class="block">Returns a read-only view of the pet inventory.</div>
 </dd>
 <dt><a href="com/csse3200/game/physics/PhysicsService.html#getPhysics()" class="member-name-link">getPhysics()</a> - Method in class com.csse3200.game.physics.<a href="com/csse3200/game/physics/PhysicsService.html" title="class in com.csse3200.game.physics">PhysicsService</a></dt>
 <dd>&nbsp;</dd>
@@ -3412,6 +3444,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/pausemenu/PauseMenuComponent.html#isPaused()" class="member-name-link">isPaused()</a> - Method in class com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/PauseMenuComponent.html" title="class in com.csse3200.game.pausemenu">PauseMenuComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/InventoryComponent.html#isPetInventoryFull()" class="member-name-link">isPetInventoryFull()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
+<dd>
+<div class="block">Returns whether both pet slots are occupied.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/LevelGameArea.html#isPlayerDead()" class="member-name-link">isPlayerDead()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/LevelGameArea.html" title="class in com.csse3200.game.areas">LevelGameArea</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/npc/DialogueProximityComponent.html#isPlayerInRange()" class="member-name-link">isPlayerInRange()</a> - Method in class com.csse3200.game.components.npc.<a href="com/csse3200/game/components/npc/DialogueProximityComponent.html" title="class in com.csse3200.game.components.npc">DialogueProximityComponent</a></dt>
@@ -4895,6 +4931,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/rendering/RenderService.html#%3Cinit%3E()" class="member-name-link">RenderService()</a> - Constructor for class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/RenderService.html" title="class in com.csse3200.game.rendering">RenderService</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/InventoryComponent.html#replacePet(int,com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">replacePet(int, ShopComponent.Pet)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
+<dd>
+<div class="block">Replaces the pet stored in a specific pet inventory slot.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/ShopComponent.html#replacePetWithPendingPrize(int)" class="member-name-link">replacePetWithPendingPrize(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
+<dd>
+<div class="block">Replaces an owned pet with the pending gambling pet.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/GamblingCatalogs.SpinCatalog.html#replacePrize(int,com.csse3200.game.components.player.GamblingCatalogs.PrizeEntry)" class="member-name-link">replacePrize(int, GamblingCatalogs.PrizeEntry&lt;GamblingCatalogs.Prize&gt;)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/GamblingCatalogs.SpinCatalog.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.SpinCatalog</a></dt>
 <dd>
 <div class="block">Replaces one prize when the instance differs.</div>
@@ -5899,6 +5943,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/tasks/WanderTask.html#swapTask(com.csse3200.game.ai.tasks.Task)" class="member-name-link">swapTask(Task)</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/WanderTask.html" title="class in com.csse3200.game.components.tasks">WanderTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/pet/PetManagerComponent.html#switchActivePet(com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">switchActivePet(ShopComponent.Pet)</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetManagerComponent.html" title="class in com.csse3200.game.components.pet">PetManagerComponent</a></dt>
+<dd>
+<div class="block">Switches the active companion to an owned pet.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/loot/WeaponType.html#SWORD" class="member-name-link">SWORD</a> - Enum constant in enum class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a></dt>
 <dd>&nbsp;</dd>
 </dl>

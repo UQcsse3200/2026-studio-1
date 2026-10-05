@@ -157,20 +157,30 @@ loadScripts(document, 'script');</script>
 <div class="block">Adds a specific quantity using <code>item</code> as a stack template.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFullyAdd(com.csse3200.game.components.loot.Item)" class="member-name-link">canFullyAdd</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addPet(com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">addPet</a><wbr>(<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&nbsp;pet)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns whether <code>item</code> can be added in full without leftover.</div>
+<div class="block">Adds a pet to the first available pet slot.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canStack(com.csse3200.game.components.loot.Item,com.csse3200.game.components.loot.Item)" class="member-name-link">canStack</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;existing,
- <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;incoming)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFullyAdd(com.csse3200.game.components.loot.Item)" class="member-name-link">canFullyAdd</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;item)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Checks whether two items can be stacked together.</div>
+<div class="block">Returns whether <code>item</code> can be added in full without leftover.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#containsItem(int)" class="member-name-link">containsItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canStack(com.csse3200.game.components.loot.Item,com.csse3200.game.components.loot.Item)" class="member-name-link">canStack</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;existing,
+ <a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;incoming)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Checks whether two items can be stacked together.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#containsItem(int)" class="member-name-link">containsItem</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether the slot is valid and currently occupied.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#containsPet(com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">containsPet</a><wbr>(<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&nbsp;pet)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Checks whether a pet with the same name is already stored.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getActiveItem()" class="member-name-link">getActiveItem</a>()</code></div>
@@ -207,27 +217,47 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the number of occupied slots.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(com.csse3200.game.components.loot.Item)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;template)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPet(int)" class="member-name-link">getPet</a><wbr>(int&nbsp;slot)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the total quantity of items compatible with <code>template</code>.</div>
+<div class="block">Returns the pet stored in the specified pet slot.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(java.lang.String,com.csse3200.game.components.loot.ItemType,int)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPetSlotCount()" class="member-name-link">getPetSlotCount</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the number of available pet slots.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPetSlots()" class="member-name-link">getPetSlots</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns a read-only view of the pet inventory.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(com.csse3200.game.components.loot.Item)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;template)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the total quantity of items compatible with <code>template</code>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTotalQuantity(java.lang.String,com.csse3200.game.components.loot.ItemType,int)" class="member-name-link">getTotalQuantity</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="../loot/ItemType.html" title="enum class in com.csse3200.game.components.loot">ItemType</a>&nbsp;type,
  int&nbsp;maxQuantity)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the total quantity of matching items.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasGold(int)" class="member-name-link">hasGold</a><wbr>(int&nbsp;gold)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasGold(int)" class="member-name-link">hasGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns if the player has a certain amount of gold.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFull()" class="member-name-link">isFull</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFull()" class="member-name-link">isFull</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns whether every slot is occupied.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isPetInventoryFull()" class="member-name-link">isPetInventoryFull</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether both pet slots are occupied.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeItem(int)" class="member-name-link">removeItem</a><wbr>(int&nbsp;slot)</code></div>
@@ -241,19 +271,25 @@ loadScripts(document, 'script');</script>
 <div class="block">Removes up to <code>amount</code> from a single slot.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setActiveSlot(int)" class="member-name-link">setActiveSlot</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#replacePet(int,com.csse3200.game.components.player.ShopComponent.Pet)" class="member-name-link">replacePet</a><wbr>(int&nbsp;slot,
+ <a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&nbsp;pet)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Replaces the pet stored in a specific pet inventory slot.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setActiveSlot(int)" class="member-name-link">setActiveSlot</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Selects an inventory slot as the active slot.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGold(int)" class="member-name-link">setGold</a><wbr>(int&nbsp;gold)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets the player's gold.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#splitStack(int,int)" class="member-name-link">splitStack</a><wbr>(int&nbsp;slot,
  int&nbsp;splitQty)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Splits part of an occupied stack into the lowest empty slot.</div>
 </div>
 </div>
@@ -594,6 +630,81 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>active item, or null if the slot is empty</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getPet(int)">
+<h3>getPet</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a></span>&nbsp;<span class="element-name">getPet</span><wbr><span class="parameters">(int&nbsp;slot)</span></div>
+<div class="block">Returns the pet stored in the specified pet slot.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - pet slot number, starting from 1</dd>
+<dt>Returns:</dt>
+<dd>the stored pet, or null if the slot is invalid or empty</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addPet(com.csse3200.game.components.player.ShopComponent.Pet)">
+<h3>addPet</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">addPet</span><wbr><span class="parameters">(<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&nbsp;pet)</span></div>
+<div class="block">Adds a pet to the first available pet slot.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>pet</code> - pet to add</dd>
+<dt>Returns:</dt>
+<dd>true if the pet was added successfully</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="replacePet(int,com.csse3200.game.components.player.ShopComponent.Pet)">
+<h3>replacePet</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">replacePet</span><wbr><span class="parameters">(int&nbsp;slot,
+ <a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&nbsp;pet)</span></div>
+<div class="block">Replaces the pet stored in a specific pet inventory slot.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>slot</code> - pet inventory slot to replace</dd>
+<dd><code>pet</code> - new pet to store</dd>
+<dt>Returns:</dt>
+<dd>true if the pet was replaced</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="containsPet(com.csse3200.game.components.player.ShopComponent.Pet)">
+<h3>containsPet</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">containsPet</span><wbr><span class="parameters">(<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&nbsp;pet)</span></div>
+<div class="block">Checks whether a pet with the same name is already stored.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>pet</code> - pet to check</dd>
+<dt>Returns:</dt>
+<dd>true if the pet is already owned</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isPetInventoryFull()">
+<h3>isPetInventoryFull</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isPetInventoryFull</span>()</div>
+<div class="block">Returns whether both pet slots are occupied.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPetSlotCount()">
+<h3>getPetSlotCount</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getPetSlotCount</span>()</div>
+<div class="block">Returns the number of available pet slots.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPetSlots()">
+<h3>getPetSlots</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&gt;</span>&nbsp;<span class="element-name">getPetSlots</span>()</div>
+<div class="block">Returns a read-only view of the pet inventory.</div>
 </section>
 </li>
 </ul>

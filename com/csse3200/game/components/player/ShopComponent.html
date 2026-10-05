@@ -198,7 +198,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buyPet(int)" class="member-name-link">buyPet</a><wbr>(int&nbsp;catalogSlot)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Buys the pet in a catalog slot using gold only.</div>
+<div class="block">Purchases a pet from the specified catalog slot.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a><wbr>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#buySpin(com.csse3200.game.components.player.GamblingCatalogs.CatalogId)" class="member-name-link">buySpin</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId)</code></div>
@@ -210,20 +210,30 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Buys the Upgrade in a catalog slot using gold only.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.html" title="class in com.csse3200.game.components.player">GamblingCatalogs</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGamblingCatalogs()" class="member-name-link">getGamblingCatalogs</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancelPendingPetReplacement()" class="member-name-link">cancelPendingPetReplacement</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Discards the pending gambling pet without refunding the spin cost.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GamblingCatalogs.html" title="class in com.csse3200.game.components.player">GamblingCatalogs</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGamblingCatalogs()" class="member-name-link">getGamblingCatalogs</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the Standard and Premium spin catalogs.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemCatalog()" class="member-name-link">getItemCatalog</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemCatalog()" class="member-name-link">getItemCatalog</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns an unmodifiable view of occupied item catalog slots.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a><wbr>&lt;<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemListing(int)" class="member-name-link">getItemListing</a><wbr>(int&nbsp;slot)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a><wbr>&lt;<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getItemListing(int)" class="member-name-link">getItemListing</a><wbr>(int&nbsp;slot)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the item listing in a catalog slot.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPendingPetReplacement()" class="member-name-link">getPendingPetReplacement</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the pet waiting for a replacement decision after a gambling win.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>,<wbr><a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&gt;&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPetCatalog()" class="member-name-link">getPetCatalog</a>()</code></div>
@@ -286,45 +296,50 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the Upgrade listing in a catalog slot.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#seedDefaultCatalog()" class="member-name-link">seedDefaultCatalog</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#replacePetWithPendingPrize(int)" class="member-name-link">replacePetWithPendingPrize</a><wbr>(int&nbsp;petSlot)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Replaces an owned pet with the pending gambling pet.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#seedDefaultCatalog()" class="member-name-link">seedDefaultCatalog</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Fills placeholder listings so the in-game shop is not empty.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sellItem(int)" class="member-name-link">sellItem</a><wbr>(int&nbsp;playerSlot)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sellItem(int)" class="member-name-link">sellItem</a><wbr>(int&nbsp;playerSlot)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sells the entire stack in a player inventory slot and refunds <a href="#getSellPrice(com.csse3200.game.components.loot.Item)"><code>getSellPrice(Item)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setItemListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setItemListing</a><wbr>(int&nbsp;slot,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setItemListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setItemListing</a><wbr>(int&nbsp;slot,
  <a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="../loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&gt;&nbsp;listing)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets or clears an item catalog listing.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPetListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setPetListing</a><wbr>(int&nbsp;slot,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPetListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setPetListing</a><wbr>(int&nbsp;slot,
  <a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a>&gt;&nbsp;listing)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets or clears a pet catalog listing.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPrize(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int,com.csse3200.game.components.player.GamblingCatalogs.PrizeEntry)" class="member-name-link">setPrize</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPrize(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int,com.csse3200.game.components.player.GamblingCatalogs.PrizeEntry)" class="member-name-link">setPrize</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
  int&nbsp;slot,
  <a href="GamblingCatalogs.PrizeEntry.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.PrizeEntry</a>&lt;<a href="GamblingCatalogs.Prize.html" title="interface in com.csse3200.game.components.player">GamblingCatalogs.Prize</a>&gt;&nbsp;prize)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Replaces one prize in a seeded catalog.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSpinPrice(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int)" class="member-name-link">setSpinPrice</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSpinPrice(com.csse3200.game.components.player.GamblingCatalogs.CatalogId,int)" class="member-name-link">setSpinPrice</a><wbr>(<a href="GamblingCatalogs.CatalogId.html" title="enum class in com.csse3200.game.components.player">GamblingCatalogs.CatalogId</a>&nbsp;catalogId,
  int&nbsp;spinPrice)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Replaces the spin price of a seeded catalog.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUpgradeListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setUpgradeListing</a><wbr>(int&nbsp;slot,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUpgradeListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setUpgradeListing</a><wbr>(int&nbsp;slot,
  <a href="ShopComponent.ShopListing.html" title="class in com.csse3200.game.components.player">ShopComponent.ShopListing</a>&lt;<a href="ShopComponent.Upgrade.html" title="class in com.csse3200.game.components.player">ShopComponent.Upgrade</a>&gt;&nbsp;listing)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Sets or clears an Upgrade catalog listing.</div>
 </div>
 </div>
@@ -735,15 +750,15 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="buyPet(int)">
 <h3>buyPet</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">buyPet</span><wbr><span class="parameters">(int&nbsp;catalogSlot)</span></div>
-<div class="block">Buys the pet in a catalog slot using gold only. Does not use item slots.
+<div class="block">Purchases a pet from the specified catalog slot.
 
- <p>On success, records the purchase and triggers <code>petPurchased</code>. Does not spawn a pet
- entity.</div>
+ <p>The purchase fails if the pet does not exist, the player does not have enough gold, the pet
+ is already owned, or the pet inventory is full.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>catalogSlot</code> - pet catalog slot</dd>
+<dd><code>catalogSlot</code> - catalog slot containing the pet</dd>
 <dt>Returns:</dt>
-<dd><code>true</code> if gold was deducted and the purchase was recorded</dd>
+<dd>true if the purchase was successful</dd>
 </dl>
 </section>
 </li>
@@ -767,6 +782,37 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>purchased pets in purchase order</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getPendingPetReplacement()">
+<h3>getPendingPetReplacement</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ShopComponent.Pet.html" title="class in com.csse3200.game.components.player">ShopComponent.Pet</a></span>&nbsp;<span class="element-name">getPendingPetReplacement</span>()</div>
+<div class="block">Returns the pet waiting for a replacement decision after a gambling win.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>pending pet, or null if no replacement is required</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="replacePetWithPendingPrize(int)">
+<h3>replacePetWithPendingPrize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">replacePetWithPendingPrize</span><wbr><span class="parameters">(int&nbsp;petSlot)</span></div>
+<div class="block">Replaces an owned pet with the pending gambling pet.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>petSlot</code> - pet inventory slot to replace</dd>
+<dt>Returns:</dt>
+<dd>true if the replacement succeeded</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="cancelPendingPetReplacement()">
+<h3>cancelPendingPetReplacement</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelPendingPetReplacement</span>()</div>
+<div class="block">Discards the pending gambling pet without refunding the spin cost.</div>
 </section>
 </li>
 </ul>
