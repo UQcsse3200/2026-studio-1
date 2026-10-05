@@ -125,7 +125,7 @@ public class PlayerFactory {
             .addComponent(new WeaponRenderComponent())
             .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay());
-            
+
     PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas, effectsAtlas);
 
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
