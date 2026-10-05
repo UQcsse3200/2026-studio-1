@@ -17,8 +17,8 @@ public class PlayerRenderComponent extends AnimationRenderComponent {
    *
    * @param leftAtlas libGDX-supported texture atlas containing desired animations
    */
-  public PlayerRenderComponent(TextureAtlas rightAtlas,
-                               TextureAtlas leftAtlas, TextureAtlas effectsAtlas) {
+  public PlayerRenderComponent(
+      TextureAtlas rightAtlas, TextureAtlas leftAtlas, TextureAtlas effectsAtlas) {
     super(rightAtlas);
     this.leftAtlas = leftAtlas;
     this.rightAtlas = rightAtlas;
@@ -42,8 +42,8 @@ public class PlayerRenderComponent extends AnimationRenderComponent {
 
     if (animations.containsKey(name)) {
       logger.warn(
-              "Animation {} already added in texture atlas. Animations should only be added once.",
-              name);
+          "Animation {} already added in texture atlas. Animations should only be added once.",
+          name);
       return false;
     }
 

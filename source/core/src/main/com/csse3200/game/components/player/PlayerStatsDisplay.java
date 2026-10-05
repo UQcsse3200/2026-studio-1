@@ -135,7 +135,7 @@ public class PlayerStatsDisplay extends UIComponent {
           ServiceLocator.getResourceService().getAsset("sounds/player-hit-crown.ogg", Sound.class);
 
       crownHitSound.play(AudioSettings.getEffectiveEffectsVolume());
-      if (input != null){
+      if (input != null) {
         entity.getEvents().trigger("hurt", input.getDirection());
       }
     } else if (damageTaken > 0) {
@@ -144,7 +144,7 @@ public class PlayerStatsDisplay extends UIComponent {
           ServiceLocator.getResourceService().getAsset("sounds/player-hit.ogg", Sound.class);
 
       hitSound.play(AudioSettings.getEffectiveEffectsVolume());
-      if (input != null){
+      if (input != null) {
         entity.getEvents().trigger("hurt", input.getDirection());
       }
     }

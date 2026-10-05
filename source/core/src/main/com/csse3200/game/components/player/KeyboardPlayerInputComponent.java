@@ -138,7 +138,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     switch (keycode) {
       case Keys.W:
         stopClimbing();
-        if(walkDirection.isZero()) {
+        if (walkDirection.isZero()) {
           entity.getEvents().trigger("idle", direction);
         }
         triggerWalkEvent();

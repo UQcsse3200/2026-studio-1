@@ -31,6 +31,7 @@ public class PlayerAnimationController extends Component {
   boolean facingRight(String direction) {
     return "Right".equals(direction);
   }
+
   boolean hurtPlaying = false;
   boolean deadPlaying = false;
 
