@@ -4,14 +4,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.attacks.LightningFreezeComponent;
-import com.csse3200.game.components.attacks.PetrifyEffectComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
-import com.csse3200.game.components.projectile.AimedLineMovementStrategy;
-import com.csse3200.game.components.projectile.ProjectileComponent;
-import com.csse3200.game.components.projectile.ProjectileHitComponent;
-import com.csse3200.game.components.projectile.StraightLineMovementStrategy;
-import com.csse3200.game.components.projectile.VerticalMovementStrategy;
+import com.csse3200.game.components.projectile.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
@@ -227,53 +222,79 @@ public class ArrowFactory {
   }
 
   /**
-   * Creates Medusa's petrifying gaze projectile: travels in a straight line exactly like {@link
-   * #createRangedArrow}, but petrifies (rather than knocks back) whatever it hits via {@link
-   * PetrifyEffectComponent}, instead of {@link #createRangedArrow}'s plain {@link
-   * ProjectileHitComponent} knockback.
+   * Builds the parts every enemy projectile shares and hands the entity back for the caller to
+   * finish.
    *
-   * @param position spawn position (world units) - typically just in front of Medusa, not her exact
-   *     centre, so the gaze doesn't spawn inside her own collider.
-   * @param movingRight true to fire in the +x direction (target is to the right), false for -x.
-   * @param speed travel speed in world units/second.
-   * @param maxRange maximum distance the gaze can travel before despawning; should normally match
-   *     the firing {@link com.csse3200.game.components.attacks.RangedAttackComponent}'s configured
-   *     range.
-   * @param damage damage dealt to whatever the gaze hits on {@code targetLayer}.
-   * @param knockback knockback magnitude applied on a successful hit; {@code 0f} disables it.
-   * @param petrifyTicks how many ticks the hit target is petrified (speed multiplier 0) for.
-   * @param targetLayer the physics layer the gaze deals damage to on contact (e.g. {@link
-   *     PhysicsLayer#PLAYER}).
-   * @return the gaze entity, not yet registered with the entity service.
+   * <p>The entity is returned NOT yet created and NOT yet registered, so a caller may still add its
+   * own components (a petrify effect, a freeze effect) before the entity service creates it.
+   *
+   * <p>Flight: the body is set up as a bullet with no gravity and no damping. A projectile that
+   * needs gravity switches it back on itself when its movement strategy starts (the rock's arc
+   * does), so the base never has to know about arcs.
+   *
+   * <p>Position is the entity's bottom-left corner, as everywhere else in this factory. A caller
+   * that works from a centre converts it before calling.
+   *
+   * <p>Numbers are not re-checked here: the projectile component already rejects a range that is
+   * not positive, and each movement strategy rejects a bad speed or direction. Only missing objects
+   * are rejected, so existing callers keep their current behaviour.
+   *
+   * @param texturePath image to draw; not null and not blank
+   * @param bodyType physics body type: dynamic for anything that must touch a wall, kinematic for
+   *     the ones that already pass through; not null
+   * @param movement how the projectile moves once created; not null
+   * @param maxRange distance in world units before it despawns; checked by the projectile component
+   * @param damage damage dealt on contact with the target layer; 0 is allowed (a pure effect)
+   * @param knockback knockback on a hit; 0 switches it off
+   * @param targetLayer the physics layer it damages
+   * @param blockingLayer the layer that stops it without damage; use the none layer for a
+   *     projectile that passes through everything, like lightning
+   * @param position where its bottom-left corner starts; not null
+   * @param scale its width and height in world units; not null
+   * @param mirrored true to flip the picture horizontally, for a shot travelling to the left
+   * @return the unfinished projectile entity
+   * @throws IllegalArgumentException if the texture path, body type, movement, position or scale is
+   *     missing
    */
-  public static Entity createGaze(
-      Vector2 position,
-      boolean movingRight,
-      float speed,
+  static Entity createProjectileBase(
+      String texturePath,
+      BodyType bodyType,
+      ProjectileMovementStrategy movement,
       float maxRange,
       int damage,
       float knockback,
-      int petrifyTicks,
-      short targetLayer) {
-    Entity gaze =
-        new Entity()
-            // No dedicated gaze art exists yet - reuses the arrow sprite as a placeholder, same
-            // as Centaur/Cyclops reuse other enemies' atlases until Medusa's own art lands.
-            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
-            .addComponent(new HitboxComponent())
-            .addComponent(new CombatStatsComponent(1, damage))
-            .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.OBSTACLE, knockback))
-            .addComponent(new PetrifyEffectComponent(petrifyTicks))
-            .addComponent(
-                new ProjectileComponent(
-                    new StraightLineMovementStrategy(speed, movingRight), maxRange));
+      short targetLayer,
+      short blockingLayer,
+      Vector2 position,
+      Vector2 scale,
+      boolean mirrored) {
+    if (texturePath == null || texturePath.isEmpty()) {
+      throw new IllegalArgumentException("texturePath must not be blank");
+    }
+    if (bodyType == null) {
+      throw new IllegalArgumentException("bodyType must not be null");
+    }
+    if (movement == null) {
+      throw new IllegalArgumentException("movement must not be null");
+    }
+    if (position == null) {
+      throw new IllegalArgumentException("position must not be null.");
+    }
+    if (scale == null) {}
 
-    gaze.setPosition(position);
-    gaze.setScale(0.5f, 0.2f);
-    gaze.getComponent(TextureRenderComponent.class).setFlipX(!movingRight);
-
-    return gaze;
+    Entity projectile = new Entity();
+    projectile
+        .addComponent(new TextureRenderComponent(texturePath))
+        .addComponent(new PhysicsComponent().setBodyType(bodyType))
+        .addComponent(new HitboxComponent())
+        .addComponent(new CombatStatsComponent(1, damage))
+        .addComponent(new ProjectileHitComponent(targetLayer, blockingLayer, knockback))
+        .addComponent(new ProjectileComponent(movement, maxRange));
+    configureFlightBody(projectile);
+    projectile.setPosition(position);
+    projectile.setScale(scale);
+    projectile.getComponent(TextureRenderComponent.class).setFlipX(mirrored);
+    return projectile;
   }
 
   private ArrowFactory() {

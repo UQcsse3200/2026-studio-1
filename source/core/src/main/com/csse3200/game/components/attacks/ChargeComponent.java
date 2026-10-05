@@ -117,6 +117,7 @@ public class ChargeComponent extends Component {
   @Override
   public void create() {
     touchAttack = entity.getComponent(TouchAttackComponent.class);
+    entity.getEvents().addListener("movementBlocked", this::onMovementBlocked);
     if (touchAttack == null) {
       logger.warn(
           "ChargeComponent on {} has no TouchAttackComponent: the charge deals no damage", entity);
@@ -336,5 +337,20 @@ public class ChargeComponent extends Component {
       return this.damageMultiplier;
     }
     return 1.0f;
+  }
+
+  /**
+   * Ends the current charge early when the entity's walk was vetoed, for example at the edge of a
+   * hazard. Only a rush is cut short: a windup is stationary anyway, and an idle component has
+   * nothing to end.
+   */
+  public void onMovementBlocked() {
+    if (!isCharging()) {
+      return;
+    }
+    if (this.windupTimeRemaining > 0) {
+      return;
+    }
+    finishCharge();
   }
 }

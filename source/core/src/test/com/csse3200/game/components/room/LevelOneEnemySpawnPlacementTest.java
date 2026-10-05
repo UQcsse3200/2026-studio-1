@@ -83,7 +83,9 @@ class LevelOneEnemySpawnPlacementTest {
           "cyclops",
           new Body(2.0, 1.5, 2.0 * 0.4, 1.5 * 0.5, 0.0),
           "centaur",
-          new Body(4.0, 4.0, 4.0 * 0.4, 4.0 * 0.5, 0.0));
+          new Body(4.0, 4.0, 4.0 * 0.4, 4.0 * 0.5, 0.0),
+          "cerberus",
+          new Body(1.5, 1.5 * 96.0 / 150.0, 1.5 * 0.45, 1.5 * (96.0 / 150.0) * 0.6, 0.0));
 
   private LevelView level;
   private List<SpawnPoint> enemies;

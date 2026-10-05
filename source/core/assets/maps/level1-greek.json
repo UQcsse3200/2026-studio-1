@@ -283,6 +283,10 @@
       "type": "ENEMY",
       "enemyType": "centaur"
     },
+    "D": {
+      "type": "ENEMY",
+      "enemyType": "cerberus"
+    },
     "L": {
       "type": "LOOT"
     },
@@ -495,39 +499,6 @@
       "                                                        ",
       "                                                        ",
       "                                                        "
-    ]
-  },
-  "spawns": {
-    "player": {
-      "x": 3,
-      "y": 3
-    },
-    "enemies": [
-      { "type": "skeleton", "x": 23, "y": 3 },
-      { "type": "skeleton", "x": 40, "y": 3 },
-      { "type": "skeleton", "x": 16, "y": 3 },
-
-      { "type": "ranged-skeleton", "x": 20, "y": 13 },
-      { "type": "skeleton", "x": 38, "y": 13 },
-
-      { "type": "skeleton", "x": 14, "y": 23 },
-      { "type": "skeleton", "x": 8, "y": 26 },
-      { "type": "skeleton", "x": 38, "y": 23 },
-
-      { "type": "skeleton", "x": 14, "y": 34 },
-      { "type": "skeleton", "x": 38, "y": 34 },
-      { "type": "minotaur", "x": 46, "y": 37 },
-
-      { "type": "skeleton", "x": 13, "y": 37 },
-
-      { "type": "ranged-skeleton", "x": 24,"y": 40 },
-      { "type":  "minotaur", "x":  36, "y": 46},
-      { "type":  "skeleton", "x":  25, "y": 46},
-      { "type":  "ranged-skeleton", "x": 13, "y": 49},
-
-      { "type":  "skeleton", "x":  24, "y": 52 },
-      { "type":  "skeleton", "x":  36, "y": 54},
-      { "type":  "ranged-skeleton", "x":  46, "y": 54}
     ],
     "entities": [
       "                                                        ",
@@ -535,41 +506,31 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
-      "                    M                                   ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                        M                               ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                             M                          ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
+      "                                    S    D    R         ",
+      "                                                        ",
+      "                        S                               ",
       "                                                        ",
       "                                                        ",
+      "             R                                          ",
       "                                                        ",
       "                                                        ",
-      "                                                        ",
-      "             2                                          ",
+      "                         S          M                   ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
-      "                                                        ",
-      "          S    M    S              M    S       M       ",
-      "                                                        ",
+      "             2          R                               ",
       "                                                        ",
       "                                                        ",
+      "             S                                M         ",
       "                                                        ",
       "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                     S                                  ",
+      "              S                       S                 ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
@@ -577,9 +538,10 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
+      "        S                                               ",
       "                                                        ",
       "                                                        ",
-      "                    S                     *             ",
+      "              S                       S                 ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
@@ -588,9 +550,18 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
+      "                                          *             ",
+      "                    R                 S                 ",
       "                                                        ",
-      "   P                    S                  S            ",
       "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "   P            S      S                S               ",
       "                                                        ",
       "                                                        ",
       "                                                        "
@@ -693,6 +664,58 @@
       "destinationMap": "maps/level2.json",
       "destinationSpawn": {
         "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "id": "hounds-den-door",
+      "x": 55,
+      "y": 34,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-hounds-den.json",
+      "destinationSpawn": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "id": "gorgon-gallery-door",
+      "x": 55,
+      "y": 40,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-gorgon-gallery.json",
+      "destinationSpawn": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "id": "minotaur-labyrinth-door",
+      "x": 55,
+      "y": 48,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-minotaur-labyrinth.json",
+      "destinationSpawn": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "id": "shades-barracks-door",
+      "x": 55,
+      "y": 54,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-shades-barracks.json",
+      "destinationSpawn": {
+        "x": 4,
         "y": 2
       }
     }

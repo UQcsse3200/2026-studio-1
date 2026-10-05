@@ -59,17 +59,11 @@
   "cyclops": {
     "health": 70,
     "baseAttack": 10,
-    "melee": {
-      "range": 3,
-      "cooldown": 4,
-      "knockback": 2.5
-    },
-    "ranged": {
-      "range": 7,
-      "cooldown": 3,
-      "projectileSpeed": 8,
-      "knockback": 3
-    }
+    "melee": { "range": 2.5, "cooldown": 4, "knockback": 3, "windup": 0.4 },
+    "rock":  { "range": 11, "cooldown": 7, "projectileSpeed": 8,  "knockback": 3, "windup": 1.1,
+      "damageMultiplier": 1.5, "spawnHeightFraction": 0.85 },
+    "laser": { "range": 7,  "cooldown": 4, "projectileSpeed": 20, "knockback": 0, "windup": 0.5,
+      "damageMultiplier": 0.6, "spawnHeightFraction": 0.75 }
   },
   "medusa": {
     "health": 150,
