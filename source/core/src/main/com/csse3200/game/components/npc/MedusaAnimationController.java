@@ -11,10 +11,10 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
  * This class listens to events relevant to Medusa's state and plays the animation when one of the
  * events is triggered. It also updates the animation state based on velocity and attacks (melee
  * bite and ranged gaze), driven by the real {@code gorgon} atlas, which only has idle, walk, attack
- * and dead animations (no separate rock/laser/stomp states like the Cyclops).
- * This class listens to events relevant to a Medusa entity's state and plays the corresponding
- * animations (idle, walk, attack, death) from the gorgon atlas. It updates facing direction and
- * animation state based on velocity, melee bite attacks, and ranged gaze attacks.
+ * and dead animations (no separate rock/laser/stomp states like the Cyclops). This class listens to
+ * events relevant to a Medusa entity's state and plays the corresponding animations (idle, walk,
+ * attack, death) from the gorgon atlas. It updates facing direction and animation state based on
+ * velocity, melee bite attacks, and ranged gaze attacks.
  */
 public class MedusaAnimationController extends Component {
   private AnimationRenderComponent animator;
