@@ -1,12 +1,12 @@
 package com.csse3200.game.components.player;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.services.ServiceLocator;
 
 /** Enables vertical movement while the player overlaps a ladder tile. */
 public class LadderComponent extends Component {
@@ -114,7 +114,7 @@ public class LadderComponent extends Component {
   @Override
   public void update() {
     if (autoClimbing) {
-      advanceAutoClimb(Gdx.graphics.getDeltaTime());
+      advanceAutoClimb(ServiceLocator.getTimeSource().getDeltaTime());
       return;
     }
     if (!climbing) {
