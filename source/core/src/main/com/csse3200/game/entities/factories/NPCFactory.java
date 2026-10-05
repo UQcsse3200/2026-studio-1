@@ -649,14 +649,19 @@ public class NPCFactory {
     InventoryComponent inventory = new InventoryComponent(3);
     inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 2));
 
-    // TODO (ART): Zeus needs his own atlas (idle, walk, sword swing, lightning cast). Until it
-    // exists he borrows the Cyclops atlas, animations and controller.
+    // Zeus uses zeus atlas with idle, walk, strike, slam (lightning cast), and death animations
     AnimationRenderComponent animator =
-        new AnimationRenderComponent(loadIndependentAtlas(CYCLOPS_ATLAS_PATH), true);
-    animator.addAnimation("cyclops_idle_l", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_idle_r", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_walk_l", 0.1f, Animation.PlayMode.LOOP);
-    animator.addAnimation("cyclops_walk_r", 0.1f, Animation.PlayMode.LOOP);
+        new AnimationRenderComponent(loadIndependentAtlas(ZEUS_ATLAS_PATH), true);
+    animator.addAnimation("zeus_idle_l", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_idle_r", 0.1f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_walk_l", 0.08f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_walk_r", 0.08f, Animation.PlayMode.LOOP);
+    animator.addAnimation("zeus_p_strike_l", 0.08f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_p_strike_r", 0.08f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_slam_l", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_slam_r", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_death_l", 0.15f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("zeus_death_r", 0.15f, Animation.PlayMode.NORMAL);
 
     WeaponItem lightning =
         WeaponItem.natural("Zeus Lightning", config.baseAttack, config.ranged.windup);
@@ -676,8 +681,7 @@ public class NPCFactory {
         .addComponent(new ItemDropComponent())
         .addComponent(new EnemyDeathComponent())
         .addComponent(animator)
-        // TODO (ART): replace with ZeusAnimationController.
-        .addComponent(new CyclopsAnimationController());
+        .addComponent(new ZeusAnimationController());
 
     zeus.getComponent(RangedAttackComponent.class)
         .setProjectileSpeed(config.ranged.projectileSpeed);
@@ -692,7 +696,7 @@ public class NPCFactory {
             new RangedAttackTask(
                 target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.LIGHTNING));
 
-    zeus.setScale(scale, scale * (48f / 64f));
+    zeus.setScale(scale, scale * (68f / 37f));
     PhysicsUtils.setScaledCollider(zeus, collisionScale.x, collisionScale.y);
     return zeus;
   }
