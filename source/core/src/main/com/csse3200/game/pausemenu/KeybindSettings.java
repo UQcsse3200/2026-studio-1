@@ -36,6 +36,7 @@ public final class KeybindSettings {
     defaultKeys.put("attack", Input.Keys.SPACE);
     defaultKeys.put("specialAttack", Input.Keys.F);
     defaultKeys.put("areaAttack", Input.Keys.G);
+    defaultKeys.put("bribe", Input.Keys.R);
     defaultKeys.put("dropItem", Input.Keys.Q);
     defaultKeys.put("equipShield", Input.Keys.B);
     defaultKeys.put("interact", Input.Keys.E);

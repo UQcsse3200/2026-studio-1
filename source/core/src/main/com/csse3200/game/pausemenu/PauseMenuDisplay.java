@@ -63,7 +63,6 @@ public class PauseMenuDisplay extends UIComponent {
   private long leftLastRepeat = 0;
   private long rightHoldStart = 0;
   private long rightLastRepeat = 0;
-
   private static final String PREFS_NAME = "pause_menu_settings";
   private static final String MASTER_VOLUME_KEY = "masterVolume";
   private static final String MUSIC_VOLUME_KEY = "musicVolume";

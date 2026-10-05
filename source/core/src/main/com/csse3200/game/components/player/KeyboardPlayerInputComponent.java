@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class KeyboardPlayerInputComponent extends InputComponent {
   private static final Logger logger = LoggerFactory.getLogger(KeyboardPlayerInputComponent.class);
+
   private final Vector2 walkDirection = Vector2.Zero.cpy();
   private final Vector2 jumpDirection = Vector2.Zero.cpy();
   private final Vector2 dashDirection = Vector2.Zero.cpy();
@@ -53,6 +54,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return false;
     }
     entity.getEvents().trigger("idle", direction);
+
     SubLevelTravelComponent travel = entity.getComponent(SubLevelTravelComponent.class);
     if (travel != null && travel.isControlLocked()) {
       return true;
@@ -198,6 +200,26 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     return false;
   }
 
+  /**
+   * Activates the Ballistic Shield if the player is holding one.
+   *
+   * <p>If the player does not have a Ballistic Shield, the normal Tier 1 Shield is activated
+   * instead. This keeps the existing B-key behaviour for the normal Shield.
+   */
+  private void activateAvailableShield() {
+    BallisticShieldComponent ballisticShield = entity.getComponent(BallisticShieldComponent.class);
+
+    if (ballisticShield != null && ballisticShield.hasShield()) {
+      logger.info("B key pressed - activating Ballistic Shield");
+      ballisticShield.activateBallisticShield();
+      return;
+    }
+
+    logger.info("B key pressed - activating normal Shield");
+
+    entity.getEvents().trigger("activateShield");
+  }
+
   private void grantTestBow(int tier) {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
     if (inventory == null) {
@@ -206,6 +228,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
 
     WeaponItem bow = new WeaponGenerator().generateWeapon(WeaponType.BOW, tier);
+
     if (inventory.addItem(bow) > 0) {
       logger.warn("Cannot grant a tier {} test bow: inventory is full", tier);
       return;
@@ -221,7 +244,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       }
     }
 
-    throw new IllegalStateException("Granted tier " + tier + " bow was not found in inventory.");
+    throw new IllegalStateException("Granted tier {} bow was not found in inventory.");
   }
 
   /**
@@ -308,20 +331,23 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       direction = "Left";
       walkDirection.add(Vector2Utils.LEFT);
     }
+
     if (crouch) {
       entity.getEvents().trigger("crouchidle", direction);
     } else {
       entity.getEvents().trigger("run", direction);
     }
+
     triggerWalkEvent();
   }
 
   private void dashing() {
     if (direction.equals("Left")) {
-      dashDirection.add(Vector2Utils.LEFT); // Adds to the x vector to the left
+      dashDirection.add(Vector2Utils.LEFT);
     } else {
-      dashDirection.add(Vector2Utils.RIGHT); // Adds to the x vector to the right
+      dashDirection.add(Vector2Utils.RIGHT);
     }
+
     triggerDashEvent();
     entity.getEvents().trigger("rolling", direction);
     dashed = true;
@@ -336,14 +362,12 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   }
 
   private void triggerJumpEvent() {
-    // Player has upwards y velocity
     entity.getEvents().trigger("jump", jumpDirection);
     jumpDirection.y = 0;
     jumped = false;
   }
 
   private void triggerDashEvent() {
-    // Player has an x velocity in the direction they last went or are going
     entity.getEvents().trigger("dash", dashDirection);
     dashDirection.x = 0;
     dashed = false;
