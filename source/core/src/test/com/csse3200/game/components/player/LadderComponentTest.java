@@ -23,6 +23,7 @@ import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -165,6 +166,32 @@ class LadderComponentTest {
     assertEquals(2.895f, player.getCenterPosition().y, 0.001f);
     verify(body).setGravityScale(1f);
     assertFalse(ladder.canAutoClimb());
+  }
+
+  @Test
+  void releasingControlDuringAutoClimbStopsCrouching() {
+    when(engine.createBody(any())).thenReturn(body);
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    Entity player =
+        new Entity()
+            .addComponent(new PhysicsComponent(engine))
+            .addComponent(ladder)
+            .addComponent(input);
+    player.setScale(0.75f, 0.75f);
+    positionCentreAtTile(player, 1, 2);
+    ladder.create();
+    AtomicBoolean crouching = new AtomicBoolean();
+    player.getEvents().addListener("ctrlChanged", crouching::set);
+
+    assertTrue(input.keyDown(Keys.CONTROL_LEFT));
+    assertTrue(crouching.get());
+    assertTrue(input.keyDown(Keys.E));
+    assertTrue(ladder.isAutoClimbing());
+
+    assertTrue(input.keyUp(Keys.CONTROL_LEFT));
+
+    assertFalse(crouching.get());
   }
 
   @Test

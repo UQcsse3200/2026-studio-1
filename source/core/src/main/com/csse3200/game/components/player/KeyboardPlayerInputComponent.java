@@ -210,7 +210,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   @Override
   public boolean keyUp(int keycode) {
     LadderComponent ladder = entity.getComponent(LadderComponent.class);
-    if (ladder != null && ladder.isAutoClimbing()) {
+    if (ladder != null && ladder.isAutoClimbing() && keycode != Keys.CONTROL_LEFT) {
       return true;
     }
     switch (keycode) {
