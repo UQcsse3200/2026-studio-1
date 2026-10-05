@@ -127,7 +127,7 @@ class PhysicsMovementComponentGuardTest {
   @Test
   void shouldAnnounceMovementBlockedOnEveryBlockedFrame() {
     AtomicInteger blocked = new AtomicInteger();
-    entity.getEvents().addListener("movementBlocked", (EventListener0) blocked::incrementAndGet);
+    entity.getEvents().addListener("movementBlocked", blocked::incrementAndGet);
     movement.setMovementGuard(direction -> true);
 
     step(3);
@@ -138,7 +138,7 @@ class PhysicsMovementComponentGuardTest {
   @Test
   void shouldNotAnnounceAnythingWhenTheGuardAllowsTheWalk() {
     AtomicInteger blocked = new AtomicInteger();
-    entity.getEvents().addListener("movementBlocked", (EventListener0) blocked::incrementAndGet);
+    entity.getEvents().addListener("movementBlocked", blocked::incrementAndGet);
     movement.setMovementGuard(direction -> false);
 
     step(5);
