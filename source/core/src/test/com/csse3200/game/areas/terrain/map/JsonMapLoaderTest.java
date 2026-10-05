@@ -538,10 +538,26 @@ class JsonMapLoaderTest {
     assertEquals(16, levelThree.getHeight());
     // The player arrives on the spawn level 2's summit exit sends them to.
     assertEquals(new GridPoint2(2, 2), levelThree.getSpawns().getPlayer());
-    assertEquals(1, levelThree.getSpawns().getEnemies().size());
-    assertEquals("cyclops", levelThree.getSpawns().getEnemies().getFirst().getType());
+    assertEquals(5, levelThree.getSpawns().getEnemies().size());
+    // Entities are listed in scan order (left to right), so the four Medusas come before the
+    // Cyclops boss - check each by type and position instead of relying on list order.
+    List<SpawnPoint> levelThreeEnemies = levelThree.getSpawns().getEnemies();
+    assertTrue(
+        levelThreeEnemies.stream()
+            .anyMatch(
+                spawn ->
+                    "cyclops".equals(spawn.getType())
+                        && spawn.getPosition().equals(new GridPoint2(32, 2))));
     assertEquals(
-        new GridPoint2(32, 2), levelThree.getSpawns().getEnemies().getFirst().getPosition());
+        4, levelThreeEnemies.stream().filter(spawn -> "medusa".equals(spawn.getType())).count());
+    for (int medusaX : new int[] {10, 17, 22, 29}) {
+      assertTrue(
+          levelThreeEnemies.stream()
+              .anyMatch(
+                  spawn ->
+                      "medusa".equals(spawn.getType())
+                          && spawn.getPosition().equals(new GridPoint2(medusaX, 2))));
+    }
     // Only the shell collides: the throne room's furniture is all walk-through decoration.
     for (MapLayerData layer : levelThree.getLayers()) {
       for (int x = 0; x < levelThree.getWidth(); x++) {

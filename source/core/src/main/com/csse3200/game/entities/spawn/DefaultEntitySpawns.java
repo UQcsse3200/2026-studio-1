@@ -47,9 +47,6 @@ public final class DefaultEntitySpawns {
     EntitySpawnRegistry.registerIfAbsent("enemy-zeus", NPCFactory::createZeus);
     EntitySpawnRegistry.registerIfAbsent("harpy", NPCFactory::createHarpy);
     EntitySpawnRegistry.registerIfAbsent("ranged-harpy", NPCFactory::createRangedHarpy);
-
-    // NPC team.
-    EntitySpawnRegistry.registerIfAbsent("npc:traveler", NPCFactory::createTravelerNPC);
   }
 
   /** Allows tests to re-run {@link #registerAll()} from a known state. */

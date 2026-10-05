@@ -51,6 +51,10 @@
       "type": "ENEMY",
       "enemyType": "cyclops"
     },
+    "G": {
+      "type": "ENEMY",
+      "enemyType": "medusa"
+    },
     "L": {
       "type": "LOOT"
     }
@@ -124,7 +128,7 @@
       "                                        ",
       "                                        ",
       "                                        ",
-      "  P                 L           Y       ",
+      "  P       G      G  L G      G  Y       ",
       "                                        ",
       "                                        "
     ]
