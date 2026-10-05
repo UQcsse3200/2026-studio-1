@@ -1,12 +1,16 @@
 package com.csse3200.game.physics;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.csse3200.game.entities.Entity;
@@ -82,6 +86,38 @@ class PhysicsContactListenerTest {
     verify(endCallback2).handle(fixture2, fixture1);
   }
 
+  @Test
+  void shouldDisablePlatformContactWhileMovingUp() {
+    Fixture platform = mockFixture(PhysicsLayer.PLATFORM, 2f, 0.1f, 0f);
+    Fixture player = mockFixture(PhysicsLayer.DEFAULT, 2.1f, 1f, 3f);
+
+    assertTrue(PhysicsContactListener.shouldDisablePlatformContact(platform, player));
+  }
+
+  @Test
+  void shouldDisablePlatformContactWhileBelowSurface() {
+    Fixture platform = mockFixture(PhysicsLayer.PLATFORM, 2f, 0.1f, 0f);
+    Fixture player = mockFixture(PhysicsLayer.DEFAULT, 1.9f, 1f, -1f);
+
+    assertTrue(PhysicsContactListener.shouldDisablePlatformContact(platform, player));
+  }
+
+  @Test
+  void shouldKeepPlatformContactWhenFallingFromAbove() {
+    Fixture platform = mockFixture(PhysicsLayer.PLATFORM, 2f, 0.1f, 0f);
+    Fixture player = mockFixture(PhysicsLayer.DEFAULT, 2.1f, 1f, -1f);
+
+    assertFalse(PhysicsContactListener.shouldDisablePlatformContact(platform, player));
+  }
+
+  @Test
+  void shouldNotApplyOneWayRulesToSolidTerrain() {
+    Fixture solid = mockFixture(PhysicsLayer.OBSTACLE, 2f, 1f, 0f);
+    Fixture player = mockFixture(PhysicsLayer.DEFAULT, 1f, 1f, 3f);
+
+    assertFalse(PhysicsContactListener.shouldDisablePlatformContact(solid, player));
+  }
+
   Entity createPhysicsEntity() {
     Entity entity =
         new Entity().addComponent(new PhysicsComponent()).addComponent(new ColliderComponent());
@@ -92,5 +128,24 @@ class PhysicsContactListenerTest {
   Fixture createFixture(PhysicsEngine engine) {
     Body body = engine.createBody(new BodyDef());
     return body.createFixture(new FixtureDef());
+  }
+
+  private Fixture mockFixture(short layer, float y, float height, float velocityY) {
+    Entity entity = new Entity();
+    entity.setScale(1f, height);
+    BodyUserData userData = new BodyUserData();
+    userData.entity = entity;
+
+    Body body = mock(Body.class);
+    when(body.getPosition()).thenReturn(new Vector2(0f, y));
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, velocityY));
+    when(body.getUserData()).thenReturn(userData);
+
+    Filter filter = new Filter();
+    filter.categoryBits = layer;
+    Fixture fixture = mock(Fixture.class);
+    when(fixture.getBody()).thenReturn(body);
+    when(fixture.getFilterData()).thenReturn(filter);
+    return fixture;
   }
 }

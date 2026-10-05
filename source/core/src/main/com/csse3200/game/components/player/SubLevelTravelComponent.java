@@ -1,7 +1,10 @@
 package com.csse3200.game.components.player;
 
 import com.badlogic.gdx.math.Vector2;
+import com.csse3200.game.areas.terrain.map.LevelMapData;
+import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.gamearea.SubLevelEvents;
 import com.csse3200.game.physics.components.PhysicsComponent;
 
 /** Runs the locked, automatic lift sequence between the dungeon and Nether sub-levels. */
@@ -21,6 +24,28 @@ public class SubLevelTravelComponent extends Component {
   private float elapsed;
   private Vector2 start;
   private Vector2 destination;
+  private boolean levelOneEnabled = true;
+
+  public SubLevelTravelComponent() {}
+
+  public SubLevelTravelComponent(LevelMapData mapData) {
+    setMapData(mapData);
+  }
+
+  /** Enables the Dungeon/Nether lift only while the retained player is in Level 1. */
+  public void setMapData(LevelMapData mapData) {
+    levelOneEnabled = isLevelOne(mapData);
+    if (!levelOneEnabled) {
+      travelling = false;
+      elapsed = 0f;
+      start = null;
+      destination = null;
+      if (physics != null) {
+        physics.getBody().setGravityScale(1f);
+        physics.getBody().setLinearVelocity(0f, 0f);
+      }
+    }
+  }
 
   @Override
   public void create() {
@@ -29,6 +54,9 @@ public class SubLevelTravelComponent extends Component {
 
   /** Begins travel when the player is standing at either lift door. */
   public boolean beginTravel() {
+    if (!levelOneEnabled) {
+      return false;
+    }
     if (travelling) {
       return true;
     }
@@ -49,11 +77,11 @@ public class SubLevelTravelComponent extends Component {
    * @return true when the Nether interaction prompt and {@code E} action should be available
    */
   public boolean canTravelToNether() {
-    return !travelling && isNear(DUNGEON_DOOR);
+    return levelOneEnabled && !travelling && isNear(DUNGEON_DOOR);
   }
 
   private boolean canTravelToDungeon() {
-    return !travelling && isNear(NETHER_DOOR);
+    return levelOneEnabled && !travelling && isNear(NETHER_DOOR);
   }
 
   public boolean isControlLocked() {
@@ -79,7 +107,9 @@ public class SubLevelTravelComponent extends Component {
       travelling = false;
       entity
           .getEvents()
-          .trigger("subLevelEntered", destination == NETHER_LANDING ? "NETHER" : "DUNGEON");
+          .trigger(
+              SubLevelEvents.SUB_LEVEL_ENTERED,
+              destination == NETHER_LANDING ? "NETHER" : "DUNGEON");
     }
   }
 
@@ -104,6 +134,10 @@ public class SubLevelTravelComponent extends Component {
   }
 
   private void startTravel(Vector2 target) {
+    LadderComponent ladder = entity.getComponent(LadderComponent.class);
+    if (ladder != null) {
+      ladder.stopClimbing();
+    }
     start = entity.getCenterPosition();
     destination = target;
     elapsed = 0f;
@@ -114,5 +148,18 @@ public class SubLevelTravelComponent extends Component {
 
   private boolean isNear(Vector2 door) {
     return entity.getCenterPosition().dst(door) < TILE_SIZE * 2f;
+  }
+
+  private static boolean isLevelOne(LevelMapData mapData) {
+    if (mapData == null) {
+      return false;
+    }
+    boolean dungeon = false;
+    boolean nether = false;
+    for (SubLevel section : mapData.getSubLevels()) {
+      dungeon |= "dungeon".equals(section.id());
+      nether |= "nether".equals(section.id());
+    }
+    return dungeon && nether;
   }
 }

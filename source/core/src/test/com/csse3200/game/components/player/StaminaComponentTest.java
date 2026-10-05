@@ -82,4 +82,27 @@ class StaminaComponentTest {
   void testRegenerationRate() {
     assertEquals(5f, staminaComponent.getRegenRate());
   }
+
+  @Test
+  void testDefaultRegenMultiplierIsOne() {
+    assertEquals(1f, staminaComponent.getRegenMultiplier());
+  }
+
+  @Test
+  void testRegenMultiplierScalesRefillAfterTheDelay() {
+    staminaComponent.useStamina(40f); // stamina 60, 3s regen delay
+    staminaComponent.regenerate(3f); // spends the whole delay
+    staminaComponent.setRegenMultiplier(2f);
+
+    staminaComponent.regenerate(1f); // 5 * 2.0 * 1s = 10
+
+    assertEquals(70f, staminaComponent.getStamina());
+  }
+
+  @Test
+  void testRegenMultiplierRejectsZeroAndNegativeValues() {
+    assertThrows(IllegalArgumentException.class, () -> staminaComponent.setRegenMultiplier(0f));
+    assertThrows(IllegalArgumentException.class, () -> staminaComponent.setRegenMultiplier(-1f));
+    assertEquals(1f, staminaComponent.getRegenMultiplier());
+  }
 }
