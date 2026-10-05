@@ -50,6 +50,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   @Override
   public boolean keyDown(int keycode) {
     if (PauseMenuComponent.isGamePaused().get()) {
+      stopMovement();
       return false;
     }
     entity.getEvents().trigger("idle", direction);
@@ -80,6 +81,15 @@ public class KeyboardPlayerInputComponent extends InputComponent {
         || handleCombatAndItemKeys(keycode)
         || handleHotbarKeys(keycode)
         || handleDebugKeys(keycode);
+  }
+
+  private void stopMovement() {
+    walkDirection.setZero();
+    walkingLeft = false;
+    walkingRight = false;
+    walkingDown = false;
+
+    entity.getEvents().trigger("walkStop");
   }
 
   /** Handles the jump key, starting a ladder climb instead when one is available. */
