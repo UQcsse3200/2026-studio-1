@@ -14,6 +14,24 @@ public class StaminaComponent extends Component {
 
   private float stamina = MAX_STAMINA;
   private float regenDelayRemaining = 0f;
+  private float regenMultiplier = 1f;
+
+  public float getRegenMultiplier() {
+    return regenMultiplier;
+  }
+
+  /**
+   * Scales how fast stamina refills. Set by a temporary upgrade; 1f means normal regen.
+   *
+   * @param regenMultiplier new multiplier, must be greater than zero
+   * @throws IllegalArgumentException if {@code regenMultiplier} is zero or negative
+   */
+  public void setRegenMultiplier(float regenMultiplier) throws IllegalArgumentException {
+    if (regenMultiplier <= 0f) {
+      throw new IllegalArgumentException("Regen multiplier must be greater than zero.");
+    }
+    this.regenMultiplier = regenMultiplier;
+  }
 
   public float getStamina() {
     return stamina;
@@ -39,7 +57,7 @@ public class StaminaComponent extends Component {
       return;
     }
 
-    stamina = Math.min(MAX_STAMINA, stamina + REGEN_RATE * delta);
+    stamina = Math.min(MAX_STAMINA, stamina + REGEN_RATE * regenMultiplier * delta);
     entity.getEvents().trigger("updateStamina", stamina);
   }
 
