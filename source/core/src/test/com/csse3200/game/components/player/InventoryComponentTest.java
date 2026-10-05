@@ -826,4 +826,146 @@ class InventoryComponentTest {
 
     assertEquals(item, inventory.getActiveItem());
   }
+
+  @Test
+  void shouldStartWithEmptyPetSlots() {
+    InventoryComponent inventory = new InventoryComponent(0);
+
+    assertEquals(2, inventory.getPetSlotCount());
+    assertNull(inventory.getPet(1));
+    assertNull(inventory.getPet(2));
+    assertFalse(inventory.isPetInventoryFull());
+  }
+
+  @Test
+  void shouldAddPetToFirstAvailableSlot() {
+    InventoryComponent inventory = new InventoryComponent(0);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+
+    assertTrue(inventory.addPet(bird));
+
+    assertSame(bird, inventory.getPet(1));
+    assertNull(inventory.getPet(2));
+  }
+
+  @Test
+  void shouldAddSecondPetToSecondSlot() {
+    InventoryComponent inventory = new InventoryComponent(0);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    assertTrue(inventory.addPet(bird));
+    assertTrue(inventory.addPet(bat));
+
+    assertSame(bird, inventory.getPet(1));
+    assertSame(bat, inventory.getPet(2));
+    assertTrue(inventory.isPetInventoryFull());
+  }
+
+  @Test
+  void shouldRejectThirdPetWhenPetInventoryFull() {
+    InventoryComponent inventory = new InventoryComponent(0);
+
+    assertTrue(inventory.addPet(new ShopComponent.Pet("Bird")));
+    assertTrue(inventory.addPet(new ShopComponent.Pet("Bat")));
+
+    assertFalse(inventory.addPet(new ShopComponent.Pet("Spirit")));
+
+    assertEquals("Bird", inventory.getPet(1).getName());
+    assertEquals("Bat", inventory.getPet(2).getName());
+  }
+
+  @Test
+  void shouldRejectDuplicatePetByName() {
+    InventoryComponent inventory = new InventoryComponent(0);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+
+    assertTrue(inventory.addPet(bird));
+    assertFalse(inventory.addPet(new ShopComponent.Pet("Bird")));
+
+    assertSame(bird, inventory.getPet(1));
+    assertNull(inventory.getPet(2));
+  }
+
+  @Test
+  void shouldRejectNullPet() {
+    InventoryComponent inventory = new InventoryComponent(0);
+
+    assertFalse(inventory.addPet(null));
+
+    assertNull(inventory.getPet(1));
+    assertNull(inventory.getPet(2));
+  }
+
+  @Test
+  void shouldHandleInvalidPetSlotsSafely() {
+    InventoryComponent inventory = new InventoryComponent(0);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    inventory.addPet(bird);
+
+    assertNull(inventory.getPet(0));
+    assertNull(inventory.getPet(-1));
+    assertNull(inventory.getPet(3));
+    assertSame(bird, inventory.getPet(1));
+  }
+
+  @Test
+  void shouldReturnUnmodifiablePetSlots() {
+    InventoryComponent inventory = new InventoryComponent(0);
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    inventory.addPet(bird);
+
+    assertThrows(
+            UnsupportedOperationException.class,
+            () -> inventory.getPetSlots().put(2, new ShopComponent.Pet("Bat")));
+
+    assertSame(bird, inventory.getPet(1));
+    assertNull(inventory.getPet(2));
+  }
+
+  @Test
+  void shouldFireInventoryChangedOnSuccessfulAddPet() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 5, events);
+    events.set(0);
+
+    assertTrue(inventory.addPet(new ShopComponent.Pet("Bird")));
+
+    assertEquals(1, events.get());
+  }
+
+  @Test
+  void shouldNotFireInventoryChangedOnRejectedPet() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 5, events);
+
+    assertTrue(inventory.addPet(new ShopComponent.Pet("Bird")));
+    events.set(0);
+
+    assertFalse(inventory.addPet(new ShopComponent.Pet("Bird")));
+
+    assertEquals(0, events.get());
+  }
+
+  @Test
+  void shouldKeepPetSlotsSeparateFromItemSlots() {
+    InventoryComponent inventory = new InventoryComponent(0, 1);
+
+    inventory.addItem(potion(1, 10));
+    assertTrue(inventory.isFull());
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    assertTrue(inventory.addPet(bird));
+    assertTrue(inventory.addPet(bat));
+
+    assertEquals(1, inventory.getOccupiedSlots());
+    assertSame(bird, inventory.getPet(1));
+    assertSame(bat, inventory.getPet(2));
+
+    assertTrue(inventory.isFull());
+    assertTrue(inventory.isPetInventoryFull());
+  }
 }
