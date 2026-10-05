@@ -37,6 +37,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   private boolean walkingRight = false;
   private boolean walkingDown = false;
   private String direction = "Right";
+  private boolean wasPaused = false;
   private String SLIDESTRING = "slide";
 
   public String getDirection() {
@@ -48,11 +49,25 @@ public class KeyboardPlayerInputComponent extends InputComponent {
    * \* @see InputProcessor#keyDown(int)
    */
   @Override
+  public void update() {
+    boolean paused = PauseMenuComponent.isGamePaused().get();
+
+    if (paused && !wasPaused) {
+      stopMovement();
+    }
+
+    wasPaused = paused;
+  }
+
+  @Override
   public boolean keyDown(int keycode) {
     if (PauseMenuComponent.isGamePaused().get()) {
       stopMovement();
+      wasPaused = true;
       return false;
     }
+
+    wasPaused = false;
     entity.getEvents().trigger("idle", direction);
     SubLevelTravelComponent travel = entity.getComponent(SubLevelTravelComponent.class);
     if (travel != null && travel.isControlLocked()) {
@@ -88,7 +103,6 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     walkingLeft = false;
     walkingRight = false;
     walkingDown = false;
-
     entity.getEvents().trigger("walkStop");
   }
 
@@ -295,7 +309,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
   @Override
   public boolean keyUp(int keycode) {
     if (PauseMenuComponent.isGamePaused().get()) {
-      stopClimbing();
+      stopMovement();
       return false;
     }
     LadderComponent ladder = entity.getComponent(LadderComponent.class);
