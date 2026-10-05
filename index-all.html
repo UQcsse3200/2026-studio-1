@@ -3703,7 +3703,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/KeyboardPlayerInputComponent.html#keyDown(int)" class="member-name-link">keyDown(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/KeyboardPlayerInputComponent.html" title="class in com.csse3200.game.components.player">KeyboardPlayerInputComponent</a></dt>
 <dd>
-<div class="block">\* Triggers player events on specific keycodes.</div>
+<div class="block">Triggers player events on specific keycodes.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/NoclipInputComponent.html#keyDown(int)" class="member-name-link">keyDown(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/NoclipInputComponent.html" title="class in com.csse3200.game.components.player">NoclipInputComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -5658,15 +5658,11 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/GdxGame.ScreenType.html#SETTINGS" class="member-name-link">SETTINGS</a> - Enum constant in enum class com.csse3200.game.<a href="com/csse3200/game/GdxGame.ScreenType.html" title="enum class in com.csse3200.game">GdxGame.ScreenType</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsInputComponent.html" class="type-name-link" title="class in com.csse3200.game.components.settingsmenu">SettingsInputComponent</a> - Class in <a href="com/csse3200/game/components/settingsmenu/package-summary.html">com.csse3200.game.components.settingsmenu</a></dt>
-<dd>
-<div class="block">Keyboard input handler for the settings menu.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsInputComponent.html#%3Cinit%3E()" class="member-name-link">SettingsInputComponent()</a> - Constructor for class com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsInputComponent.html" title="class in com.csse3200.game.components.settingsmenu">SettingsInputComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.settingsmenu">SettingsMenuDisplay</a> - Class in <a href="com/csse3200/game/components/settingsmenu/package-summary.html">com.csse3200.game.components.settingsmenu</a></dt>
-<dd>
-<div class="block">Settings menu display and logic.</div>
-</dd>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html#%3Cinit%3E(com.csse3200.game.GdxGame)" class="member-name-link">SettingsMenuDisplay(GdxGame)</a> - Constructor for class com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsMenuDisplay.html" title="class in com.csse3200.game.components.settingsmenu">SettingsMenuDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/screens/SettingsScreen.html" class="type-name-link" title="class in com.csse3200.game.screens">SettingsScreen</a> - Class in <a href="com/csse3200/game/screens/package-summary.html">com.csse3200.game.screens</a></dt>
@@ -5973,6 +5969,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Begins a charge toward the given target position if <a href="com/csse3200/game/components/attacks/ChargeComponent.html#canCharge()"><code>ChargeComponent.canCharge()</code></a> is true; otherwise a
  no-op.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/settingsmenu/SettingsInputComponent.html#startKeyCapture(java.lang.String)" class="member-name-link">startKeyCapture(String)</a> - Method in class com.csse3200.game.components.settingsmenu.<a href="com/csse3200/game/components/settingsmenu/SettingsInputComponent.html" title="class in com.csse3200.game.components.settingsmenu">SettingsInputComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/tasks/WanderTask.html#startMoving()" class="member-name-link">startMoving()</a> - Method in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/WanderTask.html" title="class in com.csse3200.game.components.tasks">WanderTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/tasks/WanderTask.html#startPos" class="member-name-link">startPos</a> - Variable in class com.csse3200.game.components.tasks.<a href="com/csse3200/game/components/tasks/WanderTask.html" title="class in com.csse3200.game.components.tasks">WanderTask</a></dt>
@@ -6613,6 +6611,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/DaggerMovementComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DaggerMovementComponent.html" title="class in com.csse3200.game.components.player">DaggerMovementComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/KeyboardPlayerInputComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/KeyboardPlayerInputComponent.html" title="class in com.csse3200.game.components.player">KeyboardPlayerInputComponent</a></dt>
+<dd>
+<div class="block">Per-frame upkeep: stops walking if the game was just paused, and lets go of any held direction
+ or crouch whose key was released while a menu was consuming the input (see <code>KeyboardPlayerInputComponent.releaseWalkDirectionsNoLongerHeld()</code>).</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/LadderComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LadderComponent.html" title="class in com.csse3200.game.components.player">LadderComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/LootBobComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/LootBobComponent.html" title="class in com.csse3200.game.components.player">LootBobComponent</a></dt>
