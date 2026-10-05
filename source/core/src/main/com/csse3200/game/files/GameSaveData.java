@@ -22,4 +22,7 @@ public class GameSaveData {
   public String difficulty;
   public List<SavedUpgrade> upgrades = new ArrayList<>();
   public Integer shieldHits;
+  public List<SavedBuff> buffs = new ArrayList<>();
+  public int regenHealPerTick;
+  public float regenRemainingSeconds;
 }

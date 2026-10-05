@@ -7,7 +7,10 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.ActiveBuff;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.PlayerBuffComponent;
+import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.DifficultyService;
@@ -15,8 +18,11 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
+import com.csse3200.game.files.SavedBuff;
 import com.csse3200.game.files.SavedItem;
 import com.csse3200.game.files.SavedUpgrade;
+import com.csse3200.game.services.GameTime;
+import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
 import java.util.List;
 import java.util.Map;
@@ -129,6 +135,30 @@ public class PauseMenuActions extends Component {
     data.difficulty = DifficultyService.getCurrent().name();
 
     data.shieldHits = stats.getShieldHits();
+
+    GameTime timeSource = ServiceLocator.getTimeSource();
+    PlayerBuffComponent buffs = player.getComponent(PlayerBuffComponent.class);
+    if (buffs != null && timeSource != null) {
+      long now = timeSource.getTime();
+      for (ActiveBuff buff : buffs.getActiveBuffs()) {
+        float remaining = buff.getRemainingSeconds(now);
+        if (remaining <= 0f) {
+          continue;
+        }
+
+        SavedBuff saved = new SavedBuff();
+        saved.stat = buff.getStat().name();
+        saved.magnitude = buff.getMagnitude();
+        saved.remainingSeconds = remaining;
+        data.buffs.add(saved);
+      }
+    }
+
+    PlayerRegenComponent regen = player.getComponent(PlayerRegenComponent.class);
+    if (regen != null) {
+      data.regenHealPerTick = regen.getHealPerTick();
+      data.regenRemainingSeconds = regen.getRemainingSeconds();
+    }
 
     for (UpgradeNode node : upgradesSupplier.get()) {
       if (!node.isActive()) {

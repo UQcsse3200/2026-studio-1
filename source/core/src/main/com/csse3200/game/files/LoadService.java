@@ -9,7 +9,10 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.PlayerBuffComponent;
+import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
@@ -43,6 +46,7 @@ public class LoadService {
     loadPosition(player, data, mapWidth, mapHeight);
     loadPets(player, data);
     loadUpgrades(player, data, upgrades);
+    loadBuffs(player, data);
   }
 
   private static void loadHealth(Entity player, GameSaveData data) {
@@ -58,6 +62,28 @@ public class LoadService {
 
     if (stamina != null) {
       stamina.setStamina(data.stamina);
+    }
+  }
+
+  private static void loadBuffs(Entity player, GameSaveData data) {
+    PlayerBuffComponent buffs = player.getComponent(PlayerBuffComponent.class);
+    if (buffs != null && data.buffs != null) {
+      for (SavedBuff saved : data.buffs) {
+        if (saved == null || saved.stat == null) {
+          continue;
+        }
+
+        try {
+          buffs.applyBuff(BuffStat.valueOf(saved.stat), saved.magnitude, saved.remainingSeconds);
+        } catch (IllegalArgumentException e) {
+          // Unknown stat name in the save file - skip this buff.
+        }
+      }
+    }
+
+    PlayerRegenComponent regen = player.getComponent(PlayerRegenComponent.class);
+    if (regen != null) {
+      regen.startRegen(data.regenHealPerTick, data.regenRemainingSeconds);
     }
   }
 

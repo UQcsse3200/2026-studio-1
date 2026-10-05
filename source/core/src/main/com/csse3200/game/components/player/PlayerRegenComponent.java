@@ -111,6 +111,18 @@ public class PlayerRegenComponent extends Component {
     return regenerating ? healPerTick : 0;
   }
 
+  /**
+   * Returns how long the current regeneration has left, for saving.
+   *
+   * @return seconds remaining, or 0 when nothing is regenerating
+   */
+  public float getRemainingSeconds() {
+    if (!regenerating || timeSource == null) {
+      return 0f;
+    }
+    return Math.max(0f, (endTime - timeSource.getTime()) / 1000f);
+  }
+
   /** Restores one tick of health, stopping at the entity's maximum health. */
   private void heal() {
     CombatStatsComponent stats =
