@@ -377,11 +377,6 @@ public class PlayerActions extends Component {
       return;
     }
 
-<<<<<<< HEAD
-=======
-    staminaComponent.useStamina(staminaComponent.getAttackCost());
-
->>>>>>> 54631a7c97bdddc9b16873822c08a43ace828fcb
     int damage =
         (int)
             Math.min(

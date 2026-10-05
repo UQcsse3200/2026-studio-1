@@ -153,11 +153,20 @@ public class PlayerStatsDisplay extends UIComponent {
     staminaTable.setFillParent(true);
     staminaTable.padTop(240f).padLeft(5f);
 
-    staminaBar = new ProgressBar(0f, 100f, 1f, false, skin);
+    ProgressBar.ProgressBarStyle staminaStyle =
+        new ProgressBar.ProgressBarStyle(
+            skin.get("default-horizontal", ProgressBar.ProgressBarStyle.class));
 
+    staminaStyle.background = skin.newDrawable("progress-bar-horizontal");
+    staminaStyle.knobBefore = skin.newDrawable("progress-bar-horizontal-knob");
+
+    staminaStyle.background.setMinHeight(10f);
+    staminaStyle.knobBefore.setMinHeight(10f);
+
+    staminaBar = new ProgressBar(0f, 100f, 1f, false, staminaStyle);
     staminaBar.setValue(100f);
 
-    staminaTable.add(staminaBar).width(180f).height(20f).left();
+    staminaTable.add(staminaBar).width(250f).height(10f).left();
 
     stage.addActor(staminaTable);
     stage.addActor(table);
