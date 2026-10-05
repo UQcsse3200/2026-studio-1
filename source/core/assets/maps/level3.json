@@ -164,7 +164,7 @@
     },
     "Z": {
       "type": "ENEMY",
-      "enemyType": "zeus",
+      "enemyType": "zeus"
     },
     "L": {
       "type": "LOOT"
