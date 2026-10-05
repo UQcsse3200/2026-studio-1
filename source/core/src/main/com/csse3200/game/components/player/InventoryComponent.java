@@ -590,15 +590,24 @@ public class InventoryComponent extends Component {
       return false;
     }
 
+    int emptySlot = findEmptyPetSlot();
+    if (emptySlot == -1) {
+      return false;
+    }
+
+    petSlots.put(emptySlot, pet);
+    notifyInventoryChanged();
+    return true;
+  }
+
+  private int findEmptyPetSlot() {
     for (int slot = 1; slot <= PET_SLOT_COUNT; slot++) {
-      if (petSlots.get(slot) == null) {
-        petSlots.put(slot, pet);
-        notifyInventoryChanged();
-        return true;
+      if (!petSlots.containsKey(slot)) {
+        return slot;
       }
     }
 
-    return false;
+    return -1;
   }
 
   /**

@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
@@ -1577,19 +1578,7 @@ public class ShopDisplay extends UIComponent {
       return;
     }
 
-    Dialog dialog =
-        new Dialog("Pet Inventory Full", skin, "default") {
-          @Override
-          protected void result(Object object) {
-            if (object instanceof Integer petSlot) {
-              shop.replacePetWithPendingPrize(petSlot);
-            } else {
-              shop.cancelPendingPetReplacement();
-            }
-
-            refreshGamblingWheel();
-          }
-        };
+    Dialog dialog = new Dialog("Pet Inventory Full", skin, "default");
 
     dialog.text(
         "You won "
@@ -1600,11 +1589,47 @@ public class ShopDisplay extends UIComponent {
     ShopComponent.Pet slot1 = inventory.getPet(1);
     ShopComponent.Pet slot2 = inventory.getPet(2);
 
-    dialog.button("Replace 6. " + (slot1 == null ? EMPTY_TEXT : slot1.getName()), 1);
+    TextButton replaceSlot1Button =
+        new TextButton("Replace 6. " + (slot1 == null ? EMPTY_TEXT : slot1.getName()), skin);
 
-    dialog.button("Replace 7. " + (slot2 == null ? EMPTY_TEXT : slot2.getName()), 2);
+    TextButton replaceSlot2Button =
+        new TextButton("Replace 7. " + (slot2 == null ? EMPTY_TEXT : slot2.getName()), skin);
 
-    dialog.button("Cancel", null);
+    TextButton cancelButton = new TextButton("Cancel", skin);
+
+    replaceSlot1Button.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            shop.replacePetWithPendingPrize(1);
+            dialog.hide();
+            refreshGamblingWheel();
+          }
+        });
+
+    replaceSlot2Button.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            shop.replacePetWithPendingPrize(2);
+            dialog.hide();
+            refreshGamblingWheel();
+          }
+        });
+
+    cancelButton.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            shop.cancelPendingPetReplacement();
+            dialog.hide();
+            refreshGamblingWheel();
+          }
+        });
+
+    dialog.getButtonTable().add(replaceSlot1Button);
+    dialog.getButtonTable().add(replaceSlot2Button);
+    dialog.getButtonTable().add(cancelButton);
 
     dialog.show(stage);
   }
