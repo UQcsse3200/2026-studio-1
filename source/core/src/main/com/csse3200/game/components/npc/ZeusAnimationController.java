@@ -49,9 +49,9 @@ public class ZeusAnimationController extends Component {
     entity.getEvents().addListener("strikeRightStart", this::animateStrikeR);
     entity.getEvents().addListener("meleeLeftStart", this::animateStrikeL);
     entity.getEvents().addListener("meleeRightStart", this::animateStrikeR);
-    entity.getEvents().addListener("meleeAttack", (Entity target) -> onMeleeAttack(target));
-    entity.getEvents().addListener("meleeAttackWindup", (Entity target) -> onMeleeAttack(target));
-    entity.getEvents().addListener("strike", (Entity target) -> onMeleeAttack(target));
+    entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
+    entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
+    entity.getEvents().addListener("strike", this::onMeleeAttack);
 
     // Slam / lightning cast (ranged attack) listeners
     entity.getEvents().addListener("slamLeftStart", this::animateSlamL);
@@ -60,15 +60,15 @@ public class ZeusAnimationController extends Component {
     entity.getEvents().addListener("lightningRightStart", this::animateSlamR);
     entity.getEvents().addListener("rangedLeftStart", this::animateSlamL);
     entity.getEvents().addListener("rangedRightStart", this::animateSlamR);
-    entity.getEvents().addListener("rangedAttackWindup", (Entity target) -> onRangedAttack(target));
-    entity.getEvents().addListener("rangedAttackFired", (Entity target) -> onRangedAttack(target));
+    entity.getEvents().addListener("rangedAttackWindup", this::onRangedAttack);
+    entity.getEvents().addListener("rangedAttackFired", this::onRangedAttack);
     entity.getEvents().addListener("rangedAttackStart", () -> onRangedAttack(null));
     entity
         .getEvents()
         .addListener(
             "rangedAttack", (Entity target, ProjectileType type) -> onRangedAttack(target));
-    entity.getEvents().addListener("lightning", (Entity target) -> onRangedAttack(target));
-    entity.getEvents().addListener("slam", (Entity target) -> onRangedAttack(target));
+    entity.getEvents().addListener("lightning", this::onRangedAttack);
+    entity.getEvents().addListener("slam", this::onRangedAttack);
 
     // Death listeners
     entity.getEvents().addListener("deathLeftStart", this::animateDeathL);
