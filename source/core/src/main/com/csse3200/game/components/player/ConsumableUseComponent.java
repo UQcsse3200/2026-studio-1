@@ -176,10 +176,14 @@ public class ConsumableUseComponent extends Component {
       logger.debug("{} had no effect, leaving it in the inventory", consumable.getName());
       return false;
     }
-
+    KeyboardPlayerInputComponent input = entity.getComponent(KeyboardPlayerInputComponent.class);
     inventory.removeItem(slot, 1);
     logger.debug("Consumed {} from slot {}", consumable.getName(), slot);
+    if (input != null) {
+      entity.getEvents().trigger("heal", input.getDirection());
+    }
     entity.getEvents().trigger("itemConsumed", consumable);
+
     return true;
   }
 }

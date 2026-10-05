@@ -26,13 +26,13 @@ public class MainMenuActions extends Component {
     entity.getEvents().addListener("perks", this::onPerks);
   }
 
-  /** Swaps to the Main Game screen. */
+  /** Swaps to the difficulty select screen, which then starts a new game. */
   private void onStart() {
     logger.info("Start game");
     game.setScreen(GdxGame.ScreenType.DIFFICULTY_SELECT);
   }
 
-  /** Intended for loading a saved game state. Load functionality is not actually implemented. */
+  /** Swaps to the Main Game screen and restores the saved game, if one exists. */
   private void onLoad() {
     logger.info("Load game");
     game.setScreen(GdxGame.ScreenType.LOAD_GAME);
