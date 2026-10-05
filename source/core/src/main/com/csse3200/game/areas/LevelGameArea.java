@@ -52,6 +52,7 @@ import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
+import com.csse3200.game.perks.TortoiseFactory;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -85,6 +86,9 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+  private static final String LEVEL_1_NAME = "Level 1 - Out of the Underworld";
+  private static final String TORTOISE_LEVEL_1_A_ID = "level1_a";
+  private static final GridPoint2 TORTOISE_LEVEL_1_A_SPAWN = new GridPoint2(52, 5);
   private static final long HAZARD_DAMAGE_COOLDOWN_MS = 500;
 
   /** Damage for a hazard tile whose legend entry sets no {@code damage} property. */
@@ -151,7 +155,8 @@ public class LevelGameArea extends GameArea {
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
-    "images/pet.atlas"
+    "images/pet.atlas",
+    "images/tortoise.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
@@ -252,6 +257,7 @@ public class LevelGameArea extends GameArea {
     spawnTransitions();
     spawnEnemies();
     spawnLoot();
+    spawnTortoises();
     spawnNpcs();
     spawnLighting();
     playMusic();
@@ -1018,5 +1024,20 @@ public class LevelGameArea extends GameArea {
         spawnEntityAt(npc, marker.position(), true, true);
       }
     }
+  }
+
+  private void spawnTortoises() {
+    if (!LEVEL_1_NAME.equals(mapData.getName())) {
+      return;
+    }
+    spawnTortoiseIfNotFound(TORTOISE_LEVEL_1_A_ID, TORTOISE_LEVEL_1_A_SPAWN);
+  }
+
+  private void spawnTortoiseIfNotFound(String tortoiseId, GridPoint2 position) {
+    if (TortoiseFactory.isFound(tortoiseId)) {
+      return;
+    }
+    Entity tortoise = TortoiseFactory.createTortoise(tortoiseId);
+    spawnEntityAt(tortoise, position, true, true);
   }
 }

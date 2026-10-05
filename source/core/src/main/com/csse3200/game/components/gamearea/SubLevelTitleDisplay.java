@@ -62,7 +62,7 @@ public class SubLevelTitleDisplay extends UIComponent {
     title.setColor(1f, 1f, 1f, 0f);
     unscaledTitleWidth = title.getPrefWidth();
     stage.addActor(title);
-    player.getEvents().addListener("subLevelEntered", this::showTitle);
+    player.getEvents().addListener(SubLevelEvents.SUB_LEVEL_ENTERED, this::showTitle);
   }
 
   @Override
