@@ -259,6 +259,10 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       activateAvailableShield();
       return true;
     }
+    if (keycode == KeybindSettings.getKey("bribe")) {
+      tryBribe();
+      return true;
+    }
     if (keycode == KeybindSettings.getKey("toggleQuestMenu")) {
       entity.getEvents().trigger("toggleQuestMenu");
       return true;
