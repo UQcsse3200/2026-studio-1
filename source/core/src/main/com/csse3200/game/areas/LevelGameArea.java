@@ -160,7 +160,6 @@ public class LevelGameArea extends GameArea {
     "images/enemies/cyclops.atlas",
     "images/enemies/minotaur.atlas",
     "images/enemies/cerberus.atlas",
-    "images/pet.atlas"
     "images/pet.atlas",
     "images/tortoise.atlas"
   };
