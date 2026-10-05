@@ -1,7 +1,6 @@
 package com.csse3200.game.components.player;
 
 import com.csse3200.game.components.Component;
-import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.PlayerRenderComponent;
 
 /**
@@ -32,8 +31,17 @@ public class PlayerAnimationController extends Component {
   boolean facingRight(String direction) {
     return "Right".equals(direction);
   }
+  boolean hurtPlaying = false;
+  boolean deadPlaying = false;
+
+  boolean canAnimate() {
+    return !hurtPlaying && !deadPlaying;
+  }
 
   void animateIdle(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("Idle");
     } else {
@@ -42,6 +50,9 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateRun(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("Run");
     } else {
@@ -50,6 +61,9 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateAttack(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("Attacks");
     } else {
@@ -58,6 +72,9 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateSlide(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("Slide");
     } else {
@@ -66,6 +83,9 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateCrouch(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("crouchidle");
     } else {
@@ -74,6 +94,9 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateJump(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("Jump");
     } else {
@@ -82,6 +105,9 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateRoll(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("Roll");
     } else {
@@ -90,6 +116,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateDeath(String direction) {
+    deadPlaying = true;
     if (facingRight(direction)) {
       animator.startAnimation("death");
     } else {
@@ -98,6 +125,9 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateHeal(String direction) {
+    if (!canAnimate()) {
+      return;
+    }
     if (facingRight(direction)) {
       animator.startAnimation("health");
     } else {
@@ -106,6 +136,7 @@ public class PlayerAnimationController extends Component {
   }
 
   void animateHurt(String direction) {
+    hurtPlaying = true;
     if (facingRight(direction)) {
       animator.startAnimation("hurt");
     } else {

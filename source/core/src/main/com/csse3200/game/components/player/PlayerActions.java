@@ -44,6 +44,7 @@ public class PlayerActions extends Component {
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
   private PlatformerComponent platformerComponent;
+  private PlayerAnimationController playerAnimationControllerComponent;
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
@@ -82,7 +83,7 @@ public class PlayerActions extends Component {
     platformerComponent = entity.getComponent(PlatformerComponent.class);
     combatStats = entity.getComponent(CombatStatsComponent.class);
     hitboxComponent = entity.getComponent(HitboxComponent.class);
-    platformerComponent = entity.getComponent(PlatformerComponent.class);
+    playerAnimationControllerComponent = entity.getComponent(PlayerAnimationController.class);
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
@@ -119,6 +120,10 @@ public class PlayerActions extends Component {
 
   private void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
+    boolean hurtPlaying = playerAnimationControllerComponent.hurtPlaying;
+    if (hurtPlaying && animator.isFinished()) {
+      playerAnimationControllerComponent.hurtPlaying = false;
+    }
     if (animator.isFinished()
         && !animator.getCurrentAnimation().equals("crouchidle")
         && !animator.getCurrentAnimation().equals("Leftcrouchidle")
@@ -127,7 +132,8 @@ public class PlayerActions extends Component {
         && !animator.getCurrentAnimation().equals("climb")) {
 
       if (animator.getCurrentAnimation().equals("Jump")
-          || animator.getCurrentAnimation().equals("LeftJump")) {
+          || animator.getCurrentAnimation().equals("LeftJump")
+      || animator.getCurrentAnimation().equals("climb")) {
         if (!walkDirection.isZero()) {
           entity.getEvents().trigger("run", direction);
         } else {
