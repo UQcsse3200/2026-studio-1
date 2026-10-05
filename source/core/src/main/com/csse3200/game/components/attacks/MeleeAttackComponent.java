@@ -49,6 +49,12 @@ public class MeleeAttackComponent extends Component {
   private CombatStatsComponent combatStats;
   private Entity pendingTarget;
   private float windupTimeRemaining;
+
+  /** Difficulty's enemy damage multiplier, applied on top of weapon (and charge) damage. */
+  private float damageMultiplier = 1f;
+
+  private float windupMultiplier = 1f;
+
   private static final Logger logger = LoggerFactory.getLogger(MeleeAttackComponent.class);
 
   /**
@@ -68,15 +74,19 @@ public class MeleeAttackComponent extends Component {
       throw new IllegalArgumentException("weapon cannot be null");
     }
     this.weapon = weapon;
+
     if (weapon.getWeaponType() == WeaponType.BOW) {
       throw new IllegalArgumentException("Melee Attack cannot use a Bow Weapon.");
     }
+
     if (weapon.getWindupDuration() < 0) {
       throw new IllegalArgumentException("windupDuration must not be negative.");
     }
-    if (weapon.getWindupDuration() >= getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown.");
+
+    if (weapon.getWindupDuration() >= this.getCooldown()) {
+      throw new IllegalArgumentException("windupDuration must be less than cooldown");
     }
+
     this.windupDuration = weapon.getWindupDuration();
     this.timeSinceLastAttack = cooldown;
   }
@@ -95,12 +105,6 @@ public class MeleeAttackComponent extends Component {
     setRange(range);
     setKnockback(knockback);
     setCooldown(cooldown);
-    if (weapon.getWindupDuration() < 0) {
-      throw new IllegalArgumentException("windupDuration must not be negative.");
-    }
-    if (weapon.getWindupDuration() >= this.getCooldown()) {
-      throw new IllegalArgumentException("windupDuration must be less than cooldown");
-    }
     this.timeSinceLastAttack = cooldown;
     this.damage = this.getEntity().getComponent(CombatStatsComponent.class).getBaseAttack();
   }
@@ -201,6 +205,54 @@ public class MeleeAttackComponent extends Component {
   }
 
   /**
+   * Returns the difficulty damage multiplier applied to this melee attacker's damage.
+   *
+   * @return damage multiplier; {@code 1f} by default (no change)
+   */
+  public float getDamageMultiplier() {
+    return this.damageMultiplier;
+  }
+
+  /**
+   * Updates the difficulty damage multiplier applied to this melee attacker's damage. Set by {@link
+   * com.csse3200.game.difficulty.DifficultyScaler} at spawn - not intended to be called directly by
+   * gameplay code.
+   *
+   * @param damageMultiplier new multiplier value
+   * @throws IllegalArgumentException if {@code damageMultiplier} is zero or negative
+   */
+  public void setDamageMultiplier(float damageMultiplier) throws IllegalArgumentException {
+    if (damageMultiplier <= 0) {
+      throw new IllegalArgumentException("Damage multiplier must be greater than zero.");
+    }
+    this.damageMultiplier = damageMultiplier;
+  }
+
+  /**
+   * Returns the difficulty multiplier applied to this melee attacker's wind-up duration.
+   *
+   * @return wind-up multiplier; {@code 1f} by default (no change)
+   */
+  public float getWindupMultiplier() {
+    return this.windupMultiplier;
+  }
+
+  /**
+   * Updates the difficulty multiplier applied to this melee attacker's wind-up duration. Set by
+   * {@link com.csse3200.game.difficulty.DifficultyScaler} at spawn - not intended to be called
+   * directly by gameplay code.
+   *
+   * @param windupMultiplier new multiplier value
+   * @throws IllegalArgumentException if {@code windupMultiplier} is zero or negative
+   */
+  public void setWindupMultiplier(float windupMultiplier) throws IllegalArgumentException {
+    if (windupMultiplier <= 0) {
+      throw new IllegalArgumentException("Windup multiplier must be greater than zero.");
+    }
+    this.windupMultiplier = windupMultiplier;
+  }
+
+  /**
    * Returns the damage for this attack, either the configured base attack from the config file or
    * the equipped weapon's damage. The only stat this component reads from the weapon — range and
    * knockback are this wielder's own properties, not the weapon's.
@@ -261,7 +313,7 @@ public class MeleeAttackComponent extends Component {
       return;
     }
     this.pendingTarget = target;
-    this.windupTimeRemaining = this.windupDuration;
+    this.windupTimeRemaining = this.windupDuration * this.windupMultiplier;
     timeSinceLastAttack = 0;
     entity.getEvents().trigger("meleeAttackWindup", this.pendingTarget);
   }
@@ -298,6 +350,9 @@ public class MeleeAttackComponent extends Component {
     if (chargeComponent != null) {
       // if not charging then 1.0f is the mutiplier
       finalDamage = (int) (finalDamage * chargeComponent.getDamageMultiplier());
+    }
+    if (weapon != null && damageMultiplier != 1f) {
+      finalDamage = Math.max(1, Math.round(finalDamage * damageMultiplier));
     }
     combatStats.setBaseAttack(finalDamage);
 

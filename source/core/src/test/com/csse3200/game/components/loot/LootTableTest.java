@@ -165,6 +165,32 @@ class LootTableTest {
     }
   }
 
+  /** The Upgrade Stone drops only at tier 1, and less often than any single potion. */
+  @Test
+  void shouldOfferTheUpgradeStoneRarelyAndOnlyAtTierOne() {
+    LootTable table = LootTable.createDefault(SEED);
+
+    Map<String, Integer> counts = countNames(table, 8000);
+
+    String stoneName = baseName(ConsumableType.UPGRADE_STONE);
+    String potionName = baseName(ConsumableType.HEALTH_POTION);
+    int stones = counts.getOrDefault(stoneName, 0);
+    int tierOnePotions = counts.getOrDefault(potionName, 0);
+    assertTrue(stones > 0, "the Upgrade Stone should be obtainable");
+    assertTrue(
+        stones < tierOnePotions,
+        "stones ("
+            + stones
+            + ") should be rarer than tier 1 health potions ("
+            + tierOnePotions
+            + ")");
+    for (String name : counts.keySet()) {
+      assertTrue(
+          !name.startsWith(stoneName) || name.equals(stoneName),
+          "the stone should never roll at a higher tier, got " + name);
+    }
+  }
+
   /** The default table has to offer every potion, so a new potion is never unobtainable. */
   @Test
   void shouldOfferEveryConsumableTypeInTheDefaultTable() {

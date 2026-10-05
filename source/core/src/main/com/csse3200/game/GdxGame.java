@@ -8,6 +8,7 @@ import com.badlogic.gdx.Screen;
 import com.csse3200.game.components.story.StoryCutscene;
 import com.csse3200.game.files.UserSettings;
 import com.csse3200.game.screens.DeathScreen;
+import com.csse3200.game.screens.DifficultySelectScreen;
 import com.csse3200.game.screens.MainGameScreen;
 import com.csse3200.game.screens.MainMenuScreen;
 import com.csse3200.game.screens.PerksScreen;
@@ -93,6 +94,9 @@ public class GdxGame extends Game {
       case MAIN_MENU:
         return new MainMenuScreen(this);
 
+      case DIFFICULTY_SELECT:
+        return new DifficultySelectScreen(this);
+
       case MAIN_GAME:
         return new MainGameScreen(this, false);
 
@@ -124,6 +128,7 @@ public class GdxGame extends Game {
 
   public enum ScreenType {
     MAIN_MENU,
+    DIFFICULTY_SELECT,
     MAIN_GAME,
     STORY_CUTSCENE,
     AFTER_DEATH_CUTSCENE,
