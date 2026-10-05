@@ -82,6 +82,9 @@ public class PauseMenuActions extends Component {
   }
 
   private void goToMainMenu() {
+    if (pauseMenu.isPaused()) {
+      pauseMenu.toggleIsPaused();
+    }
     entity.getEvents().trigger("exit");
   }
 
