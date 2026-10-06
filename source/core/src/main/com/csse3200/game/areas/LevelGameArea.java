@@ -149,20 +149,21 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/enemy_weapons/enemy_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",
+    "images/enemy_weapons/enemy_bow.atlas",
     "images/enemy_weapons/enemy_sword.atlas",
+    "images/items/gold_coin/gold_coin.atlas",
+    "images/pet.atlas",
+    "images/tortoise.atlas",
     "images/enemies/ghost.atlas",
     "images/enemies/ghostKing.atlas",
-    "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
     "images/enemies/minotaur.atlas",
     "images/enemies/cerberus.atlas",
-    "images/pet.atlas"
-    "images/pet.atlas",
-    "images/tortoise.atlas"
+    "images/enemies/medusa.atlas",
+    "images/enemies/zeus.atlas"
   };
 
   private static final String BACKGROUND_MUSIC = "sounds/dungeon.mp3";
@@ -691,7 +692,7 @@ public class LevelGameArea extends GameArea {
     spawnEntity(collider);
   }
 
-  static record SolidRectangle(int x, int y, int width, int height) {}
+  record SolidRectangle(int x, int y, int width, int height) {}
 
   private record SolidRun(int x, int width) {}
 
@@ -803,7 +804,54 @@ public class LevelGameArea extends GameArea {
     }
   }
 
+  // TODO (win system): add two fields. winListener, a new empty Entity that hears the final boss
+  //   fall (it belongs to the area, so it outlives the boss and a respawned player), and
+  //   finalBossDefeated, starting false. At the end of the private constructor, listen on
+  //   winListener for BossDefeatedWinComponent.FINAL_BOSS_DEFEATED_EVENT and set the flag to true.
+
+  /**
+   * Says whether the game has been won in this area. It is always false in an area that does not
+   * hold the final boss.
+   *
+   * @return true once the final boss of the game has been defeated in this area
+   */
+  public boolean isFinalBossDefeated() {
+    // BEGIN isFinalBossDefeated
+    //   give back the finalBossDefeated flag
+    // END isFinalBossDefeated
+    return false;
+  }
+
+  /**
+   * Gives the final boss the component that reports its death to this area. Any other enemy is left
+   * alone, so only Zeus in Level 3 can end the game.
+   *
+   * @param enemy the enemy about to be spawned; not yet created
+   * @param enemyId that enemy's kill id
+   */
+  void armWinTrigger(Entity enemy, String enemyId) {
+    // BEGIN armWinTrigger
+    //   IF BossRoster says enemyId is the final boss THEN
+    //     add a new BossDefeatedWinComponent(winListener) to the enemy
+    // END armWinTrigger
+  }
+
+  /**
+   * Notes an enemy that a loaded save says is already dead. If it is the final boss, the game is
+   * already won.
+   *
+   * @param enemyId the kill id of the enemy that will not be spawned
+   */
+  void noteAlreadyKilled(String enemyId) {
+    // BEGIN noteAlreadyKilled
+    //   IF BossRoster says enemyId is the final boss THEN set finalBossDefeated to true
+    // END noteAlreadyKilled
+  }
+
   private void spawnEnemies() {
+    // TODO (win system): call noteAlreadyKilled(id) just before the "continue" below, and
+    //   armWinTrigger(enemy, id) straight after the PersistentEnemyIdComponent is added (before
+    //   the enemy is spawned, because a component cannot be added to a created entity).
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
       String id = EnemyId.of(mapData.getName(), spawn.getPosition());
       if (EnemyRegistry.isKilled(id)) {
