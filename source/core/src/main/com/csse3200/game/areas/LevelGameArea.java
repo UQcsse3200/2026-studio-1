@@ -1,5 +1,7 @@
 package com.csse3200.game.areas;
 
+import com.csse3200.game.win.BossDefeatedWinComponent;
+import com.csse3200.game.win.BossRoster;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
@@ -181,6 +183,7 @@ public class LevelGameArea extends GameArea {
   private LevelMapData mapData;
   private Entity player;
   private RoomTransition pendingTransition;
+  private boolean finalBossDefeated;
 
   /**
    * Create a level area using the default {@link JsonMapLoader}.
@@ -804,10 +807,7 @@ public class LevelGameArea extends GameArea {
     }
   }
 
-  // TODO (win system): add two fields. winListener, a new empty Entity that hears the final boss
-  //   fall (it belongs to the area, so it outlives the boss and a respawned player), and
-  //   finalBossDefeated, starting false. At the end of the private constructor, listen on
-  //   winListener for BossDefeatedWinComponent.FINAL_BOSS_DEFEATED_EVENT and set the flag to true.
+
 
   /**
    * Says whether the game has been won in this area. It is always false in an area that does not
@@ -816,10 +816,7 @@ public class LevelGameArea extends GameArea {
    * @return true once the final boss of the game has been defeated in this area
    */
   public boolean isFinalBossDefeated() {
-    // BEGIN isFinalBossDefeated
-    //   give back the finalBossDefeated flag
-    // END isFinalBossDefeated
-    return false;
+    return finalBossDefeated;
   }
 
   /**

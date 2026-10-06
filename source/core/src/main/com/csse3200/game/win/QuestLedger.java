@@ -12,13 +12,12 @@ import java.util.Set;
  * "how many quests were finished", so this class remembers that.
  *
  * <p><b>Kinds</b> match the four quest types already in {@code Quests/}: {@link #JUMP}, {@link
- * #ENEMIES_KILLED}, {@link #GOLD_SPENT} and {@link #SHIELDS_COLLECTED}. Hidden tortoises are
- * counted in the same ledger under {@link #TORTOISES_COLLECTED}, but they are not quests: they are
- * left out of the quest totals and read through {@link #getTortoisesFound()}.
+ * #ENEMIES_KILLED}, {@link #GOLD_SPENT} and {@link #SHIELDS_COLLECTED}. Hidden tortoises are not
+ * quests and are counted separately, in {@link TortoiseLedger}.
  *
- * <p><b>Who writes to it:</b> {@code QuestGiverComponent}, at the moment a quest is turned in with
- * a progress of 100 or more, and whatever lets the player find a tortoise. A quest that is cleared
- * at less than 100 is abandoned and must NOT be recorded.
+ * <p><b>Who writes to it:</b> only {@code QuestGiverComponent}, at the moment a quest is turned in
+ * with a progress of 100 or more. A quest that is cleared at less than 100 is abandoned and must
+ * NOT be recorded.
  *
  * <p><b>Saving:</b> the state is static, like {@code Quest} and {@code EnemyRegistry}. It must be
  * loaded from the save file when a game is loaded and reset when a new game starts, otherwise
@@ -44,12 +43,9 @@ public final class QuestLedger {
   /** Quest kind: collect a number of shields. */
   public static final String SHIELDS_COLLECTED = "shieldsCollected";
 
-  /** Not a quest: one is recorded for each hidden tortoise the player finds. */
-  public static final String TORTOISES_COLLECTED = "tortoisesCollected";
-
   /** Every kind the ledger accepts. Anything else is rejected or ignored. */
   private static final Set<String> VALID_KINDS =
-    Set.of(JUMP, ENEMIES_KILLED, GOLD_SPENT, SHIELDS_COLLECTED, TORTOISES_COLLECTED);
+    Set.of(JUMP, ENEMIES_KILLED, GOLD_SPENT, SHIELDS_COLLECTED);
 
   /** How many of each kind have been completed. A kind with no entry has a count of zero. */
   private static final Map<String, Integer> completed = new HashMap<>();
@@ -59,7 +55,7 @@ public final class QuestLedger {
   }
 
   /**
-   * Records one completed quest, or one found tortoise, by adding one to that kind's count.
+   * Records one completed quest by adding one to that kind's count.
    *
    * @param kind one of the kind constants
    * @throws IllegalArgumentException if the kind is null, blank or not one of the constants
@@ -72,17 +68,14 @@ public final class QuestLedger {
   }
 
   /**
-   * Adds up the quests completed across the four quest kinds. Tortoises are not quests, so they are
-   * left out of this total.
+   * Adds up the quests completed across all four kinds.
    *
-   * @return how many quests have been completed in total, across all quest kinds
+   * @return how many quests have been completed in total
    */
   public static int getCompletedCount() {
     int total = 0;
-    for (Map.Entry<String, Integer> entry : completed.entrySet()) {
-      if (!entry.getKey().equals(TORTOISES_COLLECTED)) {
-        total += entry.getValue();
-      }
+    for (int count : completed.values()) {
+      total += count;
     }
     return total;
   }
@@ -101,31 +94,15 @@ public final class QuestLedger {
   }
 
   /**
-   * Lists the quest kinds that have been completed at least once. Tortoises are not quests, so that
-   * kind is never in the list.
+   * Lists the quest kinds that have been completed at least once.
    *
    * @return the kinds completed at least once; a copy, so the caller cannot change the ledger
    */
   public static Set<String> getCompletedKinds() {
-    Set<String> kinds = new HashSet<>();
-    for (Map.Entry<String, Integer> entry : completed.entrySet()) {
-      if (entry.getValue() > 0 && !entry.getKey().equals(TORTOISES_COLLECTED)) {
-        kinds.add(entry.getKey());
-      }
-    }
-    return kinds;
+    return new HashSet<>(completed.keySet());
   }
 
-  /**
-   * Looks up how many hidden tortoises the player has found.
-   *
-   * @return the number of tortoises found so far
-   */
-  public static int getTortoisesFound() {
-    return completed.getOrDefault(TORTOISES_COLLECTED, 0);
-  }
-
-  /** Forgets every completed quest and found tortoise. Call it when a new game starts. */
+  /** Forgets every completed quest. Call it when a new game starts. */
   public static void reset() {
     completed.clear();
   }

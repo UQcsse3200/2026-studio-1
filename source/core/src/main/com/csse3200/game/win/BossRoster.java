@@ -54,73 +54,73 @@ public final class BossRoster {
 
   /** Every mini boss: the eight required ones first, then the three escorts. */
   private static final List<MiniBoss> MINI_BOSSES =
-    List.of(
-      new MiniBoss(
-        EnemyId.of("Hound's Den", new GridPoint2(48, 2)),
-        "Cerberus of the Hound's Den",
-        "Hound's Den",
-        "cerberus",
-        true),
-      new MiniBoss(
-        EnemyId.of("Gorgon's Gallery", new GridPoint2(37, 11)),
-        "Medusa of the Gorgon's Gallery",
-        "Gorgon's Gallery",
-        "medusa",
-        true),
-      new MiniBoss(
-        EnemyId.of("Minotaur's Labyrinth", new GridPoint2(24, 35)),
-        "Minotaur of the Labyrinth",
-        "Minotaur's Labyrinth",
-        "minotaur",
-        true),
-      new MiniBoss(
-        EnemyId.of("Shades' Barracks", new GridPoint2(40, 17)),
-        "Minotaur of the Shades' Barracks",
-        "Shades' Barracks",
-        "minotaur",
-        true),
-      new MiniBoss(
-        EnemyId.of("Cyclops Forge", new GridPoint2(30, 15)),
-        "Cyclops of the Forge",
-        "Cyclops Forge",
-        "cyclops",
-        true),
-      new MiniBoss(
-        EnemyId.of("Centaur Pavilion", new GridPoint2(44, 12)),
-        "Centaur of the Pavilion heights",
-        "Centaur Pavilion",
-        "centaur",
-        true),
-      new MiniBoss(
-        EnemyId.of("Zeus's Outer Guard", new GridPoint2(24, 16)),
-        "Medusa of the Outer Guard",
-        "Zeus's Outer Guard",
-        "medusa",
-        true),
-      new MiniBoss(
-        EnemyId.of("Zeus's Thunder Hall", new GridPoint2(26, 12)),
-        "Medusa of the Thunder Hall",
-        "Zeus's Thunder Hall",
-        "medusa",
-        true),
-      new MiniBoss(
-        EnemyId.of("Minotaur's Labyrinth", new GridPoint2(28, 17)),
-        "Centaur of the Labyrinth",
-        "Minotaur's Labyrinth",
-        "centaur",
-        false),
-      new MiniBoss(
-        EnemyId.of("Centaur Pavilion", new GridPoint2(40, 5)),
-        "Centaur of the Pavilion floor",
-        "Centaur Pavilion",
-        "centaur",
-        false),
-      new MiniBoss(
-        EnemyId.of("Zeus's Outer Guard", new GridPoint2(32, 9)),
-        "Cyclops of the Outer Guard",
-        "Zeus's Outer Guard",
-        "cyclops",
-        false));
+      List.of(
+          new MiniBoss(
+              EnemyId.of("Hound's Den", new GridPoint2(48, 2)),
+              "Cerberus of the Hound's Den",
+              "Hound's Den",
+              "cerberus",
+              true),
+          new MiniBoss(
+              EnemyId.of("Gorgon's Gallery", new GridPoint2(37, 11)),
+              "Medusa of the Gorgon's Gallery",
+              "Gorgon's Gallery",
+              "medusa",
+              true),
+          new MiniBoss(
+              EnemyId.of("Minotaur's Labyrinth", new GridPoint2(24, 35)),
+              "Minotaur of the Labyrinth",
+              "Minotaur's Labyrinth",
+              "minotaur",
+              true),
+          new MiniBoss(
+              EnemyId.of("Shades' Barracks", new GridPoint2(40, 17)),
+              "Minotaur of the Shades' Barracks",
+              "Shades' Barracks",
+              "minotaur",
+              true),
+          new MiniBoss(
+              EnemyId.of("Cyclops Forge", new GridPoint2(30, 15)),
+              "Cyclops of the Forge",
+              "Cyclops Forge",
+              "cyclops",
+              true),
+          new MiniBoss(
+              EnemyId.of("Centaur Pavilion", new GridPoint2(44, 12)),
+              "Centaur of the Pavilion heights",
+              "Centaur Pavilion",
+              "centaur",
+              true),
+          new MiniBoss(
+              EnemyId.of("Zeus's Outer Guard", new GridPoint2(24, 16)),
+              "Medusa of the Outer Guard",
+              "Zeus's Outer Guard",
+              "medusa",
+              true),
+          new MiniBoss(
+              EnemyId.of("Zeus's Thunder Hall", new GridPoint2(26, 12)),
+              "Medusa of the Thunder Hall",
+              "Zeus's Thunder Hall",
+              "medusa",
+              true),
+          new MiniBoss(
+              EnemyId.of("Minotaur's Labyrinth", new GridPoint2(28, 17)),
+              "Centaur of the Labyrinth",
+              "Minotaur's Labyrinth",
+              "centaur",
+              false),
+          new MiniBoss(
+              EnemyId.of("Centaur Pavilion", new GridPoint2(40, 5)),
+              "Centaur of the Pavilion floor",
+              "Centaur Pavilion",
+              "centaur",
+              false),
+          new MiniBoss(
+              EnemyId.of("Zeus's Outer Guard", new GridPoint2(32, 9)),
+              "Cyclops of the Outer Guard",
+              "Zeus's Outer Guard",
+              "cyclops",
+              false));
 
   /** The ids of the required mini bosses, worked out once from the list above. */
   private static final Set<String> REQUIRED_IDS = collectRequiredIds();
