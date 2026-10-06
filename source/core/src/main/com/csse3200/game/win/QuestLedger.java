@@ -42,6 +42,9 @@ public final class QuestLedger {
   /** Quest kind: collect a number of shields. */
   public static final String SHIELDS_COLLECTED = "shieldsCollected";
 
+  /** Quest kind: collect a number of tortoises. */
+  public static final String TORTOISES_COLLECTED = "TortoisesCollected";
+
   private QuestLedger() {
     // utility class
   }
@@ -58,6 +61,7 @@ public final class QuestLedger {
     //     "unknown quest kind: <kind>"
     //   add one to the count for that kind
     // END recordCompleted
+
   }
 
   /**

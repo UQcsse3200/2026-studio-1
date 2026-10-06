@@ -1,5 +1,7 @@
 package com.csse3200.game.win;
 
+import com.badlogic.gdx.math.GridPoint2;
+import com.csse3200.game.entities.spawn.EnemyId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +20,7 @@ import java.util.Set;
  * <p><b>The roster (marker tiles are the ones in the shipped map files):</b>
  *
  * <pre>
- * FINAL BOSS   Zeus                     Level 3 - Zeus's Palace : 83,5    (the map name contains an em dash)
+ * FINAL BOSS   Zeus                     Level 3 - Zeus's Palace : 83,5
  * required     Cerberus                 Hound's Den             : 40,2
  * required     Medusa                   Gorgon's Gallery        : 34,3
  * required     Minotaur                 Minotaur's Labyrinth    : 37,5
@@ -46,12 +48,79 @@ import java.util.Set;
 public final class BossRoster {
 
   /** The id of the final boss: Zeus in Level 3. */
-  public static final String FINAL_BOSS_ID = "Level 3 \u2014 Zeus's Palace:83,5";
+  public static final String FINAL_BOSS_ID = "Level 3 - Zeus's Palace:83,5";
 
   private int killId;
 
   private BossRoster() {
     // utility class
+    List.of(
+        new MiniBoss(
+            EnemyId.of("Hound's Den", new GridPoint2(48, 2)),
+            "Cerberus of the Hound's Den",
+            "Hound's Den",
+            "cerberus",
+            true),
+        new MiniBoss(
+            EnemyId.of("Gorgon's Gallery", new GridPoint2(34, 3)),
+            "Medusa of the Gorgon's Gallery",
+            "Gorgon's Gallery",
+            "Medusa",
+            true),
+        new MiniBoss(
+            FINAL_BOSS_ID,
+            "Final Boss: Zeus of Level 3 - Zeus's Palace",
+            " Level 3 - Zeus's Palace",
+            "Zeus",
+            true),
+        new MiniBoss(
+            EnemyId.of("Minotaur's Labyrinth  ", new GridPoint2(37, 5)),
+            "Minotaur of the Minotaur's Labyrinth",
+            "Minotaur's Labyrinth",
+            "Minotaur",
+            true),
+        new MiniBoss(
+            EnemyId.of("Shades' Barracks", new GridPoint2(40, 5)),
+            "Minotaur of the ",
+            "Shades' Barracks",
+            "Minotaur",
+            true),
+        new MiniBoss(
+            EnemyId.of("Centaur Pavilion", new GridPoint2(38, 5)),
+            "Centaur of the Centaur Pavilion",
+            "Centaur Pavilion",
+            "",
+            true),
+        new MiniBoss(
+            EnemyId.of("Zeus's Outer Guard ", new GridPoint2(41, 3)),
+            "Medusa of Zeus's Outer Guard",
+            "Zeus's Outer Guard ",
+            "Medusa",
+            true),
+        new MiniBoss(
+            EnemyId.of("Zeus's Thunder Hall", new GridPoint2(38, 3)),
+            "Medusa of Zeus's Thunder Hall",
+            "Zeus's Thunder Hall",
+            "Medusa",
+            true),
+        new MiniBoss(
+            EnemyId.of("Centaur Pavilion", new GridPoint2(26, 5)),
+            "Centaur of the Centaur Pavilion",
+            "Centaur Pavilion",
+            "Centaur",
+            false),
+        new MiniBoss(
+            EnemyId.of("Minotaur's Labyrinth ", new GridPoint2(27, 5)),
+            "Centaur of the Minotaur's Labyrinth ",
+            "Minotaur's Labyrinth ",
+            "Centaur",
+            true),
+        new MiniBoss(
+            EnemyId.of("Zeus's Outer Guard", new GridPoint2(30, 3)),
+            "Cyclops of the Zeus's Outer Guard",
+            "Zeus's Outer Guard",
+            "Cyclops",
+            false));
   }
 
   /** One mini boss in the roster. */
@@ -160,9 +229,9 @@ public final class BossRoster {
    * @return true only for {@link #FINAL_BOSS_ID}
    */
   public static boolean isFinalBoss(String id) {
-    // BEGIN isFinalBoss
-    //   give back whether the id equals the final boss id (null is false)
-    // END isFinalBoss
-    return false;
+    if (id == null) {
+      return false;
+    }
+    return id.matches(FINAL_BOSS_ID);
   }
 }
