@@ -12,8 +12,6 @@ package com.csse3200.game.win;
  *   <li>{@link #GLORY} (level 2): Victory, and every required mini boss in the side rooms has also
  *       been defeated
  *   <li>{@link #LEGEND} (level 3): Glory, and enough quests have also been completed
- *   <li>{@link #TORTOISE_CHAMPION} (level 4): Victory, and all hidden tortoises have been found and
- *       collected.
  * </ul>
  *
  * <p>Each tier includes everything below it, so a higher tier is never reached by skipping a lower
@@ -29,8 +27,7 @@ public enum WinTier {
   NONE(0, "No victory yet", ""),
   VICTORY(1, "Victory", "Zeus has fallen."),
   GLORY(2, "Glory", "Every guardian has fallen."),
-  LEGEND(3, "Legend", "Every guardian has fallen and every quest is done."),
-  TORTOISE_CHAMPION(4, "Tortoise Champion", "Every hidded tortoise has been found and collected");
+  LEGEND(3, "Legend", "Every guardian has fallen and every quest is done.");
 
   private final int level;
   private final String title;
@@ -97,7 +94,6 @@ public enum WinTier {
       case 1 -> VICTORY;
       case 2 -> GLORY;
       case 3 -> LEGEND;
-      case 4 -> TORTOISE_CHAMPION;
       default -> throw new IllegalArgumentException("No win tier has level " + level);
     };
   }

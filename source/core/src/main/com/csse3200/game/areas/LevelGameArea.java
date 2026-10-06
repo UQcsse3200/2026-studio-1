@@ -69,6 +69,8 @@ import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.LightService;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import com.csse3200.game.win.BossDefeatedWinComponent;
+import com.csse3200.game.win.BossRoster;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -187,7 +189,6 @@ public class LevelGameArea extends GameArea {
   private LevelMapData mapData;
   private Entity player;
   private RoomTransition pendingTransition;
-  private boolean finalBossDefeated;
 
   /**
    * Create a level area using the default {@link JsonMapLoader}.
@@ -302,6 +303,10 @@ public class LevelGameArea extends GameArea {
     this.entrySpawn = entrySpawn == null ? null : new GridPoint2(entrySpawn);
     this.lootSeed = savedLootSeed != null ? savedLootSeed : new Random().nextLong();
     this.worldCamera = worldCamera;
+    winListener
+        .getEvents()
+        .addListener(
+            BossDefeatedWinComponent.FINAL_BOSS_DEFEATED_EVENT, () -> finalBossDefeated = true);
   }
 
   @Override
@@ -869,6 +874,15 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * Hears the final boss fall. It belongs to the area, so it outlives both the boss and a respawned
+   * player.
+   */
+  private final Entity winListener = new Entity();
+
+  /** True once the final boss of the game has been defeated in this area. */
+  private boolean finalBossDefeated = false;
+
+  /**
    * Says whether the game has been won in this area. It is always false in an area that does not
    * hold the final boss.
    *
@@ -886,10 +900,9 @@ public class LevelGameArea extends GameArea {
    * @param enemyId that enemy's kill id
    */
   void armWinTrigger(Entity enemy, String enemyId) {
-    // BEGIN armWinTrigger
-    //   IF BossRoster says enemyId is the final boss THEN
-    //     add a new BossDefeatedWinComponent(winListener) to the enemy
-    // END armWinTrigger
+    if (BossRoster.isFinalBoss(enemyId)) {
+      enemy.addComponent(new BossDefeatedWinComponent(winListener));
+    }
   }
 
   /**
@@ -899,23 +912,22 @@ public class LevelGameArea extends GameArea {
    * @param enemyId the kill id of the enemy that will not be spawned
    */
   void noteAlreadyKilled(String enemyId) {
-    // BEGIN noteAlreadyKilled
-    //   IF BossRoster says enemyId is the final boss THEN set finalBossDefeated to true
-    // END noteAlreadyKilled
+    if (BossRoster.isFinalBoss(enemyId)) {
+      finalBossDefeated = true;
+    }
   }
 
   private void spawnEnemies() {
-    // TODO (win system): call noteAlreadyKilled(id) just before the "continue" below, and
-    //   armWinTrigger(enemy, id) straight after the PersistentEnemyIdComponent is added (before
-    //   the enemy is spawned, because a component cannot be added to a created entity).
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
       String id = EnemyId.of(mapData.getName(), spawn.getPosition());
       if (EnemyRegistry.isKilled(id)) {
+        noteAlreadyKilled(id);
         continue;
       }
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
         enemy.addComponent(new PersistentEnemyIdComponent(id));
+        armWinTrigger(enemy, id);
 
         if (enemy.getComponent(NameComponent.class) != null) {
           enemy.addComponent(new NameDisplay(enemy, worldCamera));
