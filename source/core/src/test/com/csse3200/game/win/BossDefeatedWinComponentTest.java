@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,10 +34,9 @@ class BossDefeatedWinComponentTest {
     player.create();
     announcements = new AtomicInteger();
     player
-      .getEvents()
-      .addListener(
-        BossDefeatedWinComponent.FINAL_BOSS_DEFEATED_EVENT,
-        announcements::incrementAndGet);
+        .getEvents()
+        .addListener(
+            BossDefeatedWinComponent.FINAL_BOSS_DEFEATED_EVENT, announcements::incrementAndGet);
   }
 
   // ---------- the event name ----------
@@ -106,9 +104,7 @@ class BossDefeatedWinComponentTest {
     Entity boss = createBoss();
     AtomicInteger onBoss = new AtomicInteger();
     boss.getEvents()
-      .addListener(
-        BossDefeatedWinComponent.FINAL_BOSS_DEFEATED_EVENT,
-        onBoss::incrementAndGet);
+        .addListener(BossDefeatedWinComponent.FINAL_BOSS_DEFEATED_EVENT, onBoss::incrementAndGet);
 
     boss.getEvents().trigger("death");
 
@@ -178,9 +174,9 @@ class BossDefeatedWinComponentTest {
 
   private Entity createBoss() {
     Entity boss =
-      new Entity()
-        .addComponent(new CombatStatsComponent(100, 10))
-        .addComponent(new BossDefeatedWinComponent(player));
+        new Entity()
+            .addComponent(new CombatStatsComponent(100, 10))
+            .addComponent(new BossDefeatedWinComponent(player));
     boss.create();
     return boss;
   }

@@ -31,8 +31,8 @@ class BossRosterTest {
   void shouldRecogniseOnlyTheFinalBossAsTheFinalBoss() {
     assertTrue(BossRoster.isFinalBoss(FINAL));
     assertFalse(
-      BossRoster.isFinalBoss("Zeus's Thunder Hall:26,12"),
-      "the Thunder Hall guardian is a mini boss");
+        BossRoster.isFinalBoss("Zeus's Thunder Hall:26,12"),
+        "the Thunder Hall guardian is a mini boss");
     assertFalse(BossRoster.isFinalBoss("Level 2 \u2014 Climb Mount Olympus:53,148"));
     assertFalse(BossRoster.isFinalBoss(null));
     assertFalse(BossRoster.isFinalBoss(""));
@@ -59,7 +59,7 @@ class BossRosterTest {
   @Test
   void shouldHaveEightRequiredEntriesAndThreeEscorts() {
     long required =
-      BossRoster.getMiniBosses().stream().filter(BossRoster.MiniBoss::isRequired).count();
+        BossRoster.getMiniBosses().stream().filter(BossRoster.MiniBoss::isRequired).count();
     long escorts = BossRoster.getMiniBosses().size() - required;
 
     assertEquals(8, required);
@@ -100,7 +100,7 @@ class BossRosterTest {
 
     assertEquals(8, perRoom.size(), "eight rooms");
     perRoom.forEach(
-      (room, count) -> assertEquals(1, count, room + " needs exactly one required boss"));
+        (room, count) -> assertEquals(1, count, room + " needs exactly one required boss"));
   }
 
   @Test
@@ -115,10 +115,10 @@ class BossRosterTest {
   void shouldGiveEveryEntryTheFormOfAKillId() {
     for (BossRoster.MiniBoss boss : BossRoster.getMiniBosses()) {
       assertTrue(
-        boss.getId().matches(".+:\\d+,\\d+"), boss.getId() + " should be <map name>:<x>,<y>");
+          boss.getId().matches(".+:\\d+,\\d+"), boss.getId() + " should be <map name>:<x>,<y>");
       assertTrue(
-        boss.getId().startsWith(boss.getRoomName() + ":"),
-        boss.getId() + " should start with its room name");
+          boss.getId().startsWith(boss.getRoomName() + ":"),
+          boss.getId() + " should start with its room name");
     }
   }
 
@@ -128,8 +128,8 @@ class BossRosterTest {
     for (BossRoster.MiniBoss boss : BossRoster.getMiniBosses()) {
       assertFalse(boss.getLabel().isBlank(), boss.getId());
       assertTrue(
-        bossTypes.contains(boss.getEnemyType()),
-        boss.getId() + " has type " + boss.getEnemyType());
+          bossTypes.contains(boss.getEnemyType()),
+          boss.getId() + " has type " + boss.getEnemyType());
     }
   }
 
@@ -160,7 +160,7 @@ class BossRosterTest {
   @Test
   void shouldStoreTheValuesOfAMiniBoss() {
     BossRoster.MiniBoss boss =
-      new BossRoster.MiniBoss("Room:1,2", "A label", "Room", "cyclops", true);
+        new BossRoster.MiniBoss("Room:1,2", "A label", "Room", "cyclops", true);
 
     assertEquals("Room:1,2", boss.getId());
     assertEquals("A label", boss.getLabel());
@@ -175,12 +175,12 @@ class BossRosterTest {
   @ValueSource(strings = {" ", "   "})
   void shouldRejectABlankIdLabelRoomOrType(String blank) {
     assertThrows(
-      IllegalArgumentException.class, () -> new BossRoster.MiniBoss(blank, "l", "r", "t", true));
+        IllegalArgumentException.class, () -> new BossRoster.MiniBoss(blank, "l", "r", "t", true));
     assertThrows(
-      IllegalArgumentException.class, () -> new BossRoster.MiniBoss("i", blank, "r", "t", true));
+        IllegalArgumentException.class, () -> new BossRoster.MiniBoss("i", blank, "r", "t", true));
     assertThrows(
-      IllegalArgumentException.class, () -> new BossRoster.MiniBoss("i", "l", blank, "t", true));
+        IllegalArgumentException.class, () -> new BossRoster.MiniBoss("i", "l", blank, "t", true));
     assertThrows(
-      IllegalArgumentException.class, () -> new BossRoster.MiniBoss("i", "l", "r", blank, true));
+        IllegalArgumentException.class, () -> new BossRoster.MiniBoss("i", "l", "r", blank, true));
   }
 }

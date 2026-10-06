@@ -44,7 +44,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(GameExtension.class)
 class BossRosterMapsTest {
   private static final Set<String> BOSS_TYPES =
-    Set.of("cerberus", "medusa", "minotaur", "cyclops", "centaur", "zeus");
+      Set.of("cerberus", "medusa", "minotaur", "cyclops", "centaur", "zeus");
 
   private final JsonMapLoader loader = new JsonMapLoader();
   private final Map<String, LevelMapData> byName = new HashMap<>();
@@ -88,17 +88,17 @@ class BossRosterMapsTest {
       boolean found = false;
       for (SpawnPoint spawn : map.getSpawns().getEnemies()) {
         if (boss.getId().equals(EnemyId.of(map.getName(), spawn.getPosition()))
-          && boss.getEnemyType().equals(spawn.getType())) {
+            && boss.getEnemyType().equals(spawn.getType())) {
           found = true;
         }
       }
       if (!found) {
         problems.add(
-          boss.getId()
-            + " ("
-            + boss.getEnemyType()
-            + ") is not in "
-            + pathByName.get(boss.getRoomName()));
+            boss.getId()
+                + " ("
+                + boss.getEnemyType()
+                + ") is not in "
+                + pathByName.get(boss.getRoomName()));
       }
     }
     assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
@@ -121,15 +121,15 @@ class BossRosterMapsTest {
   @Test
   void theFinalBossIsTheZeusOnLevelThreesMarkerTile() {
     LevelMapData levelThree =
-      byName.get(
-        BossRoster.FINAL_BOSS_ID.substring(0, BossRoster.FINAL_BOSS_ID.lastIndexOf(':')));
+        byName.get(
+            BossRoster.FINAL_BOSS_ID.substring(0, BossRoster.FINAL_BOSS_ID.lastIndexOf(':')));
     assertNotNull(levelThree, "no map is named like the final boss's map");
 
     boolean found = false;
     for (SpawnPoint spawn : levelThree.getSpawns().getEnemies()) {
       if ("zeus".equals(spawn.getType())
-        && BossRoster.FINAL_BOSS_ID.equals(
-        EnemyId.of(levelThree.getName(), spawn.getPosition()))) {
+          && BossRoster.FINAL_BOSS_ID.equals(
+              EnemyId.of(levelThree.getName(), spawn.getPosition()))) {
         found = true;
       }
     }
@@ -139,12 +139,12 @@ class BossRosterMapsTest {
   @Test
   void theFinalBossIsTheOnlyZeusInLevelThree() {
     LevelMapData levelThree =
-      byName.get(
-        BossRoster.FINAL_BOSS_ID.substring(0, BossRoster.FINAL_BOSS_ID.lastIndexOf(':')));
+        byName.get(
+            BossRoster.FINAL_BOSS_ID.substring(0, BossRoster.FINAL_BOSS_ID.lastIndexOf(':')));
     long zeus =
-      levelThree.getSpawns().getEnemies().stream()
-        .filter(s -> "zeus".equals(s.getType()))
-        .count();
+        levelThree.getSpawns().getEnemies().stream()
+            .filter(s -> "zeus".equals(s.getType()))
+            .count();
 
     assertEquals(1, zeus, "two Zeus in Level 3 would make the win ambiguous");
   }
@@ -192,7 +192,7 @@ class BossRosterMapsTest {
           required++;
           if (tileOf(boss.getId()).y != highest) {
             problems.add(
-              boss.getId() + " is required but is not the highest boss (y " + highest + ")");
+                boss.getId() + " is required but is not the highest boss (y " + highest + ")");
           }
         }
       }
@@ -209,8 +209,8 @@ class BossRosterMapsTest {
       String path = pathByName.get(boss.getRoomName());
       assertNotNull(path, boss.getRoomName());
       assertTrue(
-        isSideRoom(path),
-        boss.getRoomName() + " should be a nether- or olympus- room, not " + path);
+          isSideRoom(path),
+          boss.getRoomName() + " should be a nether- or olympus- room, not " + path);
     }
   }
 

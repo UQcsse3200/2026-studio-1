@@ -19,13 +19,13 @@ class WinResultTest {
   private static final List<String> NONE_MISSING = List.of();
 
   private WinResult result(
-    WinTier tier,
-    boolean boss,
-    int defeated,
-    int required,
-    List<String> missing,
-    int quests,
-    int questsRequired) {
+      WinTier tier,
+      boolean boss,
+      int defeated,
+      int required,
+      List<String> missing,
+      int quests,
+      int questsRequired) {
     return new WinResult(tier, boss, defeated, required, missing, quests, questsRequired);
   }
 
@@ -95,30 +95,30 @@ class WinResultTest {
   @Test
   void shouldRejectANullTier() {
     assertThrows(
-      IllegalArgumentException.class, () -> result(null, true, 0, 0, NONE_MISSING, 0, 0));
+        IllegalArgumentException.class, () -> result(null, true, 0, 0, NONE_MISSING, 0, 0));
   }
 
   @Test
   void shouldRejectANullMissingList() {
     assertThrows(
-      IllegalArgumentException.class, () -> result(WinTier.VICTORY, true, 0, 0, null, 0, 0));
+        IllegalArgumentException.class, () -> result(WinTier.VICTORY, true, 0, 0, null, 0, 0));
   }
 
   @ParameterizedTest(name = "defeated {0}, required {1}, quests {2}, quests required {3}")
   @CsvSource({"-1, 0, 0, 0", "0, -1, 0, 0", "0, 0, -1, 0", "0, 0, 0, -1"})
   void shouldRejectANegativeCount(int defeated, int required, int quests, int questsRequired) {
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        result(
-          WinTier.VICTORY, true, defeated, required, NONE_MISSING, quests, questsRequired));
+        IllegalArgumentException.class,
+        () ->
+            result(
+                WinTier.VICTORY, true, defeated, required, NONE_MISSING, quests, questsRequired));
   }
 
   @Test
   void shouldRejectMoreDefeatedThanRequired() {
     assertThrows(
-      IllegalArgumentException.class,
-      () -> result(WinTier.GLORY, true, 9, 8, NONE_MISSING, 0, 3));
+        IllegalArgumentException.class,
+        () -> result(WinTier.GLORY, true, 9, 8, NONE_MISSING, 0, 3));
   }
 
   @ParameterizedTest(name = "defeated {0} of {1} with {2} missing")
@@ -129,8 +129,8 @@ class WinResultTest {
       missing.add("boss " + i);
     }
     assertThrows(
-      IllegalArgumentException.class,
-      () -> result(WinTier.VICTORY, true, defeated, required, missing, 0, 3));
+        IllegalArgumentException.class,
+        () -> result(WinTier.VICTORY, true, defeated, required, missing, 0, 3));
   }
 
   @Test

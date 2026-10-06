@@ -127,7 +127,7 @@ class QuestLedgerTest {
     QuestLedger.recordCompleted(QuestLedger.SHIELDS_COLLECTED);
 
     assertEquals(
-      Set.of(QuestLedger.JUMP, QuestLedger.SHIELDS_COLLECTED), QuestLedger.getCompletedKinds());
+        Set.of(QuestLedger.JUMP, QuestLedger.SHIELDS_COLLECTED), QuestLedger.getCompletedKinds());
   }
 
   @Test
@@ -157,10 +157,10 @@ class QuestLedgerTest {
   @Test
   void shouldBeSafeToResetTwice() {
     assertDoesNotThrow(
-      () -> {
-        QuestLedger.reset();
-        QuestLedger.reset();
-      });
+        () -> {
+          QuestLedger.reset();
+          QuestLedger.reset();
+        });
   }
 
   // ---------- saving and loading ----------
@@ -176,7 +176,7 @@ class QuestLedgerTest {
     assertEquals(2, exported.get(QuestLedger.JUMP));
     assertEquals(1, exported.get(QuestLedger.GOLD_SPENT));
     assertFalse(
-      exported.containsKey(QuestLedger.ENEMIES_KILLED), "kinds with no completions are left out");
+        exported.containsKey(QuestLedger.ENEMIES_KILLED), "kinds with no completions are left out");
   }
 
   @Test

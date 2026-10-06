@@ -149,11 +149,11 @@ class TortoiseChampionTest {
   @Test
   void shouldRejectANegativeTortoiseCount() {
     assertThrows(
-      IllegalArgumentException.class,
-      () -> new WinResult(WinTier.VICTORY, true, 0, 0, List.of(), 0, 0, -1, 0));
+        IllegalArgumentException.class,
+        () -> new WinResult(WinTier.VICTORY, true, 0, 0, List.of(), 0, 0, -1, 0));
     assertThrows(
-      IllegalArgumentException.class,
-      () -> new WinResult(WinTier.VICTORY, true, 0, 0, List.of(), 0, 0, 0, -1));
+        IllegalArgumentException.class,
+        () -> new WinResult(WinTier.VICTORY, true, 0, 0, List.of(), 0, 0, 0, -1));
   }
 
   @Test
