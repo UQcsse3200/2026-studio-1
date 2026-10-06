@@ -1,9 +1,6 @@
 package com.csse3200.game.components.loot;
 
 public interface WeaponStats {
-
-  int getTier();
-
   int getDamage();
 
   float getAttackSpeed();
@@ -13,4 +10,6 @@ public interface WeaponStats {
   float getRange();
 
   int getProjectileCount();
+
+  int getTier();
 }

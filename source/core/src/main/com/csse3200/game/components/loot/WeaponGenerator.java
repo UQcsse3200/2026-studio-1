@@ -2,6 +2,8 @@ package com.csse3200.game.components.loot;
 
 // Generates weapon items with properties based on weapon type and loot tier.
 
+import static com.csse3200.game.components.loot.WeaponType.*;
+
 public class WeaponGenerator {
 
   public WeaponItem generateWeapon(WeaponType weaponType, int tier)
@@ -14,23 +16,34 @@ public class WeaponGenerator {
       throw new IllegalArgumentException("Tier must be greater than 0.");
     }
 
-    WeaponTier weaponTier = WeaponTier.fromTierNumber(tier);
+    WeaponTier.fromTierNumber(tier);
 
     switch (weaponType) {
       case SWORD:
-        WeaponItem sword = new WeaponItem("Basic Sword", WeaponType.SWORD, weaponTier, 1, 10, 2);
+        WeaponItem sword =
+            new WeaponItem(
+                "Basic Sword", WeaponType.SWORD, WeaponTier.values()[tier - 1], 1, 10, 2);
         sword.setSellPrice(10 * tier);
         return sword;
 
       case BOW:
-        WeaponItem bow = new WeaponItem("Basic Bow", WeaponType.BOW, weaponTier, 1, 10, 3);
+        WeaponItem bow =
+            new WeaponItem("Basic Bow", WeaponType.BOW, WeaponTier.values()[tier - 1], 1, 10, 3);
         bow.setSellPrice(8 * tier);
         return bow;
 
       case DAGGER:
-        WeaponItem dagger = new WeaponItem("Basic Dagger", WeaponType.DAGGER, weaponTier, 1, 20, 1);
+        WeaponItem dagger =
+            new WeaponItem(
+                "Basic Dagger", WeaponType.DAGGER, WeaponTier.values()[tier - 1], 1, 20, 1);
         dagger.setSellPrice(6 * tier);
         return dagger;
+
+      case AXE:
+        WeaponItem axe = new WeaponItem("Basic Axe", AXE, WeaponTier.values()[tier - 1], 1, 2, 3);
+        axe.setSellPrice(12 * tier);
+
+        return axe;
 
       default:
         throw new IllegalArgumentException("Unsupported weapon type.");

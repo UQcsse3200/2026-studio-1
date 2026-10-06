@@ -266,7 +266,7 @@ class MeleeAttackComponentTest {
   // (truncated), then the difficulty multiplier is applied on top of that (rounded), matching
   // resolveAttack()'s actual order of operations.
   @Test
-  void shouldStackChargeMultiplierThenDifficultyMultiplier() {
+  void shouldNotApplyTheChargeMultiplierToMeleeDamage() {
     WeaponItem weapon = new WeaponItem("Test Sword", WeaponType.SWORD, 10, 1, 1, 0f);
     MeleeAttackComponent meleeAttack = new MeleeAttackComponent(3, 2, 0, weapon);
     Entity attacker =
@@ -284,19 +284,19 @@ class MeleeAttackComponentTest {
     target.setPosition(1, 0);
     int healthBefore = target.getComponent(CombatStatsComponent.class).getHealth();
 
-    // start a real charge: canCharge() is true immediately after construction (timeSinceLastCharge
-    // is seeded to the cooldown), so this doesn't need any preceding update() calls.
+    // A real charge is in progress, but the charge no longer touches melee damage: the rush
+    // deals its own damage through the touch attack, once, instead.
     attacker.getComponent(ChargeComponent.class).startCharge(target.getPosition());
 
     attacker.getEvents().trigger("meleeAttack", target);
     attacker.update(); // resolve the zero-length windup so the hit actually lands
 
-    // charge first: (int) (10 * 2.0) = 20, then difficulty: round(20 * 1.5) = 30
+    // difficulty only: round(10 * 1.5) = 15. The old charge doubling (to 30) is gone.
     assertEquals(
-        healthBefore - 30,
+        healthBefore - 15,
         target.getComponent(CombatStatsComponent.class).getHealth(),
-        "Expected charge (x2.0, truncated) then difficulty (x1.5, rounded) to combine to 30 "
-            + "damage from a base weapon damage of 10.");
+        "Melee damage must be weapon damage times the difficulty multiplier only (15); "
+            + "a charge in progress must not change it.");
   }
 
   // Regression test for a compounding-multiplier bug: for a weaponless attacker, getDamage()
@@ -873,6 +873,17 @@ class MeleeAttackComponentTest {
             + healthBeforeSecondAttack
             + " to below that value, but got "
             + healthAfterSecondAttack);
+  }
+
+  // A natural weapon (no carried WeaponItem, e.g. a Cyclops's fists) flows through the same
+  // weapon-based constructor an armed enemy uses, with damage exactly as given.
+  @Test
+  void shouldAcceptNaturalWeapon() {
+    WeaponItem naturalFists = WeaponItem.natural("Cyclops Fists", 8, 3f);
+
+    MeleeAttackComponent meleeAttack = new MeleeAttackComponent(3f, 4f, 2f, naturalFists);
+
+    assertEquals(8, meleeAttack.getDamage());
   }
 
   /* ---------- Helpers ---------- */

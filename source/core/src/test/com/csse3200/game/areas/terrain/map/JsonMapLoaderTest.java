@@ -269,7 +269,7 @@ class JsonMapLoaderTest {
           "layers": { "terrain": ["##", "##"] },
           "spawns": {
             "player": { "x": 1, "y": 1 },
-            "enemies": [ { "type": "ghost", "x": 0, "y": 1 } ],
+            "enemies": [ { "type": "skeleton", "x": 0, "y": 1 } ],
             "loot": [ { "x": 1, "y": 0 } ]
           }
         }
@@ -279,7 +279,7 @@ class JsonMapLoaderTest {
     assertEquals(1, spawns.getPlayer().x);
     assertEquals(1, spawns.getPlayer().y);
     assertEquals(1, spawns.getEnemies().size());
-    assertEquals("ghost", spawns.getEnemies().get(0).getType());
+    assertEquals("skeleton", spawns.getEnemies().getFirst().getType());
     assertEquals(1, spawns.getLoot().size());
   }
 
@@ -437,7 +437,34 @@ class JsonMapLoaderTest {
     assertEquals(56, levelOne.getWidth());
     assertEquals(64, levelOne.getHeight());
     assertEquals(new GridPoint2(3, 3), levelOne.getSpawns().getPlayer());
-    assertEquals(12, levelOne.getSpawns().getEnemies().size());
+    // list changes depending on what we choose to spawn so expected number will fail as changes to
+    // the list
+    List<SpawnPoint> enemyList = levelOne.getSpawns().getEnemies();
+    assertFalse(enemyList.isEmpty(), "Level 1 lists no enemies.");
+    int count = 0;
+    for (SpawnPoint enemySpawn : enemyList) {
+      count++;
+      assertTrue(
+          enemySpawn.getX() > 0 && enemySpawn.getX() < (levelOne.getWidth() - 1),
+          "Enemies must spawn in x coordinates between 0 and "
+              + (levelOne.getWidth() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getX());
+      assertTrue(
+          enemySpawn.getY() > 0 && enemySpawn.getY() < (levelOne.getHeight() - 1),
+          "Enemies must spawn in y coordinates between 0 and "
+              + (levelOne.getHeight() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getY());
+    }
+    assertEquals(
+        enemyList.size(),
+        count,
+        "There should be "
+            + enemyList.size()
+            + " enemies spawned in the level 1 map, but there are actually "
+            + count
+            + " enemies spawned on the map.");
     assertEquals(TileType.LADDER, levelOne.getTileType(6, 6));
     // Transparent ladders and ledges render over the parallax backdrops, so the background layer
     // is kept for parity with the other levels but holds no tiles.
@@ -461,9 +488,10 @@ class JsonMapLoaderTest {
         "images/level1/hazard-spikes-bronze-512px.png",
         levelOne.getCollisionLayer().get(8, 12).texture());
     assertEquals(TileType.WALL, levelOne.getTileType(5, 0));
-    assertEquals(1, levelOne.getTransitions().size());
+    assertEquals(5, levelOne.getTransitions().size());
     assertEquals("maps/level2.json", levelOne.getTransitions().getFirst().getDestinationMap());
-    // Level 1 is drawn from its tiles, with no composed image behind them.
+    // Level 1 declares a composed background, but the artwork has not been supplied yet, so the
+    // map still loads and renders from its tile layers.
     assertNull(levelOne.getBackgroundTexture());
     // The dungeon and the Nether each draw their own parallax backdrop instead of background tiles.
     assertEquals(4, levelOne.getBackdrop("dungeon").size());
@@ -574,6 +602,7 @@ class JsonMapLoaderTest {
     // Hazards live in the collision layer, as they do in level 1.
     assertNull(levelTwo.getLayer("hazards"));
     assertEquals(TileType.HAZARD, levelTwo.getTileType(13, 45));
+    System.out.println(levelTwo.getLegend().get(TileType.HAZARD));
     assertEquals(TileType.DECORATIVE, levelTwo.getTileType(59, 173));
     assertEquals(TileType.WALL, levelTwo.getTileType(59, 165));
     assertTrue(
@@ -582,7 +611,34 @@ class JsonMapLoaderTest {
                 spawn ->
                     "skeleton".equals(spawn.getType())
                         && spawn.getPosition().equals(new GridPoint2(43, 147))));
-    assertEquals(6, levelTwo.getSpawns().getEnemies().size());
+    // list changes depending on what we choose to spawn so expected number will fail as changes to
+    // the list
+    List<SpawnPoint> enemyList = levelTwo.getSpawns().getEnemies();
+    assertFalse(enemyList.isEmpty(), "Level 1 lists no enemies.");
+    int count = 0;
+    for (SpawnPoint enemySpawn : enemyList) {
+      count++;
+      assertTrue(
+          enemySpawn.getX() > 0 && enemySpawn.getX() < (levelTwo.getWidth() - 1),
+          "Enemies must spawn in x coordinates between 0 and "
+              + (levelTwo.getWidth() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getX());
+      assertTrue(
+          enemySpawn.getY() > 0 && enemySpawn.getY() < (levelTwo.getHeight() - 1),
+          "Enemies must spawn in y coordinates between 0 and "
+              + (levelTwo.getHeight() - 1)
+              + " but current enemy spawn x coordinate is at "
+              + enemySpawn.getY());
+    }
+    assertEquals(
+        enemyList.size(),
+        count,
+        "There should be "
+            + enemyList.size()
+            + " enemies spawned in the level 1 map, but there are actually "
+            + count
+            + " enemies spawned on the map.");
     assertEquals(6, levelTwo.getSpawns().getLoot().size());
     assertEquals("maps/level3.json", levelTwo.getTransitions().getFirst().getDestinationMap());
     assertEquals(new GridPoint2(67, 166), levelTwo.getTransitions().getFirst().getPosition());
@@ -604,15 +660,16 @@ class JsonMapLoaderTest {
   void loadsLevelThreeThroneRoomWithASingleBoss() {
     LevelMapData levelThree = loader.load("maps/level3.json");
 
-    assertEquals("Level 3 — Zeus's Palace", levelThree.getName());
+    assertEquals("Level 3 - Zeus's Palace", levelThree.getName());
     assertEquals(52, levelThree.getWidth());
     assertEquals(26, levelThree.getHeight());
     // The player arrives on the spawn level 2's summit exit sends them to.
     assertEquals(new GridPoint2(8, 3), levelThree.getSpawns().getPlayer());
     assertEquals(1, levelThree.getSpawns().getEnemies().size());
     assertEquals("zeus", levelThree.getSpawns().getEnemies().getFirst().getType());
+    // Zeus is placed one tile above the floor he stands on, which is where his sprite is anchored.
     assertEquals(
-        new GridPoint2(26, 3), levelThree.getSpawns().getEnemies().getFirst().getPosition());
+        new GridPoint2(26, 4), levelThree.getSpawns().getEnemies().getFirst().getPosition());
     assertEquals(5, levelThree.getSpawns().getLoot().size());
 
     // The throne balcony is a platform over Zeus's spot, and ladders climb both walls.

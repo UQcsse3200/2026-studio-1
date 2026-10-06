@@ -46,13 +46,13 @@ class EntitySpawnRegistryTest {
     Entity player = new Entity();
     Entity[] seen = new Entity[1];
     EntitySpawnRegistry.register(
-        "ghost",
+        "skeleton",
         target -> {
           seen[0] = target;
           return new Entity();
         });
 
-    EntitySpawnRegistry.create("ghost", player);
+    EntitySpawnRegistry.create("skeleton", player);
 
     assertSame(player, seen[0]);
   }
@@ -121,10 +121,10 @@ class EntitySpawnRegistryTest {
   @Test
   void aLaterRegistrationReplacesAnEarlierOne() {
     Entity second = new Entity();
-    EntitySpawnRegistry.register("ghost", player -> new Entity());
-    EntitySpawnRegistry.register("ghost", player -> second);
+    EntitySpawnRegistry.register("skeleton", player -> new Entity());
+    EntitySpawnRegistry.register("skeleton", player -> second);
 
-    assertSame(second, EntitySpawnRegistry.create("ghost", null));
+    assertSame(second, EntitySpawnRegistry.create("skeleton", null));
     assertEquals(1, EntitySpawnRegistry.registeredNames().size());
   }
 
@@ -143,7 +143,6 @@ class EntitySpawnRegistryTest {
 
     assertTrue(EntitySpawnRegistry.isRegistered("skeleton"));
     assertTrue(EntitySpawnRegistry.isRegistered("ranged-skeleton"));
-    assertTrue(EntitySpawnRegistry.isRegistered("ghostking"));
     assertTrue(EntitySpawnRegistry.isRegistered("centaur"));
   }
 

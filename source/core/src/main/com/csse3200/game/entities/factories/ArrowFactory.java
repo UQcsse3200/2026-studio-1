@@ -3,11 +3,10 @@ package com.csse3200.game.entities.factories;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.attacks.LightningFreezeComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
-import com.csse3200.game.components.projectile.ProjectileComponent;
-import com.csse3200.game.components.projectile.ProjectileHitComponent;
-import com.csse3200.game.components.projectile.StraightLineMovementStrategy;
+import com.csse3200.game.components.projectile.*;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
@@ -90,10 +89,12 @@ public class ArrowFactory {
     Entity arrow =
         new Entity()
             .addComponent(new TextureRenderComponent("images/items/arrow.png"))
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
+            // Dynamic, not kinematic: Box2D only creates a contact when at least one of the two
+            // bodies is dynamic, so a kinematic arrow never reported touching a static wall.
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
             // Not on any layer of its own - nothing in the game currently needs to detect the
             // arrow itself via collision filtering, only the other way around (below).
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NONE))
+            .addComponent(new HitboxComponent())
             // Carries the arrow's damage value only; health is irrelevant since the arrow itself
             // never takes damage. Lets ProjectileHitComponent reuse CombatStatsComponent#hit(...)
             // exactly like every other attack component in the game does.
@@ -103,6 +104,7 @@ public class ArrowFactory {
                 new ProjectileComponent(
                     new StraightLineMovementStrategy(speed, movingRight), maxRange));
 
+    configureFlightBody(arrow);
     arrow.setPosition(position);
     arrow.setScale(0.5f, 0.2f);
     // The source art faces right by default; mirror it for a leftward shot so the arrow
@@ -110,6 +112,189 @@ public class ArrowFactory {
     arrow.getComponent(TextureRenderComponent.class).setFlipX(!movingRight);
 
     return arrow;
+  }
+
+  /**
+   * Creates an enemy arrow that flies in a straight line along {@code direction} (for example from
+   * a Harpy to the player's centre), so a shooter above or below its target can still hit it.
+   * Everything else matches {@link #createRangedArrow}: damage only on real contact with {@code
+   * targetLayer}, stopped by {@link PhysicsLayer#OBSTACLE}, despawned after {@code maxRange}.
+   *
+   * <p>The sprite is mirrored when the shot travels leftward, as for the x-only arrow. Rotating the
+   * sprite to match a diagonal flight is not done here.
+   *
+   * @param position where the arrow's bottom-left corner starts
+   * @param direction direction of travel; must not be null, zero length or non-finite
+   * @param speed travel speed in world units/second; must be positive
+   * @param maxRange maximum distance travelled before despawning; must be positive
+   * @param damage damage dealt on a hit
+   * @param knockback knockback magnitude on a hit; 0 disables it
+   * @param targetLayer physics layer the arrow can damage
+   * @return the arrow entity, not yet registered with the entity service
+   * @throws IllegalArgumentException if position or direction is invalid, or speed or maxRange is
+   *     not positive
+   */
+  public static Entity createAimedArrow(
+      Vector2 position,
+      Vector2 direction,
+      float speed,
+      float maxRange,
+      int damage,
+      float knockback,
+      short targetLayer) {
+    if (position == null) {
+      throw new IllegalArgumentException("Arrow position must not be null.");
+    }
+    if (maxRange <= 0) {
+      throw new IllegalArgumentException("maxRange must be positive");
+    }
+    // the strategy validates speed and direction (null, zero, non-finite)
+    AimedLineMovementStrategy movement = new AimedLineMovementStrategy(speed, direction);
+    Entity arrow =
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
+            .addComponent(new HitboxComponent())
+            .addComponent(new CombatStatsComponent(1, damage))
+            .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.OBSTACLE, knockback))
+            .addComponent(new ProjectileComponent(movement, maxRange));
+    configureFlightBody(arrow);
+    arrow.setPosition(position);
+    arrow.setScale(0.5f, 0.2f);
+    arrow.getComponent(TextureRenderComponent.class).setFlipX(direction.x < 0f);
+    return arrow;
+  }
+
+  /**
+   * Makes an arrow's dynamic body fly like a bullet: no gravity pulling it down, no damping slowing
+   * it and continuous collision detection (the default body has ground-friction damping, meant for
+   * walking characters).
+   */
+  private static void configureFlightBody(Entity arrow) {
+    arrow.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
+    arrow.getComponent(PhysicsComponent.class).getBody().setLinearDamping(0f);
+    // a fast arrow must not skip over a thin collider between two physics steps
+    arrow.getComponent(PhysicsComponent.class).getBody().setBullet(true);
+  }
+
+  /**
+   * Creates a lightning bolt that spawns in the sky above a target position and falls straight
+   * down. On contact with {@code targetLayer} it deals damage and freezes the target via the
+   * target's {@code SpeedEffectComponent} (through the "applySpeedEffect" event).
+   *
+   * @param targetPosition position of the target at the moment of the strike. Sampled once, so a
+   *     moving target can dodge.
+   * @param skyOffset how far above the target the bolt spawns.
+   * @param speed fall speed in world units/second.
+   * @param damage damage on hit; 0 for a pure freeze.
+   * @param freezeTicks how many ticks the target is frozen for (about 60 per second).
+   * @param targetLayer physics layer the bolt hits (e.g. {@link PhysicsLayer#PLAYER}).
+   * @return the bolt entity, not yet registered with the entity service.
+   */
+  public static Entity createLightning(
+      Vector2 targetPosition,
+      float skyOffset,
+      float speed,
+      int damage,
+      int freezeTicks,
+      short targetLayer) {
+    Vector2 scale = new Vector2(0.3125f, 3.125f);
+
+    Entity bolt =
+        new Entity()
+            .addComponent(new TextureRenderComponent("images/enemies/lightning.png"))
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
+            .addComponent(new HitboxComponent())
+            .addComponent(new CombatStatsComponent(1, damage))
+            // No blocking layer: lightning strikes through platforms. Pass PhysicsLayer.OBSTACLE
+            // instead to have ceilings to shield the player.
+            .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.NONE, 0f))
+            .addComponent(new LightningFreezeComponent(freezeTicks))
+            .addComponent(
+                new ProjectileComponent(new VerticalMovementStrategy(speed), skyOffset + 2f));
+
+    bolt.setScale(scale);
+    // Entity position is the bottom-left corner, so shift left by half the width to centre the
+    // bolt on the target, and spawn it skyOffset above.
+    bolt.setPosition(targetPosition.x - scale.x / 2f, targetPosition.y + skyOffset);
+
+    return bolt;
+  }
+
+  /**
+   * Builds the parts every enemy projectile shares and hands the entity back for the caller to
+   * finish.
+   *
+   * <p>The entity is returned NOT yet created and NOT yet registered, so a caller may still add its
+   * own components (a petrify effect, a freeze effect) before the entity service creates it.
+   *
+   * <p>Flight: the body is set up as a bullet with no gravity and no damping. A projectile that
+   * needs gravity switches it back on itself when its movement strategy starts (the rock's arc
+   * does), so the base never has to know about arcs.
+   *
+   * <p>Position is the entity's bottom-left corner, as everywhere else in this factory. A caller
+   * that works from a centre converts it before calling.
+   *
+   * <p>Numbers are not re-checked here: the projectile component already rejects a range that is
+   * not positive, and each movement strategy rejects a bad speed or direction. Only missing objects
+   * are rejected, so existing callers keep their current behaviour.
+   *
+   * @param texturePath image to draw; not null and not blank
+   * @param bodyType physics body type: dynamic for anything that must touch a wall, kinematic for
+   *     the ones that already pass through; not null
+   * @param movement how the projectile moves once created; not null
+   * @param maxRange distance in world units before it despawns; checked by the projectile component
+   * @param damage damage dealt on contact with the target layer; 0 is allowed (a pure effect)
+   * @param knockback knockback on a hit; 0 switches it off
+   * @param targetLayer the physics layer it damages
+   * @param blockingLayer the layer that stops it without damage; use the none layer for a
+   *     projectile that passes through everything, like lightning
+   * @param position where its bottom-left corner starts; not null
+   * @param scale its width and height in world units; not null
+   * @param mirrored true to flip the picture horizontally, for a shot travelling to the left
+   * @return the unfinished projectile entity
+   * @throws IllegalArgumentException if the texture path, body type, movement, position or scale is
+   *     missing
+   */
+  static Entity createProjectileBase(
+      String texturePath,
+      BodyType bodyType,
+      ProjectileMovementStrategy movement,
+      float maxRange,
+      int damage,
+      float knockback,
+      short targetLayer,
+      short blockingLayer,
+      Vector2 position,
+      Vector2 scale,
+      boolean mirrored) {
+    if (texturePath == null || texturePath.isEmpty()) {
+      throw new IllegalArgumentException("texturePath must not be blank");
+    }
+    if (bodyType == null) {
+      throw new IllegalArgumentException("bodyType must not be null");
+    }
+    if (movement == null) {
+      throw new IllegalArgumentException("movement must not be null");
+    }
+    if (position == null) {
+      throw new IllegalArgumentException("position must not be null.");
+    }
+    if (scale == null) {}
+
+    Entity projectile = new Entity();
+    projectile
+        .addComponent(new TextureRenderComponent(texturePath))
+        .addComponent(new PhysicsComponent().setBodyType(bodyType))
+        .addComponent(new HitboxComponent())
+        .addComponent(new CombatStatsComponent(1, damage))
+        .addComponent(new ProjectileHitComponent(targetLayer, blockingLayer, knockback))
+        .addComponent(new ProjectileComponent(movement, maxRange));
+    configureFlightBody(projectile);
+    projectile.setPosition(position);
+    projectile.setScale(scale);
+    projectile.getComponent(TextureRenderComponent.class).setFlipX(mirrored);
+    return projectile;
   }
 
   private ArrowFactory() {

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
 public class HealthEffectComponentTest {
-
   @Test
   void shouldApplyPoisonOverTime() {
     int startingHealth = 100;
@@ -120,15 +119,37 @@ public class HealthEffectComponentTest {
 
   @Test
   void shouldThrowExceptionForNegativeTime() {
-    assertThrows(IllegalArgumentException.class, () -> new HealthEffectComponent(-1, 10));
+    HealthEffectComponent effect = new HealthEffectComponent();
+    assertThrows(IllegalArgumentException.class, () -> effect.applyEffect(-1, 10));
+  }
+
+  @Test
+  void getsCorrectEffect() {
+    Entity entity = createEntityWithEffect(100, 1, 10);
+    HealthEffectComponent effect = entity.getComponent(HealthEffectComponent.class);
+    assertEquals(10, effect.getHealthEffect());
+  }
+
+  @Test
+  void getsCombinedEffect() {
+    Entity entity = createEntityWithEffect(100, 1, 10);
+    HealthEffectComponent effect = entity.getComponent(HealthEffectComponent.class);
+    effect.applyEffect(1, -10);
+    assertEquals(0, effect.getHealthEffect());
+    effect.update();
+
+    effect.applyEffect(1, 10);
+    effect.applyEffect(1, 10);
+    assertEquals(20, effect.getHealthEffect());
   }
 
   Entity createEntityWithEffect(int startingHealth, int time, int health) {
     Entity entity =
         new Entity()
             .addComponent(new CombatStatsComponent(startingHealth, 0))
-            .addComponent(new HealthEffectComponent(time, health));
+            .addComponent(new HealthEffectComponent());
     entity.create();
+    entity.getComponent(HealthEffectComponent.class).applyEffect(time, health);
     return entity;
   }
 }

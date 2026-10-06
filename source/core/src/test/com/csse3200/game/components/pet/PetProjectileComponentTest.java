@@ -20,7 +20,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
+import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
@@ -497,6 +499,7 @@ class PetProjectileComponentTest {
     Entity enemy =
         new Entity()
             .addComponent(new PhysicsComponent())
+            .addComponent(new EnemyTypeComponent(EnemyType.SKELETON))
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
             // Two fixtures can report the same hit during a single physics step.
             .addComponent(new ColliderComponent().setLayer(PhysicsLayer.NPC).setSensor(true))

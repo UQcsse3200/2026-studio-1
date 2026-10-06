@@ -114,9 +114,9 @@ class LootTableTest {
     }
 
     for (WeaponTier weaponTier : WeaponTier.values()) {
-      int tier = weaponTier.getStats(WeaponType.SWORD).getTier();
+      int tier = weaponTier.getTier();
       double expectedShare = (double) weaponTier.getLootWeight() / totalWeight;
-      double actualShare = (double) tierCounts.getOrDefault(tier, 0) / totalWeapons;
+      double actualShare = (double) (tierCounts.getOrDefault(tier, 0)) / totalWeapons;
       assertEquals(
           expectedShare,
           actualShare,
@@ -140,8 +140,13 @@ class LootTableTest {
     }
 
     for (WeaponType type : WeaponType.values()) {
+      // NATURAL is an NPC-only weapon type (built via WeaponItem#natural) - it's never offered as
+      // player loot, so it's excluded from this acceptance criterion too.
+      if (type == WeaponType.NATURAL) {
+        continue;
+      }
       for (WeaponTier weaponTier : WeaponTier.values()) {
-        String key = type + " tier " + weaponTier.getStats(type).getTier();
+        String key = type + " tier " + weaponTier.getTier();
         assertTrue(found.contains(key), key + " should be obtainable from the default loot table");
       }
     }

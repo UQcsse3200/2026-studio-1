@@ -79,4 +79,31 @@ class WeaponItemTest {
         sword.getWindupDuration(),
         "Expected getWindupDuration() to reflect the value set via setWindupDuration().");
   }
+
+  // --- Axe tests added below (existing tests above are unchanged) ---
+
+  // Creating an Axe via the tier-based constructor stores the correct type, windup, and
+  // tier-scaled damage (parity with Sword/Bow/Dagger coverage).
+  @Test
+  void shouldCreateAxe() {
+    WeaponItem axe = new WeaponItem("Basic Axe", WeaponType.AXE, WeaponTier.TIER_1, 1, 1, 3);
+
+    assertEquals("Basic Axe", axe.getName());
+    assertEquals(ItemType.WEAPON, axe.getItemType());
+    assertEquals(WeaponType.AXE, axe.getWeaponType());
+    assertEquals(3, axe.getWindupDuration());
+    assertEquals(12, axe.getDamage());
+  }
+
+  // WeaponItem.natural(...) tags the result as WeaponType.NATURAL and stores exactly the damage
+  // and windup passed in - no WeaponTier lookup involved.
+  @Test
+  void shouldCreateNaturalWeapon() {
+    WeaponItem fists = WeaponItem.natural("Cyclops Fists", 10, 3f);
+
+    assertEquals("Cyclops Fists", fists.getName());
+    assertEquals(WeaponType.NATURAL, fists.getWeaponType());
+    assertEquals(10, fists.getDamage());
+    assertEquals(3f, fists.getWindupDuration());
+  }
 }

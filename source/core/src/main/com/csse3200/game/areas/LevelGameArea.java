@@ -38,6 +38,7 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.components.npc.NameComponent;
 import com.csse3200.game.components.npc.NameDisplay;
 import com.csse3200.game.components.player.LadderComponent;
@@ -123,7 +124,10 @@ public class LevelGameArea extends GameArea {
     "images/sword.png",
     "images/items/bow.png",
     "images/items/arrow.png",
+    "images/items/axe.png",
     "images/dagger.png",
+    "images/enemies/lightning.png",
+    "images/items/dagger.png",
     "images/ui/Health.png",
     "images/ui/Poison.png",
     "images/ui/Strength.png",
@@ -145,27 +149,28 @@ public class LevelGameArea extends GameArea {
     "sounds/jump.mp3",
     "sounds/dash.mp3",
     "sounds/sneaking1.mp3",
-    "sounds/slide.mp3"
+    "sounds/slide.mp3",
+    "sounds/zap.mp3"
   };
 
   private static final String[] entityAtlases = {
-    "images/ghost.atlas",
-    "images/ghostKing.atlas",
-    "images/skeleton.atlas",
-    "images/skeleton_weapons/skeleton_bow.atlas",
+    "images/enemy_weapons/enemy_bow.atlas",
     "images/knight.atlas",
     "images/LeftKnight.atlas",
-    "images/skeleton_weapons/skeleton_sword.atlas",
+    "images/enemy_weapons/enemy_sword.atlas",
     "images/enemies/ghost.atlas",
     "images/KnightEffects.atlas",
     "images/enemies/ghostKing.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/enemies/skeleton.atlas",
+    "images/enemies/cyclops.atlas",
+    "images/enemies/minotaur.atlas",
+    "images/enemies/cerberus.atlas",
     "images/pet.atlas",
     "images/tortoise.atlas"
   };
 
-  private static final String BACKGROUND_MUSIC = "sounds/BGM_03_mp3.mp3";
+  private static final String BACKGROUND_MUSIC = "sounds/dungeon.mp3";
   private static final String[] entityMusic = {BACKGROUND_MUSIC};
 
   /** How wide a glowing tile's light spreads, in tiles. */
@@ -868,15 +873,16 @@ public class LevelGameArea extends GameArea {
       }
       Entity enemy = createEnemy(spawn.getType());
       if (enemy != null) {
-        if (enemy != null) {
-          enemy.addComponent(new PersistentEnemyIdComponent(id));
+        enemy.addComponent(new PersistentEnemyIdComponent(id));
 
-          if (enemy.getComponent(NameComponent.class) != null) {
-            enemy.addComponent(new NameDisplay(enemy, worldCamera));
-          }
-
-          spawnEntityAt(enemy, spawn.getPosition(), true, true);
+        if (enemy.getComponent(NameComponent.class) != null) {
+          enemy.addComponent(new NameDisplay(enemy, worldCamera));
         }
+        spawnEntityAt(enemy, spawn.getPosition(), true, true);
+        logger.info(
+            "Enemy: {} spawned at {}",
+            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+            enemy.getPosition());
       }
     }
   }
@@ -891,6 +897,34 @@ public class LevelGameArea extends GameArea {
     return EntitySpawnRegistry.create(type, player);
   }
 
+  /**
+   * Creates a new enemy at the given world position, primarily used for debugging purposes.
+   *
+   * @param type The spawn name from the map
+   * @param position the world position to spawn the enemy at
+   * @return true if the spawn succeeds, false otherwise.
+   */
+  public boolean spawnEnemy(String type, Vector2 position) {
+    Entity enemy = createEnemy(type);
+    if (enemy == null || position == null) {
+      logger.debug("Invalid spawn of type '{}' at position {}", type, position);
+      return false;
+    }
+    enemy.setPosition(position);
+    spawnEntity(enemy);
+    return true;
+  }
+
+  /**
+   * Spawns pickup loot (weapons, consumables, a shield, and a gold coin) so the loot/inventory
+   * features work in this level.
+   *
+   * <p>Loot goes on the spots chosen by {@link #chooseLootSpawns()}. The shield is guaranteed on
+   * the first spot, the same way the gold coin is always placed directly rather than rolled, since
+   * leaving the shield to the weighted table risked it never appearing. Every remaining spot gets
+   * one item rolled from the weighted loot table, so higher tiers stay rare. A map with no usable
+   * ground at all falls back to a starter row beside the player.
+   */
   /** Spawns pickup loot (weapons, consumables, a shield, and a gold coin). */
   private void spawnLoot() {
     List<SpawnPoint> lootSpawns = chooseLootSpawns();

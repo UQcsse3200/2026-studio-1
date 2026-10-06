@@ -60,8 +60,9 @@ public final class DifficultyScaler {
       meleeAttack.setWindupMultiplier(current.getAttackWindupMultiplier());
     }
 
-    // Ranged attackers are deliberately not scaled here: RangedAttackComponent stores a
-    // windupDuration but never counts it down, so there is no wind-up for difficulty to change.
+    // Only the ranged cooldown is scaled here. RangedAttackComponent now counts its windup down
+    // (taken from the weapon), but it has no windup multiplier yet, so difficulty leaves the
+    // windup alone. Add a ranged windup multiplier only if there is time.
     RangedAttackComponent rangedAttack = enemy.getComponent(RangedAttackComponent.class);
     if (rangedAttack != null) {
       rangedAttack.setCooldown(rangedAttack.getCooldown() * current.getAttackCooldownMultiplier());

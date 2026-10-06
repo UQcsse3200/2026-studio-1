@@ -299,7 +299,22 @@
       "type": "ENEMY",
       "enemyType": "ranged-skeleton"
     },
-
+    "M": {
+      "type": "ENEMY",
+      "enemyType": "minotaur"
+    },
+    "Y": {
+      "type": "ENEMY",
+      "enemyType": "cyclops"
+    },
+    "C": {
+      "type": "ENEMY",
+      "enemyType": "centaur"
+    },
+    "D": {
+      "type": "ENEMY",
+      "enemyType": "cerberus"
+    },
     "L": {
       "type": "LOOT"
     },
@@ -396,32 +411,32 @@
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTTstttttttttttttttttttttttruTT",
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTruTT",
       "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTruTT",
-      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^r ^^",
-      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^r ^^",
+      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^r   ",
+      "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^r   ",
       "   ^^  ^  ^^   ^^^^       ^^                        r  #",
-      "#####                                               r V#",
-      "####                            --------------------r ##",
+      "#####                                               r   ",
+      "####                            --------------------rP##",
       "####                                                r ##",
-      "###V#~~             ==========                      r ##",
-      "##V# ~~                                             r V#",
-      "#####~~                                             r ##",
-      "#V###~~ ----------                                  r V#",
-      "#V## ~~                                             r ##",
+      "###V#~~             ==========                      r   ",
+      "##V# ~~                                             r   ",
+      "#####~~                                             r   ",
+      "#V###~~ ----------                                  r   ",
+      "#V## ~~                                             rP##",
       "#####~~                                             r V#",
       "#### ~~             ==========                      r ##",
       "V### ~~                                             r V#",
-      "###  ~~                                             r ##",
-      "##   ~~                         ----------          r  #",
-      "##   ~~                                             r  #",
-      "##   ~~                                             r  #",
-      "V#   ~~             ==========                      r  #",
+      "###  ~~                                             r   ",
+      "##   ~~                         ----------          r   ",
+      "##   ~~                                             r   ",
+      "##   ~~                                             r   ",
+      "V#   ~~             ==========                      rPP#",
       "#    ~~                                             r  #",
-      "#V   ~~                                             r  #",
+      "#V   ~~                                             r   ",
       "#    ~~ ----------                                  r  #",
       "#    ~~                                             r  #",
-      "#  ~~~~~~e                 i                        r  V",
-      "##________________________rP________%%%%%%%%%%%_______##",
-      "#_________________________ri__________________________VV",
+      "#    ~~                    i                        r   ",
+      "##_~~~~~~e________________rP________%%%%%%%%%%%_______##",
+      "#_________________________ri__________________________##",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
       "CCCCCCCCCCCCCCCCCCCCCCCCCCriCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
       "WWWWWWWWWWWWWWWWWWWWWWWWWWrimWWWWWWWWWmWWWWWWWWWWWWWWwWW",
@@ -520,26 +535,6 @@
       "                                                        ",
       "                                                        ",
       "                                                        "
-    ]
-  },
-  "spawns": {
-    "player": {
-      "x": 3,
-      "y": 3
-    },
-    "enemies": [
-      { "type": "skeleton", "x": 23, "y": 3 },
-      { "type": "skeleton", "x": 41, "y": 3 },
-      { "type": "skeleton", "x": 20, "y": 13 },
-      { "type": "skeleton", "x": 21, "y": 23 },
-      { "type": "skeleton", "x": 4,  "y": 22 },
-      { "type": "skeleton", "x": 10, "y": 22 },
-      { "type": "skeleton", "x": 16, "y": 22 },
-      { "type": "skeleton", "x": 34, "y": 22 },
-      { "type": "skeleton", "x": 46, "y": 55 },
-      { "type": "minotaur", "x": 52, "y": 55 },
-      { "type": "minotaur", "x": 52, "y": 32 },
-      { "type": "minotaur", "x": 35, "y": 42 }
     ],
     "entities": [
       "                                                        ",
@@ -551,38 +546,27 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
+      "                                    S    D    R         ",
+      "                                                        ",
+      "                        S                               ",
+      "                                                        ",
+      "                                                        ",
+      "             R                                          ",
+      "                                                        ",
+      "                                                        ",
+      "                         S          M                   ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
-      "             2                                          ",
+      "             2          R                               ",
       "                                                        ",
       "                                                        ",
+      "             S                                M         ",
       "                                                        ",
       "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                                                        ",
-      "                     S                                  ",
+      "              S                       S                 ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
@@ -590,9 +574,10 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
+      "        S                                               ",
       "                                                        ",
       "                                                        ",
-      "                    S                     *             ",
+      "              S                       S                 ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
@@ -601,8 +586,18 @@
       "                                                        ",
       "                                                        ",
       "                                                        ",
+      "                                          *             ",
+      "                    R                 S                 ",
       "                                                        ",
-      "   P                   S                 S              ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "                                                        ",
+      "   P            S      S                S               ",
       "                                                        ",
       "                                                        ",
       "                                                        "
@@ -705,6 +700,58 @@
       "destinationMap": "maps/level2.json",
       "destinationSpawn": {
         "x": 2,
+        "y": 2
+      }
+    },
+    {
+      "id": "hounds-den-door",
+      "x": 55,
+      "y": 34,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-hounds-den.json",
+      "destinationSpawn": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "id": "gorgon-gallery-door",
+      "x": 55,
+      "y": 40,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-gorgon-gallery.json",
+      "destinationSpawn": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "id": "minotaur-labyrinth-door",
+      "x": 55,
+      "y": 48,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-minotaur-labyrinth.json",
+      "destinationSpawn": {
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "id": "shades-barracks-door",
+      "x": 55,
+      "y": 54,
+      "width": 1,
+      "height": 3,
+      "texture": "images/level1/gate-tartarus-512px.png",
+      "destinationMap": "maps/nether-shades-barracks.json",
+      "destinationSpawn": {
+        "x": 4,
         "y": 2
       }
     }

@@ -93,8 +93,13 @@ public class WeaponDisplay extends UIComponent {
     String imagePath =
         switch (weapon.getWeaponType()) {
           case BOW -> "images/items/bow.png";
-          case DAGGER -> "images/dagger.png";
+          case DAGGER -> "images/items/dagger.png";
           case SWORD -> "images/items/sword.png";
+          case AXE -> "images/items/axe.png";
+          case NATURAL ->
+              throw new IllegalStateException(
+                  "WeaponType.NATURAL has no icon - it's an NPC-only weapon type (built via"
+                      + " WeaponItem#natural) and should never reach the player's weapon HUD.");
         };
 
     return ServiceLocator.getResourceService().getAsset(imagePath, Texture.class);

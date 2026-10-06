@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.effects.HealthEffectComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.EventHandler;
 import com.csse3200.game.extensions.GameExtension;
@@ -36,6 +37,8 @@ class PlayerStatsDisplayTest {
 
   private Sound hitSound;
   private Sound crownHitSound;
+
+  private int healthEffect;
 
   @BeforeEach
   void setUp() {
@@ -90,9 +93,14 @@ class PlayerStatsDisplayTest {
     CombatStatsComponent stats = mock(CombatStatsComponent.class);
     when(stats.getHealth()).thenReturn(100);
 
+    HealthEffectComponent healthEffectComponent = mock(HealthEffectComponent.class);
+    healthEffect = 0;
+
     Entity entity = mock(Entity.class);
     when(entity.getComponent(CombatStatsComponent.class)).thenReturn(stats);
     when(entity.getEvents()).thenReturn(mock(EventHandler.class));
+    when(entity.getComponent(HealthEffectComponent.class)).thenReturn(healthEffectComponent);
+    when(healthEffectComponent.getHealthEffect()).thenAnswer(invocation -> healthEffect);
 
     display = new PlayerStatsDisplay();
     setField(display, "entity", entity);
@@ -102,21 +110,45 @@ class PlayerStatsDisplayTest {
   @Nested
   public class HeartColourTest {
     @Test
-    public void highHealth_showsGreenHearts() {
+    public void poisoned_showsGreenHearts() {
+      healthEffect = -1;
       display.updatePlayerHealthUI(70); // 7 hearts -> green
       assertFilledTexture(green);
     }
 
     @Test
-    public void midHealth_showsYellowHearts() {
+    public void healing_showsYellowHearts() {
+      healthEffect = 1;
       display.updatePlayerHealthUI(50); // 5 hearts -> yellow
       assertFilledTexture(yellow);
     }
 
     @Test
-    public void lowHealth_showsRedHearts() {
+    public void noEffect_showsRedHearts() {
+      healthEffect = 0;
       display.updatePlayerHealthUI(20); // 2 hearts -> red
       assertFilledTexture(red);
+    }
+
+    @Test
+    public void colourIsIndependentOfHealthAmount() {
+      healthEffect = 0;
+      display.updatePlayerHealthUI(100);
+      assertFilledTexture(red);
+
+      display.updatePlayerHealthUI(10);
+      assertFilledTexture(red);
+    }
+
+    @Test
+    public void colourUpdatesWhenEffectChanges() {
+      healthEffect = -1;
+      display.updatePlayerHealthUI(60);
+      assertFilledTexture(green);
+
+      healthEffect = 1;
+      display.updatePlayerHealthUI(60);
+      assertFilledTexture(yellow);
     }
   }
 

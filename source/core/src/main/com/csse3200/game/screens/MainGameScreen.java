@@ -61,6 +61,7 @@ import com.csse3200.game.ui.terminal.TerminalDisplay;
 import com.csse3200.game.ui.terminal.commands.GodModeCommand;
 import com.csse3200.game.ui.terminal.commands.NoclipCommand;
 import com.csse3200.game.ui.terminal.commands.PerkCommand;
+import com.csse3200.game.ui.terminal.commands.SpawnCommand;
 import com.csse3200.game.ui.terminal.commands.TeleportCommand;
 import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
 import com.csse3200.game.ui.terminal.commands.WinCommand;
@@ -235,6 +236,7 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     fitCameraToMap(levelGameArea);
+    SpawnCommand.updateLevelGameArea(levelGameArea);
   }
 
   public Entity getPlayerEntity() {
@@ -577,6 +579,7 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     fitCameraToMap(nextArea);
+    SpawnCommand.updateLevelGameArea(nextArea);
   }
 
   /** Loads a debug destination while retaining player state without changing normal progression. */
@@ -822,6 +825,7 @@ public class MainGameScreen extends ScreenAdapter {
     this.pauseMenu = pauseMenuComponent;
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
+    terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
 
     ServiceLocator.getEntityService().register(ui);
   }

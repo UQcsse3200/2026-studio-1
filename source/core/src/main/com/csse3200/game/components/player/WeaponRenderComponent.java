@@ -31,9 +31,10 @@ public class WeaponRenderComponent extends RenderComponent {
   private static final float DAGGER_WIDTH = 0.25f;
   private static final float DAGGER_HEIGHT = 0.5f;
 
+  private static final float AXE_WIDTH = 0.385f;
+  private static final float AXE_HEIGHT = 0.9f;
   // Animation durations.
   private static final float SWING_DURATION = 0.3f;
-  private static final float BOW_DRAW_DURATION = 0.3f;
   private static final float DAGGER_THROW_DURATION = 1.5f;
 
   // Walking animation.
@@ -43,6 +44,7 @@ public class WeaponRenderComponent extends RenderComponent {
 
   // Bow animation.
   private static final float BOW_DRAW_DISTANCE = 0.12f;
+  private static final float BOW_DRAW_DURATION = 0.3f;
 
   // Weapon hand positioning.
   private static final float RIGHT_HAND_OFFSET_X = 0.75f;
@@ -90,7 +92,7 @@ public class WeaponRenderComponent extends RenderComponent {
     super.create();
 
     previousPosition.set(entity.getPosition());
-
+    entity.getEvents().addListener("axeAttack", this::startSwing);
     entity.getEvents().addListener("swordAttack", this::startSwing);
     entity.getEvents().addListener("weaponAttack", this::handleWeaponAttack);
     entity.getEvents().addListener("walk", this::updateFacing);
@@ -145,9 +147,15 @@ public class WeaponRenderComponent extends RenderComponent {
           ServiceLocator.getResourceService().getAsset("images/items/bow.png", Texture.class);
 
       case DAGGER ->
-          ServiceLocator.getResourceService().getAsset("images/dagger.png", Texture.class);
+          ServiceLocator.getResourceService().getAsset("images/items/dagger.png", Texture.class);
 
+      case AXE ->
+          ServiceLocator.getResourceService().getAsset("images/items/axe.png", Texture.class);
       case SWORD -> getSwordTexture(tier);
+      case NATURAL ->
+          throw new IllegalStateException(
+              "WeaponType.NATURAL has no icon - it's an NPC-only weapon type (built via"
+                  + " WeaponItem#natural) and should never reach the player's weapon renderer.");
     };
   }
 
@@ -361,6 +369,11 @@ public class WeaponRenderComponent extends RenderComponent {
       case SWORD -> getSwordVisualConfig(currentWeaponTier);
       case BOW -> getBowVisualConfig(currentWeaponTier);
       case DAGGER -> getDaggerVisualConfig(currentWeaponTier);
+      case AXE -> getAxeVisualConfig(currentWeaponTier);
+      case NATURAL ->
+          throw new IllegalStateException(
+              "WeaponType.NATURAL has no visual config - it's an NPC-only weapon type (built via"
+                  + " WeaponItem#natural) and should never reach the player's weapon renderer.");
     };
   }
 
@@ -384,6 +397,16 @@ public class WeaponRenderComponent extends RenderComponent {
         };
 
     return new WeaponVisualConfig(BOW_WIDTH, BOW_HEIGHT, scale, scale, false);
+  }
+
+  private WeaponVisualConfig getAxeVisualConfig(int tier) {
+    float scale =
+        switch (tier) {
+          case 2 -> 1.10f;
+          case 3 -> 1.20f;
+          default -> 1.00f;
+        };
+    return new WeaponVisualConfig(AXE_WIDTH, AXE_HEIGHT, scale, scale, false);
   }
 
   private WeaponVisualConfig getDaggerVisualConfig(int tier) {

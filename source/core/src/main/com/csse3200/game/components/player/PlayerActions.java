@@ -74,6 +74,7 @@ public class PlayerActions extends Component {
   private boolean walkSoundPlaying = false;
   private boolean sneakSoundPlaying = false;
   private boolean slideSoundPlaying = false;
+  private boolean frozen = false;
 
   // Death State
   private boolean dead = false;
@@ -93,6 +94,8 @@ public class PlayerActions extends Component {
   private final Set<Entity> enemiesInRange = new HashSet<>();
 
   // Active speed modifiers, keyed by whichever effect/component owns them.
+  // Effective multiplier is the product of all active values.
+  // 1 = normal, 0 = paused, <1 = slowed, >1 = sped up
   private final Map<Object, Float> speedModifiers = new HashMap<>();
 
   @Override
@@ -161,6 +164,8 @@ public class PlayerActions extends Component {
       areaAttackCooldownRemaining = Math.max(0f, areaAttackCooldownRemaining);
     }
 
+    frozen = getEffectiveSpeedMultiplier() == 0;
+
     playMovementSound();
 
     if (!dead && (moving || platformerComponent.getJumpingBool())) {
@@ -206,6 +211,9 @@ public class PlayerActions extends Component {
   }
 
   public void playMovementSound() {
+    if (frozen) {
+      return;
+    }
     Sound walkSound = ServiceLocator.getResourceService().getAsset(WALKING_SE, Sound.class);
     Sound sneakSound = ServiceLocator.getResourceService().getAsset(SNEAK_SE, Sound.class);
 
@@ -291,18 +299,32 @@ public class PlayerActions extends Component {
     if (platformerComponent.getJumpingBool()) {
       Quest.incrementGlobalJumps();
     }
+
     // For the jump portion
-    platformerComponent.updateJump(MAX_JUMP_SPEED);
+    Vector2 jump = frozen ? new Vector2(0f, 0f) : MAX_SPEED;
+    platformerComponent.updateJump(jump);
   }
 
+  /**
+   * Adds or updates a speed modifier owned by the given key.
+   *
+   * @param key identifies the owner of this modifier
+   * @param multiplier the modifier's contribution
+   */
   public void addSpeedModifier(Object key, float multiplier) {
     speedModifiers.put(key, multiplier);
   }
 
+  /**
+   * Removes a previously-added speed modifier.
+   *
+   * @param key the same key passed to addSpeedModifier
+   */
   public void removeSpeedModifier(Object key) {
     speedModifiers.remove(key);
   }
 
+  /** Returns the combined effect of all active speed modifiers. */
   public float getEffectiveSpeedMultiplier() {
     float result = 1f;
 
@@ -321,16 +343,27 @@ public class PlayerActions extends Component {
     return attackCooldownMultiplier;
   }
 
+  /**
+   * @return remaining cooldown in seconds for the F-key special attack
+   */
   public float getSpecialAttackCooldownRemaining() {
     return specialAttackCooldownRemaining;
   }
 
+  /**
+   * @return remaining cooldown in seconds for the G-key area attack
+   */
   public float getAreaAttackCooldownRemaining() {
     return areaAttackCooldownRemaining;
   }
 
+  /**
+   * Moves the player towards a given direction.
+   *
+   * @param direction direction to move in
+   */
   void walk(Vector2 direction) {
-    if (dead) {
+    if (dead || frozen) {
       return;
     }
 
@@ -346,8 +379,10 @@ public class PlayerActions extends Component {
     }
 
     moving = false;
+    walkSoundPlaying = false;
   }
 
+  /** Makes the player attack. */
   void attack() {
     if (dead || attackCooldownRemaining > 0f) {
       return;
@@ -356,6 +391,7 @@ public class PlayerActions extends Component {
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
 
+    // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
       if (hitEnemy(enemy, combatStats.getBaseAttack())) {
         logger.info(
@@ -366,11 +402,13 @@ public class PlayerActions extends Component {
       }
     }
 
+    // Existing weapon functionality
     entity.getEvents().trigger("weaponAttack");
 
     attackCooldownRemaining = BASE_ATTACK_COOLDOWN * attackCooldownMultiplier;
   }
 
+  /** Hits the nearest enemy in melee range for three times the player's base attack. */
   void specialAttack() {
     if (dead || specialAttackCooldownRemaining > 0f || combatStats == null) {
       return;
@@ -415,6 +453,7 @@ public class PlayerActions extends Component {
     return nearestEnemy;
   }
 
+  /** Hits every enemy within the player's area-attack radius for twice the base attack. */
   void areaAttack() {
     if (dead || areaAttackCooldownRemaining > 0f || combatStats == null) {
       return;
@@ -492,8 +531,9 @@ public class PlayerActions extends Component {
     return targets;
   }
 
+  /** Makes the player dash. */
   void dash(Vector2 direction) {
-    if (dead) {
+    if (dead || frozen) {
       return;
     }
 
@@ -513,7 +553,7 @@ public class PlayerActions extends Component {
   }
 
   private void ctrlChanged(boolean pressed) {
-    if (dead) {
+    if (dead || frozen) {
       return;
     }
 
@@ -686,6 +726,7 @@ public class PlayerActions extends Component {
     }
   }
 
+  /** Stops all player actions when the player dies. */
   private void onDeath() {
     System.out.println("PLAYER ACTIONS DEATH entity=" + entity.getId());
 

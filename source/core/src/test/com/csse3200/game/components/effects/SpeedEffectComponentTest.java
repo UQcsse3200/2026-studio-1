@@ -10,12 +10,14 @@ import com.csse3200.game.extensions.GameExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(GameExtension.class)
 class SpeedEffectComponentTest {
 
   private Entity entity;
   private PlayerActions playerActions;
+  private SpeedEffectComponent effect;
 
   @BeforeEach
   void setUp() {
@@ -23,101 +25,134 @@ class SpeedEffectComponentTest {
     playerActions = mock(PlayerActions.class);
     when(playerActions.getPrio()).thenReturn(ComponentPriority.LOW);
     entity.addComponent(playerActions);
+
+    effect = new SpeedEffectComponent();
+    entity.addComponent(effect);
+    entity.create();
   }
 
   @Test
   void shouldThrowOnNegativeTime() {
-    assertThrows(IllegalArgumentException.class, () -> new SpeedEffectComponent(-1, 0.5f));
+    assertThrows(IllegalArgumentException.class, () -> effect.applyEffect(-1, 0.5f));
   }
 
   @Test
   void shouldThrowOnNegativeMultiplier() {
-    assertThrows(IllegalArgumentException.class, () -> new SpeedEffectComponent(10, -0.1f));
+    assertThrows(IllegalArgumentException.class, () -> effect.applyEffect(10, -0.1f));
   }
 
   @Test
   void shouldAllowZeroMultiplierForPause() {
-    assertDoesNotThrow(() -> new SpeedEffectComponent(10, 0f));
+    assertDoesNotThrow(() -> effect.applyEffect(10, 0f));
   }
 
   @Test
-  void shouldAddModifierOnCreate() {
-    SpeedEffectComponent effect = new SpeedEffectComponent(10, 0.5f);
-    entity.addComponent(effect);
-    entity.create();
+  void shouldAddModifierWhenEffectApplied() {
+    effect.applyEffect(10, 0.5f);
 
-    verify(playerActions).addSpeedModifier(effect, 0.5f);
+    verify(playerActions).addSpeedModifier(any(), eq(0.5f));
   }
 
   @Test
-  void shouldDisableImmediatelyWhenTimeIsZero() {
-    SpeedEffectComponent effect = new SpeedEffectComponent(0, 0.5f);
-    entity.addComponent(effect);
-    entity.create();
+  void shouldNeverRevertWhenTimeIsZero() {
+    effect.applyEffect(0, 0.5f);
 
-    verify(playerActions).addSpeedModifier(effect, 0.5f);
-    // Instant effect never reverts, and disables itself so update() won't run again
+    verify(playerActions).addSpeedModifier(any(), eq(0.5f));
+
+    // Time 0 is permanent: it is never tracked, so update() can't revert it
+    effect.update();
+    effect.update();
     verify(playerActions, never()).removeSpeedModifier(any());
   }
 
   @Test
   void shouldNotRevertBeforeTimerExpires() {
-    SpeedEffectComponent effect = new SpeedEffectComponent(3, 0.5f);
-    entity.addComponent(effect);
-    entity.create();
+    effect.applyEffect(3, 0.5f);
 
-    effect.update(); // tick 1 -> 2 remaining
-    effect.update(); // tick 2 -> 1 remaining
+    effect.update(); // 3 -> 2
+    effect.update(); // 2 -> 1
 
     verify(playerActions, never()).removeSpeedModifier(any());
   }
 
   @Test
   void shouldRevertExactlyWhenTimerExpires() {
-    SpeedEffectComponent effect = new SpeedEffectComponent(2, 0.5f);
-    entity.addComponent(effect);
-    entity.create();
+    ArgumentCaptor<Object> key = ArgumentCaptor.forClass(Object.class);
+    effect.applyEffect(2, 0.5f);
+    verify(playerActions).addSpeedModifier(key.capture(), eq(0.5f));
 
-    effect.update(); // tick 1 -> 1 remaining
+    effect.update(); // 2 -> 1
     verify(playerActions, never()).removeSpeedModifier(any());
 
-    effect.update(); // tick 2 -> 0 remaining, should revert now
-    verify(playerActions).removeSpeedModifier(effect);
+    effect.update(); // 1 -> 0, reverts now
+    verify(playerActions).removeSpeedModifier(key.getValue());
   }
 
   @Test
-  void shouldRemoveModifierOnDispose() {
-    SpeedEffectComponent effect = new SpeedEffectComponent(50, 0.5f);
-    entity.addComponent(effect);
-    entity.create();
+  void shouldNotRevertTwice() {
+    effect.applyEffect(1, 0.5f);
+
+    effect.update(); // expires and reverts
+    effect.update(); // already removed from the list
+    effect.update();
+
+    verify(playerActions, times(1)).removeSpeedModifier(any());
+  }
+
+  @Test
+  void shouldRemoveActiveModifiersOnDispose() {
+    ArgumentCaptor<Object> key = ArgumentCaptor.forClass(Object.class);
+    effect.applyEffect(50, 0.5f);
+    verify(playerActions).addSpeedModifier(key.capture(), eq(0.5f));
 
     effect.dispose();
 
-    verify(playerActions).removeSpeedModifier(effect);
+    verify(playerActions).removeSpeedModifier(key.getValue());
   }
 
   @Test
   void shouldSupportPauseSlowAndSpeedUpValues() {
-    SpeedEffectComponent pause = new SpeedEffectComponent(5, 0f);
-    SpeedEffectComponent slow = new SpeedEffectComponent(5, 0.5f);
-    SpeedEffectComponent speedUp = new SpeedEffectComponent(5, 2f);
+    effect.applyEffect(5, 0f);
+    effect.applyEffect(5, 0.5f);
+    effect.applyEffect(5, 2f);
 
-    entity.addComponent(pause);
-    pause.create();
-    verify(playerActions).addSpeedModifier(pause, 0f);
+    verify(playerActions).addSpeedModifier(any(), eq(0f));
+    verify(playerActions).addSpeedModifier(any(), eq(0.5f));
+    verify(playerActions).addSpeedModifier(any(), eq(2f));
+  }
 
-    Entity entity2 = new Entity();
-    PlayerActions pa2 = mock(PlayerActions.class);
-    entity2.addComponent(pa2);
-    entity2.addComponent(slow);
-    slow.create();
-    verify(pa2).addSpeedModifier(slow, 0.5f);
+  @Test
+  void shouldStackEffectsWithIndependentKeysAndTimers() {
+    ArgumentCaptor<Object> keys = ArgumentCaptor.forClass(Object.class);
+    effect.applyEffect(1, 0.5f); // short
+    effect.applyEffect(3, 0f); // long
+    verify(playerActions, times(2)).addSpeedModifier(keys.capture(), anyFloat());
 
-    Entity entity3 = new Entity();
-    PlayerActions pa3 = mock(PlayerActions.class);
-    entity3.addComponent(pa3);
-    entity3.addComponent(speedUp);
-    speedUp.create();
-    verify(pa3).addSpeedModifier(speedUp, 2f);
+    Object shortKey = keys.getAllValues().get(0);
+    Object longKey = keys.getAllValues().get(1);
+    assertNotSame(shortKey, longKey);
+
+    effect.update(); // short expires, long still going
+
+    verify(playerActions).removeSpeedModifier(shortKey);
+    verify(playerActions, never()).removeSpeedModifier(longKey);
+  }
+
+  @Test
+  void shouldDoNothingWithoutPlayerActions() {
+    Entity bare = new Entity();
+    SpeedEffectComponent orphan = new SpeedEffectComponent();
+    bare.addComponent(orphan);
+    bare.create();
+
+    assertDoesNotThrow(() -> orphan.applyEffect(5, 0.5f));
+    assertDoesNotThrow(orphan::update);
+    assertDoesNotThrow(orphan::dispose);
+  }
+
+  @Test
+  void shouldApplyEffectWhenEventTriggered() {
+    entity.getEvents().trigger("applySpeedEffect", 10, 0.5f);
+    verify(playerActions).addSpeedModifier(any(), eq(0.5f));
   }
 }

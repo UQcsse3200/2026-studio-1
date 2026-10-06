@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.effects.HealthEffectComponent;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
@@ -307,12 +308,14 @@ public class PlayerStatsDisplay extends UIComponent {
     Texture fullHeartTexture;
     Texture halfHeartTexture;
 
-    // Choose the correct heart colour set based on current health
-    if (health <= 30) {
+    // Choose the correct heart colour set based on current health effect
+    // red if no effects, yellow if healing, green if poisoned
+    int healthEffect = entity.getComponent(HealthEffectComponent.class).getHealthEffect();
+    if (healthEffect == 0) {
       fullHeartTexture = redHeartTexture;
       halfHeartTexture = redHalfHeartTexture;
 
-    } else if (health <= 60) {
+    } else if (healthEffect > 0) {
       fullHeartTexture = yellowHeartTexture;
       halfHeartTexture = yellowHalfHeartTexture;
 

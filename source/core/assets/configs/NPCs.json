@@ -1,13 +1,4 @@
 {
-  "ghost": {
-    "health": 40,
-    "baseAttack": 10
-  },
-  "ghostKing": {
-    "health": 100,
-    "baseAttack": 25,
-    "spookyFactor": 7
-  },
   "skeleton": {
     "health": 30,
     "baseAttack": 5,
@@ -28,19 +19,22 @@
     }
   },
   "minotaur": {
-    "health":  40,
+    "health":  55,
     "baseAttack": 5,
     "melee": {
-      "range": 5,
+      "range": 2.5,
       "cooldown": 5,
       "knockback": 2
     },
     "charge": {
-      "speedMultiplier": 1.5,
+      "speedMultiplier": 2.0,
       "duration": 4,
+      "windupDuration": 2.5,
       "cooldown": 3,
       "damageMultiplier": 1.5,
-      "aggroRadius": 10
+      "aggroRadius": 10,
+      "knockback": 5.0,
+      "endOnHit": true
     }
   },
   "centaur": {
@@ -57,22 +51,52 @@
       "duration": 4,
       "cooldown": 3,
       "damageMultiplier": 1.5,
-      "aggroRadius": 10
+      "aggroRadius": 10,
+      "knockback": 3.0,
+      "endOnHit": true
     }
   },
   "cyclops": {
-    "health": 50,
+    "health": 70,
     "baseAttack": 10,
-    "melee": {
-      "range": 3,
-      "cooldown": 4,
-      "knockback": 2.5
-    },
+    "melee": { "range": 2.5, "cooldown": 4, "knockback": 3, "windup": 0.4 },
+    "rock":  { "range": 11, "cooldown": 7, "projectileSpeed": 8,  "knockback": 3, "windup": 1.1,
+      "damageMultiplier": 1.5, "spawnHeightFraction": 0.85 },
+    "laser": { "range": 7,  "cooldown": 4, "projectileSpeed": 20, "knockback": 0, "windup": 0.5,
+      "damageMultiplier": 0.6, "spawnHeightFraction": 0.75 }
+  },
+  "medusa": {
+    "health": 150,
+    "baseAttack": 8,
+    "melee": { "range": 2.5, "cooldown": 4, "knockback": 1.5, "windup": 0.8 },
+    "ranged": { "range": 7, "cooldown": 7, "projectileSpeed": 10, "knockback": 0, "windup": 1.0 },
+    "petrify": { "duration": 3.0 },
+    "pacing": { "radius": 2.0 }
+  },
+  "cerberus": {
+    "health": 250,
+    "baseAttack": 12,
+    "melee": { "range": 4, "cooldown": 1.5, "knockback": 2, "windup": 0.5 }
+  },
+  "zeus": {
+    "health": 300,
+    "baseAttack": 10,
+    "melee": { "range": 3, "cooldown": 4, "knockback": 2 },
     "ranged": {
-      "range": 7,
-      "cooldown": 3,
-      "projectileSpeed": 8,
-      "knockback": 3
+      "range": 9, "cooldown": 5, "projectileSpeed": 12, "knockback": 1,
+      "windup": 1.0, "aimed": true
     }
+  },
+  "harpy": {
+    "health": 30,
+    "baseAttack": 6,
+    "flightDamping": 2.0,
+    "melee": { "range": 1.5, "cooldown": 4, "knockback": 1 }
+  },
+  "rangedHarpy": {
+    "health": 40,
+    "baseAttack": 5,
+    "flightDamping": 2.0,
+    "ranged": { "range": 8, "cooldown": 5, "projectileSpeed": 8, "knockback": 0, "aimed": true }
   }
 }
