@@ -213,7 +213,7 @@ public class LevelGameArea extends GameArea {
    * @param entrySpawn destination entrance tile, or {@code null} for the map's player spawn
    */
   public LevelGameArea(
-    TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
+      TerrainFactory terrainFactory, String mapPath, Entity existingPlayer, GridPoint2 entrySpawn) {
     this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, null);
   }
 
@@ -224,21 +224,21 @@ public class LevelGameArea extends GameArea {
    * @param savedLootSeed the loot seed to reuse, from a save file
    */
   public LevelGameArea(
-    TerrainFactory terrainFactory,
-    String mapPath,
-    Entity existingPlayer,
-    GridPoint2 entrySpawn,
-    Long savedLootSeed) {
+      TerrainFactory terrainFactory,
+      String mapPath,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
     this(terrainFactory, mapPath, new JsonMapLoader(), existingPlayer, entrySpawn, savedLootSeed);
   }
 
   private LevelGameArea(
-    TerrainFactory terrainFactory,
-    String mapPath,
-    MapLoader mapLoader,
-    Entity existingPlayer,
-    GridPoint2 entrySpawn,
-    Long savedLootSeed) {
+      TerrainFactory terrainFactory,
+      String mapPath,
+      MapLoader mapLoader,
+      Entity existingPlayer,
+      GridPoint2 entrySpawn,
+      Long savedLootSeed) {
     super();
     this.terrainFactory = terrainFactory;
     this.mapPath = mapPath;
@@ -362,12 +362,12 @@ public class LevelGameArea extends GameArea {
    */
   public boolean recoverPlayerIfOutOfBounds() {
     if (player == null
-      || !isOutsideMap(
-      player.getPosition(),
-      player.getScale(),
-      getMapWorldWidth(),
-      getMapWorldHeight(),
-      mapData.getTileSize())) {
+        || !isOutsideMap(
+            player.getPosition(),
+            player.getScale(),
+            getMapWorldWidth(),
+            getMapWorldHeight(),
+            mapData.getTileSize())) {
       return false;
     }
 
@@ -397,7 +397,7 @@ public class LevelGameArea extends GameArea {
   }
 
   static boolean isOutsideMap(
-    Vector2 position, Vector2 scale, float mapWorldWidth, float mapWorldHeight, float tileSize) {
+      Vector2 position, Vector2 scale, float mapWorldWidth, float mapWorldHeight, float tileSize) {
     // Once any part of the player is above the map, do not mistake horizontal movement there for
     // leaving through a side boundary.
     if (position.y + scale.y > mapWorldHeight) {
@@ -406,8 +406,8 @@ public class LevelGameArea extends GameArea {
 
     float margin = tileSize;
     return position.x + scale.x < -margin
-      || position.x > mapWorldWidth + margin
-      || position.y + scale.y < -margin;
+        || position.x > mapWorldWidth + margin
+        || position.y + scale.y < -margin;
   }
 
   /**
@@ -459,7 +459,7 @@ public class LevelGameArea extends GameArea {
       return;
     }
     Entity backdrop =
-      new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
+        new Entity().addComponent(new MapBackgroundRenderComponent(backgroundTexture));
     backdrop.setScale(getMapWorldWidth(), getMapWorldHeight());
     spawnEntity(backdrop);
   }
@@ -479,8 +479,8 @@ public class LevelGameArea extends GameArea {
             continue;
           }
           Entity light =
-            new Entity()
-              .addComponent(new GlowRenderComponent(glow, GLOW_TILES * tileSize, x * 1.7f + y));
+              new Entity()
+                  .addComponent(new GlowRenderComponent(glow, GLOW_TILES * tileSize, x * 1.7f + y));
           light.setPosition((x + 0.5f) * tileSize, (y + 0.5f) * tileSize);
           spawnEntity(light);
         }
@@ -499,15 +499,15 @@ public class LevelGameArea extends GameArea {
         for (int y = 0; y < layer.getHeight(); y++) {
           TileDefinition tile = layer.get(x, y);
           String sheet =
-            tile == null ? null : tile.properties().get(LevelMapData.ANIMATION_PROPERTY);
+              tile == null ? null : tile.properties().get(LevelMapData.ANIMATION_PROPERTY);
           if (sheet == null) {
             continue;
           }
           Entity animation =
-            new Entity()
-              .addComponent(
-                new SheetAnimationRenderComponent(
-                  sheet, tile.getInt("frames", 1), tile.getFloat("fps", 8f), x * 0.37f));
+              new Entity()
+                  .addComponent(
+                      new SheetAnimationRenderComponent(
+                          sheet, tile.getInt("frames", 1), tile.getFloat("fps", 8f), x * 0.37f));
           animation.setPosition(x * tileSize, y * tileSize);
           animation.setScale(tileSize, tileSize);
           spawnEntity(animation);
@@ -541,7 +541,7 @@ public class LevelGameArea extends GameArea {
   }
 
   private void spawnPlatformCollisions(
-    MapLayerData collisionLayer, float tileSize, CollisionType collisionType, boolean oneWay) {
+      MapLayerData collisionLayer, float tileSize, CollisionType collisionType, boolean oneWay) {
     for (int y = 0; y < collisionLayer.getHeight(); y++) {
       int x = 0;
 
@@ -582,12 +582,12 @@ public class LevelGameArea extends GameArea {
           nextActiveRectangles.put(run, new SolidRectangle(run.x(), y, run.width(), 1));
         } else {
           nextActiveRectangles.put(
-            run,
-            new SolidRectangle(
-              previousRectangle.x(),
-              previousRectangle.y(),
-              previousRectangle.width(),
-              previousRectangle.height() + 1));
+              run,
+              new SolidRectangle(
+                  previousRectangle.x(),
+                  previousRectangle.y(),
+                  previousRectangle.width(),
+                  previousRectangle.height() + 1));
         }
       }
 
@@ -627,8 +627,8 @@ public class LevelGameArea extends GameArea {
 
   private void spawnSolidRectangle(SolidRectangle rectangle, float tileSize) {
     Entity collider =
-      ObstacleFactory.createSolidTile(
-        rectangle.width() * tileSize, rectangle.height() * tileSize);
+        ObstacleFactory.createSolidTile(
+            rectangle.width() * tileSize, rectangle.height() * tileSize);
     Vector2 position = terrain.tileToWorldPosition(rectangle.x(), rectangle.y());
 
     if (position == null) {
@@ -657,8 +657,8 @@ public class LevelGameArea extends GameArea {
         }
 
         Entity collider =
-          ObstacleFactory.createHazardTile(tileSize, tileSize)
-            .addComponent(new HazardDamageComponent(def.getInt("damage", HAZARD_DAMAGE)));
+            ObstacleFactory.createHazardTile(tileSize, tileSize)
+                .addComponent(new HazardDamageComponent(def.getInt("damage", HAZARD_DAMAGE)));
 
         Vector2 position = terrain.tileToWorldPosition(x, y);
 
@@ -677,9 +677,9 @@ public class LevelGameArea extends GameArea {
   private void spawnPlatformRow(int startX, int y, int tileCount, float tileSize, boolean oneWay) {
     float width = tileCount * tileSize;
     Entity collider =
-      oneWay
-        ? ObstacleFactory.createOneWayPlatform(width, COLLIDER_HEIGHT)
-        : ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
+        oneWay
+            ? ObstacleFactory.createOneWayPlatform(width, COLLIDER_HEIGHT)
+            : ObstacleFactory.createFloorTile(width, COLLIDER_HEIGHT);
 
     Vector2 position = terrain.tileToWorldPosition(startX, y);
 
@@ -742,58 +742,58 @@ public class LevelGameArea extends GameArea {
     final long[] lastHazardDamageTime = {0L};
 
     newPlayer
-      .getEvents()
-      .addListener(
-        "collisionStart",
-        (EventListener2<Fixture, Fixture>)
-          (fixtureA, fixtureB) -> {
-            Entity entityA = ((BodyUserData) fixtureA.getBody().getUserData()).entity;
+        .getEvents()
+        .addListener(
+            "collisionStart",
+            (EventListener2<Fixture, Fixture>)
+                (fixtureA, fixtureB) -> {
+                  Entity entityA = ((BodyUserData) fixtureA.getBody().getUserData()).entity;
 
-            Entity entityB = ((BodyUserData) fixtureB.getBody().getUserData()).entity;
+                  Entity entityB = ((BodyUserData) fixtureB.getBody().getUserData()).entity;
 
-            Entity other;
+                  Entity other;
 
-            if (entityA == newPlayer) {
-              other = entityB;
-            } else {
-              other = entityA;
-            }
+                  if (entityA == newPlayer) {
+                    other = entityB;
+                  } else {
+                    other = entityA;
+                  }
 
-            ColliderComponent collider = other.getComponent(ColliderComponent.class);
+                  ColliderComponent collider = other.getComponent(ColliderComponent.class);
 
-            if (collider != null && collider.getLayer() == PhysicsLayer.HAZARD) {
+                  if (collider != null && collider.getLayer() == PhysicsLayer.HAZARD) {
 
-              long currentTime = System.currentTimeMillis();
+                    long currentTime = System.currentTimeMillis();
 
-              if (currentTime - lastHazardDamageTime[0] >= HAZARD_DAMAGE_COOLDOWN_MS) {
+                    if (currentTime - lastHazardDamageTime[0] >= HAZARD_DAMAGE_COOLDOWN_MS) {
 
-                CombatStatsComponent stats =
-                  newPlayer.getComponent(CombatStatsComponent.class);
+                      CombatStatsComponent stats =
+                          newPlayer.getComponent(CombatStatsComponent.class);
 
-                HazardDamageComponent hazard =
-                  other.getComponent(HazardDamageComponent.class);
-                int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
+                      HazardDamageComponent hazard =
+                          other.getComponent(HazardDamageComponent.class);
+                      int damage = hazard == null ? HAZARD_DAMAGE : hazard.getDamage();
 
-                stats.addHealth(-damage);
+                      stats.addHealth(-damage);
 
-                lastHazardDamageTime[0] = currentTime;
+                      lastHazardDamageTime[0] = currentTime;
 
-                logger.info("Player hit hazard! Health: {}", stats.getHealth());
-              }
-            }
-          });
+                      logger.info("Player hit hazard! Health: {}", stats.getHealth());
+                    }
+                  }
+                });
   }
 
   private void spawnTransitions() {
     float tileSize = terrain.getTileSize();
     for (RoomTransition transition : mapData.getTransitions()) {
       Entity doorway =
-        new Entity()
-          .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-          .addComponent(new ColliderComponent().setSensor(true))
-          .addComponent(
-            new RoomTransitionComponent(
-              transition, player, requested -> pendingTransition = requested));
+          new Entity()
+              .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+              .addComponent(new ColliderComponent().setSensor(true))
+              .addComponent(
+                  new RoomTransitionComponent(
+                      transition, player, requested -> pendingTransition = requested));
 
       if (transition.getTexture() != null) {
         doorway.addComponent(new TextureRenderComponent(transition.getTexture()));
@@ -855,9 +855,9 @@ public class LevelGameArea extends GameArea {
         enemy.addComponent(new PersistentEnemyIdComponent(id));
         spawnEntityAt(enemy, spawn.getPosition(), true, true);
         logger.info(
-          "Enemy: {} spawned at {}",
-          enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
-          enemy.getPosition());
+            "Enemy: {} spawned at {}",
+            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+            enemy.getPosition());
       }
     }
   }
@@ -1055,11 +1055,11 @@ public class LevelGameArea extends GameArea {
       if (placements.size() > LIGHT_BUDGET) {
         step = (int) Math.ceil(placements.size() / (double) LIGHT_BUDGET);
         logger.warn(
-          "Map '{}' wants {} lights, budget {}; keeping 1 in {}",
-          mapData.getName(),
-          placements.size(),
-          LIGHT_BUDGET,
-          step);
+            "Map '{}' wants {} lights, budget {}; keeping 1 in {}",
+            mapData.getName(),
+            placements.size(),
+            LIGHT_BUDGET,
+            step);
       }
 
       logger.info("Tile light placements: {}", placements.size());
@@ -1071,9 +1071,9 @@ public class LevelGameArea extends GameArea {
         spawnEntity(new Entity().addComponent(new LightComponent(p.spec(), world)));
       }
       logger.info(
-        "Spawned {} tile lights for '{}'",
-        (placements.size() + step - 1) / step,
-        mapData.getName());
+          "Spawned {} tile lights for '{}'",
+          (placements.size() + step - 1) / step,
+          mapData.getName());
     }
 
     // player light: room-owned, follows the player

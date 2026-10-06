@@ -54,20 +54,20 @@ public class WinScreenDisplay extends UIComponent {
     rootTable.setVisible(false);
 
     playAgainButton.addListener(
-      new ChangeListener() {
-        @Override
-        public void changed(ChangeEvent event, Actor actor) {
-          onPlayAgain();
-        }
-      });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            onPlayAgain();
+          }
+        });
 
     menuButton.addListener(
-      new ChangeListener() {
-        @Override
-        public void changed(ChangeEvent event, Actor actor) {
-          onMainMenu();
-        }
-      });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            onMainMenu();
+          }
+        });
 
     registerEventListeners();
     updateHighlight();

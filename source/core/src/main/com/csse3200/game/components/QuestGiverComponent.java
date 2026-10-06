@@ -18,7 +18,7 @@ public class QuestGiverComponent extends Component {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
     if (player == null) {
       throw new IllegalArgumentException(
-        "A QuestGiverComponent was given null for a player entity reference");
+          "A QuestGiverComponent was given null for a player entity reference");
     }
     this.player = player;
   }
@@ -27,9 +27,9 @@ public class QuestGiverComponent extends Component {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
     if (goldToGive < 0) {
       throw new IllegalArgumentException(
-        "A QuestGiverComponent was given "
-          + goldToGive
-          + " as the goldToGive as a reward but goldToGive should not be negative");
+          "A QuestGiverComponent was given "
+              + goldToGive
+              + " as the goldToGive as a reward but goldToGive should not be negative");
     }
     this.goldToGive = goldToGive;
     this.player = player;
@@ -39,7 +39,7 @@ public class QuestGiverComponent extends Component {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
     if (itemToGive == null) {
       throw new IllegalArgumentException(
-        "A QuestGiverComponent was given null as the item to give as a reward which should not be done. If you don't want to give a reward to the player then use the constructor that only takes a player entity parameter");
+          "A QuestGiverComponent was given null as the item to give as a reward which should not be done. If you don't want to give a reward to the player then use the constructor that only takes a player entity parameter");
     }
     this.itemToGive = itemToGive;
     this.player = player;
@@ -55,9 +55,9 @@ public class QuestGiverComponent extends Component {
       checkJumpQuestComplete();
     } catch (Exception e) {
       logger.error(
-        "When trying to clear a quest, check*QuestProgress returned a exception."
-          + " Here's the details "
-          + e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
       return false;
     }
     if (!giveOutQuestRewards(checkJumpQuestComplete())) return false;
@@ -68,8 +68,8 @@ public class QuestGiverComponent extends Component {
   public int checkJumpQuestComplete() {
     if (Quest.checkJumpQuestComplete(uniqueNPCID) == -1) {
       throw new NullPointerException(
-        "A QuestGiver component tried to call checkJumpQuestComplete when "
-          + "there isn't a quest to check the progress of i.e. it returned null");
+          "A QuestGiver component tried to call checkJumpQuestComplete when "
+              + "there isn't a quest to check the progress of i.e. it returned null");
     } else {
       return Quest.checkJumpQuestComplete(uniqueNPCID);
     }
@@ -86,9 +86,9 @@ public class QuestGiverComponent extends Component {
       checkEnemiesKilledQuestComplete();
     } catch (Exception e) {
       logger.error(
-        "When trying to clear a quest, check*QuestProgress returned a exception."
-          + " Here's the details "
-          + e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
       return false;
     }
     if (!giveOutQuestRewards(checkEnemiesKilledQuestComplete())) return false;
@@ -99,8 +99,8 @@ public class QuestGiverComponent extends Component {
   public int checkEnemiesKilledQuestComplete() {
     if (Quest.checkEnemiesKilledQuest(uniqueNPCID) == -1) {
       throw new NullPointerException(
-        "A QuestGiver component tried to call checkEnemiesKilledQuest when "
-          + "there isn't a quest to check the progress of i.e. it returned null");
+          "A QuestGiver component tried to call checkEnemiesKilledQuest when "
+              + "there isn't a quest to check the progress of i.e. it returned null");
     } else {
       return Quest.checkEnemiesKilledQuest(uniqueNPCID);
     }
@@ -115,8 +115,8 @@ public class QuestGiverComponent extends Component {
   public int checkGoldSpentQuestComplete() {
     if (Quest.checkGoldSpentQuest(uniqueNPCID) == -1) {
       throw new NullPointerException(
-        "A QuestGiver component tried to call checkGoldSpentQuest when "
-          + "there isn't a quest to check the progress of i.e. it returned null");
+          "A QuestGiver component tried to call checkGoldSpentQuest when "
+              + "there isn't a quest to check the progress of i.e. it returned null");
     } else {
       return Quest.checkGoldSpentQuest(uniqueNPCID);
     }
@@ -127,9 +127,9 @@ public class QuestGiverComponent extends Component {
       checkGoldSpentQuestComplete();
     } catch (Exception e) {
       logger.error(
-        "When trying to clear a quest, check*QuestProgress returned a exception."
-          + " Here's the details "
-          + e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
       return false;
     }
     if (!giveOutQuestRewards(checkGoldSpentQuestComplete())) return false;
@@ -148,9 +148,9 @@ public class QuestGiverComponent extends Component {
       checkShieldsCollectedQuestComplete();
     } catch (Exception e) {
       logger.error(
-        "When trying to clear a quest, check*QuestProgress returned a exception."
-          + " Here's the details "
-          + e.getMessage());
+          "When trying to clear a quest, check*QuestProgress returned a exception."
+              + " Here's the details "
+              + e.getMessage());
       return false;
     }
     if (!giveOutQuestRewards(checkShieldsCollectedQuestComplete())) return false;
@@ -161,8 +161,8 @@ public class QuestGiverComponent extends Component {
   public int checkShieldsCollectedQuestComplete() {
     if (Quest.checkShieldsCollectedQuest(uniqueNPCID) == -1) {
       throw new NullPointerException(
-        "A QuestGiver component tried to call checkShieldsCollectedQuest when "
-          + "there isn't a quest to check the progress of i.e. it returned null");
+          "A QuestGiver component tried to call checkShieldsCollectedQuest when "
+              + "there isn't a quest to check the progress of i.e. it returned null");
     } else {
       return Quest.checkShieldsCollectedQuest(uniqueNPCID);
     }
@@ -176,7 +176,7 @@ public class QuestGiverComponent extends Component {
     } else if (goldToGive < 0) {
       // This should not trigger since the constructor safeguards this but just in case
       logger.error(
-        "A QuestGiverComponent tried to give the player negative gold which is not allowed");
+          "A QuestGiverComponent tried to give the player negative gold which is not allowed");
     } else {
       // This should not trigger since the constructor safeguards this but just in case
       logger.error("A QuestGiverComponent had null for their player reference");
@@ -200,7 +200,7 @@ public class QuestGiverComponent extends Component {
       // The player is null which is not allowed
       // The constructor safeguards this but just in case, the logger is here
       logger.error(
-        "A QuestGiverComponent when trying to reward the player with an item found that their player reference was null");
+          "A QuestGiverComponent when trying to reward the player with an item found that their player reference was null");
       return false;
     }
   }
@@ -231,8 +231,8 @@ public class QuestGiverComponent extends Component {
       }
     } catch (Exception e) {
       logger.error(
-        "When trying to reward the player for a quest, the following exception was raised:\n {}",
-        e.getMessage());
+          "When trying to reward the player for a quest, the following exception was raised:\n {}",
+          e.getMessage());
       return false;
     }
     return true;
