@@ -26,6 +26,7 @@ import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.NoclipInputComponent;
+import com.csse3200.game.components.player.ProgressionMiniMapDisplay;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
@@ -91,7 +92,8 @@ public class MainGameScreen extends ScreenAdapter {
     "images/ui/heart-yellow-half.png",
     "images/ui/heart-red-half.png",
     "images/ui/heart-green.png",
-    "images/ui/heart-yellow.png"
+    "images/ui/heart-yellow.png",
+    "images/knight_default.png"
   };
 
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
@@ -196,8 +198,14 @@ public class MainGameScreen extends ScreenAdapter {
 
     this.levelGameArea =
         savedSeed != null
-            ? new LevelGameArea(terrainFactory, initialRoomMap, null, null, savedSeed)
-            : new LevelGameArea(terrainFactory, initialRoomMap);
+            ? new LevelGameArea(
+                terrainFactory,
+                initialRoomMap,
+                null,
+                null,
+                savedSeed,
+                renderer.getCamera().getCamera())
+            : new LevelGameArea(terrainFactory, initialRoomMap, renderer.getCamera().getCamera());
 
     levelGameArea.create();
 
@@ -535,7 +543,7 @@ public class MainGameScreen extends ScreenAdapter {
             transition.getDestinationMap(),
             player,
             transition.getDestinationSpawn(),
-            savedSeed);
+            renderer.getCamera().getCamera());
 
     nextArea.create();
 
@@ -811,7 +819,8 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new MainGameActions(this.game))
         .addComponent(upgradesMenuComponent)
         .addComponent(upgradesDisplay)
-        .addComponent(new ActiveUpgradesHud());
+        .addComponent(new ActiveUpgradesHud())
+        .addComponent(new ProgressionMiniMapDisplay(() -> levelGameArea));
 
     this.pauseMenu = pauseMenuComponent;
 
