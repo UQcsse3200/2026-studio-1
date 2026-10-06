@@ -15,6 +15,19 @@ import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
  * EnemyWeaponAnimationComponent}).
  */
 public class CyclopsAnimationController extends Component {
+  private static final String IDLE_R = "cyclops_idle_r";
+  private static final String IDLE_L = "cyclops_idle_l";
+  private static final String WALK_L = "cyclops_walk_l";
+  private static final String WALK_R = "cyclops_walk_r";
+  private static final String ROCK_L = "cyclops_rock_l";
+  private static final String ROCK_R = "cyclops_rock_r";
+  private static final String LASER_L = "cyclops_laser_l";
+  private static final String LASER_R = "cyclops_laser_r";
+  private static final String TAUNT_L = "cyclops_taunt_l";
+  private static final String TAUNT_R = "cyclops_taunt_r";
+  private static final String STOMP_L = "cyclops_stomp_l";
+  private static final String STOMP_R = "cyclops_stomp_r";
+
   private AnimationRenderComponent animator;
   private EnemyWeaponAnimationComponent weaponAnimator;
   private PhysicsComponent physicsComponent;
@@ -260,7 +273,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = false;
     currentAnimState = AnimationState.IDLE_LEFT;
     if (animator != null) {
-      animator.startAnimation("cyclops_idle_l");
+      animator.startAnimation(IDLE_L);
     }
   }
 
@@ -268,7 +281,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = false;
     currentAnimState = AnimationState.IDLE_RIGHT;
     if (animator != null) {
-      animator.startAnimation("cyclops_idle_r");
+      animator.startAnimation(IDLE_R);
     }
   }
 
@@ -276,7 +289,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = false;
     currentAnimState = AnimationState.WALK_LEFT;
     if (animator != null) {
-      animator.startAnimation("cyclops_walk_l");
+      animator.startAnimation(WALK_L);
     }
   }
 
@@ -284,7 +297,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = false;
     currentAnimState = AnimationState.WALK_RIGHT;
     if (animator != null) {
-      animator.startAnimation("cyclops_walk_r");
+      animator.startAnimation(WALK_R);
     }
   }
 
@@ -292,7 +305,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = true;
     currentAnimState = AnimationState.ROCK_LEFT;
     if (animator != null) {
-      animator.startAnimation("cyclops_rock_l");
+      animator.startAnimation(ROCK_L);
     }
   }
 
@@ -300,7 +313,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = true;
     currentAnimState = AnimationState.ROCK_RIGHT;
     if (animator != null) {
-      animator.startAnimation("cyclops_rock_r");
+      animator.startAnimation(ROCK_R);
     }
   }
 
@@ -308,17 +321,17 @@ public class CyclopsAnimationController extends Component {
     isAttacking = true;
     currentAnimState = AnimationState.LASER_LEFT;
     if (weaponAnimator != null) {
-      if (weaponAnimator.hasAnimation("cyclops_laser_l")) {
-        weaponAnimator.startAnimation("cyclops_laser_l");
+      if (weaponAnimator.hasAnimation(LASER_L)) {
+        weaponAnimator.startAnimation(LASER_L);
       } else if (weaponAnimator.hasAnimation("laser_l")) {
         weaponAnimator.startAnimation("laser_l");
       }
     }
     if (animator != null) {
-      if (animator.hasAnimation("cyclops_taunt_l")) {
-        animator.startAnimation("cyclops_taunt_l");
-      } else if (animator.hasAnimation("cyclops_idle_l")) {
-        animator.startAnimation("cyclops_idle_l");
+      if (animator.hasAnimation(TAUNT_L)) {
+        animator.startAnimation(TAUNT_L);
+      } else if (animator.hasAnimation(IDLE_L)) {
+        animator.startAnimation(IDLE_L);
       }
     }
   }
@@ -327,17 +340,17 @@ public class CyclopsAnimationController extends Component {
     isAttacking = true;
     currentAnimState = AnimationState.LASER_RIGHT;
     if (weaponAnimator != null) {
-      if (weaponAnimator.hasAnimation("cyclops_laser_r")) {
-        weaponAnimator.startAnimation("cyclops_laser_r");
+      if (weaponAnimator.hasAnimation(LASER_R)) {
+        weaponAnimator.startAnimation(LASER_R);
       } else if (weaponAnimator.hasAnimation("laser_r")) {
         weaponAnimator.startAnimation("laser_r");
       }
     }
     if (animator != null) {
-      if (animator.hasAnimation("cyclops_taunt_r")) {
-        animator.startAnimation("cyclops_taunt_r");
-      } else if (animator.hasAnimation("cyclops_idle_r")) {
-        animator.startAnimation("cyclops_idle_r");
+      if (animator.hasAnimation(TAUNT_R)) {
+        animator.startAnimation(TAUNT_R);
+      } else if (animator.hasAnimation(IDLE_R)) {
+        animator.startAnimation(IDLE_R);
       }
     }
   }
@@ -346,7 +359,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = true;
     currentAnimState = AnimationState.STOMP_LEFT;
     if (animator != null) {
-      animator.startAnimation("cyclops_stomp_l");
+      animator.startAnimation(STOMP_L);
     }
   }
 
@@ -354,7 +367,7 @@ public class CyclopsAnimationController extends Component {
     isAttacking = true;
     currentAnimState = AnimationState.STOMP_RIGHT;
     if (animator != null) {
-      animator.startAnimation("cyclops_stomp_r");
+      animator.startAnimation(STOMP_R);
     }
   }
 

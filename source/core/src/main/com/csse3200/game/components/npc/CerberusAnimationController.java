@@ -12,7 +12,12 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
  * velocity and melee attacks.
  */
 public class CerberusAnimationController extends Component {
-  private static final String STARTING_STATE = "walkRightStart";
+  private static final String WALK_LEFT_START = "walkLeftStart";
+  private static final String WALK_RIGHT_START = "walkRightStart";
+  private static final String IDLE_LEFT_START = "idleLeftStart";
+  private static final String IDLE_RIGHT_START = "idleRightStart";
+  private static final String MELEE_ATTACK = "meleeAttack";
+  private static final String MELEE_ATTACK_WINDUP = "meleeAttackWindup";
 
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
@@ -29,15 +34,15 @@ public class CerberusAnimationController extends Component {
     animator = this.entity.getComponent(AnimationRenderComponent.class);
     physicsComponent = this.entity.getComponent(PhysicsComponent.class);
 
-    entity.getEvents().addListener("walkLeftStart", this::animateWalkL);
-    entity.getEvents().addListener("walkRightStart", this::animateWalkR);
-    entity.getEvents().addListener("idleLeftStart", this::animateWalkL);
-    entity.getEvents().addListener("idleRightStart", this::animateWalkR);
-    entity.getEvents().addListener("meleeAttack", this::onAttack);
-    entity.getEvents().addListener("meleeAttackWindup", this::onAttack);
+    entity.getEvents().addListener(WALK_LEFT_START, this::animateWalkL);
+    entity.getEvents().addListener(WALK_RIGHT_START, this::animateWalkR);
+    entity.getEvents().addListener(IDLE_LEFT_START, this::animateWalkL);
+    entity.getEvents().addListener(IDLE_RIGHT_START, this::animateWalkR);
+    entity.getEvents().addListener(MELEE_ATTACK, this::onAttack);
+    entity.getEvents().addListener(MELEE_ATTACK_WINDUP, this::onAttack);
 
     // Trigger a default starting state
-    entity.getEvents().trigger(STARTING_STATE);
+    entity.getEvents().trigger(WALK_RIGHT_START);
     currentAnimState = AnimationState.WALK_RIGHT;
   }
 
@@ -69,10 +74,10 @@ public class CerberusAnimationController extends Component {
   private void triggerStateEvent(AnimationState state) {
     switch (state) {
       case WALK_LEFT:
-        entity.getEvents().trigger("walkLeftStart");
+        entity.getEvents().trigger(WALK_LEFT_START);
         break;
       case WALK_RIGHT:
-        entity.getEvents().trigger("walkRightStart");
+        entity.getEvents().trigger(WALK_RIGHT_START);
         break;
     }
   }
