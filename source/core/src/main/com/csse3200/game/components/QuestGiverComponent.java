@@ -11,8 +11,8 @@ public class QuestGiverComponent extends Component {
   public int uniqueNPCID;
   public int goldToGive = 0;
   public Item itemToGive = null;
-  private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
-  private Entity player;
+  private static final Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
+  private final Entity player;
 
   public QuestGiverComponent(Entity player) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
@@ -47,11 +47,7 @@ public class QuestGiverComponent extends Component {
 
   // Jump quest functions start here
   public boolean logJumpQuest(int jumpsToDo) {
-    if (Quest.logJumpQuest(uniqueNPCID, jumpsToDo)) {
-      return true;
-    } else {
-      return false;
-    }
+    return Quest.logJumpQuest(uniqueNPCID, jumpsToDo);
   }
 
   public boolean clearJumpQuest() {
@@ -82,11 +78,7 @@ public class QuestGiverComponent extends Component {
   // Jump quest functions end here
   // EnemiesKilledQuest functions start here
   public boolean logEnemiesKilledQuest(int enemiesToKill) {
-    if (Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill)) {
-      return true;
-    } else {
-      return false;
-    }
+    return Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill);
   }
 
   public boolean clearEnemiesKilledQuest() {
@@ -117,11 +109,7 @@ public class QuestGiverComponent extends Component {
   // EnemiesKilledQuest functions end here
   // GoldSpentQuest functions start here
   public boolean logGoldSpentQuest(int amountToSpend) {
-    if (Quest.logGoldSpentQuest(uniqueNPCID, amountToSpend)) {
-      return true;
-    } else {
-      return false;
-    }
+    return Quest.logGoldSpentQuest(uniqueNPCID, amountToSpend);
   }
 
   public int checkGoldSpentQuestComplete() {
@@ -152,11 +140,7 @@ public class QuestGiverComponent extends Component {
   // GoldSpentQuest functions end here
   // ShieldsCollectedQuest functions start here
   public boolean logShieldsCollectedQuest(int shieldsToCollect) {
-    if (Quest.logShieldsCollectedQuest(uniqueNPCID, shieldsToCollect)) {
-      return true;
-    } else {
-      return false;
-    }
+    return Quest.logShieldsCollectedQuest(uniqueNPCID, shieldsToCollect);
   }
 
   public boolean clearShieldsCollectedQuest() {
@@ -219,6 +203,24 @@ public class QuestGiverComponent extends Component {
           "A QuestGiverComponent when trying to reward the player with an item found that their player reference was null");
       return false;
     }
+  }
+
+  // TODO (win system): in each of the four clear<Kind>Quest methods, keep the progress in a
+  //   local variable, and after the rewards are given out (and before the quest is cleared) call
+  //   recordIfComplete with the matching kind: QuestLedger.JUMP, ENEMIES_KILLED, GOLD_SPENT or
+  //   SHIELDS_COLLECTED.
+
+  /**
+   * Counts a quest towards the win screen, but only one that was really finished. A quest cleared
+   * below 100 percent is abandoned, not completed.
+   *
+   * @param kind the QuestLedger kind this quest is counted under
+   * @param questProgress the quest's progress as a percentage
+   */
+  private void recordIfComplete(String kind, int questProgress) {
+    // BEGIN recordIfComplete
+    //   IF questProgress is 100 or more THEN QuestLedger.recordCompleted(kind)
+    // END recordIfComplete
   }
 
   private boolean giveOutQuestRewards(int questProgress) {
