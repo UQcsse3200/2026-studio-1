@@ -45,7 +45,7 @@ public final class QuestLedger {
 
   /** Every kind the ledger accepts. Anything else is rejected or ignored. */
   private static final Set<String> VALID_KINDS =
-    Set.of(JUMP, ENEMIES_KILLED, GOLD_SPENT, SHIELDS_COLLECTED);
+      Set.of(JUMP, ENEMIES_KILLED, GOLD_SPENT, SHIELDS_COLLECTED);
 
   /** How many of each kind have been completed. A kind with no entry has a count of zero. */
   private static final Map<String, Integer> completed = new HashMap<>();

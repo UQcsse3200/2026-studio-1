@@ -1,7 +1,5 @@
 package com.csse3200.game.areas;
 
-import com.csse3200.game.win.BossDefeatedWinComponent;
-import com.csse3200.game.win.BossRoster;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
@@ -806,8 +804,6 @@ public class LevelGameArea extends GameArea {
       spawnEntity(doorway);
     }
   }
-
-
 
   /**
    * Says whether the game has been won in this area. It is always false in an area that does not

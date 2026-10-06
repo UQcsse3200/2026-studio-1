@@ -36,23 +36,23 @@ public final class WinResult {
    *     exceeds required, or the list length is not {@code required - defeated}
    */
   public WinResult(
-    WinTier tier,
-    boolean finalBossDefeated,
-    int miniBossesDefeated,
-    int miniBossesRequired,
-    List<String> missingMiniBosses,
-    int questsCompleted,
-    int questsRequired) {
+      WinTier tier,
+      boolean finalBossDefeated,
+      int miniBossesDefeated,
+      int miniBossesRequired,
+      List<String> missingMiniBosses,
+      int questsCompleted,
+      int questsRequired) {
     this(
-      tier,
-      finalBossDefeated,
-      miniBossesDefeated,
-      miniBossesRequired,
-      missingMiniBosses,
-      questsCompleted,
-      questsRequired,
-      0,
-      0);
+        tier,
+        finalBossDefeated,
+        miniBossesDefeated,
+        miniBossesRequired,
+        missingMiniBosses,
+        questsCompleted,
+        questsRequired,
+        0,
+        0);
   }
 
   /**
@@ -71,15 +71,15 @@ public final class WinResult {
    *     negative
    */
   public WinResult(
-    WinTier tier,
-    boolean finalBossDefeated,
-    int miniBossesDefeated,
-    int miniBossesRequired,
-    List<String> missingMiniBosses,
-    int questsCompleted,
-    int questsRequired,
-    int tortoisesFound,
-    int tortoisesTotal) {
+      WinTier tier,
+      boolean finalBossDefeated,
+      int miniBossesDefeated,
+      int miniBossesRequired,
+      List<String> missingMiniBosses,
+      int questsCompleted,
+      int questsRequired,
+      int tortoisesFound,
+      int tortoisesTotal) {
     if (tier == null) {
       throw new IllegalArgumentException("tier must not be null");
     }
@@ -97,7 +97,7 @@ public final class WinResult {
     }
     if (missingMiniBosses.size() != miniBossesRequired - miniBossesDefeated) {
       throw new IllegalArgumentException(
-        "missingMiniBosses must list every required mini boss not yet defeated");
+          "missingMiniBosses must list every required mini boss not yet defeated");
     }
     this.tier = tier;
     this.finalBossDefeated = finalBossDefeated;

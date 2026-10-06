@@ -51,7 +51,7 @@ public final class WinEvaluator {
    * @throws IllegalArgumentException if {@code questsCompleted} is negative
    */
   public static WinResult evaluate(
-    boolean finalBossDefeated, Collection<String> killedEnemyIds, int questsCompleted) {
+      boolean finalBossDefeated, Collection<String> killedEnemyIds, int questsCompleted) {
     return evaluate(finalBossDefeated, killedEnemyIds, questsCompleted, 0, 0);
   }
 
@@ -67,11 +67,11 @@ public final class WinEvaluator {
    * @throws IllegalArgumentException if a count is negative
    */
   public static WinResult evaluate(
-    boolean finalBossDefeated,
-    Collection<String> killedEnemyIds,
-    int questsCompleted,
-    int tortoisesFound,
-    int tortoisesTotal) {
+      boolean finalBossDefeated,
+      Collection<String> killedEnemyIds,
+      int questsCompleted,
+      int tortoisesFound,
+      int tortoisesTotal) {
     if (questsCompleted < 0) {
       throw new IllegalArgumentException("questsCompleted must not be negative");
     }
@@ -95,15 +95,15 @@ public final class WinEvaluator {
       }
     }
     return new WinResult(
-      tier,
-      finalBossDefeated,
-      required - missing.size(),
-      required,
-      missing,
-      questsCompleted,
-      QUESTS_REQUIRED_FOR_LEGEND,
-      tortoisesFound,
-      tortoisesTotal);
+        tier,
+        finalBossDefeated,
+        required - missing.size(),
+        required,
+        missing,
+        questsCompleted,
+        QUESTS_REQUIRED_FOR_LEGEND,
+        tortoisesFound,
+        tortoisesTotal);
   }
 
   /**
@@ -115,10 +115,10 @@ public final class WinEvaluator {
    */
   public static WinResult evaluateNow(boolean finalBossDefeated) {
     return evaluate(
-      finalBossDefeated,
-      EnemyRegistry.exportAll(),
-      QuestLedger.getCompletedCount(),
-      TortoiseLedger.getFoundCount(),
-      TortoiseLedger.getTotal());
+        finalBossDefeated,
+        EnemyRegistry.exportAll(),
+        QuestLedger.getCompletedCount(),
+        TortoiseLedger.getFoundCount(),
+        TortoiseLedger.getTotal());
   }
 }
