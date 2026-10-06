@@ -460,10 +460,12 @@ public class RangedAttackComponent extends Component {
     if (aimDirection.isZero()) {
       aimDirection.set(1f, 0f);
     }
-    Vector2 spawnPosition =
-        aimed && projectile == ProjectileType.ARROW
-            ? entity.getCenterPosition().mulAdd(aimDirection.cpy().nor(), SPAWN_OFFSET)
-            : entity.getCenterPosition().add(movingRight ? SPAWN_OFFSET : -SPAWN_OFFSET, 0f);
+    Vector2 spawnPosition;
+    if (aimed && projectile == ProjectileType.ARROW)
+      spawnPosition = entity.getCenterPosition().mulAdd(aimDirection.cpy().nor(), SPAWN_OFFSET);
+    else
+      spawnPosition =
+          entity.getCenterPosition().add(movingRight ? SPAWN_OFFSET : -SPAWN_OFFSET, 0f);
     return switch (projectile) {
       case ARROW ->
           aimed

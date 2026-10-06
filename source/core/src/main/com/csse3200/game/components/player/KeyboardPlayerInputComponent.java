@@ -190,6 +190,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     LadderComponent ladderUp = entity.getComponent(LadderComponent.class);
     if (ladderUp != null && ladderUp.beginClimb(1f)) {
+      entity.getEvents().trigger("climb");
       return true;
     }
     stopClimbing();
@@ -444,15 +445,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return true;
     }
     if (keycode == KeybindSettings.getKey(MOVE_LEFT)) {
-      if (walkingLeft) {
-        walkDirection.sub(Vector2Utils.LEFT);
-        walkingLeft = false;
-      }
-      if (walkDirection.isZero()) {
-        entity.getEvents().trigger("idle", direction);
-      }
-      triggerWalkEvent();
-      return true;
+      keyUpWalking('a');
     }
     if (keycode == KeybindSettings.getKey(MOVE_DOWN)) {
       stopClimbing();
@@ -464,15 +457,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return true;
     }
     if (keycode == KeybindSettings.getKey(MOVE_RIGHT)) {
-      if (walkingRight) {
-        walkDirection.sub(Vector2Utils.RIGHT);
-        walkingRight = false;
-      }
-      if (walkDirection.isZero()) {
-        entity.getEvents().trigger("idle", direction);
-      }
-      triggerWalkEvent();
-      return true;
+      keyUpWalking('d');
     }
     if (keycode == KeybindSettings.getKey(CROUCH_STRING)) {
       entity.getEvents().trigger(CTRL_CHANGED, false);
@@ -513,6 +498,26 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       entity.getEvents().trigger("run", direction);
     }
     triggerWalkEvent();
+  }
+
+  private boolean keyUpWalking(char key) {
+    if (key == 'a') {
+      if (walkingLeft) {
+        walkDirection.sub(Vector2Utils.LEFT);
+        walkingLeft = false;
+      }
+    }
+    if (key == 'd') {
+      if (walkingRight) {
+        walkDirection.sub(Vector2Utils.RIGHT);
+        walkingRight = false;
+      }
+    }
+    if (walkDirection.isZero()) {
+      entity.getEvents().trigger("idle", direction);
+    }
+    triggerWalkEvent();
+    return true;
   }
 
   private void dashing() {

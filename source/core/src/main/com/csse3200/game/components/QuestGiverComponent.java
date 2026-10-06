@@ -4,6 +4,7 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.perks.PerkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +12,9 @@ public class QuestGiverComponent extends Component {
   public int uniqueNPCID;
   public int goldToGive = 0;
   public Item itemToGive = null;
-  private static final Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
-  private final Entity player;
+  private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
+  private Entity player;
+  private int amountXToDo;
 
   public QuestGiverComponent(Entity player) {
     uniqueNPCID = Quest.giveOutUniqueNPCID();
@@ -47,7 +49,12 @@ public class QuestGiverComponent extends Component {
 
   // Jump quest functions start here
   public boolean logJumpQuest(int jumpsToDo) {
-    return Quest.logJumpQuest(uniqueNPCID, jumpsToDo);
+    if (Quest.logJumpQuest(uniqueNPCID, jumpsToDo)) {
+      amountXToDo = jumpsToDo;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean clearJumpQuest() {
@@ -78,7 +85,12 @@ public class QuestGiverComponent extends Component {
   // Jump quest functions end here
   // EnemiesKilledQuest functions start here
   public boolean logEnemiesKilledQuest(int enemiesToKill) {
-    return Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill);
+    if (Quest.logEnemiesKilledQuest(uniqueNPCID, enemiesToKill)) {
+      amountXToDo = enemiesToKill;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean clearEnemiesKilledQuest() {
@@ -93,6 +105,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkEnemiesKilledQuestComplete())) return false;
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
+    PerkService.recordEvent("enemyKilled", amountXToDo);
     return true;
   }
 
@@ -109,7 +122,12 @@ public class QuestGiverComponent extends Component {
   // EnemiesKilledQuest functions end here
   // GoldSpentQuest functions start here
   public boolean logGoldSpentQuest(int amountToSpend) {
-    return Quest.logGoldSpentQuest(uniqueNPCID, amountToSpend);
+    if (Quest.logGoldSpentQuest(uniqueNPCID, amountToSpend)) {
+      amountXToDo = amountToSpend;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public int checkGoldSpentQuestComplete() {
@@ -134,13 +152,19 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkGoldSpentQuestComplete())) return false;
     Quest.clearGoldSpentQuest(uniqueNPCID);
+    PerkService.recordEvent("GoldSpent", amountXToDo);
     return true;
   }
 
   // GoldSpentQuest functions end here
   // ShieldsCollectedQuest functions start here
   public boolean logShieldsCollectedQuest(int shieldsToCollect) {
-    return Quest.logShieldsCollectedQuest(uniqueNPCID, shieldsToCollect);
+    if (Quest.logShieldsCollectedQuest(uniqueNPCID, shieldsToCollect)) {
+      amountXToDo = shieldsToCollect;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public boolean clearShieldsCollectedQuest() {
@@ -155,6 +179,7 @@ public class QuestGiverComponent extends Component {
     }
     if (!giveOutQuestRewards(checkShieldsCollectedQuestComplete())) return false;
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
+    PerkService.recordEvent("shieldCollected", amountXToDo);
     return true;
   }
 
@@ -235,6 +260,25 @@ public class QuestGiverComponent extends Component {
           e.getMessage());
       return false;
     }
+    return true;
+  }
+
+  public void setGoldToGive(int goldToGive) {
+    if (goldToGive < 0) {
+      throw new IllegalArgumentException(
+          "A QuestGiverComponent when using the setGoldToGive function used  "
+              + goldToGive
+              + " as the goldToGive as a reward but goldToGive should not be negative");
+    }
+    this.goldToGive = goldToGive;
+  }
+
+  public boolean setItemToGive(Item itemToGive) {
+    if (itemToGive == null) {
+      throw new IllegalArgumentException(
+          "A QuestGiverComponent when using the setItemToGive function was given null as the item to give as a reward which should not be done.");
+    }
+    this.itemToGive = itemToGive;
     return true;
   }
 }

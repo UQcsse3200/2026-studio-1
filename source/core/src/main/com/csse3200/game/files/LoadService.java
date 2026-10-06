@@ -6,9 +6,21 @@ import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.PlayerBuffComponent;
+import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.ShopComponent;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.entities.factories.LootFactory;
+import com.csse3200.game.services.ServiceLocator;
+import com.csse3200.game.upgrades.UpgradeNode;
+import java.util.List;
 
 /** Applies saved game data to a newly created player. */
 public class LoadService {
@@ -18,35 +30,51 @@ public class LoadService {
    *
    * @param player player entity to restore
    */
-  public static void load(Entity player, float mapWidth, float mapHeight) {
+  public static void load(
+      Entity player, float mapWidth, float mapHeight, List<UpgradeNode> upgrades) {
     if (player == null) {
       return;
     }
 
-    GameSaveData data = SaveService.load();
+    // No save file exists, so keep the player's default values.
+    if (!SaveService.hasSave()) {
+      return;
+    }
 
-    // No saved progress exists, so keep the player's default values.
-    if (!hasSavedData(data)) {
+    GameSaveData data = SaveService.load();
+    apply(player, data, mapWidth, mapHeight, upgrades);
+  }
+
+  /**
+   * Applies already-loaded save data to the given player.
+   *
+   * <p>Kept separate from {@link #load(Entity, float, float, List)} so the restore logic can be
+   * unit tested without reading a save file from disk.
+   *
+   * @param player player entity to restore
+   * @param data save data to apply
+   * @param mapWidth width of the current map, used to validate saved positions
+   * @param mapHeight height of the current map, used to validate saved positions
+   * @param upgrades the game's upgrade nodes, so saved upgrades can be restored onto them
+   */
+  public static void apply(
+      Entity player,
+      GameSaveData data,
+      float mapWidth,
+      float mapHeight,
+      List<UpgradeNode> upgrades) {
+    if (player == null || data == null) {
       return;
     }
 
     loadHealth(player, data);
+    loadStamina(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
-  }
-
-  /**
-   * Checks whether the loaded data represents an existing save.
-   *
-   * @param data loaded save data
-   * @return true if saved progress exists
-   */
-  private static boolean hasSavedData(GameSaveData data) {
-    return data.health > 0
-        || data.gold > 0
-        || !data.items.isEmpty()
-        || data.posX != 0
-        || data.posY != 0;
+    loadPets(player, data);
+    loadUpgrades(player, data, upgrades);
+    loadBuffs(player, data);
+    loadDroppedLoot(data, mapWidth, mapHeight);
   }
 
   private static void loadHealth(Entity player, GameSaveData data) {
@@ -54,6 +82,36 @@ public class LoadService {
 
     if (stats != null && data.health > 0) {
       stats.setHealth(data.health);
+    }
+  }
+
+  private static void loadStamina(Entity player, GameSaveData data) {
+    StaminaComponent stamina = player.getComponent(StaminaComponent.class);
+
+    if (stamina != null) {
+      stamina.setStamina(data.stamina);
+    }
+  }
+
+  private static void loadBuffs(Entity player, GameSaveData data) {
+    PlayerBuffComponent buffs = player.getComponent(PlayerBuffComponent.class);
+    if (buffs != null && data.buffs != null) {
+      for (SavedBuff saved : data.buffs) {
+        if (saved == null || saved.stat == null) {
+          continue;
+        }
+
+        try {
+          buffs.applyBuff(BuffStat.valueOf(saved.stat), saved.magnitude, saved.remainingSeconds);
+        } catch (IllegalArgumentException e) {
+          // Unknown stat name in the save file - skip this buff.
+        }
+      }
+    }
+
+    PlayerRegenComponent regen = player.getComponent(PlayerRegenComponent.class);
+    if (regen != null) {
+      regen.startRegen(data.regenHealPerTick, data.regenRemainingSeconds);
     }
   }
 
@@ -85,9 +143,15 @@ public class LoadService {
     inventory.setGold(data.gold);
 
     for (SavedItem savedItem : data.items) {
-      Item item = createItem(savedItem);
+      Item item = restoreItem(savedItem);
 
       if (item == null) {
+        continue;
+      }
+
+      // Put the item back in the exact slot it was saved from. If that slot is
+      // invalid, fall back to the normal add so the item isn't lost.
+      if (inventory.setItem(savedItem.slot, item)) {
         continue;
       }
 
@@ -100,6 +164,86 @@ public class LoadService {
                 notAdded);
       }
     }
+
+    inventory.setActiveSlot(data.activeSlot);
+  }
+
+  private static void loadPets(Entity player, GameSaveData data) {
+    ShopComponent shop = player.getComponent(ShopComponent.class);
+    if (shop != null) {
+      shop.restorePurchasedPets(data.ownedPetNames);
+    }
+
+    if (data.activePetName != null && !data.activePetName.isBlank()) {
+      PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
+      if (petManager != null) {
+        petManager.activatePet(new ShopComponent.Pet(data.activePetName));
+      }
+    }
+  }
+
+  private static void loadUpgrades(Entity player, GameSaveData data, List<UpgradeNode> upgrades) {
+    if (upgrades == null || data.upgrades == null) {
+      return;
+    }
+
+    for (SavedUpgrade saved : data.upgrades) {
+      if (saved == null || saved.id == null) {
+        continue;
+      }
+
+      for (UpgradeNode node : upgrades) {
+        if (saved.id.equals(node.getId())) {
+          node.restore(saved.tier, saved.remainingSeconds, saved.remainingKills);
+          break;
+        }
+      }
+    }
+
+    // Restoring the shield upgrade refills its hits, so put back the saved remaining count.
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+    if (stats != null && data.shieldHits != null) {
+      stats.setShieldHits(data.shieldHits);
+    }
+  }
+
+  private static void loadDroppedLoot(GameSaveData data, float mapWidth, float mapHeight) {
+    EntityService entityService = ServiceLocator.getEntityService();
+    if (entityService == null || data.droppedLoot == null) {
+      return;
+    }
+
+    for (SavedLoot saved : data.droppedLoot) {
+      if (saved == null) {
+        continue;
+      }
+
+      boolean insideMap =
+          saved.x >= 0 && saved.x <= mapWidth && saved.y >= 0 && saved.y <= mapHeight;
+      Item item = restoreItem(saved.item);
+      if (!insideMap || item == null) {
+        continue;
+      }
+
+      Entity loot = LootFactory.createLoot(item);
+      loot.setPosition(saved.x, saved.y);
+      entityService.register(loot);
+    }
+  }
+
+  private static Item restoreItem(SavedItem savedItem) {
+    Item item = createItem(savedItem);
+
+    if (item == null) {
+      return null;
+    }
+
+    // Rebuilding an item resets these, so put the saved values back.
+    item.setQuantity(savedItem.quantity);
+    if (savedItem.sellPrice != null && savedItem.sellPrice >= 0) {
+      item.setSellPrice(savedItem.sellPrice);
+    }
+    return item;
   }
 
   private static Item createItem(SavedItem savedItem) {
@@ -122,6 +266,21 @@ public class LoadService {
       try {
         WeaponType weaponType = WeaponType.valueOf(savedItem.weaponType);
 
+        if (savedItem.weaponTier != null) {
+          try {
+            WeaponTier weaponTier = WeaponTier.fromTierNumber(savedItem.weaponTier);
+            return new WeaponItem(
+                savedItem.name,
+                weaponType,
+                weaponTier,
+                savedItem.quantity,
+                savedItem.maxQuantity,
+                0f);
+          } catch (IllegalArgumentException e) {
+            // Unrecognised tier number - fall back to the flat-damage constructor below.
+          }
+        }
+
         return new WeaponItem(
             savedItem.name,
             weaponType,
@@ -136,15 +295,42 @@ public class LoadService {
     if (itemType == ItemType.CONSUMABLE && savedItem.consumableType != null) {
       try {
         ConsumableType consumableType = ConsumableType.valueOf(savedItem.consumableType);
-        // Tier isn't stored on ConsumableItem, so reload defaults to tier 1 —
-        // a known simplification, not a full fix.
-        return new ConsumableGenerator().generateConsumable(consumableType, 1);
+        int tier = parseConsumableTier(savedItem.name);
+        return new ConsumableGenerator().generateConsumable(consumableType, tier);
       } catch (IllegalArgumentException e) {
         return null;
       }
     }
 
     return new Item(savedItem.name, itemType, savedItem.quantity, savedItem.maxQuantity);
+  }
+
+  /**
+   * Recovers a consumable's loot tier from its saved name.
+   *
+   * <p>ConsumableItem doesn't store tier directly, but ConsumableGenerator names tier 2+ items as
+   * "<name> (Tier N)". Tier 1 has no suffix, so a missing or unparsable match defaults to 1.
+   *
+   * @param name the item's saved display name
+   * @return the parsed tier, or 1 if none is found
+   */
+  private static int parseConsumableTier(String name) {
+    if (name == null) {
+      return 1;
+    }
+
+    java.util.regex.Matcher matcher =
+        java.util.regex.Pattern.compile("\\(Tier (\\d+)\\)$").matcher(name.trim());
+
+    if (matcher.find()) {
+      try {
+        return Integer.parseInt(matcher.group(1));
+      } catch (NumberFormatException e) {
+        return 1;
+      }
+    }
+
+    return 1;
   }
 
   private LoadService() {

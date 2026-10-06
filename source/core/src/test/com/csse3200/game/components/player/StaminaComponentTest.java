@@ -74,6 +74,11 @@ class StaminaComponentTest {
   }
 
   @Test
+  void testSlideCost() {
+    assertEquals(15f, staminaComponent.getSlideCost());
+  }
+
+  @Test
   void testRegenerationRate() {
     assertEquals(5f, staminaComponent.getRegenRate());
   }
