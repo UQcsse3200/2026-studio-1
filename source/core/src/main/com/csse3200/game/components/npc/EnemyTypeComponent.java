@@ -29,16 +29,16 @@ public class EnemyTypeComponent extends Component {
     // converted to lowercase prior to any manipulation of the string.
     String[] enemyParts = enemy.toLowerCase(Locale.ENGLISH).split("_");
     String label = "";
-    for (int i = 0; i < enemyParts.length; i++) {
-      if (enemyParts[i].isEmpty()) {
+    for (String enemyPart : enemyParts) {
+      if (enemyPart.isEmpty()) {
         return;
       }
-      char[] word_char_array = enemyParts[i].toCharArray();
-      String firstLetter = String.valueOf(word_char_array[0]).toUpperCase(Locale.ENGLISH);
+      char[] wordCharArray = enemyPart.toCharArray();
+      String firstLetter = String.valueOf(wordCharArray[0]).toUpperCase(Locale.ENGLISH);
       label = label.concat(firstLetter);
 
-      for (int j = 1; j < word_char_array.length; j++) {
-        label = label.concat(String.valueOf(word_char_array[j]));
+      for (int j = 1; j < wordCharArray.length; j++) {
+        label = label.concat(String.valueOf(wordCharArray[j]));
       }
 
       label = label.concat(" ");

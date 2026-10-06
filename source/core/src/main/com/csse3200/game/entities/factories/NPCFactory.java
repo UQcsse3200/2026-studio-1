@@ -8,9 +8,24 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.EnemyType;
+import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.*;
+import com.csse3200.game.components.npc.CyclopsAnimationController;
+import com.csse3200.game.components.npc.DialogueComponent;
+import com.csse3200.game.components.npc.DialogueProximityComponent;
+import com.csse3200.game.components.npc.DisplayDialogue;
+import com.csse3200.game.components.npc.EnemyDeathComponent;
+import com.csse3200.game.components.npc.HeadbuttAttackComponent;
+import com.csse3200.game.components.npc.MinotaurAnimationController;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameGenerator;
+import com.csse3200.game.components.npc.PotionThrowComponent;
+import com.csse3200.game.components.npc.ProvokedComponent;
+import com.csse3200.game.components.npc.ShopkeeperComponent;
+import com.csse3200.game.components.npc.SkeletonAnimationController;
+import com.csse3200.game.components.npc.SkeletonWeaponAnimationController;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.projectile.ProjectileType;
@@ -65,6 +80,7 @@ public class NPCFactory {
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
+  private static final NameGenerator nameGenerator = new NameGenerator();
 
   // The speed effect counts down once per frame, so seconds are converted at 60 frames a second.
   private static final int TICKS_PER_SECOND = 60;
@@ -905,13 +921,13 @@ public class NPCFactory {
         new AITaskComponent()
             .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
             .addTask(new ChaseTask(target, 10, 3f, 4f));
+
     Entity npc =
         new Entity()
             .addComponent(new PhysicsComponent())
             .addComponent(new PhysicsMovementComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(new TouchAttackComponent(PhysicsLayer.PLAYER, 1.5f))
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.4f);
@@ -935,13 +951,15 @@ public class NPCFactory {
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale))
             .addTask(new ChaseTask(target, 10, 3f, 4f))
             .addTask(new MeleeAttackTask(target, 15, 1f));
+    String generatedName = nameGenerator.generateName();
     Entity npc =
         new Entity()
             .addComponent(new PhysicsComponent())
             .addComponent(new PhysicsMovementComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(aiComponent);
+            .addComponent(aiComponent)
+            .addComponent(new NameComponent(generatedName));
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
@@ -964,6 +982,10 @@ public class NPCFactory {
   public static Entity createShopNPC(Entity player) {
     Entity npc = createAnimatedNPC(player, "Hermes", SHOP_NPC_ATLAS_PATH);
     npc.addComponent(new ShopkeeperComponent(player));
+    npc.getComponent(DialogueComponent.class).changeQuestType("shieldscollectedquest");
+    npc.getComponent(QuestGiverComponent.class)
+        .setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.BOW, 2));
+    npc.getComponent(DialogueComponent.class).changeAmountXToDo(2);
     return npc;
   }
 
@@ -996,6 +1018,11 @@ public class NPCFactory {
     wizard
         .getComponent(AITaskComponent.class)
         .addTask(new RetaliateTask(player, 10, throwRange, "throwPoisonPotion"));
+    wizard.getComponent(DialogueComponent.class).changeQuestType("enemiesquest");
+    wizard
+        .getComponent(QuestGiverComponent.class)
+        .setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 3));
+    wizard.getComponent(DialogueComponent.class).changeAmountXToDo(3);
     return wizard;
   }
 
@@ -1005,7 +1032,9 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createPhilosopherNPC(Entity player) {
-    return makeKillable(createAnimatedNPC(player, "Philosopher", PHILOSOPHER_NPC_ATLAS_PATH));
+    Entity npc = makeKillable(createAnimatedNPC(player, "Philosopher", PHILOSOPHER_NPC_ATLAS_PATH));
+    npc.getComponent(QuestGiverComponent.class).setGoldToGive(100);
+    return npc;
   }
 
   /**
@@ -1032,6 +1061,9 @@ public class NPCFactory {
     satyr
         .getComponent(AITaskComponent.class)
         .addTask(new RetaliateTask(player, 10, 4f, "headbutt"));
+    satyr.getComponent(DialogueComponent.class).changeQuestType("goldspentquest");
+    satyr.getComponent(QuestGiverComponent.class).setGoldToGive(1);
+    satyr.getComponent(DialogueComponent.class).changeAmountXToDo(50);
     return satyr;
   }
 
@@ -1063,8 +1095,19 @@ public class NPCFactory {
     npc.addComponent(new PhysicsComponent())
         .addComponent(new PhysicsMovementComponent())
         .addComponent(new ColliderComponent())
+        .addComponent(new QuestGiverComponent(player))
         // NPC dialogue
-        .addComponent(new DialogueComponent(new String[] {"Hello", "Good luck"}))
+        .addComponent(
+            new DialogueComponent(
+                new String[] {
+                  "Hello, here's a quest!",
+                  "Here's the progress of your quest: ",
+                  "I've cleared your quest!",
+                  "Thanks for the help",
+                  "Hmm, something went wrong with completing your quest..."
+                },
+                "jumpquest",
+                10))
         .addComponent(new DisplayDialogue(speakerName))
         .addComponent(new DialogueProximityComponent(player, 2f));
 

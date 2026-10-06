@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class BoundedPlatformWanderTask extends PlatformWanderTask {
   private boolean anchored;
-  private float radius;
+  private final float radius;
   private float anchorX;
 
   /**
@@ -19,13 +19,6 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
    */
   public BoundedPlatformWanderTask(float radius, float waitTime, float rayCastPositionScale) {
     super(checkedWidth(radius), waitTime, rayCastPositionScale);
-    // CALL the parent constructor WITH
-    //   wander range <- a vector of (checkedWidth(radius) = radius TIMES 2, 0)
-    //   waitTime, rayCastPositionScale
-    //   (the parent call must come first, so do the radius check inside the argument: a small
-    //    private static helper that RAISES error "radius must be greater than zero" when
-    //    radius <= 0 OR radius is not a number OR radius is infinite, and otherwise gives back
-    // radius TIMES 2)
     this.radius = radius;
     anchored = false;
   }
@@ -33,12 +26,6 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
   /** Captures the spawn anchor the first time the task starts, then starts as the parent does. */
   @Override
   public void start() {
-    // IF anchored is false THEN
-    //   anchorX <- the horizontal position of the owning entity
-    //   anchored <- true
-    // END IF
-    // CALL the parent start       (it calls getRandomPosInRange, so the anchor must be set first)
-
     if (!isAnchored()) {
       anchorX = owner.getEntity().getPosition().x;
       anchored = true;
@@ -54,9 +41,7 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
    */
   @Override
   protected Vector2 getRandomPosInRange() {
-    // candidate <- the parent's getRandomPosInRange
     Vector2 candidate = super.getRandomPosInRange();
-    // IF anchored is false THEN RETURN candidate
     if (!isAnchored()) {
       return candidate;
     }
@@ -64,7 +49,6 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
     float lowestX = this.getAnchorX() - this.getRadius();
     // highest <- anchorX PLUS radius
     float highestX = this.getAnchorX() + this.getRadius();
-    // IF the x of candidate < lowest THEN set the x of candidate TO lowest
     if (candidate.x < lowestX) {
       candidate.x = lowestX;
     } else if (candidate.x > highestX) {

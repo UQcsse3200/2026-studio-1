@@ -47,7 +47,7 @@ public class RockAttackComponent extends RangedAttackComponent {
       float spawnHeightFraction,
       float damageMultiplier) {
     super(range, cooldown, knockback, weapon, EVENT_PREFIX);
-    if (!(range > 0f)) {
+    if (range <= 0f) {
       throw new IllegalArgumentException("range must be greater than zero");
     }
     if (!(spawnHeightFraction >= 0f && spawnHeightFraction <= 1f)) {

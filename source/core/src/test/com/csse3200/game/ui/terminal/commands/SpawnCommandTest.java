@@ -16,7 +16,7 @@ class SpawnCommandTest {
 
   private SpawnCommand spawnCommand;
   // Arbitrary for testing
-  private static final String Enemy = "skeleton";
+  private static final String ENEMY = "skeleton";
   private final LevelGameArea mockLevelGameArea = mock(LevelGameArea.class);
   private final Entity mockPlayer = mock(Entity.class);
   // Arbitrary for testing
@@ -42,10 +42,10 @@ class SpawnCommandTest {
   @Test
   void successfullySpawnsGivenValidEnemy() {
     stubPlayerPosition();
-    when(mockLevelGameArea.spawnEnemy(Enemy, playerPosition)).thenReturn(true);
+    when(mockLevelGameArea.spawnEnemy(ENEMY, playerPosition)).thenReturn(true);
 
-    assertTrue(spawnCommand.action(new ArrayList<>(List.of(Enemy))));
-    verify(mockLevelGameArea).spawnEnemy(Enemy, playerPosition);
+    assertTrue(spawnCommand.action(new ArrayList<>(List.of(ENEMY))));
+    verify(mockLevelGameArea).spawnEnemy(ENEMY, playerPosition);
   }
 
   @Test
@@ -63,12 +63,12 @@ class SpawnCommandTest {
     LevelGameArea nextLevelGameArea = mock(LevelGameArea.class);
     when(nextLevelGameArea.getPlayer()).thenReturn(mockPlayer);
     when(mockPlayer.getPosition()).thenReturn(playerPosition);
-    when(nextLevelGameArea.spawnEnemy(Enemy, playerPosition)).thenReturn(true);
+    when(nextLevelGameArea.spawnEnemy(ENEMY, playerPosition)).thenReturn(true);
 
     SpawnCommand.updateLevelGameArea(nextLevelGameArea);
 
-    assertTrue(spawnCommand.action(new ArrayList<>(List.of(Enemy))));
-    verify(nextLevelGameArea).spawnEnemy(Enemy, playerPosition);
+    assertTrue(spawnCommand.action(new ArrayList<>(List.of(ENEMY))));
+    verify(nextLevelGameArea).spawnEnemy(ENEMY, playerPosition);
     verify(mockLevelGameArea, never()).spawnEnemy(anyString(), any());
   }
 
@@ -80,7 +80,7 @@ class SpawnCommandTest {
     assertFalse(spawnCommand.action(args));
 
     // Extra argument list
-    args = new ArrayList<>(List.of(Enemy, "ExtraArg"));
+    args = new ArrayList<>(List.of(ENEMY, "ExtraArg"));
     assertFalse(spawnCommand.isValid(args));
     assertFalse(spawnCommand.action(args));
 
@@ -93,13 +93,13 @@ class SpawnCommandTest {
     SpawnCommand.updateLevelGameArea(null);
 
     // Valid args
-    ArrayList<String> args = new ArrayList<>(List.of(Enemy));
+    ArrayList<String> args = new ArrayList<>(List.of(ENEMY));
     assertFalse(spawnCommand.isValid(args));
     assertFalse(spawnCommand.action(args));
   }
 
   @Test
   void isValidReturnsTrueOnValid() {
-    assertTrue(spawnCommand.isValid(new ArrayList<>(List.of(Enemy))));
+    assertTrue(spawnCommand.isValid(new ArrayList<>(List.of(ENEMY))));
   }
 }

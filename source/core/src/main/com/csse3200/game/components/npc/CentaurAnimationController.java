@@ -13,6 +13,19 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
  * and charging.
  */
 public class CentaurAnimationController extends Component {
+  private static final String IDLE_LEFT_START = "idleLeftStart";
+  private static final String IDLE_RIGHT_START = "idleRightStart";
+  private static final String RUN_LEFT_START = "runLeftStart";
+  private static final String RUN_RIGHT_START = "runRightStart";
+  private static final String SWING_LEFT_START = "swingLeftStart";
+  private static final String SWING_RIGHT_START = "swingRightStart";
+  private static final String DEATH_LEFT_START = "deathLeftStart";
+  private static final String DEATH_RIGHT_START = "deathRightStart";
+  private static final String MELEE_ATTACK = "meleeAttack";
+  private static final String MELEE_ATTACK_WINDUP = "meleeAttackWindup";
+  private static final String RANGED_ATTACK_FIRED = "rangedAttackFired";
+  private static final String CHARGE_START = "chargeStart";
+
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
   private ChargeComponent chargeComponent;
@@ -37,21 +50,21 @@ public class CentaurAnimationController extends Component {
     physicsComponent = this.entity.getComponent(PhysicsComponent.class);
     chargeComponent = this.entity.getComponent(ChargeComponent.class);
 
-    entity.getEvents().addListener("idleLeftStart", this::animateIdleL);
-    entity.getEvents().addListener("idleRightStart", this::animateIdleR);
-    entity.getEvents().addListener("runLeftStart", this::animateRunL);
-    entity.getEvents().addListener("runRightStart", this::animateRunR);
-    entity.getEvents().addListener("swingLeftStart", this::animateSwingL);
-    entity.getEvents().addListener("swingRightStart", this::animateSwingR);
-    entity.getEvents().addListener("deathLeftStart", this::animateDeathL);
-    entity.getEvents().addListener("deathRightStart", this::animateDeathR);
-    entity.getEvents().addListener("meleeAttack", (Entity target) -> onAttack(target));
-    entity.getEvents().addListener("meleeAttackWindup", (Entity target) -> onAttack(target));
-    entity.getEvents().addListener("rangedAttackFired", (Entity target) -> onAttack(target));
-    entity.getEvents().addListener("chargeStart", this::onChargeStart);
+    entity.getEvents().addListener(IDLE_LEFT_START, this::animateIdleL);
+    entity.getEvents().addListener(IDLE_RIGHT_START, this::animateIdleR);
+    entity.getEvents().addListener(RUN_LEFT_START, this::animateRunL);
+    entity.getEvents().addListener(RUN_RIGHT_START, this::animateRunR);
+    entity.getEvents().addListener(SWING_LEFT_START, this::animateSwingL);
+    entity.getEvents().addListener(SWING_RIGHT_START, this::animateSwingR);
+    entity.getEvents().addListener(DEATH_LEFT_START, this::animateDeathL);
+    entity.getEvents().addListener(DEATH_RIGHT_START, this::animateDeathR);
+    entity.getEvents().addListener(MELEE_ATTACK, (Entity target) -> onAttack(target));
+    entity.getEvents().addListener(MELEE_ATTACK_WINDUP, (Entity target) -> onAttack(target));
+    entity.getEvents().addListener(RANGED_ATTACK_FIRED, (Entity target) -> onAttack(target));
+    entity.getEvents().addListener(CHARGE_START, this::onChargeStart);
 
     // Trigger a default starting state
-    entity.getEvents().trigger("idleRightStart");
+    entity.getEvents().trigger(IDLE_RIGHT_START);
     currentAnimState = AnimationState.IDLE_RIGHT;
   }
 
@@ -152,28 +165,28 @@ public class CentaurAnimationController extends Component {
   private void triggerStateEvent(AnimationState state) {
     switch (state) {
       case SWING_LEFT:
-        entity.getEvents().trigger("swingLeftStart");
+        entity.getEvents().trigger(SWING_LEFT_START);
         break;
       case SWING_RIGHT:
-        entity.getEvents().trigger("swingRightStart");
+        entity.getEvents().trigger(SWING_RIGHT_START);
         break;
       case RUN_LEFT:
-        entity.getEvents().trigger("runLeftStart");
+        entity.getEvents().trigger(RUN_LEFT_START);
         break;
       case RUN_RIGHT:
-        entity.getEvents().trigger("runRightStart");
+        entity.getEvents().trigger(RUN_RIGHT_START);
         break;
       case IDLE_LEFT:
-        entity.getEvents().trigger("idleLeftStart");
+        entity.getEvents().trigger(IDLE_LEFT_START);
         break;
       case IDLE_RIGHT:
-        entity.getEvents().trigger("idleRightStart");
+        entity.getEvents().trigger(IDLE_RIGHT_START);
         break;
       case DEATH_LEFT:
-        entity.getEvents().trigger("deathLeftStart");
+        entity.getEvents().trigger(DEATH_LEFT_START);
         break;
       case DEATH_RIGHT:
-        entity.getEvents().trigger("deathRightStart");
+        entity.getEvents().trigger(DEATH_RIGHT_START);
         break;
     }
   }
