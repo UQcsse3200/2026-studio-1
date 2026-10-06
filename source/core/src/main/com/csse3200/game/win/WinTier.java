@@ -92,10 +92,6 @@ public enum WinTier {
    * @throws IllegalArgumentException if the level is below 0 or above 3
    */
   public static WinTier fromLevel(int level) {
-    // BEGIN fromLevel
-    //   find the value whose level equals the argument and give it back
-    //   IF none matches THEN reject with "no win tier has level <level>"
-    // END fromLevel
     return switch (level) {
       case 0 -> NONE;
       case 1 -> VICTORY;

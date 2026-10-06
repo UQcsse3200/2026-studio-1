@@ -68,12 +68,16 @@ public final class WinResult {
       throw new IllegalArgumentException(
           "Tier and list of missing mini bosses cannot be missing or empty.");
     }
-    if (miniBossesDefeated < 0 || miniBossesRequired < 0) {
-      throw new IllegalArgumentException("Neither of mini boss counts can be negative.");
+    if (miniBossesDefeated < 0 || miniBossesRequired < 0 || questsRequired < 0 || questsCompleted < 0) {
+      throw new IllegalArgumentException("None of the mini boss counts or the quest counts can be negative.");
     }
     if (miniBossesDefeated > miniBossesRequired) {
       throw new IllegalArgumentException(
-          "number of bosses defeated cannot be greater than number of mini bosses required.");
+          "number of bosses defeated cannot be greater than number of mini bosses required to kill.");
+    }
+    if (questsCompleted > questsRequired) {
+      throw new IllegalArgumentException(
+        "Number of quests to be completed cannot be greater than number of quests required to complete.");
     }
     if (missingMiniBosses.size() == (miniBossesDefeated - miniBossesRequired)) {
       throw new IllegalArgumentException(
