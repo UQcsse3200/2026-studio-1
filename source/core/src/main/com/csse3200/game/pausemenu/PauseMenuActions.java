@@ -124,6 +124,8 @@ public class PauseMenuActions extends Component {
     data.lootSeedsByRoom = lootSeedsSupplier.get();
     data.collectedLootIds = LootRegistry.exportAll();
     data.killedEnemyIds = EnemyRegistry.exportAll();
+    // TODO (win system): also save QuestLedger.exportAll() into completedQuestsByKind and
+    //   TortoiseLedger.exportAll() into foundTortoiseIds.
     data.level = levelSupplier.get();
 
     ShopComponent shop = player.getComponent(ShopComponent.class);

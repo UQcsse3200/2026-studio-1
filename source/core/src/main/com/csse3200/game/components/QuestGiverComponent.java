@@ -230,6 +230,24 @@ public class QuestGiverComponent extends Component {
     }
   }
 
+  // TODO (win system): in each of the four clear<Kind>Quest methods, keep the progress in a
+  //   local variable, and after the rewards are given out (and before the quest is cleared) call
+  //   recordIfComplete with the matching kind: QuestLedger.JUMP, ENEMIES_KILLED, GOLD_SPENT or
+  //   SHIELDS_COLLECTED.
+
+  /**
+   * Counts a quest towards the win screen, but only one that was really finished. A quest cleared
+   * below 100 percent is abandoned, not completed.
+   *
+   * @param kind the QuestLedger kind this quest is counted under
+   * @param questProgress the quest's progress as a percentage
+   */
+  private void recordIfComplete(String kind, int questProgress) {
+    // BEGIN recordIfComplete
+    //   IF questProgress is 100 or more THEN QuestLedger.recordCompleted(kind)
+    // END recordIfComplete
+  }
+
   private boolean giveOutQuestRewards(int questProgress) {
     try {
       if (questProgress >= 100) {

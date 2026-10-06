@@ -518,6 +518,28 @@ public class MainGameScreen extends ScreenAdapter {
     renderer.render();
   }
 
+  // TODO (win system):
+  //   add a constant WIN_SCREEN_DELAY of 2.5 seconds and a field winCountdown, a new
+  //     WinCountdown(WIN_SCREEN_DELAY)
+  //   constructor: when loading a save, call QuestLedger.loadFrom(saveData.completedQuestsByKind)
+  //     and TortoiseLedger.loadFrom(saveData.foundTortoiseIds); for a new game, reset both ledgers
+  //   render(): call updatePendingWin() inside the "not paused" block, after
+  //     recoverPlayerIfOutOfBounds, and only treat the player as dead while the area's final boss
+  //     is NOT defeated
+
+  /**
+   * Shows the win screen a short while after the final boss falls. The wait lives in the screen,
+   * not on the boss, because the boss entity is disposed as soon as it dies.
+   */
+  private void updatePendingWin() {
+    // BEGIN updatePendingWin
+    //   IF the win screen is already visible THEN stop
+    //   delta <- the time source's frame time
+    //   IF winCountdown.update(levelGameArea.isFinalBossDefeated(), delta) THEN
+    //     winScreenDisplay.showWinScreen(WinEvaluator.evaluateNow(true))
+    // END updatePendingWin
+  }
+
   private void transitionTo(RoomTransition transition) {
     transitionTo(transition, true);
   }
