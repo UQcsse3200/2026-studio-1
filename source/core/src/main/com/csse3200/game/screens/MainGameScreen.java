@@ -26,6 +26,7 @@ import com.csse3200.game.components.maingame.MainGameActions;
 import com.csse3200.game.components.maingame.WinScreenDisplay;
 import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.NoclipInputComponent;
+import com.csse3200.game.components.player.ProgressionMiniMapDisplay;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
@@ -90,7 +91,8 @@ public class MainGameScreen extends ScreenAdapter {
     "images/ui/heart-yellow-half.png",
     "images/ui/heart-red-half.png",
     "images/ui/heart-green.png",
-    "images/ui/heart-yellow.png"
+    "images/ui/heart-yellow.png",
+    "images/knight_default.png"
   };
 
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
@@ -808,7 +810,8 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(new MainGameActions(this.game))
         .addComponent(upgradesMenuComponent)
         .addComponent(upgradesDisplay)
-        .addComponent(new ActiveUpgradesHud());
+        .addComponent(new ActiveUpgradesHud())
+        .addComponent(new ProgressionMiniMapDisplay(() -> levelGameArea));
 
     this.pauseMenu = pauseMenuComponent;
 

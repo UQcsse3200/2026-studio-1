@@ -297,6 +297,13 @@ public class LevelGameArea extends GameArea {
   }
 
   /**
+   * @return the asset path of the map currently loaded by this area
+   */
+  public String getMapPath() {
+    return mapPath;
+  }
+
+  /**
    * Creates a completely new player in the current room after player death.
    *
    * @return the newly-created player entity
