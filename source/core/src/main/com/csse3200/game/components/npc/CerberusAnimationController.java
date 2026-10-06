@@ -12,6 +12,8 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
  * velocity and melee attacks.
  */
 public class CerberusAnimationController extends Component {
+  private static final String STARTING_STATE = "walkRightStart";
+
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
   private AnimationState currentAnimState = null;
@@ -35,7 +37,7 @@ public class CerberusAnimationController extends Component {
     entity.getEvents().addListener("meleeAttackWindup", this::onAttack);
 
     // Trigger a default starting state
-    entity.getEvents().trigger("walkRightStart");
+    entity.getEvents().trigger(STARTING_STATE);
     currentAnimState = AnimationState.WALK_RIGHT;
   }
 

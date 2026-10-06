@@ -92,12 +92,7 @@ public class CyclopsAnimationController extends Component {
     currentAnimState = AnimationState.IDLE_RIGHT;
   }
 
-  @Override
-  public void update() {
-    if (weaponAnimator == null && entity != null) {
-      weaponAnimator = entity.getComponent(EnemyWeaponAnimationComponent.class);
-    }
-
+  private boolean attackingHandler() {
     if (isAttacking) {
       boolean finished;
       if (currentAnimState == AnimationState.LASER_LEFT
@@ -122,8 +117,20 @@ public class CyclopsAnimationController extends Component {
           triggerStateEvent(currentAnimState);
         }
       } else {
-        return;
+        return true;
       }
+    }
+    return false;
+  }
+
+  @Override
+  public void update() {
+    if (weaponAnimator == null && entity != null) {
+      weaponAnimator = entity.getComponent(EnemyWeaponAnimationComponent.class);
+    }
+
+    if (attackingHandler()) {
+      return;
     }
 
     if (physicsComponent != null && physicsComponent.getBody() != null) {

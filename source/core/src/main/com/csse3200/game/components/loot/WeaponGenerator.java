@@ -16,7 +16,7 @@ public class WeaponGenerator {
       throw new IllegalArgumentException("Tier must be greater than 0.");
     }
 
-    WeaponTier weaponTier = WeaponTier.fromTierNumber(tier);
+    WeaponTier.fromTierNumber(tier);
 
     switch (weaponType) {
       case SWORD:
