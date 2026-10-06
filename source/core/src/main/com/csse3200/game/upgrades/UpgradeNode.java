@@ -126,6 +126,43 @@ public class UpgradeNode {
     return expiryType;
   }
 
+  public float getRemainingSeconds() {
+    return remainingSeconds;
+  }
+
+  public int getRemainingKills() {
+    return remainingKills;
+  }
+
+  /**
+   * Restores this upgrade to a previously saved state and re-applies its effect by firing the
+   * tier-changed callback. Does nothing if the saved state is not a valid active upgrade.
+   *
+   * @param tier saved tier, from 1 to {@link #getMaxTier()}
+   * @param seconds saved time remaining, used by TIME upgrades
+   * @param kills saved kills remaining, used by KILL_COUNT upgrades
+   * @return true if the upgrade was restored
+   */
+  public boolean restore(int tier, float seconds, int kills) {
+    if (tier < 1 || tier > getMaxTier()) {
+      return false;
+    }
+
+    boolean timeBased = expiryType == ExpiryType.TIME;
+    if ((timeBased && seconds <= 0f) || (!timeBased && kills <= 0)) {
+      return false;
+    }
+
+    currentTier = tier;
+    remainingSeconds = timeBased ? seconds : 0f;
+    remainingKills = timeBased ? 0 : kills;
+
+    if (onTierChanged != null) {
+      onTierChanged.run();
+    }
+    return true;
+  }
+
   /**
    * Registers a callback fired every time {@link #purchaseNextTier()} successfully changes tier
    * (covers both first activation and later tier advances - inspect {@link #getCurrentTier()}
@@ -224,6 +261,19 @@ public class UpgradeNode {
     if (onExpired != null) {
       onExpired.run();
     }
+  }
+
+  /**
+   * Forces this node back to Tier 0 (inactive) without firing {@code onTierChanged} or {@code
+   * onExpired} - unlike natural expiry via {@link #tickTime(float)}/{@link #onEnemyKilled()}, this
+   * is for discarding the upgrade outright (e.g. the player who earned it no longer exists), where
+   * those callbacks' side effects (reverting a now-disposed player's stats, etc.) would be
+   * meaningless or unsafe to run.
+   */
+  public void reset() {
+    currentTier = 0;
+    remainingSeconds = 0;
+    remainingKills = 0;
   }
 
   /** Human-readable remaining-effect text for the UI, e.g. "7s left" or "3 kills left". */

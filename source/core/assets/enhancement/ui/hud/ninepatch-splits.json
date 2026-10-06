@@ -1,0 +1,92 @@
+[
+  {
+    "name": "panel-parchment",
+    "split": [
+      12,
+      12,
+      12,
+      12
+    ]
+  },
+  {
+    "name": "button-bronze",
+    "split": [
+      12,
+      12,
+      12,
+      12
+    ]
+  },
+  {
+    "name": "button-bronze-pressed",
+    "split": [
+      12,
+      12,
+      12,
+      12
+    ]
+  },
+  {
+    "name": "progress-bg",
+    "split": [
+      9,
+      9,
+      9,
+      9
+    ]
+  },
+  {
+    "name": "progress-fill-gold",
+    "split": [
+      6,
+      6,
+      6,
+      6
+    ]
+  },
+  {
+    "name": "progress-fill-ember",
+    "split": [
+      6,
+      6,
+      6,
+      6
+    ]
+  },
+  {
+    "name": "toast-dark",
+    "split": [
+      12,
+      12,
+      12,
+      12
+    ]
+  },
+  {
+    "name": "key-badge",
+    "split": [
+      9,
+      9,
+      9,
+      9
+    ]
+  },
+  {
+    "name": "rail-altitude",
+    "split": [
+      9,
+      9,
+      9,
+      9
+    ]
+  },
+  {
+    "name": "rail-depth",
+    "split": [
+      9,
+      9,
+      9,
+      9
+    ]
+  }
+]

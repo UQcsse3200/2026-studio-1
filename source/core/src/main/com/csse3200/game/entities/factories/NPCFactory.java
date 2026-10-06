@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.components.attacks.*;
 import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.npc.CyclopsAnimationController;
@@ -569,6 +570,10 @@ public class NPCFactory {
   public static Entity createShopNPC(Entity player) {
     Entity npc = createAnimatedNPC(player, "Hermes", SHOP_NPC_ATLAS_PATH);
     npc.addComponent(new ShopkeeperComponent(player));
+    npc.getComponent(DialogueComponent.class).changeQuestType("shieldscollectedquest");
+    npc.getComponent(QuestGiverComponent.class)
+        .setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.BOW, 2));
+    npc.getComponent(DialogueComponent.class).changeAmountXToDo(2);
     return npc;
   }
 
@@ -601,6 +606,11 @@ public class NPCFactory {
     wizard
         .getComponent(AITaskComponent.class)
         .addTask(new RetaliateTask(player, 10, throwRange, "throwPoisonPotion"));
+    wizard.getComponent(DialogueComponent.class).changeQuestType("enemiesquest");
+    wizard
+        .getComponent(QuestGiverComponent.class)
+        .setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 3));
+    wizard.getComponent(DialogueComponent.class).changeAmountXToDo(3);
     return wizard;
   }
 
@@ -610,7 +620,9 @@ public class NPCFactory {
    * @return entity
    */
   public static Entity createPhilosopherNPC(Entity player) {
-    return makeKillable(createAnimatedNPC(player, "Philosopher", PHILOSOPHER_NPC_ATLAS_PATH));
+    Entity npc = makeKillable(createAnimatedNPC(player, "Philosopher", PHILOSOPHER_NPC_ATLAS_PATH));
+    npc.getComponent(QuestGiverComponent.class).setGoldToGive(100);
+    return npc;
   }
 
   /**
@@ -637,6 +649,9 @@ public class NPCFactory {
     satyr
         .getComponent(AITaskComponent.class)
         .addTask(new RetaliateTask(player, 10, 4f, "headbutt"));
+    satyr.getComponent(DialogueComponent.class).changeQuestType("goldspentquest");
+    satyr.getComponent(QuestGiverComponent.class).setGoldToGive(1);
+    satyr.getComponent(DialogueComponent.class).changeAmountXToDo(50);
     return satyr;
   }
 
@@ -668,8 +683,19 @@ public class NPCFactory {
     npc.addComponent(new PhysicsComponent())
         .addComponent(new PhysicsMovementComponent())
         .addComponent(new ColliderComponent())
+        .addComponent(new QuestGiverComponent(player))
         // NPC dialogue
-        .addComponent(new DialogueComponent(new String[] {"Hello", "Good luck"}))
+        .addComponent(
+            new DialogueComponent(
+                new String[] {
+                  "Hello, here's a quest!",
+                  "Here's the progress of your quest: ",
+                  "I've cleared your quest!",
+                  "Thanks for the help",
+                  "Hmm, something went wrong with completing your quest..."
+                },
+                "jumpquest",
+                10))
         .addComponent(new DisplayDialogue(speakerName))
         .addComponent(new DialogueProximityComponent(player, 2f));
 

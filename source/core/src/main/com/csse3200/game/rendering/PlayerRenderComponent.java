@@ -10,16 +10,20 @@ import com.badlogic.gdx.utils.Array;
 public class PlayerRenderComponent extends AnimationRenderComponent {
   private TextureAtlas leftAtlas;
   private TextureAtlas rightAtlas;
+  private TextureAtlas effectsAtlas;
 
   /**
    * Create the component for a given texture atlas.
    *
-   * @param leftAtlas libGDX-supported texture atlas containing desired animations
+   * @param rightAtlas libGDX-supported texture atlas containing right-facing animations
+   * @param leftAtlas libGDX-supported texture atlas containing left-facing animations
    */
-  public PlayerRenderComponent(TextureAtlas rightAtlas, TextureAtlas leftAtlas) {
+  public PlayerRenderComponent(
+      TextureAtlas rightAtlas, TextureAtlas leftAtlas, TextureAtlas effectsAtlas) {
     super(rightAtlas);
     this.leftAtlas = leftAtlas;
     this.rightAtlas = rightAtlas;
+    this.effectsAtlas = effectsAtlas;
   }
 
   /**
@@ -35,40 +39,62 @@ public class PlayerRenderComponent extends AnimationRenderComponent {
   public boolean addAnimation(String name, float frameDuration, Animation.PlayMode playMode) {
     Array<TextureAtlas.AtlasRegion> regions = rightAtlas.findRegions(name);
     Array<TextureAtlas.AtlasRegion> leftregions = this.leftAtlas.findRegions(name);
-    if (!(regions == null || regions.size == 0)) {
-      Animation<TextureRegion> animation = new Animation<>(frameDuration, regions, playMode);
-      animations.put(name, animation);
-      logger.debug("Adding animation {}", name);
-      return true;
-    } else if (!(leftregions == null || leftregions.size == 0)) {
-      Animation<TextureRegion> animation = new Animation<>(frameDuration, leftregions, playMode);
-      animations.put(name, animation);
-      logger.debug("Adding animation {}", name);
-      return true;
-    } else if ((regions == null || regions.size == 0)
-        && (leftregions == null || leftregions.size == 0)) {
-      logger.warn("Animation {} not found in texture atlas", name);
-      return false;
-    } else if (animations.containsKey(name)) {
+    Array<TextureAtlas.AtlasRegion> effectsregions = this.effectsAtlas.findRegions(name);
+
+    if (animations.containsKey(name)) {
       logger.warn(
           "Animation {} already added in texture atlas. Animations should only be added once.",
           name);
       return false;
     }
+
+    if (!(regions == null || regions.size == 0)) {
+      Animation<TextureRegion> animation = new Animation<>(frameDuration, regions, playMode);
+      animations.put(name, animation);
+      logger.debug("Adding animation {}", name);
+      return true;
+    }
+
+    if (!(leftregions == null || leftregions.size == 0)) {
+      Animation<TextureRegion> animation = new Animation<>(frameDuration, leftregions, playMode);
+      animations.put(name, animation);
+      logger.debug("Adding animation {}", name);
+      return true;
+    }
+
+    if (!(effectsregions == null || effectsregions.size == 0)) {
+      Animation<TextureRegion> animation = new Animation<>(frameDuration, effectsregions, playMode);
+      animations.put(name, animation);
+      logger.debug("Adding animation {}", name);
+      return true;
+    }
+    logger.warn("Animation {} not found in texture atlas", name);
     return false;
   }
 
   @Override
+  public void create() {
+    super.create();
+  }
+
+  @Override
   protected void draw(SpriteBatch batch) {
+    /*
+     * Normal knight rendering.
+     */
     if (currentAnimation == null) {
       return;
     }
+
     TextureRegion region = currentAnimation.getKeyFrame(animationPlayTime);
     Vector2 pos = entity.getPosition();
+
     float pixel = 1f / 42f;
     float width = pixel * region.getRegionWidth();
     float height = pixel * region.getRegionHeight();
+
     batch.draw(region, pos.x, pos.y, width, height);
+
     animationPlayTime += timeSource.getDeltaTime();
   }
 }

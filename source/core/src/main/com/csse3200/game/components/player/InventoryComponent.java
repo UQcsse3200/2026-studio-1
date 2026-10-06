@@ -25,6 +25,9 @@ public class InventoryComponent extends Component {
   private int gold;
   private int activeSlot = 1;
 
+  private static final int PET_SLOT_COUNT = 2;
+  private final Map<Integer, ShopComponent.Pet> petSlots = new HashMap<>();
+
   /**
    * Creates an inventory with the default slot capacity of {@value #DEFAULT_MAX_SLOTS}.
    *
@@ -357,6 +360,26 @@ public class InventoryComponent extends Component {
   }
 
   /**
+   * Places an item directly into a specific slot, replacing anything already there.
+   *
+   * <p>Unlike {@link #addItem(Item)}, this does not stack or search for an empty slot. Intended for
+   * restoring a saved inventory exactly as it was.
+   *
+   * @param slot slot index in the range 1 to {@code maxSlots}
+   * @param item item to store
+   * @return {@code true} if the item was placed
+   */
+  public boolean setItem(int slot, Item item) {
+    if (!isValidSlot(slot) || !isAddable(item)) {
+      return false;
+    }
+
+    inventorySlots.put(slot, item);
+    notifyInventoryChanged();
+    return true;
+  }
+
+  /**
    * Notifies listeners that inventory contents or gold changed.
    *
    * <p>No-ops when this component is not attached to an entity (common in unit tests).
@@ -556,5 +579,110 @@ public class InventoryComponent extends Component {
    */
   public Item getActiveItem() {
     return getItem(activeSlot);
+  }
+
+  // -------------------------------------------------------------------------
+  // Pet inventory
+  // -------------------------------------------------------------------------
+
+  /**
+   * Returns the pet stored in the specified pet slot.
+   *
+   * @param slot pet slot number, starting from 1
+   * @return the stored pet, or null if the slot is invalid or empty
+   */
+  public ShopComponent.Pet getPet(int slot) {
+    if (!isValidPetSlot(slot)) {
+      return null;
+    }
+
+    return petSlots.get(slot);
+  }
+
+  /**
+   * Adds a pet to the first available pet slot.
+   *
+   * @param pet pet to add
+   * @return true if the pet was added successfully
+   */
+  public boolean addPet(ShopComponent.Pet pet) {
+    if (pet == null || containsPet(pet) || isPetInventoryFull()) {
+      return false;
+    }
+
+    int emptySlot = findEmptyPetSlot();
+    if (emptySlot == -1) {
+      return false;
+    }
+
+    petSlots.put(emptySlot, pet);
+    notifyInventoryChanged();
+    return true;
+  }
+
+  private int findEmptyPetSlot() {
+    for (int slot = 1; slot <= PET_SLOT_COUNT; slot++) {
+      if (!petSlots.containsKey(slot)) {
+        return slot;
+      }
+    }
+
+    return -1;
+  }
+
+  /**
+   * Replaces the pet stored in a specific pet inventory slot.
+   *
+   * @param slot pet inventory slot to replace
+   * @param pet new pet to store
+   * @return true if the pet was replaced
+   */
+  public boolean replacePet(int slot, ShopComponent.Pet pet) {
+    if (!isValidPetSlot(slot) || pet == null || petSlots.get(slot) == null) {
+      return false;
+    }
+
+    if (containsPet(pet)) {
+      return false;
+    }
+
+    petSlots.put(slot, pet);
+    notifyInventoryChanged();
+    return true;
+  }
+
+  /**
+   * Checks whether a pet with the same name is already stored.
+   *
+   * @param pet pet to check
+   * @return true if the pet is already owned
+   */
+  public boolean containsPet(ShopComponent.Pet pet) {
+    if (pet == null) {
+      return false;
+    }
+
+    return petSlots.values().stream()
+        .anyMatch(storedPet -> storedPet.getName().equals(pet.getName()));
+  }
+
+  /** Returns whether both pet slots are occupied. */
+  public boolean isPetInventoryFull() {
+    return petSlots.size() >= PET_SLOT_COUNT;
+  }
+
+  /** Returns the number of available pet slots. */
+  public int getPetSlotCount() {
+    return PET_SLOT_COUNT;
+  }
+
+  /** Returns a read-only view of the pet inventory. */
+  public Map<Integer, ShopComponent.Pet> getPetSlots() {
+    return Collections.unmodifiableMap(petSlots);
+  }
+
+  /** Returns whether the supplied pet slot number is valid. */
+  private boolean isValidPetSlot(int slot) {
+    return slot >= 1 && slot <= PET_SLOT_COUNT;
   }
 }

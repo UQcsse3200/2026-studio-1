@@ -10,6 +10,8 @@ import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.BallisticShieldComponent;
+import com.csse3200.game.components.player.BallisticShieldRenderComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathLootDropComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
@@ -32,6 +34,7 @@ import com.csse3200.game.components.player.SpecialAttackEffectComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.player.Tutorial;
+import com.csse3200.game.components.player.UpgradeActivationFlashComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.components.player.WeaponDisplay;
 import com.csse3200.game.components.player.WeaponRenderComponent;
@@ -39,6 +42,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.PlayerConfig;
 import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.input.InputComponent;
+import com.csse3200.game.perks.TimeFreezeComponent;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -57,6 +61,7 @@ public class PlayerFactory {
   static Texture size = new Texture("images/knight_default.png");
   static TextureAtlas rightAtlas = new TextureAtlas("images/knight.atlas");
   static TextureAtlas leftAtlas = new TextureAtlas("images/LeftKnight.atlas");
+  static TextureAtlas effectsAtlas = new TextureAtlas("images/KnightEffects.atlas");
   private static final PlayerConfig stats =
       FileLoader.readClass(PlayerConfig.class, "configs/player.json");
 
@@ -102,13 +107,17 @@ public class PlayerFactory {
             .addComponent(new ConsumableUseComponent(stats.health))
             .addComponent(new ShieldComponent())
             .addComponent(new ShieldRenderComponent())
+            .addComponent(new UpgradeActivationFlashComponent())
+            .addComponent(new BallisticShieldComponent())
+            .addComponent(new BallisticShieldRenderComponent())
             .addComponent(new PlayerBuffComponent())
             .addComponent(new PlayerRegenComponent())
+            .addComponent(new TimeFreezeComponent())
             .addComponent(inventory)
             .addComponent(new ItemDropComponent())
             .addComponent(inputComponent)
             .addComponent(new PetManagerComponent())
-            .addComponent(new PlatformerComponent(5, true, 1, false, 1))
+            .addComponent(new PlatformerComponent(2, true, 1, false, 1))
             .addComponent(new PlayerStatsDisplay())
             .addComponent(new SpecialAttackCooldownDisplay())
             .addComponent(new QuestDisplay())
@@ -121,7 +130,7 @@ public class PlayerFactory {
             .addComponent(new ShopComponent().seedDefaultCatalog())
             .addComponent(new ShopDisplay());
 
-    PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas);
+    PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas, effectsAtlas);
 
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);
@@ -138,14 +147,21 @@ public class PlayerFactory {
     animator.addAnimation("LeftSlide", 0.1f, Animation.PlayMode.NORMAL);
     animator.addAnimation("LeftRun", 0.1f, Animation.PlayMode.LOOP);
 
-    player.addComponent(animator).addComponent(new PlayerAnimationController());
+    animator.addAnimation("climb", 0.15f, Animation.PlayMode.LOOP);
+    animator.addAnimation("hurt", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("death", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("health", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("lefthurt", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("leftdeath", 0.1f, Animation.PlayMode.NORMAL);
+    animator.addAnimation("lefthealth", 0.1f, Animation.PlayMode.NORMAL);
 
+    player.addComponent(animator).addComponent(new PlayerAnimationController());
     player.setScale(0.75f, (float) size.getHeight() / size.getWidth());
     animator.startAnimation("Idle");
 
     if (mapData != null) {
       player.addComponent(new LadderComponent(mapData));
-      player.addComponent(new SubLevelTravelComponent());
+      player.addComponent(new SubLevelTravelComponent(mapData));
     }
 
     // The map uses 0.5 world units per tile. Keep the player just over one tile wide

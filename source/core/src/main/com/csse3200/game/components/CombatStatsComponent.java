@@ -1,41 +1,47 @@
 package com.csse3200.game.components;
 
+import com.csse3200.game.components.player.BallisticShieldComponent;
+import com.csse3200.game.entities.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Component used to store information related to combat such as health, attack, etc. Any entities
- * which engage it combat should have an instance of this class registered. This class can be
- * extended for more specific combat needs.
- */
 public class CombatStatsComponent extends Component {
-
   private static final Logger logger = LoggerFactory.getLogger(CombatStatsComponent.class);
+  private final int maximumHealth;
   private int health;
   private int baseAttack;
   private int shieldHits;
+  private boolean invulnerable;
 
   public CombatStatsComponent(int health, int baseAttack) {
+    maximumHealth = Math.max(0, health);
     setHealth(health);
     setBaseAttack(baseAttack);
   }
 
-  /**
-   * Returns true if the entity's has 0 health, otherwise false.
-   *
-   * @return is player dead
-   */
-  public Boolean isDead() {
+  public boolean isDead() {
     return health == 0;
   }
 
-  /**
-   * Returns the entity's health.
-   *
-   * @return entity's health
-   */
   public int getHealth() {
     return health;
+  }
+
+  /**
+   * Enables or disables damage immunity. Enabling it immediately restores the entity's starting
+   * maximum health.
+   *
+   * @param invulnerable whether health reductions should be ignored
+   */
+  public void setInvulnerable(boolean invulnerable) {
+    this.invulnerable = invulnerable;
+    if (invulnerable) {
+      setHealth(maximumHealth);
+    }
+  }
+
+  public boolean isInvulnerable() {
+    return invulnerable;
   }
 
   /**
@@ -44,7 +50,9 @@ public class CombatStatsComponent extends Component {
    * @param health health
    */
   public void setHealth(int health) {
-    if (health >= 0) {
+    if (invulnerable) {
+      this.health = maximumHealth;
+    } else if (health >= 0) {
       this.health = health;
     } else {
       this.health = 0;
@@ -58,13 +66,10 @@ public class CombatStatsComponent extends Component {
     }
   }
 
-  /**
-   * Adds to the player's health. The amount added can be negative.
-   *
-   * @param health health to add
-   */
   public void addHealth(int health) {
-    if (this.health + health >= 0) {
+    if (invulnerable) {
+      this.health = maximumHealth;
+    } else if (this.health + health >= 0) {
       this.health += health;
     } else {
       this.health = 0;
@@ -78,11 +83,6 @@ public class CombatStatsComponent extends Component {
     }
   }
 
-  /**
-   * Returns the entity's base attack damage.
-   *
-   * @return base attack damage
-   */
   public int getBaseAttack() {
     return baseAttack;
   }
@@ -95,11 +95,6 @@ public class CombatStatsComponent extends Component {
     this.shieldHits = Math.max(0, shieldHits);
   }
 
-  /**
-   * Sets the entity's attack damage. Attack damage has a minimum bound of 0.
-   *
-   * @param attack Attack damage
-   */
   public void setBaseAttack(int attack) {
     if (attack >= 0) {
       this.baseAttack = attack;
@@ -122,12 +117,30 @@ public class CombatStatsComponent extends Component {
       return;
     }
 
+    BallisticShieldComponent ballisticShield =
+        entity == null ? null : entity.getComponent(BallisticShieldComponent.class);
+
+    if (ballisticShield != null && ballisticShield.isActive()) {
+      ballisticShield.blockDamage(attacker, damage);
+      return;
+    }
+
+    int actualDamage = damage;
+
     boolean wasAlive = !isDead();
 
-    int newHealth = getHealth() - damage;
+    int newHealth = getHealth() - actualDamage;
     setHealth(newHealth);
 
-    if (wasAlive && isDead() && attacker.getEntity() != null) {
+    if (actualDamage > 0 && entity != null && attacker != null) {
+      Entity attackerEntity = attacker.getEntity();
+
+      if (attackerEntity != null) {
+        entity.getEvents().trigger("damagedBy", attackerEntity);
+      }
+    }
+
+    if (wasAlive && isDead() && attacker != null && attacker.getEntity() != null) {
       attacker.getEntity().getEvents().trigger("enemyKilled");
     }
   }
