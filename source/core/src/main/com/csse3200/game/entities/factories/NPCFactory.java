@@ -18,6 +18,8 @@ import com.csse3200.game.components.npc.EnemyDeathComponent;
 import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.HeadbuttAttackComponent;
 import com.csse3200.game.components.npc.MinotaurAnimationController;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameGenerator;
 import com.csse3200.game.components.npc.PotionThrowComponent;
 import com.csse3200.game.components.npc.ProvokedComponent;
 import com.csse3200.game.components.npc.ShopkeeperComponent;
@@ -75,6 +77,7 @@ public class NPCFactory {
 
   private static final NPCConfigs configs =
       FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
+  private static final NameGenerator nameGenerator = new NameGenerator();
 
   /**
    * Creates a ghost entity.
@@ -506,13 +509,13 @@ public class NPCFactory {
         new AITaskComponent()
             .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
             .addTask(new ChaseTask(target, 10, 3f, 4f));
+
     Entity npc =
         new Entity()
             .addComponent(new PhysicsComponent())
             .addComponent(new PhysicsMovementComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(new TouchAttackComponent(PhysicsLayer.PLAYER, 1.5f))
             .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.4f);
@@ -536,13 +539,15 @@ public class NPCFactory {
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale))
             .addTask(new ChaseTask(target, 10, 3f, 4f))
             .addTask(new MeleeAttackTask(target, 15, 1f));
+    String generatedName = nameGenerator.generateName();
     Entity npc =
         new Entity()
             .addComponent(new PhysicsComponent())
             .addComponent(new PhysicsMovementComponent())
             .addComponent(new ColliderComponent())
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(aiComponent);
+            .addComponent(aiComponent)
+            .addComponent(new NameComponent(generatedName));
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
