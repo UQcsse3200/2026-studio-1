@@ -84,11 +84,20 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button></div>
 <div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="AimedLineMovementStrategy.html" title="class in com.csse3200.game.components.projectile">AimedLineMovementStrategy</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Projectile movement along a fixed straight line in ANY direction at constant speed.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ArcMovementStrategy.html" title="class in com.csse3200.game.components.projectile">ArcMovementStrategy</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Projectile movement along a ballistic arc: at launch the body is given the velocity that makes it
+ reach a chosen point under the world's gravity, and gravity stays on for the whole flight.</div>
+</div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="DirectedProjectileMovementStrategy.html" title="class in com.csse3200.game.components.projectile">DirectedProjectileMovementStrategy</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Moves a projectile at constant speed in any direction, including angled shots from a pet.</div>
@@ -117,10 +126,16 @@ loadScripts(document, 'script');</script>
  swapped by passing a different implementation, without changing <a href="ProjectileComponent.html" title="class in com.csse3200.game.components.projectile"><code>ProjectileComponent</code></a> or
  anything that spawns projectiles.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="StraightLineMovementStrategy.html" title="class in com.csse3200.game.components.projectile">StraightLineMovementStrategy</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="ProjectileType.html" title="enum class in com.csse3200.game.components.projectile">ProjectileType</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab3">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="StraightLineMovementStrategy.html" title="class in com.csse3200.game.components.projectile">StraightLineMovementStrategy</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Default projectile movement: flies in a straight line at a constant speed, restricted entirely to
  the x-axis (no vertical movement at all) - e.g.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="VerticalMovementStrategy.html" title="class in com.csse3200.game.components.projectile">VerticalMovementStrategy</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Creates a projectile moving straight down.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="WaveProjectileMovementStrategy.html" title="class in com.csse3200.game.components.projectile">WaveProjectileMovementStrategy</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">

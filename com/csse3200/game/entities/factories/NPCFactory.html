@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Factory to create non-playable character (NPC) entities with predefined components.
 
  <p>Each NPC entity type should have a creation method that returns a corresponding entity.
- Predefined entity properties can be loaded from configs stored as json files which are defined in
+ Predefined entity properties can be loaded from configs stored as JSON files which are defined in
  "NPCConfigs".
 
  <p>If needed, this factory can be separated into more specific factories for entities with
@@ -120,29 +120,41 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a Centaur entity (e.g.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createCyclops(com.csse3200.game.entities.Entity)" class="member-name-link">createCyclops</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createCerberus(com.csse3200.game.entities.Entity)" class="member-name-link">createCerberus</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates a Cyclops (e.g.</div>
+<div class="block">Creates Cerberus, a stationary mini-boss that bites anything inside its reach, very often.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createGhost(com.csse3200.game.entities.Entity)" class="member-name-link">createGhost</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createCyclops(com.csse3200.game.entities.Entity)" class="member-name-link">createCyclops</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates a ghost entity.</div>
+<div class="block">Creates a Cyclops (a mini-boss with a stomp, a lobbed rock and an eye laser).</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createGhostKing(com.csse3200.game.entities.Entity)" class="member-name-link">createGhostKing</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createHarpy(com.csse3200.game.entities.Entity)" class="member-name-link">createHarpy</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates a ghost king entity.</div>
+<div class="block">Creates a melee Harpy: a flying enemy armed with a tier-1 sword, mirroring the melee Skeleton.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createMinotaur(com.csse3200.game.entities.Entity)" class="member-name-link">createMinotaur</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createMedusa(com.csse3200.game.entities.Entity)" class="member-name-link">createMedusa</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates Medusa, a mini-boss that paces on the spot, bites up close and petrifies the player
+ with a ranged gaze.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createMinotaur(com.csse3200.game.entities.Entity)" class="member-name-link">createMinotaur</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a Minotaur entity (e.g.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createPhilosopherNPC(com.csse3200.game.entities.Entity)" class="member-name-link">createPhilosopherNPC</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createPhilosopherNPC(com.csse3200.game.entities.Entity)" class="member-name-link">createPhilosopherNPC</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates an old philosopher NPC.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createRangedHarpy(com.csse3200.game.entities.Entity)" class="member-name-link">createRangedHarpy</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a ranged Harpy: a flying enemy armed with a tier-1 bow that fires aimed arrows,
+ mirroring the ranged Skeleton.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createRangedSkeleton(com.csse3200.game.entities.Entity)" class="member-name-link">createRangedSkeleton</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
@@ -169,9 +181,15 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a wizard NPC that throws a poison potion at the player after being hit.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerNpcSpawns()" class="member-name-link">registerNpcSpawns</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createZeus(com.csse3200.game.entities.Entity)" class="member-name-link">createZeus</a><wbr>(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates Zeus, a mini-boss that fights with a tier-2 sword up close and throws lightning from
+ range.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerNpcSpawns()" class="member-name-link">registerNpcSpawns</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Registers the friendly NPC spawn names used by map "npc" markers.</div>
 </div>
 </div>
@@ -191,32 +209,6 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="createGhost(com.csse3200.game.entities.Entity)">
-<h3>createGhost</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createGhost</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
-<div class="block">Creates a ghost entity.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>target</code> - entity to chase</dd>
-<dt>Returns:</dt>
-<dd>entity</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="createGhostKing(com.csse3200.game.entities.Entity)">
-<h3>createGhostKing</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createGhostKing</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
-<div class="block">Creates a ghost king entity.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>target</code> - entity to chase</dd>
-<dt>Returns:</dt>
-<dd>entity</dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="createSkeleton(com.csse3200.game.entities.Entity)">
 <h3>createSkeleton</h3>
@@ -276,13 +268,109 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="createCyclops(com.csse3200.game.entities.Entity)">
 <h3>createCyclops</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createCyclops</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
-<div class="block">Creates a Cyclops (e.g. a mini-boss that has both melee and ranged attacks) that can attack
- from close or far away.</div>
+<div class="block">Creates a Cyclops (a mini-boss with a stomp, a lobbed rock and an eye laser).
+
+ <p>Task priorities decide which attack runs, because the highest priority among the tasks whose
+ range covers the target wins and the ranged task ignores cooldown: the stomp (15) up close, the
+ laser (13) at middle range and the rock (12) only beyond the laser's range. So the rock is
+ never thrown at close range and the laser is never fired at long range.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>target</code> - entity to chase</dd>
 <dt>Returns:</dt>
 <dd>Cyclops entity as a mini boss enemy</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createMedusa(com.csse3200.game.entities.Entity)">
+<h3>createMedusa</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createMedusa</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
+<div class="block">Creates Medusa, a mini-boss that paces on the spot, bites up close and petrifies the player
+ with a ranged gaze.
+
+ <p>PLACEHOLDER BUILD: made only from existing classes. She uses the Cyclops atlas and animation
+ controller, a natural melee weapon and a natural gaze weapon (like the Cyclops), and freezes
+ the player through the existing <code>"applySpeedEffect"</code> event (the same one lightning uses)
+ instead of a petrify component.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>target</code> - entity to attack (the player); must not be null</dd>
+<dt>Returns:</dt>
+<dd>Medusa, ready to register</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if target is null or a design rule is broken</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createCerberus(com.csse3200.game.entities.Entity)">
+<h3>createCerberus</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createCerberus</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
+<div class="block">Creates Cerberus, a stationary mini-boss that bites anything inside its reach, very often.
+
+ <p>PLACEHOLDER BUILD: skeleton atlas and animation controller, one natural melee weapon. The
+ melee task's range is her effective aggro radius, because she has no chase task.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>target</code> - entity to attack; must not be null</dd>
+<dt>Returns:</dt>
+<dd>Cerberus, ready to register</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if target is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createZeus(com.csse3200.game.entities.Entity)">
+<h3>createZeus</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createZeus</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
+<div class="block">Creates Zeus, a mini-boss that fights with a tier-2 sword up close and throws lightning from
+ range. Moves and chases like the other platformer enemies.
+
+ <p>PLACEHOLDER BUILD: Cyclops atlas and animation controller. His sword is a real weapon (so it
+ drops on death); his lightning is a natural ranged weapon firing the existing LIGHTNING
+ projectile.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>target</code> - entity to chase and attack; must not be null</dd>
+<dt>Returns:</dt>
+<dd>Zeus, ready to register</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if target is null or a design rule is broken</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createHarpy(com.csse3200.game.entities.Entity)">
+<h3>createHarpy</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createHarpy</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
+<div class="block">Creates a melee Harpy: a flying enemy armed with a tier-1 sword, mirroring the melee Skeleton.
+
+ <p>PLACEHOLDER BUILD: skeleton atlas and animation controller.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>target</code> - entity to chase; must not be null</dd>
+<dt>Returns:</dt>
+<dd>a flying melee enemy</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if target is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createRangedHarpy(com.csse3200.game.entities.Entity)">
+<h3>createRangedHarpy</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createRangedHarpy</span><wbr><span class="parameters">(<a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target)</span></div>
+<div class="block">Creates a ranged Harpy: a flying enemy armed with a tier-1 bow that fires aimed arrows,
+ mirroring the ranged Skeleton. Aimed arrows let it hit a player above or below it.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>target</code> - entity to chase and shoot; must not be null</dd>
+<dt>Returns:</dt>
+<dd>a flying ranged enemy</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if target is null</dd>
 </dl>
 </section>
 </li>

@@ -110,21 +110,29 @@ loadScripts(document, 'script');</script>
  int&nbsp;damage,
  int&nbsp;quantity,
  int&nbsp;maxQuantity)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates the weapon item that is defaulted to no tiered value, only configured damage</div>
+</div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,int,int,int,float)" class="member-name-link">WeaponItem</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
  int&nbsp;damage,
  int&nbsp;quantity,
  int&nbsp;maxQuantity,
  float&nbsp;windupDuration)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Creates the weapon item that is tiered with the damage, attack speed, knockback, range and
+ projectile count.</div>
+</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.csse3200.game.components.loot.WeaponType,com.csse3200.game.components.loot.WeaponTier,int,int,float)" class="member-name-link">WeaponItem</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
  <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType,
  <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a>&nbsp;weaponTier,
  int&nbsp;quantity,
  int&nbsp;maxQuantity,
  float&nbsp;windupDuration)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates the weapon item that is tiered with the damage, attack speed, knockback, range and
+ projectile count.</div>
+</div>
 </div>
 </section>
 </li>
@@ -133,7 +141,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -165,9 +173,16 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWindupDuration()" class="member-name-link">getWindupDuration</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWindupDuration(float)" class="member-name-link">setWindupDuration</a><wbr>(float&nbsp;windupDuration)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#natural(java.lang.String,int,float)" class="member-name-link">natural</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ int&nbsp;damage,
+ float&nbsp;windupDuration)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Builds a natural weapon for an enemy with no carried weapon at all (e.g.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWindupDuration(float)" class="member-name-link">setWindupDuration</a><wbr>(float&nbsp;windupDuration)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -198,9 +213,19 @@ loadScripts(document, 'script');</script>
  int&nbsp;maxQuantity,
  float&nbsp;windupDuration)</span>
            throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
+<div class="block">Creates the weapon item that is tiered with the damage, attack speed, knockback, range and
+ projectile count.</div>
 <dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>name</code> - of weapon item</dd>
+<dd><code>weaponType</code> - of weapon, listed in <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a></dd>
+<dd><code>damage</code> - value of attack for the weapon which isn't tiered.</dd>
+<dd><code>quantity</code> - number of items in the stack</dd>
+<dd><code>maxQuantity</code> - max number of weapons that can be equipped in the stack</dd>
+<dd><code>windupDuration</code> - duration needed for the animations to configure with the weapon</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - when <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a> are null or parameter damage is less
+     or equal to 0</dd>
 </dl>
 </section>
 </li>
@@ -212,6 +237,16 @@ loadScripts(document, 'script');</script>
  int&nbsp;damage,
  int&nbsp;quantity,
  int&nbsp;maxQuantity)</span></div>
+<div class="block">Creates the weapon item that is defaulted to no tiered value, only configured damage</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>name</code> - of weapon item</dd>
+<dd><code>weaponType</code> - of weapon, listed in <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a></dd>
+<dd><code>quantity</code> - number of items in the stack</dd>
+<dd><code>maxQuantity</code> - max number of weapons that can be equipped in the stack</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - when <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a> or <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a> are null</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -224,9 +259,19 @@ loadScripts(document, 'script');</script>
  int&nbsp;maxQuantity,
  float&nbsp;windupDuration)</span>
            throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
+<div class="block">Creates the weapon item that is tiered with the damage, attack speed, knockback, range and
+ projectile count.</div>
 <dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>name</code> - of weapon item</dd>
+<dd><code>weaponType</code> - of weapon, listed in <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a></dd>
+<dd><code>weaponTier</code> - listed values of set parameters outside of the given ones that are consistent
+     for any weapon and</dd>
+<dd><code>quantity</code> - number of items in the stack</dd>
+<dd><code>maxQuantity</code> - max number of weapons that can be equipped in the stack</dd>
+<dd><code>windupDuration</code> - duration needed for the animations to configure with the weapon</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - when <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a> or <a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponType</code></a> are null</dd>
 </dl>
 </section>
 </li>
@@ -238,6 +283,29 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="natural(java.lang.String,int,float)">
+<h3>natural</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></span>&nbsp;<span class="element-name">natural</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
+ int&nbsp;damage,
+ float&nbsp;windupDuration)</span></div>
+<div class="block">Builds a natural weapon for an enemy with no carried weapon at all (e.g. a Cyclops's fists), so
+ it can flow through the same weapon-based <code>MeleeAttackComponent</code>/<code>
+ RangedAttackComponent</code> constructor an armed enemy uses - rather than each attack component
+ needing its own parallel no-weapon constructor. Tagged with <a href="WeaponType.html#NATURAL"><code>WeaponType.NATURAL</code></a>, which
+ has no <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot"><code>WeaponTier</code></a> stats: <code>damage</code> and <code>windupDuration</code> here are exactly
+ what the caller passes in, fully independent of each other and of whatever cooldown the attack
+ component is configured with.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>name</code> - display name for this natural weapon (e.g. "Cyclops Fists")</dd>
+<dd><code>damage</code> - flat damage dealt per hit</dd>
+<dd><code>windupDuration</code> - delay, in seconds, between commit and resolve</dd>
+<dt>Returns:</dt>
+<dd>a natural <a href="WeaponItem.html" title="class in com.csse3200.game.components.loot"><code>WeaponItem</code></a>, usable by either attack component</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="getWeaponType()">
 <h3>getWeaponType</h3>

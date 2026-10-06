@@ -144,17 +144,20 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getLootWeight()" class="member-name-link">getLootWeight</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="WeaponStats.html" title="interface in com.csse3200.game.components.loot">WeaponStats</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="WeaponStatsPreset.html" title="class in com.csse3200.game.components.loot">WeaponStatsPreset</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getStats(com.csse3200.game.components.loot.WeaponType)" class="member-name-link">getStats</a><wbr>(<a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#valueOf(java.lang.String)" class="member-name-link">valueOf</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTier()" class="member-name-link">getTier</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#valueOf(java.lang.String)" class="member-name-link">valueOf</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a>[]</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#values()" class="member-name-link">values</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a>[]</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#values()" class="member-name-link">values</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
 </div>
@@ -242,6 +245,12 @@ not permitted.)</div>
 </section>
 </li>
 <li>
+<section class="detail" id="getTier()">
+<h3>getTier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTier</span>()</div>
+</section>
+</li>
+<li>
 <section class="detail" id="fromTierNumber(int)">
 <h3>fromTierNumber</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="WeaponTier.html" title="enum class in com.csse3200.game.components.loot">WeaponTier</a></span>&nbsp;<span class="element-name">fromTierNumber</span><wbr><span class="parameters">(int&nbsp;tierNumber)</span></div>
@@ -250,7 +259,7 @@ not permitted.)</div>
 <li>
 <section class="detail" id="getStats(com.csse3200.game.components.loot.WeaponType)">
 <h3>getStats</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="WeaponStats.html" title="interface in com.csse3200.game.components.loot">WeaponStats</a></span>&nbsp;<span class="element-name">getStats</span><wbr><span class="parameters">(<a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="WeaponStatsPreset.html" title="class in com.csse3200.game.components.loot">WeaponStatsPreset</a></span>&nbsp;<span class="element-name">getStats</span><wbr><span class="parameters">(<a href="WeaponType.html" title="enum class in com.csse3200.game.components.loot">WeaponType</a>&nbsp;weaponType)</span></div>
 </section>
 </li>
 </ul>

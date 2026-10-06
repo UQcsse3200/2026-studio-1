@@ -137,7 +137,9 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addSpeedModifier(java.lang.Object,float)" class="member-name-link">addSpeedModifier</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;key,
  float&nbsp;multiplier)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds or updates a speed modifier owned by the given key.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bribeLastAttacker()" class="member-name-link">bribeLastAttacker</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -159,7 +161,9 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEffectiveSpeedMultiplier()" class="member-name-link">getEffectiveSpeedMultiplier</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the combined effect of all active speed modifiers.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSpecialAttackCooldownRemaining()" class="member-name-link">getSpecialAttackCooldownRemaining</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -168,7 +172,9 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#removeSpeedModifier(java.lang.Object)" class="member-name-link">removeSpeedModifier</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;key)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Removes a previously-added speed modifier.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setAttackSpeedMultiplier(float)" class="member-name-link">setAttackSpeedMultiplier</a><wbr>(float&nbsp;multiplier)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -248,18 +254,30 @@ loadScripts(document, 'script');</script>
 <h3>addSpeedModifier</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addSpeedModifier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;key,
  float&nbsp;multiplier)</span></div>
+<div class="block">Adds or updates a speed modifier owned by the given key.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>key</code> - identifies the owner of this modifier</dd>
+<dd><code>multiplier</code> - the modifier's contribution</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="removeSpeedModifier(java.lang.Object)">
 <h3>removeSpeedModifier</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeSpeedModifier</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;key)</span></div>
+<div class="block">Removes a previously-added speed modifier.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>key</code> - the same key passed to addSpeedModifier</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getEffectiveSpeedMultiplier()">
 <h3>getEffectiveSpeedMultiplier</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getEffectiveSpeedMultiplier</span>()</div>
+<div class="block">Returns the combined effect of all active speed modifiers.</div>
 </section>
 </li>
 <li>
@@ -278,12 +296,20 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getSpecialAttackCooldownRemaining()">
 <h3>getSpecialAttackCooldownRemaining</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getSpecialAttackCooldownRemaining</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>remaining cooldown in seconds for the F-key special attack</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getAreaAttackCooldownRemaining()">
 <h3>getAreaAttackCooldownRemaining</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getAreaAttackCooldownRemaining</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>remaining cooldown in seconds for the G-key area attack</dd>
+</dl>
 </section>
 </li>
 <li>

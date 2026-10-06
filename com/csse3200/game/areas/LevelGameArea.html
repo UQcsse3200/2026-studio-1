@@ -260,6 +260,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Restart this room's music after the previous room releases its shared music asset.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#spawnEnemy(java.lang.String,com.badlogic.gdx.math.Vector2)" class="member-name-link">spawnEnemy</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;type,
+ com.badlogic.gdx.math.Vector2&nbsp;position)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Creates a new enemy at the given world position, primarily used for debugging purposes.</div>
+</div>
 </div>
 </div>
 </div>
@@ -532,6 +538,21 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the world-space centre of the map</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="spawnEnemy(java.lang.String,com.badlogic.gdx.math.Vector2)">
+<h3>spawnEnemy</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">spawnEnemy</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;type,
+ com.badlogic.gdx.math.Vector2&nbsp;position)</span></div>
+<div class="block">Creates a new enemy at the given world position, primarily used for debugging purposes.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>type</code> - The spawn name from the map</dd>
+<dd><code>position</code> - the world position to spawn the enemy at</dd>
+<dt>Returns:</dt>
+<dd>true if the spawn succeeds, false otherwise.</dd>
 </dl>
 </section>
 </li>

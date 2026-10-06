@@ -94,7 +94,19 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">TouchAttackComponent</span>
 <span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
-<div class="block">When this entity touches a valid target's hitbox, deal damage to them and apply a knockback.</div>
+<div class="block">When this entity touches a valid enemy's hitbox, deal damage to them and apply a knockback.
+
+ <p>Requires CombatStatsComponent, HitboxComponent on this entity.
+
+ <p>Damage is only applied if target entity has a CombatStatsComponent. Knockback is only applied
+ if target entity has a PhysicsComponent.
+
+ <p>By default the component is always on, unlimited and unscaled, so every existing NPC behaves
+ exactly as before. A <a href="ChargeComponent.html" title="class in com.csse3200.game.components.attacks"><code>ChargeComponent</code></a> switches it off, limits it to one hit per activation
+ and scales its damage, so that a charge is the attack: touching the target during the rush deals
+ base attack times the multiplier, once.
+
+ <p>Fires <code>"touchAttackHit"</code> (the entity that was hit) each time a hit damages a target.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -116,10 +128,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(short)" class="member-name-link">TouchAttackComponent</a><wbr>(short&nbsp;targetLayer)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Create a component which attacks entities on collision, without knockback.</div>
+</div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(short,float)" class="member-name-link">TouchAttackComponent</a><wbr>(short&nbsp;targetLayer,
  float&nbsp;knockback)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Create a component which attacks entities on collision, with knockback.</div>
+</div>
 </div>
 </section>
 </li>
@@ -134,22 +150,68 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bribe()" class="member-name-link">bribe</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#activate()" class="member-name-link">activate</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Starts a fresh activation: damage on, hit counter cleared, and any target that is ALREADY
+ touching this entity's hitbox is treated as a new contact.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bribe()" class="member-name-link">bribe</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Bribes this enemy for 20 seconds.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the entity is created and registered.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#deactivate()" class="member-name-link">deactivate</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Turns touch damage off.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamageMultiplier()" class="member-name-link">getDamageMultiplier</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the current damage multiplier.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHitsThisActivation()" class="member-name-link">getHitsThisActivation</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns how many hits have landed since the last activation.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaxHitsPerActivation()" class="member-name-link">getMaxHitsPerActivation</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the per-activation hit limit.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isActive()" class="member-name-link">isActive</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether touch damage is currently on.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBribed()" class="member-name-link">isBribed</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setActive(boolean)" class="member-name-link">setActive</a><wbr>(boolean&nbsp;active)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Switches touch damage on or off without resetting the hit counter.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDamageMultiplier(float)" class="member-name-link">setDamageMultiplier</a><wbr>(float&nbsp;multiplier)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Sets the factor applied to this entity's base attack for each hit.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMaxHitsPerActivation(int)" class="member-name-link">setMaxHitsPerActivation</a><wbr>(int&nbsp;maxHits)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Sets how many hits one activation may land.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called once per frame of the game, and should be used for most component logic.</div>
 </div>
 </div>
@@ -176,6 +238,11 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(short)">
 <h3>TouchAttackComponent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TouchAttackComponent</span><wbr><span class="parameters">(short&nbsp;targetLayer)</span></div>
+<div class="block">Create a component which attacks entities on collision, without knockback.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>targetLayer</code> - The physics layer of the target's collider.</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -183,6 +250,12 @@ loadScripts(document, 'script');</script>
 <h3>TouchAttackComponent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TouchAttackComponent</span><wbr><span class="parameters">(short&nbsp;targetLayer,
  float&nbsp;knockback)</span></div>
+<div class="block">Create a component which attacks entities on collision, with knockback.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>targetLayer</code> - The physics layer of the target's collider.</dd>
+<dd><code>knockback</code> - The magnitude of the knockback applied to the entity.</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -234,6 +307,106 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="isBribed()">
 <h3>isBribed</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isBribed</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setActive(boolean)">
+<h3>setActive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setActive</span><wbr><span class="parameters">(boolean&nbsp;active)</span></div>
+<div class="block">Switches touch damage on or off without resetting the hit counter.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>active</code> - true to allow damage on contact, false to ignore all contacts</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isActive()">
+<h3>isActive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isActive</span>()</div>
+<div class="block">Returns whether touch damage is currently on.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true if contacts currently cause damage</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="activate()">
+<h3>activate</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">activate</span>()</div>
+<div class="block">Starts a fresh activation: damage on, hit counter cleared, and any target that is ALREADY
+ touching this entity's hitbox is treated as a new contact. A collision-start event only fires
+ when two shapes begin to overlap, so a target standing inside the entity when the rush starts
+ would otherwise never be hit.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="deactivate()">
+<h3>deactivate</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">deactivate</span>()</div>
+<div class="block">Turns touch damage off. Safe to call when already off.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setMaxHitsPerActivation(int)">
+<h3>setMaxHitsPerActivation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMaxHitsPerActivation</span><wbr><span class="parameters">(int&nbsp;maxHits)</span>
+                             throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
+<div class="block">Sets how many hits one activation may land.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>maxHits</code> - most hits allowed per activation; 0 means unlimited</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if maxHits is negative</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getMaxHitsPerActivation()">
+<h3>getMaxHitsPerActivation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getMaxHitsPerActivation</span>()</div>
+<div class="block">Returns the per-activation hit limit.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the limit (0 means unlimited)</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getHitsThisActivation()">
+<h3>getHitsThisActivation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getHitsThisActivation</span>()</div>
+<div class="block">Returns how many hits have landed since the last activation.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>hits landed since the last activation</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setDamageMultiplier(float)">
+<h3>setDamageMultiplier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setDamageMultiplier</span><wbr><span class="parameters">(float&nbsp;multiplier)</span>
+                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
+<div class="block">Sets the factor applied to this entity's base attack for each hit.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>multiplier</code> - scales the entity's base attack; must be greater than zero and finite</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if zero, negative, NaN or infinite</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getDamageMultiplier()">
+<h3>getDamageMultiplier</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getDamageMultiplier</span>()</div>
+<div class="block">Returns the current damage multiplier.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the current multiplier (1.0 unless a charge has raised it)</dd>
+</dl>
 </section>
 </li>
 </ul>

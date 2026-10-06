@@ -90,23 +90,40 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="ChargeComponent.html" title="class in com.csse3200.game.components.attacks">ChargeComponent</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Represents a temporary charge state: a burst of movement speed toward a target, and a short-lived
- damage multiplier applied to whichever attack (melee or ranged) resolves next — NOT a separate
- damage-dealing hit of its own.</div>
+<div class="block">Represents a temporary charge state.</div>
 </div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="LaserAttackComponent.html" title="class in com.csse3200.game.components.attacks">LaserAttackComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">The Cyclops's eye laser: a very fast, straight, thin projectile fired from eye height straight at
+ the target's position.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="LightningFreezeComponent.html" title="class in com.csse3200.game.components.attacks">LightningFreezeComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks">MeleeAttackComponent</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Deals melee damage and knockback to a target entity when triggered, provided the target is within
- range and this component is off cooldown.</div>
+ <code>range</code> and this component is off cooldown.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PetrifyEffectComponent.html" title="class in com.csse3200.game.components.attacks">PetrifyEffectComponent</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Petrifies (fully immobilises) whatever this projectile hits, for a configured number of ticks, by
+ triggering the target's own <code>"applySpeedEffect"</code> event with a <code>0f</code> speed multiplier -
+ the same mechanism <a href="../effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects"><code>SpeedEffectComponent</code></a> already uses
+ to revert itself once the duration elapses.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks">RangedAttackComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Fires a real arrow projectile at a target entity when triggered, provided the target is within
  <code>range</code> and this component is off cooldown.</div>
 </div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="RockAttackComponent.html" title="class in com.csse3200.game.components.attacks">RockAttackComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">The Cyclops's thrown rock: a heavy, slow projectile that follows an arc under gravity and leaves
+ from above the head.</div>
+</div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks">TouchAttackComponent</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">When this entity touches a valid target's hitbox, deal damage to them and apply a knockback.</div>
+<div class="block">When this entity touches a valid enemy's hitbox, deal damage to them and apply a knockback.</div>
 </div>
 </div>
 </div>

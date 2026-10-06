@@ -141,24 +141,32 @@ implements <a href="../../ai/movement/MovementController.html" title="interface 
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the entity is created and registered.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMoving()" class="member-name-link">getMoving</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSpeedMultiplier()" class="member-name-link">getSpeedMultiplier</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Retyutrns the current speed multiplier applied to this entity's movement.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.badlogic.gdx.math.Vector2</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTarget()" class="member-name-link">getTarget</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="MovementGuard.html" title="interface in com.csse3200.game.physics.components">MovementGuard</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMovementGuard()" class="member-name-link">getMovementGuard</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isGroundedMovement()" class="member-name-link">isGroundedMovement</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMoving()" class="member-name-link">getMoving</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGroundedMovement(boolean)" class="member-name-link">setGroundedMovement</a><wbr>(boolean&nbsp;groundedMovement)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSpeedMultiplier()" class="member-name-link">getSpeedMultiplier</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retyutrns the current speed multiplier applied to this entity's movement.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.badlogic.gdx.math.Vector2</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTarget()" class="member-name-link">getTarget</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isGroundedMovement()" class="member-name-link">isGroundedMovement</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGroundedMovement(boolean)" class="member-name-link">setGroundedMovement</a><wbr>(boolean&nbsp;groundedMovement)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Restrict this movement controller to horizontal movement only, leaving vertical motion (e.g.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMovementGuard(com.csse3200.game.physics.components.MovementGuard)" class="member-name-link">setMovementGuard</a><wbr>(<a href="MovementGuard.html" title="interface in com.csse3200.game.physics.components">MovementGuard</a>&nbsp;guard)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Sets the guard that may stop this entity walking in a direction.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMoving(boolean)" class="member-name-link">setMoving</a><wbr>(boolean&nbsp;movementEnabled)</code></div>
@@ -337,6 +345,27 @@ implements <a href="../../ai/movement/MovementController.html" title="interface 
 <dd><code>speedMultiplier</code> - the positive multiplier to apply.</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if speedMultiplier is not positive.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setMovementGuard(com.csse3200.game.physics.components.MovementGuard)">
+<h3>setMovementGuard</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMovementGuard</span><wbr><span class="parameters">(<a href="MovementGuard.html" title="interface in com.csse3200.game.physics.components">MovementGuard</a>&nbsp;guard)</span></div>
+<div class="block">Sets the guard that may stop this entity walking in a direction. Replaces any earlier guard.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>guard</code> - the guard to ask each fram, or null to remove the current one.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getMovementGuard()">
+<h3>getMovementGuard</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="MovementGuard.html" title="interface in com.csse3200.game.physics.components">MovementGuard</a></span>&nbsp;<span class="element-name">getMovementGuard</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the current guard, or null if there is none.</dd>
 </dl>
 </section>
 </li>

@@ -104,13 +104,14 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
  <p><a href="../../ai/tasks/AITaskComponent.html" title="class in com.csse3200.game.ai.tasks"><code>AITaskComponent</code></a> only ever runs the single highest-priority task each frame, so giving
  this task a higher priority than a movement task like <a href="ChaseTask.html" title="class in com.csse3200.game.components.tasks"><code>ChaseTask</code></a> means the owning entity
  automatically stops closing the distance and starts attacking once in range, then resumes chasing
- the moment the target moves back out of range — no changes are needed to the movement tasks
+ the moment the target moves back out of range. No changes are needed to the movement tasks
  themselves.
 
- <p>Does not itself apply damage, knockback, or enforce a cooldown — it just triggers a <code>
- "rangedAttack"</code> event every frame while in range. A <a href="../attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a> on the same
- entity is what actually resolves the attack (including its own cooldown check), so triggering the
- event repeatedly here is safe and intentional.</div>
+ <p>Does not itself apply damage, knockback, or enforce a cooldown. It just triggers an event
+ every frame while in range, <code>"rangedAttack"</code> unless another event name is given. A <a href="../attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a> on the same entity that listens for that name is what actually resolves
+ the attack (including its own cooldown check), so triggering the event repeatedly here is safe
+ and intentional. An entity with two ranged components uses one task per component, each with the
+ event name of its own component.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -140,10 +141,21 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.entities.Entity,int,float)" class="member-name-link">RangedAttackTask</a><wbr>(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.entities.Entity,int,float,com.csse3200.game.components.projectile.ProjectileType)" class="member-name-link">RangedAttackTask</a><wbr>(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target,
  int&nbsp;priority,
- float&nbsp;range)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+ float&nbsp;range,
+ <a href="../projectile/ProjectileType.html" title="enum class in com.csse3200.game.components.projectile">ProjectileType</a>&nbsp;projectile)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Creates a task that triggers <code>"rangedAttack"</code>.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.entities.Entity,int,float,com.csse3200.game.components.projectile.ProjectileType,java.lang.String)" class="member-name-link">RangedAttackTask</a><wbr>(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target,
+ int&nbsp;priority,
+ float&nbsp;range,
+ <a href="../projectile/ProjectileType.html" title="enum class in com.csse3200.game.components.projectile">ProjectileType</a>&nbsp;projectile,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventName)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Creates a ranged attack task that triggers a chosen event name.</div>
+</div>
 </div>
 </section>
 </li>
@@ -158,18 +170,21 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPriority()" class="member-name-link">getPriority</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventName()" class="member-name-link">getEventName</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start()" class="member-name-link">start</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Start running this task.</div>
-</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPriority()" class="member-name-link">getPriority</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start()" class="member-name-link">start</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Run one frame of the task.</div>
+<div class="block">Announces eventName + "Start" when the task starts.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Triggers the stored event name with the target and the projectile type.</div>
 </div>
 </div>
 </div>
@@ -195,11 +210,13 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(com.csse3200.game.entities.Entity,int,float)">
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.entities.Entity,int,float,com.csse3200.game.components.projectile.ProjectileType)">
 <h3>RangedAttackTask</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">RangedAttackTask</span><wbr><span class="parameters">(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target,
  int&nbsp;priority,
- float&nbsp;range)</span></div>
+ float&nbsp;range,
+ <a href="../projectile/ProjectileType.html" title="enum class in com.csse3200.game.components.projectile">ProjectileType</a>&nbsp;projectile)</span></div>
+<div class="block">Creates a task that triggers <code>"rangedAttack"</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>target</code> - The entity to attack once in range.</dd>
@@ -208,6 +225,29 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
      through its target.</dd>
 <dd><code>range</code> - Distance from the target at which this task becomes active. Should normally match
      the <a href="../attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a>'s configured range on the same entity.</dd>
+<dd><code>projectile</code> - Type of projectile being launched</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.entities.Entity,int,float,com.csse3200.game.components.projectile.ProjectileType,java.lang.String)">
+<h3>RangedAttackTask</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">RangedAttackTask</span><wbr><span class="parameters">(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target,
+ int&nbsp;priority,
+ float&nbsp;range,
+ <a href="../projectile/ProjectileType.html" title="enum class in com.csse3200.game.components.projectile">ProjectileType</a>&nbsp;projectile,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventName)</span></div>
+<div class="block">Creates a ranged attack task that triggers a chosen event name.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>target</code> - The entity to attack once in range.</dd>
+<dd><code>priority</code> - Task priority while in range.</dd>
+<dd><code>range</code> - Distance from the target at which this task becomes active.</dd>
+<dd><code>projectile</code> - Type of projectile being launched</dd>
+<dd><code>eventName</code> - the event the owner's ranged component listens for, for example <code>
+     "laserAttack"</code>; not blank</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the event name is null or blank</dd>
 </dl>
 </section>
 </li>
@@ -223,8 +263,7 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <section class="detail" id="start()">
 <h3>start</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">start</span>()</div>
-<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../ai/tasks/Task.html#start()">Task</a></code></span></div>
-<div class="block">Start running this task. This will usually be called by an AI controller.</div>
+<div class="block">Announces eventName + "Start" when the task starts.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../../ai/tasks/Task.html#start()">start</a></code>&nbsp;in interface&nbsp;<code><a href="../../ai/tasks/Task.html" title="interface in com.csse3200.game.ai.tasks">Task</a></code></dd>
@@ -237,8 +276,7 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <section class="detail" id="update()">
 <h3>update</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">update</span>()</div>
-<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../ai/tasks/Task.html#update()">Task</a></code></span></div>
-<div class="block">Run one frame of the task. Similar to the update() in Components.</div>
+<div class="block">Triggers the stored event name with the target and the projectile type.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../../ai/tasks/Task.html#update()">update</a></code>&nbsp;in interface&nbsp;<code><a href="../../ai/tasks/Task.html" title="interface in com.csse3200.game.ai.tasks">Task</a></code></dd>
@@ -254,6 +292,16 @@ implements <a href="../../ai/tasks/PriorityTask.html" title="interface in com.cs
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../../ai/tasks/PriorityTask.html#getPriority()">getPriority</a></code>&nbsp;in interface&nbsp;<code><a href="../../ai/tasks/PriorityTask.html" title="interface in com.csse3200.game.ai.tasks">PriorityTask</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getEventName()">
+<h3>getEventName</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getEventName</span>()</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the event name this task triggers</dd>
 </dl>
 </section>
 </li>

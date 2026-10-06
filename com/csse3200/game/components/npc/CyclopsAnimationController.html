@@ -95,7 +95,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CyclopsAnimationController</span>
 <span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
 <div class="block">This class listens to events relevant to a cyclops entity's state and plays the animation when
- one of the events is triggered. It also updates the animation state based on velocity.</div>
+ one of the events is triggered. It also updates the animation state based on velocity, melee
+ stomp attacks, rock throwing, and laser attacks (with laser overlay rendered via <a href="../../rendering/EnemyWeaponAnimationComponent.html" title="class in com.csse3200.game.rendering"><code>EnemyWeaponAnimationComponent</code></a>).</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -137,9 +138,18 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the entity is created and registered.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isAttacking()" class="member-name-link">isAttacking</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFacingLeft()" class="member-name-link">isFacingLeft</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFacingRight()" class="member-name-link">isFacingRight</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called once per frame of the game, and should be used for most component logic.</div>
 </div>
 </div>
@@ -200,6 +210,24 @@ loadScripts(document, 'script');</script>
 <dt>Overrides:</dt>
 <dd><code><a href="../Component.html#update()">update</a></code>&nbsp;in class&nbsp;<code><a href="../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isAttacking()">
+<h3>isAttacking</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isAttacking</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isFacingLeft()">
+<h3>isFacingLeft</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isFacingLeft</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isFacingRight()">
+<h3>isFacingRight</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isFacingRight</span>()</div>
 </section>
 </li>
 </ul>

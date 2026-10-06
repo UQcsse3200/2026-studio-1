@@ -91,6 +91,10 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <section class="class-description" id="class-description">
+<dl class="notes">
+<dt>Direct Known Subclasses:</dt>
+<dd><code><a href="LaserAttackComponent.html" title="class in com.csse3200.game.components.attacks">LaserAttackComponent</a></code>, <code><a href="RockAttackComponent.html" title="class in com.csse3200.game.components.attacks">RockAttackComponent</a></code></dd>
+</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">RangedAttackComponent</span>
 <span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
@@ -110,6 +114,16 @@ loadScripts(document, 'script');</script>
  landed hit, a miss would leave the cooldown gate open and this component would fire a new arrow
  every single frame <a href="../tasks/RangedAttackTask.html" title="class in com.csse3200.game.components.tasks"><code>RangedAttackTask</code></a> re-triggers the
  event while still in range, instead of at most once per <code>cooldown</code> seconds.
+
+ <p><b>Windup.</b> If the weapon has a windup above zero, an accepted attack first winds up
+ (<code>"rangedAttackWindup"</code>), then fires (<code>"rangedAttackFired"</code>) or, if the target died
+ meanwhile, is cancelled (<code>"rangedAttackCancelled"</code>). A windup of zero announces the windup
+ and fires straight away.
+
+ <p><b>Event prefix.</b> The names above use the default prefix <code>"rangedAttack"</code>. A subclass
+ may choose another prefix through the protected constructor, in which case the trigger event is
+ the prefix itself and the others add <code>Windup</code>, <code>Fired</code>, <code>Hit</code> and <code>
+ Cancelled</code>. Subclasses change only <a href="#createProjectile(com.csse3200.game.entities.Entity,com.csse3200.game.components.projectile.ProjectileType)"><code>createProjectile(Entity, ProjectileType)</code></a>.
 
  <p>Requires <a href="../CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> on this entity - its <code>baseAttack</code> becomes the
  fired arrow's damage.
@@ -133,9 +147,11 @@ loadScripts(document, 'script');</script>
 <section class="constructor-summary" id="constructor-summary">
 <h2>Constructor Summary</h2>
 <div class="caption"><span>Constructors</span></div>
-<div class="summary-table two-column-summary">
-<div class="table-header col-first">Constructor</div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier</div>
+<div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback)</code></div>
@@ -143,6 +159,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
  for any attacks i.e.</div>
 </div>
+<div class="col-first odd-row-color"><code>&nbsp;</code></div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback,
@@ -150,6 +167,15 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
  speed.</div>
+</div>
+<div class="col-first even-row-color"><code>protected </code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem,java.lang.String)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
+ float&nbsp;cooldown,
+ float&nbsp;knockback,
+ <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventPrefix)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Creates a ranged attack that listens for and announces events under a custom prefix.</div>
 </div>
 </div>
 </section>
@@ -169,33 +195,76 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Resolves this entity's <a href="../CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> and registers a listener for the
- attack-trigger event.</div>
+ attack-trigger event, which is the event prefix.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCooldown()" class="member-name-link">getCooldown</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createProjectile(com.csse3200.game.entities.Entity,com.csse3200.game.components.projectile.ProjectileType)" class="member-name-link">createProjectile</a><wbr>(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target,
+ <a href="../projectile/ProjectileType.html" title="enum class in com.csse3200.game.components.projectile">ProjectileType</a>&nbsp;projectile)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Builds the projectile for a resolved shot.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCooldown()" class="member-name-link">getCooldown</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the configured cooldown duration.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDamage()" class="member-name-link">getDamage</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the damage for this attack, either the configured base attack from the config file or
  the equipped weapon's damage.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getEventPrefix()" class="member-name-link">getEventPrefix</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the event prefix this attack uses.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockback()" class="member-name-link">getKnockback</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the configured knockback magnitude.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getProjectileSpeed()" class="member-name-link">getProjectileSpeed</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getLightningFreezeTicks()" class="member-name-link">getLightningFreezeTicks</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the configured projectile speed.</div>
+<div class="block">Returns how long, in ticks (about 60/second), a target is frozen for after being struck by a
+ LIGHTNING projectile fired by this component.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRange()" class="member-name-link">getRange</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getProjectileSpeed()" class="member-name-link">getProjectileSpeed</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the configured projectile speed.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRange()" class="member-name-link">getRange</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the configured attack range.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWindupDuration()" class="member-name-link">getWindupDuration</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the windup length.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getWindupTimeRemaining()" class="member-name-link">getWindupTimeRemaining</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns how much of the current windup is left.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isAimed()" class="member-name-link">isAimed</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Reports whether arrows are aimed at the target's centre.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isWindingUp()" class="member-name-link">isWindingUp</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Reports whether a shot is currently winding up.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setAimed(boolean)" class="member-name-link">setAimed</a><wbr>(boolean&nbsp;aimed)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Chooses between a straight horizontal arrow (false) and an arrow flown along the line to the
+ target's centre (true).</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCooldown(float)" class="member-name-link">setCooldown</a><wbr>(float&nbsp;cooldown)</code></div>
@@ -208,15 +277,23 @@ loadScripts(document, 'script');</script>
 <div class="block">Updates the knockback magnitude.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProjectileSpeed(float)" class="member-name-link">setProjectileSpeed</a><wbr>(float&nbsp;projectileSpeed)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLightningFreezeTicks(int)" class="member-name-link">setLightningFreezeTicks</a><wbr>(int&nbsp;lightningFreezeTicks)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates the projectile speed.</div>
+<div class="block">Updates how long a LIGHTNING hit freezes its target for.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRange(float)" class="member-name-link">setRange</a><wbr>(float&nbsp;range)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setProjectileSpeed(float)" class="member-name-link">setProjectileSpeed</a><wbr>(float&nbsp;projectileSpeed)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the projectile speed.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRange(float)" class="member-name-link">setRange</a><wbr>(float&nbsp;range)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Updates the attack range.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setWindupDuration(float)" class="member-name-link">setWindupDuration</a><wbr>(float&nbsp;windupDuration)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -263,6 +340,34 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="&lt;init&gt;(float,float,float,com.csse3200.game.components.loot.WeaponItem,java.lang.String)">
+<h3>RangedAttackComponent</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">RangedAttackComponent</span><wbr><span class="parameters">(float&nbsp;range,
+ float&nbsp;cooldown,
+ float&nbsp;knockback,
+ <a href="../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventPrefix)</span></div>
+<div class="block">Creates a ranged attack that listens for and announces events under a custom prefix. The
+ trigger event is the prefix itself, for example <code>"rockAttack"</code>, and every other event
+ adds a suffix: <code>Windup</code>, <code>Fired</code>, <code>Hit</code>, <code>Cancelled</code>.
+
+ <p>Two ranged attacks on one entity must not both answer to <code>"rangedAttack"</code>, or one
+ trigger would start both. The animation controller also needs the prefix to tell a rock from a
+ laser.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>range</code> - maximum distance to the target, in world units</dd>
+<dd><code>cooldown</code> - seconds between shots</dd>
+<dd><code>knockback</code> - knockback applied on a hit</dd>
+<dd><code>weapon</code> - the weapon this attack uses (may be a natural weapon)</dd>
+<dd><code>eventPrefix</code> - prefix for every event this attack listens for or announces; not blank</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the prefix is null or blank, plus every rule of the
+     four-argument constructor</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="&lt;init&gt;(float,float,float)">
 <h3>RangedAttackComponent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">RangedAttackComponent</span><wbr><span class="parameters">(float&nbsp;range,
@@ -293,7 +398,7 @@ loadScripts(document, 'script');</script>
 <h3>create</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">create</span>()</div>
 <div class="block">Resolves this entity's <a href="../CombatStatsComponent.html" title="class in com.csse3200.game.components"><code>CombatStatsComponent</code></a> and registers a listener for the
- attack-trigger event.</div>
+ attack-trigger event, which is the event prefix.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../Component.html#create()">create</a></code>&nbsp;in class&nbsp;<code><a href="../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>
@@ -308,6 +413,17 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../Component.html#update()">update</a></code>&nbsp;in class&nbsp;<code><a href="../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getEventPrefix()">
+<h3>getEventPrefix</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getEventPrefix</span>()</div>
+<div class="block">Returns the event prefix this attack uses.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the event prefix</dd>
 </dl>
 </section>
 </li>
@@ -389,7 +505,7 @@ loadScripts(document, 'script');</script>
 <h3>getDamage</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getDamage</span>()</div>
 <div class="block">Returns the damage for this attack, either the configured base attack from the config file or
- the equipped weapon's damage. The only stat this component reads from the weapon — range and
+ the equipped weapon's damage. The only stat this component reads from the weapon: range and
  knockback are this wielder's own properties, not the weapon's.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -418,6 +534,112 @@ loadScripts(document, 'script');</script>
 <dd><code>projectileSpeed</code> - new projectile speed, in world units/second</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>projectileSpeed</code> is not positive</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getWindupDuration()">
+<h3>getWindupDuration</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getWindupDuration</span>()</div>
+<div class="block">Returns the windup length.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>windup duration in seconds</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getWindupTimeRemaining()">
+<h3>getWindupTimeRemaining</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getWindupTimeRemaining</span>()</div>
+<div class="block">Returns how much of the current windup is left.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>seconds remaining, or <code>0f</code> when no windup is in progress</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isWindingUp()">
+<h3>isWindingUp</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isWindingUp</span>()</div>
+<div class="block">Reports whether a shot is currently winding up.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true between an accepted trigger and the shot resolving</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isAimed()">
+<h3>isAimed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isAimed</span>()</div>
+<div class="block">Reports whether arrows are aimed at the target's centre.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true if aimed; false (the default) for a straight horizontal shot</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setAimed(boolean)">
+<h3>setAimed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setAimed</span><wbr><span class="parameters">(boolean&nbsp;aimed)</span></div>
+<div class="block">Chooses between a straight horizontal arrow (false) and an arrow flown along the line to the
+ target's centre (true). Only affects <a href="../projectile/ProjectileType.html#ARROW"><code>ProjectileType.ARROW</code></a>; lightning keeps its own
+ spawn.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>aimed</code> - true to aim arrows at the target</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setWindupDuration(float)">
+<h3>setWindupDuration</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setWindupDuration</span><wbr><span class="parameters">(float&nbsp;windupDuration)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getLightningFreezeTicks()">
+<h3>getLightningFreezeTicks</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getLightningFreezeTicks</span>()</div>
+<div class="block">Returns how long, in ticks (about 60/second), a target is frozen for after being struck by a
+ LIGHTNING projectile fired by this component. Not meaningful for any other projectile type.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>freeze duration in ticks</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setLightningFreezeTicks(int)">
+<h3>setLightningFreezeTicks</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setLightningFreezeTicks</span><wbr><span class="parameters">(int&nbsp;lightningFreezeTicks)</span></div>
+<div class="block">Updates how long a LIGHTNING hit freezes its target for.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>lightningFreezeTicks</code> - new freeze duration, in ticks (about 60/second)</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>lightningFreezeTicks</code> is negative</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createProjectile(com.csse3200.game.entities.Entity,com.csse3200.game.components.projectile.ProjectileType)">
+<h3>createProjectile</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createProjectile</span><wbr><span class="parameters">(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;target,
+ <a href="../projectile/ProjectileType.html" title="enum class in com.csse3200.game.components.projectile">ProjectileType</a>&nbsp;projectile)</span></div>
+<div class="block">Builds the projectile for a resolved shot. The default builds the arrow or the lightning bolt.
+ Subclasses override only this. Aimed arrows fly along the line to the target's centre; unaimed
+ arrows fly along the x axis towards the target's side.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>target</code> - the entity being shot at (alive and valid when this is called)</dd>
+<dd><code>projectile</code> - the projectile type requested by the task</dd>
+<dt>Returns:</dt>
+<dd>the projectile entity, not yet registered; the caller registers it, wires the hit event
+     and announces the shot</dd>
 </dl>
 </section>
 </li>

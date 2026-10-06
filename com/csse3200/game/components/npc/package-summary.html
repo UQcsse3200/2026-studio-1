@@ -84,81 +84,133 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="caption"><span>Classes</span></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button></div>
+<div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="CyclopsAnimationController.html" title="class in com.csse3200.game.components.npc">CyclopsAnimationController</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="CentaurAnimationController.html" title="class in com.csse3200.game.components.npc">CentaurAnimationController</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">This class listens to events relevant to a centaur entity's state and plays the animation when
+ one of the events is triggered.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="CerberusAnimationController.html" title="class in com.csse3200.game.components.npc">CerberusAnimationController</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">This class listens to events relevant to a Cerberus entity's state and plays the corresponding
+ walking animation (left or right).</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="CerberusAnimationController.AnimationState.html" title="enum class in com.csse3200.game.components.npc">CerberusAnimationController.AnimationState</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">&nbsp;</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="CyclopsAnimationController.html" title="class in com.csse3200.game.components.npc">CyclopsAnimationController</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">This class listens to events relevant to a cyclops entity's state and plays the animation when
  one of the events is triggered.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="DialogueComponent.html" title="class in com.csse3200.game.components.npc">DialogueComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="DialogueProximityComponent.html" title="class in com.csse3200.game.components.npc">DialogueProximityComponent</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="DialogueComponent.html" title="class in com.csse3200.game.components.npc">DialogueComponent</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="DisplayDialogue.html" title="class in com.csse3200.game.components.npc">DisplayDialogue</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="DialogueProximityComponent.html" title="class in com.csse3200.game.components.npc">DialogueProximityComponent</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="EnemyDeathComponent.html" title="class in com.csse3200.game.components.npc">EnemyDeathComponent</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="DisplayDialogue.html" title="class in com.csse3200.game.components.npc">DisplayDialogue</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="GhostAnimationController.html" title="class in com.csse3200.game.components.npc">GhostAnimationController</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="EnemyDeathComponent.html" title="class in com.csse3200.game.components.npc">EnemyDeathComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="EnemyTypeComponent.html" title="class in com.csse3200.game.components.npc">EnemyTypeComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="FlightComponent.html" title="class in com.csse3200.game.components.npc">FlightComponent</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Makes an entity fly: zeroes its physics body's gravity scale once created, so the world's gravity
+ never pulls it down between steering updates, and applies linear damping so knockback impulses
+ fade out instead of carrying the entity away indefinitely (ground NPCs get the same effect for
+ free from floor friction, which a flying entity has none of).</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="GhostAnimationController.html" title="class in com.csse3200.game.components.npc">GhostAnimationController</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">This class listens to events relevant to a ghost entity's state and plays the animation when one
  of the events is triggered.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="HeadbuttAttackComponent.html" title="class in com.csse3200.game.components.npc">HeadbuttAttackComponent</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="HarpyAnimationController.html" title="class in com.csse3200.game.components.npc">HarpyAnimationController</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">This class listens to events relevant to a Harpy (melee or ranged) entity's state and plays the
+ corresponding movement animation (left or right).</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab3"><a href="HarpyAnimationController.AnimationState.html" title="enum class in com.csse3200.game.components.npc">HarpyAnimationController.AnimationState</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab3">&nbsp;</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="HazardAvoidanceComponent.html" title="class in com.csse3200.game.components.npc">HazardAvoidanceComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Makes a grounded enemy stop at the edge of a hazard instead of walking into it.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="HazardContactDamageComponent.html" title="class in com.csse3200.game.components.npc">HazardContactDamageComponent</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Lets an entity take damage from hazard tiles it touches: spikes, rivers and fire alike.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="HeadbuttAttackComponent.html" title="class in com.csse3200.game.components.npc">HeadbuttAttackComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Winds up, charges and headbutts the player when triggered, knocking them back.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MinotaurAnimationController.html" title="class in com.csse3200.game.components.npc">MinotaurAnimationController</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MedusaAnimationController.html" title="class in com.csse3200.game.components.npc">MedusaAnimationController</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">This class listens to events relevant to Medusa's state and plays the animation when one of the
+ events is triggered.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="MedusaAnimationController.AnimationState.html" title="enum class in com.csse3200.game.components.npc">MedusaAnimationController.AnimationState</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab3">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MinotaurAnimationController.html" title="class in com.csse3200.game.components.npc">MinotaurAnimationController</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">This class listens to events relevant to a minotaur entity's state and plays the animation when
  one of the events is triggered.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="NameComponent.html" title="class in com.csse3200.game.components.npc">NameComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="NameComponent.html" title="class in com.csse3200.game.components.npc">NameComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Stores the name assigned to an NPC.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="NameDisplay.html" title="class in com.csse3200.game.components.npc">NameDisplay</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="NameDisplay.html" title="class in com.csse3200.game.components.npc">NameDisplay</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Displays an NPC's generated name above the NPC in the game world.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="NameGenerator.html" title="class in com.csse3200.game.components.npc">NameGenerator</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="NameGenerator.html" title="class in com.csse3200.game.components.npc">NameGenerator</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Generates procedural names for NPCs.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PoisonEffectComponent.html" title="class in com.csse3200.game.components.npc">PoisonEffectComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PoisonEffectComponent.html" title="class in com.csse3200.game.components.npc">PoisonEffectComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Damages a target entity gradually while a poison is active, shown as an icon above it.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PotionThrowComponent.html" title="class in com.csse3200.game.components.npc">PotionThrowComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PotionThrowComponent.html" title="class in com.csse3200.game.components.npc">PotionThrowComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Throws a splash poison potion in an arc at a target entity when triggered.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ProvokedComponent.html" title="class in com.csse3200.game.components.npc">ProvokedComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ProvokedComponent.html" title="class in com.csse3200.game.components.npc">ProvokedComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Provokes an NPC when its health drops, allowing one attack per fight or repeated attacks.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ShopkeeperComponent.html" title="class in com.csse3200.game.components.npc">ShopkeeperComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ShopkeeperComponent.html" title="class in com.csse3200.game.components.npc">ShopkeeperComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Opens the shop with F while the player is in dialogue range, and closes it when they leave.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SkeletonAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonAnimationController</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SkeletonAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonAnimationController</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">This class listens to events relevant to a skeleton entity's state and plays the animation when
  one of the events is triggered.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SkeletonWeaponAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonWeaponAnimationController</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SkeletonWeaponAnimationController.html" title="class in com.csse3200.game.components.npc">SkeletonWeaponAnimationController</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Controller for enemy weapon animations on skeleton NPCs.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SplashEffectComponent.html" title="class in com.csse3200.game.components.npc">SplashEffectComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SplashEffectComponent.html" title="class in com.csse3200.game.components.npc">SplashEffectComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Plays a one-shot effect animation, then removes its entity.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SplashPotionComponent.html" title="class in com.csse3200.game.components.npc">SplashPotionComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SplashPotionComponent.html" title="class in com.csse3200.game.components.npc">SplashPotionComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Drives a thrown potion's arc and smashes it on the ground, a wall or the player.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ZeusAnimationController.html" title="class in com.csse3200.game.components.npc">ZeusAnimationController</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">This class listens to events relevant to a Zeus entity's state and plays the corresponding
+ animations (idle, walk, physical strike, slam/lightning cast, death) from the zeus atlas.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="ZeusAnimationController.AnimationState.html" title="enum class in com.csse3200.game.components.npc">ZeusAnimationController.AnimationState</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab3">&nbsp;</div>
 </div>
 </div>
 </div>
