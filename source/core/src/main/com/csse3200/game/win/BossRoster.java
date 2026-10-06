@@ -2,6 +2,7 @@ package com.csse3200.game.win;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.entities.spawn.EnemyId;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -48,84 +49,88 @@ import java.util.Set;
 public final class BossRoster {
 
   /** The id of the final boss: Zeus in Level 3. */
-  public static final String FINAL_BOSS_ID = "Level 3 - Zeus's Palace:83,5";
+  public static final String FINAL_BOSS_ID = "Level 3 - Zeus's Palace:26,4";
 
-  private int killId;
+  private static final List<MiniBoss> MINI_BOSSES =
+      List.of(
+          new MiniBoss(
+              EnemyId.of("Hound's Den", new GridPoint2(48, 2)),
+              "Cerberus of the Hound's Den",
+              "Hound's Den",
+              "cerberus",
+              true),
+          new MiniBoss(
+              EnemyId.of("Gorgon's Gallery", new GridPoint2(37, 11)),
+              "Medusa of the Gorgon's Gallery",
+              "Gorgon's Gallery",
+              "Medusa",
+              true),
+          new MiniBoss(
+              FINAL_BOSS_ID,
+              "Final Boss: Zeus of Level 3 - Zeus's Palace",
+              " Level 3 - Zeus's Palace",
+              "Zeus",
+              true),
+          new MiniBoss(
+              EnemyId.of("Minotaur's Labyrinth  ", new GridPoint2(24, 35)),
+              "Minotaur of the Minotaur's Labyrinth",
+              "Minotaur's Labyrinth",
+              "Minotaur",
+              true),
+          new MiniBoss(
+              EnemyId.of("Shades' Barracks", new GridPoint2(40, 5)),
+              "Minotaur of the ",
+              "Shades' Barracks",
+              "Minotaur",
+              true),
+          new MiniBoss(
+              EnemyId.of("Centaur Pavilion", new GridPoint2(38, 5)),
+              "Centaur of the Centaur Pavilion",
+              "Centaur Pavilion",
+              "",
+              true),
+          new MiniBoss(
+              EnemyId.of("Zeus's Outer Guard ", new GridPoint2(41, 3)),
+              "Medusa of Zeus's Outer Guard",
+              "Zeus's Outer Guard ",
+              "Medusa",
+              true),
+          new MiniBoss(
+              EnemyId.of("Zeus's Thunder Hall", new GridPoint2(38, 3)),
+              "Medusa of Zeus's Thunder Hall",
+              "Zeus's Thunder Hall",
+              "Medusa",
+              true),
+          new MiniBoss(
+              EnemyId.of("Centaur Pavilion", new GridPoint2(26, 5)),
+              "Centaur of the Centaur Pavilion",
+              "Centaur Pavilion",
+              "Centaur",
+              false),
+          new MiniBoss(
+              EnemyId.of("Minotaur's Labyrinth ", new GridPoint2(27, 5)),
+              "Centaur of the Minotaur's Labyrinth ",
+              "Minotaur's Labyrinth ",
+              "Minotaur",
+              true),
+          new MiniBoss(
+              EnemyId.of("Zeus's Outer Guard", new GridPoint2(32, 9)),
+              "Cyclops of the Zeus's Outer Guard",
+              "Zeus's Outer Guard",
+              "Cyclops",
+              false));
 
   private BossRoster() {
     // utility class
-    List.of(
-        new MiniBoss(
-            EnemyId.of("Hound's Den", new GridPoint2(48, 2)),
-            "Cerberus of the Hound's Den",
-            "Hound's Den",
-            "cerberus",
-            true),
-        new MiniBoss(
-            EnemyId.of("Gorgon's Gallery", new GridPoint2(34, 3)),
-            "Medusa of the Gorgon's Gallery",
-            "Gorgon's Gallery",
-            "Medusa",
-            true),
-        new MiniBoss(
-            FINAL_BOSS_ID,
-            "Final Boss: Zeus of Level 3 - Zeus's Palace",
-            " Level 3 - Zeus's Palace",
-            "Zeus",
-            true),
-        new MiniBoss(
-            EnemyId.of("Minotaur's Labyrinth  ", new GridPoint2(37, 5)),
-            "Minotaur of the Minotaur's Labyrinth",
-            "Minotaur's Labyrinth",
-            "Minotaur",
-            true),
-        new MiniBoss(
-            EnemyId.of("Shades' Barracks", new GridPoint2(40, 5)),
-            "Minotaur of the ",
-            "Shades' Barracks",
-            "Minotaur",
-            true),
-        new MiniBoss(
-            EnemyId.of("Centaur Pavilion", new GridPoint2(38, 5)),
-            "Centaur of the Centaur Pavilion",
-            "Centaur Pavilion",
-            "",
-            true),
-        new MiniBoss(
-            EnemyId.of("Zeus's Outer Guard ", new GridPoint2(41, 3)),
-            "Medusa of Zeus's Outer Guard",
-            "Zeus's Outer Guard ",
-            "Medusa",
-            true),
-        new MiniBoss(
-            EnemyId.of("Zeus's Thunder Hall", new GridPoint2(38, 3)),
-            "Medusa of Zeus's Thunder Hall",
-            "Zeus's Thunder Hall",
-            "Medusa",
-            true),
-        new MiniBoss(
-            EnemyId.of("Centaur Pavilion", new GridPoint2(26, 5)),
-            "Centaur of the Centaur Pavilion",
-            "Centaur Pavilion",
-            "Centaur",
-            false),
-        new MiniBoss(
-            EnemyId.of("Minotaur's Labyrinth ", new GridPoint2(27, 5)),
-            "Centaur of the Minotaur's Labyrinth ",
-            "Minotaur's Labyrinth ",
-            "Centaur",
-            true),
-        new MiniBoss(
-            EnemyId.of("Zeus's Outer Guard", new GridPoint2(30, 3)),
-            "Cyclops of the Zeus's Outer Guard",
-            "Zeus's Outer Guard",
-            "Cyclops",
-            false));
   }
 
   /** One mini boss in the roster. */
   public static final class MiniBoss {
-    // fields: id, label, roomName, enemyType, required
+    private static String enemyKillID;
+    private static String miniBossLabel;
+    private static String roomName;
+    private static String enemyType;
+    private static Boolean requiredForGlory;
 
     /**
      * @param id the kill id, in the {@code <map name>:<x>,<y>} form; not blank
@@ -136,58 +141,61 @@ public final class BossRoster {
      * @param required true if this boss is needed for {@link WinTier#GLORY}
      * @throws IllegalArgumentException if the id, label, room name or type is null or blank
      */
-    public MiniBoss(String id, String label, String roomName, String enemyType, boolean required) {
-      // BEGIN MiniBoss constructor
-      //   IF any of the four text values is missing or blank THEN reject, naming which one
-      //   store all five values
-      // END MiniBoss constructor
+    public MiniBoss(String id, String label, String roomName, String enemyType, boolean required)
+        throws IllegalArgumentException {
+      if (id.isEmpty() || id.isBlank()) {
+        throw new IllegalArgumentException(
+            "Mini Boss Kill ID cannot have an empty or blank kill id.");
+      }
+      enemyKillID = id;
+      if (label.isBlank() || label.isEmpty()) {
+        throw new IllegalArgumentException("Mini Boss Label cannot be empty or blank.");
+      }
+      miniBossLabel = label;
+      if (roomName.isBlank() || roomName.isEmpty()) {
+        throw new IllegalArgumentException("Room Label cannot be empty or blank.");
+      }
+      MiniBoss.roomName = roomName;
+      if (enemyType.isEmpty() || enemyType.isBlank()) {
+        throw new IllegalArgumentException("enemyType cannot have an empty or blank kill id.");
+      }
+      MiniBoss.enemyType = enemyType;
+      requiredForGlory = required;
     }
 
     /**
      * @return the kill id
      */
     public String getId() {
-      return "";
+      return enemyKillID;
     }
 
     /**
      * @return the name shown on the win screen
      */
     public String getLabel() {
-      // BEGIN getLabel
-      //   give back the label
-      // END getLabel
-      return "";
+      return miniBossLabel;
     }
 
     /**
      * @return the name of the room it guards
      */
     public String getRoomName() {
-      // BEGIN getRoomName
-      //   give back the room name
-      // END getRoomName
-      return "";
+      return roomName;
     }
 
     /**
      * @return the enemy type as written in the map file
      */
     public String getEnemyType() {
-      // BEGIN getEnemyType
-      //   give back the enemy type
-      // END getEnemyType
-      return "";
+      return enemyType;
     }
 
     /**
      * @return true if this boss is needed for Glory
      */
     public boolean isRequired() {
-      // BEGIN isRequired
-      //   give back the flag
-      // END isRequired
-      return true;
+      return requiredForGlory;
     }
   }
 
@@ -196,32 +204,32 @@ public final class BossRoster {
    *     above); the list cannot be changed by the caller
    */
   public static List<MiniBoss> getMiniBosses() {
-    // BEGIN getMiniBosses
-    //   build the twelve entries from the table above the first time this is asked for
-    //   give back an unmodifiable list, so the roster cannot be edited from outside
-    // END getMiniBosses
-    return Collections.emptyList();
+    List<MiniBoss> miniBossList = new ArrayList<>();
+    for (MiniBoss miniBoss : MINI_BOSSES) {
+      miniBossList.add(miniBoss);
+    }
+    return miniBossList;
   }
 
   /**
    * @return the ids of the required mini bosses only; eight of them; unmodifiable
    */
   public static Set<String> getRequiredIds() {
-    // BEGIN getRequiredIds
-    //   collect the id of every mini boss whose required flag is set
-    //   give back an unmodifiable set
-    // END getRequiredIds
-    return Collections.emptySet();
+    Set<String> requiredMiniBosses = Collections.emptySet();
+    for (MiniBoss miniBoss : getMiniBosses()) {
+      if (miniBoss.isRequired()) {
+        requiredMiniBosses.add(miniBoss.getId());
+      }
+    }
+
+    return requiredMiniBosses;
   }
 
   /**
    * @return how many mini bosses are required for Glory
    */
   public static int getRequiredCount() {
-    // BEGIN getRequiredCount
-    //   give back the size of the required ids
-    // END getRequiredCount
-    return 0;
+    return getRequiredIds().size();
   }
 
   /**
