@@ -1,5 +1,7 @@
 package com.csse3200.game.win;
 
+import java.util.Collection;
+
 /**
  * The win class. It decides the SCALE of a win: given what has happened in the game, it says which
  * of the three {@link WinTier}s the player has earned, or that they have not won.
@@ -58,7 +60,7 @@ public final class WinEvaluator {
    * @throws IllegalArgumentException if {@code questsCompleted} is negative
    */
   public static WinResult evaluate(
-      boolean finalBossDefeated, java.util.Collection<String> killedEnemyIds, int questsCompleted) {
+      boolean finalBossDefeated, Collection<String> killedEnemyIds, int questsCompleted) {
     // BEGIN evaluate
     //   IF questsCompleted is negative THEN reject with "questsCompleted must not be negative"
     //   killed <- the killed ids as a set (empty if the argument is missing)
@@ -76,6 +78,7 @@ public final class WinEvaluator {
     //   give back a result holding the tier, the flag, defeated, the required count, missing,
     //     questsCompleted and QUESTS_REQUIRED_FOR_LEGEND
     // END evaluate
+    return new WinResult(1);
   }
 
   /**
@@ -90,5 +93,6 @@ public final class WinEvaluator {
     //   completed <- the ledger's completed count
     //   give back evaluate(finalBossDefeated, killed, completed)
     // END evaluateNow
+    return new WinResult(1);
   }
 }

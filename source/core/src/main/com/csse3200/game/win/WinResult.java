@@ -1,5 +1,6 @@
 package com.csse3200.game.win;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,6 +26,16 @@ public final class WinResult {
   private final List<String> missingMiniBosses;
   private final int questsCompleted;
   private final int questsRequired;
+
+  WinResult(int tier) {
+    this.tier = WinTier.fromLevel(tier);
+    this.finalBossDefeated = false;
+    this.missingMiniBosses = new ArrayList<>();
+    this.miniBossesDefeated = 3;
+    this.miniBossesRequired = 2;
+    this.questsRequired = 4;
+    this.questsCompleted = 2;
+  }
 
   /**
    * @param tier the tier reached; not null
