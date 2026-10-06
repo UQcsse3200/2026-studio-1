@@ -130,18 +130,31 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Create a level area using the default <a href="terrain/map/JsonMapLoader.html" title="class in com.csse3200.game.areas.terrain.map"><code>JsonMapLoader</code></a>.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.areas.terrain.map.MapLoader)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.badlogic.gdx.graphics.Camera)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
+ com.badlogic.gdx.graphics.Camera&nbsp;worldCamera)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.areas.terrain.map.MapLoader)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
  <a href="terrain/map/MapLoader.html" title="interface in com.csse3200.game.areas.terrain.map">MapLoader</a>&nbsp;mapLoader)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Create a level area with an explicit map loader (useful for tests or alternative formats).</div>
 </div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.entities.Entity,com.badlogic.gdx.math.GridPoint2)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.entities.Entity,com.badlogic.gdx.math.GridPoint2)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
  <a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;existingPlayer,
  com.badlogic.gdx.math.GridPoint2&nbsp;entrySpawn)</code></div>
-<div class="col-last even-row-color">
+<div class="col-last odd-row-color">
 <div class="block">Create a level while retaining an existing player and placing it at a specified entrance.</div>
+</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.entities.Entity,com.badlogic.gdx.math.GridPoint2,com.badlogic.gdx.graphics.Camera)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
+ <a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;existingPlayer,
+ com.badlogic.gdx.math.GridPoint2&nbsp;entrySpawn,
+ com.badlogic.gdx.graphics.Camera&nbsp;worldCamera)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Create a level while retaining an existing player, placing it at a specified entrance, and
+ using a camera for NPC name displays.</div>
 </div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.entities.Entity,com.badlogic.gdx.math.GridPoint2,java.lang.Long)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
@@ -152,6 +165,13 @@ loadScripts(document, 'script');</script>
 <div class="block">Create a level while retaining an existing player, placing it at a specified entrance, and
  using a previously-saved loot seed so this room's loot layout matches what it was when saved.</div>
 </div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.entities.Entity,com.badlogic.gdx.math.GridPoint2,java.lang.Long,com.badlogic.gdx.graphics.Camera)" class="member-name-link">LevelGameArea</a><wbr>(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
+ <a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;existingPlayer,
+ com.badlogic.gdx.math.GridPoint2&nbsp;entrySpawn,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>&nbsp;savedLootSeed,
+ com.badlogic.gdx.graphics.Camera&nbsp;worldCamera)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -319,6 +339,37 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>savedLootSeed</code> - the loot seed to reuse, from a save file</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.entities.Entity,com.badlogic.gdx.math.GridPoint2,java.lang.Long,com.badlogic.gdx.graphics.Camera)">
+<h3>LevelGameArea</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">LevelGameArea</span><wbr><span class="parameters">(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
+ <a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;existingPlayer,
+ com.badlogic.gdx.math.GridPoint2&nbsp;entrySpawn,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Long.html" title="class or interface in java.lang" class="external-link">Long</a>&nbsp;savedLootSeed,
+ com.badlogic.gdx.graphics.Camera&nbsp;worldCamera)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.csse3200.game.entities.Entity,com.badlogic.gdx.math.GridPoint2,com.badlogic.gdx.graphics.Camera)">
+<h3>LevelGameArea</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">LevelGameArea</span><wbr><span class="parameters">(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
+ <a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;existingPlayer,
+ com.badlogic.gdx.math.GridPoint2&nbsp;entrySpawn,
+ com.badlogic.gdx.graphics.Camera&nbsp;worldCamera)</span></div>
+<div class="block">Create a level while retaining an existing player, placing it at a specified entrance, and
+ using a camera for NPC name displays.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.areas.terrain.TerrainFactory,java.lang.String,com.badlogic.gdx.graphics.Camera)">
+<h3>LevelGameArea</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">LevelGameArea</span><wbr><span class="parameters">(<a href="terrain/TerrainFactory.html" title="class in com.csse3200.game.areas.terrain">TerrainFactory</a>&nbsp;terrainFactory,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mapPath,
+ com.badlogic.gdx.graphics.Camera&nbsp;worldCamera)</span></div>
 </section>
 </li>
 </ul>
