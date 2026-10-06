@@ -180,9 +180,9 @@ public class MainGameScreen extends ScreenAdapter {
     currentRoomMapPath = initialRoomMap;
 
     this.levelGameArea =
-        savedSeed != null
-            ? new LevelGameArea(terrainFactory, initialRoomMap, null, null, savedSeed)
-            : new LevelGameArea(terrainFactory, initialRoomMap);
+      savedSeed != null
+        ? new LevelGameArea(terrainFactory, initialRoomMap, null, null, savedSeed)
+        : new LevelGameArea(terrainFactory, initialRoomMap);
 
     levelGameArea.create();
 
@@ -193,7 +193,7 @@ public class MainGameScreen extends ScreenAdapter {
     upgradesDisplay.setPlayer(player);
 
     ServiceLocator.getEntityService()
-        .register(new Entity().addComponent(new SubLevelTitleDisplay(player)));
+      .register(new Entity().addComponent(new SubLevelTitleDisplay(player)));
 
     createSubLevelTravelPrompt(player);
 
@@ -206,9 +206,9 @@ public class MainGameScreen extends ScreenAdapter {
     // Save/load: restore the player's saved state.
     if (loadsave) {
       LoadService.load(
-          levelGameArea.getPlayer(),
-          levelGameArea.getMapWorldWidth(),
-          levelGameArea.getMapWorldHeight());
+        levelGameArea.getPlayer(),
+        levelGameArea.getMapWorldWidth(),
+        levelGameArea.getMapWorldHeight());
     }
 
     fitCameraToMap(levelGameArea);
@@ -245,9 +245,9 @@ public class MainGameScreen extends ScreenAdapter {
 
     Long savedSeed = lootSeedsByRoom.get(FIRST_ROOM_MAP);
     LevelGameArea respawnArea =
-        savedSeed != null
-            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed)
-            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
+      savedSeed != null
+        ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed)
+        : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
 
     respawnArea.create();
     lootSeedsByRoom.put(FIRST_ROOM_MAP, respawnArea.getLootSeed());
@@ -290,7 +290,7 @@ public class MainGameScreen extends ScreenAdapter {
      * referenced the dead player.
      */
     ServiceLocator.getEntityService()
-        .register(new Entity().addComponent(new SubLevelTitleDisplay(newPlayer)));
+      .register(new Entity().addComponent(new SubLevelTitleDisplay(newPlayer)));
 
     /* Recreate the travel prompt so it references the new player. */
     if (!respawnArea.getLevel().subLevels().isEmpty()) {
@@ -328,9 +328,9 @@ public class MainGameScreen extends ScreenAdapter {
     OrthographicCamera cam = (OrthographicCamera) renderer.getCamera().getCamera();
 
     float zoomForWholeMap =
-        Math.min(
-            area.getMapWorldWidth() / cam.viewportWidth,
-            area.getMapWorldHeight() / cam.viewportHeight);
+      Math.min(
+        area.getMapWorldWidth() / cam.viewportWidth,
+        area.getMapWorldHeight() / cam.viewportHeight);
 
     cam.zoom = Math.min(GAMEPLAY_ZOOM, zoomForWholeMap);
 
@@ -380,10 +380,10 @@ public class MainGameScreen extends ScreenAdapter {
     SubLevelTravelComponent travel = player.getComponent(SubLevelTravelComponent.class);
 
     if (playerInNether != null
-        && playerInNether != inNether
-        && (travel == null || !travel.isControlLocked())
-        && section != null
-        && section.title() != null) {
+      && playerInNether != inNether
+      && (travel == null || !travel.isControlLocked())
+      && section != null
+      && section.title() != null) {
 
       player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, section.title());
     }
@@ -393,7 +393,7 @@ public class MainGameScreen extends ScreenAdapter {
     float subLevelBottom = section == null ? 0f : section.bounds().bottom() * tileSize;
 
     float subLevelHeight =
-        section == null ? levelGameArea.getMapWorldHeight() : section.bounds().height() * tileSize;
+      section == null ? levelGameArea.getMapWorldHeight() : section.bounds().height() * tileSize;
 
     float x = clampToMap(playerPosition.x, halfViewWidth, mapWidth);
 
@@ -465,14 +465,14 @@ public class MainGameScreen extends ScreenAdapter {
         StoryCutscene afterDeathCutscene = StoryCutscene.createAfterDeathCutscene();
 
         game.setScreen(
-            new StoryCutsceneScreen(
-                this.game,
-                afterDeathCutscene,
-                () -> {
-                  deathScreenShown = true;
-                  deathScreenDisplay.showDeathScreen();
-                  game.setScreen(this);
-                }));
+          new StoryCutsceneScreen(
+            this.game,
+            afterDeathCutscene,
+            () -> {
+              deathScreenShown = true;
+              deathScreenDisplay.showDeathScreen();
+              game.setScreen(this);
+            }));
 
         return;
       }
@@ -523,9 +523,9 @@ public class MainGameScreen extends ScreenAdapter {
   private void transitionTo(RoomTransition transition, boolean saveCheckpoint) {
 
     logger.info(
-        "Entering '{}' through transition '{}'",
-        transition.getDestinationMap(),
-        transition.getId());
+      "Entering '{}' through transition '{}'",
+      transition.getDestinationMap(),
+      transition.getId());
 
     LevelGameArea previousArea = levelGameArea;
 
@@ -536,12 +536,12 @@ public class MainGameScreen extends ScreenAdapter {
     Long savedSeed = lootSeedsByRoom.get(transition.getDestinationMap());
 
     LevelGameArea nextArea =
-        new LevelGameArea(
-            terrainFactory,
-            transition.getDestinationMap(),
-            player,
-            transition.getDestinationSpawn(),
-            savedSeed);
+      new LevelGameArea(
+        terrainFactory,
+        transition.getDestinationMap(),
+        player,
+        transition.getDestinationSpawn(),
+        savedSeed);
 
     nextArea.create();
 
@@ -583,7 +583,7 @@ public class MainGameScreen extends ScreenAdapter {
   /** Loads a debug destination while retaining player state without changing normal progression. */
   private void debugTeleport(String mapPath, GridPoint2 spawn) {
     RoomTransition debugTransition =
-        new RoomTransition("debug-teleport", new GridPoint2(0, 0), 1, 1, null, mapPath, spawn);
+      new RoomTransition("debug-teleport", new GridPoint2(0, 0), 1, 1, null, mapPath, spawn);
     transitionTo(debugTransition, false);
 
     Entity player = levelGameArea.getPlayer();
@@ -630,7 +630,7 @@ public class MainGameScreen extends ScreenAdapter {
     var body = physics.getBody();
     body.setGravityScale(0f);
     float verticalVelocity =
-        stopVerticalMovement ? 0f : noclipVerticalDirection * NOCLIP_VERTICAL_SPEED;
+      stopVerticalMovement ? 0f : noclipVerticalDirection * NOCLIP_VERTICAL_SPEED;
     body.setLinearVelocity(body.getLinearVelocity().x, verticalVelocity);
 
     for (Fixture fixture : body.getFixtureList()) {
@@ -667,7 +667,7 @@ public class MainGameScreen extends ScreenAdapter {
   private void setGodModeEnabled(boolean enabled) {
     Entity player = getPlayerEntity();
     CombatStatsComponent stats =
-        player == null ? null : player.getComponent(CombatStatsComponent.class);
+      player == null ? null : player.getComponent(CombatStatsComponent.class);
     if (stats == null) {
       logger.warn("Cannot change god mode: the current player has no combat stats");
       return;
@@ -680,9 +680,9 @@ public class MainGameScreen extends ScreenAdapter {
   private void createSubLevelTravelPrompt(Entity player) {
 
     subLevelTravelPromptEntity =
-        new Entity()
-            .addComponent(
-                new SubLevelTravelPromptDisplay(player, renderer.getCamera().getCamera()));
+      new Entity()
+        .addComponent(
+          new SubLevelTravelPromptDisplay(player, renderer.getCamera().getCamera()));
 
     ServiceLocator.getEntityService().register(subLevelTravelPromptEntity);
   }
@@ -746,7 +746,7 @@ public class MainGameScreen extends ScreenAdapter {
     Stage stage = ServiceLocator.getRenderService().getStage();
 
     InputComponent inputComponent =
-        ServiceLocator.getInputService().getInputFactory().createForTerminal();
+      ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
 
@@ -756,12 +756,12 @@ public class MainGameScreen extends ScreenAdapter {
      */
     PerkSelectionDisplay perkSelectionDisplay = new PerkSelectionDisplay(this::revivePlayer);
     deathScreenDisplay =
-        new DeathScreenDisplay(
-            this.game,
-            () -> {
-              deathScreenDisplay.hideDeathScreen();
-              perkSelectionDisplay.show();
-            });
+      new DeathScreenDisplay(
+        this.game,
+        () -> {
+          deathScreenDisplay.hideDeathScreen();
+          perkSelectionDisplay.show();
+        });
 
     winScreenDisplay = new WinScreenDisplay(this.game);
 
@@ -769,13 +769,13 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
     terminal.addCommand(
-        "tp",
-        new TeleportCommand(
-            Map.of(
-                "lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
-                "lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
-                "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
-                "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
+      "tp",
+      new TeleportCommand(
+        Map.of(
+          "lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
+          "lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
+          "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
+          "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
     terminal.addCommand("perk", new PerkCommand());
@@ -789,32 +789,32 @@ public class MainGameScreen extends ScreenAdapter {
     noclipInputComponent = new NoclipInputComponent(this::setNoclipVerticalDirection);
 
     PauseMenuActions pauseMenuActions =
-        new PauseMenuActions(
-            this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
+      new PauseMenuActions(
+        this::getPlayerEntity, this::getLootSeedsByRoom, () -> currentRoomMapPath);
 
     this.pauseMenuActions = pauseMenuActions;
 
     ui.addComponent(new InputDecorator(stage, 10))
-        .addComponent(new PerformanceDisplay())
-        .addComponent(terminal)
-        .addComponent(inputComponent)
-        .addComponent(noclipInputComponent)
-        .addComponent(new TerminalDisplay())
-        .addComponent(pauseMenuComponent)
-        .addComponent(new KeyboardPauseInput())
-        .addComponent(new PauseMenuDisplay())
-        .addComponent(pauseMenuActions)
-        .addComponent(new PauseMenuInputComponent())
-        .addComponent(deathScreenDisplay)
-        .addComponent(perkSelectionDisplay)
-        .addComponent(new PerkSelectionInputComponent())
-        .addComponent(new DeathScreenInputComponent())
-        .addComponent(winScreenDisplay)
-        .addComponent(new WinScreenInputComponent())
-        .addComponent(new MainGameActions(this.game))
-        .addComponent(upgradesMenuComponent)
-        .addComponent(upgradesDisplay)
-        .addComponent(new ActiveUpgradesHud());
+      .addComponent(new PerformanceDisplay())
+      .addComponent(terminal)
+      .addComponent(inputComponent)
+      .addComponent(noclipInputComponent)
+      .addComponent(new TerminalDisplay())
+      .addComponent(pauseMenuComponent)
+      .addComponent(new KeyboardPauseInput())
+      .addComponent(new PauseMenuDisplay())
+      .addComponent(pauseMenuActions)
+      .addComponent(new PauseMenuInputComponent())
+      .addComponent(deathScreenDisplay)
+      .addComponent(perkSelectionDisplay)
+      .addComponent(new PerkSelectionInputComponent())
+      .addComponent(new DeathScreenInputComponent())
+      .addComponent(winScreenDisplay)
+      .addComponent(new WinScreenInputComponent())
+      .addComponent(new MainGameActions(this.game))
+      .addComponent(upgradesMenuComponent)
+      .addComponent(upgradesDisplay)
+      .addComponent(new ActiveUpgradesHud());
 
     this.pauseMenu = pauseMenuComponent;
 
