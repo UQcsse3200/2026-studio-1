@@ -17,7 +17,6 @@ import com.csse3200.game.components.npc.DialogueComponent;
 import com.csse3200.game.components.npc.DialogueProximityComponent;
 import com.csse3200.game.components.npc.DisplayDialogue;
 import com.csse3200.game.components.npc.EnemyDeathComponent;
-import com.csse3200.game.components.npc.GhostAnimationController;
 import com.csse3200.game.components.npc.HeadbuttAttackComponent;
 import com.csse3200.game.components.npc.MinotaurAnimationController;
 import com.csse3200.game.components.npc.NameComponent;
