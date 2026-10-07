@@ -95,10 +95,6 @@
     "L": {
       "type": "LOOT"
     },
-    "Z": {
-      "type": "ENEMY",
-      "enemyType": "zeus"
-    },
     "G": {
       "type": "ENEMY",
       "enemyType": "medusa"
@@ -705,7 +701,7 @@
       "                                                                                ",
       "                                                                                ",
       "                                                                                ",
-      "                                                     Z                          ",
+      "                                                     G                          ",
       "                           B               S    L 3L                            ",
       "                                                                                ",
       "                                                                                ",

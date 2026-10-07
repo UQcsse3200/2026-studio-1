@@ -28,6 +28,8 @@ import com.csse3200.game.files.SavedUpgrade;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
+import com.csse3200.game.win.QuestLedger;
+import com.csse3200.game.win.TortoiseLedger;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -124,8 +126,8 @@ public class PauseMenuActions extends Component {
     data.lootSeedsByRoom = lootSeedsSupplier.get();
     data.collectedLootIds = LootRegistry.exportAll();
     data.killedEnemyIds = EnemyRegistry.exportAll();
-    // TODO (win system): also save QuestLedger.exportAll() into completedQuestsByKind and
-    //   TortoiseLedger.exportAll() into foundTortoiseIds.
+    data.completedQuestsByKind = QuestLedger.exportAll();
+    data.foundTortoiseIds = TortoiseLedger.exportAll();
     data.level = levelSupplier.get();
 
     ShopComponent shop = player.getComponent(ShopComponent.class);

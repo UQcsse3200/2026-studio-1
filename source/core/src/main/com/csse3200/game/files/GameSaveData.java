@@ -26,4 +26,10 @@ public class GameSaveData {
   public int regenHealPerTick;
   public float regenRemainingSeconds;
   public List<SavedLoot> droppedLoot = new ArrayList<>();
+
+  /** How many quests of each kind have been completed, for the win screen. */
+  public Map<String, Integer> completedQuestsByKind = new HashMap<>();
+
+  /** The ids of the hidden tortoises found so far, for the win screen. */
+  public List<String> foundTortoiseIds = new ArrayList<>();
 }

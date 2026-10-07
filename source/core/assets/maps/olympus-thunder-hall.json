@@ -92,10 +92,6 @@
       "type": "ENEMY",
       "enemyType": "ranged-harpy"
     },
-    "Z": {
-      "type": "ENEMY",
-      "enemyType": "zeus"
-    },
     "L": {
       "type": "LOOT"
     }
@@ -199,7 +195,7 @@
       "                                    B                   ",
       "                                                        ",
       "          LLL     R                                     ",
-      "                          Z                             ",
+      "                          G                             ",
       "                                                        ",
       "                                                        ",
       "                                                        ",
