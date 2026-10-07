@@ -92,39 +92,28 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">WinEvaluator</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The win class. It decides the SCALE of a win: given what has happened in the game, it says which
- of the three <a href="WinTier.html" title="enum class in com.csse3200.game.win"><code>WinTier</code></a>s the player has earned, or that they have not won.
+<div class="block">Decides the scale of a win: given what has happened in the game, it says which of the three
+ <a href="WinTier.html" title="enum class in com.csse3200.game.win"><code>WinTier</code></a>s the player has earned, or that they have not won.
 
- <p><b>The rules, in order (each one is tested):</b>
+ <p>The rules, in order:
 
  <ol>
    <li>If the final boss has not been defeated, the tier is <a href="WinTier.html#NONE"><code>WinTier.NONE</code></a>. Nothing else can
-       win the game: killing every mini boss does not end it. The counts are still worked out, so
-       a screen could show progress.
+       win the game: killing every mini boss does not end it. The counts are still worked out.
    <li>Otherwise the tier is at least <a href="WinTier.html#VICTORY"><code>WinTier.VICTORY</code></a>.
-   <li>If every required mini boss in <a href="BossRoster.html" title="class in com.csse3200.game.win"><code>BossRoster</code></a> appears among the killed enemy ids, the
-       tier is at least <a href="WinTier.html#GLORY"><code>WinTier.GLORY</code></a>.
-   <li>If the tier is Glory AND at least <a href="#QUESTS_REQUIRED_FOR_LEGEND"><code>QUESTS_REQUIRED_FOR_LEGEND</code></a> quests have been
-       completed, the tier is <a href="WinTier.html#LEGEND"><code>WinTier.LEGEND</code></a>. Quests alone never lift a Victory: Legend
-       needs Glory first.
+   <li>If every required mini boss in <a href="BossRoster.html" title="class in com.csse3200.game.win"><code>BossRoster</code></a> is among the killed enemy ids, the tier
+       is at least <a href="WinTier.html#GLORY"><code>WinTier.GLORY</code></a>.
+   <li>If the tier is Glory and at least <a href="#QUESTS_REQUIRED_FOR_LEGEND"><code>QUESTS_REQUIRED_FOR_LEGEND</code></a> quests have been
+       completed, the tier is <a href="WinTier.html#LEGEND"><code>WinTier.LEGEND</code></a>. Quests alone never lift a Victory.
  </ol>
 
- <p><b>Why Zeus must die, and the mini bosses only scale the win.</b> Making the mini bosses an
- alternative way to win would let a player skip the final fight and would make the side rooms
- mandatory, which the doors do not enforce. As a scale they are optional, they pay off, and the
- game still has one clear ending.
+ <p>The tortoise count is carried through to the result for the Tortoise Champion honour. It never
+ changes the tier.
 
- <p><b>Pure logic.</b> <a href="#evaluate(boolean,java.util.Collection,int)"><code>evaluate(boolean, java.util.Collection&lt;java.lang.String&gt;, int)</code></a> takes everything as arguments and touches no static
- state, no UI and no physics, so it is tested without a game. <a href="#evaluateNow(boolean)"><code>evaluateNow(boolean)</code></a> is the thin
- wrapper that reads the live registries.
-
- <p><b>Why the final boss arrives as a boolean.</b> A kill is saved when the enemy entity is
- disposed, which happens just after it dies. Zeus's own id may therefore not be in the registry
- yet at the instant the win is checked, so the caller says whether he has fallen.
-
- <p><b>Limitations:</b> it does not look at deaths, time or difficulty; it does not know which
- quests exist, only how many were completed; extra ids in the killed set (any enemy in the game)
- are ignored.</div>
+ <p><a href="#evaluate(boolean,java.util.Collection,int)"><code>evaluate(boolean, java.util.Collection&lt;java.lang.String&gt;, int)</code></a> takes everything as arguments and touches no static state, so it is tested
+ without a game; <a href="#evaluateNow(boolean)"><code>evaluateNow(boolean)</code></a> is the thin wrapper that reads the live registries. The
+ final boss arrives as a boolean because a kill is saved when the enemy entity is disposed, just
+ after it dies, so Zeus's own id may not be in the registry yet when the win is checked.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -161,11 +150,20 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;killedEnemyIds,
  int&nbsp;questsCompleted)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Works out the tier from explicit inputs.</div>
+<div class="block">Works out the tier from explicit inputs, for a game with no tortoises hidden in it.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="WinResult.html" title="class in com.csse3200.game.win">WinResult</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaluateNow(boolean)" class="member-name-link">evaluateNow</a><wbr>(boolean&nbsp;finalBossDefeated)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaluate(boolean,java.util.Collection,int,int,int)" class="member-name-link">evaluate</a><wbr>(boolean&nbsp;finalBossDefeated,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;killedEnemyIds,
+ int&nbsp;questsCompleted,
+ int&nbsp;tortoisesFound,
+ int&nbsp;tortoisesTotal)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Works out the tier from explicit inputs.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="WinResult.html" title="class in com.csse3200.game.win">WinResult</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaluateNow(boolean)" class="member-name-link">evaluateNow</a><wbr>(boolean&nbsp;finalBossDefeated)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Works out the tier from the live game state.</div>
 </div>
 </div>
@@ -189,8 +187,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="QUESTS_REQUIRED_FOR_LEGEND">
 <h3>QUESTS_REQUIRED_FOR_LEGEND</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">QUESTS_REQUIRED_FOR_LEGEND</span></div>
-<div class="block">Quests that must be completed for <a href="WinTier.html#LEGEND"><code>WinTier.LEGEND</code></a>. Set to 0 to make Legend depend only
- on the mini bosses, for example while no NPC gives quests yet.</div>
+<div class="block">Quests that must be completed for <a href="WinTier.html#LEGEND"><code>WinTier.LEGEND</code></a>.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -215,7 +212,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="WinResult.html" title="class in com.csse3200.game.win">WinResult</a></span>&nbsp;<span class="element-name">evaluate</span><wbr><span class="parameters">(boolean&nbsp;finalBossDefeated,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;killedEnemyIds,
  int&nbsp;questsCompleted)</span></div>
-<div class="block">Works out the tier from explicit inputs.</div>
+<div class="block">Works out the tier from explicit inputs, for a game with no tortoises hidden in it.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>finalBossDefeated</code> - whether Zeus in Level 3 has been defeated</dd>
@@ -230,15 +227,39 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="evaluate(boolean,java.util.Collection,int,int,int)">
+<h3>evaluate</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="WinResult.html" title="class in com.csse3200.game.win">WinResult</a></span>&nbsp;<span class="element-name">evaluate</span><wbr><span class="parameters">(boolean&nbsp;finalBossDefeated,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;killedEnemyIds,
+ int&nbsp;questsCompleted,
+ int&nbsp;tortoisesFound,
+ int&nbsp;tortoisesTotal)</span></div>
+<div class="block">Works out the tier from explicit inputs.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>finalBossDefeated</code> - whether Zeus in Level 3 has been defeated</dd>
+<dd><code>killedEnemyIds</code> - every enemy id killed so far; null is treated as empty</dd>
+<dd><code>questsCompleted</code> - how many quests have been completed; not negative</dd>
+<dd><code>tortoisesFound</code> - hidden tortoises found; not negative</dd>
+<dd><code>tortoisesTotal</code> - hidden tortoises in the game; not negative</dd>
+<dt>Returns:</dt>
+<dd>the result, never null</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if a count is negative</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="evaluateNow(boolean)">
 <h3>evaluateNow</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="WinResult.html" title="class in com.csse3200.game.win">WinResult</a></span>&nbsp;<span class="element-name">evaluateNow</span><wbr><span class="parameters">(boolean&nbsp;finalBossDefeated)</span></div>
 <div class="block">Works out the tier from the live game state.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>finalBossDefeated</code> - whether Zeus in Level 3 has just been defeated</dd>
+<dd><code>finalBossDefeated</code> - whether Zeus in Level 3 has been defeated</dd>
 <dt>Returns:</dt>
-<dd>the result for the kills in <code>EnemyRegistry</code> and the quests in <a href="QuestLedger.html" title="class in com.csse3200.game.win"><code>QuestLedger</code></a></dd>
+<dd>the result for the kills in <code>EnemyRegistry</code>, the quests in <a href="QuestLedger.html" title="class in com.csse3200.game.win"><code>QuestLedger</code></a>
+     and the tortoises in <a href="TortoiseLedger.html" title="class in com.csse3200.game.win"><code>TortoiseLedger</code></a></dd>
 </dl>
 </section>
 </li>

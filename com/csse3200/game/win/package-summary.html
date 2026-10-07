@@ -106,14 +106,24 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">A running count of the quests the player has COMPLETED, by kind.</div>
 </div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="TortoiseLedger.html" title="class in com.csse3200.game.win">TortoiseLedger</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Tracks the tortoises hidden across the maps, for the Tortoise Champion honour on the win screen:
+ a player who has found every one of them is a Tortoise Champion, whatever their <a href="WinTier.html" title="enum class in com.csse3200.game.win"><code>WinTier</code></a>.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="WinCountdown.html" title="class in com.csse3200.game.win">WinCountdown</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Waits a short time after the final boss dies before the win screen is shown.</div>
+</div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="WinEvaluator.html" title="class in com.csse3200.game.win">WinEvaluator</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">The win class.</div>
+<div class="block">Decides the scale of a win: given what has happened in the game, it says which of the three
+ <a href="WinTier.html" title="enum class in com.csse3200.game.win"><code>WinTier</code></a>s the player has earned, or that they have not won.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="WinResult.html" title="class in com.csse3200.game.win">WinResult</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">The outcome of one win check: the tier reached and the numbers behind it, so the win screen can
- show "Guardians defeated 8 of 8" and "Quests completed 2 of 3" and list what is still missing.</div>
+ show how many guardians, quests and tortoises were done and list what is still missing.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab3"><a href="WinTier.html" title="enum class in com.csse3200.game.win">WinTier</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab3">

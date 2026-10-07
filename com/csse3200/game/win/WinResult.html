@@ -93,18 +93,11 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">WinResult</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">The outcome of one win check: the tier reached and the numbers behind it, so the win screen can
- show "Guardians defeated 8 of 8" and "Quests completed 2 of 3" and list what is still missing.
+ show how many guardians, quests and tortoises were done and list what is still missing.
 
- <p>It is an immutable value. <a href="WinEvaluator.html" title="class in com.csse3200.game.win"><code>WinEvaluator</code></a> is the only thing that builds one in the game;
- tests build them directly.
-
- <p><b>Invariants</b> (checked in the constructor):
-
- <ul>
-   <li>no count is negative
-   <li>the mini bosses defeated cannot exceed the number required
-   <li>the list of missing mini bosses has exactly <code>required - defeated</code> entries
- </ul></div>
+ <p>It is an immutable value. <a href="WinEvaluator.html" title="class in com.csse3200.game.win"><code>WinEvaluator</code></a> is the only thing that builds one in the game.
+ No count is negative, the mini bosses defeated never exceed the number required, and the list of
+ missing mini bosses has exactly <code>required - defeated</code> entries.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -123,7 +116,21 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;missingMiniBosses,
  int&nbsp;questsCompleted,
  int&nbsp;questsRequired)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates a result for a game with no tortoises hidden in it.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.csse3200.game.win.WinTier,boolean,int,int,java.util.List,int,int,int,int)" class="member-name-link">WinResult</a><wbr>(<a href="WinTier.html" title="enum class in com.csse3200.game.win">WinTier</a>&nbsp;tier,
+ boolean&nbsp;finalBossDefeated,
+ int&nbsp;miniBossesDefeated,
+ int&nbsp;miniBossesRequired,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;missingMiniBosses,
+ int&nbsp;questsCompleted,
+ int&nbsp;questsRequired,
+ int&nbsp;tortoisesFound,
+ int&nbsp;tortoisesTotal)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Creates a result, including the tortoise count.</div>
+</div>
 </div>
 </section>
 </li>
@@ -140,28 +147,59 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMiniBossesDefeated()" class="member-name-link">getMiniBossesDefeated</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns required mini bosses defeated.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMiniBossesRequired()" class="member-name-link">getMiniBossesRequired</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns required mini bosses in total.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMissingMiniBosses()" class="member-name-link">getMissingMiniBosses</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns labels of the required mini bosses still alive.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getQuestsCompleted()" class="member-name-link">getQuestsCompleted</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns quests completed.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getQuestsRequired()" class="member-name-link">getQuestsRequired</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns quests needed for Legend.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="WinTier.html" title="enum class in com.csse3200.game.win">WinTier</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTier()" class="member-name-link">getTier</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the tier reached.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTortoisesFound()" class="member-name-link">getTortoisesFound</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns hidden tortoises found.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTortoisesTotal()" class="member-name-link">getTortoisesTotal</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns hidden tortoises in the game.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFinalBossDefeated()" class="member-name-link">isFinalBossDefeated</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Says whether the final boss was defeated.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFullyComplete()" class="member-name-link">isFullyComplete</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Says whether the top tier was reached, so nothing is left to achieve.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isTortoiseChampion()" class="member-name-link">isTortoiseChampion</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Says whether the player earned the Tortoise Champion honour.</div>
+</div>
 </div>
 </div>
 </div>
@@ -189,6 +227,7 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;missingMiniBosses,
  int&nbsp;questsCompleted,
  int&nbsp;questsRequired)</span></div>
+<div class="block">Creates a result for a game with no tortoises hidden in it.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>tier</code> - the tier reached; not null</dd>
@@ -205,6 +244,36 @@ loadScripts(document, 'script');</script>
 </dl>
 </section>
 </li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.csse3200.game.win.WinTier,boolean,int,int,java.util.List,int,int,int,int)">
+<h3>WinResult</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">WinResult</span><wbr><span class="parameters">(<a href="WinTier.html" title="enum class in com.csse3200.game.win">WinTier</a>&nbsp;tier,
+ boolean&nbsp;finalBossDefeated,
+ int&nbsp;miniBossesDefeated,
+ int&nbsp;miniBossesRequired,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;missingMiniBosses,
+ int&nbsp;questsCompleted,
+ int&nbsp;questsRequired,
+ int&nbsp;tortoisesFound,
+ int&nbsp;tortoisesTotal)</span></div>
+<div class="block">Creates a result, including the tortoise count.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>tier</code> - the tier reached; not null</dd>
+<dd><code>finalBossDefeated</code> - whether Zeus in Level 3 was defeated</dd>
+<dd><code>miniBossesDefeated</code> - required mini bosses defeated; 0 to <code>miniBossesRequired</code></dd>
+<dd><code>miniBossesRequired</code> - required mini bosses in total; not negative</dd>
+<dd><code>missingMiniBosses</code> - labels of the required mini bosses not yet defeated; not null</dd>
+<dd><code>questsCompleted</code> - quests completed; not negative</dd>
+<dd><code>questsRequired</code> - quests needed for Legend; not negative</dd>
+<dd><code>tortoisesFound</code> - hidden tortoises found; not negative</dd>
+<dd><code>tortoisesTotal</code> - hidden tortoises in the game; not negative, 0 while none exist</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - as the seven-argument constructor, or if a tortoise count is
+     negative</dd>
+</dl>
+</section>
+</li>
 </ul>
 </section>
 </li>
@@ -217,6 +286,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getTier()">
 <h3>getTier</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="WinTier.html" title="enum class in com.csse3200.game.win">WinTier</a></span>&nbsp;<span class="element-name">getTier</span>()</div>
+<div class="block">Returns the tier reached.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the tier reached</dd>
@@ -227,6 +297,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="isFinalBossDefeated()">
 <h3>isFinalBossDefeated</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isFinalBossDefeated</span>()</div>
+<div class="block">Says whether the final boss was defeated.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>whether the final boss was defeated</dd>
@@ -237,6 +308,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getMiniBossesDefeated()">
 <h3>getMiniBossesDefeated</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getMiniBossesDefeated</span>()</div>
+<div class="block">Returns required mini bosses defeated.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>required mini bosses defeated</dd>
@@ -247,6 +319,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getMiniBossesRequired()">
 <h3>getMiniBossesRequired</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getMiniBossesRequired</span>()</div>
+<div class="block">Returns required mini bosses in total.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>required mini bosses in total</dd>
@@ -257,6 +330,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getMissingMiniBosses()">
 <h3>getMissingMiniBosses</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">getMissingMiniBosses</span>()</div>
+<div class="block">Returns labels of the required mini bosses still alive.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>labels of the required mini bosses still alive; unmodifiable</dd>
@@ -267,6 +341,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getQuestsCompleted()">
 <h3>getQuestsCompleted</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getQuestsCompleted</span>()</div>
+<div class="block">Returns quests completed.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>quests completed</dd>
@@ -277,6 +352,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getQuestsRequired()">
 <h3>getQuestsRequired</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getQuestsRequired</span>()</div>
+<div class="block">Returns quests needed for Legend.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>quests needed for Legend</dd>
@@ -284,9 +360,43 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getTortoisesFound()">
+<h3>getTortoisesFound</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTortoisesFound</span>()</div>
+<div class="block">Returns hidden tortoises found.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>hidden tortoises found</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getTortoisesTotal()">
+<h3>getTortoisesTotal</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTortoisesTotal</span>()</div>
+<div class="block">Returns hidden tortoises in the game.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>hidden tortoises in the game; 0 while none exist</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isTortoiseChampion()">
+<h3>isTortoiseChampion</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isTortoiseChampion</span>()</div>
+<div class="block">Says whether the player earned the Tortoise Champion honour.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>true when the game hides at least one tortoise and all of them were found</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="isFullyComplete()">
 <h3>isFullyComplete</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isFullyComplete</span>()</div>
+<div class="block">Says whether the top tier was reached, so nothing is left to achieve.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true only when the tier is <a href="WinTier.html#LEGEND"><code>WinTier.LEGEND</code></a></dd>

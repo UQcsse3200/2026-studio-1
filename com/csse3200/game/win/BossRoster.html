@@ -105,28 +105,30 @@ loadScripts(document, 'script');</script>
  <p><b>The roster (marker tiles are the ones in the shipped map files):</b>
 
  <pre>
- FINAL BOSS   Zeus                     Level 3 - Zeus's Palace : 83,5    (the map name contains an em dash)
- required     Cerberus                 Hound's Den             : 40,2
- required     Medusa                   Gorgon's Gallery        : 34,3
- required     Minotaur                 Minotaur's Labyrinth    : 37,5
- required     Minotaur                 Shades' Barracks        : 40,5
- required     Cyclops                  Cyclops Forge           : 37,3
- required     Centaur (rear)           Centaur Pavilion        : 38,5
- required     Medusa (rear)            Zeus's Outer Guard      : 41,3
- required     Zeus                     Zeus's Thunder Hall     : 38,3
- escort       Centaur                  Minotaur's Labyrinth    : 27,5
- escort       Centaur (front)          Centaur Pavilion        : 26,5
- escort       Cyclops                  Zeus's Outer Guard      : 30,3
+ FINAL BOSS   Zeus                     Level 3 - Zeus's Palace : 26,4
+ required     Cerberus                 Hound's Den             : 48,2
+ required     Medusa                   Gorgon's Gallery        : 37,11
+ required     Minotaur                 Minotaur's Labyrinth    : 24,35
+ required     Minotaur                 Shades' Barracks        : 40,17
+ required     Cyclops                  Cyclops Forge           : 30,15
+ required     Centaur (upper)          Centaur Pavilion        : 44,12
+ required     Medusa                   Zeus's Outer Guard      : 24,16
+ required     Medusa                   Zeus's Thunder Hall     : 26,12
+ escort       Centaur                  Minotaur's Labyrinth    : 28,17
+ escort       Centaur (lower)          Centaur Pavilion        : 40,5
+ escort       Cyclops                  Zeus's Outer Guard      : 32,9
  </pre>
 
- <p>"Required" means the boss that guards the end of the room, which is the rightmost boss in it.
- An "escort" is another boss-type enemy in the same room. Escorts are listed so the win screen can
- show them, but they are NOT needed for <a href="WinTier.html#GLORY"><code>WinTier.GLORY</code></a>.
+ <p>"Required" means the boss that guards the end of the room: the one on its highest storey,
+ beside the exit. An "escort" is another boss-type enemy in the same room. Escorts are listed so
+ the win screen can show them, but they are NOT needed for <a href="WinTier.html#GLORY"><code>WinTier.GLORY</code></a>.
+
+ <p>The final boss is not in the list of mini bosses. There is only one Zeus in the game, in Level
+ 3, and only his death ends it.
 
  <p><b>Limitations:</b> an id is a map name plus a tile, so renaming a map or moving a boss marker
  silently breaks the roster for existing saves. <code>BossRosterMapsTest</code> reads the real map
- files and fails the moment the roster and the maps disagree. The Zeus in Level 2 and the Zeus in
- the Thunder Hall are NOT the final boss; only the one in Level 3 ends the game.
+ files and fails the moment the roster and the maps disagree.
 
  <p><b>Style reference:</b> <code>EnemyId</code> (a small utility class with a private constructor).</div>
 </section>
@@ -179,16 +181,24 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="BossRoster.MiniBoss.html" title="class in com.csse3200.game.win">BossRoster.MiniBoss</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getMiniBosses()" class="member-name-link">getMiniBosses</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Gives the whole roster: the eight required bosses first, then the three escorts.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getRequiredCount()" class="member-name-link">getRequiredCount</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Counts the bosses that must be defeated for Glory.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getRequiredIds()" class="member-name-link">getRequiredIds</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Gives the ids of the bosses that must be defeated for Glory.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isFinalBoss(java.lang.String)" class="member-name-link">isFinalBoss</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Checks whether a kill id belongs to the final boss of the game.</div>
+</div>
 </div>
 </div>
 </div>
@@ -233,10 +243,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getMiniBosses()">
 <h3>getMiniBosses</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BossRoster.MiniBoss.html" title="class in com.csse3200.game.win">BossRoster.MiniBoss</a>&gt;</span>&nbsp;<span class="element-name">getMiniBosses</span>()</div>
+<div class="block">Gives the whole roster: the eight required bosses first, then the three escorts.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>every mini boss, required ones and escorts, in a fixed order (the order in the table
-     above); the list cannot be changed by the caller</dd>
+<dd>every mini boss in a fixed order; the list cannot be changed by the caller</dd>
 </dl>
 </section>
 </li>
@@ -244,6 +254,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getRequiredIds()">
 <h3>getRequiredIds</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">getRequiredIds</span>()</div>
+<div class="block">Gives the ids of the bosses that must be defeated for Glory.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the ids of the required mini bosses only; eight of them; unmodifiable</dd>
@@ -254,6 +265,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getRequiredCount()">
 <h3>getRequiredCount</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getRequiredCount</span>()</div>
+<div class="block">Counts the bosses that must be defeated for Glory.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>how many mini bosses are required for Glory</dd>
@@ -264,6 +276,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="isFinalBoss(java.lang.String)">
 <h3>isFinalBoss</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isFinalBoss</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id)</span></div>
+<div class="block">Checks whether a kill id belongs to the final boss of the game.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>id</code> - any kill id, or null</dd>
