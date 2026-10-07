@@ -5,9 +5,7 @@ package com.csse3200.game.entities.configs.attacks;
  * attacks.
  */
 public class MeleeAttackConfig {
-  /**
-   * Melee Reach - a property of the entity wielder, not the weapon
-   */
+  /** Melee Reach - a property of the entity wielder, not the weapon */
   public float range = 2;
 
   /** Minimum time, in seconds, between attacks */
