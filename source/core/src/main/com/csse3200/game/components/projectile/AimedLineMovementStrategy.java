@@ -23,6 +23,8 @@ public class AimedLineMovementStrategy implements ProjectileMovementStrategy {
   private final Vector2 direction;
 
   /**
+   * Creates a strategy that flies in a straight line at a constant speed.
+   *
    * @param speed travel speed in world units per second; must be greater than zero and finite
    * @param direction direction of travel; need not be unit length, but must not be the zero vector
    *     and must be finite. A normalised copy is stored, so the caller may reuse the object.
@@ -67,6 +69,8 @@ public class AimedLineMovementStrategy implements ProjectileMovementStrategy {
   }
 
   /**
+   * Gets the speed of travel.
+   *
    * @return the travel speed in world units per second
    */
   public float getSpeed() {
@@ -74,6 +78,8 @@ public class AimedLineMovementStrategy implements ProjectileMovementStrategy {
   }
 
   /**
+   * Gets the direction of travel.
+   *
    * @return a copy of the unit direction of travel (changing it does not affect this strategy)
    */
   public Vector2 getDirection() {
