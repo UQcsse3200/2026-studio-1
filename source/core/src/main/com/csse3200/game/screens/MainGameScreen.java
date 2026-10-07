@@ -2,7 +2,6 @@ package com.csse3200.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
@@ -59,7 +58,13 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
-import com.csse3200.game.ui.terminal.commands.*;
+import com.csse3200.game.ui.terminal.commands.GodModeCommand;
+import com.csse3200.game.ui.terminal.commands.NoclipCommand;
+import com.csse3200.game.ui.terminal.commands.PerkCommand;
+import com.csse3200.game.ui.terminal.commands.SpawnCommand;
+import com.csse3200.game.ui.terminal.commands.TeleportCommand;
+import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
+import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
@@ -279,13 +284,10 @@ public class MainGameScreen extends ScreenAdapter {
     removeSubLevelTravelPrompt();
 
     Long savedSeed = lootSeedsByRoom.get(FIRST_ROOM_MAP);
-
-    Camera worldCamera = renderer.getCamera().getCamera();
-
     LevelGameArea respawnArea =
         savedSeed != null
-            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed, worldCamera)
-            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, worldCamera);
+            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed)
+            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
 
     respawnArea.create();
     lootSeedsByRoom.put(FIRST_ROOM_MAP, respawnArea.getLootSeed());
@@ -810,7 +812,6 @@ public class MainGameScreen extends ScreenAdapter {
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
     terminal.addCommand("perk", new PerkCommand());
-    terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
 
