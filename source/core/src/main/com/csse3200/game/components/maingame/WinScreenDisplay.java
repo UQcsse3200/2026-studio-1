@@ -9,30 +9,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.GdxGame.ScreenType;
 import com.csse3200.game.ui.UIComponent;
-import com.csse3200.game.win.TortoiseLedger;
-import com.csse3200.game.win.WinEvaluator;
 import com.csse3200.game.win.WinResult;
 import com.csse3200.game.win.WinTier;
-import java.util.List;
 
 public class WinScreenDisplay extends UIComponent {
-  /** The most guardians named on the screen; any others are summed up as "and N more". */
-  private static final int MAX_MISSING_SHOWN = 4;
-
   private final GdxGame game;
 
   private Table rootTable;
   private TextButton[] buttons;
   private int selectedIndex = 0;
-
-  // Package access, so a test can read what the screen says.
-  Label titleLabel;
-  Label subtitleLabel;
-  Label rankLabel;
-  Label guardiansLabel;
-  Label questsLabel;
-  Label tortoisesLabel;
-  Label missingLabel;
 
   public WinScreenDisplay(GdxGame game) {
     super();
@@ -47,40 +32,14 @@ public class WinScreenDisplay extends UIComponent {
     rootTable.setFillParent(true);
 
     Table popup = new Table(skin);
-    popup.setBackground(skin.getDrawable("window"));
-    popup.pad(30f);
 
-    titleLabel = new Label("YOU WIN!", skin, "title");
-    subtitleLabel = new Label("", skin);
-    rankLabel = new Label("", skin);
-    guardiansLabel = new Label("", skin);
-    questsLabel = new Label("", skin);
-    tortoisesLabel = new Label("", skin);
-    missingLabel = new Label("", skin);
+    Label title = new Label("YOU WIN!", skin, "title");
     TextButton playAgainButton = new TextButton("Play Again", skin);
     TextButton menuButton = new TextButton("Main Menu", skin);
 
     buttons = new TextButton[] {playAgainButton, menuButton};
 
-    popup.add(titleLabel).padBottom(10f);
-
-    popup.row();
-    popup.add(subtitleLabel).padBottom(5f);
-
-    popup.row();
-    popup.add(rankLabel).padBottom(15f);
-
-    popup.row();
-    popup.add(guardiansLabel);
-
-    popup.row();
-    popup.add(questsLabel);
-
-    popup.row();
-    popup.add(tortoisesLabel).padBottom(10f);
-
-    popup.row();
-    popup.add(missingLabel).padBottom(20f);
+    popup.add(title).padBottom(30f);
 
     popup.row();
     popup.add(playAgainButton).width(180f).padBottom(15f);
@@ -157,10 +116,15 @@ public class WinScreenDisplay extends UIComponent {
     game.setScreen(ScreenType.MAIN_MENU);
   }
 
-  /** Shows the win screen for the game as it stands right now, with the final boss defeated. */
   public void showWinScreen() {
-    showWinScreen(WinEvaluator.evaluateNow(true));
+    rootTable.setVisible(true);
   }
+
+  // TODO (win system): add seven labels as package-access fields so a test can read them:
+  //   titleLabel, subtitleLabel, rankLabel, guardiansLabel, questsLabel, tortoisesLabel,
+  //   missingLabel. In create(), give the popup the skin's "window" background, and add the labels
+  //   as rows above the two buttons. Make showWinScreen() show the result of
+  //   WinEvaluator.evaluateNow(true).
 
   /**
    * Shows the win screen for one outcome. It fills in the tier's title, and how many guardians,
@@ -169,15 +133,17 @@ public class WinScreenDisplay extends UIComponent {
    * @param result the outcome to show; not null
    */
   public void showWinScreen(WinResult result) {
-    WinTier tier = result.getTier();
-    titleLabel.setText(tier.getTitle().toUpperCase());
-    subtitleLabel.setText(tier.getSubtitle());
-    rankLabel.setText(rankText(tier));
-    guardiansLabel.setText(guardiansText(result));
-    questsLabel.setText(questsText(result));
-    tortoisesLabel.setText(tortoisesText(result));
-    missingLabel.setText(missingText(result));
-    rootTable.setVisible(true);
+    // BEGIN showWinScreen(result)
+    //   tier <- the result's tier
+    //   titleLabel     <- the tier's title in UPPER CASE
+    //   subtitleLabel  <- the tier's subtitle
+    //   rankLabel      <- rankText(tier)
+    //   guardiansLabel <- guardiansText(result)
+    //   questsLabel    <- questsText(result)
+    //   tortoisesLabel <- tortoisesText(result)
+    //   missingLabel   <- missingText(result)
+    //   make the root table visible
+    // END showWinScreen(result)
   }
 
   /**
@@ -187,7 +153,10 @@ public class WinScreenDisplay extends UIComponent {
    * @return the rank line
    */
   static String rankText(WinTier tier) {
-    return "Rank " + tier.getLevel() + " of " + WinTier.LEGEND.getLevel();
+    // BEGIN rankText
+    //   give back "Rank <the tier's level> of <Legend's level>"
+    // END rankText
+    return "";
   }
 
   /**
@@ -197,10 +166,10 @@ public class WinScreenDisplay extends UIComponent {
    * @return the guardians line
    */
   static String guardiansText(WinResult result) {
-    return "Guardians defeated: "
-        + result.getMiniBossesDefeated()
-        + " of "
-        + result.getMiniBossesRequired();
+    // BEGIN guardiansText
+    //   give back "Guardians defeated: <defeated> of <required>"
+    // END guardiansText
+    return "";
   }
 
   /**
@@ -210,7 +179,10 @@ public class WinScreenDisplay extends UIComponent {
    * @return the quests line
    */
   static String questsText(WinResult result) {
-    return "Quests completed: " + result.getQuestsCompleted() + " of " + result.getQuestsRequired();
+    // BEGIN questsText
+    //   give back "Quests completed: <completed> of <required>"
+    // END questsText
+    return "";
   }
 
   /**
@@ -221,12 +193,14 @@ public class WinScreenDisplay extends UIComponent {
    * @return the tortoises line
    */
   static String tortoisesText(WinResult result) {
-    if (result.getTortoisesTotal() == 0) {
-      return "Tortoises found: none are hidden yet";
-    }
-    String found =
-        "Tortoises found: " + result.getTortoisesFound() + " of " + result.getTortoisesTotal();
-    return result.isTortoiseChampion() ? found + " - " + TortoiseLedger.CHAMPION_TITLE : found;
+    // BEGIN tortoisesText
+    //   IF the tortoise total is zero THEN give back "Tortoises found: none are hidden yet"
+    //   found <- "Tortoises found: <found> of <total>"
+    //   IF the result is a tortoise champion THEN
+    //     give back found + " - " + TortoiseLedger.CHAMPION_TITLE
+    //   ELSE give back found
+    // END tortoisesText
+    return "";
   }
 
   /**
@@ -237,28 +211,25 @@ public class WinScreenDisplay extends UIComponent {
    * @return the missing guardians, then the quests still needed
    */
   static String missingText(WinResult result) {
-    if (result.isFullyComplete()) {
-      return "";
-    }
-    StringBuilder text = new StringBuilder();
-    List<String> missing = result.getMissingMiniBosses();
-    if (!missing.isEmpty()) {
-      text.append("Still standing:");
-      for (int i = 0; i < Math.min(missing.size(), MAX_MISSING_SHOWN); i++) {
-        text.append("\n").append(missing.get(i));
-      }
-      if (missing.size() > MAX_MISSING_SHOWN) {
-        text.append("\nand ").append(missing.size() - MAX_MISSING_SHOWN).append(" more");
-      }
-    }
-    int questsShort = result.getQuestsRequired() - result.getQuestsCompleted();
-    if (questsShort > 0) {
-      if (text.length() > 0) {
-        text.append("\n");
-      }
-      text.append(questsShort).append(questsShort == 1 ? " more quest" : " more quests");
-    }
-    return text.toString();
+    // BEGIN missingText
+    //   IF the result is fully complete THEN give back "" (empty)
+    //   text <- empty
+    //   missing <- the result's missing mini boss labels
+    //   IF missing is not empty THEN
+    //     add "Still standing:"
+    //     FOR the first four labels (or all of them if there are fewer)
+    //       add a new line, then the label
+    //     END FOR
+    //     IF there are more than four THEN add a new line, then "and <the rest> more"
+    //   END IF
+    //   short <- quests required minus quests completed
+    //   IF short is above zero THEN
+    //     IF text is not empty THEN add a new line
+    //     add "<short> more quest" when short is 1, otherwise "<short> more quests"
+    //   END IF
+    //   give back the text
+    // END missingText
+    return "";
   }
 
   /**

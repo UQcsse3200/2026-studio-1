@@ -49,7 +49,7 @@ public class BossDefeatedWinComponent extends Component {
       return;
     }
     this.announced = true;
-    this.player.getEvents().trigger(FINAL_BOSS_DEFEATED_EVENT);
+    this.getEntity().getEvents().trigger(FINAL_BOSS_DEFEATED_EVENT);
   }
 
   /**

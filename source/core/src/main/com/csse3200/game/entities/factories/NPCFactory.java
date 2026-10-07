@@ -573,6 +573,9 @@ public class NPCFactory {
 
     float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
+    // TODO (S7): createBaseStationaryNPC() has no chase task and paces with a plain
+    // PlatformWanderTask, which can drift because it re-anchors its range each time it restarts.
+    // Replace the wander task below with BoundedPlatformWanderTask(pacingRadius, 2f, ...).
     Entity medusa = createBaseStationaryNPC();
 
     // More gold because no weapon drops (natural weapons never go in the inventory).
@@ -612,6 +615,8 @@ public class NPCFactory {
         .getComponent(RangedAttackComponent.class)
         .setProjectileSpeed(config.ranged.projectileSpeed);
 
+    // TODO (S7): replace this listener with a PetrifyEffectComponent on Medusa, wired to the same
+    // "rangedAttackHit" event, with the duration read from MedusaConfig.petrify.
     int petrifyTicks = Math.round(config.petrify.duration * TICKS_PER_SECOND);
     medusa
         .getEvents()

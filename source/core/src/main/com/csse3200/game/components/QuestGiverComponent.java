@@ -5,7 +5,6 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.perks.PerkService;
-import com.csse3200.game.win.QuestLedger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +12,8 @@ public class QuestGiverComponent extends Component {
   public int uniqueNPCID;
   public int goldToGive = 0;
   public Item itemToGive = null;
-  private static final Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
-  private final Entity player;
+  private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
+  private Entity player;
   private int amountXToDo;
 
   public QuestGiverComponent(Entity player) {
@@ -68,9 +67,7 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    int jumpProgress = checkJumpQuestComplete();
-    if (!giveOutQuestRewards(jumpProgress)) return false;
-    recordIfComplete(QuestLedger.JUMP, jumpProgress);
+    if (!giveOutQuestRewards(checkJumpQuestComplete())) return false;
     Quest.clearJumpQuest(uniqueNPCID);
     return true;
   }
@@ -106,9 +103,7 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    int killProgress = checkEnemiesKilledQuestComplete();
-    if (!giveOutQuestRewards(killProgress)) return false;
-    recordIfComplete(QuestLedger.ENEMIES_KILLED, killProgress);
+    if (!giveOutQuestRewards(checkEnemiesKilledQuestComplete())) return false;
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
     PerkService.recordEvent("enemyKilled", amountXToDo);
     return true;
@@ -155,9 +150,7 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    int goldProgress = checkGoldSpentQuestComplete();
-    if (!giveOutQuestRewards(goldProgress)) return false;
-    recordIfComplete(QuestLedger.GOLD_SPENT, goldProgress);
+    if (!giveOutQuestRewards(checkGoldSpentQuestComplete())) return false;
     Quest.clearGoldSpentQuest(uniqueNPCID);
     PerkService.recordEvent("GoldSpent", amountXToDo);
     return true;
@@ -184,9 +177,7 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    int shieldProgress = checkShieldsCollectedQuestComplete();
-    if (!giveOutQuestRewards(shieldProgress)) return false;
-    recordIfComplete(QuestLedger.SHIELDS_COLLECTED, shieldProgress);
+    if (!giveOutQuestRewards(checkShieldsCollectedQuestComplete())) return false;
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
     PerkService.recordEvent("shieldCollected", amountXToDo);
     return true;
@@ -239,6 +230,11 @@ public class QuestGiverComponent extends Component {
     }
   }
 
+  // TODO (win system): in each of the four clear<Kind>Quest methods, keep the progress in a
+  //   local variable, and after the rewards are given out (and before the quest is cleared) call
+  //   recordIfComplete with the matching kind: QuestLedger.JUMP, ENEMIES_KILLED, GOLD_SPENT or
+  //   SHIELDS_COLLECTED.
+
   /**
    * Counts a quest towards the win screen, but only one that was really finished. A quest cleared
    * below 100 percent is abandoned, not completed.
@@ -247,9 +243,9 @@ public class QuestGiverComponent extends Component {
    * @param questProgress the quest's progress as a percentage
    */
   private void recordIfComplete(String kind, int questProgress) {
-    if (questProgress >= 100) {
-      QuestLedger.recordCompleted(kind);
-    }
+    // BEGIN recordIfComplete
+    //   IF questProgress is 100 or more THEN QuestLedger.recordCompleted(kind)
+    // END recordIfComplete
   }
 
   private boolean giveOutQuestRewards(int questProgress) {

@@ -178,7 +178,7 @@ class SideRoomsTest {
                 "maps/level2.json",
                 new GridPoint2(35, 3),
                 "thunder-hall-door",
-                counts("medusa", 1, "skeleton", 2, "ranged-skeleton", 2, "ranged-harpy", 2),
+                counts("zeus", 1, "skeleton", 2, "ranged-skeleton", 2, "ranged-harpy", 2),
                 3)));
   }
 
