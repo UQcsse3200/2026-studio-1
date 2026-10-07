@@ -8,9 +8,7 @@ import com.csse3200.game.entities.configs.attacks.RangedAttackConfig;
  * Centaur: shoots from range and charges the player down. Loaded from the NPC config file.
  */
 public class CentaurConfig extends BaseEntityConfig {
-  /**
-   * The settings of its ranged attack.
-   */
+  /** The settings of its ranged attack. */
   public RangedAttackConfig ranged;
 
   /** The settings of its charge attack. */

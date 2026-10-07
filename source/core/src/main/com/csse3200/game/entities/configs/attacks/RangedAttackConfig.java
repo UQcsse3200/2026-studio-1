@@ -30,8 +30,6 @@ public class RangedAttackConfig {
    */
   public float damageMultiplier = 1.0f;
 
-  /**
-   * Where the projectile leaves the owner, as a fraction of its height (0 feet, 1 top).
-   */
+  /** Where the projectile leaves the owner, as a fraction of its height (0 feet, 1 top). */
   public float spawnHeightFraction = 0.5f;
 }

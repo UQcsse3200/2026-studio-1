@@ -10,9 +10,7 @@ public class MeleeAttackConfig {
    */
   public float range = 2;
 
-  /**
-   * Minimum time, in seconds, between attacks
-   */
+  /** Minimum time, in seconds, between attacks */
   public float cooldown = 4;
 
   /** Knockback magnitude onb a successful hit - property of the wilder not the weapon */

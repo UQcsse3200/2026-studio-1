@@ -13,8 +13,6 @@ public class MinotaurConfig extends BaseEntityConfig {
    */
   public MeleeAttackConfig melee;
 
-  /**
-   * The settings of its charge attack.
-   */
+  /** The settings of its charge attack. */
   public ChargeAttackConfig charge;
 }
