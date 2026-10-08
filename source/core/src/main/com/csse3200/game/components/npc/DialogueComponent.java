@@ -180,4 +180,6 @@ public class DialogueComponent extends Component {
     }
     this.amountXToDo = amountXToDo;
   }
+
+
 }
