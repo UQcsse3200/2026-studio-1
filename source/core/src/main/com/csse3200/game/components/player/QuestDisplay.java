@@ -251,5 +251,4 @@ public class QuestDisplay extends UIComponent {
       completedShieldsCollectedQuest.add(new ShieldsCollectedQuest(1));
     }
   }
-
 }
