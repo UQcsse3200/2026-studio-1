@@ -1,5 +1,6 @@
 package com.csse3200.game.pausemenu;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -19,6 +20,7 @@ import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedBuff;
@@ -30,8 +32,6 @@ import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
 import com.csse3200.game.win.QuestLedger;
 import com.csse3200.game.win.TortoiseLedger;
-import com.csse3200.game.Quests.Quest;
-import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;

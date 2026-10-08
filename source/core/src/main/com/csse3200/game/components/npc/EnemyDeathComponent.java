@@ -23,8 +23,7 @@ public class EnemyDeathComponent extends Component {
 
   private void onDeath() {
     if (entity.isDisposed()) {
-      logger.info(
-          "Enemy: {} already died.", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
+      logger.info("Enemy: {} already died.", getLabel());
       return;
     }
     Quest.incrementGlobalEnemiesKilled();
@@ -35,25 +34,27 @@ public class EnemyDeathComponent extends Component {
       if (dropper.dropGold()) {
         InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
         int goldNum = (inventory != null) ? inventory.getGold() : 0;
-        logger.info(
-            "Enemy {} dropped {} gold",
-            entity.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
-            goldNum);
+        logger.info("Enemy {} dropped {} gold", getLabel(), goldNum);
       }
 
       // Drop weapons and consumables
       while (dropper.dropFirstStack()) {
-        logger.info(
-            "Enemy {} dropped item", entity.getComponent(EnemyTypeComponent.class).getEnemyLabel());
+        logger.info("Enemy {} dropped item", getLabel());
       }
     }
     BonusLootDrop.tryBonusDrop(entity);
 
     logger.info(
-        "Enemy {} died at x:{} y:{}",
-        entity.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
-        entity.getCenterPosition().x,
-        entity.getCenterPosition().y);
+            "Enemy {} died at x:{} y:{}",
+            getLabel(),
+            entity.getCenterPosition().x,
+            entity.getCenterPosition().y);
     entity.dispose();
+  }
+
+  /** Label for log messages. Friendly NPCs have no EnemyTypeComponent, so they log as "NPC". */
+  private String getLabel() {
+    EnemyTypeComponent type = entity.getComponent(EnemyTypeComponent.class);
+    return type == null ? "NPC" : type.getEnemyLabel();
   }
 }
