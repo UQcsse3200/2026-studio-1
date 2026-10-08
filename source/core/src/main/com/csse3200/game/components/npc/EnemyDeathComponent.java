@@ -45,10 +45,10 @@ public class EnemyDeathComponent extends Component {
     BonusLootDrop.tryBonusDrop(entity);
 
     logger.info(
-            "Enemy {} died at x:{} y:{}",
-            getLabel(),
-            entity.getCenterPosition().x,
-            entity.getCenterPosition().y);
+        "Enemy {} died at x:{} y:{}",
+        getLabel(),
+        entity.getCenterPosition().x,
+        entity.getCenterPosition().y);
     entity.dispose();
   }
 
