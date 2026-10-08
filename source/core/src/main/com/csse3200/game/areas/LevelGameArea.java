@@ -71,6 +71,8 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.win.BossDefeatedWinComponent;
 import com.csse3200.game.win.BossRoster;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
+import com.csse3200.game.entities.spawn.PersistentNpcComponent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1177,8 +1179,13 @@ public class LevelGameArea extends GameArea {
   // Spawns the NPC placed at each "npc" marker in this map.
   private void spawnNpcs() {
     for (Marker marker : getLevel().markers("npc")) {
+      String npcId = marker.id() + "@" + EnemyId.of(mapData.getName(), marker.position());
+      if (NpcQuestRegistry.isKilled(npcId)) {
+        continue;
+      }
       Entity npc = EntitySpawnRegistry.create(marker.id(), player);
       if (npc != null) {
+        npc.addComponent(new PersistentNpcComponent(npcId));
         spawnEntityAt(npc, marker.position(), true, true);
       }
     }

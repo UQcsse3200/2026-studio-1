@@ -9,32 +9,32 @@ import com.csse3200.game.components.npc.DialogueComponent;
  * reviving. Added by LevelGameArea when the NPC is spawned.
  */
 public class PersistentNpcComponent extends Component {
-    private final String npcId;
+  private final String npcId;
 
-    public PersistentNpcComponent(String npcId) {
-        this.npcId = npcId;
-    }
+  public PersistentNpcComponent(String npcId) {
+    this.npcId = npcId;
+  }
 
-    @Override
-    public void create() {
-        entity.getEvents().addListener("death", () -> NpcQuestRegistry.markKilled(npcId));
-        NpcQuestRegistry.attach(npcId, this);
-    }
+  @Override
+  public void create() {
+    entity.getEvents().addListener("death", () -> NpcQuestRegistry.markKilled(npcId));
+    NpcQuestRegistry.attach(npcId, this);
+  }
 
-    @Override
-    public void dispose() {
-        NpcQuestRegistry.detach(npcId, this);
-    }
+  @Override
+  public void dispose() {
+    NpcQuestRegistry.detach(npcId, this);
+  }
 
-    public String getNpcId() {
-        return npcId;
-    }
+  public String getNpcId() {
+    return npcId;
+  }
 
-    QuestGiverComponent getQuestGiver() {
-        return entity == null ? null : entity.getComponent(QuestGiverComponent.class);
-    }
+  QuestGiverComponent getQuestGiver() {
+    return entity == null ? null : entity.getComponent(QuestGiverComponent.class);
+  }
 
-    DialogueComponent getDialogue() {
-        return entity == null ? null : entity.getComponent(DialogueComponent.class);
-    }
+  DialogueComponent getDialogue() {
+    return entity == null ? null : entity.getComponent(DialogueComponent.class);
+  }
 }
