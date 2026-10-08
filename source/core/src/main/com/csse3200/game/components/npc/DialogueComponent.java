@@ -197,4 +197,9 @@ public class DialogueComponent extends Component {
       logger.warn("Ignoring unknown saved quest state {}", stateName);
     }
   }
+
+  /** Save/load: returns the type of quest this NPC gives out. */
+  public String getQuestType() {
+    return questType;
+  }
 }

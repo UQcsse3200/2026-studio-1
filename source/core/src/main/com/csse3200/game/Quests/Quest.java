@@ -232,7 +232,7 @@ public class Quest {
 
   /** Puts the four counters back from a save file. Negative values become zero. */
   public static void restoreCounters(
-          int jumps, int enemiesKilled, int goldSpent, int shieldsCollected) {
+      int jumps, int enemiesKilled, int goldSpent, int shieldsCollected) {
     globalJumps = Math.max(0, jumps);
     globalEnemiesKilled = Math.max(0, enemiesKilled);
     globalGoldSpent = Math.max(0, goldSpent);
@@ -256,7 +256,7 @@ public class Quest {
     EnemiesKilledQuest kills = enemiesKilledQuestTracker.get(npcId);
     if (kills != null) {
       return new ActiveQuest(
-              ENEMIES_QUEST, (int) kills.enemiesToKill, kills.globalEnemiesKilledSnapshot);
+          ENEMIES_QUEST, (int) kills.enemiesToKill, kills.globalEnemiesKilledSnapshot);
     }
     GoldSpentQuest gold = goldSpentQuestTracker.get(npcId);
     if (gold != null) {
@@ -265,9 +265,9 @@ public class Quest {
     ShieldsCollectedQuest shields = shieldsCollectedQuestTracker.get(npcId);
     if (shields != null) {
       return new ActiveQuest(
-              SHIELDS_COLLECTED_QUEST,
-              (int) shields.shieldsToCollect,
-              shields.globalShieldsCollectedSnapshot);
+          SHIELDS_COLLECTED_QUEST,
+          (int) shields.shieldsToCollect,
+          shields.globalShieldsCollectedSnapshot);
     }
     return null;
   }
@@ -278,9 +278,9 @@ public class Quest {
    */
   public static boolean restoreQuest(int npcId, String type, int amountToDo, float snapshot) {
     if (!isValidNPCID(npcId)
-            || type == null
-            || amountToDo <= 0
-            || Boolean.TRUE.equals(questActiveForNPCID.get(npcId))) {
+        || type == null
+        || amountToDo <= 0
+        || Boolean.TRUE.equals(questActiveForNPCID.get(npcId))) {
       return false;
     }
     switch (type) {

@@ -297,6 +297,4 @@ public class QuestGiverComponent extends Component {
       this.amountXToDo = amountXToDo;
     }
   }
-
-
 }
