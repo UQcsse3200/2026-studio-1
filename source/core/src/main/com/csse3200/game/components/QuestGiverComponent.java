@@ -285,4 +285,18 @@ public class QuestGiverComponent extends Component {
     this.itemToGive = itemToGive;
     return true;
   }
+
+  /** Save/load: returns the target of the quest this NPC gave out. */
+  public int getAmountXToDo() {
+    return amountXToDo;
+  }
+
+  /** Save/load: puts back the target of a saved quest. Values of zero or less are ignored. */
+  public void restoreAmountXToDo(int amountXToDo) {
+    if (amountXToDo > 0) {
+      this.amountXToDo = amountXToDo;
+    }
+  }
+
+
 }
