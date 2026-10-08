@@ -30,6 +30,8 @@ import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
 import com.csse3200.game.win.QuestLedger;
 import com.csse3200.game.win.TortoiseLedger;
+import com.csse3200.game.Quests.Quest;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -128,6 +130,13 @@ public class PauseMenuActions extends Component {
     data.killedEnemyIds = EnemyRegistry.exportAll();
     data.completedQuestsByKind = QuestLedger.exportAll();
     data.foundTortoiseIds = TortoiseLedger.exportAll();
+    data.npcs = NpcQuestRegistry.exportAll();
+    data.killedNpcIds = NpcQuestRegistry.exportKilled();
+    int[] questCounters = Quest.exportCounters();
+    data.questJumps = questCounters[0];
+    data.questEnemiesKilled = questCounters[1];
+    data.questGoldSpent = questCounters[2];
+    data.questShieldsCollected = questCounters[3];
     data.level = levelSupplier.get();
 
     ShopComponent shop = player.getComponent(ShopComponent.class);

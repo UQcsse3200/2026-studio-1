@@ -72,6 +72,8 @@ import com.csse3200.game.win.QuestLedger;
 import com.csse3200.game.win.TortoiseLedger;
 import com.csse3200.game.win.WinCountdown;
 import com.csse3200.game.win.WinEvaluator;
+import com.csse3200.game.Quests.Quest;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -178,6 +180,12 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       QuestLedger.loadFrom(saveData.completedQuestsByKind);
       TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
+      NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
+      Quest.restoreCounters(
+              saveData.questJumps,
+              saveData.questEnemiesKilled,
+              saveData.questGoldSpent,
+              saveData.questShieldsCollected);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
       Difficulty savedDifficulty = Difficulty.NORMAL;
@@ -200,6 +208,7 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(new ArrayList<>());
       QuestLedger.reset();
       TortoiseLedger.reset();
+      NpcQuestRegistry.reset();
 
       if (loadsave) {
         DifficultyService.setCurrent(Difficulty.NORMAL);
