@@ -53,7 +53,9 @@ import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
 import com.csse3200.game.entities.spawn.EnemyId;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
+import com.csse3200.game.entities.spawn.PersistentNpcComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.perks.TortoiseFactory;
@@ -1177,8 +1179,13 @@ public class LevelGameArea extends GameArea {
   // Spawns the NPC placed at each "npc" marker in this map.
   private void spawnNpcs() {
     for (Marker marker : getLevel().markers("npc")) {
+      String npcId = marker.id() + "@" + EnemyId.of(mapData.getName(), marker.position());
+      if (NpcQuestRegistry.isKilled(npcId)) {
+        continue;
+      }
       Entity npc = EntitySpawnRegistry.create(marker.id(), player);
       if (npc != null) {
+        npc.addComponent(new PersistentNpcComponent(npcId));
         spawnEntityAt(npc, marker.position(), true, true);
       }
     }

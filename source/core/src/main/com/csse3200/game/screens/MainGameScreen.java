@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.LevelView;
@@ -36,6 +37,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
 import com.csse3200.game.files.SaveService;
@@ -178,6 +180,12 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       QuestLedger.loadFrom(saveData.completedQuestsByKind);
       TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
+      NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
+      Quest.restoreCounters(
+          saveData.questJumps,
+          saveData.questEnemiesKilled,
+          saveData.questGoldSpent,
+          saveData.questShieldsCollected);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
       Difficulty savedDifficulty = Difficulty.NORMAL;
@@ -200,6 +208,7 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(new ArrayList<>());
       QuestLedger.reset();
       TortoiseLedger.reset();
+      NpcQuestRegistry.reset();
 
       if (loadsave) {
         DifficultyService.setCurrent(Difficulty.NORMAL);

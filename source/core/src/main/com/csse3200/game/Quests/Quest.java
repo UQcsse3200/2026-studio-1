@@ -201,4 +201,115 @@ public class Quest {
   public static ArrayList<Boolean> getQuestActiveForNPCID() {
     return questActiveForNPCID;
   }
+
+  // Save/load support start
+  public static final String JUMP_QUEST = "jumpquest";
+  public static final String ENEMIES_QUEST = "enemiesquest";
+  public static final String GOLD_SPENT_QUEST = "goldspentquest";
+  public static final String SHIELDS_COLLECTED_QUEST = "shieldscollectedquest";
+
+  /** A quest that is in progress for one NPC, as stored in a save file. */
+  public record ActiveQuest(String type, int amountToDo, float snapshot) {}
+
+  /** Clears every NPC id, quest and counter. Used by save/load on a new game or a load. */
+  public static void resetAll() {
+    uniqueNPCID.clear();
+    questActiveForNPCID.clear();
+    jumpQuestTracker.clear();
+    enemiesKilledQuestTracker.clear();
+    goldSpentQuestTracker.clear();
+    shieldsCollectedQuestTracker.clear();
+    globalJumps = 0;
+    globalEnemiesKilled = 0;
+    globalGoldSpent = 0;
+    globalShieldsCollected = 0;
+  }
+
+  /** Returns the four counters in the order jumps, enemies killed, gold spent, shields. */
+  public static int[] exportCounters() {
+    return new int[] {globalJumps, globalEnemiesKilled, globalGoldSpent, globalShieldsCollected};
+  }
+
+  /** Puts the four counters back from a save file. Negative values become zero. */
+  public static void restoreCounters(
+      int jumps, int enemiesKilled, int goldSpent, int shieldsCollected) {
+    globalJumps = Math.max(0, jumps);
+    globalEnemiesKilled = Math.max(0, enemiesKilled);
+    globalGoldSpent = Math.max(0, goldSpent);
+    globalShieldsCollected = Math.max(0, shieldsCollected);
+  }
+
+  /** Returns true if this NPC id was given out since the last reset. */
+  public static boolean isValidNPCID(int npcId) {
+    return npcId >= 0 && npcId < uniqueNPCID.size();
+  }
+
+  /** Returns the quest in progress for this NPC, or null if there is none. */
+  public static ActiveQuest exportQuest(int npcId) {
+    if (!isValidNPCID(npcId)) {
+      return null;
+    }
+    JumpQuest jump = jumpQuestTracker.get(npcId);
+    if (jump != null) {
+      return new ActiveQuest(JUMP_QUEST, (int) jump.jumpsToDo, jump.globalJumpsSnapshot);
+    }
+    EnemiesKilledQuest kills = enemiesKilledQuestTracker.get(npcId);
+    if (kills != null) {
+      return new ActiveQuest(
+          ENEMIES_QUEST, (int) kills.enemiesToKill, kills.globalEnemiesKilledSnapshot);
+    }
+    GoldSpentQuest gold = goldSpentQuestTracker.get(npcId);
+    if (gold != null) {
+      return new ActiveQuest(GOLD_SPENT_QUEST, (int) gold.goldToSpend, gold.goldSpentSnapshot);
+    }
+    ShieldsCollectedQuest shields = shieldsCollectedQuestTracker.get(npcId);
+    if (shields != null) {
+      return new ActiveQuest(
+          SHIELDS_COLLECTED_QUEST,
+          (int) shields.shieldsToCollect,
+          shields.globalShieldsCollectedSnapshot);
+    }
+    return null;
+  }
+
+  /**
+   * Puts a saved quest back for this NPC. Returns false and changes nothing if the id, type or
+   * amount is not valid, or the NPC already has a quest.
+   */
+  public static boolean restoreQuest(int npcId, String type, int amountToDo, float snapshot) {
+    if (!isValidNPCID(npcId)
+        || type == null
+        || amountToDo <= 0
+        || Boolean.TRUE.equals(questActiveForNPCID.get(npcId))) {
+      return false;
+    }
+    switch (type) {
+      case JUMP_QUEST -> {
+        JumpQuest quest = new JumpQuest(amountToDo);
+        quest.globalJumpsSnapshot = snapshot;
+        jumpQuestTracker.set(npcId, quest);
+      }
+      case ENEMIES_QUEST -> {
+        EnemiesKilledQuest quest = new EnemiesKilledQuest(amountToDo);
+        quest.globalEnemiesKilledSnapshot = snapshot;
+        enemiesKilledQuestTracker.set(npcId, quest);
+      }
+      case GOLD_SPENT_QUEST -> {
+        GoldSpentQuest quest = new GoldSpentQuest(amountToDo);
+        quest.goldSpentSnapshot = snapshot;
+        goldSpentQuestTracker.set(npcId, quest);
+      }
+      case SHIELDS_COLLECTED_QUEST -> {
+        ShieldsCollectedQuest quest = new ShieldsCollectedQuest(amountToDo);
+        quest.globalShieldsCollectedSnapshot = snapshot;
+        shieldsCollectedQuestTracker.set(npcId, quest);
+      }
+      default -> {
+        return false;
+      }
+    }
+    questActiveForNPCID.set(npcId, true);
+    return true;
+  }
+  // Save/load support end
 }
