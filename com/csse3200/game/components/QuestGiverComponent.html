@@ -175,18 +175,28 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearShieldsCollectedQuest()" class="member-name-link">clearShieldsCollectedQuest</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logEnemiesKilledQuest(int)" class="member-name-link">logEnemiesKilledQuest</a><wbr>(int&nbsp;enemiesToKill)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAmountXToDo()" class="member-name-link">getAmountXToDo</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Save/load: returns the target of the quest this NPC gave out.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logGoldSpentQuest(int)" class="member-name-link">logGoldSpentQuest</a><wbr>(int&nbsp;amountToSpend)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logEnemiesKilledQuest(int)" class="member-name-link">logEnemiesKilledQuest</a><wbr>(int&nbsp;enemiesToKill)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logJumpQuest(int)" class="member-name-link">logJumpQuest</a><wbr>(int&nbsp;jumpsToDo)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logGoldSpentQuest(int)" class="member-name-link">logGoldSpentQuest</a><wbr>(int&nbsp;amountToSpend)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logShieldsCollectedQuest(int)" class="member-name-link">logShieldsCollectedQuest</a><wbr>(int&nbsp;shieldsToCollect)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logJumpQuest(int)" class="member-name-link">logJumpQuest</a><wbr>(int&nbsp;jumpsToDo)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logShieldsCollectedQuest(int)" class="member-name-link">logShieldsCollectedQuest</a><wbr>(int&nbsp;shieldsToCollect)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#restoreAmountXToDo(int)" class="member-name-link">restoreAmountXToDo</a><wbr>(int&nbsp;amountXToDo)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Save/load: puts back the target of a saved quest.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGoldToGive(int)" class="member-name-link">setGoldToGive</a><wbr>(int&nbsp;goldToGive)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -349,6 +359,20 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="setItemToGive(com.csse3200.game.components.loot.Item)">
 <h3>setItemToGive</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">setItemToGive</span><wbr><span class="parameters">(<a href="loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a>&nbsp;itemToGive)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAmountXToDo()">
+<h3>getAmountXToDo</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getAmountXToDo</span>()</div>
+<div class="block">Save/load: returns the target of the quest this NPC gave out.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="restoreAmountXToDo(int)">
+<h3>restoreAmountXToDo</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restoreAmountXToDo</span><wbr><span class="parameters">(int&nbsp;amountXToDo)</span></div>
+<div class="block">Save/load: puts back the target of a saved quest. Values of zero or less are ignored.</div>
 </section>
 </li>
 </ul>
