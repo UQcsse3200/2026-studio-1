@@ -667,7 +667,10 @@ public class ShopDisplay extends UIComponent {
           new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              selectCard(card, name, sellPrice, rarity, () -> sellItemAt(slot), "SELL", false);
+              selectCard(
+                  card,
+                  new CardSelection(
+                      name, sellPrice, rarity, () -> sellItemAt(slot), "SELL", false));
             }
           });
     }
@@ -747,8 +750,7 @@ public class ShopDisplay extends UIComponent {
       card.row();
 
       Label priceLabel = new Label(cardMaxTier ? "MAX" : "Gold: " + price, whiteLabelStyle);
-      priceLabel.setColor(
-          cardMaxTier ? TEXT_MUTED : (canAfford(price) ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR));
+      priceLabel.setColor(priceColor(cardMaxTier, price));
       card.add(priceLabel).padTop(2f).center();
 
       card.addListener(
@@ -763,16 +765,19 @@ public class ShopDisplay extends UIComponent {
                 boolean maxTier = node != null && node.isMaxTier();
                 selectCard(
                     card,
-                    upgradeDetailName(name, node),
-                    price,
-                    rarity,
-                    () -> attemptUpgradePurchase(catalogSlot, node),
-                    "BUY",
-                    true,
-                    maxTier);
+                    new CardSelection(
+                        upgradeDetailName(name, node),
+                        price,
+                        rarity,
+                        () -> attemptUpgradePurchase(catalogSlot, node),
+                        "BUY",
+                        true,
+                        maxTier));
               } else {
                 selectCard(
-                    card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
+                    card,
+                    new CardSelection(
+                        name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true));
               }
             }
           });
@@ -922,25 +927,11 @@ public class ShopDisplay extends UIComponent {
   }
 
   /**
-   * Updates selection highlights, applies pulsing scale, and attaches a bobbing arrow indicator.
+   * The per-card values needed to select it: what it's called, what it costs, how it's styled, and
+   * what happens if the player confirms it. Bundled into a record so {@link #selectCard} doesn't
+   * need 8 separate parameters (java:S107).
    */
-  private void selectCard(
-      Table card,
-      String name,
-      int price,
-      Rarity rarity,
-      Runnable action,
-      String actionLabel,
-      boolean requiresAffordability) {
-    selectCard(card, name, price, rarity, action, actionLabel, requiresAffordability, false);
-  }
-
-  /**
-   * Same as above, with {@code maxTier} forcing the action off regardless of gold - used for an
-   * Upgrade already at its final tier, where there's no next-tier price to pay.
-   */
-  private void selectCard(
-      Table card,
+  private record CardSelection(
       String name,
       int price,
       Rarity rarity,
@@ -949,6 +940,22 @@ public class ShopDisplay extends UIComponent {
       boolean requiresAffordability,
       boolean maxTier) {
 
+    /** Same as the full constructor, with {@code maxTier} defaulted to {@code false}. */
+    CardSelection(
+        String name,
+        int price,
+        Rarity rarity,
+        Runnable action,
+        String actionLabel,
+        boolean requiresAffordability) {
+      this(name, price, rarity, action, actionLabel, requiresAffordability, false);
+    }
+  }
+
+  /**
+   * Updates selection highlights, applies pulsing scale, and attaches a bobbing arrow indicator.
+   */
+  private void selectCard(Table card, CardSelection selection) {
     // Reset previously selected card
     if (selectedCard != null) {
       selectedCard.clearActions();
@@ -969,10 +976,15 @@ public class ShopDisplay extends UIComponent {
     // Attach / Position bobbing indicator arrow
     attachSelectionArrow(card);
 
-    boolean canPerformAction = !maxTier && (!requiresAffordability || canAfford(price));
-    pendingAction = canPerformAction ? action : null;
+    String name = selection.name();
+    int price = selection.price();
+    boolean maxTier = selection.maxTier();
+    boolean requiresAffordability = selection.requiresAffordability();
 
-    detailIconBg.setColor(rarity.color);
+    boolean canPerformAction = !maxTier && (!requiresAffordability || canAfford(price));
+    pendingAction = canPerformAction ? selection.action() : null;
+
+    detailIconBg.setColor(selection.rarity().color);
     detailIconLabel.setText(
         (name == null || name.isEmpty()) ? "?" : name.substring(0, 1).toUpperCase());
 
@@ -988,10 +1000,25 @@ public class ShopDisplay extends UIComponent {
       detailPriceLabel.setColor(GOLD_COLOR);
     }
 
+    String actionLabel = selection.actionLabel();
     detailActionButton.setText(actionLabel);
     detailActionButton.setColor("BUY".equals(actionLabel) ? BUY_MODE_TINT : SELL_MODE_TINT);
     detailActionButton.setDisabled(!canPerformAction);
     detailActionButton.setTouchable(canPerformAction ? Touchable.enabled : Touchable.disabled);
+  }
+
+  /**
+   * Resolves the price label's color: muted at max tier, gold if affordable, red otherwise.
+   * Extracted from a nested ternary (java:S3358).
+   */
+  private Color priceColor(boolean maxTier, int price) {
+    if (maxTier) {
+      return TEXT_MUTED;
+    }
+    if (canAfford(price)) {
+      return GOLD_COLOR;
+    }
+    return INSUFFICIENT_FUNDS_COLOR;
   }
 
   /** Clears selection highlights and resets detail information. */

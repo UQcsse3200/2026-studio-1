@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.csse3200.game.entities.Entity;
@@ -100,6 +101,18 @@ class ShopDisplayUpgradePriceTest {
 
   private int catalogSlotOnePrice() {
     return shopComponent.getUpgradeListing(1).getBuyPrice();
+  }
+
+  private Color priceColor(boolean maxTier, int price) throws Exception {
+    Method method = ShopDisplay.class.getDeclaredMethod("priceColor", boolean.class, int.class);
+    method.setAccessible(true);
+    return (Color) method.invoke(shopDisplay, maxTier, price);
+  }
+
+  private Color colorConstant(String fieldName) throws Exception {
+    Field field = ShopDisplay.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    return (Color) field.get(null);
   }
 
   private void syncUpgradeCatalog() throws Exception {
@@ -258,6 +271,19 @@ class ShopDisplayUpgradePriceTest {
    * {@code "shopChanged"} - that unconditional write (regardless of whether anything changed) was
    * what made the recursion in the test above possible in the first place.
    */
+  /**
+   * Covers the three branches extracted from the nested ternary this fixes (java:S3358): max-tier
+   * wins regardless of gold, then affordable vs. not - against the real InventoryComponent(1000)
+   * from beforeEach().
+   */
+  @Test
+  void priceColorReturnsTheCorrectColorForMaxTierAffordableAndUnaffordable() throws Exception {
+    // inventory holds 1000 gold (see beforeEach())
+    assertEquals(colorConstant("TEXT_MUTED"), priceColor(true, 1_000_000));
+    assertEquals(colorConstant("GOLD_COLOR"), priceColor(false, 500));
+    assertEquals(colorConstant("INSUFFICIENT_FUNDS_COLOR"), priceColor(false, 1_000_000));
+  }
+
   @Test
   void syncUpgradeListingDoesNotFireShopChangedWhenNameAndPriceAreUnchanged() throws Exception {
     UpgradeNode node = firstUpgrade(); // already synced to slot 1 by setUpgradesDisplay()
