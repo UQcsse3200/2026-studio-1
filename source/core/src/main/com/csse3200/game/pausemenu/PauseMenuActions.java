@@ -16,6 +16,7 @@ import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.components.player.ShieldComponent;
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
@@ -159,6 +160,11 @@ public class PauseMenuActions extends Component {
     if (shield != null) {
       data.shieldHeld = shield.hasShield();
       data.shieldRemainingMillis = shield.getRemainingMillis();
+    }
+
+    ShopComponent shopForStock = player.getComponent(ShopComponent.class);
+    if (shopForStock != null) {
+      data.shopItemSlots = new java.util.ArrayList<>(shopForStock.getItemCatalog().keySet());
     }
 
     BallisticShieldComponent ballisticShield = player.getComponent(BallisticShieldComponent.class);

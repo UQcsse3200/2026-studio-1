@@ -57,4 +57,7 @@ public class GameSaveData {
 
   /** Time left on an active Ballistic Shield, in milliseconds. Zero means not active. */
   public long ballisticShieldRemainingMillis;
+
+  /** Item shop slots still in stock. Null in older saves, which means do not change the shop. */
+  public List<Integer> shopItemSlots = null;
 }

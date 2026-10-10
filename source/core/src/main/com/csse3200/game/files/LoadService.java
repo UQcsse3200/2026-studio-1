@@ -22,7 +22,10 @@ import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.LootFactory;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** Applies saved game data to a newly created player. */
 public class LoadService {
@@ -76,6 +79,7 @@ public class LoadService {
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
     loadPets(player, data);
+    loadShopStock(player, data);
     loadUpgrades(player, data, upgrades);
     loadBuffs(player, data);
     loadDroppedLoot(data, mapWidth, mapHeight);
@@ -205,6 +209,26 @@ public class LoadService {
       PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
       if (petManager != null) {
         petManager.activatePet(new ShopComponent.Pet(data.activePetName));
+      }
+    }
+  }
+
+  private static void loadShopStock(Entity player, GameSaveData data) {
+    ShopComponent shop = player.getComponent(ShopComponent.class);
+    if (shop == null || data.shopItemSlots == null) {
+      return;
+    }
+
+    Set<Integer> inStock = new HashSet<>();
+    for (Object slot : data.shopItemSlots) {
+      if (slot instanceof Number number) {
+        inStock.add(number.intValue());
+      }
+    }
+
+    for (Integer slot : new ArrayList<>(shop.getItemCatalog().keySet())) {
+      if (!inStock.contains(slot)) {
+        shop.setItemListing(slot, null);
       }
     }
   }
