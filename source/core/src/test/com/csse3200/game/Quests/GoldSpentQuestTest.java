@@ -15,11 +15,15 @@ import org.junit.jupiter.api.Test;
 public class GoldSpentQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
+  static Entity player;
+  static Item weapon;
 
   @BeforeEach
   public void createAQuestEntity() {
     entity = new Entity();
-    questGiverComponent = new QuestGiverComponent(null, 0);
+    player = new Entity();
+    weapon = (new WeaponGenerator()).generateWeapon(WeaponType.SWORD,1);
+    questGiverComponent = new QuestGiverComponent(player, 0);
     entity.addComponent(questGiverComponent);
   }
 
@@ -146,10 +150,9 @@ public class GoldSpentQuestTest {
 
   @Test
   public void testIfGoldSpentChangesProgressOfQuest() {
-    Entity player = new Entity();
+    player = new Entity();
     questGiverComponent.logGoldSpentQuest(100);
     InventoryComponent inventory = new InventoryComponent(100);
-    Item weapon = new WeaponGenerator().generateWeapon(WeaponType.SWORD, 1);
     ShopComponent shop = new ShopComponent();
     shop.setItemListing(1, new ShopComponent.ShopListing<>(weapon, 10));
     player.addComponent(inventory);
@@ -161,10 +164,9 @@ public class GoldSpentQuestTest {
 
   @Test
   public void testIfGoldSpentGivesAProgressValueOver100() {
-    Entity player = new Entity();
+    player = new Entity();
     questGiverComponent.logGoldSpentQuest(5);
     InventoryComponent inventory = new InventoryComponent(100);
-    Item weapon = new WeaponGenerator().generateWeapon(WeaponType.SWORD, 1);
     ShopComponent shop = new ShopComponent();
     shop.setItemListing(1, new ShopComponent.ShopListing<>(weapon, 10));
     player.addComponent(inventory);
@@ -183,5 +185,47 @@ public class GoldSpentQuestTest {
             + number
             + " as the"
             + "parameter for goldToSpend, the constructor didn't throw an exception");
+  }
+  @Test
+  public void testIfGoldRewardIsGivenIfGoldSpentQuestCompletedAndCleared(){
+    int goldToSpend = 10;
+    ShopComponent shopComponent = new ShopComponent();
+    InventoryComponent inventoryComponent = new InventoryComponent(goldToSpend);
+    player.addComponent(shopComponent);
+    player.addComponent(inventoryComponent);
+    questGiverComponent.setGoldToGive(goldToSpend);
+    questGiverComponent.logGoldSpentQuest(goldToSpend);
+    shopComponent.setItemListing(1, new ShopComponent.ShopListing<>(weapon, goldToSpend));
+    shopComponent.buyItem(1);
+    questGiverComponent.clearGoldSpentQuest();
+    assertEquals(goldToSpend, inventoryComponent.getGold());
+  }
+  @Test
+  public void testIfItemRewardIsGivenIfGoldSpentQuestCompletedAndCleared(){
+    int goldToSpend = 10;
+    ShopComponent shopComponent = new ShopComponent();
+    InventoryComponent inventoryComponent = new InventoryComponent(goldToSpend);
+    player.addComponent(shopComponent);
+    player.addComponent(inventoryComponent);
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logGoldSpentQuest(goldToSpend);
+    Item listingWeapon = (new WeaponGenerator()).generateWeapon(WeaponType.BOW,2);
+    shopComponent.setItemListing(1, new ShopComponent.ShopListing<>(listingWeapon, goldToSpend));
+    shopComponent.buyItem(1);
+    questGiverComponent.clearGoldSpentQuest();
+    assertEquals(weapon,inventoryComponent.getItem(2));
+  }
+  @Test
+  public void testIfRewardIsGivenIfGoldSpentQuestIsNotCompletedButCleared(){
+    int goldToSpend = 0;
+    ShopComponent shopComponent = new ShopComponent();
+    InventoryComponent inventoryComponent = new InventoryComponent(goldToSpend);
+    player.addComponent(shopComponent);
+    player.addComponent(inventoryComponent);
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logGoldSpentQuest(10);
+    questGiverComponent.clearGoldSpentQuest();
+    assertNotEquals(weapon,inventoryComponent.getItem(1));
+    assertNotEquals(10, inventoryComponent.getGold());
   }
 }

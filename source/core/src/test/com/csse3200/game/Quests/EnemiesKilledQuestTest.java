@@ -3,6 +3,10 @@ package com.csse3200.game.Quests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.csse3200.game.components.QuestGiverComponent;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,11 +14,18 @@ import org.junit.jupiter.api.Test;
 public class EnemiesKilledQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
+  static Entity player;
+  static InventoryComponent inventoryComponent;
+  static Item weapon;
 
   @BeforeEach
   public void createAQuestEntity() {
     entity = new Entity();
-    questGiverComponent = new QuestGiverComponent(null, 0);
+    player = new Entity();
+    weapon = (new WeaponGenerator()).generateWeapon(WeaponType.SWORD,1);
+    inventoryComponent = new InventoryComponent(0);
+    player.addComponent(inventoryComponent);
+    questGiverComponent = new QuestGiverComponent(player, 0);
     entity.addComponent(questGiverComponent);
   }
 
@@ -164,5 +175,31 @@ public class EnemiesKilledQuestTest {
             + number
             + " as the"
             + "parameter for enemiesToKill, the constructor didn't throw an exception");
+  }
+  @Test
+  public void testIfGoldRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared(){
+    questGiverComponent.setGoldToGive(10);
+    questGiverComponent.logEnemiesKilledQuest(1);
+    Quest.incrementGlobalEnemiesKilled();
+    questGiverComponent.clearEnemiesKilledQuest();
+    assertEquals(10,inventoryComponent.getGold());
+  }
+  @Test
+  public void testIfItemRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared(){
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logEnemiesKilledQuest(1);
+    Quest.incrementGlobalEnemiesKilled();
+    questGiverComponent.clearEnemiesKilledQuest();
+    assertEquals(weapon, inventoryComponent.getItem(1));
+  }
+  @Test
+  public void testIfRewardIsNotGivenIfEnemiesKilledQuestIsNotCompletedAndCleared(){
+    int goldToGive = 10;
+    questGiverComponent.setGoldToGive(goldToGive);
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logEnemiesKilledQuest(1);
+    questGiverComponent.clearEnemiesKilledQuest();
+    assertNotEquals(weapon, inventoryComponent.getItem(1));
+    assertNotEquals(goldToGive, inventoryComponent.getGold());
   }
 }

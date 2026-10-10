@@ -3,10 +3,28 @@ package com.csse3200.game.Quests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.csse3200.game.components.QuestGiverComponent;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class JumpQuestTest {
+  static Entity player;
+  static QuestGiverComponent questGiverComponent;
+  static InventoryComponent inventoryComponent;
+  static Item weapon;
+  @BeforeEach
+  public void initalizePlayerAndQuestGiver(){
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    weapon = weaponGenerator.generateWeapon(WeaponType.SWORD,1);
+    inventoryComponent = new InventoryComponent(0);
+    player = new Entity();
+    player.addComponent(inventoryComponent);
+    questGiverComponent = new QuestGiverComponent(player);
+  }
   @Test
   public void testIfCompletingAJumpQuestWorks() {
     Entity entity = new Entity();
@@ -88,8 +106,6 @@ public class JumpQuestTest {
 
   @Test
   public void testIfJumpQuestChangesTheProgressOfQuest() {
-    Entity player = new Entity();
-    QuestGiverComponent questGiverComponent = new QuestGiverComponent(player);
     questGiverComponent.logJumpQuest(2);
     Quest.incrementGlobalJumps();
     assertEquals(50, questGiverComponent.checkJumpQuestComplete());
@@ -97,8 +113,6 @@ public class JumpQuestTest {
 
   @Test
   public void testIfJumpQuestGivesAProgressValueOver100() {
-    Entity player = new Entity();
-    QuestGiverComponent questGiverComponent = new QuestGiverComponent(player);
     questGiverComponent.logJumpQuest(1);
     Quest.incrementGlobalJumps();
     Quest.incrementGlobalJumps();
@@ -107,8 +121,6 @@ public class JumpQuestTest {
 
   @Test
   public void checkIfGivingJumpsToDoAsZeroThrows() {
-    Entity player = new Entity();
-    QuestGiverComponent questGiverComponent = new QuestGiverComponent(player);
     int number = 0;
     assertThrows(
         IllegalArgumentException.class,
@@ -117,5 +129,32 @@ public class JumpQuestTest {
             + number
             + " as the"
             + "parameter for jumpsToDo, the constructor didn't throw an exception");
+  }
+  @Test
+  public void testIfGoldRewardIsGivenIfJumpQuestCompletedAndCleared(){
+    int goldToGive= 10;
+    questGiverComponent.setGoldToGive(goldToGive);
+    questGiverComponent.logJumpQuest(1);
+    Quest.incrementGlobalJumps();
+    questGiverComponent.clearJumpQuest();
+    assertEquals(goldToGive,inventoryComponent.getGold());
+  }
+  @Test
+  public void testIfItemRewardIsGivenIfJumpQuestCompletedAndCleared(){
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logJumpQuest(1);
+    Quest.incrementGlobalJumps();
+    questGiverComponent.clearJumpQuest();
+    assertEquals(weapon, inventoryComponent.getItem(1));
+  }
+  @Test
+  public void testIfRewardIsNotGivenIfJumpQuestIsNotCompletedAndCleared(){
+    int goldToGive = 10;
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.setGoldToGive(goldToGive);
+    questGiverComponent.logJumpQuest(1);
+    questGiverComponent.clearJumpQuest();
+    assertEquals(0, inventoryComponent.getGold());
+    assertNull(inventoryComponent.getItem(1));
   }
 }

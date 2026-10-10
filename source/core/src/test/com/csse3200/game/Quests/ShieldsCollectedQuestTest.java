@@ -3,6 +3,10 @@ package com.csse3200.game.Quests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.csse3200.game.components.QuestGiverComponent;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.entities.Entity;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +17,7 @@ public class ShieldsCollectedQuestTest {
   static QuestGiverComponent questGiverComponent;
   static Entity player;
   ShieldComponent shieldComponent;
+  static InventoryComponent inventoryComponent;
 
   @BeforeEach
   public void createAQuestEntity() {
@@ -20,8 +25,10 @@ public class ShieldsCollectedQuestTest {
     player = new Entity();
     shieldComponent = new ShieldComponent();
     player.addComponent(shieldComponent);
-    questGiverComponent = new QuestGiverComponent(player, 0);
+    questGiverComponent = new QuestGiverComponent(player);
     entity.addComponent(questGiverComponent);
+    inventoryComponent = new InventoryComponent(0);
+    player.addComponent(inventoryComponent);
   }
 
   @Test
@@ -170,5 +177,36 @@ public class ShieldsCollectedQuestTest {
             + number
             + " as the "
             + "parameter for shieldsToCollect, the constructor didn't throw an exception");
+  }
+  @Test
+  public void testIfGoldRewardIsGivenIfShieldQuestCompletedAndCleared(){
+    int goldToGive = 10;
+    questGiverComponent.setGoldToGive(goldToGive);
+    questGiverComponent.logShieldsCollectedQuest(1);
+    shieldComponent.grantShield();
+    questGiverComponent.clearShieldsCollectedQuest();
+    assertEquals(goldToGive, inventoryComponent.getGold());
+  }
+  @Test
+  public void testIfItemRewardIsGivenIfShieldQuestCompletedAndCleared(){
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD,1);
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logShieldsCollectedQuest(1);
+    shieldComponent.grantShield();
+    questGiverComponent.clearShieldsCollectedQuest();
+    assertEquals(inventoryComponent.getItem(1), weapon);
+  }
+  @Test
+  public void testIfRewardIsNotGivenIfShieldQuestIsNotCompletedAndCleared(){
+    int goldToGive = 10;
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD,1);
+    questGiverComponent.setGoldToGive(goldToGive);
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logShieldsCollectedQuest(1);
+    questGiverComponent.clearShieldsCollectedQuest();
+    assertEquals(0,inventoryComponent.getGold());
+    assertNull(inventoryComponent.getItem(1));
   }
 }
