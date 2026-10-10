@@ -11,9 +11,11 @@ import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.ActiveBuff;
+import com.csse3200.game.components.player.BallisticShieldComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
@@ -152,6 +154,18 @@ public class PauseMenuActions extends Component {
     data.difficulty = DifficultyService.getCurrent().name();
 
     data.shieldHits = stats.getShieldHits();
+
+    ShieldComponent shield = player.getComponent(ShieldComponent.class);
+    if (shield != null) {
+      data.shieldHeld = shield.hasShield();
+      data.shieldRemainingMillis = shield.getRemainingMillis();
+    }
+
+    BallisticShieldComponent ballisticShield = player.getComponent(BallisticShieldComponent.class);
+    if (ballisticShield != null) {
+      data.ballisticShieldHeld = ballisticShield.hasShield();
+      data.ballisticShieldRemainingMillis = ballisticShield.getRemainingMillis();
+    }
 
     GameTime timeSource = ServiceLocator.getTimeSource();
     PlayerBuffComponent buffs = player.getComponent(PlayerBuffComponent.class);

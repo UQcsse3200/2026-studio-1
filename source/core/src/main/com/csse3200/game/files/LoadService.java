@@ -9,10 +9,12 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.BallisticShieldComponent;
 import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
@@ -68,6 +70,8 @@ public class LoadService {
     }
 
     loadHealth(player, data);
+    loadShields(player, data);
+    loadStamina(player, data);
     loadStamina(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
@@ -82,6 +86,20 @@ public class LoadService {
 
     if (stats != null && data.health > 0) {
       stats.setHealth(data.health);
+    }
+  }
+
+  private static void loadShields(Entity player, GameSaveData data) {
+    ShieldComponent shield = player.getComponent(ShieldComponent.class);
+    if (shield != null) {
+      shield.restoreHeldShield(data.shieldHeld);
+      shield.restoreActive(data.shieldRemainingMillis);
+    }
+
+    BallisticShieldComponent ballisticShield = player.getComponent(BallisticShieldComponent.class);
+    if (ballisticShield != null) {
+      ballisticShield.restoreHeldShield(data.ballisticShieldHeld);
+      ballisticShield.restoreActive(data.ballisticShieldRemainingMillis);
     }
   }
 

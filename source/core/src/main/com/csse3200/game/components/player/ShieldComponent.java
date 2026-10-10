@@ -211,4 +211,30 @@ public class ShieldComponent extends Component {
     }
     lastKnownHealth = newHealth;
   }
+
+  /** Save/load: returns the time left on the active shield in milliseconds, or 0 if none. */
+  public long getRemainingMillis() {
+    if (!active || timeSource == null) {
+      return 0L;
+    }
+    return Math.max(0L, activeUntil - timeSource.getTime());
+  }
+
+  /**
+   * Save/load: puts back a shield that was held when the game was saved. Unlike grantShield, this
+   * is not counted as a new pickup for quests.
+   */
+  public void restoreHeldShield(boolean held) {
+    hasShield = held;
+  }
+
+  /** Save/load: puts back an active shield with the time it had left. Zero or less is ignored. */
+  public void restoreActive(long remainingMillis) {
+    if (remainingMillis <= 0 || timeSource == null) {
+      return;
+    }
+    active = true;
+    activeUntil = timeSource.getTime() + remainingMillis;
+    entity.getEvents().trigger("shieldActivated", remainingMillis);
+  }
 }

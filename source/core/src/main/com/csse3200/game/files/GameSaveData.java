@@ -45,4 +45,16 @@ public class GameSaveData {
   public int questEnemiesKilled;
   public int questGoldSpent;
   public int questShieldsCollected;
+
+  /** Whether a shield was picked up but not used yet. */
+  public boolean shieldHeld;
+
+  /** Time left on an active shield, in milliseconds. Zero means not active. */
+  public long shieldRemainingMillis;
+
+  /** Whether a Ballistic Shield was picked up but not used yet. */
+  public boolean ballisticShieldHeld;
+
+  /** Time left on an active Ballistic Shield, in milliseconds. Zero means not active. */
+  public long ballisticShieldRemainingMillis;
 }
