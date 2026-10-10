@@ -4,12 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics.DisplayMode;
 import com.badlogic.gdx.Graphics.Monitor;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.GdxGame;
@@ -24,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SettingsMenuDisplay extends UIComponent {
+  private static final String SUBTITLE_STYLE = "subtitle";
   private static final Logger logger = LoggerFactory.getLogger(SettingsMenuDisplay.class);
   private static final String[] KEYBIND_ACTIONS = {
     "moveLeft",
@@ -81,6 +85,7 @@ public class SettingsMenuDisplay extends UIComponent {
   private Table keybindsTable;
   private Stack contentStack;
   private TextField fpsText;
+  private Label screenTitle;
   private CheckBox fullScreenCheck;
   private CheckBox vsyncCheck;
   private Slider uiScaleSlider;
@@ -108,9 +113,19 @@ public class SettingsMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
-    Label title = new Label("Settings", skin, "title");
+    Image background = new Image(new Texture(Gdx.files.internal("images/ui/main-menu-bg.png")));
+    background.setFillParent(true);
+    stage.addActor(background);
+
+    Image overlay = new Image(skin.getDrawable("black"));
+    overlay.setFillParent(true);
+    overlay.setColor(1f, 1f, 1f, 0.60f);
+    stage.addActor(overlay);
+
+    screenTitle = new Label("SETTINGS", skin, "title");
+    screenTitle.setFontScale(0.95f);
+
     settingsTable = makeSettingsTable();
-    Table menuBtns = makeMenuBtns();
     keybindsTable = makeKeybindsTable();
     keybindsTable.setVisible(false);
 
@@ -118,55 +133,92 @@ public class SettingsMenuDisplay extends UIComponent {
     contentStack.add(settingsTable);
     contentStack.add(keybindsTable);
 
+    Table menuBtns = makeMenuBtns();
+
+    Image panelBackground = new Image(skin.getDrawable("black"));
+    panelBackground.setColor(1f, 1f, 1f, 0.78f);
+
+    Stack panel = new Stack();
+    panel.add(panelBackground);
+    panel.add(contentStack);
+
     rootTable = new Table();
     rootTable.setFillParent(true);
-    rootTable.top().left();
-    rootTable.add(title).left().padLeft(270f).padTop(20f).height(90f);
-    rootTable.row();
-    rootTable.add(contentStack).left().expand().padLeft(20f);
-    rootTable.row();
-    rootTable.add(menuBtns).fillX().expandX().bottom();
+    rootTable.center();
+
+    rootTable.add(screenTitle).center().padBottom(18f).row();
+    rootTable.add(panel).width(820f).height(500f).center().row();
+    rootTable.add(menuBtns).center().padTop(22f);
+
     stage.addActor(rootTable);
   }
 
   private Table makeSettingsTable() {
     UserSettings.Settings settings = UserSettings.get();
-    Label fpsLabel = new Label("FPS Cap:", skin);
+
+    Label fpsLabel = new Label("FPS Cap", skin, SUBTITLE_STYLE);
+    fpsLabel.setFontScale(0.75f);
+
     fpsText = new TextField(Integer.toString(settings.fps), skin);
-    Label fullScreenLabel = new Label("Fullscreen:", skin);
+    fpsText.setAlignment(1);
+
+    Label fullScreenLabel = new Label("Fullscreen", skin, SUBTITLE_STYLE);
+    fullScreenLabel.setFontScale(0.75f);
+
     fullScreenCheck = new CheckBox("", skin);
     fullScreenCheck.setChecked(settings.fullscreen);
-    Label vsyncLabel = new Label("VSync:", skin);
+
+    Label vsyncLabel = new Label("VSync", skin, SUBTITLE_STYLE);
+    vsyncLabel.setFontScale(0.75f);
+
     vsyncCheck = new CheckBox("", skin);
     vsyncCheck.setChecked(settings.vsync);
-    Label uiScaleLabel = new Label("ui Scale (Unused):", skin);
+
+    Label uiScaleLabel = new Label("UI Scale", skin, SUBTITLE_STYLE);
+    uiScaleLabel.setFontScale(0.75f);
+
     uiScaleSlider = new Slider(0.2f, 2f, 0.1f, false, skin);
     uiScaleSlider.setValue(settings.uiScale);
-    Label uiScaleValue = new Label(String.format("%.2fx", settings.uiScale), skin);
-    Label displayModeLabel = new Label("Resolution:", skin);
+
+    Label uiScaleValue = new Label(String.format("%.2fx", settings.uiScale), skin, SUBTITLE_STYLE);
+    uiScaleValue.setFontScale(0.7f);
+
+    Label displayModeLabel = new Label("Resolution", skin, SUBTITLE_STYLE);
+    displayModeLabel.setFontScale(0.75f);
+
     displayModeSelect = new SelectBox<>(skin);
+
     Monitor selectedMonitor = Gdx.graphics.getMonitor();
     displayModeSelect.setItems(getDisplayModes(selectedMonitor));
     displayModeSelect.setSelected(getActiveMode(displayModeSelect.getItems()));
 
     Table table = new Table();
-    table.add(fpsLabel).right().padRight(15f);
-    table.add(fpsText).width(100).left();
-    table.row().padTop(10f);
-    table.add(fullScreenLabel).right().padRight(15f);
+    table.pad(35f, 55f, 35f, 55f);
+
+    table.defaults().height(65f);
+
+    table.add(fpsLabel).width(220f).right().padRight(30f);
+    table.add(fpsText).width(140f).height(55f).left();
+    table.row();
+
+    table.add(fullScreenLabel).width(220f).right().padRight(30f);
     table.add(fullScreenCheck).left();
-    table.row().padTop(10f);
-    table.add(vsyncLabel).right().padRight(15f);
+    table.row();
+
+    table.add(vsyncLabel).width(220f).right().padRight(30f);
     table.add(vsyncCheck).left();
-    table.row().padTop(10f);
-    Table uiScaleTable = new Table();
-    uiScaleTable.add(uiScaleSlider).width(100).left();
-    uiScaleTable.add(uiScaleValue).left().padLeft(5f).expandX();
-    table.add(uiScaleLabel).right().padRight(15f);
-    table.add(uiScaleTable).left();
-    table.row().padTop(10f);
-    table.add(displayModeLabel).right().padRight(15f);
-    table.add(displayModeSelect).left();
+    table.row();
+
+    Table scaleTable = new Table();
+    scaleTable.add(uiScaleSlider).width(220f).height(40f).left();
+    scaleTable.add(uiScaleValue).width(80f).padLeft(18f).left();
+
+    table.add(uiScaleLabel).width(220f).right().padRight(30f);
+    table.add(scaleTable).left();
+    table.row();
+
+    table.add(displayModeLabel).width(220f).right().padRight(30f);
+    table.add(displayModeSelect).width(360f).height(55f).left();
 
     uiScaleSlider.addListener(
         (Event event) -> {
@@ -174,14 +226,13 @@ public class SettingsMenuDisplay extends UIComponent {
           uiScaleValue.setText(String.format("%.2fx", value));
           return true;
         });
+
     return table;
   }
 
   private Table makeKeybindsTable() {
     Table outer = new Table();
-    outer.pad(10f);
-    Label title = new Label("Keybinds", skin, "title");
-    outer.add(title).center().row();
+    outer.pad(20f);
 
     ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
     ScrollPane scroll = new ScrollPane(buildKeybindRows(), style);
@@ -189,7 +240,7 @@ public class SettingsMenuDisplay extends UIComponent {
     scroll.setFadeScrollBars(false);
     scroll.setOverscroll(false, false);
     scroll.setForceScroll(false, true);
-    outer.add(scroll).width(650f).height(560f).left().row();
+    outer.add(scroll).width(700f).height(420f).center().row();
 
     return outer;
   }
@@ -223,15 +274,6 @@ public class SettingsMenuDisplay extends UIComponent {
       table.add(row).growX().padBottom(4f).row();
     }
 
-    TextButton backButton = new TextButton("Back", skin);
-    backButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            showSettings();
-          }
-        });
-    table.add(backButton).growX().padTop(10f);
     return table;
   }
 
@@ -308,6 +350,10 @@ public class SettingsMenuDisplay extends UIComponent {
     TextButton applyBtn = new TextButton("Apply", skin);
     TextButton keybindsBtn = new TextButton("Keybinds", skin);
 
+    exitBtn.getLabel().setFontScale(0.8f);
+    keybindsBtn.getLabel().setFontScale(0.8f);
+    applyBtn.getLabel().setFontScale(0.8f);
+
     exitBtn.addListener(
         new ChangeListener() {
           @Override
@@ -330,17 +376,29 @@ public class SettingsMenuDisplay extends UIComponent {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent changeEvent, Actor actor) {
-            logger.debug("Keybinds button clicked");
-            settingsTable.setVisible(false);
-            keybindsTable.setVisible(true);
+            if (keybindsTable.isVisible()) {
+              logger.debug("Back button clicked");
+              showSettings();
+              keybindsBtn.setText("Keybinds");
+              screenTitle.setText("SETTINGS");
+            } else {
+              logger.debug("Keybinds button clicked");
+              settingsTable.setVisible(false);
+              keybindsTable.setVisible(true);
+              keybindsBtn.setText("Back");
+              screenTitle.setText("KEYBINDS");
+            }
+
             rootTable.invalidateHierarchy();
           }
         });
 
     Table table = new Table();
-    table.add(exitBtn).expandX().left().pad(0f, 15f, 15f, 0f);
-    table.add(keybindsBtn).expandX().center().pad(0f, 15f, 15f, 15f);
-    table.add(applyBtn).expandX().right().pad(0f, 0f, 15f, 15f);
+
+    table.add(exitBtn).width(220f).height(75f).padRight(20f);
+    table.add(keybindsBtn).width(260f).height(75f).padRight(20f);
+    table.add(applyBtn).width(220f).height(75f);
+
     return table;
   }
 
