@@ -94,6 +94,7 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+
   private static final String LEVEL_1_NAME = "Level 1 - Out of the Underworld";
   private static final String TORTOISE_LEVEL_1_A_ID = "level1_a";
   private static final GridPoint2 TORTOISE_LEVEL_1_A_SPAWN = new GridPoint2(52, 5);
@@ -1174,6 +1175,25 @@ public class LevelGameArea extends GameArea {
     super.dispose();
     ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class).stop();
     unloadAssets();
+  }
+
+  /**
+   * Debug helper: kills the final boss if he is in this area.
+   *
+   * @return true if the final boss was here and alive, false otherwise
+   */
+  public boolean killFinalBoss() {
+    for (Entity entity : areaEntities) {
+      if (entity.getComponent(BossDefeatedWinComponent.class) == null) {
+        continue;
+      }
+      CombatStatsComponent stats = entity.getComponent(CombatStatsComponent.class);
+      if (stats != null && !stats.isDead()) {
+        stats.setHealth(0);
+        return true;
+      }
+    }
+    return false;
   }
 
   // Spawns the NPC placed at each "npc" marker in this map.
