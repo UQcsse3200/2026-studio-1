@@ -97,10 +97,19 @@ public class MainGameScreen extends ScreenAdapter {
 
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
+  private static final String LABYRINTH_SIDE_ROOM = "maps/nether-minotaur-labyrinth.json";
+  private static final String HOUNDS_DEN_SIDE_ROOM = "maps/nether-hounds-den.json";
+  private static final String GORGON_GALLERY_SIDE_ROOM = "maps/nether-gorgon-gallery.json";
+  private static final String SHADES_BARRACKS_SIDE_ROOM = "maps/nether-shades-barracks.json";
+  private static final String CYCLOPS_FORGE_SIDE_ROOM = "maps/olympus-cyclops-forge.json";
+  private static final String CENTAUR_PAVILION_SIDE_ROOM = "maps/olympus-centaur-pavilion.json";
+  private static final String OUTER_GUARD_SIDE_ROOM = "maps/olympus-outer-guard.json";
+  private static final String THUNDER_HALL_SIDE_ROOM = "maps/olympus-thunder-hall.json";
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
   private static final String THIRD_ROOM_MAP = "maps/level3.json";
   private static final GridPoint2 LEVEL_ONE_DUNGEON_SPAWN = new GridPoint2(3, 3);
   private static final GridPoint2 LEVEL_ONE_NETHER_SPAWN = new GridPoint2(27, 34);
+  private static final GridPoint2 SIDE_ROOM_SPAWN = new GridPoint2(4, 2);
   private static final float GAMEPLAY_ZOOM = 0.95f;
   private static final float NOCLIP_VERTICAL_SPEED = 7f;
 
@@ -799,14 +808,8 @@ public class MainGameScreen extends ScreenAdapter {
     Terminal terminal = new Terminal();
 
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
-    terminal.addCommand(
-        "tp",
-        new TeleportCommand(
-            Map.of(
-                "lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
-                "lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
-                "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
-                "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
+    terminal.addCommand("tp", new TeleportCommand(createLocationMap()));
+
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
     terminal.addCommand("perk", new PerkCommand());
@@ -856,7 +859,27 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
     terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
+    terminal.addCommand("hide", new InventoryCommand(this::getPlayerEntity));
 
     ServiceLocator.getEntityService().register(ui);
+  }
+
+  public HashMap<String, Runnable> createLocationMap() {
+    HashMap<String, Runnable> locations = new HashMap<>();
+    locations.put("lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN));
+    locations.put("lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN));
+    locations.put("MinotaurLabyrinth", () -> debugTeleport(LABYRINTH_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("GorgonGallery", () -> debugTeleport(GORGON_GALLERY_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put(
+        "ShadesBarracks", () -> debugTeleport(SHADES_BARRACKS_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("HoundsDen", () -> debugTeleport(HOUNDS_DEN_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("OuterGuard", () -> debugTeleport(OUTER_GUARD_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("ThunderHall", () -> debugTeleport(THUNDER_HALL_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("CyclopsForge", () -> debugTeleport(CYCLOPS_FORGE_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put(
+        "CentaurPavilion", () -> debugTeleport(CENTAUR_PAVILION_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null));
+    locations.put("lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null));
+    return locations;
   }
 }

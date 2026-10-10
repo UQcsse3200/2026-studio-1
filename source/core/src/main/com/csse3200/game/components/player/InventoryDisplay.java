@@ -26,6 +26,8 @@ public class InventoryDisplay extends UIComponent {
   private Table inventoryTable;
   private Label goldLabel;
 
+  private boolean hidden = false;
+
   /** Creates the inventory UI and adds it to the stage. */
   @Override
   public void create() {
@@ -80,7 +82,7 @@ public class InventoryDisplay extends UIComponent {
     inventoryTable.pack();
 
     positionInventory();
-
+    inventoryTable.setVisible(!hidden);
     stage.addActor(inventoryTable);
   }
 
@@ -224,5 +226,19 @@ public class InventoryDisplay extends UIComponent {
 
   private void refreshActivePet(ShopComponent.Pet pet) {
     refreshInventory();
+  }
+
+  /**
+   * Sets inventory to be visible or not. Used by terminal command {@link
+   * com.csse3200.game.ui.terminal.commands.InventoryCommand}
+   *
+   * @param shouldHide boolean on whether to hide the inventory or not.
+   */
+  public void setHidden(boolean shouldHide) {
+    hidden = shouldHide;
+    if (inventoryTable != null) {
+      inventoryTable.setVisible(!hidden);
+      System.out.println("InventoryTable is hidden: " + inventoryTable.isVisible());
+    }
   }
 }
