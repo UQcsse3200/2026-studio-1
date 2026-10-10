@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SettingsMenuDisplay extends UIComponent {
+  private static final String SUBTITLE_STYLE = "subtitle";
   private static final Logger logger = LoggerFactory.getLogger(SettingsMenuDisplay.class);
   private static final String[] KEYBIND_ACTIONS = {
     "moveLeft",
@@ -155,34 +156,34 @@ public class SettingsMenuDisplay extends UIComponent {
   private Table makeSettingsTable() {
     UserSettings.Settings settings = UserSettings.get();
 
-    Label fpsLabel = new Label("FPS Cap", skin, "subtitle");
+    Label fpsLabel = new Label("FPS Cap", skin, SUBTITLE_STYLE);
     fpsLabel.setFontScale(0.75f);
 
     fpsText = new TextField(Integer.toString(settings.fps), skin);
     fpsText.setAlignment(1);
 
-    Label fullScreenLabel = new Label("Fullscreen", skin, "subtitle");
+    Label fullScreenLabel = new Label("Fullscreen", skin, SUBTITLE_STYLE);
     fullScreenLabel.setFontScale(0.75f);
 
     fullScreenCheck = new CheckBox("", skin);
     fullScreenCheck.setChecked(settings.fullscreen);
 
-    Label vsyncLabel = new Label("VSync", skin, "subtitle");
+    Label vsyncLabel = new Label("VSync", skin, SUBTITLE_STYLE);
     vsyncLabel.setFontScale(0.75f);
 
     vsyncCheck = new CheckBox("", skin);
     vsyncCheck.setChecked(settings.vsync);
 
-    Label uiScaleLabel = new Label("UI Scale", skin, "subtitle");
+    Label uiScaleLabel = new Label("UI Scale", skin, SUBTITLE_STYLE);
     uiScaleLabel.setFontScale(0.75f);
 
     uiScaleSlider = new Slider(0.2f, 2f, 0.1f, false, skin);
     uiScaleSlider.setValue(settings.uiScale);
 
-    Label uiScaleValue = new Label(String.format("%.2fx", settings.uiScale), skin, "subtitle");
+    Label uiScaleValue = new Label(String.format("%.2fx", settings.uiScale), skin, SUBTITLE_STYLE);
     uiScaleValue.setFontScale(0.7f);
 
-    Label displayModeLabel = new Label("Resolution", skin, "subtitle");
+    Label displayModeLabel = new Label("Resolution", skin, SUBTITLE_STYLE);
     displayModeLabel.setFontScale(0.75f);
 
     displayModeSelect = new SelectBox<>(skin);
