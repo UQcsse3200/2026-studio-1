@@ -44,6 +44,12 @@ public class UpgradeNode {
   private float remainingSeconds = 0f;
   private int remainingKills = 0;
 
+  // True only while restore() is running its onTierChanged callback. Lets that callback (e.g.
+  // UpgradesDisplay's apply*Effect() methods) tell a silent, save-load restore apart from a fresh
+  // purchase, so it can still apply the gameplay effect while skipping anything purchase-only
+  // (the activation flash) that a restore shouldn't trigger.
+  private boolean restoring = false;
+
   // Optional gameplay hooks - kept as generic Runnables so this class stays free of any
   // dependency on player/combat-specific types. Registered by whoever builds the node (e.g.
   // UpgradesDisplay) and invoked whenever tier changes or the upgrade fully expires.
@@ -135,8 +141,21 @@ public class UpgradeNode {
   }
 
   /**
+   * @return true only while {@link #restore(int, float, int)} is running its {@code onTierChanged}
+   *     callback - lets that callback apply the gameplay effect as usual while skipping anything
+   *     that should happen on a fresh purchase only (e.g. the activation flash in {@code
+   *     UpgradesDisplay}).
+   */
+  public boolean isRestoring() {
+    return restoring;
+  }
+
+  /**
    * Restores this upgrade to a previously saved state and re-applies its effect by firing the
    * tier-changed callback. Does nothing if the saved state is not a valid active upgrade.
+   *
+   * <p>{@link #isRestoring()} is true for the duration of that callback, so it can apply the
+   * gameplay effect without also doing anything that should only happen on a fresh purchase.
    *
    * @param tier saved tier, from 1 to {@link #getMaxTier()}
    * @param seconds saved time remaining, used by TIME upgrades
@@ -158,7 +177,12 @@ public class UpgradeNode {
     remainingKills = timeBased ? 0 : kills;
 
     if (onTierChanged != null) {
-      onTierChanged.run();
+      restoring = true;
+      try {
+        onTierChanged.run();
+      } finally {
+        restoring = false;
+      }
     }
     return true;
   }
