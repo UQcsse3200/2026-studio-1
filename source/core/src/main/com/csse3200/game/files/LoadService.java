@@ -174,6 +174,15 @@ public class LoadService {
       shop.restorePurchasedPets(data.ownedPetNames);
     }
 
+    InventoryComponent inventory = player.getComponent(InventoryComponent.class);
+    if (inventory != null && data.ownedPetNames != null) {
+      for (String name : data.ownedPetNames) {
+        if (name != null && !name.isBlank()) {
+          inventory.addPet(new ShopComponent.Pet(name));
+        }
+      }
+    }
+
     if (data.activePetName != null && !data.activePetName.isBlank()) {
       PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
       if (petManager != null) {

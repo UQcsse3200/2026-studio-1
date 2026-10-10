@@ -14,7 +14,6 @@ import com.csse3200.game.components.player.ActiveBuff;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
-import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
@@ -139,13 +138,11 @@ public class PauseMenuActions extends Component {
     data.questShieldsCollected = questCounters[3];
     data.level = levelSupplier.get();
 
-    ShopComponent shop = player.getComponent(ShopComponent.class);
-    if (shop != null) {
-      data.ownedPetNames =
-          shop.getPurchasedPets().stream()
-              .map(ShopComponent.Pet::getName)
-              .collect(java.util.stream.Collectors.toList());
-    }
+    data.ownedPetNames =
+        inventory.getPetSlots().entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(entry -> entry.getValue().getName())
+            .collect(java.util.stream.Collectors.toList());
 
     PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
     if (petManager != null) {
