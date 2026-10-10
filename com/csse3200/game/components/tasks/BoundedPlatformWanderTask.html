@@ -102,6 +102,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">BoundedPlatformWanderTask</span>
 <span class="extends-implements">extends <a href="PlatformWanderTask.html" title="class in com.csse3200.game.components.tasks">PlatformWanderTask</a></span></div>
+<div class="block">A <a href="PlatformWanderTask.html" title="class in com.csse3200.game.components.tasks"><code>PlatformWanderTask</code></a> that also stays within a fixed radius of where it first started, so
+ an enemy patrols around its spawn point instead of drifting across the whole platform.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -156,10 +158,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAnchorX()" class="member-name-link">getAnchorX</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the centre of the patrol.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRadius()" class="member-name-link">getRadius</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets how far the entity may stray.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected com.badlogic.gdx.math.Vector2</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRandomPosInRange()" class="member-name-link">getRandomPosInRange</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -168,7 +174,9 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isAnchored()" class="member-name-link">isAnchored</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Whether the patrol centre has been captured yet.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start()" class="member-name-link">start</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -261,6 +269,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getRadius()">
 <h3>getRadius</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getRadius</span>()</div>
+<div class="block">Gets how far the entity may stray.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the maximum distance from the anchor, in world units</dd>
@@ -271,6 +280,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getAnchorX()">
 <h3>getAnchorX</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getAnchorX</span>()</div>
+<div class="block">Gets the centre of the patrol.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the horizontal position the radius is measured from (meaningful after the first start)</dd>
@@ -281,6 +291,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="isAnchored()">
 <h3>isAnchored</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isAnchored</span>()</div>
+<div class="block">Whether the patrol centre has been captured yet.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>true once the task has started at least once and captured its anchor</dd>

@@ -104,6 +104,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PlatformWanderTask</span>
 <span class="extends-implements">extends <a href="WanderTask.html" title="class in com.csse3200.game.components.tasks">WanderTask</a></span></div>
+<div class="block">A wander that stays on its platform: it raycasts down ahead of the entity and will not pick a
+ target past a ledge.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -139,7 +141,9 @@ loadScripts(document, 'script');</script>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.badlogic.gdx.math.Vector2,float,float)" class="member-name-link">PlatformWanderTask</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;wanderRange,
  float&nbsp;waitTime,
  float&nbsp;rayCastPositionScale)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates a wander that will not walk off a ledge.</div>
+</div>
 </div>
 </section>
 </li>
@@ -199,6 +203,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PlatformWanderTask</span><wbr><span class="parameters">(com.badlogic.gdx.math.Vector2&nbsp;wanderRange,
  float&nbsp;waitTime,
  float&nbsp;rayCastPositionScale)</span></div>
+<div class="block">Creates a wander that will not walk off a ledge.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>wanderRange</code> - Distance in X and Y the entity can move from its position when start() is

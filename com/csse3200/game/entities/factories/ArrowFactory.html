@@ -176,6 +176,15 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a player arrow that travels in a straight line and hits enemies or obstacles. Kept
  separate from <a href="#createRangedArrow(com.badlogic.gdx.math.Vector2,boolean,float,float,int,float,short)"><code>createRangedArrow(com.badlogic.gdx.math.Vector2, boolean, float, float, int, float, short)</code></a> below because player arrows route damage through the
  player's combat stats.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>position</code> - where the arrow starts, in world units</dd>
+<dd><code>direction</code> - the direction of travel; must not be the zero vector</dd>
+<dd><code>damage</code> - the damage dealt on a hit</dd>
+<dd><code>owner</code> - the entity that fired the arrow</dd>
+<dt>Returns:</dt>
+<dd>the new arrow, or null if any argument is invalid</dd>
+</dl>
 </section>
 </li>
 <li>

@@ -131,7 +131,9 @@ implements <a href="ProjectileMovementStrategy.html" title="interface in com.css
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,com.badlogic.gdx.math.Vector2)" class="member-name-link">ArcMovementStrategy</a><wbr>(float&nbsp;horizontalSpeed,
  com.badlogic.gdx.math.Vector2&nbsp;targetPosition)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates a strategy that lobs a projectile in an arc onto a point.</div>
+</div>
 </div>
 </section>
 </li>
@@ -148,10 +150,14 @@ implements <a href="ProjectileMovementStrategy.html" title="interface in com.css
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHorizontalSpeed()" class="member-name-link">getHorizontalSpeed</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the sideways speed.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.badlogic.gdx.math.Vector2</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetPosition()" class="member-name-link">getTargetPosition</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the point the arc aims at.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#start(com.csse3200.game.entities.Entity)" class="member-name-link">start</a><wbr>(<a href="../../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;projectile)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -187,6 +193,7 @@ implements <a href="ProjectileMovementStrategy.html" title="interface in com.css
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ArcMovementStrategy</span><wbr><span class="parameters">(float&nbsp;horizontalSpeed,
  com.badlogic.gdx.math.Vector2&nbsp;targetPosition)</span>
                     throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></span></div>
+<div class="block">Creates a strategy that lobs a projectile in an arc onto a point.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>horizontalSpeed</code> - sideways speed in world units per second; greater than zero and finite</dd>
@@ -237,6 +244,7 @@ implements <a href="ProjectileMovementStrategy.html" title="interface in com.css
 <section class="detail" id="getHorizontalSpeed()">
 <h3>getHorizontalSpeed</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHorizontalSpeed</span>()</div>
+<div class="block">Gets the sideways speed.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the sideways speed in world units per second</dd>
@@ -247,6 +255,7 @@ implements <a href="ProjectileMovementStrategy.html" title="interface in com.css
 <section class="detail" id="getTargetPosition()">
 <h3>getTargetPosition</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.badlogic.gdx.math.Vector2</span>&nbsp;<span class="element-name">getTargetPosition</span>()</div>
+<div class="block">Gets the point the arc aims at.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>a copy of the point the arc aims at</dd>
