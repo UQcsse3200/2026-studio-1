@@ -20,11 +20,15 @@ import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.LootFactory;
+import com.csse3200.game.perks.Perk;
+import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /** Applies saved game data to a newly created player. */
@@ -83,6 +87,34 @@ public class LoadService {
     loadUpgrades(player, data, upgrades);
     loadBuffs(player, data);
     loadDroppedLoot(data, mapWidth, mapHeight);
+  }
+
+  /**
+   * Puts back every perk's state from the save file. Called before the player is created, so
+   * components that check active perks in create() see the right ones. Older saves have no perk
+   * list and are left unchanged.
+   */
+  public static void restorePerks(List<SavedPerk> savedPerks) {
+    if (savedPerks == null) {
+      return;
+    }
+
+    Map<String, SavedPerk> savedById = new HashMap<>();
+    for (SavedPerk saved : savedPerks) {
+      if (saved != null && saved.id != null) {
+        savedById.put(saved.id, saved);
+      }
+    }
+
+    PerkService.resetAll();
+    for (Perk perk : PerkService.getAllPerks()) {
+      SavedPerk saved = savedById.get(perk.getId());
+      if (saved == null) {
+        continue;
+      }
+      boolean active = saved.active && PerkService.getActiveCount() < PerkService.MAX_ACTIVE_PERKS;
+      PerkService.restorePerk(perk.getId(), saved.progress, saved.unlocked, active);
+    }
   }
 
   private static void loadHealth(Entity player, GameSaveData data) {

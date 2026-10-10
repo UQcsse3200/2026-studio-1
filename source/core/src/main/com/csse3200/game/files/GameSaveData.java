@@ -60,4 +60,7 @@ public class GameSaveData {
 
   /** Item shop slots still in stock. Null in older saves, which means do not change the shop. */
   public List<Integer> shopItemSlots = null;
+
+  /** State of every perk. Null in older saves, which means leave the perks as they are. */
+  public List<SavedPerk> perks = null;
 }

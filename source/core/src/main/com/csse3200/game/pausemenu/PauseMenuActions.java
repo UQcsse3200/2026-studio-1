@@ -28,7 +28,10 @@ import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedBuff;
 import com.csse3200.game.files.SavedItem;
 import com.csse3200.game.files.SavedLoot;
+import com.csse3200.game.files.SavedPerk;
 import com.csse3200.game.files.SavedUpgrade;
+import com.csse3200.game.perks.Perk;
+import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
@@ -132,6 +135,16 @@ public class PauseMenuActions extends Component {
     data.killedEnemyIds = EnemyRegistry.exportAll();
     data.completedQuestsByKind = QuestLedger.exportAll();
     data.foundTortoiseIds = TortoiseLedger.exportAll();
+    data.perks = new java.util.ArrayList<>();
+    for (Perk perk : PerkService.getAllPerks()) {
+      SavedPerk savedPerk = new SavedPerk();
+      savedPerk.id = perk.getId();
+      savedPerk.progress = perk.getProgress();
+      savedPerk.unlocked = perk.isUnlocked();
+      savedPerk.active = perk.isActive();
+      data.perks.add(savedPerk);
+    }
+
     data.npcs = NpcQuestRegistry.exportAll();
     data.killedNpcIds = NpcQuestRegistry.exportKilled();
     int[] questCounters = Quest.exportCounters();
