@@ -1,7 +1,6 @@
 package com.csse3200.game.Quests;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.entities.Entity;
@@ -85,5 +84,38 @@ public class JumpQuestTest {
         () -> questGiverComponent.checkJumpQuestComplete(),
         "The questGiverComponent did not throw a NullPointerException when it "
             + "called checkJumpQuestComplete when it did not create a jump quest");
+  }
+
+  @Test
+  public void testIfJumpQuestChangesTheProgressOfQuest() {
+    Entity player = new Entity();
+    QuestGiverComponent questGiverComponent = new QuestGiverComponent(player);
+    questGiverComponent.logJumpQuest(2);
+    Quest.incrementGlobalJumps();
+    assertEquals(50, questGiverComponent.checkJumpQuestComplete());
+  }
+
+  @Test
+  public void testIfJumpQuestGivesAProgressValueOver100() {
+    Entity player = new Entity();
+    QuestGiverComponent questGiverComponent = new QuestGiverComponent(player);
+    questGiverComponent.logJumpQuest(1);
+    Quest.incrementGlobalJumps();
+    Quest.incrementGlobalJumps();
+    assertEquals(100, questGiverComponent.checkJumpQuestComplete());
+  }
+
+  @Test
+  public void checkIfGivingJumpsToDoAsZeroThrows() {
+    Entity player = new Entity();
+    QuestGiverComponent questGiverComponent = new QuestGiverComponent(player);
+    int number = 0;
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> questGiverComponent.logJumpQuest(number),
+        "When the constructor for JumpsQuest was given "
+            + number
+            + " as the"
+            + "parameter for jumpsToDo, the constructor didn't throw an exception");
   }
 }

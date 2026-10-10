@@ -3,18 +3,24 @@ package com.csse3200.game.Quests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.csse3200.game.components.QuestGiverComponent;
+import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.entities.Entity;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ShieldsCollectedQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
+  static Entity player;
+  ShieldComponent shieldComponent;
 
-  @BeforeAll
-  public static void createAQuestEntity() {
+  @BeforeEach
+  public void createAQuestEntity() {
     entity = new Entity();
-    questGiverComponent = new QuestGiverComponent(null, 0);
+    player = new Entity();
+    shieldComponent = new ShieldComponent();
+    player.addComponent(shieldComponent);
+    questGiverComponent = new QuestGiverComponent(player, 0);
     entity.addComponent(questGiverComponent);
   }
 
@@ -137,5 +143,32 @@ public class ShieldsCollectedQuestTest {
         "The questGiverComponent did not throw a NullPointerException when it "
             + "called checkShieldsCollectedQuestComplete when it did not create a"
             + "GoldSpentQuest");
+  }
+
+  @Test
+  public void testIfShieldsCollectedChangesQuestProgress() {
+    questGiverComponent.logShieldsCollectedQuest(2);
+    shieldComponent.grantShield();
+    assertEquals(50, questGiverComponent.checkShieldsCollectedQuestComplete());
+  }
+
+  @Test
+  public void testIfShieldsCollectedGiveProgressOver100() {
+    questGiverComponent.logShieldsCollectedQuest(1);
+    shieldComponent.grantShield();
+    shieldComponent.grantShield();
+    assertEquals(100, questGiverComponent.checkShieldsCollectedQuestComplete());
+  }
+
+  @Test
+  public void checkIfGivingShieldsToCollectAsZeroThrows() {
+    int number = 0;
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> questGiverComponent.logShieldsCollectedQuest(number),
+        "When the constructor for ShieldsCollectedQuest was given "
+            + number
+            + " as the "
+            + "parameter for shieldsToCollect, the constructor didn't throw an exception");
   }
 }

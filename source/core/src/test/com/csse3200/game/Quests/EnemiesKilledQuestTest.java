@@ -4,15 +4,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.entities.Entity;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class EnemiesKilledQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
 
-  @BeforeAll
-  public static void createAQuestEntity() {
+  @BeforeEach
+  public void createAQuestEntity() {
     entity = new Entity();
     questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
@@ -137,5 +137,32 @@ public class EnemiesKilledQuestTest {
         "The questGiverComponent did not throw a NullPointerException when it "
             + "called checkEnemiesKilledQuestComplete when it did not create a"
             + "EnemiesKilledQuest");
+  }
+
+  @Test
+  public void testIfEnemiesKilledQuestChangesProgress() {
+    questGiverComponent.logEnemiesKilledQuest(2);
+    Quest.incrementGlobalEnemiesKilled();
+    assertEquals(50, questGiverComponent.checkEnemiesKilledQuestComplete());
+  }
+
+  @Test
+  public void testIfEnemiesKilledQuestGivesProgressOver100() {
+    questGiverComponent.logEnemiesKilledQuest(1);
+    Quest.incrementGlobalEnemiesKilled();
+    Quest.incrementGlobalEnemiesKilled();
+    assertEquals(100, questGiverComponent.checkEnemiesKilledQuestComplete());
+  }
+
+  @Test
+  public void checkIfGivingEnemiesToKillAsZeroThrows() {
+    int number = 0;
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> questGiverComponent.logEnemiesKilledQuest(number),
+        "When the constructor for EnemiesKilledQuest was given "
+            + number
+            + " as the"
+            + "parameter for enemiesToKill, the constructor didn't throw an exception");
   }
 }
