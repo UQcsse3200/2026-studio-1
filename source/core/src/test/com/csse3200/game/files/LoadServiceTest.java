@@ -36,6 +36,7 @@ import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
@@ -488,5 +489,28 @@ class LoadServiceTest {
     apply(data);
 
     assertEquals(40, stats.getHealth(), "the rest of the save should still load");
+  }
+
+  @Test
+  void shouldRefillPetSlotsInOrder() {
+    GameSaveData data = validSave();
+    data.ownedPetNames = List.of("Dog", "Cat");
+
+    LoadService.apply(player, data, MAP_WIDTH, MAP_HEIGHT, NO_UPGRADES);
+
+    assertEquals("Dog", inventory.getPet(1).getName());
+    assertEquals("Cat", inventory.getPet(2).getName());
+  }
+
+  @Test
+  void shouldSkipBlankDuplicateAndExtraPets() {
+    GameSaveData data = validSave();
+    data.ownedPetNames = Arrays.asList("Dog", null, "", "Dog", "Cat", "Owl");
+
+    LoadService.apply(player, data, MAP_WIDTH, MAP_HEIGHT, NO_UPGRADES);
+
+    assertEquals(2, inventory.getPetSlots().size());
+    assertEquals("Dog", inventory.getPet(1).getName());
+    assertEquals("Cat", inventory.getPet(2).getName());
   }
 }
