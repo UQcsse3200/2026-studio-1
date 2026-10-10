@@ -320,9 +320,24 @@ public class ShopDisplay extends UIComponent {
     }
   }
 
-  /** Updates pricing for an individual upgrade catalog slot. */
+  /**
+   * Updates pricing for an individual upgrade catalog slot.
+   *
+   * <p>Skips the write entirely when the slot already holds this same name and price.
+   * ShopComponent.setListing() fires {@code "shopChanged"} for any listing replaced with a
+   * different object reference - and syncUpgradeCatalog() rebuilds a brand-new {@code ShopListing}
+   * every time regardless of whether anything changed - so an unconditional write here would
+   * re-trigger that event on every single sync, including ones a "shopChanged" listener itself
+   * causes. See the warning on refreshContent() for why that matters.
+   */
   private void syncUpgradeListing(ShopComponent shop, int catalogSlot, UpgradeNode node) {
     int cost = node.isMaxTier() ? 0 : node.getNextTierCost();
+    ShopComponent.ShopListing<ShopComponent.Upgrade> existing = shop.getUpgradeListing(catalogSlot);
+    if (existing != null
+        && existing.getBuyPrice() == cost
+        && existing.getProduct().getName().equals(node.getName())) {
+      return;
+    }
     shop.setUpgradeListing(
         catalogSlot,
         new ShopComponent.ShopListing<>(new ShopComponent.Upgrade(node.getName()), cost));
@@ -447,6 +462,10 @@ public class ShopDisplay extends UIComponent {
             if (tab == ShopTab.ITEMS) {
               sellMode = false;
             }
+            if (tab == ShopTab.UPGRADES) {
+              // Resync before the rebuild, not from inside refreshContent() - see its warning.
+              syncUpgradeCatalog();
+            }
             refreshContent();
           }
         });
@@ -488,6 +507,12 @@ public class ShopDisplay extends UIComponent {
       return;
     }
 
+    // IMPORTANT: refreshContent() must never trigger a catalog write. syncUpgradeCatalog() ->
+    // syncUpgradeListing() -> ShopComponent.setUpgradeListing() can fire "shopChanged" (see its
+    // no-op guard below), and ShopDisplay listens to "shopChanged" via refreshShop(), which calls
+    // this method again - sync from here and a changed listing recurses forever. Callers that
+    // need fresh Upgrade prices (switching to the tab, opening the shop, buying) resync
+    // themselves BEFORE calling this.
     hideUpgradePopup();
     contentTable.clearChildren();
 
@@ -698,6 +723,12 @@ public class ShopDisplay extends UIComponent {
       int price = listing.getBuyPrice();
       Rarity rarity = getRarityForPrice(price);
 
+      // An Upgrade card at max tier has no next-tier price (synced to 0) - show "MAX" instead of
+      // the misleading "Gold: 0" and keep the card from offering a purchase.
+      UpgradeNode cardUpgradeNode =
+          currentTab == ShopTab.UPGRADES ? findUpgradeNodeByName(name) : null;
+      boolean cardMaxTier = cardUpgradeNode != null && cardUpgradeNode.isMaxTier();
+
       addAccentStrip(card, rarity.color);
 
       if (currentTab == ShopTab.PETS) {
@@ -715,8 +746,9 @@ public class ShopDisplay extends UIComponent {
       card.add(nameLabel).growX().center();
       card.row();
 
-      Label priceLabel = new Label("Gold: " + price, whiteLabelStyle);
-      priceLabel.setColor(canAfford(price) ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR);
+      Label priceLabel = new Label(cardMaxTier ? "MAX" : "Gold: " + price, whiteLabelStyle);
+      priceLabel.setColor(
+          cardMaxTier ? TEXT_MUTED : (canAfford(price) ? GOLD_COLOR : INSUFFICIENT_FUNDS_COLOR));
       card.add(priceLabel).padTop(2f).center();
 
       card.addListener(
@@ -728,6 +760,7 @@ public class ShopDisplay extends UIComponent {
                 if (node != null) {
                   showUpgradePopup(node);
                 }
+                boolean maxTier = node != null && node.isMaxTier();
                 selectCard(
                     card,
                     upgradeDetailName(name, node),
@@ -735,7 +768,8 @@ public class ShopDisplay extends UIComponent {
                     rarity,
                     () -> attemptUpgradePurchase(catalogSlot, node),
                     "BUY",
-                    true);
+                    true,
+                    maxTier);
               } else {
                 selectCard(
                     card, name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true);
@@ -898,6 +932,22 @@ public class ShopDisplay extends UIComponent {
       Runnable action,
       String actionLabel,
       boolean requiresAffordability) {
+    selectCard(card, name, price, rarity, action, actionLabel, requiresAffordability, false);
+  }
+
+  /**
+   * Same as above, with {@code maxTier} forcing the action off regardless of gold - used for an
+   * Upgrade already at its final tier, where there's no next-tier price to pay.
+   */
+  private void selectCard(
+      Table card,
+      String name,
+      int price,
+      Rarity rarity,
+      Runnable action,
+      String actionLabel,
+      boolean requiresAffordability,
+      boolean maxTier) {
 
     // Reset previously selected card
     if (selectedCard != null) {
@@ -919,7 +969,7 @@ public class ShopDisplay extends UIComponent {
     // Attach / Position bobbing indicator arrow
     attachSelectionArrow(card);
 
-    boolean canPerformAction = !requiresAffordability || canAfford(price);
+    boolean canPerformAction = !maxTier && (!requiresAffordability || canAfford(price));
     pendingAction = canPerformAction ? action : null;
 
     detailIconBg.setColor(rarity.color);
@@ -929,8 +979,10 @@ public class ShopDisplay extends UIComponent {
     detailNameLabel.setText(name);
     detailNameLabel.setColor(TEXT_PRIMARY);
 
-    detailPriceLabel.setText("Gold: " + price);
-    if (requiresAffordability && !canPerformAction) {
+    detailPriceLabel.setText(maxTier ? "MAX" : "Gold: " + price);
+    if (maxTier) {
+      detailPriceLabel.setColor(TEXT_MUTED);
+    } else if (requiresAffordability && !canPerformAction) {
       detailPriceLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
     } else {
       detailPriceLabel.setColor(GOLD_COLOR);
@@ -997,13 +1049,22 @@ public class ShopDisplay extends UIComponent {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
     if (shop == null) return;
 
+    // No node to upgrade, or it's already at max tier (next-tier cost is undefined) - bail before
+    // spending any gold or showing the purchase toast.
+    if (node == null || node.isMaxTier()) {
+      return;
+    }
+
+    // The catalog listing's price can be stale (e.g. the upgrade expired, or a save restored it,
+    // since neither resyncs the listing on its own) - resync it right before charging so the
+    // price taken is always the live one.
+    syncUpgradeListing(shop, catalogSlot, node);
+
     boolean purchased = shop.buyUpgrade(catalogSlot);
     if (purchased) {
-      if (node != null) {
-        node.purchaseNextTier();
-        syncUpgradeListing(shop, catalogSlot, node);
-        showPurchaseToast(node);
-      }
+      node.purchaseNextTier();
+      syncUpgradeListing(shop, catalogSlot, node);
+      showPurchaseToast(node);
       refreshContent();
     }
   }
@@ -1192,6 +1253,9 @@ public class ShopDisplay extends UIComponent {
     currentTab = ShopTab.ITEMS;
     sellMode = false;
 
+    // refreshContent() never syncs on its own (see its warning) - resync here so a reopened shop
+    // never shows an Upgrades card that went stale while it was closed.
+    syncUpgradeCatalog();
     refreshContent();
     positionShop();
 
