@@ -22,7 +22,7 @@ public class EnemiesKilledQuestTest {
   public void createAQuestEntity() {
     entity = new Entity();
     player = new Entity();
-    weapon = (new WeaponGenerator()).generateWeapon(WeaponType.SWORD,1);
+    weapon = (new WeaponGenerator()).generateWeapon(WeaponType.SWORD, 1);
     inventoryComponent = new InventoryComponent(0);
     player.addComponent(inventoryComponent);
     questGiverComponent = new QuestGiverComponent(player, 0);
@@ -176,24 +176,27 @@ public class EnemiesKilledQuestTest {
             + " as the"
             + "parameter for enemiesToKill, the constructor didn't throw an exception");
   }
+
   @Test
-  public void testIfGoldRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared(){
+  public void testIfGoldRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared() {
     questGiverComponent.setGoldToGive(10);
     questGiverComponent.logEnemiesKilledQuest(1);
     Quest.incrementGlobalEnemiesKilled();
     questGiverComponent.clearEnemiesKilledQuest();
-    assertEquals(10,inventoryComponent.getGold());
+    assertEquals(10, inventoryComponent.getGold());
   }
+
   @Test
-  public void testIfItemRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared(){
+  public void testIfItemRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared() {
     questGiverComponent.setItemToGive(weapon);
     questGiverComponent.logEnemiesKilledQuest(1);
     Quest.incrementGlobalEnemiesKilled();
     questGiverComponent.clearEnemiesKilledQuest();
     assertEquals(weapon, inventoryComponent.getItem(1));
   }
+
   @Test
-  public void testIfRewardIsNotGivenIfEnemiesKilledQuestIsNotCompletedAndCleared(){
+  public void testIfRewardIsNotGivenIfEnemiesKilledQuestIsNotCompletedAndCleared() {
     int goldToGive = 10;
     questGiverComponent.setGoldToGive(goldToGive);
     questGiverComponent.setItemToGive(weapon);

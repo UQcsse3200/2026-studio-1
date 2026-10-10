@@ -178,8 +178,9 @@ public class ShieldsCollectedQuestTest {
             + " as the "
             + "parameter for shieldsToCollect, the constructor didn't throw an exception");
   }
+
   @Test
-  public void testIfGoldRewardIsGivenIfShieldQuestCompletedAndCleared(){
+  public void testIfGoldRewardIsGivenIfShieldQuestCompletedAndCleared() {
     int goldToGive = 10;
     questGiverComponent.setGoldToGive(goldToGive);
     questGiverComponent.logShieldsCollectedQuest(1);
@@ -187,26 +188,28 @@ public class ShieldsCollectedQuestTest {
     questGiverComponent.clearShieldsCollectedQuest();
     assertEquals(goldToGive, inventoryComponent.getGold());
   }
+
   @Test
-  public void testIfItemRewardIsGivenIfShieldQuestCompletedAndCleared(){
+  public void testIfItemRewardIsGivenIfShieldQuestCompletedAndCleared() {
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD,1);
+    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
     questGiverComponent.setItemToGive(weapon);
     questGiverComponent.logShieldsCollectedQuest(1);
     shieldComponent.grantShield();
     questGiverComponent.clearShieldsCollectedQuest();
     assertEquals(inventoryComponent.getItem(1), weapon);
   }
+
   @Test
-  public void testIfRewardIsNotGivenIfShieldQuestIsNotCompletedAndCleared(){
+  public void testIfRewardIsNotGivenIfShieldQuestIsNotCompletedAndCleared() {
     int goldToGive = 10;
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD,1);
+    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
     questGiverComponent.setGoldToGive(goldToGive);
     questGiverComponent.setItemToGive(weapon);
     questGiverComponent.logShieldsCollectedQuest(1);
     questGiverComponent.clearShieldsCollectedQuest();
-    assertEquals(0,inventoryComponent.getGold());
+    assertEquals(0, inventoryComponent.getGold());
     assertNull(inventoryComponent.getItem(1));
   }
 }

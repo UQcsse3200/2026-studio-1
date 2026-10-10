@@ -16,15 +16,17 @@ public class JumpQuestTest {
   static QuestGiverComponent questGiverComponent;
   static InventoryComponent inventoryComponent;
   static Item weapon;
+
   @BeforeEach
-  public void initalizePlayerAndQuestGiver(){
+  public void initalizePlayerAndQuestGiver() {
     WeaponGenerator weaponGenerator = new WeaponGenerator();
-    weapon = weaponGenerator.generateWeapon(WeaponType.SWORD,1);
+    weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
     inventoryComponent = new InventoryComponent(0);
     player = new Entity();
     player.addComponent(inventoryComponent);
     questGiverComponent = new QuestGiverComponent(player);
   }
+
   @Test
   public void testIfCompletingAJumpQuestWorks() {
     Entity entity = new Entity();
@@ -130,25 +132,28 @@ public class JumpQuestTest {
             + " as the"
             + "parameter for jumpsToDo, the constructor didn't throw an exception");
   }
+
   @Test
-  public void testIfGoldRewardIsGivenIfJumpQuestCompletedAndCleared(){
-    int goldToGive= 10;
+  public void testIfGoldRewardIsGivenIfJumpQuestCompletedAndCleared() {
+    int goldToGive = 10;
     questGiverComponent.setGoldToGive(goldToGive);
     questGiverComponent.logJumpQuest(1);
     Quest.incrementGlobalJumps();
     questGiverComponent.clearJumpQuest();
-    assertEquals(goldToGive,inventoryComponent.getGold());
+    assertEquals(goldToGive, inventoryComponent.getGold());
   }
+
   @Test
-  public void testIfItemRewardIsGivenIfJumpQuestCompletedAndCleared(){
+  public void testIfItemRewardIsGivenIfJumpQuestCompletedAndCleared() {
     questGiverComponent.setItemToGive(weapon);
     questGiverComponent.logJumpQuest(1);
     Quest.incrementGlobalJumps();
     questGiverComponent.clearJumpQuest();
     assertEquals(weapon, inventoryComponent.getItem(1));
   }
+
   @Test
-  public void testIfRewardIsNotGivenIfJumpQuestIsNotCompletedAndCleared(){
+  public void testIfRewardIsNotGivenIfJumpQuestIsNotCompletedAndCleared() {
     int goldToGive = 10;
     questGiverComponent.setItemToGive(weapon);
     questGiverComponent.setGoldToGive(goldToGive);
