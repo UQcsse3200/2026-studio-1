@@ -266,12 +266,6 @@ class ShopDisplayUpgradePriceTest {
   }
 
   /**
-   * Direct unit test of the no-op guard added to {@code syncUpgradeListing()}: re-syncing a slot
-   * that already holds the same upgrade name and price must not write, and therefore must not fire
-   * {@code "shopChanged"} - that unconditional write (regardless of whether anything changed) was
-   * what made the recursion in the test above possible in the first place.
-   */
-  /**
    * Covers the three branches extracted from the nested ternary this fixes (java:S3358): max-tier
    * wins regardless of gold, then affordable vs. not - against the real InventoryComponent(1000)
    * from beforeEach().
@@ -284,6 +278,12 @@ class ShopDisplayUpgradePriceTest {
     assertEquals(colorConstant("INSUFFICIENT_FUNDS_COLOR"), priceColor(false, 1_000_000));
   }
 
+  /**
+   * Direct unit test of the no-op guard added to {@code syncUpgradeListing()}: re-syncing a slot
+   * that already holds the same upgrade name and price must not write, and therefore must not fire
+   * {@code "shopChanged"} - that unconditional write (regardless of whether anything changed) was
+   * what made the recursion in the test above possible in the first place.
+   */
   @Test
   void syncUpgradeListingDoesNotFireShopChangedWhenNameAndPriceAreUnchanged() throws Exception {
     UpgradeNode node = firstUpgrade(); // already synced to slot 1 by setUpgradesDisplay()
