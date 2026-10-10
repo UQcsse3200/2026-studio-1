@@ -71,6 +71,10 @@ public class RangedAttackComponent extends Component {
   private float damage;
   private WeaponItem weapon;
   private float windupDuration;
+  // Difficulty damage multiplier, set by DifficultyScaler at spawn - see
+  // getDamageMultiplier()/setDamageMultiplier(float). 1f (no change) for anything not scaled,
+  // e.g. the player's own bow.
+  private float damageMultiplier = 1f;
   // Ticks (about 60/second) a LIGHTNING hit freezes its target for - only meaningful for that
   // projectile type; see getLightningFreezeTicks()/setLightningFreezeTicks(). Defaults to 120 to
   // match this class's previous hardcoded behaviour for any shooter that doesn't configure it.
@@ -275,16 +279,46 @@ public class RangedAttackComponent extends Component {
 
   /**
    * Returns the damage for this attack, either the configured base attack from the config file or
-   * the equipped weapon's damage. The only stat this component reads from the weapon: range and
-   * knockback are this wielder's own properties, not the weapon's.
+   * the equipped weapon's damage scaled by the difficulty damage multiplier. The only stat this
+   * component reads from the weapon: range and knockback are this wielder's own properties, not the
+   * weapon's.
    *
-   * @return the equipped weapon's damage, sourced from {@code weapon.getDamage()}
+   * <p>The no-weapon path reads {@code combatStats.getBaseAttack()}, which {@link
+   * com.csse3200.game.difficulty.DifficultyScaler} already scales directly - applying {@link
+   * #damageMultiplier} there too would double-scale it, so only the weapon path applies it.
+   *
+   * @return the equipped weapon's damage multiplied by the difficulty damage multiplier, rounded
+   *     and floored at {@code 1}; or the (already-scaled) base attack if there is no weapon
    */
   public int getDamage() {
     if (this.weapon == null) {
       return this.combatStats.getBaseAttack();
     }
-    return this.weapon.getDamage();
+    return Math.max(1, Math.round(this.weapon.getDamage() * damageMultiplier));
+  }
+
+  /**
+   * Returns the difficulty damage multiplier applied to this ranged attacker's damage.
+   *
+   * @return damage multiplier; {@code 1f} by default (no change)
+   */
+  public float getDamageMultiplier() {
+    return this.damageMultiplier;
+  }
+
+  /**
+   * Updates the difficulty damage multiplier applied to this ranged attacker's damage. Set by
+   * {@link com.csse3200.game.difficulty.DifficultyScaler} at spawn - not intended to be called
+   * directly by gameplay code.
+   *
+   * @param damageMultiplier new multiplier value
+   * @throws IllegalArgumentException if {@code damageMultiplier} is zero or negative
+   */
+  public void setDamageMultiplier(float damageMultiplier) {
+    if (damageMultiplier <= 0) {
+      throw new IllegalArgumentException("Damage multiplier must be greater than zero.");
+    }
+    this.damageMultiplier = damageMultiplier;
   }
 
   /**

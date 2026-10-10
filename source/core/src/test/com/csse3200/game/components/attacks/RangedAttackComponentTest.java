@@ -275,6 +275,85 @@ class RangedAttackComponentTest {
             + "attack.");
   }
 
+  // --- damageMultiplier (DifficultyScaler) ---
+
+  @Test
+  void shouldDefaultDamageMultiplierTo1f() {
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
+    assertEquals(1f, ranged.getDamageMultiplier());
+  }
+
+  @Test
+  void shouldRejectNonPositiveDamageMultiplier() {
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2.5f, 1f, createInstantWeapon());
+    assertThrows(IllegalArgumentException.class, () -> ranged.setDamageMultiplier(0f));
+    assertThrows(IllegalArgumentException.class, () -> ranged.setDamageMultiplier(-1f));
+  }
+
+  @Test
+  void getDamageScalesWeaponDamageByTheMultiplierRoundedToNearestInt() {
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2f, 0f, createWeapon(10));
+
+    ranged.setDamageMultiplier(1.5f);
+    assertEquals(15, ranged.getDamage()); // round(10 * 1.5) = 15
+
+    ranged.setDamageMultiplier(0.8f);
+    assertEquals(8, ranged.getDamage()); // round(10 * 0.8) = 8
+  }
+
+  @Test
+  void getDamageFloorsAtOneEvenWhenTheScaledValueWouldRoundToZero() {
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2f, 0f, createWeapon(1));
+    ranged.setDamageMultiplier(0.3f); // round(1 * 0.3) = 0 without the floor
+
+    assertEquals(1, ranged.getDamage());
+  }
+
+  @Test
+  void noWeaponDamageIgnoresTheMultiplierEntirelySoItIsNotDoubleScaled() {
+    // The no-weapon path reads combatStats.getBaseAttack(), which DifficultyScaler already scales
+    // directly - applying damageMultiplier here too would scale it a second time.
+    RangedAttackComponent ranged = new RangedAttackComponent(6f, 2f, 0f);
+    Entity attacker =
+        new Entity().addComponent(ranged).addComponent(new CombatStatsComponent(20, 7));
+    attacker.create();
+
+    ranged.setDamageMultiplier(2f); // deliberately drastic - must have zero effect here
+
+    assertEquals(7, ranged.getDamage());
+  }
+
+  @Test
+  void firedUnaimedArrowDamageReflectsTheMultiplier() {
+    RangedAttackComponent rangedComponent = new RangedAttackComponent(6f, 2f, 0f, createWeapon(10));
+    rangedComponent.setDamageMultiplier(1.5f);
+
+    Entity arrow = fireAndCapture(ProjectileType.ARROW, rangedComponent);
+
+    assertEquals(15, arrow.getComponent(CombatStatsComponent.class).getBaseAttack());
+  }
+
+  @Test
+  void firedAimedArrowDamageReflectsTheMultiplier() {
+    RangedAttackComponent rangedComponent = new RangedAttackComponent(6f, 2f, 0f, createWeapon(10));
+    rangedComponent.setAimed(true);
+    rangedComponent.setDamageMultiplier(1.5f);
+
+    Entity arrow = fireAndCapture(ProjectileType.ARROW, rangedComponent);
+
+    assertEquals(15, arrow.getComponent(CombatStatsComponent.class).getBaseAttack());
+  }
+
+  @Test
+  void firedLightningDamageReflectsTheMultiplier() {
+    RangedAttackComponent rangedComponent = new RangedAttackComponent(6f, 2f, 0f, createWeapon(10));
+    rangedComponent.setDamageMultiplier(1.5f);
+
+    Entity bolt = fireAndCapture(ProjectileType.LIGHTNING, rangedComponent);
+
+    assertEquals(15, bolt.getComponent(CombatStatsComponent.class).getBaseAttack());
+  }
+
   @Test
   void shouldDefaultLightningFreezeTicksTo120() {
     // Matches this class's own previous hardcoded value (freezeTicks=120), so an attacker that
