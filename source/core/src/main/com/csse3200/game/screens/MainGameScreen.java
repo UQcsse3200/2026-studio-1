@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.LevelView;
@@ -36,6 +37,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
 import com.csse3200.game.files.SaveService;
@@ -68,6 +70,10 @@ import com.csse3200.game.ui.terminal.commands.WinCommand;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
+import com.csse3200.game.win.QuestLedger;
+import com.csse3200.game.win.TortoiseLedger;
+import com.csse3200.game.win.WinCountdown;
+import com.csse3200.game.win.WinEvaluator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -105,6 +111,12 @@ public class MainGameScreen extends ScreenAdapter {
   private static final float GAMEPLAY_ZOOM = 0.95f;
   private static final float NOCLIP_VERTICAL_SPEED = 7f;
 
+  /** How long the game waits after the final boss falls before showing the win screen. */
+  private static final float WIN_SCREEN_DELAY = 2.5f;
+
+  /** How many tortoises are hidden across the maps; one is placed so far, in Level 1. */
+  private static final int TORTOISES_HIDDEN = 1;
+
   private final GdxGame game;
 
   private final Renderer renderer;
@@ -118,6 +130,7 @@ public class MainGameScreen extends ScreenAdapter {
   private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
   private boolean afterDeathCutsceneShown = false;
+  private final WinCountdown winCountdown = new WinCountdown(WIN_SCREEN_DELAY);
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
@@ -165,6 +178,14 @@ public class MainGameScreen extends ScreenAdapter {
 
       LootRegistry.loadFrom(saveData.collectedLootIds);
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
+      QuestLedger.loadFrom(saveData.completedQuestsByKind);
+      TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
+      NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
+      Quest.restoreCounters(
+          saveData.questJumps,
+          saveData.questEnemiesKilled,
+          saveData.questGoldSpent,
+          saveData.questShieldsCollected);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
       Difficulty savedDifficulty = Difficulty.NORMAL;
@@ -185,6 +206,9 @@ public class MainGameScreen extends ScreenAdapter {
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
       EnemyRegistry.loadFrom(new ArrayList<>());
+      QuestLedger.reset();
+      TortoiseLedger.reset();
+      NpcQuestRegistry.reset();
 
       if (loadsave) {
         DifficultyService.setCurrent(Difficulty.NORMAL);
@@ -193,6 +217,7 @@ public class MainGameScreen extends ScreenAdapter {
       PerkService.resetAll();
       TortoiseFactory.resetAll();
     }
+    TortoiseLedger.setTotal(TORTOISES_HIDDEN);
 
     currentRoomMapPath = initialRoomMap;
 
@@ -479,10 +504,11 @@ public class MainGameScreen extends ScreenAdapter {
       ServiceLocator.getEntityService().update();
       if (!noclipEnabled) {
         levelGameArea.recoverPlayerIfOutOfBounds();
+        updatePendingWin();
       }
     }
 
-    if (levelGameArea.isPlayerDead()) {
+    if (levelGameArea.isPlayerDead() && !levelGameArea.isFinalBossDefeated()) {
       if (!afterDeathCutsceneShown) {
         afterDeathCutsceneShown = true;
 
@@ -518,26 +544,18 @@ public class MainGameScreen extends ScreenAdapter {
     renderer.render();
   }
 
-  // TODO (win system):
-  //   add a constant WIN_SCREEN_DELAY of 2.5 seconds and a field winCountdown, a new
-  //     WinCountdown(WIN_SCREEN_DELAY)
-  //   constructor: when loading a save, call QuestLedger.loadFrom(saveData.completedQuestsByKind)
-  //     and TortoiseLedger.loadFrom(saveData.foundTortoiseIds); for a new game, reset both ledgers
-  //   render(): call updatePendingWin() inside the "not paused" block, after
-  //     recoverPlayerIfOutOfBounds, and only treat the player as dead while the area's final boss
-  //     is NOT defeated
-
   /**
    * Shows the win screen a short while after the final boss falls. The wait lives in the screen,
    * not on the boss, because the boss entity is disposed as soon as it dies.
    */
   private void updatePendingWin() {
-    // BEGIN updatePendingWin
-    //   IF the win screen is already visible THEN stop
-    //   delta <- the time source's frame time
-    //   IF winCountdown.update(levelGameArea.isFinalBossDefeated(), delta) THEN
-    //     winScreenDisplay.showWinScreen(WinEvaluator.evaluateNow(true))
-    // END updatePendingWin
+    if (winScreenDisplay.isVisible()) {
+      return;
+    }
+    float delta = ServiceLocator.getTimeSource().getDeltaTime();
+    if (winCountdown.update(levelGameArea.isFinalBossDefeated(), delta)) {
+      winScreenDisplay.showWinScreen(WinEvaluator.evaluateNow(true));
+    }
   }
 
   private void transitionTo(RoomTransition transition) {

@@ -180,4 +180,26 @@ public class DialogueComponent extends Component {
     }
     this.amountXToDo = amountXToDo;
   }
+
+  /** Save/load: returns the quest step this NPC is on. */
+  public String getQuestState() {
+    return currentState.name();
+  }
+
+  /** Save/load: puts this NPC back on a saved quest step. Unknown names are ignored. */
+  public void restoreQuestState(String stateName) {
+    if (stateName == null) {
+      return;
+    }
+    try {
+      currentState = state.valueOf(stateName);
+    } catch (IllegalArgumentException e) {
+      logger.warn("Ignoring unknown saved quest state {}", stateName);
+    }
+  }
+
+  /** Save/load: returns the type of quest this NPC gives out. */
+  public String getQuestType() {
+    return questType;
+  }
 }

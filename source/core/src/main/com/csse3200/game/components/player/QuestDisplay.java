@@ -9,6 +9,7 @@ import com.csse3200.game.Quests.JumpQuest;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.ui.UIComponent;
+import com.csse3200.game.win.QuestLedger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,7 @@ public class QuestDisplay extends UIComponent {
     enemiesKilledQuestsToDisplay = Quest.getEnemiesKilledQuests();
     goldSpentQuestsToDisplay = Quest.getGoldSpentQuests();
     shieldsCollectedQuestsToDisplay = Quest.getShieldsCollectedQuests();
+    restoreCompletedFromLedger();
 
     addActors();
 
@@ -228,6 +230,25 @@ public class QuestDisplay extends UIComponent {
 
     if (rootTable != null) {
       rootTable.remove();
+    }
+  }
+
+  /**
+   * Save/load: lists the quests already turned in, so the Completed section is not empty after a
+   * load or a revive. The entries only feed the "✓" labels and are never checked for progress.
+   */
+  private void restoreCompletedFromLedger() {
+    for (int i = 0; i < QuestLedger.getCompleted(QuestLedger.JUMP); i++) {
+      completedJumpQuests.add(new JumpQuest(1));
+    }
+    for (int i = 0; i < QuestLedger.getCompleted(QuestLedger.ENEMIES_KILLED); i++) {
+      completedEnemiesKilledQuest.add(new EnemiesKilledQuest(1));
+    }
+    for (int i = 0; i < QuestLedger.getCompleted(QuestLedger.GOLD_SPENT); i++) {
+      completedGoldSpentQuest.add(new GoldSpentQuest(1));
+    }
+    for (int i = 0; i < QuestLedger.getCompleted(QuestLedger.SHIELDS_COLLECTED); i++) {
+      completedShieldsCollectedQuest.add(new ShieldsCollectedQuest(1));
     }
   }
 }

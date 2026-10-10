@@ -1,5 +1,6 @@
 package com.csse3200.game.pausemenu;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -19,6 +20,7 @@ import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedBuff;
@@ -28,6 +30,8 @@ import com.csse3200.game.files.SavedUpgrade;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
+import com.csse3200.game.win.QuestLedger;
+import com.csse3200.game.win.TortoiseLedger;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -124,8 +128,15 @@ public class PauseMenuActions extends Component {
     data.lootSeedsByRoom = lootSeedsSupplier.get();
     data.collectedLootIds = LootRegistry.exportAll();
     data.killedEnemyIds = EnemyRegistry.exportAll();
-    // TODO (win system): also save QuestLedger.exportAll() into completedQuestsByKind and
-    //   TortoiseLedger.exportAll() into foundTortoiseIds.
+    data.completedQuestsByKind = QuestLedger.exportAll();
+    data.foundTortoiseIds = TortoiseLedger.exportAll();
+    data.npcs = NpcQuestRegistry.exportAll();
+    data.killedNpcIds = NpcQuestRegistry.exportKilled();
+    int[] questCounters = Quest.exportCounters();
+    data.questJumps = questCounters[0];
+    data.questEnemiesKilled = questCounters[1];
+    data.questGoldSpent = questCounters[2];
+    data.questShieldsCollected = questCounters[3];
     data.level = levelSupplier.get();
 
     ShopComponent shop = player.getComponent(ShopComponent.class);
