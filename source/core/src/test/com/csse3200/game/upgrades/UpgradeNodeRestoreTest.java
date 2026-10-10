@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,5 +114,52 @@ class UpgradeNodeRestoreTest {
 
     killNode.onEnemyKilled();
     assertFalse(killNode.isActive());
+  }
+
+  // --- isRestoring() - lets the onTierChanged callback (e.g. UpgradesDisplay's apply*Effect()
+  // methods) tell a silent restore apart from a fresh purchase, so it can skip anything
+  // purchase-only (the activation flash) while still applying the gameplay effect as usual. ---
+
+  @Test
+  void isRestoringIsFalseBeforeAnyRestoreOrPurchase() {
+    assertFalse(timeNode.isRestoring());
+  }
+
+  @Test
+  void isRestoringIsTrueOnlyWhileRestoresOnTierChangedCallbackIsRunning() {
+    AtomicBoolean restoringDuringCallback = new AtomicBoolean();
+    timeNode.setOnTierChanged(() -> restoringDuringCallback.set(timeNode.isRestoring()));
+
+    timeNode.restore(1, 5f, 0);
+
+    assertTrue(restoringDuringCallback.get()); // true while the callback itself was running
+    assertFalse(timeNode.isRestoring()); // false again immediately after restore() returns
+  }
+
+  @Test
+  void isRestoringStaysFalseThroughoutANormalPurchase() {
+    AtomicBoolean restoringDuringCallback = new AtomicBoolean(true); // start true - must flip
+    timeNode.setOnTierChanged(() -> restoringDuringCallback.set(timeNode.isRestoring()));
+
+    timeNode.purchaseNextTier();
+
+    assertFalse(restoringDuringCallback.get());
+    assertFalse(timeNode.isRestoring());
+  }
+
+  @Test
+  void isRestoringIsClearedEvenIfTheCallbackThrows() {
+    timeNode.setOnTierChanged(
+        () -> {
+          throw new RuntimeException("effect callback blew up");
+        });
+
+    try {
+      timeNode.restore(1, 5f, 0);
+    } catch (RuntimeException expected) {
+      // ignored - only the flag's post-throw state matters here
+    }
+
+    assertFalse(timeNode.isRestoring()); // the try/finally must still have cleared it
   }
 }

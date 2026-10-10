@@ -1,5 +1,6 @@
 package com.csse3200.game.upgrades;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -334,6 +335,21 @@ class UpgradesDisplayTest {
     assertEquals(0, stats.getShieldHits()); // reset to 0, not left at the 2 that were unused
   }
 
+  @Test
+  void shieldExpiryWithNoPlayerSetDoesNotThrow() throws Exception {
+    // Regression test for the null-check fix in removeShieldEffect(): no display.setPlayer()
+    // call at all here, so applyShieldEffect()'s flash/shield-hit effect no-ops (player is still
+    // null), same as theFirstSetPlayerCallAtGameStartClearsNothing() - but the node itself still
+    // becomes active regardless, and still expires normally via tickTime(). removeShieldEffect()
+    // used to call player.getComponent(...) directly and throw an NPE the moment that happened.
+    UpgradeNode shield = getDefenceUpgrades().get(0); // "shield_durability"
+    shield.purchaseNextTier(); // Tier 1: 20s, 3 shield hits (never applied - no player yet)
+
+    assertDoesNotThrow(() -> shield.tickTime(21f)); // more than enough to fully expire
+
+    assertEquals(0, shield.getCurrentTier());
+  }
+
   // --- Regen on Kill (defenceUpgrades.get(1), "regen_on_kill") ---
   //
   // TIME-based like Shield Durability, but its effect fires from onEnemyKilled() rather than from
@@ -495,6 +511,32 @@ class UpgradesDisplayTest {
     assertEquals(5, fired.size());
   }
 
+  /**
+   * Regression test: UpgradeNode.restore() (used to silently reapply a saved upgrade on load) used
+   * to fire the same tier-changed callback as a fresh purchase, including the "upgradeActivated"
+   * flash - popping the activation flash for every active upgrade the instant a save loaded. The
+   * gameplay effect must still apply either way; only the flash differs.
+   */
+  @Test
+  void restoringAnUpgradeAppliesItsEffectButDoesNotFireUpgradeActivated() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+
+    List<Object> fired = new ArrayList<>();
+    player.getEvents().addListener("upgradeActivated", () -> fired.add(new Object()));
+
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    swordDamage.restore(1, 0f, 2); // as if loaded from a save: Tier 1, 2 kills remaining
+
+    assertEquals(15, stats.getBaseAttack()); // effect still applied: base 10 + Tier 1's +5
+    assertEquals(0, fired.size()); // but no activation flash for a silent restore
+
+    swordDamage.purchaseNextTier(); // Tier 2 - a REAL purchase this time
+
+    assertEquals(1, fired.size()); // normal purchases still fire the flash as before
+  }
+
   // --- clearAllUpgrades() wiring via setPlayer() ---
   //
   // Regression tests for the revive bug: MainGameScreen.revivePlayer() creates a brand-new player
@@ -585,6 +627,25 @@ class UpgradesDisplayTest {
 
     assertEquals(1, swordDamage.getCurrentTier());
     assertEquals(15, player.getComponent(CombatStatsComponent.class).getBaseAttack());
+  }
+
+  @Test
+  void settingTheSamePlayerTwiceStillCountsOneKillAsOne() throws Exception {
+    // Regression test: setPlayer() used to add an "enemyKilled" listener unconditionally, even
+    // when newPlayer was the SAME entity already set - so calling it twice with the same entity
+    // left two listeners pointing at onEnemyKilled(), and a single real kill fired it twice,
+    // double-counting against every kill-count upgrade. The Javadoc already promised the same
+    // entity is a true no-op; now it actually is one.
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    display.setPlayer(player); // same entity again - must add no second listener
+
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    swordDamage.purchaseNextTier(); // Tier 1: 2 kills remaining
+
+    killEnemies(player, 1); // exactly one real "enemyKilled" trigger
+
+    assertEquals("1 kills left", swordDamage.getRemainingText()); // dropped by exactly 1, not 2
   }
 
   @Test
