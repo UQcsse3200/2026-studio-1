@@ -34,7 +34,6 @@ public class Tutorial extends UIComponent {
     rootTable.align(Align.top);
     rootTable.padTop(480f);
 
-
     Table tutorialTable = new Table();
     tutorialTable.setBackground(skin.getDrawable("window"));
     tutorialTable.pad(20f);

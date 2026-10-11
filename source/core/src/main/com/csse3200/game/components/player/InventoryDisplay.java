@@ -384,7 +384,6 @@ public class InventoryDisplay extends UIComponent {
     hudTable.setPosition(x, y);
   }
 
-
   private void positionGold() {
     float screenWidth = stage.getViewport().getWorldWidth();
     float screenHeight = stage.getViewport().getWorldHeight();
@@ -394,8 +393,6 @@ public class InventoryDisplay extends UIComponent {
 
     goldTable.setPosition(x, y);
   }
-
-
 
   public float getHudX() {
     return hudTable == null ? 0f : hudTable.getX();
