@@ -41,6 +41,8 @@ public class ArcMovementStrategy implements ProjectileMovementStrategy {
   private final Vector2 targetPosition;
 
   /**
+   * Creates a strategy that lobs a projectile in an arc onto a point.
+   *
    * @param horizontalSpeed sideways speed in world units per second; greater than zero and finite
    * @param targetPosition the point to reach; not null, not non-finite; a copy is stored
    * @throws IllegalArgumentException if either argument is invalid
@@ -119,6 +121,8 @@ public class ArcMovementStrategy implements ProjectileMovementStrategy {
   }
 
   /**
+   * Gets the sideways speed.
+   *
    * @return the sideways speed in world units per second
    */
   public float getHorizontalSpeed() {
@@ -126,6 +130,8 @@ public class ArcMovementStrategy implements ProjectileMovementStrategy {
   }
 
   /**
+   * Gets the point the arc aims at.
+   *
    * @return a copy of the point the arc aims at
    */
   public Vector2 getTargetPosition() {

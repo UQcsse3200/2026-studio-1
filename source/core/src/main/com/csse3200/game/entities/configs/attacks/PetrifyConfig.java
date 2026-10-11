@@ -7,6 +7,6 @@ package com.csse3200.game.entities.configs.attacks;
  * that, this class only holds the number.
  */
 public class PetrifyConfig {
-  /* Seconds the player stays petrified per application. */
+  /** Seconds the player stays petrified per application. */
   public float duration = 3.0f;
 }

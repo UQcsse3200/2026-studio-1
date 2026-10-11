@@ -9,6 +9,10 @@ import com.csse3200.game.physics.raycast.RaycastHit;
 import com.csse3200.game.rendering.DebugRenderer;
 import com.csse3200.game.services.ServiceLocator;
 
+/**
+ * A wander that stays on its platform: it raycasts down ahead of the entity and will not pick a
+ * target past a ledge.
+ */
 public class PlatformWanderTask extends WanderTask {
   private final PhysicsEngine physics;
   private final DebugRenderer debugRenderer;
@@ -17,6 +21,8 @@ public class PlatformWanderTask extends WanderTask {
   private final RaycastHit rightFloorHit = new RaycastHit();
 
   /**
+   * Creates a wander that will not walk off a ledge.
+   *
    * @param wanderRange Distance in X and Y the entity can move from its position when start() is
    *     called.
    * @param waitTime How long in seconds to wait between wandering.

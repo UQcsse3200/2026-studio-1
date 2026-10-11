@@ -26,6 +26,8 @@ public class BossDefeatedWinComponent extends Component {
   private boolean announced;
 
   /**
+   * Creates a component that reports this entity's death to the player.
+   *
    * @param player the entity to announce on; not null
    * @throws IllegalArgumentException if the player is null
    */
@@ -53,6 +55,8 @@ public class BossDefeatedWinComponent extends Component {
   }
 
   /**
+   * Whether the death has been announced yet.
+   *
    * @return true once the death has been announced
    */
   public boolean hasAnnounced() {

@@ -20,6 +20,12 @@ public class ArrowFactory {
    * Creates a player arrow that travels in a straight line and hits enemies or obstacles. Kept
    * separate from {@link #createRangedArrow} below because player arrows route damage through the
    * player's combat stats.
+   *
+   * @param position where the arrow starts, in world units
+   * @param direction the direction of travel; must not be the zero vector
+   * @param damage the damage dealt on a hit
+   * @param owner the entity that fired the arrow
+   * @return the new arrow, or null if any argument is invalid
    */
   public static Entity createArrow(Vector2 position, Vector2 direction, int damage, Entity owner) {
     if (position == null || direction == null || direction.isZero() || owner == null) {
