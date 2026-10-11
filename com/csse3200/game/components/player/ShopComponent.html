@@ -314,7 +314,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sellItem(int)" class="member-name-link">sellItem</a><wbr>(int&nbsp;playerSlot)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Sells the entire stack in a player inventory slot and refunds <a href="#getSellPrice(com.csse3200.game.components.loot.Item)"><code>getSellPrice(Item)</code></a>.</div>
+<div class="block">Sells one unit from the stack in a player inventory slot and refunds <a href="#getSellPrice(com.csse3200.game.components.loot.Item)"><code>getSellPrice(Item)</code></a> once.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setItemListing(int,com.csse3200.game.components.player.ShopComponent.ShopListing)" class="member-name-link">setItemListing</a><wbr>(int&nbsp;slot,
@@ -724,14 +724,15 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="sellItem(int)">
 <h3>sellItem</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">sellItem</span><wbr><span class="parameters">(int&nbsp;playerSlot)</span></div>
-<div class="block">Sells the entire stack in a player inventory slot and refunds <a href="#getSellPrice(com.csse3200.game.components.loot.Item)"><code>getSellPrice(Item)</code></a>.
+<div class="block">Sells one unit from the stack in a player inventory slot and refunds <a href="#getSellPrice(com.csse3200.game.components.loot.Item)"><code>getSellPrice(Item)</code></a> once.
 
- <p>Does not require a matching BUY listing and does not change BUY stock.</div>
+ <p>The rest of the stack stays in the slot; selling the last unit frees the slot. Does not
+ require a matching BUY listing and does not change BUY stock.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>playerSlot</code> - inventory slot on the sibling <a href="InventoryComponent.html" title="class in com.csse3200.game.components.player"><code>InventoryComponent</code></a></dd>
 <dt>Returns:</dt>
-<dd><code>true</code> if the item was removed and gold was added</dd>
+<dd><code>true</code> if one unit was removed and gold was added</dd>
 </dl>
 </section>
 </li>
