@@ -2,6 +2,7 @@ package com.csse3200.game.upgrades;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -660,5 +661,97 @@ class UpgradesDisplayTest {
     display.setPlayer(playerA); // first-ever call
 
     assertEquals(1, swordDamage.getCurrentTier()); // untouched - nothing to clear from
+  }
+
+  // --- onEnemyKilled() guard, getShieldHitsRemaining() ---
+
+  /**
+   * Regression/defensive test: onEnemyKilled() is driven by the player's own "enemyKilled" event
+   * once setPlayer() has run, so by the time it fires player is already non-null - its own {@code
+   * player == null} guard can only be exercised by calling the private method directly.
+   */
+  @Test
+  void onEnemyKilledWithNoPlayerSetDoesNotThrow() throws Exception {
+    Method method = UpgradesDisplay.class.getDeclaredMethod("onEnemyKilled");
+    method.setAccessible(true);
+
+    assertDoesNotThrow(() -> method.invoke(display));
+  }
+
+  /** getShieldHitsRemaining() returns 0 when no player has been set yet. */
+  @Test
+  void getShieldHitsRemainingIsZeroWithNoPlayerSet() {
+    assertEquals(0, display.getShieldHitsRemaining());
+  }
+
+  /** getShieldHitsRemaining() reflects the player's CombatStatsComponent shield-hit count. */
+  @Test
+  void getShieldHitsRemainingReflectsThePlayersCombatStats() {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    player.getComponent(CombatStatsComponent.class).setShieldHits(4);
+
+    assertEquals(4, display.getShieldHitsRemaining());
+  }
+
+  // --- Regen on Kill's own expiry (removeRegenEffect() has no persistent stat to remove) ---
+
+  /**
+   * Regen on Kill fully expires like every other timed upgrade, even though it has no effect to
+   * undo.
+   */
+  @Test
+  void regenOnKillFullyExpiresAfterItsDurationElapses() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+
+    UpgradeNode regenOnKill = getDefenceUpgrades().get(1); // "regen_on_kill"
+    regenOnKill.purchaseNextTier(); // Tier 1: 15s remaining
+
+    regenOnKill.tickTime(16f); // more than enough to fully expire
+
+    assertEquals(0, regenOnKill.getCurrentTier());
+  }
+
+  // --- Attack Speed without a PlayerActions component ---
+
+  /** Buying and expiring Attack Speed without a PlayerActions component must not throw. */
+  @Test
+  void attackSpeedWithoutPlayerActionsDoesNotThrowOnApplyOrExpiry() throws Exception {
+    Entity player = new Entity(); // no PlayerActions component at all
+    display.setPlayer(player);
+    UpgradeNode attackSpeed = getActionUpgrades().get(1); // "attack_speed"
+
+    assertDoesNotThrow(attackSpeed::purchaseNextTier); // Tier 1: 5 kills remaining
+
+    assertDoesNotThrow(() -> killEnemies(player, 5)); // exhausts the 5 kills -> fully expires
+
+    assertEquals(0, attackSpeed.getCurrentTier());
+  }
+
+  /**
+   * A kill with an active Regen on Kill upgrade must not throw if the player has no
+   * CombatStatsComponent.
+   */
+  @Test
+  void regenOnKillWithoutCombatStatsComponentDoesNotThrow() throws Exception {
+    Entity player = new Entity().addComponent(new PlayerActions()); // no CombatStatsComponent
+    display.setPlayer(player);
+    getDefenceUpgrades().get(1).purchaseNextTier(); // "regen_on_kill" Tier 1
+
+    assertDoesNotThrow(() -> killEnemies(player, 1));
+  }
+
+  /** dispose() clears the root table's actors, same as every other UIComponent's dispose(). */
+  @Test
+  void disposeClearsTheRootTablesActors() throws Exception {
+    Field field = UpgradesDisplay.class.getDeclaredField("root");
+    field.setAccessible(true);
+    Table root = (Table) field.get(display);
+    assertTrue(root.getChildren().size > 0); // populated by addActors() during create()
+
+    display.dispose();
+
+    assertEquals(0, root.getChildren().size);
   }
 }
