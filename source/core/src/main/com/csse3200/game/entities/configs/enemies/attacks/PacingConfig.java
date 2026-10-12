@@ -1,4 +1,4 @@
-package com.csse3200.game.entities.configs.attacks;
+package com.csse3200.game.entities.configs.enemies.attacks;
 
 /**
  * Configuration for small back-and-forth pacing around a spawn point, for enemies that do not chase

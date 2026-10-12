@@ -1,4 +1,4 @@
-package com.csse3200.game.entities.configs.attacks;
+package com.csse3200.game.entities.configs.enemies.attacks;
 
 /**
  * Configuration for a petrify capability, attached to any enemy config whose enemy can petrify the

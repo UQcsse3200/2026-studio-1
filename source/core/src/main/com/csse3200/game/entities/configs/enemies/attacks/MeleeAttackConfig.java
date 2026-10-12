@@ -1,4 +1,4 @@
-package com.csse3200.game.entities.configs.attacks;
+package com.csse3200.game.entities.configs.enemies.attacks;
 
 /**
  * Configuration for a melee attack capability. Attached to any entity config that includes melee
