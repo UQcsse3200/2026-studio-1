@@ -1,4 +1,4 @@
-package com.csse3200.game.components.enemies.attacks;
+package com.csse3200.game.components.npc;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -8,8 +8,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.components.npc.ProvokedComponent;
-import com.csse3200.game.components.npc.SplashEffectComponent;
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
