@@ -1,9 +1,9 @@
 package com.csse3200.game.difficulty;
 
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 
