@@ -964,7 +964,7 @@ public class EnemyFactory {
 
   /**
    * An enemy with both attacks must out-reach itself with the ranged one: melee range strictly
-   * below ranged range. Otherwise the task priorities that switch between the two attacks behave
+   * below ranged range. Otherwise, the task priorities that switch between the two attacks behave
    * confusingly instead of failing clearly.
    *
    * @param meleeRange the melee attack's range
@@ -972,7 +972,7 @@ public class EnemyFactory {
    * @throws IllegalArgumentException if meleeRange is not strictly less than rangedRange
    */
   private static void validateMeleeRangeBelowRangedRange(float meleeRange, float rangedRange) {
-    if (!(meleeRange < rangedRange)) {
+    if (meleeRange >= rangedRange) {
       throw new IllegalArgumentException(
           "melee range " + meleeRange + " must be below ranged range " + rangedRange);
     }

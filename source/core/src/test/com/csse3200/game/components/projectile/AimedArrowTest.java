@@ -201,10 +201,14 @@ class AimedArrowTest {
   }
 
   @Test
-  void strategyRejectsNonFiniteDirections() {
+  void strategyRejectsNonNumberDirections() {
     assertThrows(
         IllegalArgumentException.class,
         () -> new AimedLineMovementStrategy(SPEED, new Vector2(Float.NaN, 1f)));
+  }
+
+  @Test
+  void strategyRejectsNonFiniteDirections() {
     assertThrows(
         IllegalArgumentException.class,
         () -> new AimedLineMovementStrategy(SPEED, new Vector2(Float.POSITIVE_INFINITY, 0f)));
