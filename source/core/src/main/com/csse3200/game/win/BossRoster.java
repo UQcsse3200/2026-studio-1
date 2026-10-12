@@ -7,45 +7,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The fixed list of bosses the win depends on: the final boss, and the mini bosses of the side
- * rooms. It is data only. It says WHICH enemies matter; {@link WinEvaluator} decides what their
- * deaths are worth.
+ * The fixed list of bosses the win depends on: the final boss (Zeus in Level 3) and the mini bosses
+ * of the side rooms. Data only; {@link WinEvaluator} decides what their deaths are worth.
  *
- * <p><b>How a boss is named.</b> The game already saves every kill under a stable id of the form
- * {@code <map name>:<x>,<y>}, where the tile is the enemy's marker tile in the map file (see {@code
- * EnemyId.of} and {@code EnemyRegistry}). The roster uses exactly those ids, so a kill is known
- * with no new component on any enemy, and it survives a save and a load. Build each id with {@code
- * EnemyId.of(mapName, new GridPoint2(x, y))}, never by hand-typing the colon.
- *
- * <p><b>The roster (marker tiles are the ones in the shipped map files):</b>
- *
- * <pre>
- * FINAL BOSS   Zeus                     Level 3 - Zeus's Palace : 26,4
- * required     Cerberus                 Hound's Den             : 48,2
- * required     Medusa                   Gorgon's Gallery        : 37,11
- * required     Minotaur                 Minotaur's Labyrinth    : 24,35
- * required     Minotaur                 Shades' Barracks        : 40,17
- * required     Cyclops                  Cyclops Forge           : 30,15
- * required     Centaur (upper)          Centaur Pavilion        : 44,12
- * required     Medusa                   Zeus's Outer Guard      : 24,16
- * required     Medusa                   Zeus's Thunder Hall     : 26,12
- * escort       Centaur                  Minotaur's Labyrinth    : 28,17
- * escort       Centaur (lower)          Centaur Pavilion        : 40,5
- * escort       Cyclops                  Zeus's Outer Guard      : 32,9
- * </pre>
- *
- * <p>"Required" means the boss that guards the end of the room: the one on its highest storey,
- * beside the exit. An "escort" is another boss-type enemy in the same room. Escorts are listed so
- * the win screen can show them, but they are NOT needed for {@link WinTier#GLORY}.
- *
- * <p>The final boss is not in the list of mini bosses. There is only one Zeus in the game, in Level
- * 3, and only his death ends it.
- *
- * <p><b>Limitations:</b> an id is a map name plus a tile, so renaming a map or moving a boss marker
- * silently breaks the roster for existing saves. {@code BossRosterMapsTest} reads the real map
- * files and fails the moment the roster and the maps disagree.
- *
- * <p><b>Style reference:</b> {@code EnemyId} (a small utility class with a private constructor).
+ * <p>Each boss is named by its saved kill id, {@code <map name>:<x>,<y>}, built with {@code
+ * EnemyId.of}. Required bosses guard a room's exit and count towards {@link WinTier#GLORY}; escorts
+ * are listed but not needed. Renaming a map or moving a boss marker breaks an id, which {@code
+ * BossRosterMapsTest} catches.
  */
 public final class BossRoster {
 
@@ -153,15 +121,14 @@ public final class BossRoster {
     private final boolean required;
 
     /**
-     * Creates one entry of the roster, describing a single mini boss.
+     * Creates one roster entry.
      *
-     * @param id the kill id, in the {@code <map name>:<x>,<y>} form; not blank
-     * @param label what the win screen calls it, for example "Cerberus of the Hound's Den"; not
-     *     blank
+     * @param id the kill id; not blank
+     * @param label the name shown on the win screen; not blank
      * @param roomName the room it guards; not blank
-     * @param enemyType the enemy type name as written in the map file, for example "cerberus"
-     * @param required true if this boss is needed for {@link WinTier#GLORY}
-     * @throws IllegalArgumentException if the id, label, room name or type is null or blank
+     * @param enemyType the enemy type as written in the map file; not blank
+     * @param required true if this boss is needed for Glory
+     * @throws IllegalArgumentException if any of the text values is null or blank
      */
     public MiniBoss(String id, String label, String roomName, String enemyType, boolean required) {
       this.id = requireText(id, "id");
