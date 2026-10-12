@@ -21,6 +21,7 @@ import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
+import com.csse3200.game.components.enemies.EnemyTypeComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.lighting.EmitterScanner;
 import com.csse3200.game.components.lighting.LightColour;
@@ -38,7 +39,6 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.components.npc.NameComponent;
 import com.csse3200.game.components.npc.NameDisplay;
 import com.csse3200.game.components.player.LadderComponent;
@@ -50,10 +50,12 @@ import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
-import com.csse3200.game.entities.spawn.EnemyId;
-import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
-import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
+import com.csse3200.game.entities.spawn.PersistentNpcComponent;
+import com.csse3200.game.entities.spawn.enemies.EnemyId;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
+import com.csse3200.game.entities.spawn.enemies.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.perks.TortoiseFactory;
@@ -119,8 +121,6 @@ public class LevelGameArea extends GameArea {
     "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
-    "images/enemies/ghost_king.png",
-    "images/enemies/ghost_1.png",
     "images/items/sword.png",
     "images/items/sword_t2.png",
     "images/items/sword_t3.png",
@@ -164,9 +164,7 @@ public class LevelGameArea extends GameArea {
     "images/items/gold_coin/gold_coin.atlas",
     "images/pet.atlas",
     "images/tortoise.atlas",
-    "images/enemies/ghost.atlas",
     "images/KnightEffects.atlas",
-    "images/enemies/ghostKing.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
     "images/enemies/minotaur.atlas",
@@ -1197,8 +1195,13 @@ public class LevelGameArea extends GameArea {
   // Spawns the NPC placed at each "npc" marker in this map.
   private void spawnNpcs() {
     for (Marker marker : getLevel().markers("npc")) {
+      String npcId = marker.id() + "@" + EnemyId.of(mapData.getName(), marker.position());
+      if (NpcQuestRegistry.isKilled(npcId)) {
+        continue;
+      }
       Entity npc = EntitySpawnRegistry.create(marker.id(), player);
       if (npc != null) {
+        npc.addComponent(new PersistentNpcComponent(npcId));
         spawnEntityAt(npc, marker.position(), true, true);
       }
     }

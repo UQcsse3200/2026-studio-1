@@ -41,6 +41,9 @@ public class ShopComponent extends Component {
   /** Maximum occupied listings per catalog; matches the shop UI grid size. */
   public static final int MAX_CATALOG_SLOTS = 10;
 
+  /** Units taken from the player's stack by one {@link #sellItem(int)} call. */
+  private static final int SELL_QUANTITY = 1;
+
   private final Map<Integer, ShopListing<Item>> itemCatalog;
   private final Map<Integer, ShopListing<Upgrade>> upgradeCatalog;
   private final Map<Integer, ShopListing<Pet>> petCatalog;
@@ -417,12 +420,14 @@ public class ShopComponent extends Component {
   }
 
   /**
-   * Sells the entire stack in a player inventory slot and refunds {@link #getSellPrice(Item)}.
+   * Sells one unit from the stack in a player inventory slot and refunds {@link
+   * #getSellPrice(Item)} once.
    *
-   * <p>Does not require a matching BUY listing and does not change BUY stock.
+   * <p>The rest of the stack stays in the slot; selling the last unit frees the slot. Does not
+   * require a matching BUY listing and does not change BUY stock.
    *
    * @param playerSlot inventory slot on the sibling {@link InventoryComponent}
-   * @return {@code true} if the item was removed and gold was added
+   * @return {@code true} if one unit was removed and gold was added
    */
   public boolean sellItem(int playerSlot) {
     InventoryComponent inventory = getInventory();
@@ -437,8 +442,7 @@ public class ShopComponent extends Component {
 
     int refund = getSellPrice(item);
 
-    Item removed = inventory.removeItem(playerSlot);
-    if (removed == null) {
+    if (inventory.removeItem(playerSlot, SELL_QUANTITY) != SELL_QUANTITY) {
       return false;
     }
 

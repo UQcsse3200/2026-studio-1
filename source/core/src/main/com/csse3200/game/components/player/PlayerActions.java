@@ -10,8 +10,8 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
@@ -62,9 +62,9 @@ public class PlayerActions extends Component {
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
-  private float CrouchSpeedRate = 0.2f;
-  private float dashspeed = 5f;
-  private float slidespeed = 3f;
+  private final float CrouchSpeedRate = 0.2f;
+  private final float dashspeed = 5f;
+  private final float slidespeed = 3f;
   private float SlideTimer = 0f;
   private boolean crouching = false;
   private boolean moving = false;
