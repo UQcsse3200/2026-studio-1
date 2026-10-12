@@ -1,8 +1,9 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.enemies.tasks.RangedAttackTask;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.projectile.ProjectileType;
@@ -16,12 +17,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Fires a real arrow projectile at a target entity when triggered, provided the target is within
  * {@code range} and this component is off cooldown. Attacks are triggered externally (e.g. by a
- * {@link com.csse3200.game.components.tasks.RangedAttackTask}) via an event; range is checked as an
- * explicit distance calculation between entity positions, same as before, but that check now only
- * gates whether an arrow is <i>fired</i> - whether it actually lands is resolved later and
- * separately, by the arrow's own Box2D collision (see {@link
- * com.csse3200.game.components.projectile.ProjectileHitComponent}), once it has actually travelled
- * to (or past, or been blocked before reaching) the target.
+ * {@link RangedAttackTask}) via an event; range is checked as an explicit distance calculation
+ * between entity positions, same as before, but that check now only gates whether an arrow is
+ * <i>fired</i> - whether it actually lands is resolved later and separately, by the arrow's own
+ * Box2D collision (see {@link com.csse3200.game.components.projectile.ProjectileHitComponent}),
+ * once it has actually travelled to (or past, or been blocked before reaching) the target.
  *
  * <p><b>Cooldown now resets on firing, not on a landed hit.</b> This is a deliberate change from
  * this class's previous (and {@link MeleeAttackComponent}'s current) behaviour of only resetting
@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
  * happen in the same instant; a fired arrow resolves asynchronously, some time later, and may miss
  * entirely (out of range, blocked by an obstacle, target moved) - if cooldown only reset on a
  * landed hit, a miss would leave the cooldown gate open and this component would fire a new arrow
- * every single frame {@link com.csse3200.game.components.tasks.RangedAttackTask} re-triggers the
- * event while still in range, instead of at most once per {@code cooldown} seconds.
+ * every single frame {@link RangedAttackTask} re-triggers the event while still in range, instead
+ * of at most once per {@code cooldown} seconds.
  *
  * <p><b>Windup.</b> If the weapon has a windup above zero, an accepted attack first winds up
  * ({@code "rangedAttackWindup"}), then fires ({@code "rangedAttackFired"}) or, if the target died
@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p><b>Limitation:</b> this class does not determine when an attack should be attempted - it
  * relies entirely on being triggered externally with a target entity (see {@link
- * com.csse3200.game.components.tasks.RangedAttackTask}).
+ * RangedAttackTask}).
  */
 public class RangedAttackComponent extends Component {
   // How far in front of the shooter's centre the arrow spawns, so it doesn't spawn inside the

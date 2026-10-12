@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -33,7 +33,7 @@ import com.csse3200.game.services.ServiceLocator;
 public class TouchAttackComponent extends Component {
   private static final long BRIBE_DURATION_MILLIS = 20000L;
 
-  private short targetLayer;
+  private final short targetLayer;
   private float knockbackForce = 0f;
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;

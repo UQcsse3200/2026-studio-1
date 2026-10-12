@@ -11,6 +11,8 @@ import static org.mockito.Mockito.when;
 
 import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.effects.SpeedEffectComponent;
+import com.csse3200.game.components.enemies.attacks.LightningFreezeComponent;
+import com.csse3200.game.components.enemies.attacks.PetrifyEffectComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;

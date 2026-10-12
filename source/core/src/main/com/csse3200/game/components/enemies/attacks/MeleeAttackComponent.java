@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import static java.awt.geom.Point2D.distance;
 
