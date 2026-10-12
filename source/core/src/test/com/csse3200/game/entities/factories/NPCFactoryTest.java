@@ -127,16 +127,16 @@ class NPCFactoryTest {
   // Arguments: name, factory, expected type label.
   static Stream<Arguments> everyEnemy() {
     return Stream.of(
-        enemy("skeleton", NPCFactory::createSkeleton, "Skeleton"),
-        enemy("ranged skeleton", NPCFactory::createRangedSkeleton, "Ranged Skeleton"),
-        enemy("minotaur", NPCFactory::createMinotaur, "Minotaur"),
-        enemy("centaur", NPCFactory::createCentaur, "Centaur"),
-        enemy("cyclops", NPCFactory::createCyclops, "Cyclops"),
-        enemy("medusa", NPCFactory::createMedusa, "Medusa"),
-        enemy("cerberus", NPCFactory::createCerberus, "Cerberus"),
-        enemy("zeus", NPCFactory::createZeus, "Zeus"),
-        enemy("harpy", NPCFactory::createHarpy, "Harpy"),
-        enemy("ranged harpy", NPCFactory::createRangedHarpy, "Ranged Harpy"));
+        enemy("skeleton", EnemyFactory::createSkeleton, "Skeleton"),
+        enemy("ranged skeleton", EnemyFactory::createRangedSkeleton, "Ranged Skeleton"),
+        enemy("minotaur", EnemyFactory::createMinotaur, "Minotaur"),
+        enemy("centaur", EnemyFactory::createCentaur, "Centaur"),
+        enemy("cyclops", EnemyFactory::createCyclops, "Cyclops"),
+        enemy("medusa", EnemyFactory::createMedusa, "Medusa"),
+        enemy("cerberus", EnemyFactory::createCerberus, "Cerberus"),
+        enemy("zeus", EnemyFactory::createZeus, "Zeus"),
+        enemy("harpy", EnemyFactory::createHarpy, "Harpy"),
+        enemy("ranged harpy", EnemyFactory::createRangedHarpy, "Ranged Harpy"));
   }
 
   static Stream<Arguments> nonChargingEnemies() {
@@ -337,9 +337,9 @@ class NPCFactoryTest {
     void shouldGiveTheChargingEnemiesATouchAttack() {
       // The charge deals its damage through the touch attack; without one a charge hurts nobody.
       assertNotNull(
-          NPCFactory.createMinotaur(player).getComponent(TouchAttackComponent.class), "minotaur");
+          EnemyFactory.createMinotaur(player).getComponent(TouchAttackComponent.class), "minotaur");
       assertNotNull(
-          NPCFactory.createCentaur(player).getComponent(TouchAttackComponent.class), "centaur");
+          EnemyFactory.createCentaur(player).getComponent(TouchAttackComponent.class), "centaur");
     }
   }
 
@@ -353,7 +353,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldArmTheSkeletonWithATierOneSwordItCanDrop() {
-      Entity skeleton = NPCFactory.createSkeleton(player);
+      Entity skeleton = EnemyFactory.createSkeleton(player);
 
       InventoryComponent inventory = skeleton.getComponent(InventoryComponent.class);
       assertEquals(3, inventory.getGold());
@@ -378,7 +378,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldArmTheRangedSkeletonWithATierOneBowAndApplyTheProjectileSpeed() {
-      Entity archer = NPCFactory.createRangedSkeleton(player);
+      Entity archer = EnemyFactory.createRangedSkeleton(player);
 
       WeaponItem bow = (WeaponItem) archer.getComponent(InventoryComponent.class).getItem(1);
       assertEquals(WeaponType.BOW, bow.getWeaponType());
@@ -403,7 +403,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldArmTheMinotaurWithATierTwoAxeWithZeroWindupAndDropIt() {
-      Entity minotaur = NPCFactory.createMinotaur(player);
+      Entity minotaur = EnemyFactory.createMinotaur(player);
 
       WeaponItem axe = (WeaponItem) minotaur.getComponent(InventoryComponent.class).getItem(1);
       assertEquals(WeaponType.AXE, axe.getWeaponType());
@@ -419,7 +419,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheMinotaurAChargeFromItsConfig() {
-      Entity minotaur = NPCFactory.createMinotaur(player);
+      Entity minotaur = EnemyFactory.createMinotaur(player);
 
       ChargeComponent charge = minotaur.getComponent(ChargeComponent.class);
       assertNotNull(charge);
@@ -436,7 +436,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldMakeTheMinotaurWiderThanItIsTall() {
-      Entity minotaur = NPCFactory.createMinotaur(player);
+      Entity minotaur = EnemyFactory.createMinotaur(player);
 
       assertEquals(4f, minotaur.getScale().x, 1e-4f);
       assertEquals(4f * (80f / 96f), minotaur.getScale().y, 1e-4f);
@@ -453,7 +453,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldArmTheCentaurWithABowAndApplyItsRangedConfig() {
-      Entity centaur = NPCFactory.createCentaur(player);
+      Entity centaur = EnemyFactory.createCentaur(player);
 
       WeaponItem bow = (WeaponItem) centaur.getComponent(InventoryComponent.class).getItem(1);
       assertEquals(WeaponType.BOW, bow.getWeaponType(), "a sword here would be rejected");
@@ -467,7 +467,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheCentaurAChargeFromItsConfig() {
-      Entity centaur = NPCFactory.createCentaur(player);
+      Entity centaur = EnemyFactory.createCentaur(player);
 
       ChargeComponent charge = centaur.getComponent(ChargeComponent.class);
       assertNotNull(charge);
@@ -488,7 +488,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheCyclopsAStompFromItsConfig() {
-      Entity cyclops = NPCFactory.createCyclops(player);
+      Entity cyclops = EnemyFactory.createCyclops(player);
 
       MeleeAttackComponent melee = cyclops.getComponent(MeleeAttackComponent.class);
       assertNotNull(melee);
@@ -500,7 +500,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheCyclopsARockAttackFromItsConfig() {
-      Entity cyclops = NPCFactory.createCyclops(player);
+      Entity cyclops = EnemyFactory.createCyclops(player);
 
       RockAttackComponent rock = cyclops.getComponent(RockAttackComponent.class);
       assertNotNull(rock);
@@ -516,7 +516,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheCyclopsALaserAttackFromItsConfig() {
-      Entity cyclops = NPCFactory.createCyclops(player);
+      Entity cyclops = EnemyFactory.createCyclops(player);
 
       LaserAttackComponent laser = cyclops.getComponent(LaserAttackComponent.class);
       assertNotNull(laser);
@@ -533,7 +533,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheCyclopsThreeAttacksAndNoPlainRangedAttack() {
-      Entity cyclops = NPCFactory.createCyclops(player);
+      Entity cyclops = EnemyFactory.createCyclops(player);
 
       assertNotNull(cyclops.getComponent(MeleeAttackComponent.class));
       assertNotNull(cyclops.getComponent(RockAttackComponent.class));
@@ -547,7 +547,7 @@ class NPCFactoryTest {
     void shouldOrderTheCyclopsRangesStompThenLaserThenRock() {
       // The task priorities 15, 13 and 12 only give stomp, then laser, then rock as the target
       // moves away if the ranges grow in that order.
-      Entity cyclops = NPCFactory.createCyclops(player);
+      Entity cyclops = EnemyFactory.createCyclops(player);
 
       float stomp = cyclops.getComponent(MeleeAttackComponent.class).getRange();
       float laser = cyclops.getComponent(LaserAttackComponent.class).getRange();
@@ -558,7 +558,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheCyclopsGoldOnlyBecauseNaturalWeaponsMustNeverDrop() {
-      Entity cyclops = NPCFactory.createCyclops(player);
+      Entity cyclops = EnemyFactory.createCyclops(player);
 
       InventoryComponent inventory = cyclops.getComponent(InventoryComponent.class);
       assertTrue(inventory.getGold() > 0, "the Cyclops pays out in gold");
@@ -576,7 +576,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveMedusaBothAttacksWithMeleeShorterThanRanged() {
-      Entity medusa = NPCFactory.createMedusa(player);
+      Entity medusa = EnemyFactory.createMedusa(player);
 
       MeleeAttackComponent melee = medusa.getComponent(MeleeAttackComponent.class);
       RangedAttackComponent ranged = medusa.getComponent(RangedAttackComponent.class);
@@ -587,7 +587,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldKeepMedusasGazeCooldownAtLeastTwiceThePetrifyDuration() {
-      Entity medusa = NPCFactory.createMedusa(player);
+      Entity medusa = EnemyFactory.createMedusa(player);
 
       RangedAttackComponent ranged = medusa.getComponent(RangedAttackComponent.class);
       assertTrue(ranged.getCooldown() >= 2f * configs.medusa.petrify.duration);
@@ -595,7 +595,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldTakeMedusasAttackNumbersFromTheConfig() {
-      Entity medusa = NPCFactory.createMedusa(player);
+      Entity medusa = EnemyFactory.createMedusa(player);
 
       MeleeAttackComponent melee = medusa.getComponent(MeleeAttackComponent.class);
       RangedAttackComponent ranged = medusa.getComponent(RangedAttackComponent.class);
@@ -608,7 +608,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveMedusaGoldAndNoWeaponDrop() {
-      Entity medusa = NPCFactory.createMedusa(player);
+      Entity medusa = EnemyFactory.createMedusa(player);
 
       InventoryComponent inventory = medusa.getComponent(InventoryComponent.class);
       assertTrue(inventory.getGold() > 0);
@@ -692,7 +692,7 @@ class NPCFactoryTest {
 
       @Test
       void shouldGiveCerberusOnlyAMeleeBiteFromItsConfig() {
-        Entity cerberus = NPCFactory.createCerberus(player);
+        Entity cerberus = EnemyFactory.createCerberus(player);
 
         MeleeAttackComponent melee = cerberus.getComponent(MeleeAttackComponent.class);
         assertNotNull(melee);
@@ -705,7 +705,7 @@ class NPCFactoryTest {
       @Test
       void shouldTakeTheBiteWindupFromTheConfig() {
         MeleeAttackComponent bite =
-            NPCFactory.createCerberus(player).getComponent(MeleeAttackComponent.class);
+            EnemyFactory.createCerberus(player).getComponent(MeleeAttackComponent.class);
 
         assertEquals(configs.cerberus.melee.windup, bite.getWindupDuration(), 1e-6f);
       }
@@ -713,7 +713,7 @@ class NPCFactoryTest {
       @Test
       void shouldPayOutGoldAndKeepTheBiteOutOfTheInventory() {
         InventoryComponent inventory =
-            NPCFactory.createCerberus(player).getComponent(InventoryComponent.class);
+            EnemyFactory.createCerberus(player).getComponent(InventoryComponent.class);
 
         assertTrue(inventory.getGold() > 0, "the Cerberus should drop some gold");
         assertNull(inventory.getItem(1), "his bite is a natural weapon and must never drop");
@@ -722,13 +722,13 @@ class NPCFactoryTest {
       @Test
       void shouldTakeHazardDamage() {
         assertNotNull(
-            NPCFactory.createCerberus(player).getComponent(HazardContactDamageComponent.class),
+            EnemyFactory.createCerberus(player).getComponent(HazardContactDamageComponent.class),
             "every enemy takes hazard damage");
       }
 
       @Test
       void shouldNotFlyOrCharge() {
-        Entity cerberus = NPCFactory.createCerberus(player);
+        Entity cerberus = EnemyFactory.createCerberus(player);
 
         assertNull(cerberus.getComponent(FlightComponent.class));
         assertNull(cerberus.getComponent(ChargeComponent.class));
@@ -736,7 +736,7 @@ class NPCFactoryTest {
 
       @Test
       void shouldGiveCerberusItsOwnAnimationControllerAndBothFacings() {
-        Entity cerberus = NPCFactory.createCerberus(player);
+        Entity cerberus = EnemyFactory.createCerberus(player);
 
         assertNotNull(cerberus.getComponent(CerberusAnimationController.class));
         AnimationRenderComponent animator = cerberus.getComponent(AnimationRenderComponent.class);
@@ -1187,7 +1187,7 @@ class NPCFactoryTest {
 
       @Test
       void shouldGiveZeusBothAttacksWithMeleeShorterThanRanged() {
-        Entity zeus = NPCFactory.createZeus(player);
+        Entity zeus = EnemyFactory.createZeus(player);
 
         MeleeAttackComponent melee = zeus.getComponent(MeleeAttackComponent.class);
         RangedAttackComponent ranged = zeus.getComponent(RangedAttackComponent.class);
@@ -1199,7 +1199,7 @@ class NPCFactoryTest {
       @Test
       void shouldTakeTheSwordNumbersFromTheConfig() {
         MeleeAttackComponent melee =
-            NPCFactory.createZeus(player).getComponent(MeleeAttackComponent.class);
+            EnemyFactory.createZeus(player).getComponent(MeleeAttackComponent.class);
 
         assertEquals(configs.zeus.melee.range, melee.getRange(), 1e-6f);
         assertEquals(configs.zeus.melee.cooldown, melee.getCooldown(), 1e-6f);
@@ -1209,7 +1209,7 @@ class NPCFactoryTest {
       @Test
       void shouldTakeTheLightningNumbersFromTheConfig() {
         RangedAttackComponent bolt =
-            NPCFactory.createZeus(player).getComponent(RangedAttackComponent.class);
+            EnemyFactory.createZeus(player).getComponent(RangedAttackComponent.class);
 
         assertEquals(configs.zeus.ranged.range, bolt.getRange(), 1e-6f);
         assertEquals(configs.zeus.ranged.cooldown, bolt.getCooldown(), 1e-6f);
@@ -1221,7 +1221,7 @@ class NPCFactoryTest {
       @Test
       void shouldAimTheLightning() {
         RangedAttackComponent bolt =
-            NPCFactory.createZeus(player).getComponent(RangedAttackComponent.class);
+            EnemyFactory.createZeus(player).getComponent(RangedAttackComponent.class);
 
         assertEquals(configs.zeus.ranged.aimed, bolt.isAimed());
         assertTrue(bolt.isAimed(), "lightning must be aimed to reach a player above or below");
@@ -1229,7 +1229,7 @@ class NPCFactoryTest {
 
       @Test
       void shouldCarryASwordItCanDrop() {
-        Entity zeus = NPCFactory.createZeus(player);
+        Entity zeus = EnemyFactory.createZeus(player);
 
         WeaponItem sword = (WeaponItem) zeus.getComponent(InventoryComponent.class).getItem(1);
         assertEquals(WeaponType.SWORD, sword.getWeaponType());
@@ -1239,7 +1239,7 @@ class NPCFactoryTest {
       @Test
       void shouldKeepTheLightningOutOfTheInventory() {
         InventoryComponent inventory =
-            NPCFactory.createZeus(player).getComponent(InventoryComponent.class);
+            EnemyFactory.createZeus(player).getComponent(InventoryComponent.class);
 
         assertNull(inventory.getItem(2), "his lightning is a natural weapon and must never drop");
       }
@@ -1247,14 +1247,14 @@ class NPCFactoryTest {
       @Test
       void shouldPayOutGold() {
         InventoryComponent inventory =
-            NPCFactory.createZeus(player).getComponent(InventoryComponent.class);
+            EnemyFactory.createZeus(player).getComponent(InventoryComponent.class);
 
         assertTrue(inventory.getGold() > 0, "Zeus should drop some gold");
       }
 
       @Test
       void shouldTakeHazardDamageAndAvoidHazards() {
-        Entity zeus = NPCFactory.createZeus(player);
+        Entity zeus = EnemyFactory.createZeus(player);
 
         assertNotNull(
             zeus.getComponent(HazardContactDamageComponent.class),
@@ -1265,7 +1265,7 @@ class NPCFactoryTest {
 
       @Test
       void shouldNotFlyOrCharge() {
-        Entity zeus = NPCFactory.createZeus(player);
+        Entity zeus = EnemyFactory.createZeus(player);
 
         assertNull(zeus.getComponent(FlightComponent.class));
         assertNull(zeus.getComponent(ChargeComponent.class));
@@ -1668,7 +1668,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheHarpyAFlightComponentAndASwordFromItsConfig() {
-      Entity harpy = NPCFactory.createHarpy(player);
+      Entity harpy = EnemyFactory.createHarpy(player);
 
       FlightComponent flight = harpy.getComponent(FlightComponent.class);
       assertNotNull(flight, "harpies hover");
@@ -1683,7 +1683,7 @@ class NPCFactoryTest {
 
     @Test
     void shouldGiveTheRangedHarpyAFlightComponentAndAnAimedBowFromItsConfig() {
-      Entity harpy = NPCFactory.createRangedHarpy(player);
+      Entity harpy = EnemyFactory.createRangedHarpy(player);
 
       FlightComponent flight = harpy.getComponent(FlightComponent.class);
       assertNotNull(flight, "harpies hover");
@@ -1701,15 +1701,15 @@ class NPCFactoryTest {
 
     @Test
     void shouldNotGiveGroundEnemiesAFlightComponent() {
-      assertNull(NPCFactory.createSkeleton(player).getComponent(FlightComponent.class));
-      assertNull(NPCFactory.createMinotaur(player).getComponent(FlightComponent.class));
-      assertNull(NPCFactory.createMedusa(player).getComponent(FlightComponent.class));
+      assertNull(EnemyFactory.createSkeleton(player).getComponent(FlightComponent.class));
+      assertNull(EnemyFactory.createMinotaur(player).getComponent(FlightComponent.class));
+      assertNull(EnemyFactory.createMedusa(player).getComponent(FlightComponent.class));
     }
 
     @Test
     void shouldGiveBothHarpiesTheHarpyAnimationControllerAndBothFacings() {
-      Entity harpy = NPCFactory.createHarpy(player);
-      Entity rangedHarpy = NPCFactory.createRangedHarpy(player);
+      Entity harpy = EnemyFactory.createHarpy(player);
+      Entity rangedHarpy = EnemyFactory.createRangedHarpy(player);
 
       for (Entity enemy : new Entity[] {harpy, rangedHarpy}) {
         assertNotNull(enemy.getComponent(HarpyAnimationController.class));

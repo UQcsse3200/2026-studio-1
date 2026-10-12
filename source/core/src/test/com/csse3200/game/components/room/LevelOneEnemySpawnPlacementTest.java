@@ -44,7 +44,7 @@ class LevelOneEnemySpawnPlacementTest {
   private static final double FEET_SINK_ALLOWANCE = 0.5;
   private static final double MAX_DROP = 1.5; // tiles an enemy may fall before it lands
 
-  /** Entity size and collider, in WORLD units, copied from NPCFactory. */
+  /** Entity size and collider, in WORLD units, copied from EnemyFactory. */
   private record Body(
       double scaleX,
       double scaleY,
@@ -63,7 +63,7 @@ class LevelOneEnemySpawnPlacementTest {
     }
   }
 
-  // The Minotaur builds its own collider (NPCFactory.createMinotaur): 16 px shorter from below.
+  // The Minotaur builds its own collider (EnemyFactory.createMinotaur): 16 px shorter from below.
   private static final double MINOTAUR_HEIGHT = 4.0 * 80.0 / 96.0;
   private static final double MINOTAUR_FEET = 16.0 * (MINOTAUR_HEIGHT / 80.0);
 

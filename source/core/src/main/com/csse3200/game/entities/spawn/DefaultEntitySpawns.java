@@ -1,6 +1,6 @@
 package com.csse3200.game.entities.spawn;
 
-import com.csse3200.game.entities.factories.NPCFactory;
+import com.csse3200.game.entities.factories.EnemyFactory;
 
 /**
  * The spawn names that ship with the game, registered in one place so existing maps keep working.
@@ -32,21 +32,21 @@ public final class DefaultEntitySpawns {
     registered = true;
 
     // Enemy team.
-    EntitySpawnRegistry.registerIfAbsent("skeleton", NPCFactory::createSkeleton);
-    EntitySpawnRegistry.registerIfAbsent("enemy-skeleton-hoplite", NPCFactory::createSkeleton);
-    EntitySpawnRegistry.registerIfAbsent("ranged-skeleton", NPCFactory::createRangedSkeleton);
-    EntitySpawnRegistry.registerIfAbsent("cyclops", NPCFactory::createCyclops);
-    EntitySpawnRegistry.registerIfAbsent("minotaur", NPCFactory::createMinotaur);
-    EntitySpawnRegistry.registerIfAbsent("centaur", NPCFactory::createCentaur);
-    EntitySpawnRegistry.registerIfAbsent("enemy-centaur", NPCFactory::createCentaur);
-    EntitySpawnRegistry.registerIfAbsent("cerberus", NPCFactory::createCerberus);
-    EntitySpawnRegistry.registerIfAbsent("enemy-cerberus", NPCFactory::createCerberus);
-    EntitySpawnRegistry.registerIfAbsent("medusa", NPCFactory::createMedusa);
-    EntitySpawnRegistry.registerIfAbsent("enemy-medusa", NPCFactory::createMedusa);
-    EntitySpawnRegistry.registerIfAbsent("zeus", NPCFactory::createZeus);
-    EntitySpawnRegistry.registerIfAbsent("enemy-zeus", NPCFactory::createZeus);
-    EntitySpawnRegistry.registerIfAbsent("harpy", NPCFactory::createHarpy);
-    EntitySpawnRegistry.registerIfAbsent("ranged-harpy", NPCFactory::createRangedHarpy);
+    EntitySpawnRegistry.registerIfAbsent("skeleton", EnemyFactory::createSkeleton);
+    EntitySpawnRegistry.registerIfAbsent("enemy-skeleton-hoplite", EnemyFactory::createSkeleton);
+    EntitySpawnRegistry.registerIfAbsent("ranged-skeleton", EnemyFactory::createRangedSkeleton);
+    EntitySpawnRegistry.registerIfAbsent("cyclops", EnemyFactory::createCyclops);
+    EntitySpawnRegistry.registerIfAbsent("minotaur", EnemyFactory::createMinotaur);
+    EntitySpawnRegistry.registerIfAbsent("centaur", EnemyFactory::createCentaur);
+    EntitySpawnRegistry.registerIfAbsent("enemy-centaur", EnemyFactory::createCentaur);
+    EntitySpawnRegistry.registerIfAbsent("cerberus", EnemyFactory::createCerberus);
+    EntitySpawnRegistry.registerIfAbsent("enemy-cerberus", EnemyFactory::createCerberus);
+    EntitySpawnRegistry.registerIfAbsent("medusa", EnemyFactory::createMedusa);
+    EntitySpawnRegistry.registerIfAbsent("enemy-medusa", EnemyFactory::createMedusa);
+    EntitySpawnRegistry.registerIfAbsent("zeus", EnemyFactory::createZeus);
+    EntitySpawnRegistry.registerIfAbsent("enemy-zeus", EnemyFactory::createZeus);
+    EntitySpawnRegistry.registerIfAbsent("harpy", EnemyFactory::createHarpy);
+    EntitySpawnRegistry.registerIfAbsent("ranged-harpy", EnemyFactory::createRangedHarpy);
   }
 
   /** Allows tests to re-run {@link #registerAll()} from a known state. */
