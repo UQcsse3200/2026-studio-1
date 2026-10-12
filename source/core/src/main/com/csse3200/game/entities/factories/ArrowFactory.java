@@ -15,6 +15,7 @@ import com.csse3200.game.rendering.TextureRenderComponent;
 
 /** Factory for creating arrow projectiles. */
 public class ArrowFactory {
+  private static final String ARROW_IMAGE = "images/items/arrow.png";
 
   /**
    * Creates a player arrow that travels in a straight line and hits enemies or obstacles. Kept
@@ -40,7 +41,7 @@ public class ArrowFactory {
             .cpy()
             .mulAdd(normalizedDirection, owner.getScale().x / 2f + arrowWidth / 2f + 0.02f);
 
-    TextureRenderComponent renderer = new TextureRenderComponent("images/items/arrow.png");
+    TextureRenderComponent renderer = new TextureRenderComponent(ARROW_IMAGE);
     renderer.setRotationDegrees(normalizedDirection.angleDeg());
 
     Entity arrow =
@@ -94,7 +95,7 @@ public class ArrowFactory {
       short targetLayer) {
     Entity arrow =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
+            .addComponent(new TextureRenderComponent(ARROW_IMAGE))
             // Dynamic, not kinematic: Box2D only creates a contact when at least one of the two
             // bodies is dynamic, so a kinematic arrow never reported touching a static wall.
             .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
@@ -286,7 +287,9 @@ public class ArrowFactory {
     if (position == null) {
       throw new IllegalArgumentException("position must not be null.");
     }
-    if (scale == null) {}
+    if (scale == null) {
+      throw new IllegalArgumentException("scale must not be null.");
+    }
 
     Entity projectile = new Entity();
     projectile
