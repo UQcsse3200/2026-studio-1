@@ -1,7 +1,7 @@
 package com.csse3200.game.win;
 
 import com.badlogic.gdx.math.GridPoint2;
-import com.csse3200.game.entities.spawn.EnemyId;
+import com.csse3200.game.entities.spawn.enemies.EnemyId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

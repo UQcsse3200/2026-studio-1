@@ -1,4 +1,4 @@
-package com.csse3200.game.entities.spawn;
+package com.csse3200.game.entities.spawn.enemies;
 
 import com.badlogic.gdx.math.GridPoint2;
 

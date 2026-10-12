@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
+import com.csse3200.game.entities.spawn.enemies.PersistentEnemyIdComponent;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
