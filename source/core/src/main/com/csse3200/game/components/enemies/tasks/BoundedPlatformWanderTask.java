@@ -1,4 +1,4 @@
-package com.csse3200.game.components.tasks;
+package com.csse3200.game.components.enemies.tasks;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -44,7 +44,7 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
    * @return a wander target no further than the radius from the anchor
    */
   @Override
-  protected Vector2 getRandomPosInRange() {
+  public Vector2 getRandomPosInRange() {
     Vector2 candidate = super.getRandomPosInRange();
     if (!isAnchored()) {
       return candidate;

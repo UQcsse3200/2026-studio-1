@@ -1,8 +1,9 @@
-package com.csse3200.game.components.tasks;
+package com.csse3200.game.components.enemies.tasks;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.csse3200.game.components.tasks.WanderTask;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.raycast.RaycastHit;

@@ -1,9 +1,9 @@
-package com.csse3200.game.components.tasks;
+package com.csse3200.game.components.enemies.tasks;
 
 import com.csse3200.game.ai.tasks.DefaultTask;
 import com.csse3200.game.ai.tasks.PriorityTask;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
 import com.csse3200.game.entities.Entity;
 
 /**
