@@ -23,7 +23,6 @@ import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.ui.UIComponent;
 import com.csse3200.game.ui.terminal.commands.InventoryCommand;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -864,8 +863,7 @@ public class InventoryDisplay extends UIComponent {
   }
 
   /**
-   * Sets inventory to be visible or not. Used by terminal command {@link
-   * InventoryCommand}
+   * Sets inventory to be visible or not. Used by terminal command {@link InventoryCommand}
    *
    * @param shouldHide boolean on whether to hide the inventory or not.
    */

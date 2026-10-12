@@ -149,6 +149,13 @@ public class NPCFactory {
     addHazardRules(skeleton, grounded);
 
     skeleton.getComponent(AnimationRenderComponent.class).scaleEntity();
+
+    // Attack from range instead of flying/chasing all the way onto the target - see
+    // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
+    skeleton
+        .getComponent(AITaskComponent.class)
+        .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range));
+
     skeleton.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(skeleton, collisionScale.x, collisionScale.y);
     return skeleton;
@@ -937,11 +944,13 @@ public class NPCFactory {
    * @return entity
    */
   private static Entity createBasePlatformerNPC(Entity target, final float floorCollisionScale) {
+    if (target == null) {
+      throw new IllegalArgumentException("Target cannot be null");
+    }
     AITaskComponent aiComponent =
         new AITaskComponent()
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale))
-            .addTask(new ChaseTask(target, 10, 3f, 4f))
-            .addTask(new MeleeAttackTask(target, 15, 1f));
+            .addTask(new ChaseTask(target, 10, 3f, 4f));
     String generatedName = nameGenerator.generateName();
     Entity npc =
         new Entity()
