@@ -1,6 +1,5 @@
 package com.csse3200.game.upgrades;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -15,6 +14,7 @@ import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
+import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +89,10 @@ public class UpgradesDisplay extends UIComponent {
    * player to have earned anything from; passing the same entity again is also a no-op.
    */
   public void setPlayer(Entity newPlayer) {
-    if (this.player != null && this.player != newPlayer) {
+    if (this.player == newPlayer) {
+      return; // true no-op, as documented above - already listening, nothing to clear
+    }
+    if (this.player != null) {
       clearAllUpgrades();
     }
     this.player = newPlayer;
@@ -260,10 +263,7 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyEnduranceEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+    triggerUpgradeActivatedFlash(node);
 
     StaminaComponent stamina = getStamina();
     if (stamina == null) {
@@ -284,10 +284,7 @@ public class UpgradesDisplay extends UIComponent {
    * only removes this upgrade's contribution.
    */
   private void applyPlayerSpeedEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+    triggerUpgradeActivatedFlash(node);
 
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
@@ -305,12 +302,9 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyShieldEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+    triggerUpgradeActivatedFlash(node);
 
-    CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
+    CombatStatsComponent combatStats = getCombatStats();
     if (combatStats == null) {
       return;
     }
@@ -322,7 +316,7 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void removeShieldEffect() {
-    CombatStatsComponent combatStats = player.getComponent(CombatStatsComponent.class);
+    CombatStatsComponent combatStats = getCombatStats();
     if (combatStats != null) {
       combatStats.setShieldHits(0);
     }
@@ -331,10 +325,7 @@ public class UpgradesDisplay extends UIComponent {
   private void applyRegenEffect(UpgradeNode node) {
     // Regen's heal itself fires from onEnemyKilled(), not from here - but the flash still needs
     // to fire on activation, same as every other upgrade.
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+    triggerUpgradeActivatedFlash(node);
   }
 
   private void removeRegenEffect() {
@@ -342,10 +333,7 @@ public class UpgradesDisplay extends UIComponent {
   }
 
   private void applyAttackSpeedEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+    triggerUpgradeActivatedFlash(node);
 
     PlayerActions playerActions = getPlayerActions();
     if (playerActions == null) {
@@ -369,10 +357,7 @@ public class UpgradesDisplay extends UIComponent {
    * bonus each time - so a later tier replaces the bonus rather than stacking on top of it.
    */
   private void applySwordDamageEffect(UpgradeNode node) {
-    if (player == null) {
-      return;
-    }
-    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
+    triggerUpgradeActivatedFlash(node);
 
     CombatStatsComponent combatStats = getCombatStats();
     if (combatStats == null) {
@@ -416,6 +401,24 @@ public class UpgradesDisplay extends UIComponent {
 
   private DeathStateComponent getDeathState() {
     return player == null ? null : player.getComponent(DeathStateComponent.class);
+  }
+
+  /**
+   * Fires {@code UPGRADE_ACTIVATED_EVENT} on the player so {@code UpgradeActivationFlashComponent}
+   * can flash the sprite on activation - every apply*Effect() method above calls this instead of
+   * triggering the event itself.
+   *
+   * <p>Skipped while {@code node} is being restored from a save (see {@link
+   * UpgradeNode#isRestoring()}): {@link UpgradeNode#restore(int, float, int)} re-runs the same
+   * tier-changed callback so the gameplay effect (stat bonus, shield hits, etc.) is still applied,
+   * but a restore isn't a fresh purchase and shouldn't flash the player as if it were one. Also a
+   * no-op if {@link #player} hasn't been set yet.
+   */
+  private void triggerUpgradeActivatedFlash(UpgradeNode node) {
+    if (player == null || node.isRestoring()) {
+      return;
+    }
+    player.getEvents().trigger(UPGRADE_ACTIVATED_EVENT);
   }
 
   private void addActors() {
@@ -567,7 +570,10 @@ public class UpgradesDisplay extends UIComponent {
     boolean playerDead = deathState != null && deathState.isDead();
 
     if (!paused && !playerDead) {
-      float delta = Gdx.graphics.getDeltaTime();
+      // The game clock, not Gdx.graphics.getDeltaTime() directly - this is the same source every
+      // other time-scaled system reads, so these timers honour timeScale consistently with the
+      // rest of the game instead of only through the paused/playerDead gates above.
+      float delta = ServiceLocator.getTimeSource().getDeltaTime();
       for (UpgradeNode node : actionUpgrades) {
         node.tickTime(delta);
       }
