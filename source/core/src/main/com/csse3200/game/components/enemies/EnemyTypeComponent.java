@@ -1,4 +1,4 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies;
 
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.EnemyType;

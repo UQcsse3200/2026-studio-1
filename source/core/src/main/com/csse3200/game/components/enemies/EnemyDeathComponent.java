@@ -1,4 +1,4 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies;
 
 import com.badlogic.gdx.Gdx;
 import com.csse3200.game.Quests.Quest;

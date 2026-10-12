@@ -1,4 +1,4 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies;
 
 import com.csse3200.game.components.Component;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * always added first (see {@code NPCFactory}'s {@code createBaseFlyingNPC}).
  */
 public class FlightComponent extends Component {
-  private float linearDamping;
+  private final float linearDamping;
   private static final Logger logger = LoggerFactory.getLogger(FlightComponent.class);
 
   /**
