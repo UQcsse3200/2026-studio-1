@@ -13,7 +13,6 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.enemies.attacks.ChargeComponent;
 import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsService;
