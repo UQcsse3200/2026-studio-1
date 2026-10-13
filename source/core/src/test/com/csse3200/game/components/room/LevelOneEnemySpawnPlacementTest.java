@@ -10,7 +10,7 @@ import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.factories.EnemyFactory;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
@@ -148,7 +148,7 @@ class LevelOneEnemySpawnPlacementTest {
   @AfterEach
   void resetRegistry() {
     EntitySpawnRegistry.clear();
-    DefaultEntitySpawns.reset();
+    EnemyFactory.registerEnemySpawns();
   }
 
   @Test
@@ -208,8 +208,7 @@ class LevelOneEnemySpawnPlacementTest {
     // Same call the game makes at start up. Registering only stores factories: nothing is built,
     // so no atlases or physics are needed. The registry is static, so resetRegistry cleans up.
     EntitySpawnRegistry.clear();
-    DefaultEntitySpawns.reset();
-    DefaultEntitySpawns.registerAll();
+    EnemyFactory.registerEnemySpawns();
 
     Set<String> unknown = new LinkedHashSet<>();
     for (SpawnPoint spawn : enemies) {
