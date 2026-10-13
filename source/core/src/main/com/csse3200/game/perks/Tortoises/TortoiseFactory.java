@@ -1,4 +1,4 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.perks.Tortoises;
 
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -71,6 +71,13 @@ public final class TortoiseFactory {
    */
   public static void resetAll() {
     TortoiseRegistry.resetAll();
+  }
+
+  public static void markFound(String tortoiseId) {
+    if (tortoiseId.isBlank()) {
+      throw new IllegalArgumentException("Tortoise id cannot be blank");
+    }
+    TortoiseRegistry.markFound(tortoiseId);
   }
 
   private TortoiseFactory() {
