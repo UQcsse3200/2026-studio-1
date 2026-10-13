@@ -285,7 +285,7 @@
       "destinationMap": "maps/level1-greek.json",
       "destinationSpawn": {
         "x": 53,
-        "y": 48
+        "y": 46
       }
     },
     {
@@ -298,7 +298,7 @@
       "destinationMap": "maps/level1-greek.json",
       "destinationSpawn": {
         "x": 53,
-        "y": 48
+        "y": 46
       }
     }
   ]
