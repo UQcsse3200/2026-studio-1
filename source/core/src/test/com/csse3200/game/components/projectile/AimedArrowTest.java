@@ -29,6 +29,7 @@ import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.RenderService;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -392,6 +393,43 @@ class AimedArrowTest {
     assertEquals(0, fired.size());
   }
 
+  // ---------- texture rotation ----------
+
+  @ParameterizedTest(name = "direction ({0},{1}) -> {2} degrees")
+  @CsvSource({
+    "1, 0, 0.0", // right
+    "1, 1, 45.0", // up and right at 45 degrees
+    "0, 1, 90.0", // up
+    "-1, 1, 135.0", // up and left at 45 degrees
+    "-1, 0, 180.0", // left
+    "-1, -1, 225.0", // left and down at 45 degrees
+    "0, -1, 270.0", // down
+    "1, -1, 315.0", // down and right at 45 degrees
+  })
+  void correctArrowVisualAngleFromDirection(float dx, float dy, float expectedDegrees) {
+    Entity arrow =
+        ArrowFactory.createAimedArrow(
+            new Vector2(0, 5), new Vector2(dx, dy), SPEED, 10f, 4, 0f, PhysicsLayer.PLAYER);
+    register(arrow);
+
+    assertEquals(0f, smallestAngleBetween(arrowRotation(arrow), expectedDegrees), TOLERANCE);
+  }
+
+  @ParameterizedTest(name = "direction {0} degrees")
+  @CsvSource({
+    "0.0", // right
+    "45.0", // up and right at 45 degrees
+    "90.0", // up
+    "135.0", // up and left at 45 degrees
+    "180.0", // left
+    "225.0", // left and down at 45 degrees
+    "270.0", // down
+    "315.0", // down and right at 45 degrees
+  })
+  void textureDirectionMatchesPhysicsDirection() {
+    // TODO Finish test
+  }
+
   // ---------- helpers ----------
 
   private WeaponItem bow() {
@@ -460,5 +498,14 @@ class AimedArrowTest {
         entity.update();
       }
     }
+  }
+
+  private float arrowRotation(Entity arrow) {
+    return arrow.getComponent(TextureRenderComponent.class).getRotationDegrees();
+  }
+
+  private float smallestAngleBetween(float a, float b) {
+    float diff = Math.abs(a - b) % 360f;
+    return diff > 180f ? 360f - diff : diff;
   }
 }
