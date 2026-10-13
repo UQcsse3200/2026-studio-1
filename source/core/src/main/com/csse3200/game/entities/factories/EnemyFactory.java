@@ -33,6 +33,7 @@ import com.csse3200.game.entities.configs.enemies.attacks.MeleeAttackConfig;
 import com.csse3200.game.entities.configs.enemies.attacks.RangedAttackConfig;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.files.FileLoader;
+import com.csse3200.game.perks.tortoises.TortoiseDropComponent;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsUtils;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -208,6 +209,9 @@ public final class EnemyFactory {
 
   /** Zeus (the BossRoster final boss). */
   private static final int FINAL_BOSS_GOLD = 20;
+
+  /** Zeus's fixed tortoise. */
+  private static final String ZEUS_TORTOISE_ID = "zeus_tortoise";
 
   /** inventory.getItem(1), the slot every armed enemy's weapon sits in. */
   private static final int WEAPON_SLOT = 1;
@@ -821,6 +825,7 @@ public final class EnemyFactory {
     zeus.addComponent(new ZeusAnimationController());
     // Zeus's tortoise drop goes here once TortoiseDropComponent is on the branch (see the
     // commented addTortoiseDrop helper below).
+    addTortoiseDrop(zeus, ZEUS_TORTOISE_ID);
     addMeleeTask(zeus, target, config.melee.range);
     addRangedTask(
         zeus, target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.LIGHTNING, null);
@@ -1235,32 +1240,28 @@ public final class EnemyFactory {
     }
   }
 
-  // Not compiled yet: TortoiseDropComponent is not on the branch. Uncomment this helper, add the
-  // import, and call it from createZeus once it is.
-  // /**
-  //  * Makes an enemy leave a tortoise behind when it dies. A tortoise is a world pickup, not an
-  //  * inventory item, so it cannot go through the enemy's {@code InventoryComponent}; this
-  // attaches a
-  //  * {@code TortoiseDropComponent} that calls {@code TortoiseFactory.createTortoise(tortoiseId)}
-  // at
-  //  * the enemy's position on the {@code "death"} event.
-  //  *
-  //  * @param enemy the enemy to attach the drop to
-  //  * @param tortoiseId the id handed to {@code TortoiseFactory}, so the ledger counts it once
-  //  * @return the same enemy, to allow chaining
-  //  * @throws IllegalArgumentException if enemy is null, or tortoiseId is null or blank
-  //  */
-  // private static Entity addTortoiseDrop(Entity enemy, String tortoiseId) {
-  //   if (enemy == null) {
-  //     throw new IllegalArgumentException("enemy cannot be null.");
-  //   }
-  //   if (tortoiseId == null || tortoiseId.isBlank()) {
-  //     throw new IllegalArgumentException("Tortoise id cannot be blank or null.");
-  //   }
-  //   // on "death": TortoiseFactory.createTortoise(tortoiseId) at the enemy's position, once
-  //   enemy.addComponent(new TortoiseDropComponent(tortoiseId));
-  //   return enemy;
-  // }
+  /**
+   * Makes an enemy leave a tortoise behind when it dies. A tortoise is a world pickup, not an
+   * inventory item, so it cannot go through the enemy's {@code InventoryComponent}; this attaches a
+   * {@code TortoiseDropComponent} that calls {@code TortoiseFactory.createTortoise(tortoiseId)} at
+   * the enemy's position on the {@code "death"} event.
+   *
+   * @param enemy the enemy to attach the drop to
+   * @param tortoiseId the id handed to {@code TortoiseFactory}, so the ledger counts it once
+   * @return the same enemy, to allow chaining
+   * @throws IllegalArgumentException if enemy is null, or tortoiseId is null or blank
+   */
+  private static Entity addTortoiseDrop(Entity enemy, String tortoiseId) {
+    if (enemy == null) {
+      throw new IllegalArgumentException("enemy cannot be null.");
+    }
+    if (tortoiseId == null || tortoiseId.isBlank()) {
+      throw new IllegalArgumentException("Tortoise id cannot be blank or null.");
+    }
+    // on "death": TortoiseFactory.createTortoise(tortoiseId) at the enemy's position, once
+    enemy.addComponent(new TortoiseDropComponent(tortoiseId));
+    return enemy;
+  }
 
   /**
    * Registers the shipped enemy spawn names with {@link EntitySpawnRegistry}. Safe to call
