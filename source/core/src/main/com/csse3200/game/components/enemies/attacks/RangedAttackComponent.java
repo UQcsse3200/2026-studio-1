@@ -117,7 +117,7 @@ public class RangedAttackComponent extends Component {
    * @throws IllegalArgumentException if the prefix is null or blank, plus every rule of the
    *     four-argument constructor
    */
-  protected RangedAttackComponent(
+  RangedAttackComponent(
       float range, float cooldown, float knockback, WeaponItem weapon, String eventPrefix) {
     if (eventPrefix == null || eventPrefix.isBlank()) {
       throw new IllegalArgumentException("eventPrefix must not be blank");
