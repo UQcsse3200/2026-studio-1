@@ -97,7 +97,7 @@
   },
   "lighting": {
     "ambient": { "color": "ambient_orange", "intensity": 0.2 },
-    "player": { "radius": 3.5, "color": "resinous_torch" },
+    "player": { "radius": 3.5, "color": "resinous_torch" }
   },
   "layers": {
     "background": [
