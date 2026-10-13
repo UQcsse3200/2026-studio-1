@@ -62,9 +62,9 @@ public class PlayerActions extends Component {
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
-  private final float CrouchSpeedRate = 0.2f;
-  private final float dashspeed = 5f;
-  private final float slidespeed = 3f;
+  private static final float crouchSpeedRate = 0.2f;
+  private static final float dashSpeed = 5f;
+  private static final float slideSpeed = 3f;
   private float SlideTimer = 0f;
   private boolean crouching = false;
   private boolean moving = false;
@@ -285,7 +285,7 @@ public class PlayerActions extends Component {
     }
 
     if (crouching) {
-      Speed.x = MAX_SPEED.cpy().x * CrouchSpeedRate;
+      Speed.x = MAX_SPEED.cpy().x * crouchSpeedRate;
     } else {
       Speed = MAX_SPEED.cpy();
     }
@@ -545,7 +545,7 @@ public class PlayerActions extends Component {
 
     Body body = physicsComponent.getBody();
 
-    Vector2 impulse = direction.cpy().scl(dashspeed);
+    Vector2 impulse = direction.cpy().scl(dashSpeed);
 
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
 
@@ -588,7 +588,7 @@ public class PlayerActions extends Component {
   private void slidingAction(Vector2 direction) {
     Body body = physicsComponent.getBody();
 
-    Vector2 impulse = direction.cpy().scl(slidespeed);
+    Vector2 impulse = direction.cpy().scl(slideSpeed);
 
     if (impulse.x != 0f) {
       entity

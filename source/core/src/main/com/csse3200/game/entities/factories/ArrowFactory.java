@@ -159,7 +159,7 @@ public class ArrowFactory {
     AimedLineMovementStrategy movement = new AimedLineMovementStrategy(speed, direction);
     Entity arrow =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
+            .addComponent(new TextureRenderComponent(ARROW_IMAGE))
             .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
             .addComponent(new HitboxComponent())
             .addComponent(new CombatStatsComponent(1, damage))
