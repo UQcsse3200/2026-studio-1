@@ -232,9 +232,29 @@ class SideRoomsTest {
       assertEquals(3, door.getHeight());
       assertEquals(1, door.getWidth());
       assertEquals(room.parent(), door.getDestinationMap());
-      assertEquals(room.parentArrival(), door.getDestinationSpawn());
       assertNotNull(door.getTexture(), "a visible door");
     }
+    assertEquals(room.parentArrival(), entry.getDestinationSpawn());
+    GridPoint2 expectedExitArrival =
+        room.path().equals("maps/nether-hounds-den.json")
+            ? new GridPoint2(50, 40)
+            : room.parentArrival();
+    assertEquals(expectedExitArrival, exit.getDestinationSpawn());
+  }
+
+  @Test
+  void firstNetherRoomMustBeCompletedToReachTheSecondLayer() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+    LevelMapData houndsDen = loader.load("maps/nether-hounds-den.json");
+
+    for (int x = 0; x < nether.getWidth(); x++) {
+      assertTrue(view.isSolid(x, 39), "the first layer has a solid ceiling at x=" + x);
+    }
+    assertEquals(new GridPoint2(50, 34), houndsDen.getTransitions().get(0).getDestinationSpawn());
+    assertEquals(new GridPoint2(50, 40), houndsDen.getTransitions().get(1).getDestinationSpawn());
+    assertFalse(view.isSolid(50, 40), "the room exit lands above the ceiling");
+    assertTrue(view.isSupporting(50, 39), "the room exit has a floor beneath it");
   }
 
   @ParameterizedTest(name = "{0}")
