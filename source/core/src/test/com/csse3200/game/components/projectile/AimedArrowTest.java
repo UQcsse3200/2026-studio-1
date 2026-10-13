@@ -417,17 +417,32 @@ class AimedArrowTest {
 
   @ParameterizedTest(name = "direction {0} degrees")
   @CsvSource({
-    "0.0", // right
-    "45.0", // up and right at 45 degrees
-    "90.0", // up
-    "135.0", // up and left at 45 degrees
-    "180.0", // left
-    "225.0", // left and down at 45 degrees
-    "270.0", // down
-    "315.0", // down and right at 45 degrees
+    "0", // right
+    "45", // up and right at 45 degrees
+    "90", // up
+    "135", // up and left at 45 degrees
+    "180", // left
+    "225", // left and down at 45 degrees
+    "270", // down
+    "315", // down and right at 45 degrees
   })
-  void textureDirectionMatchesPhysicsDirection() {
-    // TODO Finish test
+  void textureDirectionMatchesPhysicsDirection(int degrees) {
+    // Get the direction of the current angle in Vector2 using going to the right as a base
+    Vector2 direction = new Vector2(1f, 0f).setAngleDeg(degrees).scl(5f);
+
+    Entity arrow =
+        ArrowFactory.createAimedArrow(
+            new Vector2(0, 5),
+            new Vector2(direction.x, direction.y),
+            SPEED,
+            10f,
+            4,
+            0f,
+            PhysicsLayer.PLAYER);
+    register(arrow);
+
+    assertEquals(
+        0f, smallestAngleBetween(arrowRotation(arrow), velocityOf(arrow).angleDeg()), TOLERANCE);
   }
 
   // ---------- helpers ----------
