@@ -45,11 +45,7 @@ import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.factories.LootFactory;
-import com.csse3200.game.entities.factories.NPCFactory;
-import com.csse3200.game.entities.factories.ObstacleFactory;
-import com.csse3200.game.entities.factories.PlayerFactory;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.factories.*;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.entities.spawn.PersistentNpcComponent;
@@ -310,7 +306,7 @@ public class LevelGameArea extends GameArea {
 
   @Override
   public void create() {
-    DefaultEntitySpawns.registerAll();
+    EnemyFactory.registerEnemySpawns();
     NPCFactory.registerNpcSpawns();
     mapData = mapLoader.load(mapPath);
     loadAssets();
