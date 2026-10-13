@@ -8,5 +8,6 @@ import com.csse3200.game.entities.configs.enemies.attacks.PacingConfig;
 public class CerberusConfig extends BaseEntityConfig {
   /** The settings of its melee attack. */
   public MeleeAttackConfig melee;
+
   public PacingConfig pacing;
 }
