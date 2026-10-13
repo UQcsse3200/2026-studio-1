@@ -1,6 +1,7 @@
 package com.csse3200.game.win;
 
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,11 +12,12 @@ import java.util.Set;
  * "how many quests were finished", so this class remembers that.
  *
  * <p><b>Kinds</b> match the four quest types already in {@code Quests/}: {@link #JUMP}, {@link
- * #ENEMIES_KILLED}, {@link #GOLD_SPENT} and {@link #SHIELDS_COLLECTED}.
+ * #ENEMIES_KILLED}, {@link #GOLD_SPENT} and {@link #SHIELDS_COLLECTED}. Hidden tortoises are not
+ * quests and are counted separately, in {@link TortoiseLedger}.
  *
  * <p><b>Who writes to it:</b> only {@code QuestGiverComponent}, at the moment a quest is turned in
- * with a progress of 100 or more (see {@code 06_wiring.md}). A quest that is cleared at less than
- * 100 is abandoned and must NOT be recorded.
+ * with a progress of 100 or more. A quest that is cleared at less than 100 is abandoned and must
+ * NOT be recorded.
  *
  * <p><b>Saving:</b> the state is static, like {@code Quest} and {@code EnemyRegistry}. It must be
  * loaded from the save file when a game is loaded and reset when a new game starts, otherwise
@@ -23,8 +25,7 @@ import java.util.Set;
  *
  * <p><b>Limitations:</b> it counts completions, not distinct quests, so the same kind completed
  * twice counts twice. It does not know how many quests the game offers; that is {@link
- * WinEvaluator#QUESTS_REQUIRED_FOR_LEGEND}'s job. At the time of writing no NPC on the enemies
- * branch hands out quests, so the count stays at zero until team 2's NPCs are merged.
+ * WinEvaluator#QUESTS_REQUIRED_FOR_LEGEND}'s job.
  *
  * <p><b>Style reference:</b> {@code EnemyRegistry} (static state with load and export).
  */
@@ -42,84 +43,98 @@ public final class QuestLedger {
   /** Quest kind: collect a number of shields. */
   public static final String SHIELDS_COLLECTED = "shieldsCollected";
 
+  /** Every kind the ledger accepts. Anything else is rejected or ignored. */
+  private static final Set<String> VALID_KINDS =
+      Set.of(JUMP, ENEMIES_KILLED, GOLD_SPENT, SHIELDS_COLLECTED);
+
+  /** How many of each kind have been completed. A kind with no entry has a count of zero. */
+  private static final Map<String, Integer> completed = new HashMap<>();
+
   private QuestLedger() {
-    // utility class
+    throw new IllegalStateException("Utility class");
   }
 
   /**
-   * Records one completed quest.
+   * Records one completed quest by adding one to that kind's count.
    *
-   * @param kind one of the four kind constants
-   * @throws IllegalArgumentException if the kind is null, blank or not one of the four
+   * @param kind one of the kind constants
+   * @throws IllegalArgumentException if the kind is null, blank or not one of the constants
    */
   public static void recordCompleted(String kind) {
-    // BEGIN recordCompleted
-    //   IF the kind is missing, blank or not one of the four known kinds THEN reject with
-    //     "unknown quest kind: <kind>"
-    //   add one to the count for that kind
-    // END recordCompleted
+    if (kind == null || !VALID_KINDS.contains(kind)) {
+      throw new IllegalArgumentException("unknown quest kind: " + kind);
+    }
+    completed.merge(kind, 1, Integer::sum);
   }
 
   /**
-   * @return how many quests have been completed in total, across all kinds
+   * Adds up the quests completed across all four kinds.
+   *
+   * @return how many quests have been completed in total
    */
   public static int getCompletedCount() {
-    // BEGIN getCompletedCount
-    //   add up the counts of all four kinds
-    // END getCompletedCount
-    return 0;
+    int total = 0;
+    for (int count : completed.values()) {
+      total += count;
+    }
+    return total;
   }
 
   /**
+   * Looks up the count for one kind.
+   *
    * @param kind a kind constant
-   * @return how many quests of that kind were completed; 0 for a kind never completed or unknown
+   * @return how many of that kind were completed; 0 for a kind never completed or unknown
    */
   public static int getCompleted(String kind) {
-    // BEGIN getCompleted
-    //   give back the count for the kind, or zero if there is none
-    // END getCompleted
-    return 0;
+    if (kind == null) {
+      return 0;
+    }
+    return completed.getOrDefault(kind, 0);
   }
 
   /**
+   * Lists the quest kinds that have been completed at least once.
+   *
    * @return the kinds completed at least once; a copy, so the caller cannot change the ledger
    */
   public static Set<String> getCompletedKinds() {
-    // BEGIN getCompletedKinds
-    //   collect every kind whose count is above zero into a new set
-    // END getCompletedKinds
-    return Collections.emptySet();
+    return new HashSet<>(completed.keySet());
   }
 
   /** Forgets every completed quest. Call it when a new game starts. */
   public static void reset() {
-    // BEGIN reset
-    //   clear all counts
-    // END reset
+    completed.clear();
   }
 
   /**
-   * Replaces the ledger with saved counts. Unknown kinds and counts below zero are ignored; null
-   * clears the ledger.
+   * Replaces the ledger with saved counts. Unknown kinds and counts of zero or below are ignored;
+   * null clears the ledger.
+   *
+   * <p>The values are read as {@code Number}, not {@code Integer}, because the save file is parsed
+   * without type information: a count written as a whole number can come back as a Long or a Float.
    *
    * @param saved a map of kind to count, or null
    */
-  public static void loadFrom(Map<String, Integer> saved) {
-    // BEGIN loadFrom
-    //   clear all counts
-    //   IF the argument is missing THEN stop
-    //   FOR each entry
-    //     IF the kind is one of the four AND the count is above zero THEN store the count
-    // END loadFrom
+  public static void loadFrom(Map<String, ? extends Number> saved) {
+    completed.clear();
+    if (saved == null) {
+      return;
+    }
+    for (Map.Entry<String, ? extends Number> entry : saved.entrySet()) {
+      Number count = entry.getValue();
+      if (VALID_KINDS.contains(entry.getKey()) && count != null && count.intValue() > 0) {
+        completed.put(entry.getKey(), count.intValue());
+      }
+    }
   }
 
   /**
+   * Copies the ledger for the save file. Kinds that have never been completed are left out.
+   *
    * @return a copy of the counts by kind, for writing to the save file
    */
   public static Map<String, Integer> exportAll() {
-    // BEGIN exportAll
-    //   give back a new map holding every kind with a count above zero
-    // END exportAll
-    return Collections.emptyMap();
+    return new HashMap<>(completed);
   }
 }

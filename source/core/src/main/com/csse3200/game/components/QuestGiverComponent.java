@@ -5,6 +5,7 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.perks.PerkService;
+import com.csse3200.game.win.QuestLedger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +13,8 @@ public class QuestGiverComponent extends Component {
   public int uniqueNPCID;
   public int goldToGive = 0;
   public Item itemToGive = null;
-  private static Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
-  private Entity player;
+  private static final Logger logger = LoggerFactory.getLogger(QuestGiverComponent.class);
+  private final Entity player;
   private int amountXToDo;
 
   public QuestGiverComponent(Entity player) {
@@ -67,7 +68,9 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    if (!giveOutQuestRewards(checkJumpQuestComplete())) return false;
+    int jumpProgress = checkJumpQuestComplete();
+    if (!giveOutQuestRewards(jumpProgress)) return false;
+    recordIfComplete(QuestLedger.JUMP, jumpProgress);
     Quest.clearJumpQuest(uniqueNPCID);
     return true;
   }
@@ -103,7 +106,9 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    if (!giveOutQuestRewards(checkEnemiesKilledQuestComplete())) return false;
+    int killProgress = checkEnemiesKilledQuestComplete();
+    if (!giveOutQuestRewards(killProgress)) return false;
+    recordIfComplete(QuestLedger.ENEMIES_KILLED, killProgress);
     Quest.clearEnemiesKilledQuest(uniqueNPCID);
     PerkService.recordEvent("enemyKilled", amountXToDo);
     return true;
@@ -150,7 +155,9 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    if (!giveOutQuestRewards(checkGoldSpentQuestComplete())) return false;
+    int goldProgress = checkGoldSpentQuestComplete();
+    if (!giveOutQuestRewards(goldProgress)) return false;
+    recordIfComplete(QuestLedger.GOLD_SPENT, goldProgress);
     Quest.clearGoldSpentQuest(uniqueNPCID);
     PerkService.recordEvent("GoldSpent", amountXToDo);
     return true;
@@ -177,7 +184,9 @@ public class QuestGiverComponent extends Component {
               + e.getMessage());
       return false;
     }
-    if (!giveOutQuestRewards(checkShieldsCollectedQuestComplete())) return false;
+    int shieldProgress = checkShieldsCollectedQuestComplete();
+    if (!giveOutQuestRewards(shieldProgress)) return false;
+    recordIfComplete(QuestLedger.SHIELDS_COLLECTED, shieldProgress);
     Quest.clearShieldsCollectedQuest(uniqueNPCID);
     PerkService.recordEvent("shieldCollected", amountXToDo);
     return true;
@@ -230,11 +239,6 @@ public class QuestGiverComponent extends Component {
     }
   }
 
-  // TODO (win system): in each of the four clear<Kind>Quest methods, keep the progress in a
-  //   local variable, and after the rewards are given out (and before the quest is cleared) call
-  //   recordIfComplete with the matching kind: QuestLedger.JUMP, ENEMIES_KILLED, GOLD_SPENT or
-  //   SHIELDS_COLLECTED.
-
   /**
    * Counts a quest towards the win screen, but only one that was really finished. A quest cleared
    * below 100 percent is abandoned, not completed.
@@ -243,9 +247,9 @@ public class QuestGiverComponent extends Component {
    * @param questProgress the quest's progress as a percentage
    */
   private void recordIfComplete(String kind, int questProgress) {
-    // BEGIN recordIfComplete
-    //   IF questProgress is 100 or more THEN QuestLedger.recordCompleted(kind)
-    // END recordIfComplete
+    if (questProgress >= 100) {
+      QuestLedger.recordCompleted(kind);
+    }
   }
 
   private boolean giveOutQuestRewards(int questProgress) {
@@ -280,5 +284,17 @@ public class QuestGiverComponent extends Component {
     }
     this.itemToGive = itemToGive;
     return true;
+  }
+
+  /** Save/load: returns the target of the quest this NPC gave out. */
+  public int getAmountXToDo() {
+    return amountXToDo;
+  }
+
+  /** Save/load: puts back the target of a saved quest. Values of zero or less are ignored. */
+  public void restoreAmountXToDo(int amountXToDo) {
+    if (amountXToDo > 0) {
+      this.amountXToDo = amountXToDo;
+    }
   }
 }
