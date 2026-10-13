@@ -297,7 +297,7 @@
       "texture": "images/level1/gate-exit-512px.png",
       "destinationMap": "maps/level1-greek.json",
       "destinationSpawn": {
-        "x": 49,
+        "x": 53,
         "y": 52
       }
     }
