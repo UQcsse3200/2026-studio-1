@@ -21,7 +21,11 @@
     "X": {
       "type": "HAZARD",
       "texture": "images/level1/hazard-firepit-512px.png",
-      "damage": "15"
+      "damage": "15",
+      "light": "point",
+      "lightColour": "fire_glow",
+      "lightRadius": "1.5",
+      "flicker": "0.4"
     },
     "v": {
       "type": "DECORATIVE",
@@ -33,7 +37,11 @@
     },
     "a": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-oil-lamp-512px.png"
+      "texture": "images/level1/decor-oil-lamp-512px.png",
+      "light": "point",
+      "lightColour": "oil_lamp",
+      "lightRadius": "1.5",
+      "flicker": "0.1"
     },
     "t": {
       "type": "DECORATIVE",
@@ -91,6 +99,10 @@
     "L": {
       "type": "LOOT"
     }
+  },
+  "lighting": {
+    "ambient": { "color": "lightning_storm", "intensity": 0.6 },
+    "player": { "radius": 2.0, "color": "resinous_torch" }
   },
   "layers": {
     "background": [

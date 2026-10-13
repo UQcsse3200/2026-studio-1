@@ -14,7 +14,8 @@ public enum LightColour {
   AMBIENT_LIGHT(new Color(1.0f, 0.95f, 0.74f, 1.0f)),
   AMBIENT_ORANGE(new Color(0.40f, 0.15f, 0.02f, 1.0f)),
   FIRE_GLOW(new Color(0.95f, 0.48f, 0.0f, 1.0f)),
-  DIVINE_LIGHTNING(new Color(0.55f, 0.70f, 1.0f, 1f));
+  DIVINE_LIGHTNING(new Color(0.55f, 0.70f, 1.0f, 1f)),
+  LIGHTNING_STORM(new Color(0.20f, 0.35f, 0.85f, 1f));
 
   private final Color colour;
 
