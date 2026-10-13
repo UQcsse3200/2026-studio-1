@@ -1,65 +1,90 @@
 package com.csse3200.game.entities.factories;
 
+import static com.badlogic.gdx.graphics.g2d.Animation.PlayMode.LOOP;
+import static com.badlogic.gdx.graphics.g2d.Animation.PlayMode.NORMAL;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.csse3200.game.AttackTestWorld;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.csse3200.game.ai.tasks.AITaskComponent;
+import com.csse3200.game.ai.tasks.PriorityTask;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.enemies.*;
-import com.csse3200.game.components.enemies.animation.CerberusAnimationController;
-import com.csse3200.game.components.enemies.animation.HarpyAnimationController;
+import com.csse3200.game.components.enemies.animation.*;
 import com.csse3200.game.components.enemies.attacks.*;
-import com.csse3200.game.components.loot.WeaponItem;
-import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.enemies.tasks.*;
+import com.csse3200.game.components.loot.*;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
-import com.csse3200.game.components.projectile.ProjectileType;
+import com.csse3200.game.components.tasks.ChaseTask;
+import com.csse3200.game.components.tasks.WanderTask;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.BaseEntityConfig;
 import com.csse3200.game.entities.configs.NPCConfigs;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.extensions.GameExtension;
-import com.csse3200.game.files.FileLoader;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsService;
+import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
-import com.csse3200.game.physics.components.PhysicsComponent;
+import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
-import com.csse3200.game.rendering.DebugRenderer;
+import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+/**
+ * Covers {@link EnemyFactory} and nothing else: every creator, every private helper (reached by
+ * reflection) and the spawn registration. Friendly NPCs are tested in NPCFactoryTest.
+ */
 @ExtendWith(GameExtension.class)
-public class EnemyFactoryTest {
-  // Nested classes cannot name a static method of this class by its short name in @MethodSource, so
-  // the sources are given by full name here.
+class EnemyFactoryTest {
   private static final String EVERY_ENEMY =
       "com.csse3200.game.entities.factories.EnemyFactoryTest#everyEnemy";
-  private static final String NON_CHARGING_ENEMIES =
-      "com.csse3200.game.entities.factories.EnemyFactoryTest#nonChargingEnemies";
-  private static final String ENEMIES_THAT_REJECT_NULL =
-      "com.csse3200.game.entities.factories.EnemyFactoryTest#newEnemiesAndSkeleton";
-  private static final String MID_RANGE_SHOOTERS =
-      "com.csse3200.game.entities.factories.EnemyFactoryTest#midRangeShooters";
+  private static final float TOLERANCE = 1e-4f;
+  private static final String SKELETON_ATLAS = "images/enemies/skeleton.atlas";
+  private static final String SWORD_ATLAS = "images/enemy_weapons/enemy_sword.atlas";
+  private static final String BOW_ATLAS = "images/enemy_weapons/enemy_bow.atlas";
 
   private Entity player;
-  private static NPCConfigs configs;
+  private NPCConfigs configs;
+
+  /** Values mutated by the rule-violation tests, put back after each test. */
+  private float savedMedusaMelee;
+
+  private float savedMedusaCooldown;
+  private float savedZeusMelee;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws ReflectiveOperationException {
     ServiceLocator.registerPhysicsService(new PhysicsService());
     ServiceLocator.registerRenderService(mock(RenderService.class));
     ServiceLocator.registerResourceService(mock(ResourceService.class));
@@ -68,65 +93,227 @@ public class EnemyFactoryTest {
         new Entity()
             .addComponent(new CombatStatsComponent(100, 0))
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER));
-    configs = FileLoader.readClass(NPCConfigs.class, "configs/NPCs.json");
+    configs = (NPCConfigs) read(null, EnemyFactory.class, "configs");
+    savedMedusaMelee = configs.medusa.melee.range;
+    savedMedusaCooldown = configs.medusa.ranged.cooldown;
+    savedZeusMelee = configs.zeus.melee.range;
   }
 
   @AfterEach
-  void resetRegistry() {
+  void tearDown() {
+    configs.medusa.melee.range = savedMedusaMelee;
+    configs.medusa.ranged.cooldown = savedMedusaCooldown;
+    configs.zeus.melee.range = savedZeusMelee;
     EntitySpawnRegistry.clear();
-    DefaultEntitySpawns.reset();
+    EnemyFactory.registerEnemySpawns();
   }
 
-  // ---------- shared data ----------
+  // ---------------------------------------------------------------------------------------
+  // shared data and reflection helpers
+  // ---------------------------------------------------------------------------------------
 
-  /**
-   * One enemy as every parameterised test in this file sees it: its creator, its type label, and
-   * the health and base attack NPCs.json gives it. A single object, so each test reads only the
-   * parts it needs.
-   */
-  private record EnemyCase(
-      String name, Function<Entity, Entity> factory, String label, int health, int baseAttack) {
+  /** What the factory is expected to build for one enemy. */
+  private record Spec(
+      String name,
+      Function<Entity, Entity> factory,
+      String label,
+      int gold,
+      WeaponType weapon,
+      int tier,
+      float scale,
+      float heightRatio,
+      float collisionX,
+      float collisionY,
+      boolean grounded,
+      List<String> animations) {
     @Override
     public String toString() {
       return name;
     }
   }
 
-  static Stream<EnemyCase> everyEnemy() {
+  static Stream<Spec> everyEnemy() {
     return Stream.of(
-        new EnemyCase("skeleton", EnemyFactory::createSkeleton, "Skeleton", 30, 5),
-        new EnemyCase(
-            "ranged skeleton", EnemyFactory::createRangedSkeleton, "Ranged Skeleton", 20, 5),
-        new EnemyCase("minotaur", EnemyFactory::createMinotaur, "Minotaur", 55, 5),
-        new EnemyCase("centaur", EnemyFactory::createCentaur, "Centaur", 40, 7),
-        new EnemyCase("cyclops", EnemyFactory::createCyclops, "Cyclops", 70, 10),
-        new EnemyCase("medusa", EnemyFactory::createMedusa, "Medusa", 150, 8),
-        new EnemyCase("cerberus", EnemyFactory::createCerberus, "Cerberus", 250, 12),
-        new EnemyCase("zeus", EnemyFactory::createZeus, "Zeus", 300, 10),
-        new EnemyCase("harpy", EnemyFactory::createHarpy, "Harpy", 30, 6),
-        new EnemyCase("ranged harpy", EnemyFactory::createRangedHarpy, "Ranged Harpy", 40, 5));
+        new Spec(
+            "skeleton",
+            EnemyFactory::createSkeleton,
+            "Skeleton",
+            3,
+            WeaponType.SWORD,
+            1,
+            1f,
+            1f,
+            0.45f,
+            0.6f,
+            true,
+            List.of("idlel", "idler", "walkl", "walkr")),
+        new Spec(
+            "ranged skeleton",
+            EnemyFactory::createRangedSkeleton,
+            "Ranged Skeleton",
+            3,
+            WeaponType.BOW,
+            1,
+            1f,
+            1f,
+            0.45f,
+            0.6f,
+            true,
+            List.of("idlel", "idler", "walkl", "walkr")),
+        new Spec(
+            "minotaur",
+            EnemyFactory::createMinotaur,
+            "Minotaur",
+            12,
+            WeaponType.AXE,
+            2,
+            4f,
+            80f / 96f,
+            0.8f,
+            0.7f,
+            true,
+            List.of(
+                "minotaur_idle_l",
+                "minotaur_idle_r",
+                "minotaur_walk_l",
+                "minotaur_walk_r",
+                "minotaur_charge_l",
+                "minotaur_charge_r",
+                "minotaur_swing_l",
+                "minotaur_swing_r")),
+        new Spec(
+            "centaur",
+            EnemyFactory::createCentaur,
+            "Centaur",
+            12,
+            WeaponType.BOW,
+            1,
+            4f,
+            53f / 66f,
+            0.4f,
+            0.5f,
+            true,
+            List.of(
+                "centaur_idle_l",
+                "centaur_idle_r",
+                "centaur_run_l",
+                "centaur_run_r",
+                "centaur_swing_l",
+                "centaur_swing_r",
+                "centaur_death_l",
+                "centaur_death_r")),
+        new Spec(
+            "cyclops",
+            EnemyFactory::createCyclops,
+            "Cyclops",
+            12,
+            null,
+            0,
+            2f,
+            48f / 64f,
+            0.4f,
+            0.5f,
+            true,
+            List.of(
+                "cyclops_idle_l",
+                "cyclops_idle_r",
+                "cyclops_walk_l",
+                "cyclops_walk_r",
+                "cyclops_rock_l",
+                "cyclops_rock_r",
+                "cyclops_stomp_l",
+                "cyclops_stomp_r",
+                "cyclops_death_l",
+                "cyclops_death_r",
+                "cyclops_taunt_l",
+                "cyclops_taunt_r",
+                "cyclops_eye_scratch_l",
+                "cyclops_eye_scratch_r")),
+        new Spec(
+            "medusa",
+            EnemyFactory::createMedusa,
+            "Medusa",
+            12,
+            null,
+            0,
+            2f,
+            91f / 128f,
+            0.4f,
+            0.5f,
+            true,
+            List.of(
+                "gorgon_idle_l",
+                "gorgon_idle_r",
+                "gorgon_walk_l",
+                "gorgon_walk_r",
+                "gorgon_attack_l",
+                "gorgon_attack_r",
+                "gorgon_dead_l",
+                "gorgon_dead_r")),
+        new Spec(
+            "cerberus",
+            EnemyFactory::createCerberus,
+            "Cerberus",
+            12,
+            null,
+            0,
+            1.5f,
+            96f / 150f,
+            0.45f,
+            0.6f,
+            true,
+            List.of("cerberus_l", "cerberus_r")),
+        new Spec(
+            "zeus",
+            EnemyFactory::createZeus,
+            "Zeus",
+            20,
+            null,
+            0,
+            2f,
+            68f / 37f,
+            0.4f,
+            0.5f,
+            true,
+            List.of(
+                "zeus_idle_l",
+                "zeus_idle_r",
+                "zeus_walk_l",
+                "zeus_walk_r",
+                "zeus_p_strike_l",
+                "zeus_p_strike_r",
+                "zeus_slam_l",
+                "zeus_slam_r",
+                "zeus_death_l",
+                "zeus_death_r")),
+        new Spec(
+            "harpy",
+            EnemyFactory::createHarpy,
+            "Harpy",
+            3,
+            WeaponType.SWORD,
+            1,
+            1f,
+            25f / 38f,
+            0.45f,
+            0.6f,
+            false,
+            List.of("harpy_y_l", "harpy_y_r")),
+        new Spec(
+            "ranged harpy",
+            EnemyFactory::createRangedHarpy,
+            "Ranged Harpy",
+            3,
+            WeaponType.BOW,
+            1,
+            1f,
+            25f / 38f,
+            0.45f,
+            0.6f,
+            false,
+            List.of("harpy_y_l", "harpy_y_r")));
   }
 
-  /** Every enemy whose name is in the given list, in the order of everyEnemy(). */
-  private static Stream<EnemyCase> enemiesNamed(String... names) {
-    List<String> wanted = List.of(names);
-    return everyEnemy().filter(enemy -> wanted.contains(enemy.name()));
-  }
-
-  static Stream<EnemyCase> nonChargingEnemies() {
-    return everyEnemy().filter(enemy -> !List.of("minotaur", "centaur").contains(enemy.name()));
-  }
-
-  static Stream<EnemyCase> newEnemiesAndSkeleton() {
-    return enemiesNamed("skeleton", "medusa", "cerberus", "zeus", "harpy", "ranged harpy");
-  }
-
-  /** The enemies that fire something at a target standing at mid range. */
-  static Stream<EnemyCase> midRangeShooters() {
-    return enemiesNamed("ranged skeleton", "centaur", "cyclops", "medusa", "zeus", "ranged harpy");
-  }
-
-  /** The config block for an enemy by the name used in everyEnemy(). */
   private BaseEntityConfig configFor(String name) {
     return switch (name) {
       case "skeleton" -> configs.skeleton;
@@ -139,13 +326,124 @@ public class EnemyFactoryTest {
       case "zeus" -> configs.zeus;
       case "harpy" -> configs.harpy;
       case "ranged harpy" -> configs.rangedHarpy;
-      default -> throw new IllegalArgumentException("no config for " + name);
+      default -> throw new IllegalArgumentException(name);
     };
   }
 
-  // =====================================================================================
+  /** Reads a private field, static when {@code owner} is null. */
+  private static Object read(Object owner, Class<?> declaring, String name)
+      throws ReflectiveOperationException {
+    Field field = declaring.getDeclaredField(name);
+    field.setAccessible(true);
+    return field.get(owner);
+  }
+
+  /** Reads a field by name from the object's class or any parent; null if there is none. */
+  private static Object fieldOrNull(Object owner, String name) {
+    for (Class<?> type = owner.getClass(); type != null; type = type.getSuperclass()) {
+      try {
+        Field field = type.getDeclaredField(name);
+        field.setAccessible(true);
+        return field.get(owner);
+      } catch (NoSuchFieldException e) {
+        // try the parent class
+      } catch (IllegalAccessException e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<PriorityTask> tasksOf(Entity entity) throws ReflectiveOperationException {
+    return (List<PriorityTask>)
+        read(entity.getComponent(AITaskComponent.class), AITaskComponent.class, "priorityTasks");
+  }
+
+  private static long countTasks(Entity entity, Class<? extends PriorityTask> type)
+      throws ReflectiveOperationException {
+    return tasksOf(entity).stream().filter(type::isInstance).count();
+  }
+
+  /** The tasks of one type, in the order they were added. */
+  private static List<PriorityTask> tasksOfType(Entity entity, Class<? extends PriorityTask> type)
+      throws ReflectiveOperationException {
+    List<PriorityTask> found = new ArrayList<>();
+    for (PriorityTask task : tasksOf(entity)) {
+      if (type.isInstance(task)) {
+        found.add(task);
+      }
+    }
+    return found;
+  }
+
+  /** A task's priority field, or null if the task keeps it under another name. */
+  private static Integer priorityField(PriorityTask task) {
+    Object value = fieldOrNull(task, "priority");
+    return value instanceof Integer i ? i : null;
+  }
+
+  /** Calls a private static EnemyFactory method, throwing whatever it threw. */
+  private static Object call(String name, Class<?>[] types, Object... args) throws Throwable {
+    Method method = EnemyFactory.class.getDeclaredMethod(name, types);
+    method.setAccessible(true);
+    try {
+      return method.invoke(null, args);
+    } catch (InvocationTargetException e) {
+      throw e.getCause();
+    }
+  }
+
+  /** {minX, minY, maxX, maxY} of the box in an entity's collider. */
+  private static float[] colliderBounds(Entity entity) throws ReflectiveOperationException {
+    FixtureDef definition =
+        (FixtureDef)
+            read(
+                entity.getComponent(ColliderComponent.class),
+                ColliderComponent.class,
+                "fixtureDef");
+    PolygonShape shape = (PolygonShape) definition.shape;
+    Vector2 vertex = new Vector2();
+    float[] bounds = {Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
+    for (int i = 0; i < shape.getVertexCount(); i++) {
+      shape.getVertex(i, vertex);
+      bounds[0] = Math.min(bounds[0], vertex.x);
+      bounds[1] = Math.min(bounds[1], vertex.y);
+      bounds[2] = Math.max(bounds[2], vertex.x);
+      bounds[3] = Math.max(bounds[3], vertex.y);
+    }
+    return bounds;
+  }
+
+  private static float colliderWidth(Entity entity) throws ReflectiveOperationException {
+    float[] b = colliderBounds(entity);
+    return b[2] - b[0];
+  }
+
+  private static float colliderHeight(Entity entity) throws ReflectiveOperationException {
+    float[] b = colliderBounds(entity);
+    return b[3] - b[1];
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Animation<TextureRegion>> animationsOf(Object animator) {
+    Object map = fieldOrNull(animator, "animations");
+    assumeTrue(map instanceof Map, "animation map not reachable by reflection");
+    return (Map<String, Animation<TextureRegion>>) map;
+  }
+
+  private static WeaponItem weaponOf(Entity enemy) {
+    return (WeaponItem) enemy.getComponent(InventoryComponent.class).getItem(1);
+  }
+
+  private static AnimationRenderComponent newAnimator(String path) throws Throwable {
+    return (AnimationRenderComponent)
+        call("newAnimator", new Class<?>[] {String.class, boolean.class}, path, true);
+  }
+
+  // =======================================================================================
   // EVERY ENEMY
-  // =====================================================================================
+  // =======================================================================================
 
   @Nested
   @DisplayName("every enemy")
@@ -153,1840 +451,1020 @@ public class EnemyFactoryTest {
 
     @ParameterizedTest(name = "{0} builds")
     @MethodSource(EVERY_ENEMY)
-    void shouldBuildEveryEnemyWithoutThrowing(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
-
-      assertNotNull(enemy, expected + " must be built");
+    void shouldBuild(Spec spec) {
+      assertNotNull(spec.factory().apply(player));
     }
 
-    @ParameterizedTest(name = "{0} has the components every enemy needs")
+    @ParameterizedTest(name = "{0} rejects a null target by name")
     @MethodSource(EVERY_ENEMY)
-    void shouldWireStatsTypeLootDeathAnimationAndAiOnEveryEnemy(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
+    void shouldRejectANullTargetNamingTheEnemy(Spec spec) {
+      IllegalArgumentException thrown =
+          assertThrows(IllegalArgumentException.class, () -> spec.factory().apply(null));
 
-      assertNotNull(enemy.getComponent(CombatStatsComponent.class), expected + " combat stats");
-      assertNotNull(
-          enemy.getComponent(EnemyTypeComponent.class),
-          expected + " needs an enemy type: the death handler reads its label");
-      assertNotNull(enemy.getComponent(InventoryComponent.class), expected + " inventory");
-      assertNotNull(enemy.getComponent(ItemDropComponent.class), expected + " item drop");
-      assertNotNull(enemy.getComponent(EnemyDeathComponent.class), expected + " death handler");
-      assertNotNull(enemy.getComponent(AnimationRenderComponent.class), expected + " animator");
-      assertNotNull(enemy.getComponent(AITaskComponent.class), expected + " AI");
+      assertEquals(spec.label() + " needs a target", thrown.getMessage());
     }
 
     @ParameterizedTest(name = "{0} carries its type label")
     @MethodSource(EVERY_ENEMY)
-    void shouldLabelEveryEnemyWithItsType(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
-
-      assertEquals(expected.label(), enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel());
+    void shouldCarryItsTypeLabel(Spec spec) {
+      assertEquals(
+          spec.label(),
+          spec.factory().apply(player).getComponent(EnemyTypeComponent.class).getEnemyLabel());
     }
 
-    @ParameterizedTest(name = "{0} takes its health and attack from the config")
+    @ParameterizedTest(name = "{0} has the shared parts")
     @MethodSource(EVERY_ENEMY)
-    void shouldTakeHealthAndAttackFromTheConfig(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
-      BaseEntityConfig config = configFor(expected.name());
+    void shouldHaveTheSharedParts(Spec spec) {
+      Entity enemy = spec.factory().apply(player);
 
-      CombatStatsComponent stats = enemy.getComponent(CombatStatsComponent.class);
-      assertEquals(config.health, stats.getHealth(), expected + " health");
-      assertEquals(config.baseAttack, stats.getBaseAttack(), expected + " base attack");
+      assertNotNull(enemy.getComponent(CombatStatsComponent.class));
+      assertNotNull(enemy.getComponent(InventoryComponent.class));
+      assertNotNull(enemy.getComponent(ItemDropComponent.class));
+      assertNotNull(enemy.getComponent(EnemyDeathComponent.class));
+      assertNotNull(enemy.getComponent(AnimationRenderComponent.class));
+      assertNotNull(enemy.getComponent(AITaskComponent.class));
+      assertNotNull(enemy.getComponent(HazardContactDamageComponent.class));
     }
 
-    @ParameterizedTest(name = "{0} has a positive size")
+    @ParameterizedTest(name = "{0} takes health and base attack from the config")
     @MethodSource(EVERY_ENEMY)
-    void shouldGiveEveryEnemyAPositiveScale(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
+    void shouldTakeHealthAndBaseAttackFromTheConfig(Spec spec) {
+      CombatStatsComponent stats =
+          spec.factory().apply(player).getComponent(CombatStatsComponent.class);
+      BaseEntityConfig config = configFor(spec.name());
 
-      assertTrue(enemy.getScale().x > 0f, expected + " width");
-      assertTrue(enemy.getScale().y > 0f, expected + " height");
+      assertEquals(config.health, stats.getHealth(), "health");
+      assertEquals(config.baseAttack, stats.getBaseAttack(), "base attack, not health");
     }
 
-    @ParameterizedTest(name = "{0} can attack")
+    @ParameterizedTest(name = "{0} pays its gold")
     @MethodSource(EVERY_ENEMY)
-    void shouldGiveEveryEnemyAtLeastOneAttack(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
-
-      assertTrue(
-          enemy.getComponent(MeleeAttackComponent.class) != null
-              || enemy.getComponent(RangedAttackComponent.class) != null
-              || enemy.getComponent(RockAttackComponent.class) != null
-              || enemy.getComponent(LaserAttackComponent.class) != null,
-          expected + " needs a melee or a ranged attack");
+    void shouldPayItsGold(Spec spec) {
+      assertEquals(
+          spec.gold(),
+          spec.factory().apply(player).getComponent(InventoryComponent.class).getGold());
     }
 
-    @ParameterizedTest(name = "{0} winds up for less time than its cooldown")
+    @ParameterizedTest(name = "{0} carries the right weapon")
     @MethodSource(EVERY_ENEMY)
-    void shouldKeepEveryWindupShorterThanItsCooldown(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
-      MeleeAttackComponent melee = enemy.getComponent(MeleeAttackComponent.class);
-      RangedAttackComponent ranged = enemy.getComponent(RangedAttackComponent.class);
-      RockAttackComponent rock = enemy.getComponent(RockAttackComponent.class);
-      LaserAttackComponent laser = enemy.getComponent(LaserAttackComponent.class);
+    void shouldCarryTheRightWeapon(Spec spec) {
+      Entity enemy = spec.factory().apply(player);
 
-      if (melee != null) {
-        assertTrue(melee.getWindupDuration() < melee.getCooldown(), expected + " melee windup");
-      }
-      if (ranged != null) {
-        assertTrue(ranged.getWindupDuration() < ranged.getCooldown(), expected + " ranged windup");
-      }
-      if (rock != null) {
-        assertTrue(rock.getWindupDuration() < rock.getCooldown(), expected + " rock windup");
-      }
-      if (laser != null) {
-        assertTrue(laser.getWindupDuration() < laser.getCooldown(), expected + " laser windup");
+      if (spec.weapon() == null) {
+        assertNull(weaponOf(enemy), "natural weapons never sit in the inventory");
+      } else {
+        assertEquals(spec.weapon(), weaponOf(enemy).getWeaponType());
+        assertEquals(spec.tier(), weaponOf(enemy).getTier());
       }
     }
 
-    @ParameterizedTest(name = "{0}: two builds are independent entities")
+    @ParameterizedTest(name = "{0} has its size and collider")
     @MethodSource(EVERY_ENEMY)
-    void shouldBuildAFreshEntityEveryTime(EnemyCase expected) {
-      Entity first = expected.factory().apply(player);
-      Entity second = expected.factory().apply(player);
+    void shouldHaveItsSizeAndCollider(Spec spec) throws ReflectiveOperationException {
+      Entity enemy = spec.factory().apply(player);
 
-      assertNotSame(first, second, expected.name());
+      assertEquals(spec.scale(), enemy.getScale().x, TOLERANCE);
+      assertEquals(spec.scale() * spec.heightRatio(), enemy.getScale().y, TOLERANCE);
+      assertEquals(enemy.getScale().x * spec.collisionX(), colliderWidth(enemy), TOLERANCE);
+      assertEquals(enemy.getScale().y * spec.collisionY(), colliderHeight(enemy), TOLERANCE);
+    }
+
+    @ParameterizedTest(name = "{0} moves the right way and follows the hazard rules")
+    @MethodSource(EVERY_ENEMY)
+    void shouldMoveTheRightWayAndFollowTheHazardRules(Spec spec) {
+      Entity enemy = spec.factory().apply(player);
+
+      assertEquals(
+          spec.grounded(), enemy.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
+      assertEquals(spec.grounded(), enemy.getComponent(HazardAvoidanceComponent.class) != null);
+      assertEquals(!spec.grounded(), enemy.getComponent(FlightComponent.class) != null);
+      assertEquals(PhysicsLayer.NPC, enemy.getComponent(HitboxComponent.class).getLayer());
+    }
+
+    @ParameterizedTest(name = "{0} registers its animations")
+    @MethodSource(EVERY_ENEMY)
+    void shouldRegisterItsAnimations(Spec spec) {
+      AnimationRenderComponent animator =
+          spec.factory().apply(player).getComponent(AnimationRenderComponent.class);
+
+      for (String animation : spec.animations()) {
+        assertTrue(animator.hasAnimation(animation), spec.name() + " is missing " + animation);
+      }
+    }
+
+    @ParameterizedTest(name = "{0} gets its own inventory and animator each build")
+    @MethodSource(EVERY_ENEMY)
+    void shouldBuildAFreshEntityEveryTime(Spec spec) {
+      Entity first = spec.factory().apply(player);
+      Entity second = spec.factory().apply(player);
+
+      assertNotSame(first, second);
       assertNotSame(
           first.getComponent(InventoryComponent.class),
-          second.getComponent(InventoryComponent.class),
-          expected + " must not share an inventory");
+          second.getComponent(InventoryComponent.class));
       assertNotSame(
           first.getComponent(AnimationRenderComponent.class),
-          second.getComponent(AnimationRenderComponent.class),
-          expected + " must not share an animator");
+          second.getComponent(AnimationRenderComponent.class));
     }
 
-    @ParameterizedTest(name = "{0} rejects a null target")
-    @MethodSource(ENEMIES_THAT_REJECT_NULL)
-    void shouldRejectANullTarget(EnemyCase expected) {
-      assertThrows(
-          IllegalArgumentException.class, () -> expected.factory().apply(null), expected.name());
-    }
-
-    @ParameterizedTest(name = "{0} builds even when its target has no hitbox")
+    @ParameterizedTest(name = "{0} keeps its windups shorter than its cooldowns")
     @MethodSource(EVERY_ENEMY)
-    void shouldBuildEveryEnemyForATargetWithNoHitbox(EnemyCase expected) {
-      // A bare target (stats only) must not crash a factory: the layer the touch attack hits is
-      // the player layer constant, not something read from the target.
-      Entity bareTarget = new Entity().addComponent(new CombatStatsComponent(100, 0));
+    void shouldKeepWindupsShorterThanCooldowns(Spec spec) {
+      Entity enemy = spec.factory().apply(player);
+      MeleeAttackComponent melee = enemy.getComponent(MeleeAttackComponent.class);
+      RangedAttackComponent ranged = enemy.getComponent(RangedAttackComponent.class);
 
-      assertNotNull(expected.factory().apply(bareTarget), expected.name());
+      assertTrue(
+          melee != null || ranged != null || enemy.getComponent(RockAttackComponent.class) != null);
+      if (melee != null) {
+        assertTrue(melee.getWindupDuration() < melee.getCooldown());
+      }
+      if (ranged != null) {
+        assertTrue(ranged.getWindupDuration() < ranged.getCooldown());
+      }
     }
   }
 
-  // =====================================================================================
-  // TOUCH DAMAGE: ONLY THE CHARGING ENEMIES
-  // =====================================================================================
+  // =======================================================================================
+  // CREATORS
+  // =======================================================================================
 
   @Nested
-  @DisplayName("touch damage")
-  class TouchDamage {
-
-    @ParameterizedTest(name = "{0} attacks through an attack component, not touch damage")
-    @MethodSource(NON_CHARGING_ENEMIES)
-    void shouldNotGiveANonChargingEnemyTouchDamage(EnemyCase expected) {
-      Entity enemy = expected.factory().apply(player);
-
-      assertNull(enemy.getComponent(TouchAttackComponent.class), expected.name());
-    }
-
-    @Test
-    void shouldGiveTheChargingEnemiesATouchAttack() {
-      // The charge deals its damage through the touch attack; without one a charge hurts nobody.
-      assertNotNull(
-          EnemyFactory.createMinotaur(player).getComponent(TouchAttackComponent.class), "minotaur");
-      assertNotNull(
-          EnemyFactory.createCentaur(player).getComponent(TouchAttackComponent.class), "centaur");
-    }
-  }
-
-  // =====================================================================================
-  // SKELETON
-  // =====================================================================================
-
-  @Nested
-  @DisplayName("skeleton")
+  @DisplayName("createSkeleton")
   class Skeleton {
-
     @Test
-    void shouldArmTheSkeletonWithATierOneSwordItCanDrop() {
+    void shouldMeleeWithItsSwordFromTheConfig() throws ReflectiveOperationException {
       Entity skeleton = EnemyFactory.createSkeleton(player);
-
-      InventoryComponent inventory = skeleton.getComponent(InventoryComponent.class);
-      assertEquals(3, inventory.getGold());
-      WeaponItem sword = (WeaponItem) inventory.getItem(1);
-      assertEquals(WeaponType.SWORD, sword.getWeaponType());
-      assertEquals(1, sword.getTier());
       MeleeAttackComponent melee = skeleton.getComponent(MeleeAttackComponent.class);
-      assertEquals(configs.skeleton.melee.range, melee.getRange(), 1e-6f);
-      assertEquals(configs.skeleton.melee.cooldown, melee.getCooldown(), 1e-6f);
-      assertEquals(sword.getDamage(), melee.getDamage());
+
+      assertEquals(configs.skeleton.melee.range, melee.getRange(), TOLERANCE);
+      assertEquals(configs.skeleton.melee.cooldown, melee.getCooldown(), TOLERANCE);
+      assertEquals(configs.skeleton.melee.knockback, melee.getKnockback(), TOLERANCE);
+      assertEquals(weaponOf(skeleton).getDamage(), melee.getDamage());
       assertNull(skeleton.getComponent(RangedAttackComponent.class));
     }
+
+    @Test
+    void shouldHaveTheSkeletonAndSwordControllers() {
+      Entity skeleton = EnemyFactory.createSkeleton(player);
+
+      assertNotNull(skeleton.getComponent(SkeletonAnimationController.class));
+      assertNotNull(skeleton.getComponent(EnemyWeaponAnimationComponent.class));
+      assertNotNull(skeleton.getComponent(SkeletonWeaponAnimationController.class));
+    }
+
+    @Test
+    void shouldWanderChaseAndMelee() throws ReflectiveOperationException {
+      Entity skeleton = EnemyFactory.createSkeleton(player);
+
+      assertEquals(1, countTasks(skeleton, PlatformWanderTask.class));
+      assertEquals(1, countTasks(skeleton, ChaseTask.class));
+      assertEquals(1, countTasks(skeleton, MeleeAttackTask.class));
+      assertEquals(0, countTasks(skeleton, RangedAttackTask.class));
+      assertEquals(0, countTasks(skeleton, ChargeTask.class));
+    }
   }
 
-  // =====================================================================================
-  // RANGED SKELETON
-  // =====================================================================================
-
   @Nested
-  @DisplayName("ranged skeleton")
+  @DisplayName("createRangedSkeleton")
   class RangedSkeleton {
+    @Test
+    void shouldShootWithItsBowFromTheConfig() {
+      Entity skeleton = EnemyFactory.createRangedSkeleton(player);
+      RangedAttackComponent ranged = skeleton.getComponent(RangedAttackComponent.class);
+
+      assertEquals(configs.rangedSkeleton.ranged.range, ranged.getRange(), TOLERANCE);
+      assertEquals(configs.rangedSkeleton.ranged.cooldown, ranged.getCooldown(), TOLERANCE);
+      assertEquals(
+          configs.rangedSkeleton.ranged.projectileSpeed, ranged.getProjectileSpeed(), TOLERANCE);
+      assertEquals(configs.rangedSkeleton.ranged.aimed, ranged.isAimed());
+      assertNull(skeleton.getComponent(MeleeAttackComponent.class));
+    }
 
     @Test
-    void shouldArmTheRangedSkeletonWithATierOneBowAndApplyTheProjectileSpeed() {
-      Entity archer = EnemyFactory.createRangedSkeleton(player);
+    void shouldHaveTheSkeletonAndBowControllers() {
+      Entity skeleton = EnemyFactory.createRangedSkeleton(player);
 
-      WeaponItem bow = (WeaponItem) archer.getComponent(InventoryComponent.class).getItem(1);
-      assertEquals(WeaponType.BOW, bow.getWeaponType());
-      RangedAttackComponent ranged = archer.getComponent(RangedAttackComponent.class);
-      assertEquals(configs.rangedSkeleton.ranged.range, ranged.getRange(), 1e-6f);
-      assertEquals(configs.rangedSkeleton.ranged.cooldown, ranged.getCooldown(), 1e-6f);
-      assertEquals(
-          configs.rangedSkeleton.ranged.projectileSpeed, ranged.getProjectileSpeed(), 1e-6f);
-      assertEquals(bow.getDamage(), ranged.getDamage());
-      assertEquals(bow.getWindupDuration(), ranged.getWindupDuration(), 1e-6f);
-      assertNull(archer.getComponent(MeleeAttackComponent.class));
+      assertNotNull(skeleton.getComponent(SkeletonAnimationController.class));
+      assertNotNull(skeleton.getComponent(EnemyWeaponAnimationComponent.class));
+      assertNotNull(skeleton.getComponent(SkeletonWeaponAnimationController.class));
+    }
+
+    @Test
+    void shouldWanderChaseAndShootAtThePrimaryPriority() throws ReflectiveOperationException {
+      Entity skeleton = EnemyFactory.createRangedSkeleton(player);
+
+      assertEquals(1, countTasks(skeleton, PlatformWanderTask.class));
+      assertEquals(1, countTasks(skeleton, ChaseTask.class));
+      assertEquals(1, countTasks(skeleton, RangedAttackTask.class));
+      assertEquals(0, countTasks(skeleton, MeleeAttackTask.class));
+      Integer priority = priorityField(tasksOfType(skeleton, RangedAttackTask.class).get(0));
+      assumeTrue(priority != null);
+      assertEquals(15, priority);
     }
   }
 
-  // =====================================================================================
-  // MINOTAUR
-  // =====================================================================================
+  @Nested
+  @DisplayName("createHarpy and createRangedHarpy")
+  class Harpies {
+    @Test
+    void shouldGiveTheHarpyFlightAndASword() throws ReflectiveOperationException {
+      Entity harpy = EnemyFactory.createHarpy(player);
+
+      assertEquals(
+          configs.harpy.flightDamping,
+          harpy.getComponent(FlightComponent.class).getLinearDamping(),
+          TOLERANCE);
+      assertEquals(
+          configs.harpy.melee.range,
+          harpy.getComponent(MeleeAttackComponent.class).getRange(),
+          TOLERANCE);
+      assertNull(harpy.getComponent(RangedAttackComponent.class));
+      assertNotNull(harpy.getComponent(HarpyAnimationController.class));
+      assertEquals(1, countTasks(harpy, MeleeAttackTask.class));
+      assertEquals(1, countTasks(harpy, ChaseTask.class));
+      assertEquals(0, countTasks(harpy, PlatformWanderTask.class), "flyers do not need a floor");
+      assertTrue(tasksOf(harpy).stream().anyMatch(task -> task.getClass() == WanderTask.class));
+    }
+
+    @Test
+    void shouldGiveTheRangedHarpyFlightAndAnAimedBow() throws ReflectiveOperationException {
+      Entity harpy = EnemyFactory.createRangedHarpy(player);
+      RangedAttackComponent ranged = harpy.getComponent(RangedAttackComponent.class);
+
+      assertEquals(
+          configs.rangedHarpy.flightDamping,
+          harpy.getComponent(FlightComponent.class).getLinearDamping(),
+          TOLERANCE);
+      assertEquals(configs.rangedHarpy.ranged.range, ranged.getRange(), TOLERANCE);
+      assertTrue(ranged.isAimed());
+      assertNull(harpy.getComponent(MeleeAttackComponent.class));
+      assertNotNull(harpy.getComponent(HarpyAnimationController.class));
+      assertEquals(1, countTasks(harpy, RangedAttackTask.class));
+      Integer priority = priorityField(tasksOfType(harpy, RangedAttackTask.class).get(0));
+      assumeTrue(priority != null);
+      assertEquals(15, priority);
+    }
+
+    @Test
+    void shouldUseTheNormalFrameTimeForBothHarpies() {
+      for (Entity harpy :
+          List.of(EnemyFactory.createHarpy(player), EnemyFactory.createRangedHarpy(player))) {
+        Animation<TextureRegion> left =
+            animationsOf(harpy.getComponent(AnimationRenderComponent.class)).get("harpy_y_l");
+        assertEquals(0.1f, left.getFrameDuration(), TOLERANCE);
+        assertEquals(Animation.PlayMode.LOOP, left.getPlayMode());
+      }
+    }
+  }
 
   @Nested
-  @DisplayName("minotaur")
+  @DisplayName("createMinotaur")
   class Minotaur {
-
     @Test
-    void shouldArmTheMinotaurWithATierTwoAxeWithZeroWindupAndDropIt() {
+    void shouldSwingAnAxeWithNoWindup() {
       Entity minotaur = EnemyFactory.createMinotaur(player);
 
-      WeaponItem axe = (WeaponItem) minotaur.getComponent(InventoryComponent.class).getItem(1);
-      assertEquals(WeaponType.AXE, axe.getWeaponType());
-      assertEquals(2, axe.getTier());
-      assertEquals(0f, axe.getWindupDuration(), 1e-6f, "the factory removes the axe's windup");
-      MeleeAttackComponent melee = minotaur.getComponent(MeleeAttackComponent.class);
-      assertEquals(configs.minotaur.melee.range, melee.getRange(), 1e-6f);
-      assertEquals(configs.minotaur.melee.cooldown, melee.getCooldown(), 1e-6f);
-      assertEquals(configs.minotaur.melee.knockback, melee.getKnockback(), 1e-6f);
-      assertEquals(axe.getDamage(), melee.getDamage(), "weapon damage, with no charge bonus");
-      assertEquals(0f, melee.getWindupDuration(), 1e-6f);
-    }
-
-    @Test
-    void shouldGiveTheMinotaurAChargeFromItsConfig() {
-      Entity minotaur = EnemyFactory.createMinotaur(player);
-
-      ChargeComponent charge = minotaur.getComponent(ChargeComponent.class);
-      assertNotNull(charge);
-      assertEquals(configs.minotaur.charge.duration, charge.getChargeDuration(), 1e-6f);
-      assertEquals(configs.minotaur.charge.windupDuration, charge.getWindupDuration(), 1e-6f);
+      assertEquals(0f, weaponOf(minotaur).getWindupDuration(), TOLERANCE);
       assertEquals(
-          1.0f,
-          charge.getDamageMultiplier(),
-          1e-6f,
-          "the multiplier only applies while charging, so it reads 1 at rest");
-      assertTrue(charge.isEndOnHit(), "a rush ends when it lands unless configured otherwise");
-      assertEquals(3, minotaur.getComponent(InventoryComponent.class).getGold());
+          configs.minotaur.melee.range,
+          minotaur.getComponent(MeleeAttackComponent.class).getRange(),
+          TOLERANCE);
+      assertNotNull(minotaur.getComponent(MinotaurAnimationController.class));
     }
 
     @Test
-    void shouldMakeTheMinotaurWiderThanItIsTall() {
+    void shouldChargeAndTouchHurt() throws ReflectiveOperationException {
       Entity minotaur = EnemyFactory.createMinotaur(player);
 
-      assertEquals(4f, minotaur.getScale().x, 1e-4f);
-      assertEquals(4f * (80f / 96f), minotaur.getScale().y, 1e-4f);
+      assertNotNull(minotaur.getComponent(ChargeComponent.class));
+      assertNotNull(minotaur.getComponent(TouchAttackComponent.class));
+      assertEquals(1, countTasks(minotaur, MeleeAttackTask.class));
+      assertEquals(1, countTasks(minotaur, ChargeTask.class));
+      assertEquals(1, countTasks(minotaur, ChaseTask.class));
+      assertEquals(0, countTasks(minotaur, RangedAttackTask.class));
+    }
+
+    @Test
+    void shouldStandItsColliderOnItsFeet() throws ReflectiveOperationException {
+      Entity minotaur = EnemyFactory.createMinotaur(player);
+      float[] bounds = colliderBounds(minotaur);
+
+      float expectedBottom = 16f * minotaur.getScale().y / 80f;
+      assertEquals(expectedBottom, bounds[1], TOLERANCE);
+      assertEquals(minotaur.getScale().x / 2f, (bounds[0] + bounds[2]) / 2f, TOLERANCE);
     }
   }
 
-  // =====================================================================================
-  // CENTAUR
-  // =====================================================================================
-
   @Nested
-  @DisplayName("centaur")
+  @DisplayName("createCentaur")
   class Centaur {
-
     @Test
-    void shouldArmTheCentaurWithABowAndApplyItsRangedConfig() {
+    void shouldShootAndCharge() throws ReflectiveOperationException {
       Entity centaur = EnemyFactory.createCentaur(player);
 
-      WeaponItem bow = (WeaponItem) centaur.getComponent(InventoryComponent.class).getItem(1);
-      assertEquals(WeaponType.BOW, bow.getWeaponType(), "a sword here would be rejected");
-      RangedAttackComponent ranged = centaur.getComponent(RangedAttackComponent.class);
-      assertEquals(configs.centaur.ranged.range, ranged.getRange(), 1e-6f);
-      assertEquals(configs.centaur.ranged.cooldown, ranged.getCooldown(), 1e-6f);
-      assertEquals(configs.centaur.ranged.knockback, ranged.getKnockback(), 1e-6f);
-      assertEquals(configs.centaur.ranged.projectileSpeed, ranged.getProjectileSpeed(), 1e-6f);
-      assertEquals(bow.getDamage(), ranged.getDamage());
+      assertEquals(
+          configs.centaur.ranged.range,
+          centaur.getComponent(RangedAttackComponent.class).getRange(),
+          TOLERANCE);
+      assertNull(centaur.getComponent(MeleeAttackComponent.class));
+      assertNotNull(centaur.getComponent(ChargeComponent.class));
+      assertNotNull(centaur.getComponent(TouchAttackComponent.class));
+      assertNotNull(centaur.getComponent(CentaurAnimationController.class));
+      assertEquals(1, countTasks(centaur, RangedAttackTask.class));
+      assertEquals(1, countTasks(centaur, ChargeTask.class));
+      assertEquals(1, countTasks(centaur, ChaseTask.class));
     }
 
     @Test
-    void shouldGiveTheCentaurAChargeFromItsConfig() {
+    void shouldUseTheRangedPriority() throws ReflectiveOperationException {
       Entity centaur = EnemyFactory.createCentaur(player);
+      Integer priority = priorityField(tasksOfType(centaur, RangedAttackTask.class).get(0));
 
-      ChargeComponent charge = centaur.getComponent(ChargeComponent.class);
-      assertNotNull(charge);
-      assertEquals(configs.centaur.charge.duration, charge.getChargeDuration(), 1e-6f);
-      assertEquals(configs.centaur.charge.windupDuration, charge.getWindupDuration(), 1e-6f);
-      assertTrue(charge.isEndOnHit());
-      assertNull(centaur.getComponent(MeleeAttackComponent.class));
+      assumeTrue(priority != null);
+      assertEquals(12, priority);
     }
   }
 
-  // =====================================================================================
-  // CYCLOPS: STOMP, ROCK AND LASER
-  // =====================================================================================
-
   @Nested
-  @DisplayName("cyclops")
+  @DisplayName("createCyclops")
   class Cyclops {
-
     @Test
-    void shouldGiveTheCyclopsAStompFromItsConfig() {
-      Entity cyclops = EnemyFactory.createCyclops(player);
-
-      MeleeAttackComponent melee = cyclops.getComponent(MeleeAttackComponent.class);
-      assertNotNull(melee);
-      assertEquals(configs.cyclops.melee.range, melee.getRange(), 1e-6f);
-      assertEquals(configs.cyclops.melee.cooldown, melee.getCooldown(), 1e-6f);
-      assertEquals(configs.cyclops.melee.knockback, melee.getKnockback(), 1e-6f);
-      assertEquals(configs.cyclops.melee.windup, melee.getWindupDuration(), 1e-6f);
-    }
-
-    @Test
-    void shouldGiveTheCyclopsARockAttackFromItsConfig() {
-      Entity cyclops = EnemyFactory.createCyclops(player);
-
-      RockAttackComponent rock = cyclops.getComponent(RockAttackComponent.class);
-      assertNotNull(rock);
-      assertEquals("rockAttack", rock.getEventPrefix());
-      assertEquals(configs.cyclops.rock.range, rock.getRange(), 1e-6f);
-      assertEquals(configs.cyclops.rock.cooldown, rock.getCooldown(), 1e-6f);
-      assertEquals(configs.cyclops.rock.knockback, rock.getKnockback(), 1e-6f);
-      assertEquals(configs.cyclops.rock.windup, rock.getWindupDuration(), 1e-6f);
-      assertEquals(configs.cyclops.rock.projectileSpeed, rock.getProjectileSpeed(), 1e-6f);
-      assertEquals(configs.cyclops.rock.spawnHeightFraction, rock.getSpawnHeightFraction(), 1e-6f);
-      assertEquals(configs.cyclops.rock.damageMultiplier, rock.getDamageMultiplier(), 1e-6f);
-    }
-
-    @Test
-    void shouldGiveTheCyclopsALaserAttackFromItsConfig() {
-      Entity cyclops = EnemyFactory.createCyclops(player);
-
-      LaserAttackComponent laser = cyclops.getComponent(LaserAttackComponent.class);
-      assertNotNull(laser);
-      assertEquals("laserAttack", laser.getEventPrefix());
-      assertEquals(configs.cyclops.laser.range, laser.getRange(), 1e-6f);
-      assertEquals(configs.cyclops.laser.cooldown, laser.getCooldown(), 1e-6f);
-      assertEquals(configs.cyclops.laser.knockback, laser.getKnockback(), 1e-6f);
-      assertEquals(configs.cyclops.laser.windup, laser.getWindupDuration(), 1e-6f);
-      assertEquals(configs.cyclops.laser.projectileSpeed, laser.getProjectileSpeed(), 1e-6f);
-      assertEquals(
-          configs.cyclops.laser.spawnHeightFraction, laser.getSpawnHeightFraction(), 1e-6f);
-      assertEquals(configs.cyclops.laser.damageMultiplier, laser.getDamageMultiplier(), 1e-6f);
-    }
-
-    @Test
-    void shouldGiveTheCyclopsThreeAttacksAndNoPlainRangedAttack() {
+    void shouldHaveStompRockAndLaser() {
       Entity cyclops = EnemyFactory.createCyclops(player);
 
       assertNotNull(cyclops.getComponent(MeleeAttackComponent.class));
       assertNotNull(cyclops.getComponent(RockAttackComponent.class));
       assertNotNull(cyclops.getComponent(LaserAttackComponent.class));
-      assertNull(
-          cyclops.getComponent(RangedAttackComponent.class),
-          "the base class lookup does not find the rock or laser");
+      assertNotNull(cyclops.getComponent(EnemyWeaponAnimationComponent.class), "laser overlay");
+      assertNotNull(cyclops.getComponent(CyclopsAnimationController.class));
     }
 
     @Test
-    void shouldOrderTheCyclopsRangesStompThenLaserThenRock() {
-      // The task priorities 15, 13 and 12 only give stomp, then laser, then rock as the target
-      // moves away if the ranges grow in that order.
+    void shouldStompUpCloseWithTheConfigRange() throws ReflectiveOperationException {
       Entity cyclops = EnemyFactory.createCyclops(player);
 
-      float stomp = cyclops.getComponent(MeleeAttackComponent.class).getRange();
-      float laser = cyclops.getComponent(LaserAttackComponent.class).getRange();
-      float rock = cyclops.getComponent(RockAttackComponent.class).getRange();
-      assertTrue(stomp < laser, "stomp range below laser range");
-      assertTrue(laser < rock, "laser range below rock range");
+      assertEquals(
+          configs.cyclops.melee.range,
+          cyclops.getComponent(MeleeAttackComponent.class).getRange(),
+          TOLERANCE);
+      assertEquals(1, countTasks(cyclops, MeleeAttackTask.class));
+      assertEquals(1, countTasks(cyclops, ChaseTask.class));
     }
 
     @Test
-    void shouldGiveTheCyclopsGoldOnlyBecauseNaturalWeaponsMustNeverDrop() {
+    void shouldChooseLaserBeforeRockByPriority() throws ReflectiveOperationException {
       Entity cyclops = EnemyFactory.createCyclops(player);
+      List<PriorityTask> ranged = tasksOfType(cyclops, RangedAttackTask.class);
 
-      InventoryComponent inventory = cyclops.getComponent(InventoryComponent.class);
-      assertTrue(inventory.getGold() > 0, "the Cyclops pays out in gold");
-      assertNull(inventory.getItem(1), "natural weapons live in the attack components");
+      assertEquals(2, ranged.size(), "one for the laser and one for the rock");
+      Integer laser = priorityField(ranged.get(0));
+      Integer rock = priorityField(ranged.get(1));
+      assumeTrue(laser != null && rock != null);
+      assertEquals(13, laser);
+      assertEquals(12, rock);
+    }
+
+    @Test
+    void shouldGiveTheLaserOverlayItsOwnAnimations() {
+      EnemyWeaponAnimationComponent overlay =
+          EnemyFactory.createCyclops(player).getComponent(EnemyWeaponAnimationComponent.class);
+      Map<String, Animation<TextureRegion>> animations = animationsOf(overlay);
+
+      assertTrue(animations.containsKey("cyclops_laser_l"));
+      assertTrue(animations.containsKey("cyclops_laser_r"));
     }
   }
 
-  // =====================================================================================
-  // MEDUSA
-  // =====================================================================================
-
   @Nested
-  @DisplayName("medusa")
+  @DisplayName("createMedusa")
   class Medusa {
-
     @Test
-    void shouldGiveMedusaBothAttacksWithMeleeShorterThanRanged() {
+    void shouldBiteAndGazeWithMeleeShorterThanRanged() {
       Entity medusa = EnemyFactory.createMedusa(player);
-
       MeleeAttackComponent melee = medusa.getComponent(MeleeAttackComponent.class);
       RangedAttackComponent ranged = medusa.getComponent(RangedAttackComponent.class);
-      assertNotNull(melee, "bite");
-      assertNotNull(ranged, "gaze");
+
+      assertEquals(configs.medusa.melee.range, melee.getRange(), TOLERANCE);
+      assertEquals(configs.medusa.ranged.range, ranged.getRange(), TOLERANCE);
       assertTrue(melee.getRange() < ranged.getRange());
+      assertNotNull(medusa.getComponent(MedusaAnimationController.class));
     }
 
     @Test
-    void shouldKeepMedusasGazeCooldownAtLeastTwiceThePetrifyDuration() {
-      Entity medusa = EnemyFactory.createMedusa(player);
-
-      RangedAttackComponent ranged = medusa.getComponent(RangedAttackComponent.class);
-      assertTrue(ranged.getCooldown() >= 2f * configs.medusa.petrify.duration);
+    void shouldPetrifyOnTheGaze() {
+      assertNotNull(EnemyFactory.createMedusa(player).getComponent(PetrifyEffectComponent.class));
     }
 
     @Test
-    void shouldTakeMedusasAttackNumbersFromTheConfig() {
+    void shouldPaceInsteadOfChasing() throws ReflectiveOperationException {
       Entity medusa = EnemyFactory.createMedusa(player);
 
-      MeleeAttackComponent melee = medusa.getComponent(MeleeAttackComponent.class);
-      RangedAttackComponent ranged = medusa.getComponent(RangedAttackComponent.class);
-      assertEquals(configs.medusa.melee.range, melee.getRange(), 1e-6f);
-      assertEquals(configs.medusa.melee.cooldown, melee.getCooldown(), 1e-6f);
-      assertEquals(configs.medusa.ranged.range, ranged.getRange(), 1e-6f);
-      assertEquals(configs.medusa.ranged.cooldown, ranged.getCooldown(), 1e-6f);
-      assertEquals(configs.medusa.ranged.projectileSpeed, ranged.getProjectileSpeed(), 1e-6f);
+      assertEquals(1, countTasks(medusa, BoundedPlatformWanderTask.class));
+      assertEquals(0, countTasks(medusa, ChaseTask.class));
+      assertEquals(1, countTasks(medusa, RangedAttackTask.class));
+      assertEquals(1, countTasks(medusa, MeleeAttackTask.class));
     }
 
     @Test
-    void shouldGiveMedusaGoldAndNoWeaponDrop() {
-      Entity medusa = EnemyFactory.createMedusa(player);
+    void shouldRejectMeleeRangeNotBelowRangedRange() {
+      configs.medusa.melee.range = configs.medusa.ranged.range;
 
-      InventoryComponent inventory = medusa.getComponent(InventoryComponent.class);
-      assertTrue(inventory.getGold() > 0);
-      assertNull(inventory.getItem(1), "natural weapons never drop");
+      assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+    }
+
+    @Test
+    void shouldRejectACooldownShorterThanTwiceThePetrifyDuration() {
+      configs.medusa.ranged.cooldown = configs.medusa.petrify.duration;
+
+      assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
     }
   }
 
-  // =====================================================================================
-  // CERBERUS
-  // =====================================================================================
-
   @Nested
-  @DisplayName("cerberus")
+  @DisplayName("createCerberus")
   class Cerberus {
+    @Test
+    void shouldOnlyBite() {
+      Entity cerberus = EnemyFactory.createCerberus(player);
+      MeleeAttackComponent bite = cerberus.getComponent(MeleeAttackComponent.class);
 
-    // ---------- the numbers in NPCs.json ----------
-
-    @Nested
-    @DisplayName("config")
-    class Config {
-
-      @Test
-      void shouldLoadAMeleeBlock() {
-        assertNotNull(configs.cerberus, "cerberus block missing from NPCs.json");
-        assertNotNull(configs.cerberus.melee, "cerberus melee block missing");
-      }
-
-      @Test
-      void shouldHavePositiveHealth() {
-        assertTrue(configs.cerberus.health > 0, "cerberus health was " + configs.cerberus.health);
-      }
-
-      @Test
-      void shouldHavePositiveBaseAttack() {
-        assertTrue(configs.cerberus.baseAttack > 0);
-      }
-
-      @Test
-      void shouldHaveAPositiveMeleeRange() {
-        assertTrue(configs.cerberus.melee.range > 0);
-      }
-
-      @Test
-      void shouldHaveAPositiveMeleeCooldown() {
-        assertTrue(configs.cerberus.melee.cooldown > 0);
-      }
-
-      @Test
-      void shouldNotHaveANegativeKnockback() {
-        assertTrue(configs.cerberus.melee.knockback >= 0);
-      }
-
-      @Test
-      void shouldKeepWindupBelowItsCooldown() {
-        assertTrue(
-            configs.cerberus.melee.windup < configs.cerberus.melee.cooldown,
-            "the melee component rejects a windup that is not shorter than the cooldown");
-      }
-
-      @Test
-      void shouldNotHaveANegativeWindup() {
-        assertTrue(configs.cerberus.melee.windup >= 0);
-      }
-
-      @Test
-      void shouldReachAtLeastAsFarAsZeusSword() {
-        assertTrue(configs.cerberus.melee.range >= configs.zeus.melee.range);
-      }
-
-      @Test
-      void shouldBiteFasterThanZeusSwings() {
-        assertTrue(configs.cerberus.melee.cooldown < configs.zeus.melee.cooldown);
-      }
+      assertEquals(configs.cerberus.melee.range, bite.getRange(), TOLERANCE);
+      assertEquals(configs.cerberus.melee.cooldown, bite.getCooldown(), TOLERANCE);
+      assertNull(cerberus.getComponent(RangedAttackComponent.class));
+      assertNotNull(cerberus.getComponent(CerberusAnimationController.class));
     }
 
-    // ---------- what the factory puts on him ----------
-
-    @Nested
-    @DisplayName("factory wiring")
-    class Wiring {
-
-      @Test
-      void shouldGiveCerberusOnlyAMeleeBiteFromItsConfig() {
-        Entity cerberus = EnemyFactory.createCerberus(player);
-
-        MeleeAttackComponent melee = cerberus.getComponent(MeleeAttackComponent.class);
-        assertNotNull(melee);
-        assertEquals(configs.cerberus.melee.range, melee.getRange(), 1e-6f);
-        assertEquals(configs.cerberus.melee.cooldown, melee.getCooldown(), 1e-6f);
-        assertEquals(configs.cerberus.melee.knockback, melee.getKnockback(), 1e-6f);
-        assertNull(cerberus.getComponent(RangedAttackComponent.class));
-      }
-
-      @Test
-      void shouldTakeTheBiteWindupFromTheConfig() {
-        MeleeAttackComponent bite =
-            EnemyFactory.createCerberus(player).getComponent(MeleeAttackComponent.class);
-
-        assertEquals(configs.cerberus.melee.windup, bite.getWindupDuration(), 1e-6f);
-      }
-
-      @Test
-      void shouldPayOutGoldAndKeepTheBiteOutOfTheInventory() {
-        InventoryComponent inventory =
-            EnemyFactory.createCerberus(player).getComponent(InventoryComponent.class);
-
-        assertTrue(inventory.getGold() > 0, "the Cerberus should drop some gold");
-        assertNull(inventory.getItem(1), "his bite is a natural weapon and must never drop");
-      }
-
-      @Test
-      void shouldTakeHazardDamage() {
-        assertNotNull(
-            EnemyFactory.createCerberus(player).getComponent(HazardContactDamageComponent.class),
-            "every enemy takes hazard damage");
-      }
-
-      @Test
-      void shouldNotFlyOrCharge() {
-        Entity cerberus = EnemyFactory.createCerberus(player);
-
-        assertNull(cerberus.getComponent(FlightComponent.class));
-        assertNull(cerberus.getComponent(ChargeComponent.class));
-      }
-
-      @Test
-      void shouldGiveCerberusItsOwnAnimationControllerAndBothFacings() {
-        Entity cerberus = EnemyFactory.createCerberus(player);
-
-        assertNotNull(cerberus.getComponent(CerberusAnimationController.class));
-        AnimationRenderComponent animator = cerberus.getComponent(AnimationRenderComponent.class);
-        assertTrue(animator.hasAnimation("cerberus_l"), "left-facing animation");
-        assertTrue(animator.hasAnimation("cerberus_r"), "right-facing animation");
-      }
-    }
-
-    // ---------- his bite in action ----------
-
-    @Nested
-    @DisplayName("bite")
-    class Bite {
-      private static final float RANGE = configs.cerberus.melee.range;
-      private static final float COOLDOWN = configs.cerberus.melee.cooldown;
-      private static final float KNOCKBACK = configs.cerberus.melee.knockback;
-      private static final float WINDUP = configs.cerberus.melee.windup;
-      private static final int BITE_DAMAGE = configs.cerberus.baseAttack;
-      private static final int TARGET_HEALTH = 100;
-
-      private AttackTestWorld world;
-
-      @BeforeEach
-      void createWorld() {
-        world = AttackTestWorld.create();
-      }
-
-      private MeleeAttackComponent newBite() {
-        return new MeleeAttackComponent(
-            RANGE, COOLDOWN, KNOCKBACK, AttackTestWorld.naturalWeapon(BITE_DAMAGE, WINDUP));
-      }
-
-      private Entity newCerberus() {
-        return world.newAttacker(newBite());
-      }
-
-      private int healthOf(Entity entity) {
-        return entity.getComponent(CombatStatsComponent.class).getHealth();
-      }
-
-      @Nested
-      @DisplayName("construction")
-      class Construction {
-
-        @Test
-        void shouldStoreTheBitesSettings() {
-          MeleeAttackComponent bite = newBite();
-
-          assertEquals(RANGE, bite.getRange(), 1e-6f);
-          assertEquals(COOLDOWN, bite.getCooldown(), 1e-6f);
-          assertEquals(KNOCKBACK, bite.getKnockback(), 1e-6f);
-          assertEquals(WINDUP, bite.getWindupDuration(), 1e-6f);
-          assertEquals(BITE_DAMAGE, bite.getDamage());
-        }
-
-        @Test
-        void shouldRejectAWindupEqualToTheCooldown() {
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  new MeleeAttackComponent(
-                      RANGE,
-                      WINDUP,
-                      KNOCKBACK,
-                      AttackTestWorld.naturalWeapon(BITE_DAMAGE, WINDUP)));
-        }
-
-        @Test
-        void shouldRejectAWindupLongerThanTheCooldown() {
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  new MeleeAttackComponent(
-                      RANGE, WINDUP, KNOCKBACK, AttackTestWorld.naturalWeapon(BITE_DAMAGE, 2f)));
-        }
-
-        @Test
-        void shouldRejectANegativeRange() {
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  new MeleeAttackComponent(
-                      -1f,
-                      COOLDOWN,
-                      KNOCKBACK,
-                      AttackTestWorld.naturalWeapon(BITE_DAMAGE, WINDUP)));
-        }
-
-        @Test
-        void shouldRejectAZeroCooldown() {
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  new MeleeAttackComponent(
-                      RANGE, 0f, KNOCKBACK, AttackTestWorld.naturalWeapon(BITE_DAMAGE, WINDUP)));
-        }
-
-        @Test
-        void shouldRejectANegativeKnockback() {
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  new MeleeAttackComponent(
-                      RANGE, COOLDOWN, -1f, AttackTestWorld.naturalWeapon(BITE_DAMAGE, WINDUP)));
-        }
-
-        @Test
-        void shouldRejectAMissingWeapon() {
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> new MeleeAttackComponent(RANGE, COOLDOWN, KNOCKBACK, null));
-        }
-      }
-
-      @Nested
-      @DisplayName("one bite")
-      class OneBite {
-
-        @Test
-        void shouldBiteForTheNaturalWeaponsDamageAfterTheWindup() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          // 12 is the weapon's damage; the owner's own base attack is 5, so 95 would mean it was
-          // used.
-          assertEquals(TARGET_HEALTH - BITE_DAMAGE, healthOf(target));
-        }
-
-        @Test
-        void shouldAnnounceTheWindupWithTheTarget() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(cerberus, "meleeAttackWindup");
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-
-          assertEquals(1, windups.size());
-          assertSame(target, windups.get(0));
-        }
-
-        @Test
-        void shouldNotBiteBeforeTheWindupHasElapsed() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) - 5, cerberus);
-
-          assertEquals(TARGET_HEALTH, healthOf(target));
-        }
-
-        @Test
-        void shouldReachATargetExactlyAtRange() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(RANGE, 0f, TARGET_HEALTH);
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertEquals(TARGET_HEALTH - BITE_DAMAGE, healthOf(target));
-        }
-
-        @Test
-        void shouldRefuseATargetJustBeyondRange() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(RANGE + 0.5f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(cerberus, "meleeAttackWindup");
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertTrue(windups.isEmpty());
-          assertEquals(TARGET_HEALTH, healthOf(target));
-        }
-
-        @Test
-        void shouldWhiffWhenTheTargetLeavesDuringTheWindup() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-          List<Entity> whiffs = AttackTestWorld.record(cerberus, "meleeAttackWhiff");
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(5, cerberus);
-          target.setPosition(30f, 0f);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertEquals(1, whiffs.size());
-          assertEquals(TARGET_HEALTH, healthOf(target));
-        }
-
-        @Test
-        void shouldWhiffWhenTheTargetDiesDuringTheWindup() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-          List<Entity> whiffs = AttackTestWorld.record(cerberus, "meleeAttackWhiff");
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          target.getComponent(CombatStatsComponent.class).setHealth(0);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertEquals(1, whiffs.size());
-          assertEquals(0, healthOf(target));
-        }
-
-        @Test
-        void shouldIgnoreASecondTriggerDuringTheWindup() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(cerberus, "meleeAttackWindup");
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertEquals(1, windups.size());
-          assertEquals(TARGET_HEALTH - BITE_DAMAGE, healthOf(target), "one bite, not two");
-        }
-
-        @Test
-        void shouldNotThrowForANullTarget() {
-          Entity cerberus = newCerberus();
-
-          assertDoesNotThrow(
-              () -> {
-                cerberus.getEvents().trigger("meleeAttack", (Entity) null);
-                world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-              });
-        }
-      }
-
-      @Nested
-      @DisplayName("the fast cooldown")
-      class FastCooldown {
-
-        @Test
-        void shouldRefuseABiteBeforeTheCooldownHasPassed() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(cerberus, "meleeAttackWindup");
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-          world.step(AttackTestWorld.framesFor(1.3f), cerberus);
-          cerberus.getEvents().trigger("meleeAttack", target);
-
-          assertEquals(1, windups.size(), "1.3 s after the hit is inside the 1.5 s cooldown");
-        }
-
-        @Test
-        void shouldBiteAgainOnceTheCooldownHasPassed() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-          world.step(AttackTestWorld.framesFor(COOLDOWN) + 5, cerberus);
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertEquals(TARGET_HEALTH - 2 * BITE_DAMAGE, healthOf(target));
-        }
-
-        @Test
-        void shouldKeepBitingEveryCooldownWhileTheTargetStaysInReach() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-
-          for (int bite = 0; bite < 3; bite++) {
-            cerberus.getEvents().trigger("meleeAttack", target);
-            world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-            world.step(AttackTestWorld.framesFor(COOLDOWN) + 5, cerberus);
-          }
-
-          assertEquals(TARGET_HEALTH - 3 * BITE_DAMAGE, healthOf(target));
-        }
-      }
-
-      @Nested
-      @DisplayName("knockback")
-      class Knockback {
-
-        @Test
-        void shouldKnockTheTargetAwayFromTheCerberus() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertTrue(AttackTestWorld.velocityOf(target).x > 0f, "pushed right, away from him");
-        }
-
-        @Test
-        void shouldNotKnockTheTargetBackWhenKnockbackIsZero() {
-          MeleeAttackComponent noKnockback =
-              new MeleeAttackComponent(
-                  RANGE, COOLDOWN, 0f, AttackTestWorld.naturalWeapon(BITE_DAMAGE, WINDUP));
-          Entity cerberus = world.newAttacker(noKnockback);
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP) + 1, cerberus);
-
-          assertEquals(0f, AttackTestWorld.velocityOf(target).x, 1e-3f);
-        }
-      }
-
-      @Nested
-      @DisplayName("melee only, and stays put")
-      class MeleeOnly {
-
-        @Test
-        void shouldIgnoreTheRangedTriggerBecauseItHasNoRangedAttack() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-          List<Entity> rangedWindups = AttackTestWorld.record(cerberus, "rangedAttackWindup");
-          int before = world.mark();
-
-          assertDoesNotThrow(
-              () -> {
-                cerberus.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
-                world.step(AttackTestWorld.framesFor(1f), cerberus);
-              });
-
-          assertTrue(rangedWindups.isEmpty());
-          assertEquals(0, world.registeredSince(before).size(), "no projectile of any kind");
-        }
-
-        @Test
-        void shouldStayWhereItIsWhileBiting() {
-          Entity cerberus = newCerberus();
-          Entity target = world.newTarget(3f, 0f, TARGET_HEALTH);
-
-          cerberus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(WINDUP + COOLDOWN), cerberus);
-
-          assertEquals(0f, cerberus.getPosition().x, 1e-6f);
-          assertEquals(0f, cerberus.getPosition().y, 1e-6f);
-        }
-      }
+    @Test
+    void shouldPaceInsteadOfChasing() throws ReflectiveOperationException {
+      Entity cerberus = EnemyFactory.createCerberus(player);
+
+      assertEquals(1, countTasks(cerberus, BoundedPlatformWanderTask.class));
+      assertEquals(1, countTasks(cerberus, MeleeAttackTask.class));
+      assertEquals(0, countTasks(cerberus, ChaseTask.class));
+      assertEquals(0, countTasks(cerberus, RangedAttackTask.class));
     }
   }
 
-  // =====================================================================================
-  // ZEUS
-  // =====================================================================================
-
   @Nested
-  @DisplayName("zeus")
+  @DisplayName("createZeus")
   class Zeus {
+    @Test
+    void shouldHaveSwordAndAimedLightning() {
+      Entity zeus = EnemyFactory.createZeus(player);
+      MeleeAttackComponent melee = zeus.getComponent(MeleeAttackComponent.class);
+      RangedAttackComponent bolt = zeus.getComponent(RangedAttackComponent.class);
 
-    // ---------- the numbers in NPCs.json ----------
+      assertEquals(configs.zeus.melee.range, melee.getRange(), TOLERANCE);
+      assertEquals(configs.zeus.ranged.range, bolt.getRange(), TOLERANCE);
+      assertTrue(melee.getRange() < bolt.getRange());
+      assertEquals(configs.zeus.ranged.aimed, bolt.isAimed());
+      assertNotNull(zeus.getComponent(ZeusAnimationController.class));
+    }
 
-    @Nested
-    @DisplayName("config")
-    class Config {
+    @Test
+    void shouldWanderChaseMeleeAndShoot() throws ReflectiveOperationException {
+      Entity zeus = EnemyFactory.createZeus(player);
 
-      @Test
-      void shouldLoadBothAttackBlocks() {
-        assertNotNull(configs.zeus, "zeus block missing from NPCs.json");
-        assertNotNull(configs.zeus.melee, "zeus melee block missing");
-        assertNotNull(configs.zeus.ranged, "zeus ranged block missing");
-      }
+      assertEquals(1, countTasks(zeus, PlatformWanderTask.class));
+      assertEquals(1, countTasks(zeus, ChaseTask.class));
+      assertEquals(1, countTasks(zeus, MeleeAttackTask.class));
+      assertEquals(1, countTasks(zeus, RangedAttackTask.class));
+      assertEquals(0, countTasks(zeus, ChargeTask.class));
+    }
 
-      @Test
-      void shouldHavePositiveHealth() {
-        assertTrue(configs.zeus.health > 0, "zeus health was " + configs.zeus.health);
-      }
+    @Test
+    void shouldRejectMeleeRangeNotBelowRangedRange() {
+      configs.zeus.melee.range = configs.zeus.ranged.range;
 
-      @Test
-      void shouldHavePositiveBaseAttack() {
-        assertTrue(configs.zeus.baseAttack > 0, "zeus baseAttack was " + configs.zeus.baseAttack);
-      }
+      assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createZeus(player));
+    }
+  }
 
-      @Test
-      void shouldHaveAPositiveMeleeRange() {
-        assertTrue(configs.zeus.melee.range > 0);
-      }
+  // =======================================================================================
+  // PRIVATE HELPERS, by reflection
+  // =======================================================================================
 
-      @Test
-      void shouldHaveAPositiveMeleeCooldown() {
-        assertTrue(configs.zeus.melee.cooldown > 0);
-      }
+  @Nested
+  @DisplayName("helpers")
+  class Helpers {
 
-      @Test
-      void shouldNotHaveANegativeMeleeKnockback() {
-        assertTrue(configs.zeus.melee.knockback >= 0);
-      }
+    @Test
+    void requireTargetShouldAcceptATargetAndRejectNull() throws Throwable {
+      Class<?>[] types = {Entity.class, String.class};
 
-      @Test
-      void shouldHaveAPositiveBoltRange() {
-        assertTrue(configs.zeus.ranged.range > 0);
-      }
+      assertDoesNotThrow(() -> call("requireTarget", types, player, "Zeus"));
+      IllegalArgumentException thrown =
+          assertThrows(
+              IllegalArgumentException.class, () -> call("requireTarget", types, null, "Zeus"));
+      assertEquals("Zeus needs a target", thrown.getMessage());
+    }
 
-      @Test
-      void shouldHaveAPositiveBoltCooldown() {
-        assertTrue(configs.zeus.ranged.cooldown > 0);
-      }
+    @Test
+    void loadIndependentAtlasShouldReturnANewAtlasEachCall() throws Throwable {
+      Class<?>[] types = {String.class};
+      TextureAtlas first = (TextureAtlas) call("loadIndependentAtlas", types, SKELETON_ATLAS);
+      TextureAtlas second = (TextureAtlas) call("loadIndependentAtlas", types, SKELETON_ATLAS);
 
-      @Test
-      void shouldHaveAPositiveBoltSpeed() {
-        assertTrue(configs.zeus.ranged.projectileSpeed > 0);
-      }
+      assertNotSame(first, second);
+    }
 
-      @Test
-      void shouldNotHaveANegativeBoltKnockback() {
-        assertTrue(configs.zeus.ranged.knockback >= 0);
-      }
+    @Test
+    void loadIndependentAtlasShouldThrowForAMissingFile() {
+      assertThrows(
+          GdxRuntimeException.class,
+          () ->
+              call("loadIndependentAtlas", new Class<?>[] {String.class}, "images/no-such.atlas"));
+    }
 
-      @Test
-      void shouldKeepMeleeReachBelowBoltRange() {
-        assertTrue(
-            configs.zeus.melee.range < configs.zeus.ranged.range,
-            "the sword's reach must be shorter than the bolt's, or the bolt is never chosen");
-      }
+    @Test
+    void newEnemyBodyShouldBuildGroundedAndFlyingBodies() throws Throwable {
+      Class<?>[] types = {AITaskComponent.class, boolean.class};
+      AITaskComponent ai = new AITaskComponent();
+      Entity grounded = (Entity) call("newEnemyBody", types, ai, true);
+      Entity flying = (Entity) call("newEnemyBody", types, new AITaskComponent(), false);
 
-      @Test
-      void shouldKeepBoltWindupBelowItsCooldown() {
-        assertTrue(configs.zeus.ranged.windup < configs.zeus.ranged.cooldown);
-      }
+      assertSame(ai, grounded.getComponent(AITaskComponent.class));
+      assertNotNull(grounded.getComponent(ColliderComponent.class));
+      assertEquals(PhysicsLayer.NPC, grounded.getComponent(HitboxComponent.class).getLayer());
+      assertTrue(grounded.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
+      assertFalse(flying.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
+      assertEquals(grounded.getScale().x * 0.9f, colliderWidth(grounded), TOLERANCE);
+      assertEquals(grounded.getScale().y * 0.7f, colliderHeight(grounded), TOLERANCE);
+    }
 
-      @Test
-      void shouldNotHaveANegativeBoltWindup() {
-        assertTrue(configs.zeus.ranged.windup >= 0);
-      }
+    @Test
+    void createBasePlatformerEnemyShouldWanderAndChase() throws Throwable {
+      Class<?>[] types = {Entity.class, float.class};
+      Entity base = (Entity) call("createBasePlatformerEnemy", types, player, 0.2f);
 
-      @Test
-      void shouldAimTheBolt() {
-        assertTrue(configs.zeus.ranged.aimed, "lightning must be aimed to hit above or below");
-      }
+      assertTrue(base.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
+      assertEquals(1, countTasks(base, PlatformWanderTask.class));
+      assertEquals(1, countTasks(base, ChaseTask.class));
+      Integer priority = priorityField(tasksOfType(base, ChaseTask.class).get(0));
+      assumeTrue(priority != null);
+      assertEquals(10, priority);
+    }
 
-      @Test
-      void shouldKeepDamageMultiplierAndSpawnHeightInRange() {
-        assertTrue(configs.zeus.ranged.damageMultiplier > 0);
-        assertTrue(configs.zeus.ranged.spawnHeightFraction >= 0f);
-        assertTrue(configs.zeus.ranged.spawnHeightFraction <= 1f);
+    @Test
+    void createBasePlatformerEnemyShouldRejectANullTarget() {
+      IllegalArgumentException thrown =
+          assertThrows(
+              IllegalArgumentException.class,
+              () ->
+                  call(
+                      "createBasePlatformerEnemy",
+                      new Class<?>[] {Entity.class, float.class},
+                      null,
+                      0.2f));
+
+      assertEquals("Platformer Enemy needs a target", thrown.getMessage());
+    }
+
+    @Test
+    void createBaseStationaryEnemyShouldHaveNoTasks() throws Throwable {
+      Entity base = (Entity) call("createBaseStationaryEnemy", new Class<?>[0]);
+
+      assertTrue(base.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
+      assertTrue(tasksOf(base).isEmpty());
+    }
+
+    @Test
+    void createBaseFlyingEnemyShouldFlyWithTheGivenDamping() throws Throwable {
+      Class<?>[] types = {Entity.class, float.class};
+      Entity base = (Entity) call("createBaseFlyingEnemy", types, player, 3f);
+
+      assertFalse(base.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
+      assertEquals(3f, base.getComponent(FlightComponent.class).getLinearDamping(), TOLERANCE);
+      assertEquals(1, countTasks(base, ChaseTask.class));
+      assertTrue(tasksOf(base).stream().anyMatch(task -> task.getClass() == WanderTask.class));
+    }
+
+    @Test
+    void createBaseFlyingEnemyShouldRejectNegativeDamping() {
+      assertThrows(
+          RuntimeException.class,
+          () ->
+              call(
+                  "createBaseFlyingEnemy",
+                  new Class<?>[] {Entity.class, float.class},
+                  player,
+                  -1f));
+    }
+
+    @Test
+    void armedInventoryShouldHoldGoldAndAGeneratedWeaponInSlotOne() throws Throwable {
+      Class<?>[] types = {int.class, WeaponType.class, int.class};
+
+      for (WeaponType type : List.of(WeaponType.SWORD, WeaponType.BOW, WeaponType.AXE)) {
+        InventoryComponent inventory =
+            (InventoryComponent) call("armedInventory", types, 7, type, 2);
+        WeaponItem weapon = (WeaponItem) inventory.getItem(1);
+
+        assertEquals(7, inventory.getGold());
+        assertEquals(type, weapon.getWeaponType());
+        assertEquals(2, weapon.getTier());
       }
     }
 
-    // ---------- what the factory puts on him ----------
+    @Test
+    void newAnimatorShouldPassOwnershipThrough() throws Throwable {
+      Class<?>[] types = {String.class, boolean.class};
+      AnimationRenderComponent owning =
+          (AnimationRenderComponent) call("newAnimator", types, SKELETON_ATLAS, true);
+      AnimationRenderComponent borrowing =
+          (AnimationRenderComponent) call("newAnimator", types, SKELETON_ATLAS, false);
 
-    @Nested
-    @DisplayName("factory wiring")
-    class Wiring {
+      Object ownsOwning = fieldOrNull(owning, "ownsAtlas");
+      Object ownsBorrowing = fieldOrNull(borrowing, "ownsAtlas");
+      assumeTrue(ownsOwning != null && ownsBorrowing != null);
+      assertEquals(true, ownsOwning);
+      assertEquals(false, ownsBorrowing);
+      assertNotSame(fieldOrNull(owning, "atlas"), fieldOrNull(borrowing, "atlas"));
+    }
 
-      @Test
-      void shouldGiveZeusBothAttacksWithMeleeShorterThanRanged() {
-        Entity zeus = EnemyFactory.createZeus(player);
+    @Test
+    void addAnimationsShouldRegisterEveryNameOnAnAnimator() throws Throwable {
+      Class<?>[] types = {
+        AnimationRenderComponent.class, float.class, Animation.PlayMode.class, String[].class
+      };
+      AnimationRenderComponent animator = newAnimator(SKELETON_ATLAS);
 
-        MeleeAttackComponent melee = zeus.getComponent(MeleeAttackComponent.class);
-        RangedAttackComponent ranged = zeus.getComponent(RangedAttackComponent.class);
-        assertNotNull(melee);
-        assertNotNull(ranged);
-        assertTrue(melee.getRange() < ranged.getRange());
-      }
+      call("addAnimations", types, animator, 0.1f, LOOP, new String[] {"idlel", "idler"});
+      call("addAnimations", types, animator, 0.2f, NORMAL, new String[] {"walkl"});
+      call("addAnimations", types, animator, 0.3f, NORMAL, new String[0]);
 
-      @Test
-      void shouldTakeTheSwordNumbersFromTheConfig() {
-        MeleeAttackComponent melee =
-            EnemyFactory.createZeus(player).getComponent(MeleeAttackComponent.class);
+      assertTrue(animator.hasAnimation("idlel"));
+      assertTrue(animator.hasAnimation("idler"));
+      assertTrue(animator.hasAnimation("walkl"));
+      assertFalse(animator.hasAnimation("walkr"), "nothing registered for the empty call");
+    }
 
-        assertEquals(configs.zeus.melee.range, melee.getRange(), 1e-6f);
-        assertEquals(configs.zeus.melee.cooldown, melee.getCooldown(), 1e-6f);
-        assertEquals(configs.zeus.melee.knockback, melee.getKnockback(), 1e-6f);
-      }
+    @Test
+    void addAnimationsShouldRegisterEveryNameOnAnOverlay() throws Throwable {
+      Class<?>[] types = {
+        EnemyWeaponAnimationComponent.class, float.class, Animation.PlayMode.class, String[].class
+      };
+      TextureAtlas atlas =
+          (TextureAtlas) call("loadIndependentAtlas", new Class<?>[] {String.class}, SWORD_ATLAS);
+      EnemyWeaponAnimationComponent overlay = new EnemyWeaponAnimationComponent(atlas);
 
-      @Test
-      void shouldTakeTheLightningNumbersFromTheConfig() {
-        RangedAttackComponent bolt =
-            EnemyFactory.createZeus(player).getComponent(RangedAttackComponent.class);
+      call("addAnimations", types, overlay, 0.25f, NORMAL, new String[] {"sword_l", "sword_r"});
+      call("addAnimations", types, overlay, 0.25f, NORMAL, new String[0]);
 
-        assertEquals(configs.zeus.ranged.range, bolt.getRange(), 1e-6f);
-        assertEquals(configs.zeus.ranged.cooldown, bolt.getCooldown(), 1e-6f);
-        assertEquals(configs.zeus.ranged.knockback, bolt.getKnockback(), 1e-6f);
-        assertEquals(configs.zeus.ranged.projectileSpeed, bolt.getProjectileSpeed(), 1e-6f);
-        assertEquals(configs.zeus.ranged.windup, bolt.getWindupDuration(), 1e-6f);
-      }
+      Map<String, Animation<TextureRegion>> animations = animationsOf(overlay);
+      assertEquals(2, animations.size());
+      assertEquals(0.25f, animations.get("sword_l").getFrameDuration(), TOLERANCE);
+      assertEquals(Animation.PlayMode.NORMAL, animations.get("sword_r").getPlayMode());
+    }
 
-      @Test
-      void shouldAimTheLightning() {
-        RangedAttackComponent bolt =
-            EnemyFactory.createZeus(player).getComponent(RangedAttackComponent.class);
+    @Test
+    void skeletonWeaponAnimatorShouldBuildTheSwordAndBowOverlays() throws Throwable {
+      Class<?>[] types = {String.class, String.class, float.class};
+      EnemyWeaponAnimationComponent sword =
+          (EnemyWeaponAnimationComponent)
+              call("skeletonWeaponAnimator", types, SWORD_ATLAS, "sword", 0.08f);
+      EnemyWeaponAnimationComponent bow =
+          (EnemyWeaponAnimationComponent)
+              call("skeletonWeaponAnimator", types, BOW_ATLAS, "bow", 0.1f);
 
-        assertEquals(configs.zeus.ranged.aimed, bolt.isAimed());
-        assertTrue(bolt.isAimed(), "lightning must be aimed to reach a player above or below");
-      }
+      Map<String, Animation<TextureRegion>> swordAnimations = animationsOf(sword);
+      assertEquals(
+          Set.of("default_l", "default_r", "sword_l", "sword_r"), swordAnimations.keySet());
+      assertEquals(0.1f, swordAnimations.get("default_l").getFrameDuration(), TOLERANCE);
+      assertEquals(Animation.PlayMode.LOOP, swordAnimations.get("default_r").getPlayMode());
+      assertEquals(0.08f, swordAnimations.get("sword_l").getFrameDuration(), TOLERANCE);
+      assertEquals(Animation.PlayMode.NORMAL, swordAnimations.get("sword_r").getPlayMode());
+      assertEquals(Set.of("default_l", "default_r", "bow_l", "bow_r"), animationsOf(bow).keySet());
+    }
 
-      @Test
-      void shouldCarryASwordItCanDrop() {
-        Entity zeus = EnemyFactory.createZeus(player);
+    @Test
+    void meleeAttackShouldCopyTheConfigAndUseTheWeapon() throws Throwable {
+      WeaponItem weapon = WeaponItem.natural("Test Bite", 9, 0.1f);
+      MeleeAttackComponent melee =
+          (MeleeAttackComponent)
+              call(
+                  "meleeAttack",
+                  new Class<?>[] {configs.skeleton.melee.getClass(), WeaponItem.class},
+                  configs.skeleton.melee,
+                  weapon);
 
-        WeaponItem sword = (WeaponItem) zeus.getComponent(InventoryComponent.class).getItem(1);
-        assertEquals(WeaponType.SWORD, sword.getWeaponType());
-        assertEquals(sword.getDamage(), zeus.getComponent(MeleeAttackComponent.class).getDamage());
-      }
+      assertEquals(configs.skeleton.melee.range, melee.getRange(), TOLERANCE);
+      assertEquals(configs.skeleton.melee.cooldown, melee.getCooldown(), TOLERANCE);
+      assertEquals(configs.skeleton.melee.knockback, melee.getKnockback(), TOLERANCE);
+      assertEquals(9, melee.getDamage());
+    }
 
-      @Test
-      void shouldKeepTheLightningOutOfTheInventory() {
-        InventoryComponent inventory =
-            EnemyFactory.createZeus(player).getComponent(InventoryComponent.class);
+    @Test
+    void rangedAttackShouldCopyTheConfigSpeedAndAimFlag() throws Throwable {
+      WeaponItem weapon = WeaponItem.natural("Test Bolt", 4, 0.1f);
+      Class<?>[] types = {configs.rangedHarpy.ranged.getClass(), WeaponItem.class};
+      RangedAttackComponent aimed =
+          (RangedAttackComponent) call("rangedAttack", types, configs.rangedHarpy.ranged, weapon);
+      RangedAttackComponent flat =
+          (RangedAttackComponent)
+              call("rangedAttack", types, configs.rangedSkeleton.ranged, weapon);
 
-        assertNull(inventory.getItem(2), "his lightning is a natural weapon and must never drop");
-      }
+      assertEquals(configs.rangedHarpy.ranged.range, aimed.getRange(), TOLERANCE);
+      assertEquals(
+          configs.rangedHarpy.ranged.projectileSpeed, aimed.getProjectileSpeed(), TOLERANCE);
+      assertEquals(configs.rangedHarpy.ranged.aimed, aimed.isAimed());
+      assertEquals(configs.rangedSkeleton.ranged.aimed, flat.isAimed());
+    }
 
-      @Test
-      void shouldPayOutGold() {
-        InventoryComponent inventory =
-            EnemyFactory.createZeus(player).getComponent(InventoryComponent.class);
+    @Test
+    void addChargePartsShouldAddTheChargeAndTheTouchAttack() throws Throwable {
+      Entity enemy = new Entity();
+      ChargeComponent charge =
+          (ChargeComponent)
+              call(
+                  "addChargeParts",
+                  new Class<?>[] {Entity.class, configs.minotaur.charge.getClass()},
+                  enemy,
+                  configs.minotaur.charge);
 
-        assertTrue(inventory.getGold() > 0, "Zeus should drop some gold");
-      }
+      assertSame(charge, enemy.getComponent(ChargeComponent.class));
+      assertNotNull(enemy.getComponent(TouchAttackComponent.class));
+    }
 
-      @Test
-      void shouldTakeHazardDamageAndAvoidHazards() {
-        Entity zeus = EnemyFactory.createZeus(player);
+    @Test
+    void addCommonPartsShouldAddStatsTypeInventoryDropDeathAndAnimator() throws Throwable {
+      Entity enemy = new Entity();
+      InventoryComponent inventory = new InventoryComponent(5);
+      AnimationRenderComponent animator = newAnimator(SKELETON_ATLAS);
 
-        assertNotNull(
-            zeus.getComponent(HazardContactDamageComponent.class),
-            "every enemy takes hazard damage");
-        assertNotNull(
-            zeus.getComponent(HazardAvoidanceComponent.class), "he walks, so he avoids hazards");
-      }
+      call(
+          "addCommonParts",
+          new Class<?>[] {
+            Entity.class,
+            BaseEntityConfig.class,
+            EnemyType.class,
+            InventoryComponent.class,
+            AnimationRenderComponent.class
+          },
+          enemy,
+          configs.skeleton,
+          EnemyType.SKELETON,
+          inventory,
+          animator);
 
-      @Test
-      void shouldNotFlyOrCharge() {
-        Entity zeus = EnemyFactory.createZeus(player);
+      CombatStatsComponent stats = enemy.getComponent(CombatStatsComponent.class);
+      assertEquals(configs.skeleton.health, stats.getHealth());
+      assertEquals(configs.skeleton.baseAttack, stats.getBaseAttack());
+      assertEquals("Skeleton", enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel());
+      assertSame(inventory, enemy.getComponent(InventoryComponent.class));
+      assertNotNull(enemy.getComponent(ItemDropComponent.class));
+      assertNotNull(enemy.getComponent(EnemyDeathComponent.class));
+      assertSame(animator, enemy.getComponent(AnimationRenderComponent.class));
+    }
 
-        assertNull(zeus.getComponent(FlightComponent.class));
-        assertNull(zeus.getComponent(ChargeComponent.class));
+    @Test
+    void addMeleeTaskShouldAddOneMeleeTaskAtPriorityFifteen() throws Throwable {
+      Entity enemy = new Entity().addComponent(new AITaskComponent());
+
+      call(
+          "addMeleeTask",
+          new Class<?>[] {Entity.class, Entity.class, float.class},
+          enemy,
+          player,
+          2f);
+
+      assertEquals(1, countTasks(enemy, MeleeAttackTask.class));
+      Integer priority = priorityField(tasksOfType(enemy, MeleeAttackTask.class).get(0));
+      assumeTrue(priority != null);
+      assertEquals(15, priority);
+    }
+
+    @Test
+    void addRangedTaskShouldAddATaskWithAndWithoutAnEventName() throws Throwable {
+      Entity enemy = new Entity().addComponent(new AITaskComponent());
+      Class<?>[] types = {
+        Entity.class,
+        Entity.class,
+        int.class,
+        float.class,
+        com.csse3200.game.components.projectile.ProjectileType.class,
+        String.class
+      };
+      var arrow = com.csse3200.game.components.projectile.ProjectileType.ARROW;
+
+      call("addRangedTask", types, enemy, player, 12, 6f, arrow, null);
+      call("addRangedTask", types, enemy, player, 13, 7f, arrow, "laserAttack");
+
+      List<PriorityTask> tasks = tasksOfType(enemy, RangedAttackTask.class);
+      assertEquals(2, tasks.size());
+      Integer first = priorityField(tasks.get(0));
+      Integer second = priorityField(tasks.get(1));
+      assumeTrue(first != null && second != null);
+      assertEquals(12, first);
+      assertEquals(13, second);
+    }
+
+    @Test
+    void addChargeTaskShouldAddOneChargeTask() throws Throwable {
+      Entity enemy = new Entity().addComponent(new AITaskComponent());
+      ChargeComponent charge = new ChargeComponent(1f, 0.5f, 3f, 2f, 2f);
+
+      call(
+          "addChargeTask",
+          new Class<?>[] {Entity.class, Entity.class, ChargeComponent.class, float.class},
+          enemy,
+          player,
+          charge,
+          5f);
+
+      assertEquals(1, countTasks(enemy, ChargeTask.class));
+    }
+
+    @Test
+    void addHazardRulesShouldAvoidHazardsOnlyOnTheGround() throws Throwable {
+      Class<?>[] types = {Entity.class, boolean.class};
+      Entity walker = new Entity();
+      Entity flyer = new Entity();
+
+      call("addHazardRules", types, walker, true);
+      call("addHazardRules", types, flyer, false);
+
+      assertNotNull(walker.getComponent(HazardContactDamageComponent.class));
+      assertNotNull(walker.getComponent(HazardAvoidanceComponent.class));
+      assertNotNull(flyer.getComponent(HazardContactDamageComponent.class));
+      assertNull(flyer.getComponent(HazardAvoidanceComponent.class));
+    }
+
+    @Test
+    void finishEnemyShouldSetTheScaleColliderAndHazardRules() throws Throwable {
+      Entity body = (Entity) call("createBaseStationaryEnemy", new Class<?>[0]);
+      AnimationRenderComponent animator = newAnimator(SKELETON_ATLAS);
+      call(
+          "addAnimations",
+          new Class<?>[] {
+            AnimationRenderComponent.class, float.class, Animation.PlayMode.class, String[].class
+          },
+          animator,
+          0.1f,
+          LOOP,
+          new String[] {"idlel", "idler"});
+      body.addComponent(animator);
+
+      Entity result =
+          (Entity)
+              call(
+                  "finishEnemy",
+                  new Class<?>[] {
+                    Entity.class,
+                    AnimationRenderComponent.class,
+                    float.class,
+                    float.class,
+                    float.class,
+                    float.class
+                  },
+                  body,
+                  animator,
+                  2f,
+                  0.5f,
+                  0.4f,
+                  0.6f);
+
+      assertSame(body, result);
+      assertEquals(2f, body.getScale().x, TOLERANCE);
+      assertEquals(1f, body.getScale().y, TOLERANCE);
+      assertEquals(0.8f, colliderWidth(body), TOLERANCE);
+      assertEquals(0.6f, colliderHeight(body), TOLERANCE);
+      assertNotNull(body.getComponent(HazardContactDamageComponent.class));
+      assertNotNull(body.getComponent(HazardAvoidanceComponent.class));
+    }
+
+    @Test
+    void setFootAlignedColliderShouldLiftTheBoxByTheFootPadding() throws Throwable {
+      Entity body = (Entity) call("createBaseStationaryEnemy", new Class<?>[0]);
+      body.setScale(4f, 3.333f);
+
+      call(
+          "setFootAlignedCollider",
+          new Class<?>[] {Entity.class, float.class, float.class},
+          body,
+          0.8f,
+          0.7f);
+
+      float[] bounds = colliderBounds(body);
+      assertEquals(3.2f, bounds[2] - bounds[0], TOLERANCE);
+      assertEquals(3.333f * 0.7f, bounds[3] - bounds[1], TOLERANCE);
+      assertEquals(16f * 3.333f / 80f, bounds[1], TOLERANCE);
+      assertEquals(2f, (bounds[0] + bounds[2]) / 2f, TOLERANCE);
+    }
+
+    @Test
+    void validateMeleeRangeBelowRangedRangeShouldAcceptOnlyAStrictlyShorterMeleeRange()
+        throws Throwable {
+      Class<?>[] types = {float.class, float.class};
+
+      assertDoesNotThrow(() -> call("validateMeleeRangeBelowRangedRange", types, 1f, 2f));
+      for (float[] pair : new float[][] {{2f, 2f}, {3f, 2f}, {Float.NaN, 2f}, {1f, Float.NaN}}) {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> call("validateMeleeRangeBelowRangedRange", types, pair[0], pair[1]),
+            pair[0] + " / " + pair[1]);
       }
     }
 
-    // ---------- his two attacks in action ----------
-
-    @Nested
-    @DisplayName("attacks")
-    class Attacks {
-      private static final float MELEE_RANGE = 3f;
-      private static final float MELEE_COOLDOWN = 4f;
-      private static final float MELEE_KNOCKBACK = 2f;
-      private static final float MELEE_WINDUP = 2f;
-      private static final int SWORD_DAMAGE = 20;
-
-      private static final float BOLT_RANGE = 9f;
-      private static final float BOLT_COOLDOWN = 5f;
-      private static final float BOLT_KNOCKBACK = 1f;
-      private static final float BOLT_WINDUP = 1f;
-      private static final int BOLT_DAMAGE = 10;
-
-      private static final int TARGET_HEALTH = 100;
-
-      private AttackTestWorld world;
-
-      @BeforeEach
-      void createWorld() {
-        world = AttackTestWorld.create();
-      }
-
-      /** Zeus's two attacks on one owner: a sword melee and an aimed natural lightning bolt. */
-      private Entity newZeus() {
-        MeleeAttackComponent sword =
-            new MeleeAttackComponent(
-                MELEE_RANGE,
-                MELEE_COOLDOWN,
-                MELEE_KNOCKBACK,
-                AttackTestWorld.naturalWeapon(SWORD_DAMAGE, MELEE_WINDUP));
-        RangedAttackComponent bolt =
-            new RangedAttackComponent(
-                BOLT_RANGE,
-                BOLT_COOLDOWN,
-                BOLT_KNOCKBACK,
-                AttackTestWorld.naturalWeapon(BOLT_DAMAGE, BOLT_WINDUP));
-        return world.newAttacker(sword, bolt);
-      }
-
-      private void fireBolt(Entity zeus, Entity target) {
-        zeus.getEvents().trigger("rangedAttack", target, ProjectileType.LIGHTNING);
-      }
-
-      private int healthOf(Entity entity) {
-        return entity.getComponent(CombatStatsComponent.class).getHealth();
-      }
-
-      @Nested
-      @DisplayName("sword")
-      class Sword {
-
-        @Test
-        void shouldHitForTheSwordsDamageAfterTheWindup() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          // 20 is the weapon's damage. The owner's own base attack is 5, so 95 would mean it was
-          // used.
-          assertEquals(TARGET_HEALTH - SWORD_DAMAGE, healthOf(target));
-        }
-
-        @Test
-        void shouldAnnounceTheWindupWithTheTarget() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(zeus, "meleeAttackWindup");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-
-          assertEquals(1, windups.size());
-          assertSame(target, windups.get(0));
-        }
-
-        @Test
-        void shouldNotHitBeforeTheWindupHasElapsed() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) - 5, zeus);
-
-          assertEquals(TARGET_HEALTH, healthOf(target));
-        }
-
-        @Test
-        void shouldHitATargetExactlyAtMeleeRange() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(MELEE_RANGE, 0f, TARGET_HEALTH);
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          assertEquals(TARGET_HEALTH - SWORD_DAMAGE, healthOf(target));
-        }
-
-        @Test
-        void shouldRefuseATargetJustBeyondMeleeRange() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(MELEE_RANGE + 0.5f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(zeus, "meleeAttackWindup");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          assertTrue(windups.isEmpty(), "out of reach means no windup");
-          assertEquals(TARGET_HEALTH, healthOf(target));
-        }
-
-        @Test
-        void shouldWhiffWhenTheTargetLeavesReachDuringTheWindup() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-          List<Entity> whiffs = AttackTestWorld.record(zeus, "meleeAttackWhiff");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(10, zeus);
-          target.setPosition(30f, 0f);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          assertEquals(1, whiffs.size());
-          assertEquals(TARGET_HEALTH, healthOf(target), "a whiff deals no damage");
-        }
-
-        @Test
-        void shouldWhiffWhenTheTargetDiesDuringTheWindup() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-          List<Entity> whiffs = AttackTestWorld.record(zeus, "meleeAttackWhiff");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          target.getComponent(CombatStatsComponent.class).setHealth(0);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          assertEquals(1, whiffs.size());
-          assertEquals(0, healthOf(target), "the dead target is not hit again");
-        }
-
-        @Test
-        void shouldIgnoreASecondTriggerDuringTheWindup() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(zeus, "meleeAttackWindup");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          assertEquals(1, windups.size());
-          assertEquals(TARGET_HEALTH - SWORD_DAMAGE, healthOf(target), "one swing, one hit");
-        }
-
-        @Test
-        void shouldHonourTheMeleeCooldown() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(zeus, "meleeAttackWindup");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(1f), zeus);
-          assertEquals(1, windups.size(), "a second swing straight after the hit is refused");
-
-          world.step(AttackTestWorld.framesFor(MELEE_COOLDOWN), zeus);
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          assertEquals(2, windups.size(), "after the cooldown he can swing again");
-          assertEquals(TARGET_HEALTH - 2 * SWORD_DAMAGE, healthOf(target));
-        }
-
-        @Test
-        void shouldKnockTheTargetAwayFromHim() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-
-          assertTrue(AttackTestWorld.velocityOf(target).x > 0f, "pushed right, away from Zeus");
-        }
-
-        @Test
-        void shouldNotThrowForANullTarget() {
-          Entity zeus = newZeus();
-
-          assertDoesNotThrow(
-              () -> {
-                zeus.getEvents().trigger("meleeAttack", (Entity) null);
-                world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-              });
-        }
-      }
-
-      @Nested
-      @DisplayName("lightning")
-      class Lightning {
-
-        @Test
-        void shouldWindUpThenCallDownOneBolt() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(6f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(zeus, "rangedAttackWindup");
-          List<Entity> fired = AttackTestWorld.record(zeus, "rangedAttackFired");
-          int before = world.mark();
-
-          fireBolt(zeus, target);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) - 5, zeus);
-          assertEquals(1, windups.size());
-          assertTrue(fired.isEmpty(), "nothing is fired during the windup");
-          assertEquals(0, world.registeredSince(before).size());
-
-          world.step(10, zeus);
-
-          assertEquals(1, fired.size());
-          assertEquals(1, world.registeredSince(before).size(), "exactly one bolt");
-        }
-
-        @Test
-        void shouldCallTheBoltDownAboveTheTarget() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(6f, 0f, TARGET_HEALTH);
-          int before = world.mark();
-
-          fireBolt(zeus, target);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-          Entity bolt = world.registeredSince(before).get(0);
-
-          assertEquals(
-              target.getCenterPosition().x,
-              bolt.getCenterPosition().x,
-              0.2f,
-              "the bolt is centred on the target");
-          assertTrue(
-              bolt.getCenterPosition().y > target.getCenterPosition().y,
-              "and starts above the target, not beside it");
-        }
-
-        @Test
-        void shouldAimAtWhereTheTargetIsWhenTheBoltIsCalled() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(6f, 0f, TARGET_HEALTH);
-          int before = world.mark();
-
-          fireBolt(zeus, target);
-          world.step(10, zeus);
-          target.setPosition(8f, 0f);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP), zeus);
-          Entity bolt = world.registeredSince(before).get(0);
-
-          assertEquals(target.getCenterPosition().x, bolt.getCenterPosition().x, 0.2f);
-        }
-
-        @Test
-        void shouldRefuseATargetBeyondBoltRange() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(BOLT_RANGE + 5f, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(zeus, "rangedAttackWindup");
-          int before = world.mark();
-
-          fireBolt(zeus, target);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-
-          assertTrue(windups.isEmpty());
-          assertEquals(0, world.registeredSince(before).size());
-        }
-
-        @Test
-        void shouldAcceptATargetExactlyAtBoltRange() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(BOLT_RANGE, 0f, TARGET_HEALTH);
-          List<Entity> windups = AttackTestWorld.record(zeus, "rangedAttackWindup");
-
-          fireBolt(zeus, target);
-
-          assertEquals(1, windups.size());
-        }
-
-        @Test
-        void shouldIgnoreASecondTriggerDuringTheBoltWindup() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(6f, 0f, TARGET_HEALTH);
-          int before = world.mark();
-
-          fireBolt(zeus, target);
-          fireBolt(zeus, target);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-
-          assertEquals(1, world.registeredSince(before).size());
-        }
-
-        @Test
-        void shouldHonourTheBoltCooldown() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(6f, 0f, TARGET_HEALTH);
-          int before = world.mark();
-
-          fireBolt(zeus, target);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-          fireBolt(zeus, target);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-          assertEquals(1, world.registeredSince(before).size(), "the cooldown blocks a second");
-
-          world.step(AttackTestWorld.framesFor(BOLT_COOLDOWN), zeus);
-          fireBolt(zeus, target);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-
-          assertEquals(2, world.registeredSince(before).size(), "and he can call another after");
-        }
-
-        @Test
-        void shouldCancelTheBoltWhenTheTargetDiesDuringTheWindup() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(6f, 0f, TARGET_HEALTH);
-          List<Entity> cancelled = AttackTestWorld.record(zeus, "rangedAttackCancelled");
-          int before = world.mark();
-
-          fireBolt(zeus, target);
-          target.getComponent(CombatStatsComponent.class).setHealth(0);
-          world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-
-          assertEquals(1, cancelled.size());
-          assertEquals(0, world.registeredSince(before).size(), "no bolt for a dead target");
-        }
-
-        @Test
-        void shouldNotThrowForANullBoltTarget() {
-          Entity zeus = newZeus();
-
-          assertDoesNotThrow(
-              () -> {
-                zeus.getEvents().trigger("rangedAttack", null, ProjectileType.LIGHTNING);
-                world.step(AttackTestWorld.framesFor(BOLT_WINDUP) + 1, zeus);
-              });
-        }
-      }
-
-      @Nested
-      @DisplayName("both together")
-      class Together {
-
-        @Test
-        void shouldNotStartTheBoltWhenOnlyTheSwordIsTriggered() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-          List<Entity> boltWindups = AttackTestWorld.record(zeus, "rangedAttackWindup");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-
-          assertTrue(boltWindups.isEmpty());
-        }
-
-        @Test
-        void shouldNotStartTheSwordWhenOnlyTheBoltIsTriggered() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(6f, 0f, TARGET_HEALTH);
-          List<Entity> swordWindups = AttackTestWorld.record(zeus, "meleeAttackWindup");
-
-          fireBolt(zeus, target);
-
-          assertTrue(swordWindups.isEmpty());
-        }
-
-        @Test
-        void shouldKeepTheBoltCooldownAndTheSwordCooldownSeparate() {
-          Entity zeus = newZeus();
-          Entity target = world.newTarget(2f, 0f, TARGET_HEALTH);
-          List<Entity> boltWindups = AttackTestWorld.record(zeus, "rangedAttackWindup");
-
-          zeus.getEvents().trigger("meleeAttack", target);
-          world.step(AttackTestWorld.framesFor(MELEE_WINDUP) + 1, zeus);
-          fireBolt(zeus, target);
-
-          assertEquals(1, boltWindups.size(), "a sword swing does not spend the bolt's cooldown");
-        }
+    @Test
+    void validateMeleeRangeBelowRangedRangeShouldNameBothRanges() {
+      IllegalArgumentException thrown =
+          assertThrows(
+              IllegalArgumentException.class,
+              () ->
+                  call(
+                      "validateMeleeRangeBelowRangedRange",
+                      new Class<?>[] {float.class, float.class},
+                      3f,
+                      2f));
+
+      assertEquals("melee range 3.0 must be below ranged attack range 2.0", thrown.getMessage());
+    }
+  }
+
+  // =======================================================================================
+  // SPAWN REGISTRATION AND STRUCTURE
+  // =======================================================================================
+
+  @Nested
+  @DisplayName("registerEnemySpawns")
+  class SpawnRegistration {
+    private static final Map<String, String> LABEL_BY_NAME =
+        Map.of(
+            "skeleton", "Skeleton",
+            "ranged-skeleton", "Ranged Skeleton",
+            "harpy", "Harpy",
+            "ranged-harpy", "Ranged Harpy",
+            "centaur", "Centaur",
+            "minotaur", "Minotaur",
+            "cyclops", "Cyclops",
+            "cerberus", "Cerberus",
+            "medusa", "Medusa",
+            "zeus", "Zeus");
+
+    @Test
+    void shouldRegisterExactlyTheTenEnemyNames() {
+      EnemyFactory.registerEnemySpawns();
+
+      assertEquals(LABEL_BY_NAME.keySet(), EntitySpawnRegistry.registeredNames());
+    }
+
+    @Test
+    void shouldBuildTheMatchingEnemyForEachName() {
+      EnemyFactory.registerEnemySpawns();
+
+      LABEL_BY_NAME.forEach(
+          (name, label) ->
+              assertEquals(
+                  label,
+                  EntitySpawnRegistry.create(name, player)
+                      .getComponent(EnemyTypeComponent.class)
+                      .getEnemyLabel(),
+                  name));
+    }
+
+    @Test
+    void shouldBeSafeToCallTwice() {
+      EnemyFactory.registerEnemySpawns();
+      EnemyFactory.registerEnemySpawns();
+
+      assertEquals(10, EntitySpawnRegistry.registeredNames().size());
+    }
+
+    @Test
+    void shouldLeaveANameAnotherTeamRegisteredAlone() {
+      Entity sentinel = new Entity();
+      EntitySpawnRegistry.register("skeleton", p -> sentinel);
+
+      EnemyFactory.registerEnemySpawns();
+
+      assertSame(sentinel, EntitySpawnRegistry.create("skeleton", player));
+      assertTrue(EntitySpawnRegistry.isRegistered("zeus"));
+    }
+
+    @Test
+    void shouldRegisterNoNpcName() {
+      EnemyFactory.registerEnemySpawns();
+
+      for (String name : EntitySpawnRegistry.registeredNames()) {
+        assertFalse(name.startsWith("npc:"), name);
       }
     }
   }
 
-  // =====================================================================================
-  // HARPIES
-  // =====================================================================================
-
   @Nested
-  @DisplayName("harpies")
-  class Harpies {
-
+  @DisplayName("structure")
+  class Structure {
     @Test
-    void shouldGiveTheHarpyAFlightComponentAndASwordFromItsConfig() {
-      Entity harpy = EnemyFactory.createHarpy(player);
+    void shouldNotBeInstantiable() throws ReflectiveOperationException {
+      Constructor<EnemyFactory> constructor = EnemyFactory.class.getDeclaredConstructor();
+      constructor.setAccessible(true);
 
-      FlightComponent flight = harpy.getComponent(FlightComponent.class);
-      assertNotNull(flight, "harpies hover");
-      assertEquals(configs.harpy.flightDamping, flight.getLinearDamping(), 1e-6f);
-      WeaponItem sword = (WeaponItem) harpy.getComponent(InventoryComponent.class).getItem(1);
-      assertEquals(WeaponType.SWORD, sword.getWeaponType());
-      MeleeAttackComponent melee = harpy.getComponent(MeleeAttackComponent.class);
-      assertEquals(configs.harpy.melee.range, melee.getRange(), 1e-6f);
-      assertEquals(configs.harpy.melee.cooldown, melee.getCooldown(), 1e-6f);
-      assertNull(harpy.getComponent(RangedAttackComponent.class));
-    }
+      InvocationTargetException thrown =
+          assertThrows(InvocationTargetException.class, constructor::newInstance);
 
-    @Test
-    void shouldGiveTheRangedHarpyAFlightComponentAndAnAimedBowFromItsConfig() {
-      Entity harpy = EnemyFactory.createRangedHarpy(player);
-
-      FlightComponent flight = harpy.getComponent(FlightComponent.class);
-      assertNotNull(flight, "harpies hover");
-      assertEquals(configs.rangedHarpy.flightDamping, flight.getLinearDamping(), 1e-6f);
-      WeaponItem bow = (WeaponItem) harpy.getComponent(InventoryComponent.class).getItem(1);
-      assertEquals(WeaponType.BOW, bow.getWeaponType());
-      RangedAttackComponent ranged = harpy.getComponent(RangedAttackComponent.class);
-      assertEquals(configs.rangedHarpy.ranged.range, ranged.getRange(), 1e-6f);
-      assertEquals(configs.rangedHarpy.ranged.cooldown, ranged.getCooldown(), 1e-6f);
-      assertEquals(configs.rangedHarpy.ranged.projectileSpeed, ranged.getProjectileSpeed(), 1e-6f);
-      assertEquals(configs.rangedHarpy.ranged.aimed, ranged.isAimed());
-      assertTrue(ranged.isAimed(), "a flying shooter needs aimed arrows to hit up and down");
-      assertNull(harpy.getComponent(MeleeAttackComponent.class));
-    }
-
-    @Test
-    void shouldNotGiveGroundEnemiesAFlightComponent() {
-      assertNull(EnemyFactory.createSkeleton(player).getComponent(FlightComponent.class));
-      assertNull(EnemyFactory.createMinotaur(player).getComponent(FlightComponent.class));
-      assertNull(EnemyFactory.createMedusa(player).getComponent(FlightComponent.class));
-    }
-
-    @Test
-    void shouldGiveBothHarpiesTheHarpyAnimationControllerAndBothFacings() {
-      Entity harpy = EnemyFactory.createHarpy(player);
-      Entity rangedHarpy = EnemyFactory.createRangedHarpy(player);
-
-      for (Entity enemy : new Entity[] {harpy, rangedHarpy}) {
-        assertNotNull(enemy.getComponent(HarpyAnimationController.class));
-        AnimationRenderComponent animator = enemy.getComponent(AnimationRenderComponent.class);
-        assertTrue(animator.hasAnimation("harpy_y_l"), "left-facing animation");
-        assertTrue(animator.hasAnimation("harpy_y_r"), "right-facing animation");
-      }
-    }
-  }
-
-  // =====================================================================================
-  // EVERY ENEMY IN A LIVE WORLD
-  // =====================================================================================
-
-  /**
-   * Runs every enemy the way the game does: built by {@link EnemyFactory}, created, placed in a
-   * physics world beside a target, and updated frame by frame so its own AI decides when to attack.
-   * Nothing here triggers an attack event by hand. The expected numbers are the ones in {@code
-   * configs/NPCs.json}.
-   */
-  @Nested
-  @DisplayName("in a live world")
-  class InALiveWorld {
-    private static final int TARGET_HEALTH = 1000;
-
-    /** Centre-to-centre distance that is inside every enemy's shortest attack range. */
-    private static final float IN_REACH = 1f;
-
-    /** Beyond every melee range in the config, inside every ranged range. */
-    private static final float MID_RANGE = 5f;
-
-    /** Far outside every attack range and every charge aggro radius. */
-    private static final float OUT_OF_REACH = 100f;
-
-    /** Long enough for the slowest attack: a 5 second cooldown plus its windup. */
-    private static final float LONG_ENOUGH_SECONDS = 8f;
-
-    private AttackTestWorld world;
-
-    @BeforeEach
-    void createWorld() {
-      world = AttackTestWorld.create();
-      // The wander and chase tasks draw debug lines, so the render service must hand one back.
-      RenderService renderService = mock(RenderService.class);
-      when(renderService.getDebug()).thenReturn(mock(DebugRenderer.class));
-      ServiceLocator.registerRenderService(renderService);
-    }
-
-    // ---------- the scene every test builds ----------
-
-    /** A factory-built enemy at the origin and its target, both live in the test world. */
-    private final class Scene {
-      final Entity target;
-      final Entity enemy;
-
-      /**
-       * @param factory the creator under test
-       * @param distance centre-to-centre distance from the enemy to the target, to its right
-       */
-      Scene(Function<Entity, Entity> factory, float distance) {
-        target = world.newTarget(0f, 0f, TARGET_HEALTH);
-        enemy = factory.apply(target);
-        // Registering runs create() on every component, exactly as spawning in a level does.
-        world.register(enemy);
-        // There is no floor in the test world, so switch gravity off instead of letting it fall.
-        enemy.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
-        enemy.setPosition(0f, 0f);
-        placeTargetAt(distance);
-      }
-
-      void placeTargetAt(float distance) {
-        Vector2 enemyCentre = enemy.getCenterPosition();
-        Vector2 half = target.getScale().cpy().scl(0.5f);
-        target.setPosition(enemyCentre.x + distance - half.x, enemyCentre.y - half.y);
-      }
-
-      int targetHealth() {
-        return target.getComponent(CombatStatsComponent.class).getHealth();
-      }
-
-      int damageDealt() {
-        return TARGET_HEALTH - targetHealth();
-      }
-
-      void run(float seconds) {
-        world.step(AttackTestWorld.framesFor(seconds));
-      }
-    }
-
-    // =====================================================================================
-    // EVERY ENEMY
-    // =====================================================================================
-
-    @Nested
-    @DisplayName("every enemy, built by the factory and run in a world")
-    class EveryEnemyCase {
-
-      @ParameterizedTest(name = "{0} spawns with the health and attack in the config")
-      @MethodSource(EVERY_ENEMY)
-      void shouldSpawnWithTheHealthAndAttackInTheConfig(EnemyCase expected) {
-        Scene scene = new Scene(expected.factory(), OUT_OF_REACH);
-
-        CombatStatsComponent stats = scene.enemy.getComponent(CombatStatsComponent.class);
-        assertEquals(expected.health(), stats.getHealth(), expected + " health");
-        assertEquals(expected.baseAttack(), stats.getBaseAttack(), expected + " base attack");
-      }
-
-      @ParameterizedTest(name = "{0} keeps its type label once created")
-      @MethodSource(EVERY_ENEMY)
-      void shouldKeepItsTypeLabelOnceCreated(EnemyCase expected) {
-        Scene scene = new Scene(expected.factory(), OUT_OF_REACH);
-
-        EnemyTypeComponent type = scene.enemy.getComponent(EnemyTypeComponent.class);
-        assertNotNull(type, expected + " needs an enemy type");
-        assertEquals(expected.label(), type.getEnemyLabel());
-      }
-
-      @ParameterizedTest(name = "{0} runs for two seconds without throwing")
-      @MethodSource(EVERY_ENEMY)
-      void shouldRunItsOwnUpdateLoopWithoutThrowing(EnemyCase expected) {
-        Scene scene = new Scene(expected.factory(), IN_REACH);
-
-        assertDoesNotThrow(() -> scene.run(2f), expected.name());
-      }
-
-      @ParameterizedTest(name = "{0} hurts a target in reach by itself")
-      @MethodSource(EVERY_ENEMY)
-      void shouldHurtATargetInReachThroughItsOwnAi(EnemyCase expected) {
-        Scene scene = new Scene(expected.factory(), IN_REACH);
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertTrue(scene.damageDealt() > 0, expected + " never hurt a target standing beside it");
-      }
-
-      @ParameterizedTest(name = "{0} leaves a distant target alone")
-      @MethodSource(EVERY_ENEMY)
-      void shouldLeaveATargetFarOutOfReachAlone(EnemyCase expected) {
-        Scene scene = new Scene(expected.factory(), OUT_OF_REACH);
-        int before = world.mark();
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertEquals(0, scene.damageDealt(), expected + " hurt a target 100 units away");
-        assertTrue(world.registeredSince(before).isEmpty(), expected + " fired at nothing");
-      }
-
-      @ParameterizedTest(name = "{0} survives its own attacks")
-      @MethodSource(EVERY_ENEMY)
-      void shouldNotHurtItselfWhileAttacking(EnemyCase expected) {
-        Scene scene = new Scene(expected.factory(), IN_REACH);
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertEquals(
-            expected.health(),
-            scene.enemy.getComponent(CombatStatsComponent.class).getHealth(),
-            expected.name());
-      }
-
-      @ParameterizedTest(name = "{0} fires at a target at mid range")
-      @MethodSource(MID_RANGE_SHOOTERS)
-      void shouldFireAProjectileAtATargetAtMidRange(EnemyCase expected) {
-        Scene scene = new Scene(expected.factory(), MID_RANGE);
-        int before = world.mark();
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertFalse(
-            world.registeredSince(before).isEmpty(), expected + " fired nothing in 8 seconds");
-      }
-    }
-
-    // =====================================================================================
-    // CERBERUS: range 4, cooldown 1.5, knockback 2, windup 0.5, bite 12
-    // =====================================================================================
-
-    @Nested
-    @DisplayName("cerberus, live")
-    class LiveCerberus {
-      private static final float RANGE = 4f;
-      private static final float COOLDOWN = 1.5f;
-      private static final float WINDUP = 0.5f;
-      private static final int BITE_DAMAGE = 12;
-
-      /** A few frames of slack either side of a timing boundary. */
-      private static final float SLACK = 0.1f;
-
-      private Scene cerberusWithTargetAt(float distance) {
-        return new Scene(EnemyFactory::createCerberus, distance);
-      }
-
-      @Test
-      void shouldNotBiteBeforeItsWindupHasPassed() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(WINDUP - SLACK);
-
-        assertEquals(0, scene.damageDealt());
-      }
-
-      @Test
-      void shouldBiteOnceForItsConfiguredDamageAfterTheWindup() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(WINDUP + SLACK);
-
-        assertEquals(BITE_DAMAGE, scene.damageDealt());
-      }
-
-      @Test
-      void shouldNotBiteAgainUntilTheCooldownHasPassed() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(WINDUP + SLACK);
-        scene.run(COOLDOWN - 2 * SLACK);
-
-        assertEquals(BITE_DAMAGE, scene.damageDealt(), "still one bite inside the cooldown");
-      }
-
-      @Test
-      void shouldBiteASecondTimeAfterTheCooldownAndAnotherWindup() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(WINDUP + SLACK);
-        scene.run(COOLDOWN + WINDUP + SLACK);
-
-        assertEquals(2 * BITE_DAMAGE, scene.damageDealt());
-      }
-
-      @Test
-      void shouldKeepBitingAtTheSameRate() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        // One bite every cooldown plus windup (2 seconds): 4 in 8 seconds.
-        assertEquals(4 * BITE_DAMAGE, scene.damageDealt());
-      }
-
-      @Test
-      void shouldReachATargetJustInsideItsRange() {
-        Scene scene = cerberusWithTargetAt(RANGE - 0.5f);
-
-        scene.run(WINDUP + SLACK);
-
-        assertEquals(BITE_DAMAGE, scene.damageDealt());
-      }
-
-      @Test
-      void shouldNotReachATargetJustOutsideItsRange() {
-        Scene scene = cerberusWithTargetAt(RANGE + 0.5f);
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertEquals(0, scene.damageDealt());
-      }
-
-      @Test
-      void shouldStartBitingWhenTheTargetWalksIntoRange() {
-        Scene scene = cerberusWithTargetAt(RANGE + 2f);
-        scene.run(1f);
-        assertEquals(0, scene.damageDealt(), "nothing while the target is out of range");
-
-        scene.placeTargetAt(IN_REACH);
-        scene.run(WINDUP + SLACK);
-
-        assertEquals(BITE_DAMAGE, scene.damageDealt());
-      }
-
-      @Test
-      void shouldMissWhenTheTargetLeavesDuringTheWindup() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(WINDUP / 2f);
-        scene.placeTargetAt(OUT_OF_REACH);
-        scene.run(WINDUP);
-
-        assertEquals(0, scene.damageDealt());
-      }
-
-      @Test
-      void shouldKnockTheTargetAwayFromItself() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(WINDUP + 0.04f);
-
-        assertTrue(
-            AttackTestWorld.velocityOf(scene.target).x > 0f, "the target is pushed to the right");
-      }
-
-      @Test
-      void shouldStayWhereItIsBecauseItGuardsItsRoom() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertEquals(0f, scene.enemy.getPosition().x, 1e-3f);
-        assertEquals(0f, scene.enemy.getPosition().y, 1e-3f);
-      }
-
-      @Test
-      void shouldFireNoProjectilesBecauseItOnlyBites() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-        int before = world.mark();
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertTrue(world.registeredSince(before).isEmpty());
-      }
-
-      @Test
-      void shouldStopBitingOnceTheTargetIsDead() {
-        Scene scene = cerberusWithTargetAt(IN_REACH);
-        scene.target.getComponent(CombatStatsComponent.class).setHealth(0);
-
-        scene.run(LONG_ENOUGH_SECONDS);
-
-        assertEquals(0, scene.targetHealth(), "a dead target is not bitten below zero");
-      }
+      assertInstanceOf(IllegalStateException.class, thrown.getCause());
     }
   }
 }
