@@ -54,7 +54,7 @@ import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
 import com.csse3200.game.entities.spawn.enemies.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
-import com.csse3200.game.perks.TortoiseFactory;
+import com.csse3200.game.perks.Tortoises.TortoiseFactory;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;

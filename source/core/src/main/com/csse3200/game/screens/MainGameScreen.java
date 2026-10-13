@@ -49,7 +49,9 @@ import com.csse3200.game.pausemenu.*;
 import com.csse3200.game.perks.PerkSelectionDisplay;
 import com.csse3200.game.perks.PerkSelectionInputComponent;
 import com.csse3200.game.perks.PerkService;
-import com.csse3200.game.perks.TortoiseFactory;
+import com.csse3200.game.perks.Tortoises.TortoiseFactory;
+import com.csse3200.game.perks.Tortoises.TortoisePlan;
+import com.csse3200.game.perks.Tortoises.TortoisePlanner;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -74,6 +76,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,9 +120,6 @@ public class MainGameScreen extends ScreenAdapter {
 
   /** How long the game waits after the final boss falls before showing the win screen. */
   private static final float WIN_SCREEN_DELAY = 2.5f;
-
-  /** How many tortoises are hidden across the maps; one is placed so far, in Level 1. */
-  private static final int TORTOISES_HIDDEN = 1;
 
   private final GdxGame game;
 
@@ -176,6 +176,7 @@ public class MainGameScreen extends ScreenAdapter {
     terrainFactory = new TerrainFactory(renderer.getCamera());
     String initialRoomMap = FIRST_ROOM_MAP;
     Long savedSeed = null;
+    int tortoiseTotal;
 
     if (loadsave && SaveService.hasSave()) {
       GameSaveData saveData = SaveService.load();
@@ -184,6 +185,18 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       QuestLedger.loadFrom(saveData.completedQuestsByKind);
       TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
+      // Found state lives in the save (TortoiseLedger) and in device Preferences
+      // (TortoiseRegistry), so rebuild Preferences from the save.
+      TortoiseFactory.resetAll();
+      for (String id : TortoiseLedger.exportAll()) {
+        TortoiseFactory.markFound(id);
+      }
+      TortoisePlan.set(saveData.tortoisePlan);
+      tortoiseTotal =
+          saveData.tortoiseTotal > 0
+              ? saveData.tortoiseTotal
+              : TortoisePlanner.newGame(new Random()); // old save with no total
+
       NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
       Quest.restoreCounters(
           saveData.questJumps,
@@ -220,8 +233,10 @@ public class MainGameScreen extends ScreenAdapter {
 
       PerkService.resetAll();
       TortoiseFactory.resetAll();
+      TortoisePlan.reset();
+      tortoiseTotal = TortoisePlanner.newGame(new Random());
     }
-    TortoiseLedger.setTotal(TORTOISES_HIDDEN);
+    TortoiseLedger.setTotal(tortoiseTotal);
 
     currentRoomMapPath = initialRoomMap;
 

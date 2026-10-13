@@ -45,4 +45,13 @@ public class GameSaveData {
   public int questEnemiesKilled;
   public int questGoldSpent;
   public int questShieldsCollected;
+
+  /** Stored tortoise total so it isn't recreated every time */
+  public int tortoiseTotal;
+
+  /**
+   * A saved plan of where each tortoise component is being created across the game, and storing
+   * which ones have already been found and collected
+   */
+  public Map<String, Integer> tortoisePlan = new HashMap<>();
 }

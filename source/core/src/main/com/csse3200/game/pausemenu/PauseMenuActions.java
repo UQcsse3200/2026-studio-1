@@ -27,6 +27,7 @@ import com.csse3200.game.files.SavedBuff;
 import com.csse3200.game.files.SavedItem;
 import com.csse3200.game.files.SavedLoot;
 import com.csse3200.game.files.SavedUpgrade;
+import com.csse3200.game.perks.Tortoises.TortoisePlan;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
@@ -132,6 +133,8 @@ public class PauseMenuActions extends Component {
     data.foundTortoiseIds = TortoiseLedger.exportAll();
     data.npcs = NpcQuestRegistry.exportAll();
     data.killedNpcIds = NpcQuestRegistry.exportKilled();
+    data.tortoiseTotal = TortoiseLedger.getTotal();
+    data.tortoisePlan = TortoisePlan.exportAll();
     int[] questCounters = Quest.exportCounters();
     data.questJumps = questCounters[0];
     data.questEnemiesKilled = questCounters[1];
