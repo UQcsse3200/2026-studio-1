@@ -36,7 +36,11 @@
     },
     "a": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-oil-lamp-512px.png"
+      "texture": "images/level1/decor-oil-lamp-512px.png",
+      "light": "point",
+      "lightColour": "oil_lamp",
+      "lightRadius": "1.5",
+      "flicker": "0.1"
     },
     "k": {
       "type": "DECORATIVE",
@@ -94,6 +98,10 @@
     "L": {
       "type": "LOOT"
     }
+  },
+  "lighting": {
+    "ambient": { "color": "ambient_light", "intensity": 0.5 },
+    "player": { "radius": 2.5, "color": "resinous_torch" }
   },
   "layers": {
     "background": [
