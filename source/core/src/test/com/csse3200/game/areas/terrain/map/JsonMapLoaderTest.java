@@ -588,7 +588,7 @@ class JsonMapLoaderTest {
   void loadsLevelTwoMountainAndItsSummitExit() {
     LevelMapData levelTwo = loader.load("maps/level2.json");
 
-    assertEquals("Level 2 — Climb Mount Olympus", levelTwo.getName());
+    assertEquals("Level 2 - Climb Mount Olympus", levelTwo.getName());
     assertEquals(80, levelTwo.getWidth());
     assertEquals(180, levelTwo.getHeight());
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());

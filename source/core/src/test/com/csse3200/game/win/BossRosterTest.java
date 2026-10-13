@@ -33,7 +33,7 @@ class BossRosterTest {
     assertFalse(
         BossRoster.isFinalBoss("Zeus's Thunder Hall:26,12"),
         "the Thunder Hall guardian is a mini boss");
-    assertFalse(BossRoster.isFinalBoss("Level 2 \u2014 Climb Mount Olympus:53,148"));
+    assertFalse(BossRoster.isFinalBoss("Level 2 - Climb Mount Olympus:53,148"));
     assertFalse(BossRoster.isFinalBoss(null));
     assertFalse(BossRoster.isFinalBoss(""));
   }
