@@ -1,4 +1,4 @@
-package com.csse3200.game.perks.Tortoises;
+package com.csse3200.game.perks.tortoises;
 
 import com.csse3200.game.components.enemies.EnemyTypeComponent;
 import com.csse3200.game.entities.Entity;
@@ -17,6 +17,9 @@ import java.util.Set;
  * example because the enemies on the map were already killed in an earlier visit, are handed back
  * so the caller can place them on the ground instead. That is what stops a total from becoming
  * unreachable when a carrier died before its tortoise was picked up.
+ *
+ * <p>The enemies must not have been created yet: {@code Entity.addComponent} ignores a component
+ * added after creation. If one was, its tortoise is handed back like any other without a carrier.
  */
 public final class TortoiseCarrierAssigner {
   /** Start of every random tortoise's id. */
@@ -32,7 +35,7 @@ public final class TortoiseCarrierAssigner {
    * Gives this map's planned random tortoises to carriers.
    *
    * @param mapName the map's name, as in {@code MapData.getName()}
-   * @param enemies every enemy just spawned on the map
+   * @param enemies every enemy built for the map, before any of them is registered
    * @param random the source of randomness
    * @return the ids of planned tortoises that were not found yet and got no carrier; the caller
    *     should place each on the ground. Empty if everything was assigned.
@@ -59,8 +62,12 @@ public final class TortoiseCarrierAssigner {
         continue; // already collected, nothing to place
       }
       if (next < candidates.size()) {
-        candidates.get(next).addComponent(new TortoiseDropComponent(id));
+        Entity carrier = candidates.get(next);
         next++;
+        carrier.addComponent(new TortoiseDropComponent(id));
+        if (carrier.getComponent(TortoiseDropComponent.class) == null) {
+          needGround.add(id); // the enemy was already created, so the component was ignored
+        }
       } else {
         needGround.add(id); // no carrier left: the caller puts it on the ground
       }

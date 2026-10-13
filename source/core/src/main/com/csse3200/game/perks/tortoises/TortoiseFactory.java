@@ -1,4 +1,4 @@
-package com.csse3200.game.perks.Tortoises;
+package com.csse3200.game.perks.tortoises;
 
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -10,6 +10,7 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.Collection;
 
 /**
  * Builds the hidden tortoise collectible entity for the "Time Freeze" perk.
@@ -78,6 +79,19 @@ public final class TortoiseFactory {
       throw new IllegalArgumentException("Tortoise id cannot be blank");
     }
     TortoiseRegistry.markFound(tortoiseId);
+  }
+
+  /** Save/load: replaces the found tortoises with the ones listed in a save file. */
+  public static void restoreFound(Collection<String> tortoiseIds) {
+    TortoiseRegistry.resetAll();
+    if (tortoiseIds == null) {
+      return;
+    }
+    for (String id : tortoiseIds) {
+      if (id != null && !id.isBlank()) {
+        TortoiseRegistry.markFound(id);
+      }
+    }
   }
 
   private TortoiseFactory() {

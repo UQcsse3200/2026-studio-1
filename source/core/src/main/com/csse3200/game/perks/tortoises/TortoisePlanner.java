@@ -1,4 +1,4 @@
-package com.csse3200.game.perks.Tortoises;
+package com.csse3200.game.perks.tortoises;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
