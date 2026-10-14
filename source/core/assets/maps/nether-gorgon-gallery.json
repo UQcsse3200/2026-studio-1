@@ -15,7 +15,7 @@
       "texture": "images/level1/cavern-floor-ash-512px.png"
     },
     "=": {
-      "type": "ONE_WAY_PLATFORM",
+      "type": "PLATFORM",
       "texture": "images/level1/ledge-basalt-512px.png"
     },
     "v": {
@@ -28,7 +28,11 @@
     },
     "a": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-oil-lamp-512px.png"
+      "texture": "images/level1/decor-oil-lamp-512px.png",
+      "light": "point",
+      "lightColour": "oil_lamp",
+      "lightRadius": "1.5",
+      "flicker": "0.1"
     },
     "q": {
       "type": "DECORATIVE",
@@ -90,6 +94,10 @@
     "L": {
       "type": "LOOT"
     }
+  },
+  "lighting": {
+    "ambient": { "color": "ambient_orange", "intensity": 0.2 },
+    "player": { "radius": 3.5, "color": "resinous_torch" }
   },
   "layers": {
     "background": [

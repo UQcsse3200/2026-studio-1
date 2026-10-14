@@ -15,13 +15,17 @@
       "texture": "images/level1/cavern-floor-ash-512px.png"
     },
     "=": {
-      "type": "ONE_WAY_PLATFORM",
+      "type": "PLATFORM",
       "texture": "images/level1/ledge-basalt-512px.png"
     },
     "X": {
       "type": "HAZARD",
       "texture": "images/level1/hazard-firepit-512px.png",
-      "damage": "15"
+      "damage": "15",
+      "light": "point",
+      "lightColour": "fire_glow",
+      "lightRadius": "1.5",
+      "flicker": "0.4"
     },
     "v": {
       "type": "DECORATIVE",
@@ -37,7 +41,11 @@
     },
     "a": {
       "type": "DECORATIVE",
-      "texture": "images/level1/decor-oil-lamp-512px.png"
+      "texture": "images/level1/decor-oil-lamp-512px.png",
+      "light": "point",
+      "lightColour": "oil_lamp",
+      "lightRadius": "1.5",
+      "flicker": "0.1"
     },
     "k": {
       "type": "DECORATIVE",
@@ -91,6 +99,10 @@
     "L": {
       "type": "LOOT"
     }
+  },
+  "lighting": {
+    "ambient": { "color": "ambient_orange", "intensity": 0.2 },
+    "player": { "radius": 3.5, "color": "resinous_torch" }
   },
   "layers": {
     "background": [
