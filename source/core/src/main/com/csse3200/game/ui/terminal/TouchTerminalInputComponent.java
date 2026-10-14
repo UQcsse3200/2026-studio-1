@@ -67,7 +67,6 @@ public class TouchTerminalInputComponent extends InputComponent {
         || character == ' '
         || character == '-'
         || character == ':') {
-      System.out.println(character);
       // append character to message
       terminal.appendToMessage(character);
       return true;
