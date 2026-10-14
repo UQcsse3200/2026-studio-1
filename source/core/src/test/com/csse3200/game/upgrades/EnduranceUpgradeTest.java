@@ -98,4 +98,18 @@ class EnduranceUpgradeTest {
     assertDoesNotThrow(() -> endurance().purchaseNextTier());
     assertDoesNotThrow(() -> endurance().tickTime(11f));
   }
+
+  /**
+   * Fully expiring without a StaminaComponent must not throw (removeEnduranceEffect's null guard).
+   */
+  @Test
+  void expiryWithoutStaminaComponentDoesNotThrow() throws Exception {
+    display.setPlayer(new Entity()); // no StaminaComponent at all
+
+    endurance().purchaseNextTier(); // Tier 1: 10s remaining; apply effect no-ops (no stamina)
+
+    assertDoesNotThrow(() -> endurance().tickTime(11f)); // more than enough to fully expire
+
+    assertEquals(0, endurance().getCurrentTier());
+  }
 }

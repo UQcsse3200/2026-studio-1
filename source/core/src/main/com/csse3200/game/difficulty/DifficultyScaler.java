@@ -60,12 +60,17 @@ public final class DifficultyScaler {
       meleeAttack.setWindupMultiplier(current.getAttackWindupMultiplier());
     }
 
-    // Only the ranged cooldown is scaled here. RangedAttackComponent now counts its windup down
-    // (taken from the weapon), but it has no windup multiplier yet, so difficulty leaves the
-    // windup alone. Add a ranged windup multiplier only if there is time.
+    // Cooldown and damage are both scaled here. RangedAttackComponent.getDamage() applies the
+    // multiplier to the weapon's own damage (not to combatStats.getBaseAttack(), already scaled
+    // above - that's the no-weapon path, e.g. a rock-throwing enemy), so this is the only place a
+    // weapon-wielding ranged enemy's actual shot damage (arrows, aimed arrows, lightning - every
+    // projectile type createProjectile() builds, all sourced from getDamage()) picks up
+    // difficulty at all. RangedAttackComponent still has no windup multiplier, so difficulty
+    // leaves the windup alone; add one only if there is time.
     RangedAttackComponent rangedAttack = enemy.getComponent(RangedAttackComponent.class);
     if (rangedAttack != null) {
       rangedAttack.setCooldown(rangedAttack.getCooldown() * current.getAttackCooldownMultiplier());
+      rangedAttack.setDamageMultiplier(current.getEnemyDamageMultiplier());
     }
 
     InventoryComponent inventory = enemy.getComponent(InventoryComponent.class);
