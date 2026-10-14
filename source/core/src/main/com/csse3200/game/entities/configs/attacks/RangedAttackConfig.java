@@ -24,8 +24,10 @@ public class RangedAttackConfig {
   /* True to fire arrows along the straight line to the target (so a shooter above or below can
    * hit); false (the default) keeps the x-axis-only arrow. */
   public boolean aimed = false;
-  /* Scales the owner's base attack for this attack's damage (a rock hits harder than a laser). */
+
+  /** Scales the owner's base attack for this attack's damage (a rock hits harder than a laser). */
   public float damageMultiplier = 1.0f;
-  /* Where the projectile leaves the owner, as a fraction of its height (0 feet, 1 top). */
+
+  /** Where the projectile leaves the owner, as a fraction of its height (0 feet, 1 top). */
   public float spawnHeightFraction = 0.5f;
 }

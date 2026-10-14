@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
+import com.csse3200.game.win.TortoiseLedger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,7 @@ public class TortoiseComponent extends Component {
 
     collected = true;
     TortoiseRegistry.markFound(tortoiseId);
+    TortoiseLedger.recordFound(tortoiseId);
     logger.info("Tortoise \"{}\" found!", tortoiseId);
     PerkService.recordEvent(EVENT_KEY, 1);
     Gdx.app.postRunnable(entity::dispose);

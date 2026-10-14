@@ -388,13 +388,6 @@ public class PlayerActions extends Component {
       return;
     }
 
-    if (staminaComponent == null
-        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
-      return;
-    }
-
-    staminaComponent.useStamina(staminaComponent.getAttackCost());
-
     Sound attackSound =
         ServiceLocator.getResourceService().getAsset("sounds/Impact4.ogg", Sound.class);
 
@@ -417,11 +410,7 @@ public class PlayerActions extends Component {
 
   /** Hits the nearest enemy in melee range for three times the player's base attack. */
   void specialAttack() {
-    if (dead
-        || specialAttackCooldownRemaining > 0f
-        || staminaComponent == null
-        || combatStats == null
-        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
+    if (dead || specialAttackCooldownRemaining > 0f || combatStats == null) {
       return;
     }
 
@@ -430,8 +419,6 @@ public class PlayerActions extends Component {
     if (target == null) {
       return;
     }
-
-    staminaComponent.useStamina(staminaComponent.getAttackCost());
 
     int damage =
         (int)
@@ -468,11 +455,7 @@ public class PlayerActions extends Component {
 
   /** Hits every enemy within the player's area-attack radius for twice the base attack. */
   void areaAttack() {
-    if (dead
-        || areaAttackCooldownRemaining > 0f
-        || staminaComponent == null
-        || combatStats == null
-        || !staminaComponent.hasEnoughStamina(staminaComponent.getAttackCost())) {
+    if (dead || areaAttackCooldownRemaining > 0f || combatStats == null) {
       return;
     }
 
@@ -482,7 +465,6 @@ public class PlayerActions extends Component {
       return;
     }
 
-    staminaComponent.useStamina(staminaComponent.getAttackCost());
     entity.getEvents().trigger("areaAttackStarted");
 
     int damage =

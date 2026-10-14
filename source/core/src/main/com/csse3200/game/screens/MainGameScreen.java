@@ -2,6 +2,7 @@ package com.csse3200.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.GdxGame;
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.map.LevelView;
@@ -36,6 +38,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
 import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
 import com.csse3200.game.files.SaveService;
@@ -58,16 +61,14 @@ import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.TerminalDisplay;
-import com.csse3200.game.ui.terminal.commands.GodModeCommand;
-import com.csse3200.game.ui.terminal.commands.NoclipCommand;
-import com.csse3200.game.ui.terminal.commands.PerkCommand;
-import com.csse3200.game.ui.terminal.commands.SpawnCommand;
-import com.csse3200.game.ui.terminal.commands.TeleportCommand;
-import com.csse3200.game.ui.terminal.commands.UpgradesCommand;
-import com.csse3200.game.ui.terminal.commands.WinCommand;
+import com.csse3200.game.ui.terminal.commands.*;
 import com.csse3200.game.upgrades.ActiveUpgradesHud;
 import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
+import com.csse3200.game.win.QuestLedger;
+import com.csse3200.game.win.TortoiseLedger;
+import com.csse3200.game.win.WinCountdown;
+import com.csse3200.game.win.WinEvaluator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -105,6 +106,12 @@ public class MainGameScreen extends ScreenAdapter {
   private static final float GAMEPLAY_ZOOM = 0.95f;
   private static final float NOCLIP_VERTICAL_SPEED = 7f;
 
+  /** How long the game waits after the final boss falls before showing the win screen. */
+  private static final float WIN_SCREEN_DELAY = 2.5f;
+
+  /** How many tortoises are hidden across the maps; one is placed so far, in Level 1. */
+  private static final int TORTOISES_HIDDEN = 1;
+
   private final GdxGame game;
 
   private final Renderer renderer;
@@ -118,6 +125,7 @@ public class MainGameScreen extends ScreenAdapter {
   private UpgradesDisplay upgradesDisplay;
   private boolean deathScreenShown = false;
   private boolean afterDeathCutsceneShown = false;
+  private final WinCountdown winCountdown = new WinCountdown(WIN_SCREEN_DELAY);
   private Boolean playerInNether;
   private PauseMenuComponent pauseMenu;
   private final TerrainFactory terrainFactory;
@@ -165,6 +173,14 @@ public class MainGameScreen extends ScreenAdapter {
 
       LootRegistry.loadFrom(saveData.collectedLootIds);
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
+      QuestLedger.loadFrom(saveData.completedQuestsByKind);
+      TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
+      NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
+      Quest.restoreCounters(
+          saveData.questJumps,
+          saveData.questEnemiesKilled,
+          saveData.questGoldSpent,
+          saveData.questShieldsCollected);
       lootSeedsByRoom = saveData.lootSeedsByRoom;
 
       Difficulty savedDifficulty = Difficulty.NORMAL;
@@ -185,6 +201,9 @@ public class MainGameScreen extends ScreenAdapter {
     } else {
       LootRegistry.loadFrom(new ArrayList<>());
       EnemyRegistry.loadFrom(new ArrayList<>());
+      QuestLedger.reset();
+      TortoiseLedger.reset();
+      NpcQuestRegistry.reset();
 
       if (loadsave) {
         DifficultyService.setCurrent(Difficulty.NORMAL);
@@ -193,6 +212,7 @@ public class MainGameScreen extends ScreenAdapter {
       PerkService.resetAll();
       TortoiseFactory.resetAll();
     }
+    TortoiseLedger.setTotal(TORTOISES_HIDDEN);
 
     currentRoomMapPath = initialRoomMap;
 
@@ -268,10 +288,13 @@ public class MainGameScreen extends ScreenAdapter {
     removeSubLevelTravelPrompt();
 
     Long savedSeed = lootSeedsByRoom.get(FIRST_ROOM_MAP);
+
+    Camera worldCamera = renderer.getCamera().getCamera();
+
     LevelGameArea respawnArea =
         savedSeed != null
-            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed)
-            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP);
+            ? new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, null, null, savedSeed, worldCamera)
+            : new LevelGameArea(terrainFactory, FIRST_ROOM_MAP, worldCamera);
 
     respawnArea.create();
     lootSeedsByRoom.put(FIRST_ROOM_MAP, respawnArea.getLootSeed());
@@ -479,10 +502,11 @@ public class MainGameScreen extends ScreenAdapter {
       ServiceLocator.getEntityService().update();
       if (!noclipEnabled) {
         levelGameArea.recoverPlayerIfOutOfBounds();
+        updatePendingWin();
       }
     }
 
-    if (levelGameArea.isPlayerDead()) {
+    if (levelGameArea.isPlayerDead() && !levelGameArea.isFinalBossDefeated()) {
       if (!afterDeathCutsceneShown) {
         afterDeathCutsceneShown = true;
 
@@ -516,6 +540,20 @@ public class MainGameScreen extends ScreenAdapter {
 
     followPlayer();
     renderer.render();
+  }
+
+  /**
+   * Shows the win screen a short while after the final boss falls. The wait lives in the screen,
+   * not on the boss, because the boss entity is disposed as soon as it dies.
+   */
+  private void updatePendingWin() {
+    if (winScreenDisplay.isVisible()) {
+      return;
+    }
+    float delta = ServiceLocator.getTimeSource().getDeltaTime();
+    if (winCountdown.update(levelGameArea.isFinalBossDefeated(), delta)) {
+      winScreenDisplay.showWinScreen(WinEvaluator.evaluateNow(true));
+    }
   }
 
   private void transitionTo(RoomTransition transition) {
@@ -781,6 +819,7 @@ public class MainGameScreen extends ScreenAdapter {
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
     terminal.addCommand("perk", new PerkCommand());
+    terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
 

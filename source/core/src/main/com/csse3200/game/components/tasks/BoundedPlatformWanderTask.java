@@ -2,6 +2,10 @@ package com.csse3200.game.components.tasks;
 
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * A {@link PlatformWanderTask} that also stays within a fixed radius of where it first started, so
+ * an enemy patrols around its spawn point instead of drifting across the whole platform.
+ */
 public class BoundedPlatformWanderTask extends PlatformWanderTask {
   private boolean anchored;
   private final float radius;
@@ -58,6 +62,8 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
   }
 
   /**
+   * Gets how far the entity may stray.
+   *
    * @return the maximum distance from the anchor, in world units
    */
   public float getRadius() {
@@ -65,6 +71,8 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
   }
 
   /**
+   * Gets the centre of the patrol.
+   *
    * @return the horizontal position the radius is measured from (meaningful after the first start)
    */
   public float getAnchorX() {
@@ -72,6 +80,8 @@ public class BoundedPlatformWanderTask extends PlatformWanderTask {
   }
 
   /**
+   * Whether the patrol centre has been captured yet.
+   *
    * @return true once the task has started at least once and captured its anchor
    */
   public boolean isAnchored() {
