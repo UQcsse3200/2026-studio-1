@@ -196,4 +196,18 @@ public final class PerkService {
       prefs.flush();
     }
   }
+
+  /**
+   * Save/load: sets a perk's progress, unlocked and active state from a save file and stores it.
+   * Does not run the perk's activate or deactivate callbacks, because components read the state
+   * when the player is created. Unknown ids are ignored.
+   */
+  public static void restorePerk(String id, int progress, boolean unlocked, boolean active) {
+    Perk perk = perksById.get(id);
+    if (perk == null) {
+      return;
+    }
+    perk.restoreState(Math.max(0, progress), unlocked, active);
+    saveState(perk);
+  }
 }
