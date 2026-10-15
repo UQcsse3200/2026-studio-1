@@ -9,18 +9,27 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
+import com.csse3200.game.components.player.BallisticShieldComponent;
 import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.LootFactory;
+import com.csse3200.game.perks.Perk;
+import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /** Applies saved game data to a newly created player. */
 public class LoadService {
@@ -68,13 +77,44 @@ public class LoadService {
     }
 
     loadHealth(player, data);
+    loadShields(player, data);
+    loadStamina(player, data);
     loadStamina(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
     loadPets(player, data);
+    loadShopStock(player, data);
     loadUpgrades(player, data, upgrades);
     loadBuffs(player, data);
     loadDroppedLoot(data, mapWidth, mapHeight);
+  }
+
+  /**
+   * Puts back every perk's state from the save file. Called before the player is created, so
+   * components that check active perks in create() see the right ones. Older saves have no perk
+   * list and are left unchanged.
+   */
+  public static void restorePerks(List<SavedPerk> savedPerks) {
+    if (savedPerks == null) {
+      return;
+    }
+
+    Map<String, SavedPerk> savedById = new HashMap<>();
+    for (SavedPerk saved : savedPerks) {
+      if (saved != null && saved.id != null) {
+        savedById.put(saved.id, saved);
+      }
+    }
+
+    PerkService.resetAll();
+    for (Perk perk : PerkService.getAllPerks()) {
+      SavedPerk saved = savedById.get(perk.getId());
+      if (saved == null) {
+        continue;
+      }
+      boolean active = saved.active && PerkService.getActiveCount() < PerkService.MAX_ACTIVE_PERKS;
+      PerkService.restorePerk(perk.getId(), saved.progress, saved.unlocked, active);
+    }
   }
 
   private static void loadHealth(Entity player, GameSaveData data) {
@@ -82,6 +122,20 @@ public class LoadService {
 
     if (stats != null && data.health > 0) {
       stats.setHealth(data.health);
+    }
+  }
+
+  private static void loadShields(Entity player, GameSaveData data) {
+    ShieldComponent shield = player.getComponent(ShieldComponent.class);
+    if (shield != null) {
+      shield.restoreHeldShield(data.shieldHeld);
+      shield.restoreActive(data.shieldRemainingMillis);
+    }
+
+    BallisticShieldComponent ballisticShield = player.getComponent(BallisticShieldComponent.class);
+    if (ballisticShield != null) {
+      ballisticShield.restoreHeldShield(data.ballisticShieldHeld);
+      ballisticShield.restoreActive(data.ballisticShieldRemainingMillis);
     }
   }
 
@@ -174,10 +228,39 @@ public class LoadService {
       shop.restorePurchasedPets(data.ownedPetNames);
     }
 
+    InventoryComponent inventory = player.getComponent(InventoryComponent.class);
+    if (inventory != null && data.ownedPetNames != null) {
+      for (String name : data.ownedPetNames) {
+        if (name != null && !name.isBlank()) {
+          inventory.addPet(new ShopComponent.Pet(name));
+        }
+      }
+    }
+
     if (data.activePetName != null && !data.activePetName.isBlank()) {
       PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
       if (petManager != null) {
         petManager.activatePet(new ShopComponent.Pet(data.activePetName));
+      }
+    }
+  }
+
+  private static void loadShopStock(Entity player, GameSaveData data) {
+    ShopComponent shop = player.getComponent(ShopComponent.class);
+    if (shop == null || data.shopItemSlots == null) {
+      return;
+    }
+
+    Set<Integer> inStock = new HashSet<>();
+    for (Object slot : data.shopItemSlots) {
+      if (slot instanceof Number number) {
+        inStock.add(number.intValue());
+      }
+    }
+
+    for (Integer slot : new ArrayList<>(shop.getItemCatalog().keySet())) {
+      if (!inStock.contains(slot)) {
+        shop.setItemListing(slot, null);
       }
     }
   }

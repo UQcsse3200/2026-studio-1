@@ -175,6 +175,8 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       QuestLedger.loadFrom(saveData.completedQuestsByKind);
       TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
+      TortoiseFactory.restoreFound(saveData.foundTortoiseIds);
+      LoadService.restorePerks(saveData.perks);
       NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
       Quest.restoreCounters(
           saveData.questJumps,
