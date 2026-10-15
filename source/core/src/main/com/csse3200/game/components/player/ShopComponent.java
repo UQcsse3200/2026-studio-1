@@ -3,10 +3,14 @@ package com.csse3200.game.components.player;
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.ConsumableType;
+import com.csse3200.game.components.loot.HealEffect;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,8 +90,11 @@ public class ShopComponent extends Component {
    * @return this shop, for chaining from {@code PlayerFactory}
    */
   public ShopComponent seedDefaultCatalog() {
-    setItemListing(1, new ShopListing<>(new Item("Potion", ItemType.CONSUMABLE, 1, 9), 10));
-    setItemListing(2, new ShopListing<>(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
+    ConsumableItem potion =
+        new ConsumableItem("Potion", ConsumableType.HEALTH_POTION, new HealEffect(25), 1, 9);
+    WeaponItem sword = new WeaponItem("Sword", WeaponType.SWORD, WeaponTier.TIER_1, 1, 1, 2f);
+    setItemListing(1, new ShopListing<>(potion, 10));
+    setItemListing(2, new ShopListing<>(sword, 20));
     setUpgradeListing(1, new ShopListing<>(new Upgrade("Health Upgrade"), 15));
     setPetListing(1, new ShopListing<>(new Pet("Bird"), 20));
     setPetListing(2, new ShopListing<>(new Pet("Bat"), 30));
@@ -889,14 +896,13 @@ public class ShopComponent extends Component {
 
   /**
    * Creates a new item instance from a catalog product so inventory does not share the listing
-   * object.
+   * object. Preserves consumable and weapon data when the product has them.
    *
    * @param product catalog product
-   * @return copy with the same name, type, quantity, and max quantity
+   * @return a distinct copy of the same runtime type
    */
   private Item copyItem(Item product) {
-    return new Item(
-        product.getName(), product.getItemType(), product.getQuantity(), product.getMaxQuantity());
+    return product.copy();
   }
 
   /**

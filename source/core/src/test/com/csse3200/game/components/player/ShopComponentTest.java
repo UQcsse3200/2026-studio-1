@@ -2,6 +2,7 @@ package com.csse3200.game.components.player;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -9,11 +10,18 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.ConsumableItem;
+import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
@@ -199,6 +207,90 @@ class ShopComponentTest {
     assertEquals(2, shop.getItemCatalog().size());
     assertEquals(1, shop.getUpgradeCatalog().size());
     assertEquals(3, shop.getPetCatalog().size());
+  }
+
+  @Test
+  void shouldSeedUsablePotionAndSword() {
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+
+    assertInstanceOf(ConsumableItem.class, shop.getItemListing(1).getProduct());
+    ConsumableItem potion = (ConsumableItem) shop.getItemListing(1).getProduct();
+    assertEquals(ConsumableType.HEALTH_POTION, potion.getConsumableType());
+
+    assertInstanceOf(WeaponItem.class, shop.getItemListing(2).getProduct());
+    WeaponItem sword = (WeaponItem) shop.getItemListing(2).getProduct();
+    assertEquals(WeaponType.SWORD, sword.getWeaponType());
+    assertEquals(10, sword.getDamage());
+    assertEquals(2f, sword.getWindupDuration());
+  }
+
+  @Test
+  void shouldUseBoughtPotion() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    CombatStatsComponent stats = new CombatStatsComponent(100, 10);
+    Entity player =
+        new Entity()
+            .addComponent(inventory)
+            .addComponent(shop)
+            .addComponent(stats)
+            .addComponent(new ConsumableUseComponent(100));
+    player.create();
+    stats.setHealth(40);
+
+    Item catalogPotion = shop.getItemListing(1).getProduct();
+    assertTrue(shop.buyItem(1));
+
+    assertEquals(90, inventory.getGold());
+    assertInstanceOf(ConsumableItem.class, inventory.getItem(1));
+    assertNotSame(catalogPotion, inventory.getItem(1));
+    assertTrue(player.getComponent(ConsumableUseComponent.class).useItem(1));
+    assertEquals(65, stats.getHealth());
+    assertNull(inventory.getItem(1));
+    assertNull(shop.getItemListing(1));
+  }
+
+  @Test
+  void shouldAttackWithBoughtSword() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    WeaponItem placeholder = new WeaponItem("Placeholder", WeaponType.SWORD, 1, 1, 1);
+    Entity player =
+        new Entity()
+            .addComponent(inventory)
+            .addComponent(shop)
+            .addComponent(new WeaponAttackComponent(placeholder));
+    player.create();
+
+    Item catalogSword = shop.getItemListing(2).getProduct();
+    assertTrue(shop.buyItem(2));
+
+    Item bought = inventory.getItem(1);
+    assertInstanceOf(WeaponItem.class, bought);
+    assertNotSame(catalogSword, bought);
+    assertEquals(80, inventory.getGold());
+    assertNull(shop.getItemListing(2));
+
+    List<Integer> swings = new ArrayList<>();
+    player.getEvents().addListener("swordAttack", (Integer damage) -> swings.add(damage));
+    player.getEvents().trigger("weaponAttack");
+
+    assertEquals(List.of(10), swings);
+  }
+
+  @Test
+  void shouldLeaveSeededCatalogUntouchedWhenBuyIsRejected() {
+    InventoryComponent inventory = new InventoryComponent(5);
+    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    attach(inventory, shop);
+
+    assertFalse(shop.buyItem(1));
+    assertFalse(shop.buyItem(2));
+
+    assertEquals(5, inventory.getGold());
+    assertEquals(0, inventory.getOccupiedSlots());
+    assertInstanceOf(ConsumableItem.class, shop.getItemListing(1).getProduct());
+    assertInstanceOf(WeaponItem.class, shop.getItemListing(2).getProduct());
   }
 
   @Test
