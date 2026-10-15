@@ -87,6 +87,7 @@ public class NPCFactory {
 
   // Task priorities: chase is 10, so ranged sits above it (the Skeleton pattern) and melee sits
   // above ranged so a close player is meleed rather than shot.
+  private static final int CHASE_TASK_PRIORITY = 10;
   private static final int MELEE_TASK_PRIORITY = 15;
   private static final int RANGED_TASK_PRIORITY = 12;
   private static final int LASER_TASK_PRIORITY = 13;
@@ -231,7 +232,10 @@ public class NPCFactory {
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     rangedSkeleton
         .getComponent(AITaskComponent.class)
-        .addTask(new RangedAttackTask(target, 15, config.ranged.range, ProjectileType.ARROW));
+        // Same priority as the melee task of the platformer base, so whichever is in range wins.
+        .addTask(
+            new RangedAttackTask(
+                target, MELEE_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW));
 
     rangedSkeleton.setScale(scale, scale);
     PhysicsUtils.setScaledCollider(rangedSkeleton, collisionScale.x, collisionScale.y);
@@ -312,7 +316,7 @@ public class NPCFactory {
     // RangedAttackTask's Javadoc for why a higher priority than ChaseTask is what achieves this.
     minotaur
         .getComponent(AITaskComponent.class)
-        .addTask(new MeleeAttackTask(target, 15, config.melee.range))
+        .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, config.melee.range))
         .addTask(
             (new ChargeTask(
                 target,
@@ -882,7 +886,7 @@ public class NPCFactory {
         .getComponent(AITaskComponent.class)
         .addTask(
             new RangedAttackTask(
-                target, MELEE_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW));
+                target, RANGED_TASK_PRIORITY, config.ranged.range, ProjectileType.ARROW));
 
     harpy.setScale(scale, scale * (25f / 38f));
     PhysicsUtils.setScaledCollider(harpy, collisionScale.x, collisionScale.y);
@@ -920,7 +924,7 @@ public class NPCFactory {
     AITaskComponent aiComponent =
         new AITaskComponent()
             .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
-            .addTask(new ChaseTask(target, 10, 3f, 4f));
+            .addTask(new ChaseTask(target, CHASE_TASK_PRIORITY, 3f, 4f));
 
     Entity npc =
         new Entity()
@@ -949,8 +953,8 @@ public class NPCFactory {
     AITaskComponent aiComponent =
         new AITaskComponent()
             .addTask(new PlatformWanderTask(new Vector2(2f, 2f), 2f, floorCollisionScale))
-            .addTask(new ChaseTask(target, 10, 3f, 4f))
-            .addTask(new MeleeAttackTask(target, 15, 1f));
+            .addTask(new ChaseTask(target, CHASE_TASK_PRIORITY, 3f, 4f))
+            .addTask(new MeleeAttackTask(target, MELEE_TASK_PRIORITY, 1f));
     String generatedName = nameGenerator.generateName();
     Entity npc =
         new Entity()
@@ -1173,7 +1177,7 @@ public class NPCFactory {
     AITaskComponent aiComponent =
         new AITaskComponent()
             .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
-            .addTask(new ChaseTask(target, 10, 3f, 4f));
+            .addTask(new ChaseTask(target, CHASE_TASK_PRIORITY, 3f, 4f));
     Entity npc =
         new Entity()
             .addComponent(new PhysicsComponent())
