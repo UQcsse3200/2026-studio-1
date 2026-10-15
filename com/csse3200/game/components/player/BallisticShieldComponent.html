@@ -159,24 +159,39 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the entity is created and registered.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#grantShield()" class="member-name-link">grantShield</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRemainingMillis()" class="member-name-link">getRemainingMillis</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gives the player a Ballistic Shield.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasShield()" class="member-name-link">hasShield</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns whether the player currently has an unused Ballistic Shield.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isActive()" class="member-name-link">isActive</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns whether the Ballistic Shield is currently active.</div>
+<div class="block">Save/load: returns the time left on the active shield in milliseconds, or 0 if none.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#grantShield()" class="member-name-link">grantShield</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gives the player a Ballistic Shield.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasShield()" class="member-name-link">hasShield</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether the player currently has an unused Ballistic Shield.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isActive()" class="member-name-link">isActive</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether the Ballistic Shield is currently active.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#restoreActive(long)" class="member-name-link">restoreActive</a><wbr>(long&nbsp;remainingMillis)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Save/load: puts back an active Ballistic Shield with the time it had left.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#restoreHeldShield(boolean)" class="member-name-link">restoreHeldShield</a><wbr>(boolean&nbsp;held)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Save/load: puts back a Ballistic Shield that was held when the game was saved.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called once per frame of the game, and should be used for most component logic.</div>
 </div>
 </div>
@@ -302,6 +317,27 @@ loadScripts(document, 'script');</script>
 <dd><code>attacker</code> - the entity that caused the damage</dd>
 <dd><code>incomingDamage</code> - the incoming damage before blocking</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getRemainingMillis()">
+<h3>getRemainingMillis</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getRemainingMillis</span>()</div>
+<div class="block">Save/load: returns the time left on the active shield in milliseconds, or 0 if none.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="restoreHeldShield(boolean)">
+<h3>restoreHeldShield</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restoreHeldShield</span><wbr><span class="parameters">(boolean&nbsp;held)</span></div>
+<div class="block">Save/load: puts back a Ballistic Shield that was held when the game was saved.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="restoreActive(long)">
+<h3>restoreActive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restoreActive</span><wbr><span class="parameters">(long&nbsp;remainingMillis)</span></div>
+<div class="block">Save/load: puts back an active Ballistic Shield with the time it had left.</div>
 </section>
 </li>
 </ul>

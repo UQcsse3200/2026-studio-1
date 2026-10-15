@@ -124,6 +124,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Loads saved player data and applies it to the given player.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#restorePerks(java.util.List)" class="member-name-link">restorePerks</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="SavedPerk.html" title="class in com.csse3200.game.files">SavedPerk</a>&gt;&nbsp;savedPerks)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Puts back every perk's state from the save file.</div>
+</div>
 </div>
 </div>
 </div>
@@ -175,6 +180,15 @@ loadScripts(document, 'script');</script>
 <dd><code>mapHeight</code> - height of the current map, used to validate saved positions</dd>
 <dd><code>upgrades</code> - the game's upgrade nodes, so saved upgrades can be restored onto them</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="restorePerks(java.util.List)">
+<h3>restorePerks</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restorePerks</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="SavedPerk.html" title="class in com.csse3200.game.files">SavedPerk</a>&gt;&nbsp;savedPerks)</span></div>
+<div class="block">Puts back every perk's state from the save file. Called before the player is created, so
+ components that check active perks in create() see the right ones. Older saves have no perk
+ list and are left unchanged.</div>
 </section>
 </li>
 </ul>

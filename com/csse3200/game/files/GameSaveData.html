@@ -110,6 +110,16 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code>int</code></div>
 <div class="col-second odd-row-color"><code><a href="#activeSlot" class="member-name-link">activeSlot</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>boolean</code></div>
+<div class="col-second even-row-color"><code><a href="#ballisticShieldHeld" class="member-name-link">ballisticShieldHeld</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Whether a Ballistic Shield was picked up but not used yet.</div>
+</div>
+<div class="col-first odd-row-color"><code>long</code></div>
+<div class="col-second odd-row-color"><code><a href="#ballisticShieldRemainingMillis" class="member-name-link">ballisticShieldRemainingMillis</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Time left on an active Ballistic Shield, in milliseconds.</div>
+</div>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="SavedBuff.html" title="class in com.csse3200.game.files">SavedBuff</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#buffs" class="member-name-link">buffs</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
@@ -163,35 +173,55 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#ownedPetNames" class="member-name-link">ownedPetNames</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>float</code></div>
-<div class="col-second odd-row-color"><code><a href="#posX" class="member-name-link">posX</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="SavedPerk.html" title="class in com.csse3200.game.files">SavedPerk</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#perks" class="member-name-link">perks</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">State of every perk.</div>
+</div>
 <div class="col-first even-row-color"><code>float</code></div>
-<div class="col-second even-row-color"><code><a href="#posY" class="member-name-link">posY</a></code></div>
+<div class="col-second even-row-color"><code><a href="#posX" class="member-name-link">posX</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>int</code></div>
-<div class="col-second odd-row-color"><code><a href="#questEnemiesKilled" class="member-name-link">questEnemiesKilled</a></code></div>
+<div class="col-first odd-row-color"><code>float</code></div>
+<div class="col-second odd-row-color"><code><a href="#posY" class="member-name-link">posY</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>int</code></div>
-<div class="col-second even-row-color"><code><a href="#questGoldSpent" class="member-name-link">questGoldSpent</a></code></div>
+<div class="col-second even-row-color"><code><a href="#questEnemiesKilled" class="member-name-link">questEnemiesKilled</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>int</code></div>
-<div class="col-second odd-row-color"><code><a href="#questJumps" class="member-name-link">questJumps</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-second odd-row-color"><code><a href="#questGoldSpent" class="member-name-link">questGoldSpent</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>int</code></div>
+<div class="col-second even-row-color"><code><a href="#questJumps" class="member-name-link">questJumps</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Quest counters, so quests in progress carry on from the right point.</div>
 </div>
-<div class="col-first even-row-color"><code>int</code></div>
-<div class="col-second even-row-color"><code><a href="#questShieldsCollected" class="member-name-link">questShieldsCollected</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>int</code></div>
-<div class="col-second odd-row-color"><code><a href="#regenHealPerTick" class="member-name-link">regenHealPerTick</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#questShieldsCollected" class="member-name-link">questShieldsCollected</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>float</code></div>
-<div class="col-second even-row-color"><code><a href="#regenRemainingSeconds" class="member-name-link">regenRemainingSeconds</a></code></div>
+<div class="col-first even-row-color"><code>int</code></div>
+<div class="col-second even-row-color"><code><a href="#regenHealPerTick" class="member-name-link">regenHealPerTick</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>float</code></div>
+<div class="col-second odd-row-color"><code><a href="#regenRemainingSeconds" class="member-name-link">regenRemainingSeconds</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>boolean</code></div>
+<div class="col-second even-row-color"><code><a href="#shieldHeld" class="member-name-link">shieldHeld</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Whether a shield was picked up but not used yet.</div>
+</div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#shieldHits" class="member-name-link">shieldHits</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>long</code></div>
+<div class="col-second even-row-color"><code><a href="#shieldRemainingMillis" class="member-name-link">shieldRemainingMillis</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Time left on an active shield, in milliseconds.</div>
+</div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#shopItemSlots" class="member-name-link">shopItemSlots</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Item shop slots still in stock.</div>
+</div>
 <div class="col-first even-row-color"><code>float</code></div>
 <div class="col-second even-row-color"><code><a href="#stamina" class="member-name-link">stamina</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
@@ -403,6 +433,48 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="questShieldsCollected">
 <h3>questShieldsCollected</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">questShieldsCollected</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="shieldHeld">
+<h3>shieldHeld</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">shieldHeld</span></div>
+<div class="block">Whether a shield was picked up but not used yet.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="shieldRemainingMillis">
+<h3>shieldRemainingMillis</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">shieldRemainingMillis</span></div>
+<div class="block">Time left on an active shield, in milliseconds. Zero means not active.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="ballisticShieldHeld">
+<h3>ballisticShieldHeld</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">ballisticShieldHeld</span></div>
+<div class="block">Whether a Ballistic Shield was picked up but not used yet.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="ballisticShieldRemainingMillis">
+<h3>ballisticShieldRemainingMillis</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">ballisticShieldRemainingMillis</span></div>
+<div class="block">Time left on an active Ballistic Shield, in milliseconds. Zero means not active.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="shopItemSlots">
+<h3>shopItemSlots</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</span>&nbsp;<span class="element-name">shopItemSlots</span></div>
+<div class="block">Item shop slots still in stock. Null in older saves, which means do not change the shop.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="perks">
+<h3>perks</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="SavedPerk.html" title="class in com.csse3200.game.files">SavedPerk</a>&gt;</span>&nbsp;<span class="element-name">perks</span></div>
+<div class="block">State of every perk. Null in older saves, which means leave the perks as they are.</div>
 </section>
 </li>
 </ul>

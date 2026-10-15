@@ -182,6 +182,14 @@ loadScripts(document, 'script');</script>
 <div class="block">Debug/testing hook - locks a single perk back to zero progress (and inactive), in memory and on
  disk.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#restorePerk(java.lang.String,int,boolean,boolean)" class="member-name-link">restorePerk</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id,
+ int&nbsp;progress,
+ boolean&nbsp;unlocked,
+ boolean&nbsp;active)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Save/load: sets a perk's progress, unlocked and active state from a save file and stores it.</div>
+</div>
 </div>
 </div>
 </div>
@@ -315,6 +323,18 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>id</code> - the perk's id, as passed to its <a href="Perk.html" title="class in com.csse3200.game.perks"><code>Perk</code></a> constructor</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="restorePerk(java.lang.String,int,boolean,boolean)">
+<h3>restorePerk</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restorePerk</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;id,
+ int&nbsp;progress,
+ boolean&nbsp;unlocked,
+ boolean&nbsp;active)</span></div>
+<div class="block">Save/load: sets a perk's progress, unlocked and active state from a save file and stores it.
+ Does not run the perk's activate or deactivate callbacks, because components read the state
+ when the player is created. Unknown ids are ignored.</div>
 </section>
 </li>
 </ul>
