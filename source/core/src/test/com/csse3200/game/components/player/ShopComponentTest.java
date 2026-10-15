@@ -942,7 +942,7 @@ class ShopComponentTest {
     assertSeededGold(shop, GamblingCatalogs.CatalogId.PREMIUM, 2, 30, 15);
     assertSeededPrize(
         shop, GamblingCatalogs.CatalogId.PREMIUM, 3, "Basic Bow", ItemType.WEAPON, 20);
-    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Premium Health", 25);
+    assertSeededUpgrade(shop, GamblingCatalogs.CatalogId.PREMIUM, 4, "Regen on Kill", 25);
     assertSeededPet(shop, GamblingCatalogs.CatalogId.PREMIUM, 5, "Spirit", 5);
     assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.STANDARD).size());
     assertEquals(5, shop.getPrizes(GamblingCatalogs.CatalogId.PREMIUM).size());
@@ -1226,7 +1226,7 @@ class ShopComponentTest {
   @Test
   void shouldBuySpinAwardUpgradePrizeAndRecord() {
     InventoryComponent inventory = new InventoryComponent(100);
-    // Targets slot 4 on Premium catalog (Premium Health Upgrade, range [70, 94], cost 60)
+    // Targets slot 4 on Premium catalog (Regen on Kill, range [70, 94], cost 60)
     ShopComponent shop =
         new ShopComponent(
             new java.util.Random() {
@@ -1243,10 +1243,10 @@ class ShopComponentTest {
 
     assertNotNull(prize);
     assertTrue(prize.product() instanceof ShopComponent.Upgrade);
-    assertEquals("Premium Health", ((ShopComponent.Upgrade) prize.product()).getName());
+    assertEquals("Regen on Kill", ((ShopComponent.Upgrade) prize.product()).getName());
     assertEquals(40, inventory.getGold()); // 100 - 60
     assertEquals(1, shop.getPurchasedUpgrades().size());
-    assertEquals("Premium Health", shop.getPurchasedUpgrades().get(0).getName());
+    assertEquals("Regen on Kill", shop.getPurchasedUpgrades().get(0).getName());
   }
 
   @Test
@@ -1360,7 +1360,7 @@ class ShopComponentTest {
             new java.util.Random() {
               @Override
               public int nextInt(int bound) {
-                return 75; // Slot 4 on Premium (Premium Health)
+                return 75; // Slot 4 on Premium (Regen on Kill)
               }
             });
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
