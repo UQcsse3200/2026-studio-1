@@ -73,11 +73,6 @@ public class PlayerRenderComponent extends AnimationRenderComponent {
   }
 
   @Override
-  public void create() {
-    super.create();
-  }
-
-  @Override
   protected void draw(SpriteBatch batch) {
     /*
      * Normal knight rendering.
