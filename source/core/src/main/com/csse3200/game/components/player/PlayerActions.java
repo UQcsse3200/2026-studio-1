@@ -47,6 +47,7 @@ public class PlayerActions extends Component {
   private static final int AREA_ATTACK_DAMAGE_MULTIPLIER = 2;
 
   private static final int BRIBE_COST = 50;
+  private static final String BRIBE_NO_TARGET_EVENT = "bribeNoTarget";
 
   private float attackCooldownRemaining = 0f;
   private float specialAttackCooldownRemaining = 0f;
@@ -65,7 +66,7 @@ public class PlayerActions extends Component {
   private static final float crouchSpeedRate = 0.2f;
   private static final float dashSpeed = 5f;
   private static final float slideSpeed = 3f;
-  private float SlideTimer = 0f;
+  private float slideTimer = 0f;
   private boolean crouching = false;
   private boolean moving = false;
   private boolean sliding = false;
@@ -100,7 +101,7 @@ public class PlayerActions extends Component {
 
   @Override
   public void create() {
-    System.out.println("PLAYER ACTIONS CREATED entity=" + entity.getId());
+    logger.debug("Player actions created for entity {}", entity.getId());
 
     physicsComponent = entity.getComponent(PhysicsComponent.class);
     platformerComponent = entity.getComponent(PlatformerComponent.class);
@@ -109,15 +110,12 @@ public class PlayerActions extends Component {
     playerAnimationControllerComponent = entity.getComponent(PlayerAnimationController.class);
     staminaComponent = entity.getComponent(StaminaComponent.class);
 
-    System.out.println(
-        "PLAYER ACTIONS COMPONENTS entity="
-            + entity.getId()
-            + " physics="
-            + (physicsComponent != null)
-            + " platformer="
-            + (platformerComponent != null)
-            + " stamina="
-            + (staminaComponent != null));
+    logger.debug(
+        "Player actions components for entity {}: physics={}, platformer={}, stamina={}",
+        entity.getId(),
+        physicsComponent != null,
+        platformerComponent != null,
+        staminaComponent != null);
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
@@ -273,14 +271,14 @@ public class PlayerActions extends Component {
 
   private void updateSpeed() {
     if (physicsComponent == null) {
-      System.out.println("MOVEMENT ERROR entity=" + entity.getId() + " physicsComponent is NULL");
+      logger.error("Cannot move entity {}: physics component is missing", entity.getId());
       return;
     }
 
     Body body = physicsComponent.getBody();
 
     if (body == null) {
-      System.out.println("MOVEMENT ERROR entity=" + entity.getId() + " physics body is NULL");
+      logger.error("Cannot move entity {}: physics body is missing", entity.getId());
       return;
     }
 
@@ -578,7 +576,7 @@ public class PlayerActions extends Component {
       staminaComponent.useStamina(staminaComponent.getSlideCost());
 
       sliding = true;
-      SlideTimer = 0;
+      slideTimer = 0;
       slidingAction(walkDirection.cpy());
     } else {
       sliding = false;
@@ -605,9 +603,9 @@ public class PlayerActions extends Component {
       return;
     }
 
-    SlideTimer += Gdx.graphics.getDeltaTime();
+    slideTimer += Gdx.graphics.getDeltaTime();
 
-    if (SlideTimer >= SLIDE_MAX_TIME) {
+    if (slideTimer >= SLIDE_MAX_TIME) {
       sliding = false;
     }
   }
@@ -641,7 +639,7 @@ public class PlayerActions extends Component {
   public boolean bribeLastAttacker() {
     if (dead || lastDamageDealer == null) {
       if (!dead) {
-        entity.getEvents().trigger("bribeNoTarget");
+        entity.getEvents().trigger(BRIBE_NO_TARGET_EVENT);
       }
       return false;
     }
@@ -650,7 +648,7 @@ public class PlayerActions extends Component {
 
     if (attackerStats == null || attackerStats.isDead()) {
       lastDamageDealer = null;
-      entity.getEvents().trigger("bribeNoTarget");
+      entity.getEvents().trigger(BRIBE_NO_TARGET_EVENT);
       return false;
     }
 
@@ -678,7 +676,7 @@ public class PlayerActions extends Component {
 
     if (!bribed) {
       logger.info("Bribe failed: target has no supported attack component");
-      entity.getEvents().trigger("bribeNoTarget");
+      entity.getEvents().trigger(BRIBE_NO_TARGET_EVENT);
       return false;
     }
 
@@ -728,7 +726,7 @@ public class PlayerActions extends Component {
 
   /** Stops all player actions when the player dies. */
   private void onDeath() {
-    System.out.println("PLAYER ACTIONS DEATH entity=" + entity.getId());
+    logger.debug("Player actions stopped for entity {} after death", entity.getId());
 
     dead = true;
     moving = false;
