@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -132,7 +133,7 @@ class BonusLootDropTest {
 
     ArgumentCaptor<Item> items = ArgumentCaptor.forClass(Item.class);
     lootFactory.verify(
-        () -> LootFactory.createDroppedLoot(items.capture(), eq(deadEnemy)), Mockito.times(runs));
+        () -> LootFactory.createDroppedLoot(items.capture(), eq(deadEnemy)), times(runs));
 
     List<Item> dropped = new ArrayList<>(items.getAllValues());
     boolean sawGold = false;

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -271,9 +272,9 @@ class PerkSelectionDisplayTest {
   @Test
   void focusedCardAndContinueButtonColorFollowSelection() {
     display.navigateToContinue();
-    org.mockito.Mockito.verify(continueButton).setColor(Color.CYAN);
+    verify(continueButton).setColor(Color.CYAN);
 
     display.navigateToCards();
-    org.mockito.Mockito.verify(continueButton).setColor(Color.WHITE);
+    verify(continueButton).setColor(Color.WHITE);
   }
 }

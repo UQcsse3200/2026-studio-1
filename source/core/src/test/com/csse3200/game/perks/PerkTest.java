@@ -1,5 +1,6 @@
 package com.csse3200.game.perks;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -100,8 +101,11 @@ class PerkTest {
 
   @Test
   void notifyWithoutCallbacksDoesNotThrow() {
-    perk.notifyActivated();
-    perk.notifyDeactivated();
+    assertDoesNotThrow(
+        () -> {
+          perk.notifyActivated();
+          perk.notifyDeactivated();
+        });
   }
 
   @Test
