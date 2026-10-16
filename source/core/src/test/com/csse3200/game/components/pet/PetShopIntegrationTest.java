@@ -29,6 +29,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /** Exercises pet purchases with the real shop listeners, pet atlas, and Box2D bodies. */
 @ExtendWith(GameExtension.class)
@@ -37,10 +39,11 @@ class PetShopIntegrationTest {
   private ShopComponent shop;
   private PetManagerComponent manager;
   private SpriteBatch batch;
+  private GameTime timeSource;
 
   @BeforeEach
   void setUp() {
-    GameTime timeSource = mock(GameTime.class);
+    timeSource = mock(GameTime.class);
     when(timeSource.getDeltaTime()).thenReturn(0.1f);
     ServiceLocator.registerTimeSource(timeSource);
     ServiceLocator.registerPhysicsService(new PhysicsService());
@@ -175,6 +178,29 @@ class PetShopIntegrationTest {
     assertEquals(0, ServiceLocator.getPhysicsService().getPhysics().getWorld().getBodyCount());
 
     updateAndRender();
+  }
+
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldPlayIdleSpinUsingEachPetsAtlasRegions(PetType type) {
+    manager.activatePet(new ShopComponent.Pet(type.name()));
+    Entity pet = manager.getActivePet();
+    AnimationRenderComponent animator = pet.getComponent(AnimationRenderComponent.class);
+    String prefix = type.getAnimationPrefix();
+    Vector2 initialPosition = pet.getPosition();
+
+    when(timeSource.getDeltaTime()).thenReturn(3f);
+    pet.update();
+    ServiceLocator.getRenderService().render(batch);
+    assertEquals(prefix + "_back", animator.getCurrentAnimation());
+
+    when(timeSource.getDeltaTime()).thenReturn(0.3f);
+    for (String direction : new String[] {"left", "front", "right"}) {
+      pet.update();
+      ServiceLocator.getRenderService().render(batch);
+      assertEquals(prefix + "_" + direction, animator.getCurrentAnimation());
+      assertTrue(initialPosition.epsilonEquals(pet.getPosition(), 0.001f));
+    }
   }
 
   private void updateAndRender() {
