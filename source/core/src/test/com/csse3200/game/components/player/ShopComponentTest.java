@@ -74,6 +74,7 @@ class ShopComponentTest {
     attach(inventory, shop);
 
     fillInventory(inventory);
+    inventory.getItem(1).setSellPrice(5);
     shop.setItemListing(1, itemListing(potion(1, 10), 10));
     shop.setItemListing(2, itemListing(new Item("Sword", ItemType.WEAPON, 1, 1), 20));
 
@@ -87,7 +88,7 @@ class ShopComponentTest {
     assertNotNull(shop.getItemListing(1));
     assertFalse(inventory.isFull());
     assertTrue(shop.buyItem(1));
-    assertEquals(90, inventory.getGold());
+    assertEquals(95, inventory.getGold());
     assertEquals("Potion", inventory.getItem(1).getName());
     assertNull(shop.getItemListing(1));
   }

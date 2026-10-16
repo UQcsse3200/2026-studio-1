@@ -413,13 +413,14 @@ public class ShopComponent extends Component {
   /**
    * Returns whether {@code item} can be sold.
    *
-   * <p>Stub: every item is reported as sellable until unpriced items are rejected.
+   * <p>An item with no sell price ({@link Item#getSellPrice()} is {@code 0}) is not sellable,
+   * because selling it would destroy the item for no gold.
    *
-   * @param item inventory item to check
-   * @return {@code true}
+   * @param item inventory item to check; {@code null} is not sellable
+   * @return {@code true} if the item has a positive sell price
    */
   public boolean isSellable(Item item) {
-    return true;
+    return item != null && item.getSellPrice() > 0;
   }
 
   /**
@@ -443,10 +444,12 @@ public class ShopComponent extends Component {
    * #getSellPrice(Item)} once.
    *
    * <p>The rest of the stack stays in the slot; selling the last unit frees the slot. Does not
-   * require a matching BUY listing and does not change BUY stock.
+   * require a matching BUY listing and does not change BUY stock. An item that is not {@linkplain
+   * #isSellable(Item) sellable} is rejected without changing gold, inventory or events.
    *
    * @param playerSlot inventory slot on the sibling {@link InventoryComponent}
-   * @return {@code true} if one unit was removed and gold was added
+   * @return {@code true} if one unit was removed and gold was added; {@code false} if the slot is
+   *     empty or invalid, the item has no sell price, or the shop has no inventory
    */
   public boolean sellItem(int playerSlot) {
     InventoryComponent inventory = getInventory();
@@ -455,7 +458,7 @@ public class ShopComponent extends Component {
     }
 
     Item item = inventory.getItem(playerSlot);
-    if (item == null) {
+    if (!isSellable(item)) {
       return false;
     }
 
