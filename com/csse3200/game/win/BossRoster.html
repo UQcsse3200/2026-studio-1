@@ -92,45 +92,13 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BossRoster</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The fixed list of bosses the win depends on: the final boss, and the mini bosses of the side
- rooms. It is data only. It says WHICH enemies matter; <a href="WinEvaluator.html" title="class in com.csse3200.game.win"><code>WinEvaluator</code></a> decides what their
- deaths are worth.
+<div class="block">The fixed list of bosses the win depends on: the final boss (Zeus in Level 3) and the mini bosses
+ of the side rooms. Data only; <a href="WinEvaluator.html" title="class in com.csse3200.game.win"><code>WinEvaluator</code></a> decides what their deaths are worth.
 
- <p><b>How a boss is named.</b> The game already saves every kill under a stable id of the form
- <code>&lt;map name&gt;:&lt;x&gt;,&lt;y&gt;</code>, where the tile is the enemy's marker tile in the map file (see <code>
- EnemyId.of</code> and <code>EnemyRegistry</code>). The roster uses exactly those ids, so a kill is known
- with no new component on any enemy, and it survives a save and a load. Build each id with <code>
- EnemyId.of(mapName, new GridPoint2(x, y))</code>, never by hand-typing the colon.
-
- <p><b>The roster (marker tiles are the ones in the shipped map files):</b>
-
- <pre>
- FINAL BOSS   Zeus                     Level 3 - Zeus's Palace : 26,4
- required     Cerberus                 Hound's Den             : 48,2
- required     Medusa                   Gorgon's Gallery        : 37,11
- required     Minotaur                 Minotaur's Labyrinth    : 24,35
- required     Minotaur                 Shades' Barracks        : 40,17
- required     Cyclops                  Cyclops Forge           : 30,15
- required     Centaur (upper)          Centaur Pavilion        : 44,12
- required     Medusa                   Zeus's Outer Guard      : 24,16
- required     Medusa                   Zeus's Thunder Hall     : 26,12
- escort       Centaur                  Minotaur's Labyrinth    : 28,17
- escort       Centaur (lower)          Centaur Pavilion        : 40,5
- escort       Cyclops                  Zeus's Outer Guard      : 32,9
- </pre>
-
- <p>"Required" means the boss that guards the end of the room: the one on its highest storey,
- beside the exit. An "escort" is another boss-type enemy in the same room. Escorts are listed so
- the win screen can show them, but they are NOT needed for <a href="WinTier.html#GLORY"><code>WinTier.GLORY</code></a>.
-
- <p>The final boss is not in the list of mini bosses. There is only one Zeus in the game, in Level
- 3, and only his death ends it.
-
- <p><b>Limitations:</b> an id is a map name plus a tile, so renaming a map or moving a boss marker
- silently breaks the roster for existing saves. <code>BossRosterMapsTest</code> reads the real map
- files and fails the moment the roster and the maps disagree.
-
- <p><b>Style reference:</b> <code>EnemyId</code> (a small utility class with a private constructor).</div>
+ <p>Each boss is named by its saved kill id, <code>&lt;map name&gt;:&lt;x&gt;,&lt;y&gt;</code>, built with <code>
+ EnemyId.of</code>. Required bosses guard a room's exit and count towards <a href="WinTier.html#GLORY"><code>WinTier.GLORY</code></a>; escorts
+ are listed but not needed. Renaming a map or moving a boss marker breaks an id, which <code>
+ BossRosterMapsTest</code> catches.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

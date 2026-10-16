@@ -100,10 +100,10 @@ loadScripts(document, 'script');</script>
  projectile can no longer land a hit "through" something solid in the way. Either outcome ends the
  projectile's flight by firing a <code>"projectileExpired"</code> event on this entity, which <a href="ProjectileComponent.html" title="class in com.csse3200.game.components.projectile"><code>ProjectileComponent</code></a> listens for to actually despawn it.
 
- <p>This intentionally duplicates, rather than reuses, <a href="../attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>TouchAttackComponent</code></a>'s collision
+ <p>This intentionally duplicates, rather than reuses, <a href="../enemies/attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.enemies.attacks"><code>TouchAttackComponent</code></a>'s collision
  handling: that class's fields and handler are <code>private</code> (so it can't be extended without
- re-declaring them anyway - see <a href="../attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>MeleeAttackComponent</code></a>'s javadoc for the same reasoning
- applied to melee/ranged attack components), and a projectile also needs behaviour <a href="../attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>TouchAttackComponent</code></a> doesn't have: it must stop on non-target ("blocking") contact too, and it
+ re-declaring them anyway - see <a href="../enemies/attacks/MeleeAttackComponent.html" title="class in com.csse3200.game.components.enemies.attacks"><code>MeleeAttackComponent</code></a>'s javadoc for the same reasoning
+ applied to melee/ranged attack components), and a projectile also needs behaviour <a href="../enemies/attacks/TouchAttackComponent.html" title="class in com.csse3200.game.components.enemies.attacks"><code>TouchAttackComponent</code></a> doesn't have: it must stop on non-target ("blocking") contact too, and it
  must only ever resolve once, since a fast-moving fixture can generate more than one collision
  callback in a single physics step.
 
@@ -116,7 +116,7 @@ loadScripts(document, 'script');</script>
  view. It fires a generic <code>"projectileHit"</code> event (payload: the entity that was hit) for
  whoever spawned the projectile to react to - e.g. re-firing a <code>"rangedAttackHit"</code> event on
  the shooter's own entity, to preserve that event for anything already listening for it (see
- <a href="../attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.attacks"><code>RangedAttackComponent</code></a>).</div>
+ <a href="../enemies/attacks/RangedAttackComponent.html" title="class in com.csse3200.game.components.enemies.attacks"><code>RangedAttackComponent</code></a>).</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -169,6 +169,21 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the entity is created and registered.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>short</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBlockingLayer()" class="member-name-link">getBlockingLayer</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieves blocking physics layer</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKnockbackForce()" class="member-name-link">getKnockbackForce</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieves knockback force of projectile</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>short</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetLayer()" class="member-name-link">getTargetLayer</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Retrieve target physics layer</div>
 </div>
 </div>
 </div>
@@ -251,6 +266,39 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../Component.html#create()">create</a></code>&nbsp;in class&nbsp;<code><a href="../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getKnockbackForce()">
+<h3>getKnockbackForce</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getKnockbackForce</span>()</div>
+<div class="block">Retrieves knockback force of projectile</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>float value of knockback force of projectile entity onto target.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getBlockingLayer()">
+<h3>getBlockingLayer</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">short</span>&nbsp;<span class="element-name">getBlockingLayer</span>()</div>
+<div class="block">Retrieves blocking physics layer</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>physics layer which may block projectile i.e. an obstacle or wall</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getTargetLayer()">
+<h3>getTargetLayer</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">short</span>&nbsp;<span class="element-name">getTargetLayer</span>()</div>
+<div class="block">Retrieve target physics layer</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>target's physics layer</dd>
 </dl>
 </section>
 </li>

@@ -5,9 +5,12 @@ com.csse3200.game.areas
 com.csse3200.game.areas.terrain
 com.csse3200.game.areas.terrain.map
 com.csse3200.game.components
-com.csse3200.game.components.attacks
 com.csse3200.game.components.difficulty
 com.csse3200.game.components.effects
+com.csse3200.game.components.enemies
+com.csse3200.game.components.enemies.animation
+com.csse3200.game.components.enemies.attacks
+com.csse3200.game.components.enemies.tasks
 com.csse3200.game.components.gamearea
 com.csse3200.game.components.lighting
 com.csse3200.game.components.loot
@@ -25,10 +28,11 @@ com.csse3200.game.concurrency
 com.csse3200.game.difficulty
 com.csse3200.game.entities
 com.csse3200.game.entities.configs
-com.csse3200.game.entities.configs.attacks
 com.csse3200.game.entities.configs.enemies
+com.csse3200.game.entities.configs.enemies.attacks
 com.csse3200.game.entities.factories
 com.csse3200.game.entities.spawn
+com.csse3200.game.entities.spawn.enemies
 com.csse3200.game.events
 com.csse3200.game.events.listeners
 com.csse3200.game.files

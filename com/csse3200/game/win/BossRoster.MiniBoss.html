@@ -114,7 +114,7 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;enemyType,
  boolean&nbsp;required)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Creates one entry of the roster, describing a single mini boss.</div>
+<div class="block">Creates one roster entry.</div>
 </div>
 </div>
 </section>
@@ -180,17 +180,16 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;roomName,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;enemyType,
  boolean&nbsp;required)</span></div>
-<div class="block">Creates one entry of the roster, describing a single mini boss.</div>
+<div class="block">Creates one roster entry.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>id</code> - the kill id, in the <code>&lt;map name&gt;:&lt;x&gt;,&lt;y&gt;</code> form; not blank</dd>
-<dd><code>label</code> - what the win screen calls it, for example "Cerberus of the Hound's Den"; not
-     blank</dd>
+<dd><code>id</code> - the kill id; not blank</dd>
+<dd><code>label</code> - the name shown on the win screen; not blank</dd>
 <dd><code>roomName</code> - the room it guards; not blank</dd>
-<dd><code>enemyType</code> - the enemy type name as written in the map file, for example "cerberus"</dd>
-<dd><code>required</code> - true if this boss is needed for <a href="WinTier.html#GLORY"><code>WinTier.GLORY</code></a></dd>
+<dd><code>enemyType</code> - the enemy type as written in the map file; not blank</dd>
+<dd><code>required</code> - true if this boss is needed for Glory</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the id, label, room name or type is null or blank</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if any of the text values is null or blank</dd>
 </dl>
 </section>
 </li>
