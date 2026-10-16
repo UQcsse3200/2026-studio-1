@@ -1,5 +1,6 @@
 package com.csse3200.game.perks;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -130,7 +131,10 @@ class PerkSelectionDisplayTest {
 
   @Test
   void showBeforeCreateIsSafeNoOp() {
-    new PerkSelectionDisplay(null).show();
+    PerkSelectionDisplay fresh = new PerkSelectionDisplay(null);
+
+    assertDoesNotThrow(fresh::show);
+    assertFalse(fresh.isVisible());
   }
 
   @Test
@@ -260,7 +264,8 @@ class PerkSelectionDisplayTest {
     // With zero perks, index 0 == perks.size() == the Continue button
     Method onConfirm = PerkSelectionDisplay.class.getDeclaredMethod("onConfirm");
     onConfirm.setAccessible(true);
-    onConfirm.invoke(noCallback);
+
+    assertDoesNotThrow(() -> onConfirm.invoke(noCallback));
   }
 
   @Test
