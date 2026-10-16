@@ -276,6 +276,7 @@ public class PlayerStatsDisplay extends UIComponent {
     int damageTaken = previousHealth - health;
     KeyboardPlayerInputComponent input = entity.getComponent(KeyboardPlayerInputComponent.class);
     // Play different sounds depending on the amount of damage
+    // TODO: Determine whether special sound should be played for attacks by miniboss
     if (damageTaken == 25) {
       // Crowned ghost hit
       Sound crownHitSound =

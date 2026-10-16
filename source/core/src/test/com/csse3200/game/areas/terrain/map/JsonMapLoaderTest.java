@@ -336,7 +336,7 @@ class JsonMapLoaderTest {
           "layers": { "terrain": ["#"] },
           "spawns": {
             "player": { "x": 99, "y": 99 },
-            "enemies": [ { "type": "ghost", "x": -1, "y": 0 } ],
+            "enemies": [ { "type": "skeleton", "x": -1, "y": 0 } ],
             "loot": [ { "x": 5, "y": 5 } ]
           }
         }
@@ -427,7 +427,7 @@ class JsonMapLoaderTest {
     assertEquals(2, map.getLayers().size());
     assertEquals(TileType.WALL, map.getTileType(0, 0));
     assertEquals(2, map.getTexturePaths().size());
-    assertEquals("ghost", map.getSpawns().getEnemies().get(0).getType());
+    assertEquals("skeleton", map.getSpawns().getEnemies().get(0).getType());
   }
 
   @Test
