@@ -29,8 +29,10 @@ class WeaponAttackComponentTest {
 
   @Test
   void shouldRejectInvalidProjectileIndex() {
+    Vector2 direction = new Vector2(1f, 0f);
+
     assertThrows(
         IllegalArgumentException.class,
-        () -> WeaponAttackComponent.getBowProjectileDirection(new Vector2(1f, 0f), 1, 1));
+        () -> WeaponAttackComponent.getBowProjectileDirection(direction, 1, 1));
   }
 }
