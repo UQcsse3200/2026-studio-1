@@ -47,7 +47,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Detail:</p>
 <ul>
-<li>Field</li>
+<li><a href="#field-detail">Field</a></li>
 <li><a href="#constructor-detail">Constr</a></li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -65,7 +65,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -94,16 +94,26 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PetrifyEffectComponent</span>
 <span class="extends-implements">extends <a href="../../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
-<div class="block">Petrifies (fully immobilises) whatever this projectile hits, for a configured number of ticks, by
- triggering the target's own <code>"applySpeedEffect"</code> event with a <code>0f</code> speed multiplier -
- the same mechanism <a href="../../effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects"><code>SpeedEffectComponent</code></a> already uses
- to revert itself once the duration elapses.
+<div class="block">Petrifies (fully immobilises) whatever an attack hits, for a configured time, by triggering the
+ target's own <code>"applySpeedEffect"</code> event with a <code>0f</code> speed multiplier. That is the
+ same mechanism <a href="../../effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects"><code>SpeedEffectComponent</code></a> uses to revert
+ itself once the duration elapses. All petrify logic lives here: the factory only creates the
+ component and adds it.
 
- <p>Deliberately mirrors <a href="LightningFreezeComponent.html" title="class in com.csse3200.game.components.enemies.attacks"><code>LightningFreezeComponent</code></a>'s structure (attach to a projectile
- entity, listen for that entity's own <code>"projectileHit"</code> event): the two effects are
- mechanically identical (an on-hit, timed, zero-speed stun), just thematically different (Medusa's
- gaze vs. Zeus's lightning) and with no accompanying sound effect, since no petrify-specific sound
- asset exists yet.</div>
+ <p>It can listen in two places, chosen by how it is built:
+
+ <ul>
+   <li><b>On the shooter</b> (<a href="#forShooter(com.csse3200.game.entities.configs.enemies.attacks.PetrifyConfig,float)"><code>forShooter(com.csse3200.game.entities.configs.enemies.attacks.PetrifyConfig, float)</code></a>): listens for the shooter's <code>
+       "rangedAttackHit"</code> event, which <code>RangedAttackComponent</code> fires when its projectile
+       lands. This is how Medusa uses it, with the ordinary arrow. It reads the config in seconds,
+       converts to ticks, and enforces the team rule that the attack's cooldown is at least <a href="#COOLDOWN_EFFECT_MULTIPLIER"><code>COOLDOWN_EFFECT_MULTIPLIER</code></a> times the petrify duration.
+   <li><b>On a projectile</b> (<a href="#%3Cinit%3E(int)"><code>PetrifyEffectComponent(int)</code></a>): listens for that
+       projectile's own <code>"projectileHit"</code> event, mirroring <a href="LightningFreezeComponent.html" title="class in com.csse3200.game.components.enemies.attacks"><code>LightningFreezeComponent</code></a>.
+       Nothing uses this yet; it is kept for a future gaze projectile.
+ </ul>
+
+ <p>A target without a <code>SpeedEffectComponent</code> is unaffected, because nothing listens for the
+ event on it.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -111,6 +121,42 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#APPLY_SPEED_EFFECT_EVENT" class="member-name-link">APPLY_SPEED_EFFECT_EVENT</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">The event the target's <code>SpeedEffectComponent</code> listens for.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final float</code></div>
+<div class="col-second odd-row-color"><code><a href="#COOLDOWN_EFFECT_MULTIPLIER" class="member-name-link">COOLDOWN_EFFECT_MULTIPLIER</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Team rule: the attack that petrifies must wait at least this many times the petrify duration.</div>
+</div>
+<div class="col-first even-row-color"><code>static final float</code></div>
+<div class="col-second even-row-color"><code><a href="#PETRIFY_SPEED_MULTIPLIER" class="member-name-link">PETRIFY_SPEED_MULTIPLIER</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Speed multiplier while petrified: none.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#PROJECTILE_HIT_EVENT" class="member-name-link">PROJECTILE_HIT_EVENT</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">The event a projectile fires on its own entity when it hits something.</div>
+</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#RANGED_ATTACK_HIT_EVENT" class="member-name-link">RANGED_ATTACK_HIT_EVENT</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">The event <code>RangedAttackComponent</code> fires on the shooter when its projectile lands.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#TICKS_PER_SECOND" class="member-name-link">TICKS_PER_SECOND</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">The speed effect counts down once per frame, so seconds are converted at 60 frames a second.</div>
+</div>
+</div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.csse3200.game.components.Component">Fields inherited from class&nbsp;com.csse3200.game.components.<a href="../../Component.html" title="class in com.csse3200.game.components">Component</a></h3>
 <code><a href="../../Component.html#enabled">enabled</a>, <a href="../../Component.html#entity">entity</a>, <a href="../../Component.html#prio">prio</a></code></div>
@@ -125,7 +171,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(int)" class="member-name-link">PetrifyEffectComponent</a><wbr>(int&nbsp;petrifyTicks)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Builds a petrify that listens on a projectile for that projectile's own <code>"projectileHit"</code>
+ event.</div>
+</div>
 </div>
 </section>
 </li>
@@ -134,7 +183,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -143,7 +192,18 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create()" class="member-name-link">create</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Called when the entity is created and registered.</div>
+<div class="block">Subscribes to the configured hit event on this component's own entity.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="PetrifyEffectComponent.html" title="class in com.csse3200.game.components.enemies.attacks">PetrifyEffectComponent</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#forShooter(com.csse3200.game.entities.configs.enemies.attacks.PetrifyConfig,float)" class="member-name-link">forShooter</a><wbr>(<a href="../../../entities/configs/enemies/attacks/PetrifyConfig.html" title="class in com.csse3200.game.entities.configs.enemies.attacks">PetrifyConfig</a>&nbsp;petrify,
+ float&nbsp;attackCooldown)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Builds the petrify an enemy carries so its ranged attack petrifies what it hits.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#toTicks(float)" class="member-name-link">toTicks</a><wbr>(float&nbsp;seconds)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Converts seconds to frames.</div>
 </div>
 </div>
 </div>
@@ -160,6 +220,104 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="PROJECTILE_HIT_EVENT">
+<h3>PROJECTILE_HIT_EVENT</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">PROJECTILE_HIT_EVENT</span></div>
+<div class="block">The event a projectile fires on its own entity when it hits something.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.components.enemies.attacks.PetrifyEffectComponent.PROJECTILE_HIT_EVENT">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="RANGED_ATTACK_HIT_EVENT">
+<h3>RANGED_ATTACK_HIT_EVENT</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">RANGED_ATTACK_HIT_EVENT</span></div>
+<div class="block">The event <code>RangedAttackComponent</code> fires on the shooter when its projectile lands.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.components.enemies.attacks.PetrifyEffectComponent.RANGED_ATTACK_HIT_EVENT">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="APPLY_SPEED_EFFECT_EVENT">
+<h3>APPLY_SPEED_EFFECT_EVENT</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">APPLY_SPEED_EFFECT_EVENT</span></div>
+<div class="block">The event the target's <code>SpeedEffectComponent</code> listens for.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.components.enemies.attacks.PetrifyEffectComponent.APPLY_SPEED_EFFECT_EVENT">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="PETRIFY_SPEED_MULTIPLIER">
+<h3>PETRIFY_SPEED_MULTIPLIER</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">PETRIFY_SPEED_MULTIPLIER</span></div>
+<div class="block">Speed multiplier while petrified: none.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.components.enemies.attacks.PetrifyEffectComponent.PETRIFY_SPEED_MULTIPLIER">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="TICKS_PER_SECOND">
+<h3>TICKS_PER_SECOND</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">TICKS_PER_SECOND</span></div>
+<div class="block">The speed effect counts down once per frame, so seconds are converted at 60 frames a second.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.components.enemies.attacks.PetrifyEffectComponent.TICKS_PER_SECOND">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="COOLDOWN_EFFECT_MULTIPLIER">
+<h3>COOLDOWN_EFFECT_MULTIPLIER</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">COOLDOWN_EFFECT_MULTIPLIER</span></div>
+<div class="block">Team rule: the attack that petrifies must wait at least this many times the petrify duration.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../../constant-values.html#com.csse3200.game.components.enemies.attacks.PetrifyEffectComponent.COOLDOWN_EFFECT_MULTIPLIER">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -169,6 +327,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(int)">
 <h3>PetrifyEffectComponent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PetrifyEffectComponent</span><wbr><span class="parameters">(int&nbsp;petrifyTicks)</span></div>
+<div class="block">Builds a petrify that listens on a projectile for that projectile's own <code>"projectileHit"</code>
+ event.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>petrifyTicks</code> - number of ticks the hit target is petrified for; <code>0</code> applies the
@@ -188,12 +348,43 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="forShooter(com.csse3200.game.entities.configs.enemies.attacks.PetrifyConfig,float)">
+<h3>forShooter</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="PetrifyEffectComponent.html" title="class in com.csse3200.game.components.enemies.attacks">PetrifyEffectComponent</a></span>&nbsp;<span class="element-name">forShooter</span><wbr><span class="parameters">(<a href="../../../entities/configs/enemies/attacks/PetrifyConfig.html" title="class in com.csse3200.game.entities.configs.enemies.attacks">PetrifyConfig</a>&nbsp;petrify,
+ float&nbsp;attackCooldown)</span></div>
+<div class="block">Builds the petrify an enemy carries so its ranged attack petrifies what it hits. Checks the
+ config and the design rule first, so a bad value fails when the enemy is built, not mid-game.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>petrify</code> - the config; its duration is in seconds and must be above zero</dd>
+<dd><code>attackCooldown</code> - the cooldown in seconds of the attack that petrifies</dd>
+<dt>Returns:</dt>
+<dd>a petrify that listens for the enemy's <code>RANGED_ATTACK_HIT_EVENT</code></dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if petrify is null, the duration is not above zero or does not
+     round to at least one tick, or the cooldown is below <code>COOLDOWN_EFFECT_MULTIPLIER</code>
+     times the duration</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="toTicks(float)">
+<h3>toTicks</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">toTicks</span><wbr><span class="parameters">(float&nbsp;seconds)</span></div>
+<div class="block">Converts seconds to frames.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>seconds</code> - a duration in seconds</dd>
+<dt>Returns:</dt>
+<dd>the duration in ticks, rounded to the nearest whole tick</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="create()">
 <h3>create</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">create</span>()</div>
-<div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="../../Component.html#create()">Component</a></code></span></div>
-<div class="block">Called when the entity is created and registered. Initial logic such as calls to GetComponent
- should be made here, not in the constructor which is called before an entity is finished.</div>
+<div class="block">Subscribes to the configured hit event on this component's own entity.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="../../Component.html#create()">create</a></code>&nbsp;in class&nbsp;<code><a href="../../Component.html" title="class in com.csse3200.game.components">Component</a></code></dd>

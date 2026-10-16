@@ -102,6 +102,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">InventoryDisplay</span>
 <span class="extends-implements">extends <a href="../../ui/UIComponent.html" title="class in com.csse3200.game.ui">UIComponent</a></span></div>
+<div class="block">A HUD-style UI component for displaying the player's inventory.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -155,6 +156,11 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw</a><wbr>(com.badlogic.gdx.graphics.g2d.SpriteBatch&nbsp;batch)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Draw the renderable.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setHidden(boolean)" class="member-name-link">setHidden</a><wbr>(boolean&nbsp;shouldHide)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Sets inventory to be visible or not.</div>
 </div>
 </div>
 </div>
@@ -238,6 +244,17 @@ loadScripts(document, 'script');</script>
 <dd><code>dispose</code>&nbsp;in interface&nbsp;<code>com.badlogic.gdx.utils.Disposable</code></dd>
 <dt>Overrides:</dt>
 <dd><code><a href="../../rendering/RenderComponent.html#dispose()">dispose</a></code>&nbsp;in class&nbsp;<code><a href="../../rendering/RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setHidden(boolean)">
+<h3>setHidden</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setHidden</span><wbr><span class="parameters">(boolean&nbsp;shouldHide)</span></div>
+<div class="block">Sets inventory to be visible or not. Used by terminal command <a href="../../ui/terminal/commands/InventoryCommand.html" title="class in com.csse3200.game.ui.terminal.commands"><code>InventoryCommand</code></a></div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>shouldHide</code> - boolean on whether to hide the inventory or not.</dd>
 </dl>
 </section>
 </li>

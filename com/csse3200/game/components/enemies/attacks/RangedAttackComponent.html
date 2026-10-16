@@ -147,11 +147,9 @@ loadScripts(document, 'script');</script>
 <section class="constructor-summary" id="constructor-summary">
 <h2>Constructor Summary</h2>
 <div class="caption"><span>Constructors</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier</div>
-<div class="table-header col-second">Constructor</div>
+<div class="summary-table two-column-summary">
+<div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback)</code></div>
@@ -159,7 +157,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, with no weapon
  for any attacks i.e.</div>
 </div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
  float&nbsp;cooldown,
  float&nbsp;knockback,
@@ -167,15 +164,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
  speed.</div>
-</div>
-<div class="col-first even-row-color"><code>protected </code></div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(float,float,float,com.csse3200.game.components.loot.WeaponItem,java.lang.String)" class="member-name-link">RangedAttackComponent</a><wbr>(float&nbsp;range,
- float&nbsp;cooldown,
- float&nbsp;knockback,
- <a href="../../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventPrefix)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Creates a ranged attack that listens for and announces events under a custom prefix.</div>
 </div>
 </div>
 </section>
@@ -346,34 +334,6 @@ loadScripts(document, 'script');</script>
 <dd><code>knockback</code> - knockback magnitude applied to the target on a successful hit; <code>0f</code>
      results in no knockback.</dd>
 <dd><code>weapon</code> - weapon in entity's inventory</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="&lt;init&gt;(float,float,float,com.csse3200.game.components.loot.WeaponItem,java.lang.String)">
-<h3>RangedAttackComponent</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">RangedAttackComponent</span><wbr><span class="parameters">(float&nbsp;range,
- float&nbsp;cooldown,
- float&nbsp;knockback,
- <a href="../../loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a>&nbsp;weapon,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;eventPrefix)</span></div>
-<div class="block">Creates a ranged attack that listens for and announces events under a custom prefix. The
- trigger event is the prefix itself, for example <code>"rockAttack"</code>, and every other event
- adds a suffix: <code>Windup</code>, <code>Fired</code>, <code>Hit</code>, <code>Cancelled</code>.
-
- <p>Two ranged attacks on one entity must not both answer to <code>"rangedAttack"</code>, or one
- trigger would start both. The animation controller also needs the prefix to tell a rock from a
- laser.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>range</code> - maximum distance to the target, in world units</dd>
-<dd><code>cooldown</code> - seconds between shots</dd>
-<dd><code>knockback</code> - knockback applied on a hit</dd>
-<dd><code>weapon</code> - the weapon this attack uses (may be a natural weapon)</dd>
-<dd><code>eventPrefix</code> - prefix for every event this attack listens for or announces; not blank</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the prefix is null or blank, plus every rule of the
-     four-argument constructor</dd>
 </dl>
 </section>
 </li>
