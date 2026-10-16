@@ -445,32 +445,103 @@ class PetMovementComponentTest {
   }
 
   @Test
-  void shouldKeepCombatAttacksRunningDuringIdleFlight() {
-    owner.addComponent(new CombatStatsComponent(100, 10));
-    PetCombatComponent combat = new PetCombatComponent(timeSource);
-    Entity pet =
-        new Entity()
-            .addComponent(new PetComponent(owner))
-            .addComponent(new PetMovementComponent(timeSource, "bird"))
-            .addComponent(combat);
-    pet.create();
+  void shouldStayBesideOwnerWhileRepeatedlyAttacking() {
+    Entity pet = createCombatPet();
+    PetCombatComponent combat = pet.getComponent(PetCombatComponent.class);
     Vector2 restingPosition = pet.getPosition();
-    AtomicInteger attacksDuringFlight = new AtomicInteger();
-    pet.getEvents()
-        .addListener(
-            "petAttack",
-            (Entity target) -> {
-              if (!restingPosition.epsilonEquals(pet.getPosition(), 0.01f)) {
-                attacksDuringFlight.incrementAndGet();
-              }
-            });
+    AtomicInteger attacks = new AtomicInteger();
+    pet.getEvents().addListener("petAttack", (Entity target) -> attacks.incrementAndGet());
     combat.requestAttack(new Entity().addComponent(new CombatStatsComponent(100, 0)));
 
     for (int frame = 0; frame < 80; frame++) {
       advance(pet, 0.1f);
+      assertPositionEquals(restingPosition, pet.getPosition());
+      assertEquals("bird_right", currentAnimation);
     }
 
-    assertTrue(attacksDuringFlight.get() > 0);
+    assertTrue(attacks.get() > 1);
+    assertTrue(playedAnimations.isEmpty(), "Combat must suppress both idle turns and flights.");
+  }
+
+  @Test
+  void shouldInterruptSpinBeforeQueuedAttackIsProcessed() {
+    Entity pet = createCombatPet();
+    advance(pet, 3f);
+    assertEquals("bird_back", currentAnimation);
+    pet.getComponent(PetCombatComponent.class)
+        .requestAttack(new Entity().addComponent(new CombatStatsComponent(100, 0)));
+
+    // Exercise movement first: a queued hit must suppress idle regardless of update order.
+    when(timeSource.getDeltaTime()).thenReturn(0.1f);
+    pet.getComponent(PetMovementComponent.class).update();
+
+    assertEquals("bird_right", currentAnimation);
+    advance(pet, 3f);
+    assertEquals("bird_right", currentAnimation);
+  }
+
+  @Test
+  void shouldReturnSmoothlyFromIdleFlightWhenCombatStarts() {
+    Entity pet = createCombatPet();
+    Vector2 restingPosition = pet.getPosition();
+    finishSpinAndWaitForFlight(pet);
+    advance(pet, 0.5f);
+    Vector2 flightPosition = pet.getPosition();
+    pet.getComponent(PetCombatComponent.class)
+        .requestAttack(new Entity().addComponent(new CombatStatsComponent(100, 0)));
+
+    advance(pet, 0.1f);
+
+    assertTrue(pet.getPosition().dst2(restingPosition) < flightPosition.dst2(restingPosition));
+    assertTrue(pet.getPosition().dst2(restingPosition) > 0.001f);
+    assertEquals("bird_right", currentAnimation);
+    advance(pet, 2f);
+    assertPositionEquals(restingPosition, pet.getPosition());
+  }
+
+  @Test
+  void shouldRestartIdleCountdownAfterTargetDies() {
+    Entity pet = createCombatPet();
+    Entity target = new Entity().addComponent(new CombatStatsComponent(100, 0));
+    pet.getComponent(PetCombatComponent.class).requestAttack(target);
+    advance(pet, 8f);
+    assertTrue(playedAnimations.isEmpty());
+
+    target.getComponent(CombatStatsComponent.class).setHealth(0);
+    advance(pet, 2.9f);
+    assertTrue(playedAnimations.isEmpty());
+    advance(pet, 0.1f);
+    assertEquals("bird_back", currentAnimation);
+  }
+
+  @Test
+  void shouldKeepFollowingOwnerDuringCombat() {
+    Entity pet = createCombatPet();
+    Vector2 restingPosition = pet.getPosition();
+    pet.getComponent(PetCombatComponent.class)
+        .requestAttack(new Entity().addComponent(new CombatStatsComponent(100, 0)));
+    owner.setPosition(9f, 5f);
+
+    advance(pet, 0.1f);
+
+    assertTrue(pet.getPosition().x > restingPosition.x);
+    assertEquals("bird_left", currentAnimation);
+    advance(pet, 8f);
+    assertPositionEquals(new Vector2(11.25f, 8.25f), pet.getPosition());
+    assertEquals("bird_left", currentAnimation);
+  }
+
+  private Entity createCombatPet() {
+    owner.addComponent(new CombatStatsComponent(100, 10));
+    Entity pet =
+        new Entity()
+            .addComponent(new PetComponent(owner))
+            .addComponent(animator)
+            .addComponent(new PetMovementComponent(timeSource, "bird"))
+            .addComponent(new PetCombatComponent(timeSource));
+    pet.setScale(1f, 0.5f);
+    pet.create();
+    return pet;
   }
 
   private void finishSpinAndWaitForFlight(Entity pet) {

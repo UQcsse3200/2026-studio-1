@@ -13,8 +13,9 @@ import com.csse3200.game.services.ServiceLocator;
  *
  * <p>After three seconds without owner movement, the pet turns through all four directions once.
  * Two seconds after the turn, it flies to the other side of the owner and back. Each trip takes two
- * seconds and starts every four seconds while the owner stays still. Moving again resets the idle
- * sequence. Idle timing uses game time, so it pauses with the game.
+ * seconds and starts every four seconds while the owner stays still. Moving or having an active
+ * combat target resets the idle sequence; the pet keeps following its owner during combat. Idle
+ * timing uses game time, so it pauses with the game.
  */
 public class PetMovementComponent extends Component {
   private static final float HORIZONTAL_GAP = 0.25f;
@@ -39,6 +40,7 @@ public class PetMovementComponent extends Component {
   private float facingDirection = 1f;
   private double idleTime;
   private AnimationRenderComponent animator;
+  private PetCombatComponent combat;
   private final String animationPrefix;
 
   /** Creates pet movement using the game's time source. */
@@ -67,6 +69,7 @@ public class PetMovementComponent extends Component {
 
     owner = petComponent.getOwner();
     animator = entity.getComponent(AnimationRenderComponent.class);
+    combat = entity.getComponent(PetCombatComponent.class);
     previousOwnerPosition.set(owner.getPosition());
     entity.setPosition(getFollowPosition());
   }
@@ -122,7 +125,9 @@ public class PetMovementComponent extends Component {
 
   private void updateIdleTime(boolean ownerMoved, float deltaTime) {
     CombatStatsComponent ownerStats = owner.getComponent(CombatStatsComponent.class);
-    if (ownerMoved || (ownerStats != null && ownerStats.isDead())) {
+    boolean ownerDead = ownerStats != null && ownerStats.isDead();
+    boolean inCombat = combat != null && combat.hasActiveTarget();
+    if (ownerMoved || ownerDead || inCombat) {
       idleTime = 0;
     } else {
       idleTime += deltaTime;

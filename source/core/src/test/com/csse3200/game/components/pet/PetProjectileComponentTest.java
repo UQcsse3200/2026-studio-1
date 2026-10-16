@@ -419,20 +419,48 @@ class PetProjectileComponentTest {
 
   @ParameterizedTest
   @EnumSource(PetType.class)
-  void shouldBeBlockedByStaticTerrainBeforeReachingTarget(PetType type) {
+  void shouldPassThroughStaticWallAndHitEnemyBelow(PetType type) {
     activatePet(type);
-    Entity target = createEnemy(5f, 3f, 100, null);
+    Entity target = createEnemy(5f, 0f, 100, null);
     Entity wall =
         new Entity()
             .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
             .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
-    wall.setPosition(2f, 3f);
+    wall.setScale(1f, 5f);
+    wall.setPosition(2f, -0.5f);
     entities.register(wall);
     Entity projectile = fireAt(target);
 
     flyUntilDisposed(projectile);
 
-    assertEquals(100, health(target));
+    assertEquals(95, health(target));
+    assertEquals(2, physics.getWorld().getBodyCount());
+  }
+
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldReachEnemyBelowWhenShotStartsInsidePlatform(PetType type) {
+    activatePet(type);
+    Entity target = createEnemy(4f, 0f, 100, null);
+    Entity platform =
+        new Entity()
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+            .addComponent(
+                new ColliderComponent()
+                    .setLayer((short) (PhysicsLayer.OBSTACLE | PhysicsLayer.PLATFORM)));
+    platform.setScale(4f, 0.4f);
+    platform.setPosition(-1f, 3.3f);
+    entities.register(platform);
+    Entity projectile = fireAt(target);
+    assertTrue(
+        platform
+            .getComponent(ColliderComponent.class)
+            .getFixture()
+            .testPoint(projectile.getCenterPosition()));
+
+    flyUntilDisposed(projectile);
+
+    assertEquals(95, health(target));
     assertEquals(2, physics.getWorld().getBodyCount());
   }
 
