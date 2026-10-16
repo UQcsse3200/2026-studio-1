@@ -24,7 +24,7 @@ import com.csse3200.game.difficulty.Difficulty;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
-import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;

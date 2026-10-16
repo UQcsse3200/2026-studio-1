@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 class SpawnPointTest {
   @Test
   void exposesTypeAndCoordinates() {
-    SpawnPoint sp = new SpawnPoint("ghost", 3, 7);
-    assertEquals("ghost", sp.getType());
+    SpawnPoint sp = new SpawnPoint("skeleton", 3, 7);
+    assertEquals("skeleton", sp.getType());
     assertEquals(3, sp.getX());
     assertEquals(7, sp.getY());
     assertEquals(new GridPoint2(3, 7), sp.getPosition());
@@ -25,8 +25,8 @@ class SpawnPointTest {
 
   @Test
   void toStringIncludesFields() {
-    String text = new SpawnPoint("ghost", 1, 2).toString();
-    assertTrue(text.contains("ghost"));
+    String text = new SpawnPoint("skeleton", 1, 2).toString();
+    assertTrue(text.contains("skeleton"));
     assertTrue(text.contains("1"));
     assertTrue(text.contains("2"));
   }

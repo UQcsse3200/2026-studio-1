@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.effects.SpeedEffectComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;

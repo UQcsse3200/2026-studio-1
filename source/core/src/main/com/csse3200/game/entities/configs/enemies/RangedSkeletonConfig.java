@@ -1,7 +1,7 @@
 package com.csse3200.game.entities.configs.enemies;
 
 import com.csse3200.game.entities.configs.BaseEntityConfig;
-import com.csse3200.game.entities.configs.attacks.RangedAttackConfig;
+import com.csse3200.game.entities.configs.enemies.attacks.RangedAttackConfig;
 
 /** Configuration for a ranged basic enemy (e.g. an archer-type skeleton). */
 public class RangedSkeletonConfig extends BaseEntityConfig {

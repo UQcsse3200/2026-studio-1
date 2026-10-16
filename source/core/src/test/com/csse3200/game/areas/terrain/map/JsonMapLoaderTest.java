@@ -336,7 +336,7 @@ class JsonMapLoaderTest {
           "layers": { "terrain": ["#"] },
           "spawns": {
             "player": { "x": 99, "y": 99 },
-            "enemies": [ { "type": "ghost", "x": -1, "y": 0 } ],
+            "enemies": [ { "type": "skeleton", "x": -1, "y": 0 } ],
             "loot": [ { "x": 5, "y": 5 } ]
           }
         }
@@ -427,7 +427,7 @@ class JsonMapLoaderTest {
     assertEquals(2, map.getLayers().size());
     assertEquals(TileType.WALL, map.getTileType(0, 0));
     assertEquals(2, map.getTexturePaths().size());
-    assertEquals("ghost", map.getSpawns().getEnemies().get(0).getType());
+    assertEquals("skeleton", map.getSpawns().getEnemies().get(0).getType());
   }
 
   @Test
@@ -588,7 +588,7 @@ class JsonMapLoaderTest {
   void loadsLevelTwoMountainAndItsSummitExit() {
     LevelMapData levelTwo = loader.load("maps/level2.json");
 
-    assertEquals("Level 2 — Climb Mount Olympus", levelTwo.getName());
+    assertEquals("Level 2 - Climb Mount Olympus", levelTwo.getName());
     assertEquals(80, levelTwo.getWidth());
     assertEquals(180, levelTwo.getHeight());
     assertEquals(new GridPoint2(3, 2), levelTwo.getSpawns().getPlayer());

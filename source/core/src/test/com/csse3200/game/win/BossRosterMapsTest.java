@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
-import com.csse3200.game.entities.spawn.EnemyId;
+import com.csse3200.game.entities.spawn.enemies.EnemyId;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
 import java.util.HashMap;

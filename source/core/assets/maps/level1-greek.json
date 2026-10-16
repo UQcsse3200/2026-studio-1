@@ -166,10 +166,6 @@
       "type": "DECORATIVE",
       "texture": "images/level1/hazard-swinging-blade-512px.png"
     },
-    "E": {
-      "type": "DECORATIVE",
-      "texture": "images/enemies/enemy-skeleton-hoplite-512px.png"
-    },
     "R": {
       "type": "DECORATIVE",
       "texture": "images/level1/decor-column-doric-512px.png"

@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -246,8 +246,9 @@ class DifficultyScalerTest {
 
   /**
    * isHostile accepts a TouchAttackComponent as well as melee/ranged, but no other test exercises
-   * that branch - removing it would go unnoticed otherwise. A ghost (CombatStatsComponent +
-   * TouchAttackComponent, no melee, ranged, or inventory) is a real example of this shape.
+   * that branch - removing it would go unnoticed otherwise. The enemy ghost created for this test
+   * (CombatStatsComponent + TouchAttackComponent, no melee, ranged, or inventory) is a real example
+   * of this shape.
    */
   @Test
   void aGhostWithOnlyTouchAttackIsScaledOnHard() {
