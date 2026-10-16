@@ -1573,6 +1573,14 @@ public class ShopDisplay extends UIComponent {
       return;
     }
 
+    if (result.product() instanceof ShopComponent.Upgrade upgrade) {
+      UpgradeNode node = findUpgradeNodeByName(upgrade.getName());
+      if (node != null && !node.isMaxTier()) {
+        node.purchaseNextTier();
+        showPurchaseToast(node);
+      }
+    }
+
     int winningSlot = findPrizeSlot(catalog, result);
     if (winningSlot < 1) {
       gamblingResultLabel.setText("Prize received.");
