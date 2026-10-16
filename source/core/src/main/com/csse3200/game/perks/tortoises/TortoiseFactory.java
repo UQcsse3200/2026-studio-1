@@ -1,4 +1,4 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.perks.tortoises;
 
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;

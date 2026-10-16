@@ -32,18 +32,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
 public class ArrowFactoryProjectileBaseTest {
-  private static final String texturePath = "images/items/arrow.png";
-  private static final BodyDef.BodyType bodyType = BodyDef.BodyType.KinematicBody;
-  private static final ProjectileMovementStrategy movement =
+  private static final String ARROW_IMAGE = "images/items/arrow.png";
+  private static final BodyDef.BodyType BODY_TYPE = BodyDef.BodyType.KinematicBody;
+  private static final ProjectileMovementStrategy PROJECTILE_MOVEMENT_STRATEGY =
       new AimedLineMovementStrategy(2.0f, new Vector2(20, 20));
-  private static final float maxRange = 5.9f;
-  private static final int damage = 3;
-  private static final float knockback = 2.9f;
-  private static final short targetLayer = PhysicsLayer.PLAYER;
-  private static final short blockingLayer = PhysicsLayer.OBSTACLE;
-  private static final Vector2 position = new Vector2(3, 2);
-  private static final Vector2 scale = new Vector2(1.5f, 1.5f);
-  private static final boolean mirrored = false;
+  private static final float MAX_RANGE = 5.9f;
+  private static final int DAMAGE = 3;
+  private static final float KNOCKBACK = 2.9f;
+  private static final short TARGET_LAYER = PhysicsLayer.PLAYER;
+  private static final short BLOCKING_LAYER = PhysicsLayer.OBSTACLE;
+  private static final Vector2 POSITION = new Vector2(3, 2);
+  private static final Vector2 SCALE = new Vector2(1.5f, 1.5f);
+  private static final boolean MIRRORED = false;
 
   @BeforeEach
   void setUp() {
@@ -67,157 +67,157 @@ public class ArrowFactoryProjectileBaseTest {
         () ->
             ArrowFactory.createProjectileBase(
                 null,
-                bodyType,
-                movement,
-                maxRange,
-                damage,
-                knockback,
-                targetLayer,
-                blockingLayer,
-                position,
-                scale,
-                mirrored),
+                BODY_TYPE,
+                PROJECTILE_MOVEMENT_STRATEGY,
+                MAX_RANGE,
+                DAMAGE,
+                KNOCKBACK,
+                TARGET_LAYER,
+                BLOCKING_LAYER,
+                POSITION,
+                SCALE,
+                MIRRORED),
         "texturePath must not be blank");
     assertThrows(
         IllegalArgumentException.class,
         () ->
             ArrowFactory.createProjectileBase(
                 "",
-                bodyType,
-                movement,
-                maxRange,
-                damage,
-                knockback,
-                targetLayer,
-                blockingLayer,
-                position,
-                scale,
-                mirrored),
+                BODY_TYPE,
+                PROJECTILE_MOVEMENT_STRATEGY,
+                MAX_RANGE,
+                DAMAGE,
+                KNOCKBACK,
+                TARGET_LAYER,
+                BLOCKING_LAYER,
+                POSITION,
+                SCALE,
+                MIRRORED),
         "texturePath must not be blank");
   }
 
   @Test
-  public void shouldRejectNullBodyType() {
+  void shouldRejectNullBodyType() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
             ArrowFactory.createProjectileBase(
-                texturePath,
+                ARROW_IMAGE,
                 null,
-                movement,
-                maxRange,
-                damage,
-                knockback,
-                targetLayer,
-                blockingLayer,
-                position,
-                scale,
-                mirrored),
+                PROJECTILE_MOVEMENT_STRATEGY,
+                MAX_RANGE,
+                DAMAGE,
+                KNOCKBACK,
+                TARGET_LAYER,
+                BLOCKING_LAYER,
+                POSITION,
+                SCALE,
+                MIRRORED),
         "bodyType must not be null");
   }
 
   @Test
-  public void shouldRejectNullMovement() {
+  void shouldRejectNullMovement() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
             ArrowFactory.createProjectileBase(
-                texturePath,
-                bodyType,
+                ARROW_IMAGE,
+                BODY_TYPE,
                 null,
-                maxRange,
-                damage,
-                knockback,
-                targetLayer,
-                blockingLayer,
-                position,
-                scale,
-                mirrored),
+                MAX_RANGE,
+                DAMAGE,
+                KNOCKBACK,
+                TARGET_LAYER,
+                BLOCKING_LAYER,
+                POSITION,
+                SCALE,
+                MIRRORED),
         "texturePath must not be blank");
   }
 
   @Test
-  public void shouldRejectNullPosition() {
+  void shouldRejectNullPosition() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
             ArrowFactory.createProjectileBase(
-                texturePath,
-                bodyType,
-                movement,
-                maxRange,
-                damage,
-                knockback,
-                targetLayer,
-                blockingLayer,
+                ARROW_IMAGE,
+                BODY_TYPE,
+                PROJECTILE_MOVEMENT_STRATEGY,
+                MAX_RANGE,
+                DAMAGE,
+                KNOCKBACK,
+                TARGET_LAYER,
+                BLOCKING_LAYER,
                 null,
-                scale,
-                mirrored),
+                SCALE,
+                MIRRORED),
         "Position must not be null");
   }
 
   /** checks a exception is thrown for null scale */
   @Test
-  public void shouldRejectANullScale() {
+  void shouldRejectANullScale() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
             ArrowFactory.createProjectileBase(
-                texturePath,
-                bodyType,
-                movement,
-                maxRange,
-                damage,
-                knockback,
-                targetLayer,
-                blockingLayer,
-                position,
+                ARROW_IMAGE,
+                BODY_TYPE,
+                PROJECTILE_MOVEMENT_STRATEGY,
+                MAX_RANGE,
+                DAMAGE,
+                KNOCKBACK,
+                TARGET_LAYER,
+                BLOCKING_LAYER,
+                POSITION,
                 null,
-                mirrored),
+                MIRRORED),
         "Should throw exception for scale being null");
   }
 
   /** Checks that scale works with valid scale vector input */
   @Test
-  public void shouldBuildWithValidScale() {
+  void shouldBuildWithValidScale() {
     Entity projectile =
         ArrowFactory.createProjectileBase(
-            texturePath,
-            bodyType,
-            movement,
-            maxRange,
-            damage,
-            knockback,
-            targetLayer,
-            blockingLayer,
-            position,
-            scale,
-            mirrored);
+            ARROW_IMAGE,
+            BODY_TYPE,
+            PROJECTILE_MOVEMENT_STRATEGY,
+            MAX_RANGE,
+            DAMAGE,
+            KNOCKBACK,
+            TARGET_LAYER,
+            BLOCKING_LAYER,
+            POSITION,
+            SCALE,
+            MIRRORED);
     assertEquals(
-        scale.x,
+        SCALE.x,
         projectile.getScale().x,
-        "Expected x axis scale was " + scale.x + " but scale was " + projectile.getScale().x);
+        "Expected x axis scale was " + SCALE.x + " but scale was " + projectile.getScale().x);
     assertEquals(
-        scale.y,
+        SCALE.y,
         projectile.getScale().y,
-        "Expected y axis scale was " + scale.y + " but scale was " + projectile.getScale().y);
+        "Expected y axis scale was " + SCALE.y + " but scale was " + projectile.getScale().y);
   }
 
   @Test
-  public void shouldBuildWithValidComponentsPresent() {
+  void shouldBuildWithValidComponentsPresent() {
     Entity projectile =
         ArrowFactory.createProjectileBase(
-            texturePath,
-            bodyType,
-            movement,
-            maxRange,
-            damage,
-            knockback,
-            targetLayer,
-            blockingLayer,
-            position,
-            scale,
-            mirrored);
+            ARROW_IMAGE,
+            BODY_TYPE,
+            PROJECTILE_MOVEMENT_STRATEGY,
+            MAX_RANGE,
+            DAMAGE,
+            KNOCKBACK,
+            TARGET_LAYER,
+            BLOCKING_LAYER,
+            POSITION,
+            SCALE,
+            MIRRORED);
     assertNotNull(
         projectile.getComponent(ProjectileComponent.class),
         "Projectile must have a Projectile component.");
@@ -238,105 +238,106 @@ public class ArrowFactoryProjectileBaseTest {
   }
 
   @Test
-  public void shouldBuildWithValidDamageAndKnockback() {
+  void shouldBuildWithValidDamageAndKnockback() {
     Entity projectile =
         ArrowFactory.createProjectileBase(
-            texturePath,
-            bodyType,
-            movement,
-            maxRange,
-            damage,
-            knockback,
-            targetLayer,
-            blockingLayer,
-            position,
-            scale,
-            mirrored);
-    assertEquals(damage, projectile.getComponent(CombatStatsComponent.class).getBaseAttack());
+            ARROW_IMAGE,
+            BODY_TYPE,
+            PROJECTILE_MOVEMENT_STRATEGY,
+            MAX_RANGE,
+            DAMAGE,
+            KNOCKBACK,
+            TARGET_LAYER,
+            BLOCKING_LAYER,
+            POSITION,
+            SCALE,
+            MIRRORED);
+    assertEquals(DAMAGE, projectile.getComponent(CombatStatsComponent.class).getBaseAttack());
     assertEquals(
-        knockback, projectile.getComponent(ProjectileHitComponent.class).getKnockbackForce());
+        KNOCKBACK, projectile.getComponent(ProjectileHitComponent.class).getKnockbackForce());
   }
 
   @Test
-  public void shouldBuildWithValidBodyTypeAndPhysicsLayers() {
+  void shouldBuildWithValidBodyTypeAndPhysicsLayers() {
     Entity projectile =
         ArrowFactory.createProjectileBase(
-            texturePath,
-            bodyType,
-            movement,
-            maxRange,
-            damage,
-            knockback,
-            targetLayer,
-            blockingLayer,
-            position,
-            scale,
-            mirrored);
-    assertEquals(bodyType, projectile.getComponent(PhysicsComponent.class).getBody().getType());
+            ARROW_IMAGE,
+            BODY_TYPE,
+            PROJECTILE_MOVEMENT_STRATEGY,
+            MAX_RANGE,
+            DAMAGE,
+            KNOCKBACK,
+            TARGET_LAYER,
+            BLOCKING_LAYER,
+            POSITION,
+            SCALE,
+            MIRRORED);
+    assertEquals(BODY_TYPE, projectile.getComponent(PhysicsComponent.class).getBody().getType());
     assertEquals(
-        targetLayer, projectile.getComponent(ProjectileHitComponent.class).getTargetLayer());
+        TARGET_LAYER, projectile.getComponent(ProjectileHitComponent.class).getTargetLayer());
     assertEquals(
-        blockingLayer, projectile.getComponent(ProjectileHitComponent.class).getBlockingLayer());
+        BLOCKING_LAYER, projectile.getComponent(ProjectileHitComponent.class).getBlockingLayer());
   }
 
   @Test
-  public void shouldBuildWithValidMovementStrategyAndRange() {
+  void shouldBuildWithValidMovementStrategyAndRange() {
     Entity projectile =
         ArrowFactory.createProjectileBase(
-            texturePath,
-            bodyType,
-            movement,
-            maxRange,
-            damage,
-            knockback,
-            targetLayer,
-            blockingLayer,
-            position,
-            scale,
-            mirrored);
+            ARROW_IMAGE,
+            BODY_TYPE,
+            PROJECTILE_MOVEMENT_STRATEGY,
+            MAX_RANGE,
+            DAMAGE,
+            KNOCKBACK,
+            TARGET_LAYER,
+            BLOCKING_LAYER,
+            POSITION,
+            SCALE,
+            MIRRORED);
     assertEquals(
-        movement, projectile.getComponent(ProjectileComponent.class).getMovementStrategy());
-    assertEquals(maxRange, projectile.getComponent(ProjectileComponent.class).getMaxRange());
+        PROJECTILE_MOVEMENT_STRATEGY,
+        projectile.getComponent(ProjectileComponent.class).getMovementStrategy());
+    assertEquals(MAX_RANGE, projectile.getComponent(ProjectileComponent.class).getMaxRange());
   }
 
   public void shouldNotBeFlippedOnDefault() {
     Entity projectile =
         ArrowFactory.createProjectileBase(
-            texturePath,
-            bodyType,
-            movement,
-            maxRange,
-            damage,
-            knockback,
-            targetLayer,
-            blockingLayer,
-            position,
-            scale,
-            mirrored);
+            ARROW_IMAGE,
+            BODY_TYPE,
+            PROJECTILE_MOVEMENT_STRATEGY,
+            MAX_RANGE,
+            DAMAGE,
+            KNOCKBACK,
+            TARGET_LAYER,
+            BLOCKING_LAYER,
+            POSITION,
+            SCALE,
+            MIRRORED);
     assertFalse(
         projectile.getComponent(TextureRenderComponent.class).isFlipX(),
-        "When mirrored is false; " + "mirrored is: " + mirrored + "Image should not be flipped.");
+        "When mirrored is false; " + "mirrored is: " + MIRRORED + "Image should not be flipped.");
   }
 
   @Test
-  public void shouldMirrorThePictureWhenAsked() {
+  void shouldMirrorThePictureWhenAsked() {
     // note that the default mirrored value is false; so !mirrored = true which is what is wanted
     // for this test
     Entity projectile =
         ArrowFactory.createProjectileBase(
-            texturePath,
-            bodyType,
-            movement,
-            maxRange,
-            damage,
-            knockback,
-            targetLayer,
-            blockingLayer,
-            position,
-            scale,
-            !mirrored);
+            ARROW_IMAGE,
+            BODY_TYPE,
+            PROJECTILE_MOVEMENT_STRATEGY,
+            MAX_RANGE,
+            DAMAGE,
+            KNOCKBACK,
+            TARGET_LAYER,
+            BLOCKING_LAYER,
+            POSITION,
+            SCALE,
+            !MIRRORED);
     assertTrue(
         projectile.getComponent(TextureRenderComponent.class).isFlipX(),
-        "When mirrored is true; " + "mirrored is: " + mirrored + "Image should also be flipped.");
+        "When mirrored is true; " + "mirrored is: " + MIRRORED + "Image should also be flipped.");
   }
 }

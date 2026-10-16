@@ -1,8 +1,10 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.perks.tortoises;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.perks.PerkDefinitions;
+import com.csse3200.game.perks.PerkService;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.win.TortoiseLedger;

@@ -1,7 +1,8 @@
-package com.csse3200.game.perks;
+package com.csse3200.game.perks.tortoises;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.csse3200.game.perks.PerkService;
 
 /**
  * Tracks which hidden tortoises have already been found - independent of the current save file, the

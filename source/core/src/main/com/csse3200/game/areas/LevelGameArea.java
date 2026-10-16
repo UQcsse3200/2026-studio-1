@@ -45,11 +45,7 @@ import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.factories.LootFactory;
-import com.csse3200.game.entities.factories.NPCFactory;
-import com.csse3200.game.entities.factories.ObstacleFactory;
-import com.csse3200.game.entities.factories.PlayerFactory;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.factories.*;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.entities.spawn.PersistentNpcComponent;
@@ -58,7 +54,8 @@ import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
 import com.csse3200.game.entities.spawn.enemies.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
-import com.csse3200.game.perks.TortoiseFactory;
+import com.csse3200.game.perks.tortoises.TortoiseCarrierAssigner;
+import com.csse3200.game.perks.tortoises.TortoiseFactory;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -310,7 +307,7 @@ public class LevelGameArea extends GameArea {
 
   @Override
   public void create() {
-    DefaultEntitySpawns.registerAll();
+    EnemyFactory.registerEnemySpawns();
     NPCFactory.registerNpcSpawns();
     mapData = mapLoader.load(mapPath);
     loadAssets();
@@ -917,6 +914,10 @@ public class LevelGameArea extends GameArea {
   }
 
   private void spawnEnemies() {
+    List<Entity> enemies = new ArrayList<>();
+    List<GridPoint2> positions = new ArrayList<>();
+
+    // 1. Build every enemy but do not register or create any yet.
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
       String id = EnemyId.of(mapData.getName(), spawn.getPosition());
       if (EnemyRegistry.isKilled(id)) {
@@ -924,20 +925,47 @@ public class LevelGameArea extends GameArea {
         continue;
       }
       Entity enemy = createEnemy(spawn.getType());
-      if (enemy != null) {
-        enemy.addComponent(new PersistentEnemyIdComponent(id));
-        armWinTrigger(enemy, id);
-
-        if (enemy.getComponent(NameComponent.class) != null) {
-          enemy.addComponent(new NameDisplay(enemy, worldCamera));
-        }
-        spawnEntityAt(enemy, spawn.getPosition(), true, true);
-        logger.info(
-            "Enemy: {} spawned at {}",
-            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
-            enemy.getPosition());
+      if (enemy == null) {
+        continue;
       }
+      enemy.addComponent(new PersistentEnemyIdComponent(id));
+      armWinTrigger(enemy, id);
+      if (enemy.getComponent(NameComponent.class) != null) {
+        enemy.addComponent(new NameDisplay(enemy, worldCamera));
+      }
+      enemies.add(enemy);
+      positions.add(spawn.getPosition());
     }
+
+    // 2. Hand out tortoises while the enemies can still accept a component.
+    List<String> groundIds =
+        TortoiseCarrierAssigner.assign(mapData.getName(), enemies, new Random());
+
+    // 3. Now register/create them.
+    for (int i = 0; i < enemies.size(); i++) {
+      Entity enemy = enemies.get(i);
+      spawnEntityAt(enemy, positions.get(i), true, true);
+      logger.info(
+          "Enemy: {} spawned at {}",
+          enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+          enemy.getPosition());
+    }
+
+    // 4. Tortoises with no carrier (none eligible, or the carrier is already dead) go on the
+    // ground.
+    for (int i = 0; i < groundIds.size(); i++) {
+      spawnTortoiseIfNotFound(groundIds.get(i), fallbackSpawn(i));
+    }
+  }
+
+  /** A spot near the player's start, spread out so several ground tortoises do not stack. */
+  private GridPoint2 fallbackSpawn(int index) {
+    GridPoint2 start = mapData.getSpawns().getPlayer();
+    if (start == null) {
+      start = new GridPoint2(1, 1);
+    }
+    int x = Math.min(start.x + 3 + index * 2, Math.max(0, mapData.getWidth() - 2));
+    return new GridPoint2(x, start.y);
   }
 
   /**
