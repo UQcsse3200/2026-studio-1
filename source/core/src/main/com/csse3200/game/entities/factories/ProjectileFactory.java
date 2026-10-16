@@ -22,16 +22,16 @@ import com.csse3200.game.physics.PhysicsLayer;
 public class ProjectileFactory {
 
   /** Placeholder until a rock sprite exists, for example the arrow image. */
-  private static final String ROCK_TEXTURE = "images/items/arrow.png";
+  private static final String ROCK_TEXTURE = "images/items/rock.png";
 
   /** Placeholder until a laser sprite exists. */
-  private static final String LASER_TEXTURE = "images/items/arrow.png";
+  private static final String LASER_TEXTURE = "images/items/laser.png";
 
   /** A rock is a small square sprite. */
   private static final Vector2 ROCK_SCALE = new Vector2(0.5f, 0.5f);
 
   /** A laser is long and thin. */
-  private static final Vector2 LASER_SCALE = new Vector2(1.2f, 0.12f);
+  private static final Vector2 LASER_SCALE = new Vector2(1.2f, 0.38f);
 
   private ProjectileFactory() {
     // utility class
