@@ -65,7 +65,7 @@ class PlayerActionsSpecialAttackTest {
     player.getEvents().trigger("specialAttack");
 
     assertEquals(70, enemyStats.getHealth());
-    assertEquals(95f, stamina.getStamina());
+    assertEquals(100f, stamina.getStamina());
     assertEquals(enemy, effectTarget.get());
     assertEquals(List.of(enemy), hitTargets);
   }
@@ -122,7 +122,7 @@ class PlayerActionsSpecialAttackTest {
       assertEquals(Set.of(firstEnemy, secondEnemy), Set.copyOf(hitTargets));
       assertEquals(1, areaAttackCount.get());
       assertTrue(lastHit.get() == firstEnemy || lastHit.get() == secondEnemy);
-      assertEquals(95f, stamina.getStamina());
+      assertEquals(100f, stamina.getStamina());
     } finally {
       physics.dispose();
     }

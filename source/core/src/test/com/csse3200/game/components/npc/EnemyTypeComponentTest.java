@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.csse3200.game.components.EnemyType;
+import com.csse3200.game.components.enemies.EnemyTypeComponent;
 import org.junit.jupiter.api.Test;
 
 /** Tests {@link EnemyTypeComponent}, which turns an {@link EnemyType} into a readable label. */

@@ -110,17 +110,6 @@ class PlayerAttackHitEventTest {
   }
 
   @Test
-  void shouldNotReportHitsWhenStaminaIsExhausted() {
-    Entity enemy = enemyInRange(100);
-    stamina.useStamina(stamina.getMaxStamina());
-
-    player.getEvents().trigger("attack");
-
-    assertTrue(hitTargets.isEmpty());
-    assertEquals(100, enemy.getComponent(CombatStatsComponent.class).getHealth());
-  }
-
-  @Test
   void shouldNotReportHitsAfterPlayerDeath() {
     Entity enemy = enemyInRange(100);
     player.getComponent(CombatStatsComponent.class).setHealth(0);

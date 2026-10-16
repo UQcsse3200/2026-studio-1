@@ -1,5 +1,6 @@
 package com.csse3200.game.pausemenu;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.loot.ConsumableItem;
@@ -9,25 +10,29 @@ import com.csse3200.game.components.loot.LootRegistry;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.pet.PetManagerComponent;
-import com.csse3200.game.components.player.ActiveBuff;
-import com.csse3200.game.components.player.InventoryComponent;
-import com.csse3200.game.components.player.PlayerBuffComponent;
-import com.csse3200.game.components.player.PlayerRegenComponent;
-import com.csse3200.game.components.player.ShopComponent;
-import com.csse3200.game.components.player.StaminaComponent;
+import com.csse3200.game.components.player.*;
+import com.csse3200.game.components.player.BallisticShieldComponent;
+import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
-import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.NpcQuestRegistry;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.SaveService;
 import com.csse3200.game.files.SavedBuff;
 import com.csse3200.game.files.SavedItem;
 import com.csse3200.game.files.SavedLoot;
+import com.csse3200.game.files.SavedPerk;
 import com.csse3200.game.files.SavedUpgrade;
+import com.csse3200.game.perks.Perk;
+import com.csse3200.game.perks.PerkService;
+import com.csse3200.game.perks.tortoises.TortoisePlan;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.upgrades.UpgradeNode;
+import com.csse3200.game.win.QuestLedger;
+import com.csse3200.game.win.TortoiseLedger;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -124,15 +129,34 @@ public class PauseMenuActions extends Component {
     data.lootSeedsByRoom = lootSeedsSupplier.get();
     data.collectedLootIds = LootRegistry.exportAll();
     data.killedEnemyIds = EnemyRegistry.exportAll();
+    data.completedQuestsByKind = QuestLedger.exportAll();
+    data.foundTortoiseIds = TortoiseLedger.exportAll();
+    data.perks = new java.util.ArrayList<>();
+    for (Perk perk : PerkService.getAllPerks()) {
+      SavedPerk savedPerk = new SavedPerk();
+      savedPerk.id = perk.getId();
+      savedPerk.progress = perk.getProgress();
+      savedPerk.unlocked = perk.isUnlocked();
+      savedPerk.active = perk.isActive();
+      data.perks.add(savedPerk);
+    }
+
+    data.npcs = NpcQuestRegistry.exportAll();
+    data.killedNpcIds = NpcQuestRegistry.exportKilled();
+    data.tortoiseTotal = TortoiseLedger.getTotal();
+    data.tortoisePlan = TortoisePlan.exportAll();
+    int[] questCounters = Quest.exportCounters();
+    data.questJumps = questCounters[0];
+    data.questEnemiesKilled = questCounters[1];
+    data.questGoldSpent = questCounters[2];
+    data.questShieldsCollected = questCounters[3];
     data.level = levelSupplier.get();
 
-    ShopComponent shop = player.getComponent(ShopComponent.class);
-    if (shop != null) {
-      data.ownedPetNames =
-          shop.getPurchasedPets().stream()
-              .map(ShopComponent.Pet::getName)
-              .collect(java.util.stream.Collectors.toList());
-    }
+    data.ownedPetNames =
+        inventory.getPetSlots().entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .map(entry -> entry.getValue().getName())
+            .collect(java.util.stream.Collectors.toList());
 
     PetManagerComponent petManager = player.getComponent(PetManagerComponent.class);
     if (petManager != null) {
@@ -142,6 +166,23 @@ public class PauseMenuActions extends Component {
     data.difficulty = DifficultyService.getCurrent().name();
 
     data.shieldHits = stats.getShieldHits();
+
+    ShieldComponent shield = player.getComponent(ShieldComponent.class);
+    if (shield != null) {
+      data.shieldHeld = shield.hasShield();
+      data.shieldRemainingMillis = shield.getRemainingMillis();
+    }
+
+    ShopComponent shopForStock = player.getComponent(ShopComponent.class);
+    if (shopForStock != null) {
+      data.shopItemSlots = new java.util.ArrayList<>(shopForStock.getItemCatalog().keySet());
+    }
+
+    BallisticShieldComponent ballisticShield = player.getComponent(BallisticShieldComponent.class);
+    if (ballisticShield != null) {
+      data.ballisticShieldHeld = ballisticShield.hasShield();
+      data.ballisticShieldRemainingMillis = ballisticShield.getRemainingMillis();
+    }
 
     GameTime timeSource = ServiceLocator.getTimeSource();
     PlayerBuffComponent buffs = player.getComponent(PlayerBuffComponent.class);

@@ -98,4 +98,22 @@ public class ProjectileComponent extends Component {
     entity.setEnabled(false);
     entity.setPosition(DESPAWN_POSITION, DESPAWN_POSITION);
   }
+
+  /**
+   * Retrieves predetermined movement strategy for the projectile
+   *
+   * @return {@link ProjectileMovementStrategy} type for projectile being created.
+   */
+  public ProjectileMovementStrategy getMovementStrategy() {
+    return movementStrategy;
+  }
+
+  /**
+   * retrieves max range projectile will travel prior to rejection.
+   *
+   * @return range of projectile
+   */
+  public float getMaxRange() {
+    return maxRange;
+  }
 }

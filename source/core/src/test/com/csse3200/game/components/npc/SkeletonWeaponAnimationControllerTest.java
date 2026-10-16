@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.csse3200.game.components.ComponentPriority;
+import com.csse3200.game.components.enemies.animation.SkeletonWeaponAnimationController;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.rendering.EnemyWeaponAnimationComponent;

@@ -26,4 +26,50 @@ public class GameSaveData {
   public int regenHealPerTick;
   public float regenRemainingSeconds;
   public List<SavedLoot> droppedLoot = new ArrayList<>();
+
+  /** How many quests of each kind have been completed, for the win screen. */
+  public Map<String, Integer> completedQuestsByKind = new HashMap<>();
+
+  /** The ids of the hidden tortoises found so far, for the win screen. */
+  public List<String> foundTortoiseIds = new ArrayList<>();
+
+  /** Quest state of every friendly NPC met so far. */
+  public List<SavedNpc> npcs = new ArrayList<>();
+
+  /** Ids of friendly NPCs that were killed. */
+  public List<String> killedNpcIds = new ArrayList<>();
+
+  /** Quest counters, so quests in progress carry on from the right point. */
+  public int questJumps;
+
+  public int questEnemiesKilled;
+  public int questGoldSpent;
+  public int questShieldsCollected;
+
+  /** Stored tortoise total so it isn't recreated every time */
+  public int tortoiseTotal;
+
+  /**
+   * A saved plan of where each tortoise component is being created across the game, and storing
+   * which ones have already been found and collected
+   */
+  public Map<String, Integer> tortoisePlan = new HashMap<>();
+
+  /** Whether a shield was picked up but not used yet. */
+  public boolean shieldHeld;
+
+  /** Time left on an active shield, in milliseconds. Zero means not active. */
+  public long shieldRemainingMillis;
+
+  /** Whether a Ballistic Shield was picked up but not used yet. */
+  public boolean ballisticShieldHeld;
+
+  /** Time left on an active Ballistic Shield, in milliseconds. Zero means not active. */
+  public long ballisticShieldRemainingMillis;
+
+  /** Item shop slots still in stock. Null in older saves, which means do not change the shop. */
+  public List<Integer> shopItemSlots = null;
+
+  /** State of every perk. Null in older saves, which means leave the perks as they are. */
+  public List<SavedPerk> perks = null;
 }

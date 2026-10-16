@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.badlogic.gdx.math.GridPoint2;
+import com.csse3200.game.entities.spawn.enemies.EnemyId;
 import org.junit.jupiter.api.Test;
 
 /** Tests {@link EnemyId}, which names an enemy spawn point by its room and tile position. */
