@@ -1,6 +1,7 @@
 package com.csse3200.game.components.enemies.attacks;
 
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.effects.FrozenCause;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.configs.enemies.attacks.PetrifyConfig;
 
@@ -140,8 +141,9 @@ public class PetrifyEffectComponent extends Component {
   }
 
   /**
-   * Petrifies {@code target} by triggering its {@code APPLY_SPEED_EFFECT_EVENT}; a no-op if the
-   * target is null or has no {@code SpeedEffectComponent} listening for it.
+   * Petrifies {@code target} by triggering its {@code APPLY_SPEED_EFFECT_EVENT}, after telling it
+   * the cause ({@link FrozenCause#PETRIFIED}) so the screen can show it; a no-op if the target is
+   * null or has no {@code SpeedEffectComponent} listening for it.
    *
    * @param target the entity that was hit
    */
@@ -149,6 +151,7 @@ public class PetrifyEffectComponent extends Component {
     if (target == null) {
       return;
     }
+    target.getEvents().trigger(FrozenCause.STATUS_CAUSE_EVENT, FrozenCause.PETRIFIED);
     target.getEvents().trigger(APPLY_SPEED_EFFECT_EVENT, petrifyTicks, PETRIFY_SPEED_MULTIPLIER);
   }
 }
