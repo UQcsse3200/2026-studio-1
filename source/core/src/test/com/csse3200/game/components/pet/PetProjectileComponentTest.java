@@ -254,6 +254,58 @@ class PetProjectileComponentTest {
     }
   }
 
+  @Test
+  void shouldIgnoreAttackEventsWhileSpawnerIsDisabledAndResumeForNewRequests() {
+    Entity ignoredTarget = createEnemy(4f, 0f, 100, null);
+    Entity nextTarget = createEnemy(6f, 3f, 100, null);
+    PetProjectileSpawnerComponent spawner = pet.getComponent(PetProjectileSpawnerComponent.class);
+    int initialBodyCount = physics.getWorld().getBodyCount();
+    spawner.setEnabled(false);
+
+    // Disabling a component does not remove its event listeners.
+    pet.getEvents().trigger("petAttack", ignoredTarget);
+
+    assertTrue(entities.getEntitiesWithComponent(PetProjectileComponent.class).isEmpty());
+    assertEquals(initialBodyCount, physics.getWorld().getBodyCount());
+
+    spawner.setEnabled(true);
+    entities.update();
+    assertNull(findPetProjectile(), "Ignored requests must not fire when the spawner is enabled.");
+    pet.getEvents().trigger("petAttack", nextTarget);
+
+    assertEquals(1, entities.getEntitiesWithComponent(PetProjectileComponent.class).size());
+    assertEquals(initialBodyCount + 1, physics.getWorld().getBodyCount());
+    Entity projectile = findPetProjectile();
+    assertNotNull(projectile);
+    flyUntilDisposed(projectile);
+    assertEquals(100, health(ignoredTarget));
+    assertEquals(95, health(nextTarget));
+  }
+
+  @Test
+  void shouldIgnoreLateAttackEventsFromReplacedPetAndAllowNewPetToFire() {
+    Entity target = createEnemy(4f, 0f, 100, null);
+    Entity previousPet = pet;
+    activatePet(PetType.BAT);
+    assertTrue(previousPet.isDisposed());
+    int initialBodyCount = physics.getWorld().getBodyCount();
+
+    // A stale reference can still emit events after the old pet has been disposed.
+    previousPet.getEvents().trigger("petAttack", target);
+
+    assertTrue(entities.getEntitiesWithComponent(PetProjectileComponent.class).isEmpty());
+    assertEquals(initialBodyCount, physics.getWorld().getBodyCount());
+
+    pet.getEvents().trigger("petAttack", target);
+
+    assertEquals(1, entities.getEntitiesWithComponent(PetProjectileComponent.class).size());
+    assertEquals(initialBodyCount + 1, physics.getWorld().getBodyCount());
+    Entity projectile = findPetProjectile();
+    assertNotNull(projectile);
+    flyUntilDisposed(projectile);
+    assertEquals(95, health(target));
+  }
+
   @ParameterizedTest
   @ValueSource(floats = {0f, 45f, 90f, 180f})
   void shouldWaveOnBothSidesOfTheFiringDirection(float angle) {
