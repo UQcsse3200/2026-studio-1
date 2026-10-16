@@ -329,10 +329,11 @@ public class ShopComponent extends Component {
    * used to cancel item results for free.
    *
    * <p>On success the prize is chosen by weight ({@code P = weight / sum(weights)}, see {@link
-   * GamblingRoller}), delivered, and then the spin price is deducted, matching {@link
-   * #buyItem(int)}. An {@link GamblingCatalogs.ItemPrize} adds a new typed item to the inventory; a
-   * {@link GamblingCatalogs.GoldPrize} adds gold; a {@link Pet} or {@link Upgrade} is recorded like
-   * a purchase and triggers {@code petPurchased} or {@code upgradePurchased} without charging its
+   * GamblingRoller}), delivered, and then the spin price is deducted and recorded as gold spent for
+   * quests (the ticket price, not the net after a gold prize), matching {@link #buyItem(int)}. An
+   * {@link GamblingCatalogs.ItemPrize} adds a new typed item to the inventory; a {@link
+   * GamblingCatalogs.GoldPrize} adds gold; a {@link Pet} or {@link Upgrade} is recorded like a
+   * purchase and triggers {@code petPurchased} or {@code upgradePurchased} without charging its
    * shop price. These events fire after the spin price is deducted, so listeners see the final
    * gold.
    *
@@ -363,6 +364,7 @@ public class ShopComponent extends Component {
     }
 
     inventory.addGold(-spinPrice);
+    Quest.addGlobalGoldSpent(spinPrice);
     notifyPrizeDelivered(prize.product());
     if (entity != null) {
       entity.getEvents().trigger("gamblingSpun", catalogId, slot);
