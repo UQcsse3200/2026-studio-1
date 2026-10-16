@@ -230,10 +230,6 @@ public class CyclopsAnimationController extends Component {
     onRockThrow(null);
   }
 
-  private void onLaserStart() {
-    onLaserAttack(null);
-  }
-
   private void onMeleeAttack(Entity target) {
     if (isAttacking) {
       return;

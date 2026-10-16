@@ -32,6 +32,10 @@ public class ProjectileFactory {
   private static final Vector2 LASER_SCALE = new Vector2(1.2f, 0.5f);
   private static final Vector2 ROCK_SCALE = new Vector2(0.5f, 0.5f);
 
+  private ProjectileFactory() {
+    // Utility class
+  }
+
   /**
    * Creates a lightning bolt that spawns in the sky above a target position and falls straight
    * down. On contact with {@code targetLayer} it deals damage and freezes the target via the
@@ -54,39 +58,14 @@ public class ProjectileFactory {
       int freezeTicks,
       short targetLayer) {
 
-    // Entity position is the bottom-left corner, so shift left by half the width to centre the
-    // bolt on the target, and spawn it skyOffset above.
-    //    Vector2 position =
-    //        targetPosition
-    //            .cpy()
-    //            .sub(targetPosition.x - LIGHTNING_SCALE.x / 2f, targetPosition.y + skyOffset);
-    //
-    //    float range = skyOffset + 2f;
-    //
-    //    Entity bolt =
-    //        ArrowFactory.createProjectileBase(
-    //            LIGHTNING_IMAGE,
-    //            BodyType.KinematicBody,
-    //            new VerticalMovementStrategy(speed),
-    //            range,
-    //            damage,
-    //            0f,
-    //            targetLayer,
-    //            PhysicsLayer.NONE,
-    //            position,
-    //            LIGHTNING_SCALE.cpy(),
-    //            false);
-    //    bolt.addComponent(new LightningFreezeComponent(freezeTicks));
-
     Entity bolt =
         new Entity()
             .addComponent(new TextureRenderComponent(LIGHTNING_IMAGE))
             .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
             .addComponent(new HitboxComponent())
             .addComponent(new CombatStatsComponent(1, damage))
-            // No blocking layer: lightning strikes through platforms. Pass PhysicsLayer
-            // .OBSTACLE
-            // instead to have ceilings to shield the player.
+            // No blocking layer: lightning strikes through platforms.
+            // Pass PhysicsLayer.OBSTACLE instead to have ceilings to shield the player.
             .addComponent(new ProjectileHitComponent(targetLayer, PhysicsLayer.NONE, 0f))
             .addComponent(new LightningFreezeComponent(freezeTicks))
             .addComponent(
