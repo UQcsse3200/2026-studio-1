@@ -411,6 +411,18 @@ public class ShopComponent extends Component {
   }
 
   /**
+   * Returns whether {@code item} can be sold.
+   *
+   * <p>Stub: every item is reported as sellable until unpriced items are rejected.
+   *
+   * @param item inventory item to check
+   * @return {@code true}
+   */
+  public boolean isSellable(Item item) {
+    return true;
+  }
+
+  /**
    * Returns the gold refund for selling {@code item}.
    *
    * <p>Uses {@link Item#getSellPrice()} stored on the inventory item. Bought items are stamped at
