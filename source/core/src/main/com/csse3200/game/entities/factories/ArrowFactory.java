@@ -168,7 +168,8 @@ public class ArrowFactory {
     configureFlightBody(arrow);
     arrow.setPosition(position);
     arrow.setScale(0.5f, 0.2f);
-    arrow.getComponent(TextureRenderComponent.class).setFlipX(direction.x < 0f);
+    // Arrow shooting right = 0 degrees, up = 90 degrees, left = 180 degrees, down = 270 degrees
+    arrow.getComponent(TextureRenderComponent.class).setRotationDegrees(direction.angleDeg());
     return arrow;
   }
 
