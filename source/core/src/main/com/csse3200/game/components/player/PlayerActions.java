@@ -566,41 +566,33 @@ public class PlayerActions extends Component {
     }
   }
 
-  
-private void slide(boolean pressed) {
-  // Always allow the slide to stop when the key is released.
-  if (!pressed) {
-    sliding = false;
-    return;
-  }
-
-  // Do not consume stamina if the player is stationary.
-  if (walkDirection.isZero()) {
-    return;
-  }
-
-  if (dead || frozen) {
-    return;
-  }
-
-  if (staminaComponent == null
-      || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
-    return;
-
-      sliding = true;
-      slideTimer = 0;
-      slidingAction(walkDirection.cpy());
-    } else {
+  private void slide(boolean pressed) {
+    // Always allow the slide to stop when the key is released.
+    if (!pressed) {
       sliding = false;
+      return;
     }
+
+    // Do not consume stamina if the player is stationary.
+    if (walkDirection.isZero()) {
+      return;
+    }
+
+    if (dead || frozen) {
+      return;
+    }
+
+    if (staminaComponent == null
+        || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
+      return;
+    }
+
+    staminaComponent.useStamina(staminaComponent.getSlideCost());
+
+    sliding = true;
+    slideTimer = 0;
+    slidingAction(walkDirection.cpy());
   }
-
-  staminaComponent.useStamina(staminaComponent.getSlideCost());
-
-  sliding = true;
-  SlideTimer = 0;
-  slidingAction(walkDirection.cpy());
-}
 
   private void slidingAction(Vector2 direction) {
     Body body = physicsComponent.getBody();
