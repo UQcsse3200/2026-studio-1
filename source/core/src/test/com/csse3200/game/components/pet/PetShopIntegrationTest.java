@@ -203,6 +203,58 @@ class PetShopIntegrationTest {
     }
   }
 
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldFlyAcrossOwnerAndBackWithPhysicsAndAnimations(PetType type) {
+    manager.activatePet(new ShopComponent.Pet(type.name()));
+    Entity pet = manager.getActivePet();
+    AnimationRenderComponent animator = pet.getComponent(AnimationRenderComponent.class);
+    Vector2 restingPosition = pet.getPosition();
+    String prefix = type.getAnimationPrefix();
+    for (float delta : new float[] {3f, 1.2f, 2f, 1f}) {
+      when(timeSource.getDeltaTime()).thenReturn(delta);
+      pet.update();
+    }
+
+    assertTrue(pet.getPosition().x > owner.getPosition().x + owner.getScale().x);
+    assertEquals(prefix + "_left", animator.getCurrentAnimation());
+    assertTrue(
+        pet.getPosition()
+            .epsilonEquals(pet.getComponent(PhysicsComponent.class).getBody().getPosition()));
+    ServiceLocator.getRenderService().render(batch);
+
+    pet.update();
+    assertTrue(restingPosition.epsilonEquals(pet.getPosition(), 0.001f));
+    assertEquals(prefix + "_right", animator.getCurrentAnimation());
+    assertTrue(
+        pet.getPosition()
+            .epsilonEquals(pet.getComponent(PhysicsComponent.class).getBody().getPosition()));
+  }
+
+  @Test
+  void shouldStartReplacementPetWithAFreshIdleSequence() {
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity previousPet = manager.getActivePet();
+    for (float delta : new float[] {3f, 1.2f, 2f, 0.5f}) {
+      when(timeSource.getDeltaTime()).thenReturn(delta);
+      previousPet.update();
+    }
+    manager.activatePet(new ShopComponent.Pet("Bat"));
+    Entity pet = manager.getActivePet();
+    AnimationRenderComponent animator = pet.getComponent(AnimationRenderComponent.class);
+    Vector2 restingPosition = pet.getPosition();
+
+    when(timeSource.getDeltaTime()).thenReturn(2.9f);
+    pet.update();
+    assertTrue(previousPet.isDisposed());
+    assertTrue(restingPosition.epsilonEquals(pet.getPosition(), 0.001f));
+    assertEquals("bat_right", animator.getCurrentAnimation());
+
+    when(timeSource.getDeltaTime()).thenReturn(0.1f);
+    pet.update();
+    assertEquals("bat_back", animator.getCurrentAnimation());
+  }
+
   private void updateAndRender() {
     ServiceLocator.getPhysicsService().getPhysics().update();
     ServiceLocator.getEntityService().update();

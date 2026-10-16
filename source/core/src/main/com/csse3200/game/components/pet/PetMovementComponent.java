@@ -12,8 +12,9 @@ import com.csse3200.game.services.ServiceLocator;
  * Keeps a companion pet hovering above and behind its owner.
  *
  * <p>After three seconds without owner movement, the pet turns through all four directions once.
- * Moving again resets the idle timer and interrupts the turn. Idle timing uses game time, so it
- * pauses with the game.
+ * Two seconds after the turn, it flies to the other side of the owner and back. Each trip takes two
+ * seconds and starts every four seconds while the owner stays still. Moving again resets the idle
+ * sequence. Idle timing uses game time, so it pauses with the game.
  */
 public class PetMovementComponent extends Component {
   private static final float HORIZONTAL_GAP = 0.25f;
@@ -25,6 +26,12 @@ public class PetMovementComponent extends Component {
   private static final float SPIN_DIRECTION_DURATION = 0.3f;
   private static final String[] SPIN_DIRECTIONS = {"right", "back", "left", "front"};
   private static final float SPIN_DURATION = SPIN_DIRECTIONS.length * SPIN_DIRECTION_DURATION;
+  private static final float POST_SPIN_DELAY = 2f;
+  private static final float IDLE_FLIGHT_DURATION = 2f;
+  private static final float IDLE_FLIGHT_INTERVAL = 4f;
+  private static final float IDLE_FLIGHT_HEIGHT = 0.35f;
+  private static final double FIRST_FLIGHT_TIME =
+      (double) IDLE_SPIN_DELAY + SPIN_DURATION + POST_SPIN_DELAY;
 
   private final GameTime timeSource;
   private final Vector2 previousOwnerPosition = new Vector2();
@@ -75,12 +82,23 @@ public class PetMovementComponent extends Component {
     }
 
     boolean ownerMoved = updateFacingDirection();
-    updateIdleAnimation(ownerMoved, deltaTime);
+    updateIdleTime(ownerMoved, deltaTime);
 
     Vector2 currentPosition = entity.getPosition();
     Vector2 targetPosition = getFollowPosition();
 
     if (currentPosition.dst2(targetPosition) > TELEPORT_DISTANCE * TELEPORT_DISTANCE) {
+      idleTime = 0;
+      updateIdleAnimation();
+      entity.setPosition(targetPosition);
+      return;
+    }
+
+    updateIdleAnimation();
+    double flightTime = idleTime - FIRST_FLIGHT_TIME;
+    if (flightTime >= 0) {
+      // Evaluate the idle path directly so its duration does not depend on the frame rate.
+      applyIdleFlightOffset(targetPosition, flightTime);
       entity.setPosition(targetPosition);
       return;
     }
@@ -102,15 +120,20 @@ public class PetMovementComponent extends Component {
     return ownerMoved;
   }
 
-  private void updateIdleAnimation(boolean ownerMoved, float deltaTime) {
+  private void updateIdleTime(boolean ownerMoved, float deltaTime) {
     CombatStatsComponent ownerStats = owner.getComponent(CombatStatsComponent.class);
     if (ownerMoved || (ownerStats != null && ownerStats.isDead())) {
       idleTime = 0;
     } else {
-      // Cap the timer after one turn; only owner movement starts a new idle period.
-      idleTime = Math.min(idleTime + deltaTime, (double) IDLE_SPIN_DELAY + SPIN_DURATION);
+      idleTime += deltaTime;
+      if (idleTime >= FIRST_FLIGHT_TIME) {
+        // Repeat only the flight phase, retaining precision during long idle periods.
+        idleTime = FIRST_FLIGHT_TIME + (idleTime - FIRST_FLIGHT_TIME) % IDLE_FLIGHT_INTERVAL;
+      }
     }
+  }
 
+  private void updateIdleAnimation() {
     int facingIndex = facingDirection > 0f ? 0 : 2;
     String direction = SPIN_DIRECTIONS[facingIndex];
     double spinTime = idleTime - IDLE_SPIN_DELAY;
@@ -118,12 +141,30 @@ public class PetMovementComponent extends Component {
       int turnStep = 1 + (int) (spinTime / SPIN_DIRECTION_DURATION);
       direction = SPIN_DIRECTIONS[(facingIndex + turnStep) % SPIN_DIRECTIONS.length];
     }
+    double flightTime = idleTime - FIRST_FLIGHT_TIME;
+    if (flightTime >= IDLE_FLIGHT_DURATION / 2f && flightTime < IDLE_FLIGHT_DURATION) {
+      direction = SPIN_DIRECTIONS[(facingIndex + 2) % SPIN_DIRECTIONS.length];
+    }
 
     // Turning the sprite must not change the side of the owner that the pet follows.
     String animation = animationPrefix + "_" + direction;
     if (animator != null && !animation.equals(animator.getCurrentAnimation())) {
       animator.startAnimation(animation);
     }
+  }
+
+  private void applyIdleFlightOffset(Vector2 position, double flightTime) {
+    if (flightTime >= IDLE_FLIGHT_DURATION) {
+      return;
+    }
+    double angle = 2 * Math.PI * flightTime / IDLE_FLIGHT_DURATION;
+    float distanceAcross = entity.getScale().x + owner.getScale().x + 2 * HORIZONTAL_GAP;
+    float horizontalOffset = (float) ((1 - Math.cos(angle)) / 2) * distanceAcross;
+    float arc = (float) Math.sin(angle);
+
+    // Both legs stay above the resting height and slow down at either end of the trip.
+    position.x += facingDirection * horizontalOffset;
+    position.y += IDLE_FLIGHT_HEIGHT * arc * arc;
   }
 
   private Vector2 getFollowPosition() {

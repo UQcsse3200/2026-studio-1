@@ -14,6 +14,7 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.GameTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -267,6 +268,217 @@ class PetMovementComponentTest {
     advance(pet, 3f);
 
     assertPositionEquals(new Vector2(9.75f, 9.25f), pet.getPosition());
+  }
+
+  @Test
+  void shouldWaitTwoSecondsAfterSpinBeforeFlying() {
+    Entity pet = createPet(1f, 0.5f);
+    Vector2 restingPosition = pet.getPosition();
+    advance(pet, 3f);
+    advance(pet, 1.2f);
+
+    advance(pet, 1.9f);
+    assertPositionEquals(restingPosition, pet.getPosition());
+    advance(pet, 0.2f);
+
+    assertTrue(pet.getPosition().x > restingPosition.x);
+    assertTrue(pet.getPosition().y > restingPosition.y);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void shouldFlyToOtherSideAndBackFromEitherFacing(boolean initiallyFacingRight) {
+    Entity pet = createPet(1f, 0.5f);
+    if (!initiallyFacingRight) {
+      owner.setPosition(9f, 5f);
+      advance(pet, 0.1f);
+    }
+    finishSpinAndWaitForFlight(pet);
+    Vector2 restingPosition = pet.getPosition();
+    float ownerCenterX = owner.getCenterPosition().x;
+
+    advance(pet, 0.5f);
+    assertEquals(ownerCenterX, pet.getCenterPosition().x, 0.001f);
+    assertTrue(pet.getPosition().y > restingPosition.y);
+    assertEquals(initiallyFacingRight ? "bird_right" : "bird_left", currentAnimation);
+
+    advance(pet, 0.5f);
+    if (initiallyFacingRight) {
+      assertTrue(pet.getPosition().x > owner.getPosition().x + owner.getScale().x);
+    } else {
+      assertTrue(pet.getPosition().x + pet.getScale().x < owner.getPosition().x);
+    }
+    assertEquals(initiallyFacingRight ? "bird_left" : "bird_right", currentAnimation);
+
+    advance(pet, 0.5f);
+    assertEquals(ownerCenterX, pet.getCenterPosition().x, 0.001f);
+    assertTrue(pet.getPosition().y > restingPosition.y);
+    advance(pet, 0.5f);
+    assertPositionEquals(restingPosition, pet.getPosition());
+    assertEquals(initiallyFacingRight ? "bird_right" : "bird_left", currentAnimation);
+  }
+
+  @Test
+  void shouldStartTripsEveryFourSecondsWithARestBetweenThem() {
+    Entity pet = createPet(1f, 0.5f);
+    Vector2 restingPosition = pet.getPosition();
+    finishSpinAndWaitForFlight(pet);
+    advance(pet, 0.5f);
+    Vector2 firstTripPosition = pet.getPosition();
+    advance(pet, 1.5f);
+    assertPositionEquals(restingPosition, pet.getPosition());
+
+    advance(pet, 1.9f);
+    assertPositionEquals(restingPosition, pet.getPosition());
+    advance(pet, 0.6f);
+    assertPositionEquals(firstTripPosition, pet.getPosition());
+
+    // Only the initial turn uses the front/back poses; repeated trips do not replay it.
+    assertEquals(1, playedAnimations.stream().filter("bird_back"::equals).count());
+    assertEquals(1, playedAnimations.stream().filter("bird_front"::equals).count());
+  }
+
+  @ParameterizedTest
+  @ValueSource(floats = {-1f, 1f})
+  void shouldSmoothlyResumeFollowingWhenOwnerMovesDuringFlight(float movement) {
+    Entity pet = createPet(1f, 0.5f);
+    finishSpinAndWaitForFlight(pet);
+    advance(pet, 0.5f);
+    Vector2 flightPosition = pet.getPosition();
+
+    owner.setPosition(10f + movement, 5f);
+    Vector2 followPosition = movement > 0 ? new Vector2(9.75f, 8.25f) : new Vector2(11.25f, 8.25f);
+    advance(pet, 0.1f);
+
+    assertTrue(pet.getPosition().dst2(followPosition) < flightPosition.dst2(followPosition));
+    assertTrue(pet.getPosition().dst2(followPosition) > 0.001f);
+    assertEquals(movement > 0 ? "bird_right" : "bird_left", currentAnimation);
+    advance(pet, 2.9f);
+    assertPositionEquals(followPosition, pet.getPosition());
+    advance(pet, 0.1f);
+    assertEquals(movement > 0 ? "bird_back" : "bird_front", currentAnimation);
+  }
+
+  @Test
+  void shouldCancelFlightWhenOwnerMovesVertically() {
+    Entity pet = createPet(1f, 0.5f);
+    finishSpinAndWaitForFlight(pet);
+    advance(pet, 0.5f);
+    owner.setPosition(10f, 6f);
+    advance(pet, 0.1f);
+    advance(pet, 2.9f);
+
+    assertPositionEquals(new Vector2(8.75f, 9.25f), pet.getPosition());
+    assertEquals("bird_right", currentAnimation);
+  }
+
+  @ParameterizedTest
+  @ValueSource(floats = {0f, -1f})
+  void shouldFreezeFlightAndResumeFromTheSamePosition(float pausedDelta) {
+    Entity pet = createPet(1f, 0.5f);
+    finishSpinAndWaitForFlight(pet);
+    advance(pet, 0.5f);
+    Vector2 pausedPosition = pet.getPosition();
+    int animationsBeforePause = playedAnimations.size();
+
+    for (int frame = 0; frame < 30; frame++) {
+      advance(pet, pausedDelta);
+    }
+    assertPositionEquals(pausedPosition, pet.getPosition());
+    assertEquals(animationsBeforePause, playedAnimations.size());
+
+    advance(pet, 0.5f);
+    assertTrue(pet.getPosition().x > owner.getPosition().x + owner.getScale().x);
+    assertEquals("bird_left", currentAnimation);
+  }
+
+  @Test
+  void shouldCancelFlightAndCatchUpAfterOwnerTeleports() {
+    Entity pet = createPet(1f, 0.5f);
+    finishSpinAndWaitForFlight(pet);
+    advance(pet, 0.5f);
+
+    owner.setPosition(30f, 20f);
+    advance(pet, 0.1f);
+
+    assertPositionEquals(new Vector2(28.75f, 23.25f), pet.getPosition());
+    assertEquals("bird_right", currentAnimation);
+  }
+
+  @Test
+  void shouldCancelFlightWhileOwnerIsDead() {
+    CombatStatsComponent stats = new CombatStatsComponent(100, 10);
+    owner.addComponent(stats);
+    Entity pet = createPet(1f, 0.5f);
+    Vector2 restingPosition = pet.getPosition();
+    finishSpinAndWaitForFlight(pet);
+    advance(pet, 0.5f);
+
+    stats.setHealth(0);
+    advance(pet, 2f);
+    advance(pet, 10f);
+
+    assertPositionEquals(restingPosition, pet.getPosition());
+    assertEquals("bird_right", currentAnimation);
+  }
+
+  @Test
+  void shouldReachTheSameFlightPositionWithDifferentFrameTimes() {
+    Entity pet = createPet(1f, 0.5f);
+    Entity coarsePet =
+        new Entity()
+            .addComponent(new PetComponent(owner))
+            .addComponent(new PetMovementComponent(timeSource, "bird"));
+    coarsePet.setScale(1f, 0.5f);
+    coarsePet.create();
+    float[] frameTimes = {0.016f, 0.033f, 0.05f, 0.011f};
+    double elapsed = 0;
+    int frame = 0;
+    while (elapsed < 6.9) {
+      float delta = (float) Math.min(frameTimes[frame++ % frameTimes.length], 6.9 - elapsed);
+      advance(pet, delta);
+      elapsed += delta;
+    }
+    advance(coarsePet, 6.9f);
+
+    assertPositionEquals(pet.getPosition(), coarsePet.getPosition());
+  }
+
+  @Test
+  void shouldKeepCombatAttacksRunningDuringIdleFlight() {
+    owner.addComponent(new CombatStatsComponent(100, 10));
+    PetCombatComponent combat = new PetCombatComponent(timeSource);
+    Entity pet =
+        new Entity()
+            .addComponent(new PetComponent(owner))
+            .addComponent(new PetMovementComponent(timeSource, "bird"))
+            .addComponent(combat);
+    pet.create();
+    Vector2 restingPosition = pet.getPosition();
+    AtomicInteger attacksDuringFlight = new AtomicInteger();
+    pet.getEvents()
+        .addListener(
+            "petAttack",
+            (Entity target) -> {
+              if (!restingPosition.epsilonEquals(pet.getPosition(), 0.01f)) {
+                attacksDuringFlight.incrementAndGet();
+              }
+            });
+    combat.requestAttack(new Entity().addComponent(new CombatStatsComponent(100, 0)));
+
+    for (int frame = 0; frame < 80; frame++) {
+      advance(pet, 0.1f);
+    }
+
+    assertTrue(attacksDuringFlight.get() > 0);
+  }
+
+  private void finishSpinAndWaitForFlight(Entity pet) {
+    advance(pet, 3f);
+    for (int step = 0; step < 4; step++) {
+      advance(pet, 0.3f);
+    }
+    advance(pet, 2f);
   }
 
   private void advance(Entity pet, float delta) {
