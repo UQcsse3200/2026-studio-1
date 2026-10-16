@@ -29,7 +29,7 @@ public class ProjectileFactory {
   private static final String ROCK_TEXTURE = "images/items/rock.png";
 
   private static final Vector2 LIGHTNING_SCALE = new Vector2(0.3125f, 3.125f);
-  private static final Vector2 LASER_SCALE = new Vector2(1.2f, 0.38f);
+  private static final Vector2 LASER_SCALE = new Vector2(1.2f, 0.5f);
   private static final Vector2 ROCK_SCALE = new Vector2(0.5f, 0.5f);
 
   /**

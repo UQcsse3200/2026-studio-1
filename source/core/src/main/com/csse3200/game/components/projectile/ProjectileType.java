@@ -4,5 +4,5 @@ public enum ProjectileType {
   ARROW,
   LIGHTNING,
   LASER,
-  BOULDER
+  ROCK
 }

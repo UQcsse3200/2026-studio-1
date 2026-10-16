@@ -63,40 +63,22 @@ public class CyclopsAnimationController extends Component {
     // Rock throwing listeners
     entity.getEvents().addListener("rockThrowLeftStart", this::animateRockThrowL);
     entity.getEvents().addListener("rockThrowRightStart", this::animateRockThrowR);
-    entity.getEvents().addListener("rockLeftStart", this::animateRockThrowL);
-    entity.getEvents().addListener("rockRightStart", this::animateRockThrowR);
-    entity.getEvents().addListener("rockThrow", this::onRockThrow);
-    entity
-        .getEvents()
-        .addListener(
-            "rockAttack", (Entity target, ProjectileType projectile) -> onRockThrow(target));
-    entity.getEvents().addListener("rockAttackStart", this::onRockStart);
     entity.getEvents().addListener("rockAttackWindup", this::onRockThrow);
-    entity.getEvents().addListener("rockAttackFired", this::onRockThrow);
-    entity.getEvents().addListener("rockStart", this::onRockStart);
 
     // Laser attack listeners
     entity.getEvents().addListener("laserLeftStart", this::animateLaserL);
     entity.getEvents().addListener("laserRightStart", this::animateLaserR);
-    entity
-        .getEvents()
-        .addListener(
-            "laserAttack", (Entity target, ProjectileType projectile) -> onLaserAttack(target));
-    entity.getEvents().addListener("laserAttackStart", this::onLaserStart);
     entity.getEvents().addListener("laserAttackWindup", this::onLaserAttack);
-    entity.getEvents().addListener("laserAttackFired", this::onLaserAttack);
-    entity.getEvents().addListener("laserStart", this::onLaserStart);
 
     // Melee stomp listeners
     entity.getEvents().addListener("stompLeftStart", this::animateStompL);
     entity.getEvents().addListener("stompRightStart", this::animateStompR);
-    entity.getEvents().addListener("stomp", this::onMeleeAttack);
     entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
     entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
 
     // Ranged attack listeners
-    entity.getEvents().addListener("rangedAttackWindup", this::onRockThrow);
-    entity.getEvents().addListener("rangedAttackFired", this::onRockThrow);
+    entity.getEvents().addListener("rangedAttackWindup", this::onRangedAttack);
+    entity.getEvents().addListener("rangedAttackFired", this::onRangedAttack);
     entity.getEvents().addListener("rangedAttack", this::onRangedAttack);
     entity.getEvents().addListener("rangedAttackStart", this::onRockStart);
 
@@ -262,7 +244,7 @@ public class CyclopsAnimationController extends Component {
   }
 
   private void onRangedAttack(Entity target, ProjectileType projectile) {
-    if (projectile == ProjectileType.LIGHTNING) {
+    if (projectile == ProjectileType.LASER) {
       onLaserAttack(target);
     } else {
       onRockThrow(target);

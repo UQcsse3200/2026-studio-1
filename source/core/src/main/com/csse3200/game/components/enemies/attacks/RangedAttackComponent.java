@@ -139,7 +139,7 @@ public class RangedAttackComponent extends Component {
     if (weapon.getWeaponType() == WeaponType.DAGGER
         || weapon.getWeaponType() == WeaponType.SWORD
         || weapon.getWeaponType() == WeaponType.AXE) {
-      throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
+      throw new IllegalArgumentException("Ranged Attack cannot use a melee weapon");
     }
 
     if (weapon.getWindupDuration() < 0) {
@@ -537,7 +537,7 @@ public class RangedAttackComponent extends Component {
               this.getDamage(),
               knockback,
               PhysicsLayer.PLAYER);
-      case BOULDER ->
+      case ROCK ->
           ProjectileFactory.createRock(
               spawnPosition,
               aimDirection,
