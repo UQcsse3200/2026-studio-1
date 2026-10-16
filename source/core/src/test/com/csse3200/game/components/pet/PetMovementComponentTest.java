@@ -347,7 +347,7 @@ class PetMovementComponentTest {
     Vector2 flightPosition = pet.getPosition();
 
     owner.setPosition(10f + movement, 5f);
-    Vector2 followPosition = movement > 0 ? new Vector2(9.75f, 8.25f) : new Vector2(11.25f, 8.25f);
+    Vector2 followPosition = new Vector2(movement > 0 ? 9.75f : 11.25f, 8.25f);
     advance(pet, 0.1f);
 
     assertTrue(pet.getPosition().dst2(followPosition) < flightPosition.dst2(followPosition));
