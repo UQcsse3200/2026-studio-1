@@ -74,13 +74,6 @@ public final class TortoiseFactory {
     TortoiseRegistry.resetAll();
   }
 
-  public static void markFound(String tortoiseId) {
-    if (tortoiseId.isBlank()) {
-      throw new IllegalArgumentException("Tortoise id cannot be blank");
-    }
-    TortoiseRegistry.markFound(tortoiseId);
-  }
-
   /** Save/load: replaces the found tortoises with the ones listed in a save file. */
   public static void restoreFound(Collection<String> tortoiseIds) {
     TortoiseRegistry.resetAll();

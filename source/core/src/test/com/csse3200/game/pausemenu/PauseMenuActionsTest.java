@@ -18,6 +18,7 @@ import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.Difficulty;
 import com.csse3200.game.difficulty.DifficultyService;
@@ -158,6 +159,16 @@ class PauseMenuActionsTest {
 
     assertTrue(data.ownedPetNames.isEmpty());
     assertNull(data.activePetName);
+  }
+
+  @Test
+  void shouldSavePetsFromInventorySlotsInOrder() {
+    inventory.addPet(new ShopComponent.Pet("Dog"));
+    inventory.addPet(new ShopComponent.Pet("Cat"));
+
+    GameSaveData data = actions.createSaveData(player);
+
+    assertEquals(List.of("Dog", "Cat"), data.ownedPetNames);
   }
 
   // ---------------------------------------------------------------- inventory

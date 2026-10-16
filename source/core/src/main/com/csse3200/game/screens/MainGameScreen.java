@@ -185,18 +185,17 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       QuestLedger.loadFrom(saveData.completedQuestsByKind);
       TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
-      // Found state lives in the save (TortoiseLedger) and in device Preferences
-      // (TortoiseRegistry), so rebuild Preferences from the save.
+      LoadService.restorePerks(saveData.perks);
+      // clear any tortoises marked as found by a previous save, then mark only the ones found in
+      // this save.
       TortoiseFactory.resetAll();
-      for (String id : TortoiseLedger.exportAll()) {
-        TortoiseFactory.markFound(id);
-      }
+      TortoiseFactory.restoreFound(saveData.foundTortoiseIds);
+      // Saves from before the total was tracked store 0, so roll a new total for those.
       TortoisePlan.set(saveData.tortoisePlan);
       tortoiseTotal =
           saveData.tortoiseTotal > 0
               ? saveData.tortoiseTotal
-              : TortoisePlanner.newGame(new Random()); // old save with no total
-
+              : TortoisePlanner.newGame(new Random());
       NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
       Quest.restoreCounters(
           saveData.questJumps,
