@@ -14,6 +14,7 @@ import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.RestorableShield;
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
@@ -133,16 +134,19 @@ public final class LoadService {
   }
 
   private static void loadShields(Entity player, GameSaveData data) {
-    ShieldComponent shield = player.getComponent(ShieldComponent.class);
-    if (shield != null) {
-      shield.restoreHeldShield(data.shieldHeld);
-      shield.restoreActive(data.shieldRemainingMillis);
-    }
+    restoreShield(
+        player.getComponent(ShieldComponent.class), data.shieldHeld, data.shieldRemainingMillis);
+    restoreShield(
+        player.getComponent(BallisticShieldComponent.class),
+        data.ballisticShieldHeld,
+        data.ballisticShieldRemainingMillis);
+  }
 
-    BallisticShieldComponent ballisticShield = player.getComponent(BallisticShieldComponent.class);
-    if (ballisticShield != null) {
-      ballisticShield.restoreHeldShield(data.ballisticShieldHeld);
-      ballisticShield.restoreActive(data.ballisticShieldRemainingMillis);
+  /** Puts back a held shield and an active shield's time left. Skipped if the player has none. */
+  private static void restoreShield(RestorableShield shield, boolean held, long remainingMillis) {
+    if (shield != null) {
+      shield.restoreHeldShield(held);
+      shield.restoreActive(remainingMillis);
     }
   }
 

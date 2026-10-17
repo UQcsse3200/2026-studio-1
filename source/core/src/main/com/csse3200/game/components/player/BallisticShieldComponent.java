@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>The Ballistic Shield is obtained as rare loot.
  */
-public class BallisticShieldComponent extends Component {
+public class BallisticShieldComponent extends Component implements RestorableShield {
   private static final Logger logger = LoggerFactory.getLogger(BallisticShieldComponent.class);
 
   private static final long DEFAULT_DURATION_MILLIS = 30000L;
@@ -93,6 +93,7 @@ public class BallisticShieldComponent extends Component {
   }
 
   /** Returns whether the player currently has an unused Ballistic Shield. */
+  @Override
   public boolean hasShield() {
     return hasShield;
   }
@@ -169,19 +170,19 @@ public class BallisticShieldComponent extends Component {
   }
 
   /** Save/load: returns the time left on the active shield in milliseconds, or 0 if none. */
+  @Override
   public long getRemainingMillis() {
-    if (!active || timeSource == null) {
-      return 0L;
-    }
-    return Math.max(0L, activeUntil - timeSource.getTime());
+    return RestorableShield.remainingMillis(active, timeSource, activeUntil);
   }
 
   /** Save/load: puts back a Ballistic Shield that was held when the game was saved. */
+  @Override
   public void restoreHeldShield(boolean held) {
     hasShield = held;
   }
 
   /** Save/load: puts back an active Ballistic Shield with the time it had left. */
+  @Override
   public void restoreActive(long remainingMillis) {
     if (remainingMillis <= 0 || timeSource == null) {
       return;
