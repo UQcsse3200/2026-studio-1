@@ -49,41 +49,41 @@ class EnemyDesignRulesTest {
 
   @Test
   void medusaHealthShouldBeNearBossLevel() {
-    assertNear(150f, configs.medusa.health, BOSS_HEALTH_TOLERANCE, "Medusa health");
+    assertNear(150f, (float) configs.medusa.health, BOSS_HEALTH_TOLERANCE, "Medusa health");
   }
 
   @Test
   void cerberusHealthShouldBeNearBossLevel() {
-    assertNear(250f, configs.cerberus.health, BOSS_HEALTH_TOLERANCE, "Cerberus health");
+    assertNear(250f, (float) configs.cerberus.health, BOSS_HEALTH_TOLERANCE, "Cerberus health");
   }
 
   @Test
   void zeusHealthShouldBeNearBossLevel() {
-    assertNear(300f, configs.zeus.health, BOSS_HEALTH_TOLERANCE, "Zeus health");
+    assertNear(300f, (float) configs.zeus.health, BOSS_HEALTH_TOLERANCE, "Zeus health");
   }
 
   @Test
   void medusaMeleeRangeShouldBeBelowGazeRange() {
     MedusaConfig config = configs.medusa;
     assertTrue(
-        config.melee.range < config.ranged.range,
-        "Medusa's melee range ("
-            + config.melee.range
-            + ") must be below her gaze range ("
-            + config.ranged.range
-            + ")");
+      config.melee.range < config.ranged.range,
+      "Medusa's melee range ("
+        + config.melee.range
+        + ") must be below her gaze range ("
+        + config.ranged.range
+        + ")");
   }
 
   @Test
   void zeusMeleeRangeShouldBeBelowLightningRange() {
     ZeusConfig config = configs.zeus;
     assertTrue(
-        config.melee.range < config.ranged.range,
-        "Zeus's melee range ("
-            + config.melee.range
-            + ") must be below his lightning range ("
-            + config.ranged.range
-            + ")");
+      config.melee.range < config.ranged.range,
+      "Zeus's melee range ("
+        + config.melee.range
+        + ") must be below his lightning range ("
+        + config.ranged.range
+        + ")");
   }
 
   @Test
@@ -92,12 +92,12 @@ class EnemyDesignRulesTest {
     // PetrifyConfig.duration is already in seconds - no ticks conversion needed here.
     float petrifySeconds = config.petrify.duration;
     assertTrue(
-        config.ranged.cooldown >= 2 * petrifySeconds,
-        "Medusa's gaze cooldown ("
-            + config.ranged.cooldown
-            + "s) must be at least twice the petrify duration ("
-            + petrifySeconds
-            + "s)");
+      config.ranged.cooldown >= 2 * petrifySeconds,
+      "Medusa's gaze cooldown ("
+        + config.ranged.cooldown
+        + "s) must be at least twice the petrify duration ("
+        + petrifySeconds
+        + "s)");
   }
 
   @Test
@@ -108,20 +108,20 @@ class EnemyDesignRulesTest {
     // calls setLightningFreezeTicks()), so read that default off a throwaway instance rather
     // than duplicating the magic number here.
     RangedAttackComponent probe =
-        new RangedAttackComponent(1f, 1f, 0f, WeaponItem.natural("probe", 1, 0f));
+      new RangedAttackComponent(1f, 1f, 0f, WeaponItem.natural("probe", 1, 0f));
     float freezeSeconds = probe.getLightningFreezeTicks() / TICKS_PER_SECOND;
     assertTrue(
-        config.ranged.cooldown >= 2 * freezeSeconds,
-        "Zeus's lightning cooldown ("
-            + config.ranged.cooldown
-            + "s) must be at least twice the freeze duration ("
-            + freezeSeconds
-            + "s)");
+      config.ranged.cooldown >= 2 * freezeSeconds,
+      "Zeus's lightning cooldown ("
+        + config.ranged.cooldown
+        + "s) must be at least twice the freeze duration ("
+        + freezeSeconds
+        + "s)");
   }
 
   private void assertNear(float expected, float actual, float tolerance, String label) {
     assertTrue(
-        Math.abs(expected - actual) <= tolerance,
-        label + " (" + actual + ") expected to be within " + tolerance + " of " + expected);
+      Math.abs(expected - actual) <= tolerance,
+      label + " (" + actual + ") expected to be within " + tolerance + " of " + expected);
   }
 }

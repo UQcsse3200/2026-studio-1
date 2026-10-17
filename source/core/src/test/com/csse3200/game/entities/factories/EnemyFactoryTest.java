@@ -458,8 +458,9 @@ class EnemyFactoryTest {
     @ParameterizedTest(name = "{0} rejects a null target by name")
     @MethodSource(EVERY_ENEMY)
     void shouldRejectANullTargetNamingTheEnemy(Spec spec) {
+      var factory = spec.factory();
       IllegalArgumentException thrown =
-        assertThrows(IllegalArgumentException.class, () -> spec.factory().apply(null));
+        assertThrows(IllegalArgumentException.class, () -> factory.apply(null));
 
       assertEquals(spec.label() + " needs a target", thrown.getMessage());
     }
@@ -658,7 +659,7 @@ class EnemyFactoryTest {
       assertEquals(1, countTasks(skeleton, ChaseTask.class));
       assertEquals(1, countTasks(skeleton, RangedAttackTask.class));
       assertEquals(0, countTasks(skeleton, MeleeAttackTask.class));
-      Integer priority = priorityField(tasksOfType(skeleton, RangedAttackTask.class).getFirst());
+      Integer priority = priorityField(tasksOfType(skeleton, RangedAttackTask.class).get(0));
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -701,7 +702,7 @@ class EnemyFactoryTest {
       assertNull(harpy.getComponent(MeleeAttackComponent.class));
       assertNotNull(harpy.getComponent(HarpyAnimationController.class));
       assertEquals(1, countTasks(harpy, RangedAttackTask.class));
-      Integer priority = priorityField(tasksOfType(harpy, RangedAttackTask.class).getFirst());
+      Integer priority = priorityField(tasksOfType(harpy, RangedAttackTask.class).get(0));
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -779,7 +780,7 @@ class EnemyFactoryTest {
     @Test
     void shouldUseTheRangedPriority() throws ReflectiveOperationException {
       Entity centaur = EnemyFactory.createCentaur(player);
-      Integer priority = priorityField(tasksOfType(centaur, RangedAttackTask.class).getFirst());
+      Integer priority = priorityField(tasksOfType(centaur, RangedAttackTask.class).get(0));
 
       assumeTrue(priority != null);
       assertEquals(12, priority);
@@ -978,7 +979,7 @@ class EnemyFactoryTest {
   class Helpers {
 
     @Test
-    void requireTargetShouldAcceptATargetAndRejectNull() {
+    void requireTargetShouldAcceptATargetAndRejectNull() throws Throwable {
       Class<?>[] types = {Entity.class, String.class};
 
       assertDoesNotThrow(() -> call("requireTarget", types, player, "Zeus"));
@@ -1029,7 +1030,7 @@ class EnemyFactoryTest {
       assertTrue(base.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
       assertEquals(1, countTasks(base, PlatformWanderTask.class));
       assertEquals(1, countTasks(base, ChaseTask.class));
-      Integer priority = priorityField(tasksOfType(base, ChaseTask.class).getFirst());
+      Integer priority = priorityField(tasksOfType(base, ChaseTask.class).get(0));
       assumeTrue(priority != null);
       assertEquals(10, priority);
     }
@@ -1258,7 +1259,7 @@ class EnemyFactoryTest {
         2f);
 
       assertEquals(1, countTasks(enemy, MeleeAttackTask.class));
-      Integer priority = priorityField(tasksOfType(enemy, MeleeAttackTask.class).getFirst());
+      Integer priority = priorityField(tasksOfType(enemy, MeleeAttackTask.class).get(0));
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -1382,7 +1383,8 @@ class EnemyFactoryTest {
     }
 
     @Test
-    void validateMeleeRangeBelowRangedRangeShouldAcceptOnlyAStrictlyShorterMeleeRange() {
+    void validateMeleeRangeBelowRangedRangeShouldAcceptOnlyAStrictlyShorterMeleeRange()
+      throws Throwable {
       Class<?>[] types = {float.class, float.class};
 
       assertDoesNotThrow(() -> call("validateMeleeRangeBelowRangedRange", types, 1f, 2f));
