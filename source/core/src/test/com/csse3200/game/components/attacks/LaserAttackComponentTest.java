@@ -95,24 +95,23 @@ class LaserAttackComponentTest {
   void shouldRejectASpawnHeightOutsideZeroToOne(float fraction) {
     var weapon = weapon();
     assertThrows(
-      IllegalArgumentException.class,
-      () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, fraction, MULTIPLIER));
+        IllegalArgumentException.class,
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, fraction, MULTIPLIER));
   }
 
   @Test
   void shouldRejectANotANumberSpawnHeight() {
     var weapon = weapon();
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, Float.NaN, MULTIPLIER));
+        IllegalArgumentException.class,
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, Float.NaN, MULTIPLIER));
   }
 
   @ParameterizedTest(name = "spawnHeightFraction {0} is accepted")
   @ValueSource(floats = {0f, 0.5f, 1f})
   void shouldAcceptTheEdgesOfTheSpawnHeightRange(float fraction) {
     assertDoesNotThrow(
-      () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER));
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER));
   }
 
   @ParameterizedTest(name = "damageMultiplier {0} is rejected")
@@ -120,26 +119,24 @@ class LaserAttackComponentTest {
   void shouldRejectAZeroOrNegativeMultiplier(float multiplier) {
     var weapon = weapon();
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new LaserAttackComponent(
-          RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, multiplier));
+        IllegalArgumentException.class,
+        () ->
+            new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, multiplier));
   }
 
   @Test
   void shouldRejectANotANumberMultiplier() {
     var weapon = weapon();
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new LaserAttackComponent(
-          RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, Float.NaN));
+        IllegalArgumentException.class,
+        () ->
+            new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, Float.NaN));
   }
 
   @Test
   void shouldAcceptAMultiplierBelowOneBecauseALaserIsWeakerThanAStomp() {
     assertDoesNotThrow(
-      () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, 0.01f));
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, 0.01f));
   }
 
   @Test
@@ -148,29 +145,28 @@ class LaserAttackComponentTest {
     // A negative range, a negative knockback and a windup as long as the cooldown are all refused
     // by the parent constructor before the laser's own checks run.
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new LaserAttackComponent(-1f, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, MULTIPLIER));
+        IllegalArgumentException.class,
+        () -> new LaserAttackComponent(-1f, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, MULTIPLIER));
     assertThrows(
-      IllegalArgumentException.class,
-      () -> new LaserAttackComponent(RANGE, COOLDOWN, -1f, weapon, SPAWN_HEIGHT, MULTIPLIER));
+        IllegalArgumentException.class,
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, -1f, weapon, SPAWN_HEIGHT, MULTIPLIER));
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new LaserAttackComponent(
-          RANGE,
-          COOLDOWN,
-          KNOCKBACK,
-          AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN),
-          SPAWN_HEIGHT,
-          MULTIPLIER));
+        IllegalArgumentException.class,
+        () ->
+            new LaserAttackComponent(
+                RANGE,
+                COOLDOWN,
+                KNOCKBACK,
+                AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN),
+                SPAWN_HEIGHT,
+                MULTIPLIER));
   }
 
   @Test
   void shouldRejectANullWeapon() {
     assertThrows(
-      Exception.class,
-      () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, null, SPAWN_HEIGHT, MULTIPLIER));
+        Exception.class,
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, null, SPAWN_HEIGHT, MULTIPLIER));
   }
 
   // ---------- 2. lookup ----------
@@ -181,9 +177,9 @@ class LaserAttackComponentTest {
 
     assertNotNull(owner.getComponent(LaserAttackComponent.class));
     assertNull(
-      owner.getComponent(RangedAttackComponent.class),
-      "the base-class lookup does not find a subclass; the factory and controller must use"
-        + " the subclass");
+        owner.getComponent(RangedAttackComponent.class),
+        "the base-class lookup does not find a subclass; the factory and controller must use"
+            + " the subclass");
     assertNull(owner.getComponent(RockAttackComponent.class), "a laser is not a rock");
   }
 
@@ -347,10 +343,10 @@ class LaserAttackComponentTest {
     Vector2 high = launchCentreFor(0.9f);
 
     assertEquals(
-      (0.9f - 0.1f) * OWNER_HEIGHT,
-      high.y - low.y,
-      0.05f,
-      "the launch height is the fraction of the owner's 2 unit height");
+        (0.9f - 0.1f) * OWNER_HEIGHT,
+        high.y - low.y,
+        0.05f,
+        "the launch height is the fraction of the owner's 2 unit height");
   }
 
   @ParameterizedTest(name = "fraction {0} launches from height {1}")
@@ -359,7 +355,7 @@ class LaserAttackComponentTest {
     Vector2 launch = launchCentreFor(fraction, 4f);
 
     assertEquals(
-      OWNER_WIDTH / 2f + EYE_OFFSET_X, launch.x, 0.05f, "the eye is on the owner's centre line");
+        OWNER_WIDTH / 2f + EYE_OFFSET_X, launch.x, 0.05f, "the eye is on the owner's centre line");
     assertEquals(expectedHeight, launch.y, 0.05f);
   }
 
@@ -497,10 +493,10 @@ class LaserAttackComponentTest {
 
     assertEquals(1, world.registeredSince(before).size());
     assertEquals(
-      SPEED,
-      AttackTestWorld.velocityOf(world.registeredSince(before).get(0)).len(),
-      0.05f,
-      "a lightning bolt would fall straight down; this flies at the laser's speed");
+        SPEED,
+        AttackTestWorld.velocityOf(world.registeredSince(before).get(0)).len(),
+        0.05f,
+        "a lightning bolt would fall straight down; this flies at the laser's speed");
   }
 
   // ---------- 6. refusals ----------
@@ -557,10 +553,10 @@ class LaserAttackComponentTest {
     int before = world.mark();
 
     assertDoesNotThrow(
-      () -> {
-        owner.getEvents().trigger("laserAttack", null, ProjectileType.ARROW);
-        world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-      });
+        () -> {
+          owner.getEvents().trigger("laserAttack", null, ProjectileType.ARROW);
+          world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
+        });
 
     assertEquals(0, world.registeredSince(before).size());
   }
@@ -570,7 +566,7 @@ class LaserAttackComponentTest {
     // The Cyclops holds both. Each trigger must start only its own attack.
     LaserAttackComponent laser = newLaser();
     RockAttackComponent rock =
-      new RockAttackComponent(11f, 7f, 3f, AttackTestWorld.naturalWeapon(10, 0.1f), 0.85f, 1.5f);
+        new RockAttackComponent(11f, 7f, 3f, AttackTestWorld.naturalWeapon(10, 0.1f), 0.85f, 1.5f);
     rock.setProjectileSpeed(8f);
     Entity owner = world.newAttacker(laser, rock);
     Entity target = world.newTarget(4f, 0f, 50);
@@ -589,7 +585,7 @@ class LaserAttackComponentTest {
   void shouldKeepTheLaserCooldownSeparateFromTheRockCooldown() {
     LaserAttackComponent laser = newLaser();
     RockAttackComponent rock =
-      new RockAttackComponent(11f, 7f, 3f, AttackTestWorld.naturalWeapon(10, 0.1f), 0.85f, 1.5f);
+        new RockAttackComponent(11f, 7f, 3f, AttackTestWorld.naturalWeapon(10, 0.1f), 0.85f, 1.5f);
     rock.setProjectileSpeed(8f);
     Entity owner = world.newAttacker(laser, rock);
     Entity target = world.newTarget(4f, 0f, 500);
@@ -601,7 +597,7 @@ class LaserAttackComponentTest {
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
 
     assertEquals(
-      2, world.registeredSince(before).size(), "the laser's cooldown must not block the rock");
+        2, world.registeredSince(before).size(), "the laser's cooldown must not block the rock");
   }
 
   // ---------- helpers ----------
@@ -616,7 +612,7 @@ class LaserAttackComponentTest {
 
   private LaserAttackComponent newLaser(float fraction, float multiplier, float range) {
     LaserAttackComponent laser =
-      new LaserAttackComponent(range, COOLDOWN, KNOCKBACK, weapon(), fraction, multiplier);
+        new LaserAttackComponent(range, COOLDOWN, KNOCKBACK, weapon(), fraction, multiplier);
     laser.setProjectileSpeed(SPEED);
     return laser;
   }
@@ -663,13 +659,13 @@ class LaserAttackComponentTest {
   /** Fires one laser at a stationary target and steps until it lands; returns the health left. */
   private int healthAfterLaserHits(int weaponDamage, float multiplier, int targetHealth) {
     LaserAttackComponent laser =
-      new LaserAttackComponent(
-        RANGE,
-        COOLDOWN,
-        0f,
-        AttackTestWorld.naturalWeapon(weaponDamage, WINDUP),
-        SPAWN_HEIGHT,
-        multiplier);
+        new LaserAttackComponent(
+            RANGE,
+            COOLDOWN,
+            0f,
+            AttackTestWorld.naturalWeapon(weaponDamage, WINDUP),
+            SPAWN_HEIGHT,
+            multiplier);
     laser.setProjectileSpeed(SPEED);
     Entity owner = world.newAttacker(laser);
     Entity target = world.newTarget(4f, 0.5f, targetHealth);

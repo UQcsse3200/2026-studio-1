@@ -86,9 +86,9 @@ class TouchAttackComponentTest {
   void shouldNotAttackWithoutCombatComponent() {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
     Entity target =
-      new Entity()
-        .addComponent(new PhysicsComponent())
-        .addComponent(new HitboxComponent().setLayer(TARGET_LAYER));
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new HitboxComponent().setLayer(TARGET_LAYER));
     target.create();
 
     assertDoesNotThrow(() -> touch(attacker, target));
@@ -146,10 +146,10 @@ class TouchAttackComponentTest {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
     assertDoesNotThrow(
-      () -> {
-        touchOf(attacker).deactivate();
-        touchOf(attacker).deactivate();
-      });
+        () -> {
+          touchOf(attacker).deactivate();
+          touchOf(attacker).deactivate();
+        });
 
     assertFalse(touchOf(attacker).isActive());
   }
@@ -159,7 +159,7 @@ class TouchAttackComponentTest {
   @Test
   void shouldHaveNoHitLimitByDefault() {
     assertEquals(
-      0, touchOf(createAttacker(TARGET_LAYER, 0, BASE_ATTACK)).getMaxHitsPerActivation());
+        0, touchOf(createAttacker(TARGET_LAYER, 0, BASE_ATTACK)).getMaxHitsPerActivation());
   }
 
   @Test
@@ -219,8 +219,7 @@ class TouchAttackComponentTest {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
     TouchAttackComponent touch = touchOf(attacker);
-    assertThrows(
-      IllegalArgumentException.class, () -> touch.setMaxHitsPerActivation(-1));
+    assertThrows(IllegalArgumentException.class, () -> touch.setMaxHitsPerActivation(-1));
   }
 
   @Test
@@ -228,9 +227,9 @@ class TouchAttackComponentTest {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
     touchOf(attacker).setMaxHitsPerActivation(1);
     Entity noStats =
-      new Entity()
-        .addComponent(new PhysicsComponent())
-        .addComponent(new HitboxComponent().setLayer(TARGET_LAYER));
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new HitboxComponent().setLayer(TARGET_LAYER));
     noStats.create();
     Entity realTarget = createTarget(TARGET_LAYER, 100);
 
@@ -238,7 +237,7 @@ class TouchAttackComponentTest {
     touch(attacker, realTarget);
 
     assertEquals(
-      90, healthOf(realTarget), "the wasted contact must not use up the one allowed hit");
+        90, healthOf(realTarget), "the wasted contact must not use up the one allowed hit");
   }
 
   @Test
@@ -273,7 +272,7 @@ class TouchAttackComponentTest {
   @Test
   void shouldHaveAMultiplierOfOneByDefault() {
     assertEquals(
-      1f, touchOf(createAttacker(TARGET_LAYER, 0, BASE_ATTACK)).getDamageMultiplier(), 1e-6f);
+        1f, touchOf(createAttacker(TARGET_LAYER, 0, BASE_ATTACK)).getDamageMultiplier(), 1e-6f);
   }
 
   @ParameterizedTest(name = "base {0} x {1} deals {2}")
@@ -313,8 +312,7 @@ class TouchAttackComponentTest {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
     TouchAttackComponent touch = touchOf(attacker);
-    assertThrows(
-      IllegalArgumentException.class, () -> touch.setDamageMultiplier(multiplier));
+    assertThrows(IllegalArgumentException.class, () -> touch.setDamageMultiplier(multiplier));
   }
 
   @Test
@@ -322,11 +320,9 @@ class TouchAttackComponentTest {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
     TouchAttackComponent touch = touchOf(attacker);
+    assertThrows(IllegalArgumentException.class, () -> touch.setDamageMultiplier(Float.NaN));
     assertThrows(
-      IllegalArgumentException.class, () -> touch.setDamageMultiplier(Float.NaN));
-    assertThrows(
-      IllegalArgumentException.class,
-      () -> touch.setDamageMultiplier(Float.POSITIVE_INFINITY));
+        IllegalArgumentException.class, () -> touch.setDamageMultiplier(Float.POSITIVE_INFINITY));
   }
 
   @Test
@@ -428,10 +424,10 @@ class TouchAttackComponentTest {
   @Test
   void shouldNotThrowWhenActivatedWithoutAHitbox() {
     Entity noHitbox =
-      new Entity()
-        .addComponent(new TouchAttackComponent(TARGET_LAYER))
-        .addComponent(new CombatStatsComponent(0, BASE_ATTACK))
-        .addComponent(new PhysicsComponent());
+        new Entity()
+            .addComponent(new TouchAttackComponent(TARGET_LAYER))
+            .addComponent(new CombatStatsComponent(0, BASE_ATTACK))
+            .addComponent(new PhysicsComponent());
     noHitbox.create();
 
     assertDoesNotThrow(() -> noHitbox.getComponent(TouchAttackComponent.class).activate());
@@ -485,21 +481,21 @@ class TouchAttackComponentTest {
 
   private Entity createAttacker(short targetLayer, int health, int baseAttack) {
     Entity attacker =
-      new Entity()
-        .addComponent(new TouchAttackComponent(targetLayer))
-        .addComponent(new CombatStatsComponent(health, baseAttack))
-        .addComponent(new PhysicsComponent())
-        .addComponent(new HitboxComponent());
+        new Entity()
+            .addComponent(new TouchAttackComponent(targetLayer))
+            .addComponent(new CombatStatsComponent(health, baseAttack))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new HitboxComponent());
     attacker.create();
     return attacker;
   }
 
   private Entity createTarget(short layer, int health) {
     Entity target =
-      new Entity()
-        .addComponent(new CombatStatsComponent(health, 0))
-        .addComponent(new PhysicsComponent())
-        .addComponent(new HitboxComponent().setLayer(layer));
+        new Entity()
+            .addComponent(new CombatStatsComponent(health, 0))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new HitboxComponent().setLayer(layer));
     target.create();
     return target;
   }
@@ -510,11 +506,11 @@ class TouchAttackComponentTest {
 
   private Entity createPhysicalAttacker(float x, float y, float knockback) {
     Entity attacker =
-      new Entity()
-        .addComponent(new TouchAttackComponent(TARGET_LAYER, knockback))
-        .addComponent(new CombatStatsComponent(0, BASE_ATTACK))
-        .addComponent(new PhysicsComponent())
-        .addComponent(new HitboxComponent());
+        new Entity()
+            .addComponent(new TouchAttackComponent(TARGET_LAYER, knockback))
+            .addComponent(new CombatStatsComponent(0, BASE_ATTACK))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new HitboxComponent());
     attacker.setScale(1f, 1f);
     attacker.create();
     attacker.setPosition(x, y);
@@ -528,10 +524,10 @@ class TouchAttackComponentTest {
 
   private Entity createPhysicalTarget(float x, float y, int health, short layer) {
     Entity target =
-      new Entity()
-        .addComponent(new CombatStatsComponent(health, 0))
-        .addComponent(new PhysicsComponent())
-        .addComponent(new HitboxComponent().setLayer(layer));
+        new Entity()
+            .addComponent(new CombatStatsComponent(health, 0))
+            .addComponent(new PhysicsComponent())
+            .addComponent(new HitboxComponent().setLayer(layer));
     target.setScale(1f, 1f);
     target.create();
     target.setPosition(x, y);

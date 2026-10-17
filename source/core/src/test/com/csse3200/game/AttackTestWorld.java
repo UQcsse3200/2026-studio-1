@@ -94,11 +94,11 @@ public final class AttackTestWorld {
    */
   public Entity newTarget(float x, float y, int health) {
     Entity target =
-      new Entity()
-        .addComponent(new PhysicsComponent())
-        .addComponent(new ColliderComponent())
-        .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
-        .addComponent(new CombatStatsComponent(health, 0));
+        new Entity()
+            .addComponent(new PhysicsComponent())
+            .addComponent(new ColliderComponent())
+            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
+            .addComponent(new CombatStatsComponent(health, 0));
     register(target);
     target.setPosition(x, y);
     target.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);

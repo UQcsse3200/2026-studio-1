@@ -39,11 +39,11 @@ class ChargeComponentTest {
     assertThrows(IllegalArgumentException.class, () -> new ChargeComponent(2f, 3f, 1.5f, 1.0f));
     assertThrows(IllegalArgumentException.class, () -> new ChargeComponent(2f, 3f, 1.5f, 0.5f));
     assertThrows(
-      IllegalArgumentException.class, () -> new ChargeComponent(2f, -0.1f, 3f, 1.5f, 2.0f));
+        IllegalArgumentException.class, () -> new ChargeComponent(2f, -0.1f, 3f, 1.5f, 2.0f));
     assertThrows(
-      IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.0f, 3f, 1.5f, 2.0f));
+        IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.0f, 3f, 1.5f, 2.0f));
     assertThrows(
-      IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.5f, 3f, 1.5f, 2.0f));
+        IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.5f, 3f, 1.5f, 2.0f));
   }
 
   @Test
@@ -282,10 +282,10 @@ class ChargeComponentTest {
     TouchAttackComponent touchAttack = mock(TouchAttackComponent.class);
     ChargeComponent charge = new ChargeComponent(2.0f, 3.0f, 1.5f, 2.0f); // no windup
     entity
-      .addComponent(new PhysicsComponent())
-      .addComponent(new PhysicsMovementComponent())
-      .addComponent(touchAttack)
-      .addComponent(charge);
+        .addComponent(new PhysicsComponent())
+        .addComponent(new PhysicsMovementComponent())
+        .addComponent(touchAttack)
+        .addComponent(charge);
     entity.create();
 
     EventListener0 endListener = mock(EventListener0.class);
@@ -308,10 +308,10 @@ class ChargeComponentTest {
     TouchAttackComponent touchAttack = mock(TouchAttackComponent.class);
     ChargeComponent charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
     entity
-      .addComponent(new PhysicsComponent())
-      .addComponent(new PhysicsMovementComponent())
-      .addComponent(touchAttack)
-      .addComponent(charge);
+        .addComponent(new PhysicsComponent())
+        .addComponent(new PhysicsMovementComponent())
+        .addComponent(touchAttack)
+        .addComponent(charge);
     entity.create();
 
     EventListener0 endListener = mock(EventListener0.class);
@@ -334,20 +334,20 @@ class ChargeComponentTest {
     TouchAttackComponent touchAttack = mock(TouchAttackComponent.class);
     ChargeComponent charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
     entity
-      .addComponent(new PhysicsComponent())
-      .addComponent(new PhysicsMovementComponent())
-      .addComponent(touchAttack)
-      .addComponent(charge);
+        .addComponent(new PhysicsComponent())
+        .addComponent(new PhysicsMovementComponent())
+        .addComponent(touchAttack)
+        .addComponent(charge);
     entity.create();
 
     // switching the touch attack on lands a hit straight away
     doAnswer(
-      invocation -> {
-        entity.getEvents().trigger("touchAttackHit", victim);
-        return null;
-      })
-      .when(touchAttack)
-      .activate();
+            invocation -> {
+              entity.getEvents().trigger("touchAttackHit", victim);
+              return null;
+            })
+        .when(touchAttack)
+        .activate();
 
     EventListener0 endListener = mock(EventListener0.class);
     entity.getEvents().addListener("chargeEnd", endListener);
@@ -374,10 +374,10 @@ class ChargeComponentTest {
     charge.startCharge(new Vector2(10f, 0f));
 
     assertDoesNotThrow(
-      () -> {
-        charge.update();
-        charge.update();
-      });
+        () -> {
+          charge.update();
+          charge.update();
+        });
     assertTrue(charge.isRushing());
     verify(rushListener, times(1)).handle();
   }

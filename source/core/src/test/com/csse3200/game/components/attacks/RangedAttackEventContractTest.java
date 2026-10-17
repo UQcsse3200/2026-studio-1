@@ -68,12 +68,12 @@ class RangedAttackEventContractTest {
     ServiceLocator.registerPhysicsService(new PhysicsService());
     EntityService entityService = mock(EntityService.class);
     doAnswer(
-      invocation -> {
-        registered.add(invocation.getArgument(0));
-        return null;
-      })
-      .when(entityService)
-      .register(any(Entity.class));
+            invocation -> {
+              registered.add(invocation.getArgument(0));
+              return null;
+            })
+        .when(entityService)
+        .register(any(Entity.class));
     ServiceLocator.registerEntityService(entityService);
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(0.02f);
@@ -170,7 +170,7 @@ class RangedAttackEventContractTest {
   @Test
   void nullTargetDoesNothingAndKeepsTheCooldown() {
     assertDoesNotThrow(
-      () -> shooter.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
+        () -> shooter.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
     assertEquals(0, registered.size());
 
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
@@ -180,7 +180,7 @@ class RangedAttackEventContractTest {
   @Test
   void nullProjectileTypeDoesNothingAndKeepsTheCooldown() {
     assertDoesNotThrow(
-      () -> shooter.getEvents().trigger("rangedAttack", target, (ProjectileType) null));
+        () -> shooter.getEvents().trigger("rangedAttack", target, (ProjectileType) null));
     assertEquals(0, registered.size());
 
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
@@ -194,7 +194,7 @@ class RangedAttackEventContractTest {
     noStats.setPosition(3f, 0f);
 
     assertDoesNotThrow(
-      () -> shooter.getEvents().trigger("rangedAttack", noStats, ProjectileType.ARROW));
+        () -> shooter.getEvents().trigger("rangedAttack", noStats, ProjectileType.ARROW));
     assertEquals(0, registered.size(), "A target that cannot take damage must not be shot at");
 
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
@@ -206,8 +206,8 @@ class RangedAttackEventContractTest {
     // The order is part of the contract: target first, projectile type second.
     var events = shooter.getEvents();
     assertThrows(
-      ClassCastException.class,
-      () -> events.trigger("rangedAttack", ProjectileType.ARROW, target));
+        ClassCastException.class,
+        () -> events.trigger("rangedAttack", ProjectileType.ARROW, target));
 
     assertEquals(0, registered.size());
   }
@@ -282,10 +282,10 @@ class RangedAttackEventContractTest {
     Entity localTarget = new Entity();
     localTarget.setPosition(1, 0);
     Entity owner =
-      new Entity()
-        .addComponent(
-          new AITaskComponent()
-            .addTask(new RangedAttackTask(localTarget, 10, 5f, ProjectileType.LIGHTNING)));
+        new Entity()
+            .addComponent(
+                new AITaskComponent()
+                    .addTask(new RangedAttackTask(localTarget, 10, 5f, ProjectileType.LIGHTNING)));
     owner.create();
     owner.setPosition(0, 0);
 
@@ -307,9 +307,9 @@ class RangedAttackEventContractTest {
   private Entity createShooter(int baseAttack, AITaskComponent ai) {
     WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, WeaponTier.TIER_1, 1, 1, 0f);
     Entity entity =
-      new Entity()
-        .addComponent(new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow))
-        .addComponent(new CombatStatsComponent(20, baseAttack));
+        new Entity()
+            .addComponent(new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow))
+            .addComponent(new CombatStatsComponent(20, baseAttack));
     if (ai != null) {
       entity.addComponent(ai);
     }

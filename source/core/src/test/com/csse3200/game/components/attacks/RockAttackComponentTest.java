@@ -82,15 +82,15 @@ class RockAttackComponentTest {
   void shouldRejectASpawnHeightOutsideZeroToOne(float fraction) {
     var weapon = weapon();
     assertThrows(
-      IllegalArgumentException.class,
-      () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, fraction, MULTIPLIER));
+        IllegalArgumentException.class,
+        () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, fraction, MULTIPLIER));
   }
 
   @ParameterizedTest(name = "spawnHeightFraction {0} is accepted")
   @ValueSource(floats = {0f, 0.5f, 1f})
   void shouldAcceptTheEdgesOfTheSpawnHeightRange(float fraction) {
     assertDoesNotThrow(
-      () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER));
+        () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER));
   }
 
   @ParameterizedTest(name = "damageMultiplier {0} is rejected")
@@ -98,19 +98,17 @@ class RockAttackComponentTest {
   void shouldRejectAZeroOrNegativeMultiplier(float multiplier) {
     var weapon = weapon();
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new RockAttackComponent(
-          RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, multiplier));
+        IllegalArgumentException.class,
+        () ->
+            new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, multiplier));
   }
 
   @Test
   void shouldRejectANotANumberMultiplier() {
     var weapon = weapon();
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, Float.NaN));
+        IllegalArgumentException.class,
+        () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, Float.NaN));
   }
 
   @Test
@@ -119,28 +117,28 @@ class RockAttackComponentTest {
     // A zero range, a negative knockback and a windup as long as the cooldown are all refused by
     // the parent. A copy of this test for the laser keeps the same three cases.
     assertThrows(
-      IllegalArgumentException.class,
-      () -> new RockAttackComponent(0f, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, MULTIPLIER));
+        IllegalArgumentException.class,
+        () -> new RockAttackComponent(0f, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, MULTIPLIER));
     assertThrows(
-      IllegalArgumentException.class,
-      () -> new RockAttackComponent(RANGE, COOLDOWN, -1f, weapon, SPAWN_HEIGHT, MULTIPLIER));
+        IllegalArgumentException.class,
+        () -> new RockAttackComponent(RANGE, COOLDOWN, -1f, weapon, SPAWN_HEIGHT, MULTIPLIER));
     assertThrows(
-      IllegalArgumentException.class,
-      () ->
-        new RockAttackComponent(
-          RANGE,
-          COOLDOWN,
-          KNOCKBACK,
-          AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN),
-          SPAWN_HEIGHT,
-          MULTIPLIER));
+        IllegalArgumentException.class,
+        () ->
+            new RockAttackComponent(
+                RANGE,
+                COOLDOWN,
+                KNOCKBACK,
+                AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN),
+                SPAWN_HEIGHT,
+                MULTIPLIER));
   }
 
   @Test
   void shouldRejectANullWeapon() {
     assertThrows(
-      Exception.class,
-      () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, null, SPAWN_HEIGHT, MULTIPLIER));
+        Exception.class,
+        () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, null, SPAWN_HEIGHT, MULTIPLIER));
   }
 
   // ---------- 2. lookup ----------
@@ -151,9 +149,9 @@ class RockAttackComponentTest {
 
     assertNotNull(owner.getComponent(RockAttackComponent.class));
     assertNull(
-      owner.getComponent(RangedAttackComponent.class),
-      "the base-class lookup does not find a subclass; the factory and controller must use"
-        + " the subclass");
+        owner.getComponent(RangedAttackComponent.class),
+        "the base-class lookup does not find a subclass; the factory and controller must use"
+            + " the subclass");
   }
 
   // ---------- 3. events ----------
@@ -274,11 +272,11 @@ class RockAttackComponentTest {
     Vector2 high = launchPositionFor(0.9f);
 
     assertTrue(
-      high.y > low.y + 0.5f,
-      "a spawn height of 0.9 of a 2 unit body must be clearly above 0.1 of it: "
-        + low.y
-        + " then "
-        + high.y);
+        high.y > low.y + 0.5f,
+        "a spawn height of 0.9 of a 2 unit body must be clearly above 0.1 of it: "
+            + low.y
+            + " then "
+            + high.y);
   }
 
   @Test
@@ -312,7 +310,7 @@ class RockAttackComponentTest {
     Entity rock = world.registeredSince(before).get(0);
 
     assertTrue(
-      AttackTestWorld.velocityOf(rock).x > 0f, "the rock leaves heading toward the target");
+        AttackTestWorld.velocityOf(rock).x > 0f, "the rock leaves heading toward the target");
   }
 
   @Test
@@ -377,10 +375,10 @@ class RockAttackComponentTest {
     Entity owner = world.newAttacker(newRock());
 
     assertDoesNotThrow(
-      () -> {
-        owner.getEvents().trigger("rockAttack", null, ProjectileType.ARROW);
-        world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-      });
+        () -> {
+          owner.getEvents().trigger("rockAttack", null, ProjectileType.ARROW);
+          world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
+        });
   }
 
   @Test
@@ -388,8 +386,8 @@ class RockAttackComponentTest {
     // Two attacks on one owner, each under its own prefix: a rock trigger starts only the rock.
     RockAttackComponent rock = newRock();
     RangedAttackComponent other = new RangedAttackComponent(7f, 3f, 0f, weapon()) {
-      // stands in for the laser: an ordinary ranged attack under the default prefix
-    };
+          // stands in for the laser: an ordinary ranged attack under the default prefix
+        };
     Entity owner = world.newAttacker(rock, other);
     Entity target = world.newTarget(4f, 0f, 50);
     List<Entity> otherWindups = AttackTestWorld.recordEvents(owner, "rangedAttackWindup");
@@ -409,7 +407,7 @@ class RockAttackComponentTest {
 
   private RockAttackComponent newRock() {
     RockAttackComponent rock =
-      new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, MULTIPLIER);
+        new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, MULTIPLIER);
     rock.setProjectileSpeed(SPEED);
     return rock;
   }
@@ -419,7 +417,7 @@ class RockAttackComponentTest {
    */
   private Vector2 launchPositionFor(float fraction) {
     RockAttackComponent rock =
-      new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER);
+        new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER);
     rock.setProjectileSpeed(SPEED);
     Entity owner = world.newAttacker(rock);
     Entity target = world.newTarget(4f, 0f, 50);
@@ -435,13 +433,13 @@ class RockAttackComponentTest {
    */
   private int healthAfterRockHits(int weaponDamage, float multiplier, int targetHealth) {
     RockAttackComponent rock =
-      new RockAttackComponent(
-        RANGE,
-        COOLDOWN,
-        0f,
-        AttackTestWorld.naturalWeapon(weaponDamage, WINDUP),
-        SPAWN_HEIGHT,
-        multiplier);
+        new RockAttackComponent(
+            RANGE,
+            COOLDOWN,
+            0f,
+            AttackTestWorld.naturalWeapon(weaponDamage, WINDUP),
+            SPAWN_HEIGHT,
+            multiplier);
     rock.setProjectileSpeed(SPEED);
     Entity owner = world.newAttacker(rock);
     Entity target = world.newTarget(4f, 1.2f, targetHealth);

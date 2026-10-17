@@ -102,7 +102,7 @@ class WinEvaluatorTest {
 
     assertEquals(WinTier.NONE, r.getTier());
     assertEquals(
-      BossRoster.getRequiredCount(), r.getMiniBossesDefeated(), "progress is still counted");
+        BossRoster.getRequiredCount(), r.getMiniBossesDefeated(), "progress is still counted");
   }
 
   @Test
@@ -142,7 +142,7 @@ class WinEvaluatorTest {
     WinResult r = WinEvaluator.evaluate(true, kills, QUESTS);
 
     assertEquals(
-      WinTier.VICTORY, r.getTier(), "all quests done, but a guardian lives: only Victory");
+        WinTier.VICTORY, r.getTier(), "all quests done, but a guardian lives: only Victory");
     assertEquals(7, r.getMiniBossesDefeated());
     assertEquals(1, r.getMissingMiniBosses().size());
     assertTrue(labelsOf(spared).contains(r.getMissingMiniBosses().get(0)));
@@ -235,7 +235,7 @@ class WinEvaluatorTest {
   void shouldGiveGloryBelowTheQuestThreshold(int quests, WinTier expected) {
     // Written for the default threshold of 3; the first assertion makes that assumption explicit.
     assertEquals(
-      3, WinEvaluator.QUESTS_REQUIRED_FOR_LEGEND, "update this table if the threshold changes");
+        3, WinEvaluator.QUESTS_REQUIRED_FOR_LEGEND, "update this table if the threshold changes");
 
     assertEquals(expected, WinEvaluator.evaluate(true, allRequired(), quests).getTier());
   }
@@ -370,7 +370,7 @@ class WinEvaluatorTest {
       WinResult r = WinEvaluator.evaluate(true, allRequired().subList(0, defeated), 0);
 
       assertEquals(
-        r.getMiniBossesRequired() - r.getMiniBossesDefeated(), r.getMissingMiniBosses().size());
+          r.getMiniBossesRequired() - r.getMiniBossesDefeated(), r.getMissingMiniBosses().size());
     }
   }
 
@@ -441,7 +441,7 @@ class WinEvaluatorTest {
   }
 
   private static WinResult assertDoesNotThrowValue(
-    java.util.function.Supplier<WinResult> supplier) {
+      java.util.function.Supplier<WinResult> supplier) {
     return assertDoesNotThrow(supplier::get);
   }
 }

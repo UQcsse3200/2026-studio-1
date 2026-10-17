@@ -202,7 +202,7 @@ class RangedAttackWindupTest {
     Events ev = listenToAll(attacker);
 
     assertDoesNotThrow(
-      () -> attacker.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
+        () -> attacker.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
     runUpdates(attacker, UPDATES_TO_RESOLVE);
 
     assertEquals(0, ev.total());
@@ -255,7 +255,7 @@ class RangedAttackWindupTest {
     Events ev = listenToAll(attacker);
 
     assertDoesNotThrow(
-      () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
+        () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
     runUpdates(attacker, UPDATES_TO_RESOLVE);
 
     assertEquals(0, ev.total());
@@ -289,8 +289,8 @@ class RangedAttackWindupTest {
     assertEquals(1, ev.fired.size(), "Zero windup must fire inside the trigger call.");
     assertEquals(1, ev.windups.size(), "The windup event is still announced, once.");
     assertFalse(
-      attacker.getComponent(RangedAttackComponent.class).isWindingUp(),
-      "A zero windup must not leave a shot pending.");
+        attacker.getComponent(RangedAttackComponent.class).isWindingUp(),
+        "A zero windup must not leave a shot pending.");
   }
 
   // ---------- windup getter ----------
@@ -300,7 +300,7 @@ class RangedAttackWindupTest {
     RangedAttackComponent ranged = new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow(WINDUP));
     assertTrue(ranged.getWindupDuration() >= 0f);
     assertEquals(
-      WINDUP, ranged.getWindupDuration(), 1e-6f, "Armed windup must come from the weapon.");
+        WINDUP, ranged.getWindupDuration(), 1e-6f, "Armed windup must come from the weapon.");
   }
 
   @Test
@@ -337,9 +337,9 @@ class RangedAttackWindupTest {
 
   private Entity createAttacker(float windup) {
     Entity attacker =
-      new Entity()
-        .addComponent(new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow(windup)))
-        .addComponent(new CombatStatsComponent(20, 5));
+        new Entity()
+            .addComponent(new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow(windup)))
+            .addComponent(new CombatStatsComponent(20, 5));
     attacker.create();
     attacker.setPosition(0f, 0f);
     return attacker;
@@ -371,13 +371,13 @@ class RangedAttackWindupTest {
 
   private Events listenToAll(Entity attacker) {
     Events ev = new Events();
-    attacker.getEvents().addListener("rangedAttackWindup", (EventListener1<Entity>) ev.windups::add);
     attacker
-      .getEvents()
-      .addListener("rangedAttackFired", (EventListener1<Entity>) ev.fired::add);
+        .getEvents()
+        .addListener("rangedAttackWindup", (EventListener1<Entity>) ev.windups::add);
+    attacker.getEvents().addListener("rangedAttackFired", (EventListener1<Entity>) ev.fired::add);
     attacker
-      .getEvents()
-      .addListener("rangedAttackCancelled", (EventListener1<Entity>) ev.cancels::add);
+        .getEvents()
+        .addListener("rangedAttackCancelled", (EventListener1<Entity>) ev.cancels::add);
     return ev;
   }
 }

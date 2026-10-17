@@ -60,7 +60,7 @@ class MeleeAttackWindupWhiffTest {
   void windupDurationMatchesTheWeaponsWindup() {
     MeleeAttackComponent melee = new MeleeAttackComponent(RANGE, COOLDOWN, 0f, windupWeapon());
     assertEquals(
-      WINDUP, melee.getWindupDuration(), 1e-6f, "Armed attacker should use the weapon's windup.");
+        WINDUP, melee.getWindupDuration(), 1e-6f, "Armed attacker should use the weapon's windup.");
   }
 
   @Test
@@ -90,10 +90,10 @@ class MeleeAttackWindupWhiffTest {
 
     attacker.update();
     assertEquals(
-      WINDUP - DELTA,
-      melee.getWindupTimeRemaining(),
-      1e-5f,
-      "Remaining windup should drop by exactly one frame's delta.");
+        WINDUP - DELTA,
+        melee.getWindupTimeRemaining(),
+        1e-5f,
+        "Remaining windup should drop by exactly one frame's delta.");
     assertTrue(melee.isWindingUp());
   }
 
@@ -244,9 +244,9 @@ class MeleeAttackWindupWhiffTest {
     runUpdates(attacker, UPDATES_TO_RESOLVE);
 
     assertEquals(
-      ATTACKER_BASE_ATTACK,
-      attacker.getComponent(CombatStatsComponent.class).getBaseAttack(),
-      "The attacker's own base attack must not be left at the weapon's damage after a hit.");
+        ATTACKER_BASE_ATTACK,
+        attacker.getComponent(CombatStatsComponent.class).getBaseAttack(),
+        "The attacker's own base attack must not be left at the weapon's damage after a hit.");
   }
 
   @Test
@@ -259,7 +259,7 @@ class MeleeAttackWindupWhiffTest {
     runUpdates(attacker, UPDATES_TO_RESOLVE);
 
     assertEquals(
-      ATTACKER_BASE_ATTACK, attacker.getComponent(CombatStatsComponent.class).getBaseAttack());
+        ATTACKER_BASE_ATTACK, attacker.getComponent(CombatStatsComponent.class).getBaseAttack());
   }
 
   @Test
@@ -277,7 +277,7 @@ class MeleeAttackWindupWhiffTest {
 
     assertEquals(100 - WEAPON_DAMAGE, afterFirst);
     assertEquals(
-      afterFirst - WEAPON_DAMAGE, targetStats.getHealth(), "Second hit drifted from the first.");
+        afterFirst - WEAPON_DAMAGE, targetStats.getHealth(), "Second hit drifted from the first.");
   }
 
   @Test
@@ -298,16 +298,16 @@ class MeleeAttackWindupWhiffTest {
 
     assertEquals(firstHitDamage, secondHitDamage, "Multiplier must not compound between hits.");
     assertEquals(
-      ATTACKER_BASE_ATTACK, attacker.getComponent(CombatStatsComponent.class).getBaseAttack());
+        ATTACKER_BASE_ATTACK, attacker.getComponent(CombatStatsComponent.class).getBaseAttack());
   }
 
   @Test
   void unarmedAttackerKeepsItsBaseAttackAndDealsIt() {
     Entity attacker =
-      new Entity()
-        .addComponent(new MeleeAttackComponent(RANGE, 3f, 0f))
-        .addComponent(new CombatStatsComponent(10, 7))
-        .addComponent(new PhysicsComponent());
+        new Entity()
+            .addComponent(new MeleeAttackComponent(RANGE, 3f, 0f))
+            .addComponent(new CombatStatsComponent(10, 7))
+            .addComponent(new PhysicsComponent());
     attacker.create();
     Entity target = createTarget(1f, 100);
 
@@ -326,10 +326,10 @@ class MeleeAttackWindupWhiffTest {
 
   private Entity createAttacker() {
     Entity attacker =
-      new Entity()
-        .addComponent(new MeleeAttackComponent(RANGE, COOLDOWN, 0f, windupWeapon()))
-        .addComponent(new CombatStatsComponent(10, ATTACKER_BASE_ATTACK))
-        .addComponent(new PhysicsComponent());
+        new Entity()
+            .addComponent(new MeleeAttackComponent(RANGE, COOLDOWN, 0f, windupWeapon()))
+            .addComponent(new CombatStatsComponent(10, ATTACKER_BASE_ATTACK))
+            .addComponent(new PhysicsComponent());
     attacker.create();
     attacker.setPosition(0f, 0f);
     return attacker;
@@ -337,9 +337,9 @@ class MeleeAttackWindupWhiffTest {
 
   private Entity createTarget(float x, int health) {
     Entity target =
-      new Entity()
-        .addComponent(new CombatStatsComponent(health, 0))
-        .addComponent(new PhysicsComponent());
+        new Entity()
+            .addComponent(new CombatStatsComponent(health, 0))
+            .addComponent(new PhysicsComponent());
     target.create();
     target.setPosition(x, 0f);
     return target;

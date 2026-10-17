@@ -77,7 +77,7 @@ class PetrifyEffectComponentTest {
   /** Builds a created shooter that petrifies for the given seconds with the given cooldown. */
   private static Entity shooter(float seconds, float cooldown) {
     Entity medusa =
-      new Entity().addComponent(PetrifyEffectComponent.forShooter(config(seconds), cooldown));
+        new Entity().addComponent(PetrifyEffectComponent.forShooter(config(seconds), cooldown));
     medusa.create();
     return medusa;
   }
@@ -85,8 +85,8 @@ class PetrifyEffectComponentTest {
   /** Calls the package-private cooldown rule by reflection, unwrapping the real exception. */
   private static void callRequireCooldown(float cooldown, float effectSeconds) throws Throwable {
     Method rule =
-      PetrifyEffectComponent.class.getDeclaredMethod(
-        "requireCooldownCoversEffect", float.class, float.class);
+        PetrifyEffectComponent.class.getDeclaredMethod(
+            "requireCooldownCoversEffect", float.class, float.class);
     rule.setAccessible(true);
     try {
       rule.invoke(null, cooldown, effectSeconds);
@@ -212,7 +212,7 @@ class PetrifyEffectComponentTest {
       medusa.getEvents().trigger("rangedAttackHit", target);
 
       verify(playerActions)
-        .addSpeedModifier(any(), eq(PetrifyEffectComponent.PETRIFY_SPEED_MULTIPLIER));
+          .addSpeedModifier(any(), eq(PetrifyEffectComponent.PETRIFY_SPEED_MULTIPLIER));
       assertEquals(0f, PetrifyEffectComponent.PETRIFY_SPEED_MULTIPLIER);
     }
 
@@ -256,9 +256,9 @@ class PetrifyEffectComponentTest {
 
       // 3 s petrify, 7 s cooldown
       assertDoesNotThrow(
-        () ->
-          PetrifyEffectComponent.forShooter(
-            configs.medusa.petrify, configs.medusa.ranged.cooldown));
+          () ->
+              PetrifyEffectComponent.forShooter(
+                  configs.medusa.petrify, configs.medusa.ranged.cooldown));
     }
   }
 
@@ -270,7 +270,7 @@ class PetrifyEffectComponentTest {
     @Test
     void shouldRejectANullConfig() {
       assertThrows(
-        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(null, 7f));
+          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(null, 7f));
     }
 
     /** Should reject a zero duration (zero ticks would petrify forever). */
@@ -278,7 +278,7 @@ class PetrifyEffectComponentTest {
     void shouldRejectAZeroDuration() {
       var testConfig = config(0f);
       assertThrows(
-        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
+          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject a negative duration. */
@@ -286,7 +286,7 @@ class PetrifyEffectComponentTest {
     void shouldRejectANegativeDuration() {
       var testConfig = config(-1f);
       assertThrows(
-        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
+          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject a NaN duration. */
@@ -294,8 +294,7 @@ class PetrifyEffectComponentTest {
     void shouldRejectANaNDuration() {
       var testConfig = config(Float.NaN);
       assertThrows(
-        IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
+          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject an infinite duration. */
@@ -303,8 +302,7 @@ class PetrifyEffectComponentTest {
     void shouldRejectAnInfiniteDuration() {
       var testConfig = config(Float.POSITIVE_INFINITY);
       assertThrows(
-        IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
+          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject a duration shorter than one tick. */
@@ -312,8 +310,7 @@ class PetrifyEffectComponentTest {
     void shouldRejectADurationShorterThanOneTick() {
       var testConfig = config(0.001f);
       assertThrows(
-        IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
+          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should accept a cooldown more than twice the duration. */
@@ -333,8 +330,8 @@ class PetrifyEffectComponentTest {
     void shouldRejectJustBelowTwiceTheDuration() {
       var testConfig = config(2f);
       assertThrows(
-        IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(testConfig, 3.9f));
+          IllegalArgumentException.class,
+          () -> PetrifyEffectComponent.forShooter(testConfig, 3.9f));
     }
 
     /** Should reject a NaN cooldown. */
@@ -342,8 +339,8 @@ class PetrifyEffectComponentTest {
     void shouldRejectANaNCooldown() {
       var testConfig = config(2f);
       assertThrows(
-        IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(testConfig, Float.NaN));
+          IllegalArgumentException.class,
+          () -> PetrifyEffectComponent.forShooter(testConfig, Float.NaN));
     }
 
     /** Should name the cooldown and the minimum in the message. */
@@ -351,9 +348,9 @@ class PetrifyEffectComponentTest {
     void shouldNameTheCooldownAndTheMinimumInTheMessage() {
       var testConfig = config(2f);
       IllegalArgumentException exception =
-        assertThrows(
-          IllegalArgumentException.class,
-          () -> PetrifyEffectComponent.forShooter(testConfig, 3f));
+          assertThrows(
+              IllegalArgumentException.class,
+              () -> PetrifyEffectComponent.forShooter(testConfig, 3f));
 
       assertTrue(exception.getMessage().contains("3"));
       assertTrue(exception.getMessage().contains("4"));
@@ -402,8 +399,7 @@ class PetrifyEffectComponentTest {
       assertThrows(IllegalArgumentException.class, () -> callRequireCooldown(Float.NaN, 2f));
       var testConfig = config(Float.NaN);
       assertThrows(
-        IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
+          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should turn seconds into ticks. */

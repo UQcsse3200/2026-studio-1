@@ -85,9 +85,9 @@ class RangedAttackComponentTest {
     assertEquals(2.5f, ranged.getCooldown());
     assertEquals(1f, ranged.getKnockback());
     assertEquals(
-      8f,
-      ranged.getProjectileSpeed(),
-      "Should default to 8f until overridden via setProjectileSpeed(...)");
+        8f,
+        ranged.getProjectileSpeed(),
+        "Should default to 8f until overridden via setProjectileSpeed(...)");
   }
 
   @Test
@@ -146,8 +146,8 @@ class RangedAttackComponentTest {
     List<Entity> fired = listenForFired(attacker);
 
     assertDoesNotThrow(
-      () ->
-        attacker.getEvents().trigger("rangedAttack", targetWithoutStats, ProjectileType.ARROW));
+        () ->
+            attacker.getEvents().trigger("rangedAttack", targetWithoutStats, ProjectileType.ARROW));
 
     assertEquals(0, fired.size());
   }
@@ -164,9 +164,9 @@ class RangedAttackComponentTest {
     attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
     assertEquals(
-      1,
-      fired.size(),
-      "Expected the second shot attempted within the same cooldown window to be blocked.");
+        1,
+        fired.size(),
+        "Expected the second shot attempted within the same cooldown window to be blocked.");
   }
 
   @Test
@@ -194,7 +194,7 @@ class RangedAttackComponentTest {
   void shouldNotThrowWhenTargetIsNull() {
     Entity attacker = createAttacker(6f, 2f, 0f);
     assertDoesNotThrow(
-      () -> attacker.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
+        () -> attacker.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
   }
 
   @Test
@@ -207,7 +207,7 @@ class RangedAttackComponentTest {
     target.setPosition(2, 0);
 
     assertDoesNotThrow(
-      () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
+        () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
   }
 
   @Test
@@ -221,7 +221,7 @@ class RangedAttackComponentTest {
     List<Entity> fired = listenForFired(attacker);
 
     assertDoesNotThrow(
-      () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
+        () -> attacker.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW));
 
     assertEquals(1, fired.size());
   }
@@ -246,21 +246,21 @@ class RangedAttackComponentTest {
     EntityService entityService = mock(EntityService.class);
     List<Entity> registered = new ArrayList<>();
     doAnswer(
-      invocation -> {
-        registered.add(invocation.getArgument(0));
-        return null;
-      })
-      .when(entityService)
-      .register(any(Entity.class));
+            invocation -> {
+              registered.add(invocation.getArgument(0));
+              return null;
+            })
+        .when(entityService)
+        .register(any(Entity.class));
     ServiceLocator.registerEntityService(entityService);
 
     WeaponItem weapon = createInstantWeapon();
     Entity attacker =
-      new Entity()
-        .addComponent(new RangedAttackComponent(6f, 2f, 0f, weapon))
-        // Deliberately different from the weapon's damage, so this test fails if the arrow's
-        // damage is ever sourced from this instead.
-        .addComponent(new CombatStatsComponent(20, 999));
+        new Entity()
+            .addComponent(new RangedAttackComponent(6f, 2f, 0f, weapon))
+            // Deliberately different from the weapon's damage, so this test fails if the arrow's
+            // damage is ever sourced from this instead.
+            .addComponent(new CombatStatsComponent(20, 999));
     attacker.create();
     Entity target = createTarget();
     attacker.setPosition(0, 0);
@@ -271,10 +271,10 @@ class RangedAttackComponentTest {
     assertEquals(1, registered.size());
     Entity arrow = registered.get(0);
     assertEquals(
-      weapon.getDamage(),
-      arrow.getComponent(CombatStatsComponent.class).getBaseAttack(),
-      "Expected the fired arrow's damage to come from the weapon, not the shooter's own base "
-        + "attack.");
+        weapon.getDamage(),
+        arrow.getComponent(CombatStatsComponent.class).getBaseAttack(),
+        "Expected the fired arrow's damage to come from the weapon, not the shooter's own base "
+            + "attack.");
   }
 
   // --- damageMultiplier (DifficultyScaler) ---
@@ -317,7 +317,7 @@ class RangedAttackComponentTest {
     // directly - applying damageMultiplier here too would scale it a second time.
     RangedAttackComponent ranged = new RangedAttackComponent(6f, 2f, 0f);
     Entity attacker =
-      new Entity().addComponent(ranged).addComponent(new CombatStatsComponent(20, 7));
+        new Entity().addComponent(ranged).addComponent(new CombatStatsComponent(20, 7));
     attacker.create();
 
     ranged.setDamageMultiplier(2f); // deliberately drastic - must have zero effect here
@@ -392,7 +392,7 @@ class RangedAttackComponentTest {
 
     PlayerActions playerActions = mockPlayerActionsTarget();
     Entity target =
-      new Entity().addComponent(playerActions).addComponent(new SpeedEffectComponent());
+        new Entity().addComponent(playerActions).addComponent(new SpeedEffectComponent());
     target.create();
     bolt.getEvents().trigger("projectileHit", target);
     SpeedEffectComponent speed = target.getComponent(SpeedEffectComponent.class);
@@ -411,16 +411,16 @@ class RangedAttackComponentTest {
     EntityService entityService = mock(EntityService.class);
     List<Entity> registered = new ArrayList<>();
     doAnswer(
-      invocation -> {
-        registered.add(invocation.getArgument(0));
-        return null;
-      })
-      .when(entityService)
-      .register(any(Entity.class));
+            invocation -> {
+              registered.add(invocation.getArgument(0));
+              return null;
+            })
+        .when(entityService)
+        .register(any(Entity.class));
     ServiceLocator.registerEntityService(entityService);
 
     Entity attacker =
-      new Entity().addComponent(rangedComponent).addComponent(new CombatStatsComponent(20, 5));
+        new Entity().addComponent(rangedComponent).addComponent(new CombatStatsComponent(20, 5));
     attacker.create();
     Entity target = createTarget();
     attacker.setPosition(0, 0);
@@ -461,10 +461,10 @@ class RangedAttackComponentTest {
 
   private Entity createAttacker(float range, float cooldown, float knockback) {
     Entity attacker =
-      new Entity()
-        .addComponent(
-          new RangedAttackComponent(range, cooldown, knockback, createInstantWeapon()))
-        .addComponent(new CombatStatsComponent(20, 5));
+        new Entity()
+            .addComponent(
+                new RangedAttackComponent(range, cooldown, knockback, createInstantWeapon()))
+            .addComponent(new CombatStatsComponent(20, 5));
     attacker.create();
     return attacker;
   }
