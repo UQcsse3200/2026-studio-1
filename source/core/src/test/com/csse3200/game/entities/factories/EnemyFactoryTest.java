@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.ai.tasks.PriorityTask;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.npc.NameComponent;
 import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.enemies.*;
 import com.csse3200.game.components.enemies.animation.*;

@@ -15,12 +15,12 @@ import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.enemies.*;
 import com.csse3200.game.components.enemies.animation.*;
-import com.csse3200.game.components.npc.NameComponent;
-import com.csse3200.game.components.npc.NameGenerator;
 import com.csse3200.game.components.enemies.attacks.*;
 import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.enemies.tasks.*;
 import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameGenerator;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.projectile.ProjectileType;
@@ -882,6 +882,7 @@ public final class EnemyFactory {
    * @return a new entity that is not yet created
    */
   private static final NameGenerator NAME_GENERATOR = new NameGenerator();
+
   private static Entity newEnemyBody(AITaskComponent aiComponent, boolean grounded) {
     Entity enemyBody = new Entity();
     enemyBody.addComponent(new NameComponent(NAME_GENERATOR.generateName()));
