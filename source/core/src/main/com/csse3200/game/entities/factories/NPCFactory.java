@@ -442,6 +442,7 @@ public class NPCFactory {
     float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity cyclops = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    cyclops.getComponent(NameComponent.class).setName("Cyclops");
     CyclopsConfig config = configs.cyclops;
 
     // Create loot on drop - more gold dropped due to no weapons being dropped (no inventory)
@@ -577,6 +578,7 @@ public class NPCFactory {
     // PlatformWanderTask, which can drift because it re-anchors its range each time it restarts.
     // Replace the wander task below with BoundedPlatformWanderTask(pacingRadius, 2f, ...).
     Entity medusa = createBaseStationaryNPC();
+    medusa.getComponent(NameComponent.class).setName("Medusa");
 
     // More gold because no weapon drops (natural weapons never go in the inventory).
     InventoryComponent inventory = new InventoryComponent(12);
@@ -720,6 +722,7 @@ public class NPCFactory {
     float scale = 2.0f;
     Vector2 collisionScale = new Vector2(0.4f, 0.5f);
     Entity zeus = createBasePlatformerNPC(target, (scale * collisionScale.x) / 2);
+    zeus.getComponent(NameComponent.class).setName("Zeus");
 
     InventoryComponent inventory = new InventoryComponent(3);
     inventory.addItem(new WeaponGenerator().generateWeapon(WeaponType.SWORD, 2));
