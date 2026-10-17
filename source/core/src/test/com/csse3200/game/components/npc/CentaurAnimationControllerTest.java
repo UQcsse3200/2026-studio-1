@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.csse3200.game.components.enemies.animation.CentaurAnimationController;
+import com.csse3200.game.components.enemies.attacks.ChargeComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
@@ -299,5 +300,104 @@ class CentaurAnimationControllerTest {
     when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
     controller.update();
     assertTrue(controller.isFacingRight());
+  }
+
+  /** A charge toward a target on the left plays the left run animation. */
+  @Test
+  void shouldRunLeftWhenChargeTargetIsOnTheLeft() {
+    ChargeComponent chargeComponent = mock(ChargeComponent.class);
+    when(chargeComponent.getTargetPosition()).thenReturn(new Vector2(-5f, 0f));
+    entity.addComponent(chargeComponent);
+
+    EventListener0 runLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("runLeftStart", runLCallback);
+
+    entity.create();
+    entity.setPosition(0f, 0f);
+
+    entity.getEvents().trigger("chargeStart");
+
+    verify(runLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("centaur_run_l");
+  }
+
+  /** A charge toward a target on the right plays the right run animation. */
+  @Test
+  void shouldRunRightWhenChargeTargetIsOnTheRight() {
+    ChargeComponent chargeComponent = mock(ChargeComponent.class);
+    when(chargeComponent.getTargetPosition()).thenReturn(new Vector2(5f, 0f));
+    entity.addComponent(chargeComponent);
+
+    EventListener0 runRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("runRightStart", runRCallback);
+
+    entity.create();
+    entity.setPosition(0f, 0f);
+
+    entity.getEvents().trigger("chargeStart");
+
+    verify(runRCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("centaur_run_r");
+  }
+
+  /** With no target, charge direction follows the velocity. */
+  @Test
+  void shouldRunInDirectionOfVelocityWhenChargeHasNoTarget() {
+    EventListener0 runLCallback = mock(EventListener0.class);
+    EventListener0 runRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("runLeftStart", runLCallback);
+    entity.getEvents().addListener("runRightStart", runRCallback);
+
+    entity.create(); // no ChargeComponent on the entity, so there is no target position
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(-1f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(runLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("centaur_run_l");
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(runRCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("centaur_run_r");
+  }
+
+  /** With no target and no velocity, the charge keeps the current facing. */
+  @Test
+  void shouldRunInCurrentFacingWhenStationaryAndNoTarget() {
+    EventListener0 runLCallback = mock(EventListener0.class);
+    EventListener0 runRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("runLeftStart", runLCallback);
+    entity.getEvents().addListener("runRightStart", runRCallback);
+
+    entity.create(); // starts facing right
+
+    // facing right and stationary
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(runRCallback, times(1)).handle();
+    verify(runLCallback, never()).handle();
+
+    // run left so the controller faces left, then stand still and charge.
+    // runLeftStart fires once for the run and once more for the charge.
+    when(body.getLinearVelocity()).thenReturn(new Vector2(-1f, 0f));
+    controller.update();
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(runLCallback, times(2)).handle();
+  }
+
+  /** With no physics body the charge still starts and does not throw. */
+  @Test
+  void shouldStartChargeWithoutPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    EventListener0 runRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("runRightStart", runRCallback);
+
+    entity.create(); // facing right
+
+    assertDoesNotThrow(() -> entity.getEvents().trigger("chargeStart"));
+
+    verify(runRCallback, times(1)).handle();
   }
 }

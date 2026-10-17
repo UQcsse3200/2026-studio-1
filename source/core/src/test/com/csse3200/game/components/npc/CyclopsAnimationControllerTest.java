@@ -1,5 +1,6 @@
 package com.csse3200.game.components.npc;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
@@ -384,5 +385,143 @@ class CyclopsAnimationControllerTest {
 
     verify(rockRCallback, times(1)).handle();
     org.junit.jupiter.api.Assertions.assertTrue(controller.isAttacking());
+  }
+
+  /** A laser attack with an active weapon animation finishes when the weapon animator finishes. */
+  @Test
+  void shouldWaitForWeaponAnimatorWhileLaserPlays() {
+    EnemyWeaponAnimationComponent weaponAnimator = mock(EnemyWeaponAnimationComponent.class);
+    lenient().when(weaponAnimator.hasAnimation("cyclops_laser_r")).thenReturn(true);
+    lenient().when(weaponAnimator.getCurrentAnimation()).thenReturn("cyclops_laser_r");
+    entity.addComponent(weaponAnimator);
+
+    entity.create();
+    entity.setPosition(2f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    entity.getEvents().trigger("laserAttackWindup", target);
+    assertTrue(controller.isAttacking());
+
+    // the weapon animator is still playing, even though the main animator reports finished
+    when(weaponAnimator.isFinished()).thenReturn(false);
+    lenient().when(animationRenderComponent.isFinished()).thenReturn(true);
+    lenient().when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+    controller.update();
+    assertTrue(controller.isAttacking());
+
+    // once the weapon animator finishes, the attack ends and the weapon animation is stopped
+    when(weaponAnimator.isFinished()).thenReturn(true);
+    controller.update();
+    assertFalse(controller.isAttacking());
+    verify(weaponAnimator).stopAnimation();
+  }
+
+  /** A laser attack with no weapon animation falls back to the main animator. */
+  @Test
+  void shouldUseMainAnimatorWhenLaserHasNoWeaponAnimation() {
+    // getCurrentAnimation() returns null on this mock, so there is no active weapon animation
+    EnemyWeaponAnimationComponent weaponAnimator = mock(EnemyWeaponAnimationComponent.class);
+    entity.addComponent(weaponAnimator);
+
+    entity.create();
+    entity.setPosition(2f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+    lenient().when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+
+    entity.getEvents().trigger("laserAttackWindup", target);
+    assertTrue(controller.isAttacking());
+
+    when(animationRenderComponent.isFinished()).thenReturn(false);
+    controller.update();
+    assertTrue(controller.isAttacking());
+
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+    assertFalse(controller.isAttacking());
+    verify(weaponAnimator, never()).stopAnimation();
+  }
+
+  /** A rock or stomp attack uses the main animator. */
+  @Test
+  void shouldUseMainAnimatorForRockAndStompAttacks() {
+    entity.create();
+    entity.setPosition(2f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+    lenient().when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+
+    // rock throw
+    entity.getEvents().trigger("rockAttackWindup", target);
+    assertTrue(controller.isAttacking());
+    when(animationRenderComponent.isFinished()).thenReturn(false);
+    controller.update();
+    assertTrue(controller.isAttacking());
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+    assertFalse(controller.isAttacking());
+
+    // stomp (melee attack)
+    entity.getEvents().trigger("meleeAttack", target);
+    assertTrue(controller.isAttacking());
+    when(animationRenderComponent.isFinished()).thenReturn(false);
+    controller.update();
+    assertTrue(controller.isAttacking());
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+    assertFalse(controller.isAttacking());
+  }
+
+  /** With no physics body, finishing an attack returns to idle facing the same way. */
+  @Test
+  void shouldReturnToIdleLeftWhenLaserFinishesWithNoPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    EnemyWeaponAnimationComponent weaponAnimator = mock(EnemyWeaponAnimationComponent.class);
+    lenient().when(weaponAnimator.hasAnimation("cyclops_laser_l")).thenReturn(true);
+    lenient().when(weaponAnimator.getCurrentAnimation()).thenReturn("cyclops_laser_l");
+    entity.addComponent(weaponAnimator);
+
+    EventListener0 idleLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleLeftStart", idleLCallback);
+
+    entity.create();
+    entity.setPosition(5f, 0f);
+    Entity target = new Entity();
+    target.setPosition(2f, 0f);
+
+    entity.getEvents().trigger("laserAttackWindup", target);
+    assertTrue(controller.isAttacking());
+
+    when(weaponAnimator.isFinished()).thenReturn(true);
+    controller.update();
+
+    assertFalse(controller.isAttacking());
+    assertTrue(controller.isFacingLeft());
+    verify(weaponAnimator).stopAnimation();
+    verify(idleLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("cyclops_idle_l");
+  }
+
+  /** A missing animator counts as finished so the controller never hangs in an attack. */
+  @Test
+  void shouldTreatMissingAnimatorAsFinished() {
+    Entity bare = new Entity();
+    CyclopsAnimationController bareController = new CyclopsAnimationController();
+    bare.addComponent(physicsComponent).addComponent(bareController);
+    lenient().when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+
+    bare.create();
+    bare.setPosition(2f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    bare.getEvents().trigger("rockAttackWindup", target);
+    assertTrue(bareController.isAttacking());
+
+    bareController.update();
+
+    assertFalse(bareController.isAttacking());
   }
 }

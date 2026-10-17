@@ -426,4 +426,23 @@ class MedusaAnimationControllerTest {
 
     assertDoesNotThrow(bareController::update);
   }
+
+  /** A velocity change switches the animation state once. */
+  @Test
+  void shouldSwitchToWalkRightOnceWhenVelocityChanges() {
+    EventListener0 walkRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("walkRightStart", walkRCallback);
+
+    entity.create();
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
+    controller.update();
+
+    assertEquals(MedusaAnimationController.AnimationState.WALK_RIGHT, controller.getCurrentState());
+    verify(walkRCallback, times(1)).handle();
+
+    // same velocity again must not fire the event a second time
+    controller.update();
+    verify(walkRCallback, times(1)).handle();
+  }
 }
