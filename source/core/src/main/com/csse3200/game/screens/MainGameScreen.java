@@ -908,6 +908,8 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
     terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
+    terminal.addCommand(
+        "horde", new HordeCommand(() -> levelGameArea, terminal::showOutputMessage));
 
     ServiceLocator.getEntityService().register(ui);
   }
