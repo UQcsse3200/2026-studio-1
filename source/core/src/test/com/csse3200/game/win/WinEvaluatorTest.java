@@ -39,12 +39,15 @@ class WinEvaluatorTest {
 
   @BeforeEach
   void setUp() {
-    QuestLedger.reset();
-    EnemyRegistry.loadFrom(new ArrayList<>());
+    resetStatics();
   }
 
   @AfterEach
   void tearDown() {
+    resetStatics();
+  }
+
+  private static void resetStatics() {
     QuestLedger.reset();
     EnemyRegistry.loadFrom(new ArrayList<>());
   }
@@ -142,7 +145,7 @@ class WinEvaluatorTest {
       WinTier.VICTORY, r.getTier(), "all quests done, but a guardian lives: only Victory");
     assertEquals(7, r.getMiniBossesDefeated());
     assertEquals(1, r.getMissingMiniBosses().size());
-    assertTrue(labelsOf(spared).contains(r.getMissingMiniBosses().getFirst()));
+    assertTrue(labelsOf(spared).contains(r.getMissingMiniBosses().get(0)));
   }
 
   @ParameterizedTest(name = "{0} of 8 required defeated is still only Victory")
@@ -318,8 +321,8 @@ class WinEvaluatorTest {
   @ParameterizedTest(name = "{0} quests is rejected")
   @ValueSource(ints = {-1, -5, Integer.MIN_VALUE})
   void shouldRejectANegativeQuestCount(int quests) {
-    assertThrows(
-      IllegalArgumentException.class, () -> WinEvaluator.evaluate(true, allRequired(), quests));
+    List<String> kills = allRequired();
+    assertThrows(IllegalArgumentException.class, () -> WinEvaluator.evaluate(true, kills, quests));
   }
 
   @Test
@@ -351,14 +354,14 @@ class WinEvaluatorTest {
   @Test
   void shouldListOnlyTheBossesThatAreStillAlive() {
     List<String> kills = allRequired();
-    String first = kills.removeFirst();
-    String last = kills.removeLast();
+    String first = kills.remove(0);
+    String last = kills.remove(kills.size() - 1);
 
     WinResult r = WinEvaluator.evaluate(true, kills, 0);
 
     assertEquals(2, r.getMissingMiniBosses().size());
-    assertTrue(r.getMissingMiniBosses().contains(labelsOf(first).getFirst()));
-    assertTrue(r.getMissingMiniBosses().contains(labelsOf(last).getFirst()));
+    assertTrue(r.getMissingMiniBosses().contains(labelsOf(first).get(0)));
+    assertTrue(r.getMissingMiniBosses().contains(labelsOf(last).get(0)));
   }
 
   @Test

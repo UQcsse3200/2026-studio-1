@@ -145,15 +145,16 @@ class BossRosterTest {
 
   @Test
   void shouldHandBackAListThatCannotBeChanged() {
-    List<BossRoster.MiniBoss> bosses = new java.util.ArrayList<>(BossRoster.getMiniBosses());
+    List<BossRoster.MiniBoss> bosses = BossRoster.getMiniBosses();
 
     assertThrows(UnsupportedOperationException.class, bosses::clear);
-    assertThrows(UnsupportedOperationException.class, () -> bosses.add(bosses.getFirst()));
+    BossRoster.MiniBoss first = bosses.get(0);
+    assertThrows(UnsupportedOperationException.class, () -> bosses.add(first));
   }
 
   @Test
   void shouldHandBackASetThatCannotBeChanged() {
-    Set<String> ids = new HashSet<>(BossRoster.getRequiredIds());
+    Set<String> ids = BossRoster.getRequiredIds();
 
     assertThrows(UnsupportedOperationException.class, ids::clear);
     assertThrows(UnsupportedOperationException.class, () -> ids.add("x:1,1"));

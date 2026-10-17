@@ -106,8 +106,9 @@ class WinResultTest {
   void shouldHandBackAListThatCannotBeChanged() {
     WinResult r = result(WinTier.VICTORY, true, 6, 8, List.of("A", "B"), 0, 3);
 
-    assertThrows(UnsupportedOperationException.class, () -> r.getMissingMiniBosses().add("C"));
-    assertThrows(UnsupportedOperationException.class, () -> r.getMissingMiniBosses().clear());
+    List<String> missing = r.getMissingMiniBosses();
+    assertThrows(UnsupportedOperationException.class, () -> missing.add("C"));
+    assertThrows(UnsupportedOperationException.class, missing::clear);
   }
 
   // ---------- validation ----------
