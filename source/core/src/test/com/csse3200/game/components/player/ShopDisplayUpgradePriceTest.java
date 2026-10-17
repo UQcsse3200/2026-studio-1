@@ -10,9 +10,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.difficulty.Difficulty;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.services.ResourceService;
@@ -72,7 +75,9 @@ class ShopDisplayUpgradePriceTest {
     ServiceLocator.registerResourceService(mock(ResourceService.class));
 
     shopDisplay = new ShopDisplay();
-    shopComponent = new ShopComponent().seedDefaultCatalog();
+    shopComponent =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     inventory = new InventoryComponent(1000);
     playerEntity =
         new Entity().addComponent(shopComponent).addComponent(inventory).addComponent(shopDisplay);
@@ -344,14 +349,16 @@ class ShopDisplayUpgradePriceTest {
     DifficultyService.setCurrent(Difficulty.NORMAL);
 
     shopComponent =
-        new ShopComponent(
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(
                 new Random() {
                   @Override
                   public int nextInt(int bound) {
                     return 75;
                   }
-                })
-            .seedDefaultCatalog();
+                }),
+            new WeaponGenerator(),
+            new ConsumableGenerator());
     inventory = new InventoryComponent(gold);
     combatStats = new CombatStatsComponent(50, 10);
     shopDisplay = new ShopDisplay();

@@ -13,11 +13,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -56,7 +59,9 @@ class PetShopIntegrationTest {
     ServiceLocator.registerRenderService(renderService);
     batch = mock(SpriteBatch.class);
 
-    shop = new ShopComponent().seedDefaultCatalog();
+    shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     manager = new PetManagerComponent();
     owner =
         new Entity()

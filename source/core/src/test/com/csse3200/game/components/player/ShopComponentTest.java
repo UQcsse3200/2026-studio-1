@@ -11,13 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.ConsumableType;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
+import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -189,7 +192,10 @@ class ShopComponentTest {
   void shouldSeedDefaultCatalogPlaceholders() {
     ShopComponent shop = new ShopComponent();
 
-    assertSame(shop, shop.seedDefaultCatalog());
+    assertSame(
+        shop,
+        PlayerFactory.installDefaultCatalog(
+            shop, new WeaponGenerator(), new ConsumableGenerator()));
 
     assertEquals("Potion", shop.getItemListing(1).getProduct().getName());
     assertEquals(ItemType.CONSUMABLE, shop.getItemListing(1).getProduct().getItemType());
@@ -212,7 +218,9 @@ class ShopComponentTest {
 
   @Test
   void shouldSeedUsablePotionAndSword() {
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
 
     assertInstanceOf(ConsumableItem.class, shop.getItemListing(1).getProduct());
     ConsumableItem potion = (ConsumableItem) shop.getItemListing(1).getProduct();
@@ -228,7 +236,9 @@ class ShopComponentTest {
   @Test
   void shouldUseBoughtPotion() {
     InventoryComponent inventory = new InventoryComponent(100);
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     CombatStatsComponent stats = new CombatStatsComponent(100, 10);
     Entity player =
         new Entity()
@@ -254,7 +264,9 @@ class ShopComponentTest {
   @Test
   void shouldAttackWithBoughtSword() {
     InventoryComponent inventory = new InventoryComponent(100);
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     WeaponItem placeholder = new WeaponItem("Placeholder", WeaponType.SWORD, 1, 1, 1);
     Entity player =
         new Entity()
@@ -282,7 +294,9 @@ class ShopComponentTest {
   @Test
   void shouldLeaveSeededCatalogUntouchedWhenBuyIsRejected() {
     InventoryComponent inventory = new InventoryComponent(5);
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     attach(inventory, shop);
 
     assertFalse(shop.buyItem(1));
@@ -988,7 +1002,10 @@ class ShopComponentTest {
   @Test
   void shouldNotNotifyWhenSeedingUnattachedShop() {
     ShopComponent shop = new ShopComponent();
-    assertSame(shop, shop.seedDefaultCatalog());
+    assertSame(
+        shop,
+        PlayerFactory.installDefaultCatalog(
+            shop, new WeaponGenerator(), new ConsumableGenerator()));
     assertNotNull(shop.getItemListing(1));
   }
 
@@ -1010,7 +1027,10 @@ class ShopComponentTest {
   void shouldSeedStandardAndPremiumGamblingCatalogs() {
     ShopComponent shop = new ShopComponent();
 
-    assertSame(shop, shop.seedDefaultCatalog());
+    assertSame(
+        shop,
+        PlayerFactory.installDefaultCatalog(
+            shop, new WeaponGenerator(), new ConsumableGenerator()));
     assertSame(shop.getGamblingCatalogs().getStandard(), shop.getStandardCatalog());
     assertSame(shop.getGamblingCatalogs().getPremium(), shop.getPremiumCatalog());
     assertEquals(20, shop.getSpinPrice(GamblingCatalogs.CatalogId.STANDARD));
@@ -1047,7 +1067,9 @@ class ShopComponentTest {
   @ParameterizedTest
   @EnumSource(GamblingCatalogs.CatalogId.class)
   void shouldSeedTicketWeightsThatSumToOneHundred(GamblingCatalogs.CatalogId catalogId) {
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
 
     assertEquals(
         100,
@@ -1059,7 +1081,9 @@ class ShopComponentTest {
   @ParameterizedTest
   @EnumSource(GamblingCatalogs.CatalogId.class)
   void shouldSeedItemPrizesThatCreateTheNamedItem(GamblingCatalogs.CatalogId catalogId) {
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
 
     for (GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> entry :
         shop.getPrizes(catalogId).values()) {
@@ -1074,7 +1098,9 @@ class ShopComponentTest {
 
   @Test
   void shouldRejectMutatingReturnedPrizeMap() {
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> replacement =
         new GamblingCatalogs.PrizeEntry<>(new ShopComponent.Pet("Other"), 1);
 
@@ -1092,7 +1118,7 @@ class ShopComponentTest {
     AtomicInteger shopEvents = new AtomicInteger();
     entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
 
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     assertNotNull(shop.getStandardCatalog());
     assertNotNull(shop.getPremiumCatalog());
@@ -1104,7 +1130,7 @@ class ShopComponentTest {
   void shouldNotifyShopChangedWhenGamblingPriceOrPrizeChanges() {
     ShopComponent shop = new ShopComponent();
     Entity entity = new Entity().addComponent(shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
     AtomicInteger shopEvents = new AtomicInteger();
     entity.getEvents().addListener("shopChanged", shopEvents::incrementAndGet);
 
@@ -1141,7 +1167,7 @@ class ShopComponentTest {
     assertFalse(shop.setPrize(GamblingCatalogs.CatalogId.STANDARD, 1, prize));
     assertEquals(0, shopEvents.get());
 
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
     shopEvents.set(0);
 
     assertFalse(shop.setSpinPrice(null, 10));
@@ -1250,7 +1276,7 @@ class ShopComponentTest {
               }
             });
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
@@ -1275,7 +1301,7 @@ class ShopComponentTest {
               }
             });
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
@@ -1300,7 +1326,7 @@ class ShopComponentTest {
               }
             });
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
@@ -1329,7 +1355,7 @@ class ShopComponentTest {
               }
             });
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
         shop.buySpin(GamblingCatalogs.CatalogId.PREMIUM);
@@ -1347,7 +1373,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(10); // Standard spin costs 20
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
@@ -1362,7 +1388,7 @@ class ShopComponentTest {
     InventoryComponent inventory = new InventoryComponent(100);
     ShopComponent shop = new ShopComponent();
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     fillInventory(inventory); // Fills all 5 slots
     assertTrue(inventory.isFull());
@@ -1384,7 +1410,9 @@ class ShopComponentTest {
     assertNull(unseededShop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
     assertNull(unseededShop.buySpin(null));
 
-    ShopComponent unattachedShop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent unattachedShop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     assertNull(unattachedShop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
   }
 
@@ -1400,7 +1428,7 @@ class ShopComponentTest {
               }
             });
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     AtomicInteger spunEvents = new AtomicInteger();
     entity
@@ -1429,7 +1457,7 @@ class ShopComponentTest {
               }
             });
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     AtomicInteger petEvents = new AtomicInteger();
     entity
@@ -1457,7 +1485,7 @@ class ShopComponentTest {
               }
             });
     Entity entity = new Entity().addComponent(inventory).addComponent(shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     AtomicInteger upgradeEvents = new AtomicInteger();
     entity.getEvents().addListener("upgradePurchased", upgradeEvents::incrementAndGet);
@@ -1553,7 +1581,7 @@ class ShopComponentTest {
             });
 
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize =
         shop.buySpin(GamblingCatalogs.CatalogId.STANDARD);
@@ -1586,7 +1614,7 @@ class ShopComponentTest {
             });
 
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
     assertNotNull(shop.getPendingPetReplacement());
@@ -1617,7 +1645,7 @@ class ShopComponentTest {
             });
 
     attach(inventory, shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
     assertEquals(80, inventory.getGold());
