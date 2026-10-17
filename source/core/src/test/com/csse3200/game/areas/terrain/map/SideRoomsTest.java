@@ -318,6 +318,25 @@ class SideRoomsTest {
   }
 
   @Test
+  void netherRightWallHasNoGapsOutsideRoomDoors() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+
+    for (int y = 37; y <= 44; y++) {
+      assertTrue(view.isSolid(54, y), "the inner right wall is closed at y=" + y);
+      assertTrue(view.isSolid(55, y), "the outer right wall is closed at y=" + y);
+    }
+    for (int y = 49; y <= 50; y++) {
+      assertTrue(view.isSolid(54, y), "the inner right wall is closed at y=" + y);
+      assertTrue(view.isSolid(55, y), "the outer right wall is closed at y=" + y);
+    }
+    assertTrue(view.isWalkable(55, 34), "the first-room door remains accessible");
+    for (int y = 46; y <= 48; y++) {
+      assertTrue(view.isWalkable(55, y), "the third-room door remains accessible at y=" + y);
+    }
+  }
+
+  @Test
   void thirdNetherRoomLeadsToTheFourthAndFourthRoomUnlocksTheTopLayer() {
     LevelMapData nether = loader.load("maps/level1-greek.json");
     LevelView view = new MapDataLevelView(nether);
