@@ -1,11 +1,13 @@
 package com.csse3200.game.components.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -18,13 +20,40 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Scaling;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.ui.UIComponent;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * A Minecraft-style HUD for the player's inventory.
+ *
+ * <p>The inventory is drawn as a hotbar docked at the bottom centre of the screen:
+ *
+ * <ul>
+ *   <li>A row of item slots (keys 1..N) with a selection frame on the active slot.
+ *   <li>A separate pet panel (keys 6 and 7) with purple-tinted slots; the active pet gets a gold
+ *       selection frame.
+ *   <li>A gold counter with a coin icon above the hotbar.
+ *   <li>Stack counts in the bottom-right corner of a slot (hidden for single items, exactly like
+ *       Minecraft) and a fading item-name tooltip above the hotbar when the active slot changes.
+ * </ul>
+ *
+ * <p>Slots are clickable: clicking an item slot selects it as the active slot, and clicking an
+ * owned pet slot switches the active pet. Clickable slots light up while hovered. Clicks are
+ * ignored while the game is paused.
+ *
+ * <p>Artwork is loaded from {@code source/core/assets/images/icons/} through {@link
+ * #loadIcon(String)} (item icons, coin, empty/normal/selected slot frames). Anything whose PNG is
+ * missing falls back to a texture generated at runtime as tiny pixel art, so the HUD always
+ * renders.
+ */
 public class InventoryDisplay extends UIComponent {
 
   // --- Pixel-art geometry --------------------------------------------------------------------
@@ -37,7 +66,12 @@ public class InventoryDisplay extends UIComponent {
   private static final int PANEL_PX = 10;
   private static final int PANEL_BORDER_PX = 3;
 
-  private static final float SLOT_SIZE = SLOT_PX * UI_SCALE;
+  // Legacy gold slot frame (source/core/assets/images/hotbar_frame_40.png). Only used as a
+  // fallback when the new slot PNGs in images/icons/ are missing.
+  private static final String FRAME_PATH = "images/hotbar_frame_40.png";
+  private static final int FRAME_PX = 40;
+  private static final float FRAME_SCALE = 2f;
+  private static final float SLOT_SIZE = FRAME_PX * FRAME_SCALE;
   private static final float ICON_SIZE = ICON_PX * UI_SCALE;
   private static final float COIN_SIZE = COIN_PX * UI_SCALE * 0.7f;
 
@@ -80,11 +114,44 @@ public class InventoryDisplay extends UIComponent {
 
   private static final Color SELECTION_ITEM_COLOR = Color.WHITE;
   private static final Color SELECTION_PET_COLOR = new Color(1f, 0.8f, 0.3f, 1f);
+  private static final Color FRAME_IDLE_TINT = new Color(0.62f, 0.62f, 0.66f, 1f);
 
   // --- State ---------------------------------------------------------------------------------
   private Table hudTable;
   private Table tooltipTable;
   private Label.LabelStyle labelStyle;
+
+  // --- Icon PNGs: source/core/assets/images/icons/ (libGDX paths are relative to assets/) ----
+  private static final String ICON_POTION_RED = "images/icons/potion_red.png";
+  private static final String ICON_POTION_BLUE = "images/icons/potion_blue.png";
+  private static final String ICON_POTION_BROWN = "images/icons/potion_brown.png";
+  private static final String ICON_SWORD = "images/icons/sword.png";
+  private static final String ICON_BOW = "images/icons/bow.png";
+  private static final String ICON_COIN = "images/icons/coin.png";
+  private static final String ICON_SLOT_EMPTY = "images/icons/slot_empty.png";
+  private static final String ICON_SLOT_NORMAL = "images/icons/slot_normal.png";
+  private static final String ICON_SLOT_SELECTED = "images/icons/slot_selected.png";
+  private static final String ICON_DAGGER = "images/icons/dagger.png";
+  private static final String ICON_POTION_GREEN = "images/icons/potion_green.png";
+
+  // Icon rules: keyword in the lower-case item/upgrade name -> PNG. First match wins, so the
+  // more specific keywords come first. Names come from ShopComponent / the loot generators.
+  private static final Map<String, String> ICON_RULES = new LinkedHashMap<>();
+
+  static {
+    ICON_RULES.put("health potion", ICON_POTION_RED);
+    ICON_RULES.put("speed potion", ICON_POTION_BLUE);
+    ICON_RULES.put("mana", ICON_POTION_BLUE);
+    ICON_RULES.put("regen", ICON_POTION_BROWN);
+    ICON_RULES.put("endur", ICON_POTION_GREEN);
+    ICON_RULES.put("dagger", ICON_DAGGER);
+    ICON_RULES.put("potion", ICON_POTION_RED);
+    ICON_RULES.put("sword", ICON_SWORD);
+    ICON_RULES.put("bow", ICON_BOW);
+  }
+
+  private final Map<String, Drawable> iconCache = new HashMap<>();
+  private final List<Texture> iconTextures = new ArrayList<>();
 
   private final List<Texture> generatedTextures = new ArrayList<>();
   private Drawable slotDrawable;
@@ -94,6 +161,16 @@ public class InventoryDisplay extends UIComponent {
   private Drawable itemTileDrawable;
   private Drawable coinDrawable;
   private Drawable hoverDrawable;
+  private Drawable frameDrawable;
+  private Drawable glowDrawable;
+
+  // New artwork frames (null when the PNG is missing).
+  private Drawable emptyFrameDrawable;
+  private Drawable normalFrameDrawable;
+  private Drawable selectedFrameDrawable;
+
+  // Hotkey of the one slot that should bounce on the next rebuild (null = none).
+  private String popHotkey;
 
   /** Creates the inventory UI and adds it to the stage. */
   @Override
@@ -134,10 +211,12 @@ public class InventoryDisplay extends UIComponent {
     positionHud();
 
     stage.addActor(hudTable);
+
+    popHotkey = null;
   }
 
   /**
-   * Creates the gold counter: a small beveled panel with a pixel-art coin and the amount.
+   * Creates the gold counter: a small beveled panel with a coin icon and the amount.
    *
    * @param gold amount of gold to display
    * @return the gold counter actor
@@ -148,7 +227,9 @@ public class InventoryDisplay extends UIComponent {
     pill.setTouchable(Touchable.disabled);
     pill.pad(8f, 14f, 8f, 16f);
 
-    pill.add(new Image(coinDrawable)).size(COIN_SIZE).padRight(10f);
+    Image coin = new Image(coinDrawable);
+    coin.setScaling(Scaling.fit);
+    pill.add(coin).size(COIN_SIZE).padRight(10f);
     pill.add(shadowText(String.valueOf(gold), TEXT_GOLD, 1.1f));
 
     return pill;
@@ -261,7 +342,7 @@ public class InventoryDisplay extends UIComponent {
    * @param hotkey text for the key number in the top-left corner
    * @param icon icon actor, or null for an empty slot
    * @param quantity stack count text for the bottom-right corner, or null to hide it
-   * @param active whether to draw the pulsing selection frame
+   * @param active whether to draw the selection frame
    * @param selectionColor tint of the selection frame
    * @param onClick action to run when the slot is clicked, or null if the slot is not clickable
    * @return the assembled slot
@@ -283,13 +364,15 @@ public class InventoryDisplay extends UIComponent {
     backgroundImage.setTouchable(Touchable.disabled);
     slot.add(backgroundImage);
 
-    if (active) {
-      Image selection = new Image(selectionDrawable);
-      selection.setColor(selectionColor);
-      selection.setTouchable(Touchable.disabled);
-      selection.addAction(
-          Actions.forever(Actions.sequence(Actions.alpha(0.6f, 0.7f), Actions.alpha(1f, 0.7f))));
-      slot.add(selection);
+    // The new selected-slot artwork already has its own glow, so only add the pulsing glow
+    // when that PNG is missing.
+    if (active && selectedFrameDrawable == null) {
+      Image glow = new Image(glowDrawable);
+      glow.setColor(selectionColor);
+      glow.setTouchable(Touchable.disabled);
+      glow.addAction(
+          Actions.forever(Actions.sequence(Actions.alpha(0.45f, 0.8f), Actions.alpha(1f, 0.8f))));
+      slot.add(glow);
     }
 
     if (icon != null) {
@@ -299,16 +382,44 @@ public class InventoryDisplay extends UIComponent {
       slot.add(iconLayer);
     }
 
+    // Frame: selected PNG > empty PNG > normal PNG > legacy hotbar_frame_40.png > generated ring.
+    Drawable chosenFrame;
+    boolean customFrame = true;
+    if (active && selectedFrameDrawable != null) {
+      chosenFrame = selectedFrameDrawable;
+    } else if (!active && icon == null && emptyFrameDrawable != null) {
+      chosenFrame = emptyFrameDrawable;
+    } else if (normalFrameDrawable != null) {
+      chosenFrame = normalFrameDrawable;
+    } else {
+      chosenFrame = frameDrawable;
+      customFrame = false;
+    }
+
+    if (chosenFrame != null) {
+      Image frame = new Image(chosenFrame);
+      // New artwork carries its own colours; only the legacy frame is dimmed when idle.
+      frame.setColor(active || customFrame ? Color.WHITE : FRAME_IDLE_TINT);
+      frame.setTouchable(Touchable.disabled);
+      slot.add(frame);
+    } else if (active) {
+      // No frame image at all: fall back to the generated selection ring.
+      Image selection = new Image(selectionDrawable);
+      selection.setColor(selectionColor);
+      selection.setTouchable(Touchable.disabled);
+      slot.add(selection);
+    }
+
     Table keyLayer = new Table();
     keyLayer.setTouchable(Touchable.disabled);
-    keyLayer.top().left().pad(10f, 12f, 0f, 0f);
+    keyLayer.top().left().pad(14f, 18f, 0f, 0f);
     keyLayer.add(shadowText(hotkey, active ? TEXT_WHITE : TEXT_KEY_IDLE, 0.6f));
     slot.add(keyLayer);
 
     if (quantity != null) {
       Table quantityLayer = new Table();
       quantityLayer.setTouchable(Touchable.disabled);
-      quantityLayer.bottom().right().pad(0f, 0f, 8f, 10f);
+      quantityLayer.bottom().right().pad(0f, 0f, 14f, 16f);
       quantityLayer.add(shadowText(quantity, TEXT_WHITE, 0.8f));
       slot.add(quantityLayer);
     }
@@ -344,20 +455,35 @@ public class InventoryDisplay extends UIComponent {
           });
     }
 
+    if (active && hotkey.equals(popHotkey)) {
+      // Bounce in when freshly selected.
+      slot.setTransform(true);
+      slot.setOrigin(SLOT_SIZE / 2f, SLOT_SIZE / 2f);
+      slot.setScale(0.8f);
+      slot.addAction(Actions.scaleTo(1f, 1f, 0.35f, Interpolation.swingOut));
+    }
+
     return slot;
   }
 
   /**
    * Creates the icon shown inside a slot.
    *
-   * <p>This is a placeholder: a beveled tile whose colour is derived from the name, with the name's
-   * initials on top. To use real PNG icons, replace the body of this method with an {@link Image}
-   * built from your own {@link Drawable} for the given name.
+   * <p>Uses the PNG from {@code images/icons/} when {@link #iconForName(String)} finds one (e.g. a
+   * name containing "bow" gives {@code images/icons/bow.png}). Otherwise falls back to a beveled
+   * tile whose colour is derived from the name, with the name's initials on top.
    *
    * @param name item or pet name
    * @return the icon actor
    */
   private Actor createIconActor(String name) {
+    Drawable png = iconForName(name);
+    if (png != null) {
+      Image image = new Image(png);
+      image.setScaling(Scaling.fit);
+      return image;
+    }
+
     Image tile = new Image(itemTileDrawable);
     tile.setColor(colorFor(name));
 
@@ -505,10 +631,10 @@ public class InventoryDisplay extends UIComponent {
   }
 
   // ===========================================================================================
-  // Procedurally generated pixel-art textures
+  // Textures: PNG artwork + procedurally generated fallbacks
   // ===========================================================================================
 
-  /** Generates every drawable used by the HUD once, up front. */
+  /** Loads / generates every drawable used by the HUD once, up front. */
   private void createPixelDrawables() {
     slotDrawable = buildSlotDrawable(SLOT_FILL);
     petSlotDrawable = buildSlotDrawable(PET_SLOT_FILL);
@@ -517,6 +643,17 @@ public class InventoryDisplay extends UIComponent {
     itemTileDrawable = buildItemTileDrawable();
     coinDrawable = buildCoinDrawable();
     hoverDrawable = buildHoverDrawable();
+    frameDrawable = loadFrameDrawable();
+    glowDrawable = buildGlowDrawable();
+
+    // New artwork from source/core/assets/images/icons/ (falls back to the above when missing).
+    Drawable coinPng = loadIcon(ICON_COIN); // images/icons/coin.png
+    if (coinPng != null) {
+      coinDrawable = coinPng;
+    }
+    emptyFrameDrawable = loadIcon(ICON_SLOT_EMPTY); // images/icons/slot_empty.png
+    normalFrameDrawable = loadIcon(ICON_SLOT_NORMAL); // images/icons/slot_normal.png
+    selectedFrameDrawable = loadIcon(ICON_SLOT_SELECTED); // images/icons/slot_selected.png
   }
 
   /**
@@ -686,6 +823,43 @@ public class InventoryDisplay extends UIComponent {
     return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
   }
 
+  /**
+   * Loads the legacy slot frame PNG from the assets folder.
+   *
+   * @return the frame drawable, or null if the file is missing (a generated ring is used instead)
+   */
+  private Drawable loadFrameDrawable() {
+    if (!Gdx.files.internal(FRAME_PATH).exists()) {
+      return null;
+    }
+
+    Texture texture = new Texture(Gdx.files.internal(FRAME_PATH));
+    texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+    generatedTextures.add(texture);
+
+    return new TextureRegionDrawable(new TextureRegion(texture));
+  }
+
+  /** Builds a blocky radial glow: white, brightest at the centre, fading to transparent. */
+  private Drawable buildGlowDrawable() {
+    Pixmap pixmap = newPixmap(SLOT_PX);
+
+    float center = (SLOT_PX - 1) / 2f;
+
+    for (int y = 0; y < SLOT_PX; y++) {
+      for (int x = 0; x < SLOT_PX; x++) {
+        float dx = x - center;
+        float dy = y - center;
+        float distance = (float) Math.sqrt(dx * dx + dy * dy) / center;
+        float falloff = Math.max(0f, 1f - distance);
+
+        pixmap.drawPixel(x, y, Color.rgba8888(1f, 1f, 1f, falloff * falloff * 0.6f));
+      }
+    }
+
+    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
+  }
+
   /** Builds the translucent white overlay shown over a hovered, clickable slot. */
   private Drawable buildHoverDrawable() {
     Pixmap pixmap = newPixmap(SLOT_PX);
@@ -810,6 +984,7 @@ public class InventoryDisplay extends UIComponent {
   }
 
   private void refreshActiveSlot(int activeSlot) {
+    popHotkey = String.valueOf(activeSlot);
     refreshInventory();
 
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
@@ -818,7 +993,27 @@ public class InventoryDisplay extends UIComponent {
     showTooltip(item == null ? null : item.getName());
   }
 
+  /** Returns the hotkey shown on the slot that holds the given pet, or null if not found. */
+  private String petHotkey(ShopComponent.Pet pet) {
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+
+    if (pet == null || inventory == null) {
+      return null;
+    }
+
+    for (int petSlot = 1; petSlot <= inventory.getPetSlotCount(); petSlot++) {
+      ShopComponent.Pet owned = inventory.getPet(petSlot);
+
+      if (owned != null && owned.getName().equals(pet.getName())) {
+        return String.valueOf(petSlot + PET_KEY_OFFSET);
+      }
+    }
+
+    return null;
+  }
+
   private void refreshActivePet(ShopComponent.Pet pet) {
+    popHotkey = petHotkey(pet);
     refreshInventory();
 
     showTooltip(pet == null ? null : pet.getName());
@@ -846,6 +1041,9 @@ public class InventoryDisplay extends UIComponent {
     }
     generatedTextures.clear();
 
+    // Textures loaded from images/icons/ are tracked separately.
+    disposeIcons();
+
     slotDrawable = null;
     petSlotDrawable = null;
     selectionDrawable = null;
@@ -853,7 +1051,69 @@ public class InventoryDisplay extends UIComponent {
     itemTileDrawable = null;
     coinDrawable = null;
     hoverDrawable = null;
+    frameDrawable = null;
+    glowDrawable = null;
+    emptyFrameDrawable = null;
+    normalFrameDrawable = null;
+    selectedFrameDrawable = null;
 
     super.dispose();
+  }
+
+  // ===========================================================================================
+  // PNG icons (source/core/assets/images/icons/)
+  // ===========================================================================================
+
+  /**
+   * Returns the icon for an item/upgrade name using {@link #ICON_RULES}, e.g. a name containing
+   * "bow" gives {@code images/icons/bow.png}.
+   *
+   * @param name item or upgrade name
+   * @return the icon, or null if no rule matches or the file is missing
+   */
+  private Drawable iconForName(String name) {
+    if (name == null) {
+      return null;
+    }
+    String lower = name.toLowerCase();
+    for (Map.Entry<String, String> rule : ICON_RULES.entrySet()) {
+      if (lower.contains(rule.getKey())) {
+        return loadIcon(rule.getValue());
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Loads (once) the PNG at an internal path such as {@link #ICON_BOW}.
+   *
+   * @param path path relative to the assets folder
+   * @return the icon, or null if the file doesn't exist
+   */
+  private Drawable loadIcon(String path) {
+    if (iconCache.containsKey(path)) {
+      return iconCache.get(path);
+    }
+
+    Drawable drawable = null;
+    if (Gdx.files.internal(path).exists()) {
+      // Mipmaps keep the large PNGs smooth when they are drawn at 38-80 px.
+      Texture texture = new Texture(Gdx.files.internal(path), true);
+      texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+      iconTextures.add(texture);
+      drawable = new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    iconCache.put(path, drawable);
+    return drawable;
+  }
+
+  /** Frees every texture loaded by {@link #loadIcon(String)}. */
+  private void disposeIcons() {
+    for (Texture texture : iconTextures) {
+      texture.dispose();
+    }
+    iconTextures.clear();
+    iconCache.clear();
   }
 }

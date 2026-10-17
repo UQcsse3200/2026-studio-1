@@ -2,10 +2,12 @@ package com.csse3200.game.components.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -21,13 +23,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.ui.UIComponent;
 import com.csse3200.game.upgrades.UpgradeNode;
 import com.csse3200.game.upgrades.UpgradesDisplay;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
@@ -46,6 +54,9 @@ import java.util.function.IntConsumer;
  *
  * <p>The Pets tab uses the pet texture atlas located at {@code assets/images/pet.atlas}. The
  * catalog slot determines which {@code idle_right} frame is used as the pet icon.
+ *
+ * <p>Item / upgrade / tab / coin icons are PNGs in {@code source/core/assets/images/icons/}, loaded
+ * by {@link #loadIcon(String)}. When a PNG is missing the original letter badge is shown.
  */
 public class ShopDisplay extends UIComponent {
 
@@ -142,6 +153,48 @@ public class ShopDisplay extends UIComponent {
   /** Pet atlas containing the pet sprites. */
   private TextureAtlas petAtlas;
 
+  // --- Icon PNGs: source/core/assets/images/icons/ (libGDX paths are relative to assets/) ----
+  private static final String ICON_POTION_RED = "images/icons/potion_red.png";
+  private static final String ICON_POTION_BLUE = "images/icons/potion_blue.png";
+  private static final String ICON_POTION_BROWN = "images/icons/potion_brown.png";
+  private static final String ICON_SWORD = "images/icons/sword.png";
+  private static final String ICON_BOW = "images/icons/bow.png";
+  private static final String ICON_UPGRADE_HEALTH = "images/icons/upgrade_health.png";
+  private static final String ICON_UPGRADE_SPEED = "images/icons/upgrade_speed.png";
+  private static final String ICON_UPGRADE_SHIELD = "images/icons/upgrade_shield.png";
+  private static final String ICON_TAB_ITEMS = "images/icons/tab_items.png";
+  private static final String ICON_TAB_UPGRADES = "images/icons/tab_upgrades.png";
+  private static final String ICON_TAB_GAMBLING = "images/icons/tab_gambling.png";
+  private static final String ICON_COIN = "images/icons/coin.png";
+  private static final String ICON_DAGGER = "images/icons/dagger.png";
+  private static final String ICON_POTION_GREEN = "images/icons/potion_green.png";
+
+  // Icon rules: keyword in the lower-case item/upgrade name -> PNG. First match wins, so the
+  // more specific keywords come first. Names come from ShopComponent / the loot generators.
+  private static final Map<String, String> ICON_RULES = new LinkedHashMap<>();
+
+  static {
+    ICON_RULES.put("health potion", ICON_POTION_RED);
+    ICON_RULES.put("speed potion", ICON_POTION_BLUE);
+    ICON_RULES.put("mana", ICON_POTION_BLUE);
+    ICON_RULES.put("regen", ICON_POTION_BROWN);
+    ICON_RULES.put("endur", ICON_POTION_GREEN);
+    ICON_RULES.put("dagger", ICON_DAGGER);
+    ICON_RULES.put("potion", ICON_POTION_RED);
+    ICON_RULES.put("sword", ICON_SWORD);
+    ICON_RULES.put("bow", ICON_BOW);
+    ICON_RULES.put("health", ICON_UPGRADE_HEALTH);
+    ICON_RULES.put("heart", ICON_UPGRADE_HEALTH);
+    ICON_RULES.put("speed", ICON_UPGRADE_SPEED);
+    ICON_RULES.put("boot", ICON_UPGRADE_SPEED);
+    ICON_RULES.put("shield", ICON_UPGRADE_SHIELD);
+    ICON_RULES.put("armor", ICON_UPGRADE_SHIELD);
+    ICON_RULES.put("defen", ICON_UPGRADE_SHIELD);
+  }
+
+  private final Map<String, Drawable> iconCache = new HashMap<>();
+  private final List<Texture> iconTextures = new ArrayList<>();
+
   private Actor batchColorReset;
 
   /** Rarity tier used for card/icon/accent coloring. */
@@ -201,6 +254,7 @@ public class ShopDisplay extends UIComponent {
 
   // Bottom detail panel components.
   private Image detailIconBg;
+  private Image detailIconImage;
   private Label detailIconLabel;
   private Label detailNameLabel;
   private Label detailPriceLabel;
@@ -389,6 +443,14 @@ public class ShopDisplay extends UIComponent {
     goldPill.getColor().set(GOLD_PILL_TINT);
     goldPill.pad(4f, 12f, 4f, 12f);
 
+    // images/icons/coin.png
+    Drawable coin = loadIcon(ICON_COIN);
+    if (coin != null) {
+      Image coinImage = new Image(coin);
+      coinImage.setScaling(Scaling.fit);
+      goldPill.add(coinImage).size(20f).padRight(6f);
+    }
+
     goldLabel = new Label(getGoldText(), whiteLabelStyle);
     goldLabel.setColor(GOLD_COLOR);
     goldPill.add(goldLabel);
@@ -424,10 +486,11 @@ public class ShopDisplay extends UIComponent {
   private void createTabs() {
     Table tabTable = new Table();
 
-    addTabButton(tabTable, "ITEMS", ShopTab.ITEMS);
-    addTabButton(tabTable, "UPGRADES", ShopTab.UPGRADES);
-    addTabButton(tabTable, "PETS", ShopTab.PETS);
-    addTabButton(tabTable, "GAMBLING", ShopTab.GAMBLING);
+    // Tab icons: images/icons/tab_items.png, tab_upgrades.png, tab_gambling.png (PETS has none).
+    addTabButton(tabTable, "ITEMS", ShopTab.ITEMS, ICON_TAB_ITEMS);
+    addTabButton(tabTable, "UPGRADES", ShopTab.UPGRADES, ICON_TAB_UPGRADES);
+    addTabButton(tabTable, "PETS", ShopTab.PETS, null);
+    addTabButton(tabTable, "GAMBLING", ShopTab.GAMBLING, ICON_TAB_GAMBLING);
 
     shopTable.add(tabTable).growX().height(48f).padBottom(8f);
     shopTable.row();
@@ -435,9 +498,23 @@ public class ShopDisplay extends UIComponent {
     updateTabHighlights();
   }
 
-  /** Adds an individual category tab button paired with an underline accent. */
-  private void addTabButton(Table tabTable, String text, ShopTab tab) {
+  /**
+   * Adds an individual category tab button paired with an underline accent.
+   *
+   * @param iconPath internal path of the tab icon, or null for a text-only tab
+   */
+  private void addTabButton(Table tabTable, String text, ShopTab tab, String iconPath) {
     TextButton button = new TextButton(text, skin, "shop");
+
+    Drawable tabIcon = iconPath == null ? null : loadIcon(iconPath);
+    if (tabIcon != null) {
+      Label label = button.getLabel();
+      button.clearChildren();
+      Image tabImage = new Image(tabIcon);
+      tabImage.setScaling(Scaling.fit);
+      button.add(tabImage).size(22f).padRight(6f);
+      button.add(label);
+    }
 
     button.addListener(
         new ClickListener() {
@@ -755,20 +832,30 @@ public class ShopDisplay extends UIComponent {
     card.row();
   }
 
-  /** Builds an icon badge containing the product's initial letter. */
+  /**
+   * Builds an icon badge for a product: the PNG from {@code images/icons/} (see {@link
+   * #iconForName(String)}) when one matches the name, otherwise the product's initial letter.
+   */
   private Stack createIconStack(String name, Rarity rarity) {
     Stack iconStack = new Stack();
 
     Image iconBackground = new Image(skin.getDrawable(FLAT_BACKGROUND));
     iconBackground.setColor(rarity.color);
+    iconStack.add(iconBackground);
+
+    Drawable icon = iconForName(name);
+    if (icon != null) {
+      Image iconImage = new Image(icon);
+      iconImage.setScaling(Scaling.fit);
+      iconStack.add(iconImage);
+      return iconStack;
+    }
 
     String initial = (name == null || name.isEmpty()) ? "?" : name.substring(0, 1).toUpperCase();
 
     Label iconLabel = new Label(initial, whiteLabelStyle);
     iconLabel.setColor(Color.WHITE);
     iconLabel.setAlignment(Align.center);
-
-    iconStack.add(iconBackground);
     iconStack.add(iconLabel);
 
     return iconStack;
@@ -852,9 +939,14 @@ public class ShopDisplay extends UIComponent {
     detailIconLabel.setColor(Color.WHITE);
     detailIconLabel.setAlignment(Align.center);
 
+    // Shows the PNG icon of the selected product (empty until something is selected).
+    detailIconImage = new Image();
+    detailIconImage.setScaling(Scaling.fit);
+
     Stack detailIconStack = new Stack();
     detailIconStack.add(detailIconBg);
     detailIconStack.add(detailIconLabel);
+    detailIconStack.add(detailIconImage);
 
     detailNameLabel = new Label("Select an item to view details", whiteLabelStyle);
     detailNameLabel.setColor(TEXT_MUTED);
@@ -926,6 +1018,11 @@ public class ShopDisplay extends UIComponent {
     detailIconLabel.setText(
         (name == null || name.isEmpty()) ? "?" : name.substring(0, 1).toUpperCase());
 
+    // PNG icon in the detail panel (pets keep the letter badge).
+    Drawable detailIcon = currentTab == ShopTab.PETS ? null : iconForName(name);
+    detailIconImage.setDrawable(detailIcon);
+    detailIconLabel.setVisible(detailIcon == null);
+
     detailNameLabel.setText(name);
     detailNameLabel.setColor(TEXT_PRIMARY);
 
@@ -961,6 +1058,8 @@ public class ShopDisplay extends UIComponent {
 
     detailIconBg.setColor(Color.CLEAR);
     detailIconLabel.setText("");
+    detailIconLabel.setVisible(true);
+    detailIconImage.setDrawable(null);
 
     detailNameLabel.setText("Select an item to view details");
     detailNameLabel.setColor(TEXT_MUTED);
@@ -1260,10 +1359,14 @@ public class ShopDisplay extends UIComponent {
       gamblingWheel = null;
     }
 
+    // Textures loaded from images/icons/ are tracked separately.
+    disposeIcons();
+
     contentTable = null;
     activeGrid = null;
     contentScroll = null;
     detailPanel = null;
+    detailIconImage = null;
     goldLabel = null;
     selectedCard = null;
     pendingAction = null;
@@ -1632,5 +1735,62 @@ public class ShopDisplay extends UIComponent {
     dialog.getButtonTable().add(cancelButton);
 
     dialog.show(stage);
+  }
+
+  // ===========================================================================================
+  // PNG icons (source/core/assets/images/icons/)
+  // ===========================================================================================
+
+  /**
+   * Returns the icon for an item/upgrade name using {@link #ICON_RULES}, e.g. a name containing
+   * "bow" gives {@code images/icons/bow.png}.
+   *
+   * @param name item or upgrade name
+   * @return the icon, or null if no rule matches or the file is missing
+   */
+  private Drawable iconForName(String name) {
+    if (name == null) {
+      return null;
+    }
+    String lower = name.toLowerCase();
+    for (Map.Entry<String, String> rule : ICON_RULES.entrySet()) {
+      if (lower.contains(rule.getKey())) {
+        return loadIcon(rule.getValue());
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Loads (once) the PNG at an internal path such as {@link #ICON_BOW}.
+   *
+   * @param path path relative to the assets folder
+   * @return the icon, or null if the file doesn't exist
+   */
+  private Drawable loadIcon(String path) {
+    if (iconCache.containsKey(path)) {
+      return iconCache.get(path);
+    }
+
+    Drawable drawable = null;
+    if (Gdx.files.internal(path).exists()) {
+      // Mipmaps keep the large PNGs smooth when they are drawn at 38-80 px.
+      Texture texture = new Texture(Gdx.files.internal(path), true);
+      texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+      iconTextures.add(texture);
+      drawable = new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    iconCache.put(path, drawable);
+    return drawable;
+  }
+
+  /** Frees every texture loaded by {@link #loadIcon(String)}. */
+  private void disposeIcons() {
+    for (Texture texture : iconTextures) {
+      texture.dispose();
+    }
+    iconTextures.clear();
+    iconCache.clear();
   }
 }
