@@ -62,6 +62,14 @@ public class ConsumableItem extends Item {
     return effect;
   }
 
+  @Override
+  public ConsumableItem copy() {
+    ConsumableItem copy =
+        new ConsumableItem(getName(), consumableType, effect, getQuantity(), getMaxQuantity());
+    copy.setSellPrice(getSellPrice());
+    return copy;
+  }
+
   /**
    * Returns the sprite representing this consumable.
    *

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
@@ -376,6 +377,55 @@ class ShopGamblingTest {
    * Creates a seeded shop attached to {@code inventory} and replaces the Standard ticket with the
    * test catalog described on this class.
    */
+  @Test
+  void shouldRecordSpinPriceAsGoldSpent() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(POTION_DRAW));
+    float before = Quest.getGlobalGoldSpent();
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(
+        SPIN_PRICE,
+        Quest.getGlobalGoldSpent() - before,
+        0.001f,
+        "a spin counts its price toward gold-spent quests, like every other purchase");
+  }
+
+  @Test
+  void shouldRecordTicketPriceNotNetWhenSpinWinsGold() {
+    ShopComponent shop = newShop(new InventoryComponent(100), new FixedRandom(GOLD_15_DRAW));
+    float before = Quest.getGlobalGoldSpent();
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(
+        SPIN_PRICE,
+        Quest.getGlobalGoldSpent() - before,
+        0.001f,
+        "gold spent is the ticket price, not the price minus the 15 gold won");
+  }
+
+  @Test
+  void shouldNotRecordGoldSpentWhenSpinIsRejected() {
+    ShopComponent shop = newShop(new InventoryComponent(0), new FixedRandom(POTION_DRAW));
+    float before = Quest.getGlobalGoldSpent();
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(0f, Quest.getGlobalGoldSpent() - before, 0.001f, "a rejected spin spends nothing");
+  }
+
+  @Test
+  void shouldRecordZeroForFreeSpin() {
+    ShopComponent shop = newShop(new InventoryComponent(0), new FixedRandom(POTION_DRAW));
+    shop.setSpinPrice(STANDARD, 0);
+    float before = Quest.getGlobalGoldSpent();
+
+    shop.buySpin(STANDARD);
+
+    assertEquals(0f, Quest.getGlobalGoldSpent() - before, 0.001f, "a free spin spends no gold");
+  }
+
   private static ShopComponent newShop(InventoryComponent inventory, FixedRandom random) {
     ShopComponent shop = new ShopComponent(random);
     new Entity().addComponent(inventory).addComponent(shop);

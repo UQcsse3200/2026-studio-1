@@ -86,6 +86,17 @@ public class Item {
     return quantity == 0;
   }
 
+  /**
+   * Returns a new item with the same name, type, quantity, max stack, and sell price.
+   *
+   * @return a distinct item; subclasses preserve their own fields
+   */
+  public Item copy() {
+    Item copy = new Item(name, itemType, quantity, maxQuantity);
+    copy.setSellPrice(sellPrice);
+    return copy;
+  }
+
   @Override
   public String toString() {
     return String.format(
