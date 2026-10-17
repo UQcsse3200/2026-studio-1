@@ -167,8 +167,11 @@ public final class EnemyFactory {
   /** Skeleton, Ranged Skeleton, Harpy, Ranged Harpy. */
   private static final float SMALL_ENEMY_SCALE = 1f;
 
-  /** Minotaur, Centaur. */
-  private static final float LARGE_ENEMY_SCALE = 2.5f;
+  /** Centaur. */
+  private static final float LARGE_ENEMY_SCALE = 4f;
+
+  /** Minotaur. */
+  private static final float MINOTAUR_SCALE = 2.5f;
 
   /** Cyclops, Medusa, Zeus. */
   private static final float BOSS_SCALE = 2f;
@@ -504,7 +507,7 @@ public final class EnemyFactory {
     String enemyLabel = new EnemyTypeComponent(EnemyType.MINOTAUR).getEnemyLabel();
     requireTarget(target, enemyLabel);
     MinotaurConfig config = configs.minotaur;
-    float scale = LARGE_ENEMY_SCALE;
+    float scale = MINOTAUR_SCALE;
 
     Entity minotaur =
         createBasePlatformerEnemy(target, scale * MINOTAUR_COLLISION_X * FLOOR_PROBE_FRACTION);
@@ -1205,7 +1208,7 @@ public final class EnemyFactory {
   }
 
   /**
-   * Replaces the Minotaur's collider with a box whose bottom is 16 of the sprite's 80 pixels above
+   * Replaces the Minotaur's collider with a box whose bottom is 8 of the sprite's 80 pixels above
    * the entity's bottom edge, so his feet touch the floor.
    *
    * @param minotaur the Minotaur after its scale has been set
