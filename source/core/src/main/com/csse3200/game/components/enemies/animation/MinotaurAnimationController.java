@@ -18,7 +18,6 @@ public class MinotaurAnimationController extends Component {
   private ChargeComponent chargeComponent;
   private AnimationState currentAnimState = null;
   private boolean isSwinging = false;
-  private static final String IDLE_RIGHT_START_EVENT = "idleRightStart";
 
   private enum AnimationState {
     IDLE_LEFT,
@@ -39,7 +38,7 @@ public class MinotaurAnimationController extends Component {
     chargeComponent = this.entity.getComponent(ChargeComponent.class);
 
     entity.getEvents().addListener("idleLeftStart", this::animateIdleL);
-    entity.getEvents().addListener(IDLE_RIGHT_START_EVENT, this::animateIdleR);
+    entity.getEvents().addListener("idleRightStart", this::animateIdleR);
     entity.getEvents().addListener("walkLeftStart", this::animateWalkL);
     entity.getEvents().addListener("walkRightStart", this::animateWalkR);
     entity.getEvents().addListener("chargeLeftStart", this::animateChargeL);
@@ -47,11 +46,11 @@ public class MinotaurAnimationController extends Component {
     entity.getEvents().addListener("chargeStart", this::onChargeStart);
     entity.getEvents().addListener("swingLeftStart", this::animateSwingL);
     entity.getEvents().addListener("swingRightStart", this::animateSwingR);
-    entity.getEvents().addListener("meleeAttack", (Entity target) -> onMeleeAttack(target));
-    entity.getEvents().addListener("meleeAttackWindup", (Entity target) -> onMeleeAttack(target));
+    entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
+    entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
 
     // Trigger a default starting state
-    entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
+    entity.getEvents().trigger("idleRightStart");
     currentAnimState = AnimationState.IDLE_RIGHT;
   }
 
@@ -205,7 +204,7 @@ public class MinotaurAnimationController extends Component {
         entity.getEvents().trigger("idleLeftStart");
         break;
       case IDLE_RIGHT:
-        entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
+        entity.getEvents().trigger("idleRightStart");
         break;
     }
   }

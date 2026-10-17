@@ -58,9 +58,9 @@ public class CentaurAnimationController extends Component {
     entity.getEvents().addListener(SWING_RIGHT_START, this::animateSwingR);
     entity.getEvents().addListener(DEATH_LEFT_START, this::animateDeathL);
     entity.getEvents().addListener(DEATH_RIGHT_START, this::animateDeathR);
-    entity.getEvents().addListener(MELEE_ATTACK, (Entity target) -> onAttack(target));
-    entity.getEvents().addListener(MELEE_ATTACK_WINDUP, (Entity target) -> onAttack(target));
-    entity.getEvents().addListener(RANGED_ATTACK_FIRED, (Entity target) -> onAttack(target));
+    entity.getEvents().addListener(MELEE_ATTACK, this::onAttack);
+    entity.getEvents().addListener(MELEE_ATTACK_WINDUP, this::onAttack);
+    entity.getEvents().addListener(RANGED_ATTACK_FIRED, this::onAttack);
     entity.getEvents().addListener(CHARGE_START, this::onChargeStart);
 
     // Trigger a default starting state
