@@ -152,7 +152,7 @@ public final class EnemyFactory {
   private static final float MEDIUM_COLLISION_Y = 0.5f;
 
   /** Minotaur. */
-  private static final float MINOTAUR_COLLISION_X = 0.8f;
+  private static final float MINOTAUR_COLLISION_X = 0.5f;
 
   /** Minotaur. */
   private static final float MINOTAUR_COLLISION_Y = 0.7f;
