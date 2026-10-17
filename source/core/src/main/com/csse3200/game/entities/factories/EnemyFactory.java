@@ -161,14 +161,14 @@ public final class EnemyFactory {
   private static final float MINOTAUR_FRAME_HEIGHT_PIXELS = 80f;
 
   /** Empty pixels under the Minotaur's feet. */
-  private static final float MINOTAUR_FOOT_PADDING_PIXELS = 16f;
+  private static final float MINOTAUR_FOOT_PADDING_PIXELS = 8f;
 
   // ---------- Size of each enemy ----------
   /** Skeleton, Ranged Skeleton, Harpy, Ranged Harpy. */
   private static final float SMALL_ENEMY_SCALE = 1f;
 
   /** Minotaur, Centaur. */
-  private static final float LARGE_ENEMY_SCALE = 4f;
+  private static final float LARGE_ENEMY_SCALE = 2.5f;
 
   /** Cyclops, Medusa, Zeus. */
   private static final float BOSS_SCALE = 2f;
