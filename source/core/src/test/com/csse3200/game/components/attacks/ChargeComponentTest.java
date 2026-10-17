@@ -20,11 +20,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
 class ChargeComponentTest {
+  private GameTime gameTime;
 
   @BeforeEach
   void beforeEach() {
     ServiceLocator.registerPhysicsService(new PhysicsService());
-    GameTime gameTime = mock(GameTime.class);
+    gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(0.1f);
     ServiceLocator.registerTimeSource(gameTime);
   }
@@ -134,26 +135,31 @@ class ChargeComponentTest {
     assertTrue(movement.getMoving());
   }
 
-  @Test
-  void shouldRemainStationaryDuringWindupAndMoveFastDuringRush() {
-    Entity entity = new Entity();
-    PhysicsMovementComponent movement = new PhysicsMovementComponent();
-    // 0.4s total duration: 0.2s windup, 0.2s rush, 0.3s cooldown
-    ChargeComponent charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
+  private PhysicsMovementComponent movement;
+  private ChargeComponent charge;
+  private Entity entity;
+  private Vector2 targetPos;
+
+  private void setUpChargeWithWindup() {
+    entity = new Entity();
+    movement = new PhysicsMovementComponent();
+    // 0.4s total: 0.2s windup, 0.2s rush, 0.3s cooldown
+    charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
     entity.addComponent(new PhysicsComponent()).addComponent(movement).addComponent(charge);
     entity.create();
+    targetPos = new Vector2(10f, 0f);
+  }
 
+  @Test
+  void shouldRemainStationaryDuringWindup() {
+    setUpChargeWithWindup();
     EventListener0 windupListener = mock(EventListener0.class);
     EventListener0 rushListener = mock(EventListener0.class);
-    EventListener0 endListener = mock(EventListener0.class);
     entity.getEvents().addListener("chargeWindupStart", windupListener);
     entity.getEvents().addListener("chargeRushStart", rushListener);
-    entity.getEvents().addListener("chargeEnd", endListener);
 
-    Vector2 targetPos = new Vector2(10f, 0f);
     charge.startCharge(targetPos);
 
-    // Initial windup phase:
     assertTrue(charge.isCharging());
     assertTrue(charge.isWindup());
     assertFalse(charge.isRushing());
@@ -161,15 +167,23 @@ class ChargeComponentTest {
     verify(windupListener).handle();
     verify(rushListener, never()).handle();
 
-    // 0.1s in windup:
-    charge.update();
+    charge.update(); // 0.1s in windup
     assertTrue(charge.isCharging());
     assertTrue(charge.isWindup());
     assertFalse(charge.isRushing());
     assertFalse(movement.getMoving(), "Must stay stationary during windup");
+  }
 
-    // 0.2s: transition to rush phase!
-    charge.update();
+  @Test
+  void shouldMoveFastOnceTheRushBegins() {
+    setUpChargeWithWindup();
+    EventListener0 rushListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeRushStart", rushListener);
+
+    charge.startCharge(targetPos);
+    charge.update(); // 0.1s
+    charge.update(); // 0.2s, transition to rush
+
     assertTrue(charge.isCharging());
     assertFalse(charge.isWindup());
     assertTrue(charge.isRushing());
@@ -178,14 +192,24 @@ class ChargeComponentTest {
     assertEquals(2.0f, movement.getSpeedMultiplier());
     verify(rushListener).handle();
 
-    // 0.3s (0.1s into rush):
-    charge.update();
+    charge.update(); // 0.3s, 0.1s into the rush
     assertTrue(charge.isCharging());
     assertTrue(charge.isRushing());
     assertTrue(movement.getMoving());
+  }
 
-    // 0.4s (total charge duration elapsed):
+  @Test
+  void shouldStopMovingWhenTheChargeDurationHasElapsed() {
+    setUpChargeWithWindup();
+    EventListener0 endListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeEnd", endListener);
+
+    charge.startCharge(targetPos);
     charge.update();
+    charge.update();
+    charge.update();
+    charge.update(); // 0.4s, total duration elapsed
+
     assertFalse(charge.isCharging());
     assertFalse(charge.isWindup());
     assertFalse(charge.isRushing());

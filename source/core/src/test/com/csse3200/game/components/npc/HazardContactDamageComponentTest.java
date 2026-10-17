@@ -259,10 +259,10 @@ class HazardContactDamageComponentTest {
   void shouldNotThrowForAnEntityWithoutCombatStats() {
     createHazard(0f, 0f, 15);
     Entity noStats =
-        new Entity()
-            .addComponent(new PhysicsComponent())
-            .addComponent(new ColliderComponent())
-            .addComponent(new HazardContactDamageComponent());
+      new Entity()
+        .addComponent(new PhysicsComponent())
+        .addComponent(new ColliderComponent())
+        .addComponent(new HazardContactDamageComponent());
     noStats.create();
     noStats.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
     noStats.setPosition(0f, 0f);
@@ -284,15 +284,14 @@ class HazardContactDamageComponentTest {
   // ---------- helpers ----------
 
   private Entity createHazard(float x, float y, int damage) {
-    Entity hazard = createSensor(x, y, PhysicsLayer.HAZARD, damage);
-    return hazard;
+    return createSensor(x, y, PhysicsLayer.HAZARD, damage);
   }
 
   private Entity createHazardWithoutDamage(float x, float y) {
     Entity hazard =
-        new Entity()
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.HAZARD).setSensor(true));
+      new Entity()
+        .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+        .addComponent(new ColliderComponent().setLayer(PhysicsLayer.HAZARD).setSensor(true));
     hazard.setScale(0.5f, 0.5f);
     hazard.create();
     hazard.setPosition(x, y);
@@ -301,10 +300,10 @@ class HazardContactDamageComponentTest {
 
   private Entity createSensor(float x, float y, short layer, int damage) {
     Entity sensor =
-        new Entity()
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(new ColliderComponent().setLayer(layer).setSensor(true))
-            .addComponent(new HazardDamageComponent(damage));
+      new Entity()
+        .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+        .addComponent(new ColliderComponent().setLayer(layer).setSensor(true))
+        .addComponent(new HazardDamageComponent(damage));
     sensor.setScale(0.5f, 0.5f);
     sensor.create();
     sensor.setPosition(x, y);
@@ -312,13 +311,13 @@ class HazardContactDamageComponentTest {
   }
 
   private Entity createEnemy(
-      float x, float y, int health, HazardContactDamageComponent hazardRule) {
+    float x, float y, int health, HazardContactDamageComponent hazardRule) {
     Entity enemy =
-        new Entity()
-            .addComponent(new PhysicsComponent())
-            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(new CombatStatsComponent(health, 0))
-            .addComponent(hazardRule);
+      new Entity()
+        .addComponent(new PhysicsComponent())
+        .addComponent(new ColliderComponent().setLayer(PhysicsLayer.NPC))
+        .addComponent(new CombatStatsComponent(health, 0))
+        .addComponent(hazardRule);
     enemy.setScale(0.5f, 0.5f);
     enemy.create();
     enemy.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);

@@ -276,39 +276,44 @@ class PetrifyEffectComponentTest {
     /** Should reject a zero duration (zero ticks would petrify forever). */
     @Test
     void shouldRejectAZeroDuration() {
+      var testConfig = config(0f);
       assertThrows(
-        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(config(0f), 7f));
+        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject a negative duration. */
     @Test
     void shouldRejectANegativeDuration() {
+      var testConfig = config(-1f);
       assertThrows(
-        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(config(-1f), 7f));
+        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject a NaN duration. */
     @Test
     void shouldRejectANaNDuration() {
+      var testConfig = config(Float.NaN);
       assertThrows(
         IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(config(Float.NaN), 7f));
+        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject an infinite duration. */
     @Test
     void shouldRejectAnInfiniteDuration() {
+      var testConfig = config(Float.POSITIVE_INFINITY);
       assertThrows(
         IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(config(Float.POSITIVE_INFINITY), 7f));
+        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should reject a duration shorter than one tick. */
     @Test
     void shouldRejectADurationShorterThanOneTick() {
+      var testConfig = config(0.001f);
       assertThrows(
         IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(config(0.001f), 7f));
+        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should accept a cooldown more than twice the duration. */
@@ -326,26 +331,29 @@ class PetrifyEffectComponentTest {
     /** Should reject just below twice the duration. */
     @Test
     void shouldRejectJustBelowTwiceTheDuration() {
+      var testConfig = config(2f);
       assertThrows(
         IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(config(2f), 3.9f));
+        () -> PetrifyEffectComponent.forShooter(testConfig, 3.9f));
     }
 
     /** Should reject a NaN cooldown. */
     @Test
     void shouldRejectANaNCooldown() {
+      var testConfig = config(2f);
       assertThrows(
         IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(config(2f), Float.NaN));
+        () -> PetrifyEffectComponent.forShooter(testConfig, Float.NaN));
     }
 
     /** Should name the cooldown and the minimum in the message. */
     @Test
     void shouldNameTheCooldownAndTheMinimumInTheMessage() {
+      var testConfig = config(2f);
       IllegalArgumentException exception =
         assertThrows(
           IllegalArgumentException.class,
-          () -> PetrifyEffectComponent.forShooter(config(2f), 3f));
+          () -> PetrifyEffectComponent.forShooter(testConfig, 3f));
 
       assertTrue(exception.getMessage().contains("3"));
       assertTrue(exception.getMessage().contains("4"));
@@ -392,9 +400,10 @@ class PetrifyEffectComponentTest {
       callRequireCooldown(4f, 2f); // exactly twice the effect time, must not throw
 
       assertThrows(IllegalArgumentException.class, () -> callRequireCooldown(Float.NaN, 2f));
+      var testConfig = config(Float.NaN);
       assertThrows(
         IllegalArgumentException.class,
-        () -> PetrifyEffectComponent.forShooter(config(Float.NaN), 7f));
+        () -> PetrifyEffectComponent.forShooter(testConfig, 7f));
     }
 
     /** Should turn seconds into ticks. */

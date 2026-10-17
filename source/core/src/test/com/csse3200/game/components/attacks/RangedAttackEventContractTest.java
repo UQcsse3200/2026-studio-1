@@ -19,6 +19,7 @@ import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -67,12 +68,12 @@ class RangedAttackEventContractTest {
     ServiceLocator.registerPhysicsService(new PhysicsService());
     EntityService entityService = mock(EntityService.class);
     doAnswer(
-            invocation -> {
-              registered.add(invocation.getArgument(0));
-              return null;
-            })
-        .when(entityService)
-        .register(any(Entity.class));
+      invocation -> {
+        registered.add(invocation.getArgument(0));
+        return null;
+      })
+      .when(entityService)
+      .register(any(Entity.class));
     ServiceLocator.registerEntityService(entityService);
     GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(0.02f);
@@ -169,7 +170,7 @@ class RangedAttackEventContractTest {
   @Test
   void nullTargetDoesNothingAndKeepsTheCooldown() {
     assertDoesNotThrow(
-        () -> shooter.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
+      () -> shooter.getEvents().trigger("rangedAttack", (Entity) null, ProjectileType.ARROW));
     assertEquals(0, registered.size());
 
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
@@ -179,7 +180,7 @@ class RangedAttackEventContractTest {
   @Test
   void nullProjectileTypeDoesNothingAndKeepsTheCooldown() {
     assertDoesNotThrow(
-        () -> shooter.getEvents().trigger("rangedAttack", target, (ProjectileType) null));
+      () -> shooter.getEvents().trigger("rangedAttack", target, (ProjectileType) null));
     assertEquals(0, registered.size());
 
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
@@ -193,7 +194,7 @@ class RangedAttackEventContractTest {
     noStats.setPosition(3f, 0f);
 
     assertDoesNotThrow(
-        () -> shooter.getEvents().trigger("rangedAttack", noStats, ProjectileType.ARROW));
+      () -> shooter.getEvents().trigger("rangedAttack", noStats, ProjectileType.ARROW));
     assertEquals(0, registered.size(), "A target that cannot take damage must not be shot at");
 
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
@@ -203,9 +204,10 @@ class RangedAttackEventContractTest {
   @Test
   void swappedArgumentsThrowAndSpawnNothing() {
     // The order is part of the contract: target first, projectile type second.
+    var events = shooter.getEvents();
     assertThrows(
-        ClassCastException.class,
-        () -> shooter.getEvents().trigger("rangedAttack", ProjectileType.ARROW, target));
+      ClassCastException.class,
+      () -> events.trigger("rangedAttack", ProjectileType.ARROW, target));
 
     assertEquals(0, registered.size());
   }
@@ -213,8 +215,8 @@ class RangedAttackEventContractTest {
   @Test
   void aOneValueTriggerFailsWithAClassCastException() {
     // A forgotten call site that sends only the target fails like this every time it attacks.
-    assertThrows(
-        ClassCastException.class, () -> shooter.getEvents().trigger("rangedAttack", target));
+    var events = shooter.getEvents();
+    assertThrows(ClassCastException.class, () -> events.trigger("rangedAttack", target));
 
     assertEquals(0, registered.size());
   }
@@ -224,7 +226,7 @@ class RangedAttackEventContractTest {
   @Test
   void rangedAttackFiredIsTriggeredOncePerShotWithTheTarget() {
     List<Entity> fired = new ArrayList<>();
-    shooter.getEvents().addListener("rangedAttackFired", (Entity t) -> fired.add(t));
+    shooter.getEvents().addListener("rangedAttackFired", (EventListener1<Entity>) fired::add);
 
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
     assertEquals(1, fired.size());
@@ -237,7 +239,7 @@ class RangedAttackEventContractTest {
   @Test
   void rangedAttackHitIsRefiredOnTheShooterWhenTheArrowHits() {
     List<Entity> hits = new ArrayList<>();
-    shooter.getEvents().addListener("rangedAttackHit", (Entity t) -> hits.add(t));
+    shooter.getEvents().addListener("rangedAttackHit", (EventListener1<Entity>) hits::add);
     shooter.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
     Entity arrow = registered.get(0);
 
@@ -267,7 +269,7 @@ class RangedAttackEventContractTest {
     ai.addTask(new RangedAttackTask(target, 15, RANGE, ProjectileType.ARROW));
     Entity archer = createShooter(5, ai);
     List<Entity> fired = new ArrayList<>();
-    archer.getEvents().addListener("rangedAttackFired", (Entity t) -> fired.add(t));
+    archer.getEvents().addListener("rangedAttackFired", (EventListener1<Entity>) fired::add);
 
     archer.update();
 
@@ -277,13 +279,13 @@ class RangedAttackEventContractTest {
 
   @Test
   void shouldTriggerRangedAttackWithConfiguredProjectileType() {
-    Entity target = new Entity();
-    target.setPosition(1, 0);
+    Entity localTarget = new Entity();
+    localTarget.setPosition(1, 0);
     Entity owner =
-        new Entity()
-            .addComponent(
-                new AITaskComponent()
-                    .addTask(new RangedAttackTask(target, 10, 5f, ProjectileType.LIGHTNING)));
+      new Entity()
+        .addComponent(
+          new AITaskComponent()
+            .addTask(new RangedAttackTask(localTarget, 10, 5f, ProjectileType.LIGHTNING)));
     owner.create();
     owner.setPosition(0, 0);
 
@@ -305,9 +307,9 @@ class RangedAttackEventContractTest {
   private Entity createShooter(int baseAttack, AITaskComponent ai) {
     WeaponItem bow = new WeaponItem("Test Bow", WeaponType.BOW, WeaponTier.TIER_1, 1, 1, 0f);
     Entity entity =
-        new Entity()
-            .addComponent(new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow))
-            .addComponent(new CombatStatsComponent(20, baseAttack));
+      new Entity()
+        .addComponent(new RangedAttackComponent(RANGE, COOLDOWN, 0f, bow))
+        .addComponent(new CombatStatsComponent(20, baseAttack));
     if (ai != null) {
       entity.addComponent(ai);
     }

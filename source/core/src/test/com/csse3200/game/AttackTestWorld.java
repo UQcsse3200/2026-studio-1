@@ -94,11 +94,11 @@ public final class AttackTestWorld {
    */
   public Entity newTarget(float x, float y, int health) {
     Entity target =
-        new Entity()
-            .addComponent(new PhysicsComponent())
-            .addComponent(new ColliderComponent())
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
-            .addComponent(new CombatStatsComponent(health, 0));
+      new Entity()
+        .addComponent(new PhysicsComponent())
+        .addComponent(new ColliderComponent())
+        .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER))
+        .addComponent(new CombatStatsComponent(health, 0));
     register(target);
     target.setPosition(x, y);
     target.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
@@ -174,7 +174,7 @@ public final class AttackTestWorld {
    * @param eventName the event to listen for
    * @return a live list that fills as the event fires
    */
-  public static List<Entity> record(Entity source, String eventName) {
+  public static List<Entity> recordEvents(Entity source, String eventName) {
     List<Entity> seen = new ArrayList<>();
     source.getEvents().addListener(eventName, (EventListener1<Entity>) seen::add);
     return seen;

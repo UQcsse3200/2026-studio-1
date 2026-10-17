@@ -63,8 +63,8 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldAttack() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(10);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 10);
 
     touch(attacker, target);
 
@@ -74,8 +74,8 @@ class TouchAttackComponentTest {
   @Test
   void shouldNotAttackOtherLayer() {
     short attackLayer = (1 << 4);
-    Entity attacker = createAttacker(attackLayer, BASE_ATTACK);
-    Entity target = createTarget(10);
+    Entity attacker = createAttacker(attackLayer, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 10);
 
     touch(attacker, target);
 
@@ -84,7 +84,7 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldNotAttackWithoutCombatComponent() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
     Entity target =
       new Entity()
         .addComponent(new PhysicsComponent())
@@ -98,13 +98,13 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldBeActiveByDefault() {
-    assertTrue(touchOf(createAttacker(TARGET_LAYER, BASE_ATTACK)).isActive());
+    assertTrue(touchOf(createAttacker(TARGET_LAYER, 0, BASE_ATTACK)).isActive());
   }
 
   @Test
   void shouldIgnoreContactsWhileInactive() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setActive(false);
 
     touch(attacker, target);
@@ -115,8 +115,8 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldHitAgainAfterBeingSwitchedBackOn() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setActive(false);
     touch(attacker, target);
 
@@ -128,8 +128,8 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldNotResetTheHitCounterWhenSwitchedOffAndOn() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setMaxHitsPerActivation(1);
     touch(attacker, target);
 
@@ -143,7 +143,7 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldBeSafeToDeactivateTwice() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
     assertDoesNotThrow(
       () -> {
@@ -159,13 +159,13 @@ class TouchAttackComponentTest {
   @Test
   void shouldHaveNoHitLimitByDefault() {
     assertEquals(
-      0, touchOf(createAttacker(TARGET_LAYER, BASE_ATTACK)).getMaxHitsPerActivation());
+      0, touchOf(createAttacker(TARGET_LAYER, 0, BASE_ATTACK)).getMaxHitsPerActivation());
   }
 
   @Test
   void shouldAllowUnlimitedHitsWhenTheLimitIsZero() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
 
     for (int i = 0; i < 5; i++) {
       touch(attacker, target);
@@ -184,8 +184,8 @@ class TouchAttackComponentTest {
     "5, 10, 5"
   })
   void shouldStopHittingOnceTheLimitIsReached(int limit, int contacts, int expectedHits) {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(1000);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 1000);
     touchOf(attacker).setMaxHitsPerActivation(limit);
 
     for (int i = 0; i < contacts; i++) {
@@ -199,13 +199,13 @@ class TouchAttackComponentTest {
   /** Activating over several touching targets obeys the hit limit and skips the wrong layer. */
   @Test
   void shouldHitOnlyOneValidTargetAndSkipTheWrongLayerWhenActivated() {
-    Entity attacker = createPhysicalAttacker();
-    Entity wrongLayer = createPhysicalTarget(0f, 0f, (short) (1 << 6));
-    Entity first = createPhysicalTarget(0f, 0f);
-    Entity second = createPhysicalTarget(0f, 0f);
+    Entity attacker = createPhysicalAttacker(0f, 0f);
+    Entity wrongLayer = createPhysicalTarget(0f, 0f, 100, (short) (1 << 6));
+    Entity first = createPhysicalTarget(0f, 0f, 100);
+    Entity second = createPhysicalTarget(0f, 0f, 100);
     touchOf(attacker).setMaxHitsPerActivation(1);
     touchOf(attacker).setActive(false);
-    stepWorld(); // contacts exist, but touch damage is off
+    stepWorld(3); // contacts exist, but touch damage is off
 
     touchOf(attacker).activate();
 
@@ -216,22 +216,23 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldRejectANegativeLimit() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
+    TouchAttackComponent touch = touchOf(attacker);
     assertThrows(
-      IllegalArgumentException.class, () -> touchOf(attacker).setMaxHitsPerActivation(-1));
+      IllegalArgumentException.class, () -> touch.setMaxHitsPerActivation(-1));
   }
 
   @Test
   void shouldNotCountAContactWithATargetThatCannotBeHurt() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
     touchOf(attacker).setMaxHitsPerActivation(1);
     Entity noStats =
       new Entity()
         .addComponent(new PhysicsComponent())
         .addComponent(new HitboxComponent().setLayer(TARGET_LAYER));
     noStats.create();
-    Entity realTarget = createTarget(100);
+    Entity realTarget = createTarget(TARGET_LAYER, 100);
 
     touch(attacker, noStats);
     touch(attacker, realTarget);
@@ -242,21 +243,21 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldAnnounceEachHitWithTheTarget() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     List<Entity> hits = new ArrayList<>();
     attacker.getEvents().addListener("touchAttackHit", (EventListener1<Entity>) hits::add);
 
     touch(attacker, target);
 
     assertEquals(1, hits.size());
-    assertSame(target, hits.getFirst());
+    assertSame(target, hits.get(0));
   }
 
   @Test
   void shouldNotAnnounceAHitThatTheLimitBlocked() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setMaxHitsPerActivation(1);
     List<Entity> hits = new ArrayList<>();
     attacker.getEvents().addListener("touchAttackHit", (EventListener1<Entity>) hits::add);
@@ -272,7 +273,7 @@ class TouchAttackComponentTest {
   @Test
   void shouldHaveAMultiplierOfOneByDefault() {
     assertEquals(
-      1f, touchOf(createAttacker(TARGET_LAYER, BASE_ATTACK)).getDamageMultiplier(), 1e-6f);
+      1f, touchOf(createAttacker(TARGET_LAYER, 0, BASE_ATTACK)).getDamageMultiplier(), 1e-6f);
   }
 
   @ParameterizedTest(name = "base {0} x {1} deals {2}")
@@ -286,8 +287,8 @@ class TouchAttackComponentTest {
     "1, 1.5, 1"
   })
   void shouldScaleTheBaseAttackAndRoundDown(int baseAttack, float multiplier, int expectedDamage) {
-    Entity attacker = createAttacker(TARGET_LAYER, baseAttack);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, baseAttack);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setDamageMultiplier(multiplier);
 
     touch(attacker, target);
@@ -297,8 +298,8 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldNeverChangeTheAttackersOwnBaseAttack() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setDamageMultiplier(3f);
 
     touch(attacker, target);
@@ -309,29 +310,32 @@ class TouchAttackComponentTest {
   @ParameterizedTest(name = "multiplier {0} is rejected")
   @ValueSource(floats = {0f, -1f, -0.5f})
   void shouldRejectAZeroOrNegativeMultiplier(float multiplier) {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
+    TouchAttackComponent touch = touchOf(attacker);
     assertThrows(
-      IllegalArgumentException.class, () -> touchOf(attacker).setDamageMultiplier(multiplier));
+      IllegalArgumentException.class, () -> touch.setDamageMultiplier(multiplier));
   }
 
   @Test
   void shouldRejectANotANumberOrInfiniteMultiplier() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
+    TouchAttackComponent touch = touchOf(attacker);
     assertThrows(
-      IllegalArgumentException.class, () -> touchOf(attacker).setDamageMultiplier(Float.NaN));
+      IllegalArgumentException.class, () -> touch.setDamageMultiplier(Float.NaN));
     assertThrows(
       IllegalArgumentException.class,
-      () -> touchOf(attacker).setDamageMultiplier(Float.POSITIVE_INFINITY));
+      () -> touch.setDamageMultiplier(Float.POSITIVE_INFINITY));
   }
 
   @Test
   void shouldKeepTheOldMultiplierWhenANewOneIsRejected() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
     touchOf(attacker).setDamageMultiplier(2f);
 
-    assertThrows(IllegalArgumentException.class, () -> touchOf(attacker).setDamageMultiplier(-1f));
+    TouchAttackComponent touch = touchOf(attacker);
+    assertThrows(IllegalArgumentException.class, () -> touch.setDamageMultiplier(-1f));
 
     assertEquals(2f, touchOf(attacker).getDamageMultiplier(), 1e-6f);
   }
@@ -340,8 +344,8 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldClearTheHitCounterAndSwitchOnWhenActivated() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setMaxHitsPerActivation(1);
     touch(attacker, target);
     touchOf(attacker).setActive(false);
@@ -354,8 +358,8 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldAllowAFreshHitAfterActivateEvenAfterTheLimitWasUsed() {
-    Entity attacker = createAttacker(TARGET_LAYER, BASE_ATTACK);
-    Entity target = createTarget(100);
+    Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
+    Entity target = createTarget(TARGET_LAYER, 100);
     touchOf(attacker).setMaxHitsPerActivation(1);
     touch(attacker, target);
     touch(attacker, target); // blocked
@@ -370,10 +374,10 @@ class TouchAttackComponentTest {
   void shouldHitATargetThatIsAlreadyTouchingWhenActivated() {
     // A collision-start event only fires when shapes BEGIN to overlap, so a target already
     // inside would never be hit. activate() looks at the live contacts instead.
-    Entity attacker = createPhysicalAttacker();
-    Entity target = createPhysicalTarget(0f, 0f);
+    Entity attacker = createPhysicalAttacker(0f, 0f);
+    Entity target = createPhysicalTarget(0f, 0f, 100);
     touchOf(attacker).setActive(false);
-    stepWorld(); // the contact now exists, but touch damage is off
+    stepWorld(3); // the contact now exists, but touch damage is off
 
     assertEquals(100, healthOf(target));
     touchOf(attacker).activate();
@@ -384,10 +388,10 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldNotHitATargetThatIsNotTouchingWhenActivated() {
-    Entity attacker = createPhysicalAttacker();
-    Entity target = createPhysicalTarget(50f, 50f);
+    Entity attacker = createPhysicalAttacker(0f, 0f);
+    Entity target = createPhysicalTarget(50f, 50f, 100);
     touchOf(attacker).setActive(false);
-    stepWorld();
+    stepWorld(3);
 
     touchOf(attacker).activate();
 
@@ -396,10 +400,10 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldNotHitAnAlreadyTouchingTargetOnTheWrongLayerWhenActivated() {
-    Entity attacker = createPhysicalAttacker();
-    Entity wrongLayer = createPhysicalTarget(0f, 0f, (short) (1 << 6));
+    Entity attacker = createPhysicalAttacker(0f, 0f);
+    Entity wrongLayer = createPhysicalTarget(0f, 0f, 100, (short) (1 << 6));
     touchOf(attacker).setActive(false);
-    stepWorld();
+    stepWorld(3);
 
     touchOf(attacker).activate();
 
@@ -408,12 +412,12 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldRespectTheHitLimitWhenActivatingOverSeveralTouchingTargets() {
-    Entity attacker = createPhysicalAttacker();
-    Entity first = createPhysicalTarget(0f, 0f);
-    Entity second = createPhysicalTarget(0f, 0f);
+    Entity attacker = createPhysicalAttacker(0f, 0f);
+    Entity first = createPhysicalTarget(0f, 0f, 100);
+    Entity second = createPhysicalTarget(0f, 0f, 100);
     touchOf(attacker).setMaxHitsPerActivation(1);
     touchOf(attacker).setActive(false);
-    stepWorld();
+    stepWorld(3);
 
     touchOf(attacker).activate();
 
@@ -437,10 +441,10 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldPushARealTargetAwayFromTheAttackerWhenKnockbackIsSet() {
-    Entity attacker = createPhysicalAttacker(5f);
-    Entity target = createPhysicalTarget(0.2f, 0f);
+    Entity attacker = createPhysicalAttacker(0f, 0f, 5f);
+    Entity target = createPhysicalTarget(0.2f, 0f, 100);
     touchOf(attacker).setActive(false);
-    stepWorld();
+    stepWorld(3);
 
     touchOf(attacker).activate();
 
@@ -450,10 +454,10 @@ class TouchAttackComponentTest {
 
   @Test
   void shouldNotPushAnythingWhenKnockbackIsZero() {
-    Entity attacker = createPhysicalAttacker(0f);
-    Entity target = createPhysicalTarget(0.2f, 0f);
+    Entity attacker = createPhysicalAttacker(0f, 0f, 0f);
+    Entity target = createPhysicalTarget(0.2f, 0f, 100);
     touchOf(attacker).setActive(false);
-    stepWorld();
+    stepWorld(3);
     target.getComponent(PhysicsComponent.class).getBody().setLinearVelocity(0f, 0f);
 
     touchOf(attacker).activate();
@@ -479,32 +483,32 @@ class TouchAttackComponentTest {
     return entity.getComponent(CombatStatsComponent.class).getHealth();
   }
 
-  private Entity createAttacker(short targetLayer, int baseAttack) {
+  private Entity createAttacker(short targetLayer, int health, int baseAttack) {
     Entity attacker =
       new Entity()
         .addComponent(new TouchAttackComponent(targetLayer))
-        .addComponent(new CombatStatsComponent(0, baseAttack))
+        .addComponent(new CombatStatsComponent(health, baseAttack))
         .addComponent(new PhysicsComponent())
         .addComponent(new HitboxComponent());
     attacker.create();
     return attacker;
   }
 
-  private Entity createTarget(int health) {
+  private Entity createTarget(short layer, int health) {
     Entity target =
       new Entity()
         .addComponent(new CombatStatsComponent(health, 0))
         .addComponent(new PhysicsComponent())
-        .addComponent(new HitboxComponent().setLayer(TouchAttackComponentTest.TARGET_LAYER));
+        .addComponent(new HitboxComponent().setLayer(layer));
     target.create();
     return target;
   }
 
-  private Entity createPhysicalAttacker() {
-    return createPhysicalAttacker(0f);
+  private Entity createPhysicalAttacker(float x, float y) {
+    return createPhysicalAttacker(x, y, 0f);
   }
 
-  private Entity createPhysicalAttacker(float knockback) {
+  private Entity createPhysicalAttacker(float x, float y, float knockback) {
     Entity attacker =
       new Entity()
         .addComponent(new TouchAttackComponent(TARGET_LAYER, knockback))
@@ -513,19 +517,19 @@ class TouchAttackComponentTest {
         .addComponent(new HitboxComponent());
     attacker.setScale(1f, 1f);
     attacker.create();
-    attacker.setPosition((float) 0.0, (float) 0.0);
+    attacker.setPosition(x, y);
     attacker.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
     return attacker;
   }
 
-  private Entity createPhysicalTarget(float x, float y) {
-    return createPhysicalTarget(x, y, TARGET_LAYER);
+  private Entity createPhysicalTarget(float x, float y, int health) {
+    return createPhysicalTarget(x, y, health, TARGET_LAYER);
   }
 
-  private Entity createPhysicalTarget(float x, float y, short layer) {
+  private Entity createPhysicalTarget(float x, float y, int health, short layer) {
     Entity target =
       new Entity()
-        .addComponent(new CombatStatsComponent(100, 0))
+        .addComponent(new CombatStatsComponent(health, 0))
         .addComponent(new PhysicsComponent())
         .addComponent(new HitboxComponent().setLayer(layer));
     target.setScale(1f, 1f);
@@ -535,8 +539,8 @@ class TouchAttackComponentTest {
     return target;
   }
 
-  private void stepWorld() {
-    for (int i = 0; i < 3; i++) {
+  private void stepWorld(int frames) {
+    for (int i = 0; i < frames; i++) {
       ServiceLocator.getPhysicsService().getPhysics().update();
     }
   }
