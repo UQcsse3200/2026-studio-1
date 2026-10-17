@@ -2,9 +2,13 @@ package com.csse3200.game.pausemenu;
 
 import com.badlogic.gdx.Input;
 import com.csse3200.game.input.InputComponent;
+import java.util.function.BooleanSupplier;
 
 public class KeyboardPauseInput extends InputComponent {
   private PauseMenuComponent pauseMenu;
+
+  /** Returns true while a screen the pause menu must not open over (death, win) is showing. */
+  private BooleanSupplier pauseBlocked = () -> false;
 
   public KeyboardPauseInput() {
     super(10);
@@ -13,6 +17,15 @@ public class KeyboardPauseInput extends InputComponent {
   public KeyboardPauseInput(PauseMenuComponent pauseMenu) {
     this();
     this.pauseMenu = pauseMenu;
+  }
+
+  /**
+   * Stops the pause key from opening the pause menu while the given check returns true.
+   *
+   * @param pauseBlocked check for screens the pause menu must not open over; null means never
+   */
+  public void setPauseBlocked(BooleanSupplier pauseBlocked) {
+    this.pauseBlocked = pauseBlocked != null ? pauseBlocked : () -> false;
   }
 
   @Override
@@ -36,6 +49,10 @@ public class KeyboardPauseInput extends InputComponent {
 
     if (keycode == KeybindSettings.getKey("pause")) {
       if (!pauseMenu.isPaused()) {
+        // Do not open the pause menu over the death or win screen.
+        if (pauseBlocked.getAsBoolean()) {
+          return false;
+        }
         pauseMenu.toggleIsPaused();
       } else {
         entity.getEvents().trigger("escapePressed");
