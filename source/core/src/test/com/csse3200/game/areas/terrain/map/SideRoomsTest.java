@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.GridPoint2;
+import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.extensions.GameExtension;
@@ -259,6 +260,19 @@ class SideRoomsTest {
     assertEquals(new GridPoint2(50, 40), houndsDen.getTransitions().get(1).getDestinationSpawn());
     assertFalse(view.isSolid(50, 40), "the room exit lands above the ceiling");
     assertTrue(view.isSupporting(50, 39), "the room exit has a floor beneath it");
+  }
+
+  @Test
+  void rightSideNetherLadderIsRemovedWithoutOpeningTheDividerFloors() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+
+    for (int y = 34; y <= 50; y++) {
+      assertFalse(view.tileTypeAt(52, y) == TileType.LADDER, "old ladder tile at y=" + y);
+    }
+    for (int y : new int[] {39, 45, 51}) {
+      assertTrue(view.isSolid(52, y), "the divider floor remains sealed at y=" + y);
+    }
   }
 
   @Test
