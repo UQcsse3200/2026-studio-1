@@ -3,7 +3,7 @@ package com.csse3200.game.entities.configs;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.entities.configs.enemies.MedusaConfig;
 import com.csse3200.game.entities.configs.enemies.ZeusConfig;
@@ -33,7 +33,7 @@ class EnemyDesignRulesTest {
   /**
    * Ticks-to-seconds conversion for {@link RangedAttackComponent}'s freeze duration. Matches the
    * "about 60 per second" assumption already documented on {@link
-   * com.csse3200.game.components.attacks.RangedAttackComponent#getLightningFreezeTicks}.
+   * RangedAttackComponent#getLightningFreezeTicks}.
    */
   private static final float TICKS_PER_SECOND = 60f;
 

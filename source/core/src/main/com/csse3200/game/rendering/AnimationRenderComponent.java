@@ -56,7 +56,7 @@ public class AnimationRenderComponent extends RenderComponent {
 
   /**
    * Create the component for a given individual texture atlas. Implements with
-   * NPCFactory.loadIndependentAtlas(String) which ensures no shared atlases are disposed of when
+   * EnemyFactory.loadIndependentAtlas(String) which ensures no shared atlases are disposed of when
    * one enemy dies.
    */
   public AnimationRenderComponent(TextureAtlas atlas, boolean ownsAtlas) {

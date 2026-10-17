@@ -22,9 +22,11 @@ import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
 import com.csse3200.game.ui.UIComponent;
+import com.csse3200.game.ui.terminal.commands.InventoryCommand;
 import java.util.ArrayList;
 import java.util.List;
 
+/** A HUD-style UI component for displaying the player's inventory. */
 public class InventoryDisplay extends UIComponent {
 
   // --- Pixel-art geometry --------------------------------------------------------------------
@@ -96,6 +98,8 @@ public class InventoryDisplay extends UIComponent {
   private Drawable coinDrawable;
   private Drawable hoverDrawable;
 
+  private boolean hidden = false;
+
   /** Creates the inventory UI and adds it to the stage. */
   @Override
   public void create() {
@@ -129,6 +133,7 @@ public class InventoryDisplay extends UIComponent {
 
     hudTable.pack();
     positionHud();
+    hudTable.setVisible(!hidden);
     stage.addActor(hudTable);
 
     goldTable = new Table();
@@ -893,5 +898,18 @@ public class InventoryDisplay extends UIComponent {
     hoverDrawable = null;
 
     super.dispose();
+  }
+
+  /**
+   * Sets inventory to be visible or not. Used by terminal command {@link InventoryCommand}
+   *
+   * @param shouldHide boolean on whether to hide the inventory or not.
+   */
+  public void setHidden(boolean shouldHide) {
+    hidden = shouldHide;
+    if (hudTable != null) {
+      hudTable.setVisible(!hidden);
+      System.out.println("InventoryTable is hidden: " + hudTable.isVisible());
+    }
   }
 }

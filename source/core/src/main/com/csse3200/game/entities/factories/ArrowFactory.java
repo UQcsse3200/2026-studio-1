@@ -3,7 +3,8 @@ package com.csse3200.game.entities.factories;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.attacks.LightningFreezeComponent;
+import com.csse3200.game.components.enemies.attacks.LightningFreezeComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.player.ArrowMovementComponent;
 import com.csse3200.game.components.player.PlayerProjectileHitComponent;
 import com.csse3200.game.components.projectile.*;
@@ -15,6 +16,7 @@ import com.csse3200.game.rendering.TextureRenderComponent;
 
 /** Factory for creating arrow projectiles. */
 public class ArrowFactory {
+  private static final String ARROW_IMAGE = "images/items/arrow.png";
 
   /**
    * Creates a player arrow that travels in a straight line and hits enemies or obstacles. Kept
@@ -40,7 +42,7 @@ public class ArrowFactory {
             .cpy()
             .mulAdd(normalizedDirection, owner.getScale().x / 2f + arrowWidth / 2f + 0.02f);
 
-    TextureRenderComponent renderer = new TextureRenderComponent("images/items/arrow.png");
+    TextureRenderComponent renderer = new TextureRenderComponent(ARROW_IMAGE);
     renderer.setRotationDegrees(normalizedDirection.angleDeg());
 
     Entity arrow =
@@ -76,8 +78,7 @@ public class ArrowFactory {
    * @param movingRight true to fire in the +x direction (target is to the right), false for -x.
    * @param speed travel speed in world units/second.
    * @param maxRange maximum distance the arrow can travel before despawning; should normally match
-   *     the firing {@link com.csse3200.game.components.attacks.RangedAttackComponent}'s configured
-   *     range.
+   *     the firing {@link RangedAttackComponent}'s configured range.
    * @param damage damage dealt to whatever the arrow hits on {@code targetLayer}.
    * @param knockback knockback magnitude applied on a successful hit; {@code 0f} disables it.
    * @param targetLayer the physics layer the arrow deals damage to on contact (e.g. {@link
@@ -94,7 +95,7 @@ public class ArrowFactory {
       short targetLayer) {
     Entity arrow =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
+            .addComponent(new TextureRenderComponent(ARROW_IMAGE))
             // Dynamic, not kinematic: Box2D only creates a contact when at least one of the two
             // bodies is dynamic, so a kinematic arrow never reported touching a static wall.
             .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
@@ -158,7 +159,7 @@ public class ArrowFactory {
     AimedLineMovementStrategy movement = new AimedLineMovementStrategy(speed, direction);
     Entity arrow =
         new Entity()
-            .addComponent(new TextureRenderComponent("images/items/arrow.png"))
+            .addComponent(new TextureRenderComponent(ARROW_IMAGE))
             .addComponent(new PhysicsComponent().setBodyType(BodyType.DynamicBody))
             .addComponent(new HitboxComponent())
             .addComponent(new CombatStatsComponent(1, damage))
@@ -167,7 +168,8 @@ public class ArrowFactory {
     configureFlightBody(arrow);
     arrow.setPosition(position);
     arrow.setScale(0.5f, 0.2f);
-    arrow.getComponent(TextureRenderComponent.class).setFlipX(direction.x < 0f);
+    // Arrow shooting right = 0 degrees, up = 90 degrees, left = 180 degrees, down = 270 degrees
+    arrow.getComponent(TextureRenderComponent.class).setRotationDegrees(direction.angleDeg());
     return arrow;
   }
 
@@ -286,7 +288,9 @@ public class ArrowFactory {
     if (position == null) {
       throw new IllegalArgumentException("position must not be null.");
     }
-    if (scale == null) {}
+    if (scale == null) {
+      throw new IllegalArgumentException("scale must not be null.");
+    }
 
     Entity projectile = new Entity();
     projectile

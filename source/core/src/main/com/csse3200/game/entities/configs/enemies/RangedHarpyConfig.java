@@ -1,6 +1,6 @@
 package com.csse3200.game.entities.configs.enemies;
 
-import com.csse3200.game.entities.configs.attacks.RangedAttackConfig;
+import com.csse3200.game.entities.configs.enemies.attacks.RangedAttackConfig;
 
 /** Ranged Harpy: flying, bow. */
 public class RangedHarpyConfig extends FlyingEnemyConfig {

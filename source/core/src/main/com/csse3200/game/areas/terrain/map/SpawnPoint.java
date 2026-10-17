@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.GridPoint2;
  * bottom-left, y increasing upwards - matching the game's world coordinates).
  *
  * <p>Used for enemy and loot spawns. An optional {@code type} names what should be spawned (e.g.
- * "ghost", "ghostKing"), letting map files drive spawning without hard-coded positions.
+ * "skeleton", "minotaur"), letting map files drive spawning without hard-coded positions.
  */
 public class SpawnPoint {
   private final String type;
