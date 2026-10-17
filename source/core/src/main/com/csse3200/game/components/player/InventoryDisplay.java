@@ -1074,9 +1074,9 @@ public class InventoryDisplay extends UIComponent {
   }
 
   /**
-   * Sets inventory to be visible or not. Used by terminal command {@link InventoryCommand}
+   * Sets whether the inventory is visible.
    *
-   * @param shouldHide boolean on whether to hide the inventory or not.
+   * @param shouldHide whether to hide the inventory
    */
   public void setHidden(boolean shouldHide) {
     hidden = shouldHide;
