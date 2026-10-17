@@ -37,8 +37,8 @@ import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.entities.factories.RenderFactory;
-import com.csse3200.game.entities.spawn.EnemyRegistry;
 import com.csse3200.game.entities.spawn.NpcQuestRegistry;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
 import com.csse3200.game.files.SaveService;
@@ -49,7 +49,9 @@ import com.csse3200.game.pausemenu.*;
 import com.csse3200.game.perks.PerkSelectionDisplay;
 import com.csse3200.game.perks.PerkSelectionInputComponent;
 import com.csse3200.game.perks.PerkService;
-import com.csse3200.game.perks.TortoiseFactory;
+import com.csse3200.game.perks.tortoises.TortoiseFactory;
+import com.csse3200.game.perks.tortoises.TortoisePlan;
+import com.csse3200.game.perks.tortoises.TortoisePlanner;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -74,6 +76,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,18 +102,24 @@ public class MainGameScreen extends ScreenAdapter {
 
   private static final Vector2 CAMERA_POSITION = new Vector2(7.5f, 7.5f);
   private static final String FIRST_ROOM_MAP = "maps/level1-greek.json";
+  private static final String LABYRINTH_SIDE_ROOM = "maps/nether-minotaur-labyrinth.json";
+  private static final String HOUNDS_DEN_SIDE_ROOM = "maps/nether-hounds-den.json";
+  private static final String GORGON_GALLERY_SIDE_ROOM = "maps/nether-gorgon-gallery.json";
+  private static final String SHADES_BARRACKS_SIDE_ROOM = "maps/nether-shades-barracks.json";
+  private static final String CYCLOPS_FORGE_SIDE_ROOM = "maps/olympus-cyclops-forge.json";
+  private static final String CENTAUR_PAVILION_SIDE_ROOM = "maps/olympus-centaur-pavilion.json";
+  private static final String OUTER_GUARD_SIDE_ROOM = "maps/olympus-outer-guard.json";
+  private static final String THUNDER_HALL_SIDE_ROOM = "maps/olympus-thunder-hall.json";
   private static final String SECOND_ROOM_MAP = "maps/level2.json";
   private static final String THIRD_ROOM_MAP = "maps/level3.json";
   private static final GridPoint2 LEVEL_ONE_DUNGEON_SPAWN = new GridPoint2(3, 3);
   private static final GridPoint2 LEVEL_ONE_NETHER_SPAWN = new GridPoint2(27, 34);
+  private static final GridPoint2 SIDE_ROOM_SPAWN = new GridPoint2(4, 2);
   private static final float GAMEPLAY_ZOOM = 0.95f;
   private static final float NOCLIP_VERTICAL_SPEED = 7f;
 
   /** How long the game waits after the final boss falls before showing the win screen. */
   private static final float WIN_SCREEN_DELAY = 2.5f;
-
-  /** How many tortoises are hidden across the maps; one is placed so far, in Level 1. */
-  private static final int TORTOISES_HIDDEN = 1;
 
   private final GdxGame game;
 
@@ -167,6 +176,7 @@ public class MainGameScreen extends ScreenAdapter {
     terrainFactory = new TerrainFactory(renderer.getCamera());
     String initialRoomMap = FIRST_ROOM_MAP;
     Long savedSeed = null;
+    int tortoiseTotal;
 
     if (loadsave && SaveService.hasSave()) {
       GameSaveData saveData = SaveService.load();
@@ -175,6 +185,17 @@ public class MainGameScreen extends ScreenAdapter {
       EnemyRegistry.loadFrom(saveData.killedEnemyIds);
       QuestLedger.loadFrom(saveData.completedQuestsByKind);
       TortoiseLedger.loadFrom(saveData.foundTortoiseIds);
+      LoadService.restorePerks(saveData.perks);
+      // clear any tortoises marked as found by a previous save, then mark only the ones found in
+      // this save.
+      TortoiseFactory.resetAll();
+      TortoiseFactory.restoreFound(saveData.foundTortoiseIds);
+      // Saves from before the total was tracked store 0, so roll a new total for those.
+      TortoisePlan.set(saveData.tortoisePlan);
+      tortoiseTotal =
+          saveData.tortoiseTotal > 0
+              ? saveData.tortoiseTotal
+              : TortoisePlanner.newGame(new Random());
       NpcQuestRegistry.loadFrom(saveData.npcs, saveData.killedNpcIds);
       Quest.restoreCounters(
           saveData.questJumps,
@@ -211,8 +232,10 @@ public class MainGameScreen extends ScreenAdapter {
 
       PerkService.resetAll();
       TortoiseFactory.resetAll();
+      TortoisePlan.reset();
+      tortoiseTotal = TortoisePlanner.newGame(new Random());
     }
-    TortoiseLedger.setTotal(TORTOISES_HIDDEN);
+    TortoiseLedger.setTotal(tortoiseTotal);
 
     currentRoomMapPath = initialRoomMap;
 
@@ -581,6 +604,7 @@ public class MainGameScreen extends ScreenAdapter {
             transition.getDestinationMap(),
             player,
             transition.getDestinationSpawn(),
+            savedSeed,
             renderer.getCamera().getCamera());
 
     nextArea.create();
@@ -808,14 +832,8 @@ public class MainGameScreen extends ScreenAdapter {
     Terminal terminal = new Terminal();
 
     terminal.addCommand("win", new WinCommand(winScreenDisplay));
-    terminal.addCommand(
-        "tp",
-        new TeleportCommand(
-            Map.of(
-                "lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN),
-                "lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN),
-                "lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null),
-                "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
+    terminal.addCommand("tp", new TeleportCommand(createLocationMap()));
+
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
     terminal.addCommand("perk", new PerkCommand());
@@ -865,7 +883,27 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
     terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
+    terminal.addCommand("hide", new InventoryCommand(this::getPlayerEntity));
 
     ServiceLocator.getEntityService().register(ui);
+  }
+
+  public HashMap<String, Runnable> createLocationMap() {
+    HashMap<String, Runnable> locations = new HashMap<>();
+    locations.put("lvl1dungeon", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_DUNGEON_SPAWN));
+    locations.put("lvl1nether", () -> debugTeleport(FIRST_ROOM_MAP, LEVEL_ONE_NETHER_SPAWN));
+    locations.put("MinotaurLabyrinth", () -> debugTeleport(LABYRINTH_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("GorgonGallery", () -> debugTeleport(GORGON_GALLERY_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put(
+        "ShadesBarracks", () -> debugTeleport(SHADES_BARRACKS_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("HoundsDen", () -> debugTeleport(HOUNDS_DEN_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("OuterGuard", () -> debugTeleport(OUTER_GUARD_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("ThunderHall", () -> debugTeleport(THUNDER_HALL_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("CyclopsForge", () -> debugTeleport(CYCLOPS_FORGE_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put(
+        "CentaurPavilion", () -> debugTeleport(CENTAUR_PAVILION_SIDE_ROOM, SIDE_ROOM_SPAWN));
+    locations.put("lvl2", () -> debugTeleport(SECOND_ROOM_MAP, null));
+    locations.put("lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null));
+    return locations;
   }
 }

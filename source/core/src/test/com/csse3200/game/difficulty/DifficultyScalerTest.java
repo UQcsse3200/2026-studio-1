@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.player.InventoryComponent;
@@ -117,6 +117,56 @@ class DifficultyScalerTest {
         STARTING_COOLDOWN * Difficulty.HARD.getAttackCooldownMultiplier(), attack.getCooldown());
     assertEquals(
         expectedScaled(STARTING_GOLD, Difficulty.HARD.getGoldMultiplier(), 0), inventory.getGold());
+    // Regression test for the actual bug this fixes: the bow's weapon damage (5) must come out
+    // scaled by Hard's enemy damage multiplier (1.5 -> round(5 * 1.5) = 8), not left at the fixed
+    // 5 RangedAttackComponent.getDamage() used to always return regardless of difficulty.
+    assertEquals(
+        expectedScaled(5, Difficulty.HARD.getEnemyDamageMultiplier(), 1), attack.getDamage());
+  }
+
+  /**
+   * Regression test for the bug: before this fix, setDamageMultiplier() was never called on {@link
+   * RangedAttackComponent}, so a weapon-wielding ranged enemy (archer, harpy, Medusa, Zeus) dealt
+   * the same damage on every difficulty. Covers all three difficulty modes, the same way {@code
+   * meleeAttackDamageMultiplierMatchesTheCurrentDifficultyForEasyNormalAndHard} already does for
+   * melee.
+   */
+  @Test
+  void rangedAttackDamageMultiplierMatchesTheCurrentDifficultyForEasyNormalAndHard() {
+    for (Difficulty difficulty : Difficulty.values()) {
+      DifficultyService.setCurrent(difficulty);
+      Entity enemy = entityWithRangedAttack();
+
+      DifficultyScaler.apply(enemy);
+
+      assertEquals(
+          difficulty.getEnemyDamageMultiplier(),
+          enemy.getComponent(RangedAttackComponent.class).getDamageMultiplier());
+    }
+  }
+
+  /**
+   * Regression test for a DOUBLE-scaling bug this fix must not introduce: a no-weapon ranged
+   * attacker's damage (e.g. a rock-throwing enemy) comes from {@code combatStats.getBaseAttack()},
+   * which this method already scales directly above - applying {@link
+   * RangedAttackComponent#getDamageMultiplier()} to it as well would scale it twice.
+   */
+  @Test
+  void noWeaponRangedAttackersBaseAttackIsScaledOnceNotTwice() {
+    DifficultyService.setCurrent(Difficulty.HARD);
+    Entity enemy =
+        new Entity()
+            .addComponent(new CombatStatsComponent(STARTING_HEALTH, STARTING_ATTACK))
+            .addComponent(new RangedAttackComponent(5f, STARTING_COOLDOWN, 0f))
+            .addComponent(new InventoryComponent(STARTING_GOLD));
+    enemy.create();
+
+    DifficultyScaler.apply(enemy);
+
+    RangedAttackComponent attack = enemy.getComponent(RangedAttackComponent.class);
+    assertEquals(
+        expectedScaled(STARTING_ATTACK, Difficulty.HARD.getEnemyDamageMultiplier(), 1),
+        attack.getDamage());
   }
 
   /**
@@ -196,8 +246,9 @@ class DifficultyScalerTest {
 
   /**
    * isHostile accepts a TouchAttackComponent as well as melee/ranged, but no other test exercises
-   * that branch - removing it would go unnoticed otherwise. A ghost (CombatStatsComponent +
-   * TouchAttackComponent, no melee, ranged, or inventory) is a real example of this shape.
+   * that branch - removing it would go unnoticed otherwise. The enemy ghost created for this test
+   * (CombatStatsComponent + TouchAttackComponent, no melee, ranged, or inventory) is a real example
+   * of this shape.
    */
   @Test
   void aGhostWithOnlyTouchAttackIsScaledOnHard() {

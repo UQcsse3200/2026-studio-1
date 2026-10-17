@@ -5,9 +5,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -139,5 +139,32 @@ public class ProjectileHitComponent extends Component {
   private void resolve() {
     resolved = true;
     entity.getEvents().trigger("projectileExpired");
+  }
+
+  /**
+   * Retrieves knockback force of projectile
+   *
+   * @return float value of knockback force of projectile entity onto target.
+   */
+  public float getKnockbackForce() {
+    return this.knockbackForce;
+  }
+
+  /**
+   * Retrieves blocking physics layer
+   *
+   * @return physics layer which may block projectile i.e. an obstacle or wall
+   */
+  public short getBlockingLayer() {
+    return blockingLayer;
+  }
+
+  /**
+   * Retrieve target physics layer
+   *
+   * @return target's physics layer
+   */
+  public short getTargetLayer() {
+    return targetLayer;
   }
 }

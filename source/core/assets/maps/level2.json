@@ -1,5 +1,5 @@
 {
-  "name": "Level 2 — Climb Mount Olympus",
+  "name": "Level 2 - Climb Mount Olympus",
   "tileSize": 0.5,
   "backgroundTexture": "images/level2/level2-foreground.png",
   "legend": {
@@ -120,6 +120,14 @@
     "D": {
       "type": "ENEMY",
       "enemyType": "cerberus"
+    }
+  },
+  "lighting": {
+    "ambient": { "color": "ambient_light", "intensity": 0.6 },
+    "player": { "radius": 2.0, "color": "resinous_torch" },
+    "subLevels": {
+      "base": { "ambient": { "color": "ambient_light", "intensity": 0.75 } },
+      "skies":  { "ambient": { "color": "lightning_storm", "intensity": 0.6 } }
     }
   },
   "layers": {

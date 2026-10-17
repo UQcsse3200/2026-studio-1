@@ -63,7 +63,10 @@ public class TouchTerminalInputComponent extends InputComponent {
       }
       terminal.setEnteredMessage("");
       return true;
-    } else if (Character.isLetterOrDigit(character) || character == ' ') {
+    } else if (Character.isLetterOrDigit(character)
+        || character == ' '
+        || character == '-'
+        || character == ':') {
       // append character to message
       terminal.appendToMessage(character);
       return true;

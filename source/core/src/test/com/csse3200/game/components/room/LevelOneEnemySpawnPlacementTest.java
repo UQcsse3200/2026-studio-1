@@ -10,7 +10,7 @@ import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.SpawnPoint;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.factories.EnemyFactory;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ class LevelOneEnemySpawnPlacementTest {
   private static final double FEET_SINK_ALLOWANCE = 0.5;
   private static final double MAX_DROP = 1.5; // tiles an enemy may fall before it lands
 
-  /** Entity size and collider, in WORLD units, copied from NPCFactory. */
+  /** Entity size and collider, in WORLD units, copied from EnemyFactory. */
   private record Body(
       double scaleX,
       double scaleY,
@@ -63,7 +63,7 @@ class LevelOneEnemySpawnPlacementTest {
     }
   }
 
-  // The Minotaur builds its own collider (NPCFactory.createMinotaur): 16 px shorter from below.
+  // The Minotaur builds its own collider (EnemyFactory.createMinotaur): 16 px shorter from below.
   private static final double MINOTAUR_HEIGHT = 4.0 * 80.0 / 96.0;
   private static final double MINOTAUR_FEET = 16.0 * (MINOTAUR_HEIGHT / 80.0);
 
@@ -148,7 +148,7 @@ class LevelOneEnemySpawnPlacementTest {
   @AfterEach
   void resetRegistry() {
     EntitySpawnRegistry.clear();
-    DefaultEntitySpawns.reset();
+    EnemyFactory.registerEnemySpawns();
   }
 
   @Test
@@ -208,8 +208,7 @@ class LevelOneEnemySpawnPlacementTest {
     // Same call the game makes at start up. Registering only stores factories: nothing is built,
     // so no atlases or physics are needed. The registry is static, so resetRegistry cleans up.
     EntitySpawnRegistry.clear();
-    DefaultEntitySpawns.reset();
-    DefaultEntitySpawns.registerAll();
+    EnemyFactory.registerEnemySpawns();
 
     Set<String> unknown = new LinkedHashSet<>();
     for (SpawnPoint spawn : enemies) {

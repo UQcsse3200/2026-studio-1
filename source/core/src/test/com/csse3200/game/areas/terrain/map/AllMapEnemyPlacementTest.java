@@ -57,7 +57,7 @@ class AllMapsEnemyPlacementTest {
 
   private static final Set<String> FLYERS = Set.of("harpy", "ranged-harpy");
 
-  /** Entity size and collider, in WORLD units, copied from NPCFactory. */
+  /** Entity size and collider, in WORLD units, copied from EnemyFactory. */
   private record Body(
       double scaleX,
       double scaleY,
@@ -75,7 +75,7 @@ class AllMapsEnemyPlacementTest {
     }
   }
 
-  // The Minotaur builds its own collider (NPCFactory.createMinotaur): 16 px shorter from below.
+  // The Minotaur builds its own collider (EnemyFactory.createMinotaur): 16 px shorter from below.
   private static final double MINOTAUR_HEIGHT = 4.0 * 80.0 / 96.0;
   private static final double MINOTAUR_FEET = 16.0 * (MINOTAUR_HEIGHT / 80.0);
   private static final double CENTAUR_HEIGHT = 4.0 * 53.0 / 66.0;

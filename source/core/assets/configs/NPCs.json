@@ -76,7 +76,8 @@
   "cerberus": {
     "health": 250,
     "baseAttack": 12,
-    "melee": { "range": 4, "cooldown": 1.5, "knockback": 2, "windup": 0.5 }
+    "melee": { "range": 4, "cooldown": 1.5, "knockback": 2, "windup": 0.5 },
+    "pacing": { "radius": 2.0 }
   },
   "zeus": {
     "health": 300,
