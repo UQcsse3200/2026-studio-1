@@ -443,7 +443,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     if (keycode == KeybindSettings.getKey("jump")) {
       stopClimbing();
-      if(entity.getComponent(PlayerRenderComponent.class).getCurrentAnimation().equals("climb")){
+      if (entity.getComponent(PlayerRenderComponent.class).getCurrentAnimation().equals("climb")) {
         entity.getEvents().trigger("idle", direction);
       }
       return true;
