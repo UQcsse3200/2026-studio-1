@@ -127,14 +127,25 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates an eye laser: a fast, thin projectile flying straight along a direction.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createRock(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,float,float,int,float,short)" class="member-name-link">createRock</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;position,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createLightning(com.badlogic.gdx.math.Vector2,float,float,int,int,short)" class="member-name-link">createLightning</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;targetPosition,
+ float&nbsp;skyOffset,
+ float&nbsp;speed,
+ int&nbsp;damage,
+ int&nbsp;freezeTicks,
+ short&nbsp;targetLayer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a lightning bolt that spawns in the sky above a target position and falls straight
+ down.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createRock(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,float,float,int,float,short)" class="member-name-link">createRock</a><wbr>(com.badlogic.gdx.math.Vector2&nbsp;position,
  com.badlogic.gdx.math.Vector2&nbsp;targetPosition,
  float&nbsp;horizontalSpeed,
  float&nbsp;maxRange,
  int&nbsp;damage,
  float&nbsp;knockback,
  short&nbsp;targetLayer)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a lobbed rock.</div>
 </div>
 </div>
@@ -155,30 +166,28 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="createRock(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,float,float,int,float,short)">
-<h3>createRock</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createRock</span><wbr><span class="parameters">(com.badlogic.gdx.math.Vector2&nbsp;position,
- com.badlogic.gdx.math.Vector2&nbsp;targetPosition,
- float&nbsp;horizontalSpeed,
- float&nbsp;maxRange,
+<section class="detail" id="createLightning(com.badlogic.gdx.math.Vector2,float,float,int,int,short)">
+<h3>createLightning</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createLightning</span><wbr><span class="parameters">(com.badlogic.gdx.math.Vector2&nbsp;targetPosition,
+ float&nbsp;skyOffset,
+ float&nbsp;speed,
  int&nbsp;damage,
- float&nbsp;knockback,
+ int&nbsp;freezeTicks,
  short&nbsp;targetLayer)</span></div>
-<div class="block">Creates a lobbed rock. Its launch velocity is chosen so that, under world gravity, it reaches
- <code>targetPosition</code> while travelling <code>horizontalSpeed</code> sideways.</div>
+<div class="block">Creates a lightning bolt that spawns in the sky above a target position and falls straight
+ down. On contact with <code>targetLayer</code> it deals damage and freezes the target via the
+ target's <code>SpeedEffectComponent</code> (through the "applySpeedEffect" event).</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>position</code> - launch position, the centre of the rock (not its corner); not null</dd>
-<dd><code>targetPosition</code> - the point to land on, read once at launch; not null</dd>
-<dd><code>horizontalSpeed</code> - sideways speed in world units per second; greater than zero</dd>
-<dd><code>maxRange</code> - distance before it despawns; greater than zero</dd>
-<dd><code>damage</code> - damage on contact with the target layer</dd>
-<dd><code>knockback</code> - knockback magnitude; 0 disables it</dd>
-<dd><code>targetLayer</code> - the layer it damages</dd>
+<dd><code>targetPosition</code> - position of the target at the moment of the strike. Sampled once, so a
+     moving target can dodge.</dd>
+<dd><code>skyOffset</code> - how far above the target the bolt spawns.</dd>
+<dd><code>speed</code> - fall speed in world units/second.</dd>
+<dd><code>damage</code> - damage on hit; 0 for a pure freeze.</dd>
+<dd><code>freezeTicks</code> - how many ticks the target is frozen for (about 60 per second).</dd>
+<dd><code>targetLayer</code> - physics layer the bolt hits (e.g. <a href="../../physics/PhysicsLayer.html#PLAYER"><code>PhysicsLayer.PLAYER</code></a>).</dd>
 <dt>Returns:</dt>
-<dd>the rock entity, not yet registered</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if a number is invalid or a position is null</dd>
+<dd>the bolt entity, not yet registered with the entity service.</dd>
 </dl>
 </section>
 </li>
@@ -206,6 +215,34 @@ loadScripts(document, 'script');</script>
 <dd>the laser entity, not yet registered</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if a number or the direction is invalid</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createRock(com.badlogic.gdx.math.Vector2,com.badlogic.gdx.math.Vector2,float,float,int,float,short)">
+<h3>createRock</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createRock</span><wbr><span class="parameters">(com.badlogic.gdx.math.Vector2&nbsp;position,
+ com.badlogic.gdx.math.Vector2&nbsp;targetPosition,
+ float&nbsp;horizontalSpeed,
+ float&nbsp;maxRange,
+ int&nbsp;damage,
+ float&nbsp;knockback,
+ short&nbsp;targetLayer)</span></div>
+<div class="block">Creates a lobbed rock. Its launch velocity is chosen so that, under world gravity, it reaches
+ <code>targetPosition</code> while travelling <code>horizontalSpeed</code> sideways.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>position</code> - launch position, the centre of the rock (not its corner); not null</dd>
+<dd><code>targetPosition</code> - the point to land on, read once at launch; not null</dd>
+<dd><code>horizontalSpeed</code> - sideways speed in world units per second; greater than zero</dd>
+<dd><code>maxRange</code> - distance before it despawns; greater than zero</dd>
+<dd><code>damage</code> - damage on contact with the target layer</dd>
+<dd><code>knockback</code> - knockback magnitude; 0 disables it</dd>
+<dd><code>targetLayer</code> - the layer it damages</dd>
+<dt>Returns:</dt>
+<dd>the rock entity, not yet registered</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if a number is invalid or a position is null</dd>
 </dl>
 </section>
 </li>
