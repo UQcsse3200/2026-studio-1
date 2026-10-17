@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.enemies.attacks.ChargeComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
@@ -38,11 +39,11 @@ class ChargeComponentTest {
     assertThrows(IllegalArgumentException.class, () -> new ChargeComponent(2f, 3f, 1.5f, 1.0f));
     assertThrows(IllegalArgumentException.class, () -> new ChargeComponent(2f, 3f, 1.5f, 0.5f));
     assertThrows(
-        IllegalArgumentException.class, () -> new ChargeComponent(2f, -0.1f, 3f, 1.5f, 2.0f));
+      IllegalArgumentException.class, () -> new ChargeComponent(2f, -0.1f, 3f, 1.5f, 2.0f));
     assertThrows(
-        IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.0f, 3f, 1.5f, 2.0f));
+      IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.0f, 3f, 1.5f, 2.0f));
     assertThrows(
-        IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.5f, 3f, 1.5f, 2.0f));
+      IllegalArgumentException.class, () -> new ChargeComponent(2f, 2.5f, 3f, 1.5f, 2.0f));
   }
 
   @Test
@@ -192,5 +193,169 @@ class ChargeComponentTest {
     assertFalse(movement.getMoving(), "Must stop moving once charge finishes");
     assertEquals(1.0f, movement.getSpeedMultiplier());
     verify(endListener).handle();
+  }
+
+  /** The rush starts exactly once, on the update where the windup runs out. */
+  @Test
+  void shouldStartRushExactlyOnceWhenWindupEnds() {
+    Entity entity = new Entity();
+    PhysicsMovementComponent movement = new PhysicsMovementComponent();
+    // 0.4s charge with a 0.2s windup; each update advances 0.1s
+    ChargeComponent charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
+    entity.addComponent(new PhysicsComponent()).addComponent(movement).addComponent(charge);
+    entity.create();
+
+    EventListener0 rushListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeRushStart", rushListener);
+
+    Vector2 target = new Vector2(10f, 0f);
+    charge.startCharge(target);
+
+    charge.update(); // 0.1s, still winding up
+    assertTrue(charge.isWindup());
+    verify(rushListener, never()).handle();
+
+    charge.update(); // 0.2s, windup ends
+    assertTrue(charge.isRushing());
+    assertTrue(movement.getMoving());
+    assertEquals(target, movement.getTarget());
+    assertEquals(2.0f, movement.getSpeedMultiplier());
+    verify(rushListener, times(1)).handle();
+
+    charge.update(); // 0.3s, the rush continues but does not start again
+    verify(rushListener, times(1)).handle();
+  }
+
+  /** The charge ends when its timer runs out. */
+  @Test
+  void shouldEndTheChargeWhenTheTimerRunsOut() {
+    Entity entity = new Entity();
+    PhysicsMovementComponent movement = new PhysicsMovementComponent();
+    // 0.2s charge, no windup; each update advances 0.1s
+    ChargeComponent charge = new ChargeComponent(0.2f, 0.3f, 2.0f, 2.5f);
+    entity.addComponent(new PhysicsComponent()).addComponent(movement).addComponent(charge);
+    entity.create();
+
+    EventListener0 endListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeEnd", endListener);
+
+    charge.startCharge(new Vector2(5f, 0f));
+
+    charge.update(); // 0.1s
+    assertTrue(charge.isCharging());
+    verify(endListener, never()).handle();
+
+    charge.update(); // 0.2s, timer runs out
+    assertFalse(charge.isCharging());
+    assertFalse(movement.getMoving());
+    assertEquals(1.0f, movement.getSpeedMultiplier());
+    verify(endListener, times(1)).handle();
+  }
+
+  /** A touch hit during the rush ends the charge, once. */
+  @Test
+  void shouldEndTheChargeWhenTheTouchAttackLandsDuringTheRush() {
+    Entity entity = new Entity();
+    TouchAttackComponent touchAttack = mock(TouchAttackComponent.class);
+    ChargeComponent charge = new ChargeComponent(2.0f, 3.0f, 1.5f, 2.0f); // no windup
+    entity
+      .addComponent(new PhysicsComponent())
+      .addComponent(new PhysicsMovementComponent())
+      .addComponent(touchAttack)
+      .addComponent(charge);
+    entity.create();
+
+    EventListener0 endListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeEnd", endListener);
+
+    charge.startCharge(new Vector2(10f, 0f));
+    assertTrue(charge.isCharging());
+
+    entity.getEvents().trigger("touchAttackHit", new Entity());
+
+    assertFalse(charge.isCharging());
+    verify(endListener, times(1)).handle();
+    verify(touchAttack).deactivate();
+  }
+
+  /** A touch hit during the stationary windup does not end the charge. */
+  @Test
+  void shouldIgnoreATouchHitDuringTheWindup() {
+    Entity entity = new Entity();
+    TouchAttackComponent touchAttack = mock(TouchAttackComponent.class);
+    ChargeComponent charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
+    entity
+      .addComponent(new PhysicsComponent())
+      .addComponent(new PhysicsMovementComponent())
+      .addComponent(touchAttack)
+      .addComponent(charge);
+    entity.create();
+
+    EventListener0 endListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeEnd", endListener);
+
+    charge.startCharge(new Vector2(10f, 0f));
+    assertTrue(charge.isWindup());
+
+    entity.getEvents().trigger("touchAttackHit", new Entity());
+
+    assertTrue(charge.isCharging());
+    verify(endListener, never()).handle();
+  }
+
+  /** A hit on the first frame of the rush ends the charge once, not twice. */
+  @Test
+  void shouldEndOnlyOnceWhenAHitLandsOnTheFirstFrameOfTheRush() {
+    Entity entity = new Entity();
+    Entity victim = new Entity();
+    TouchAttackComponent touchAttack = mock(TouchAttackComponent.class);
+    ChargeComponent charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
+    entity
+      .addComponent(new PhysicsComponent())
+      .addComponent(new PhysicsMovementComponent())
+      .addComponent(touchAttack)
+      .addComponent(charge);
+    entity.create();
+
+    // switching the touch attack on lands a hit straight away
+    doAnswer(
+      invocation -> {
+        entity.getEvents().trigger("touchAttackHit", victim);
+        return null;
+      })
+      .when(touchAttack)
+      .activate();
+
+    EventListener0 endListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeEnd", endListener);
+
+    charge.startCharge(new Vector2(10f, 0f));
+    charge.update(); // 0.1s windup
+    charge.update(); // 0.2s windup ends, the rush begins and the hit lands
+
+    assertFalse(charge.isCharging());
+    verify(endListener, times(1)).handle();
+  }
+
+  /** The windup can end on an entity with no movement component. */
+  @Test
+  void shouldCompleteTheWindupWithoutAMovementComponent() {
+    Entity entity = new Entity();
+    ChargeComponent charge = new ChargeComponent(0.4f, 0.2f, 0.3f, 1.5f, 2.0f);
+    entity.addComponent(charge);
+    entity.create();
+
+    EventListener0 rushListener = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeRushStart", rushListener);
+
+    charge.startCharge(new Vector2(10f, 0f));
+
+    assertDoesNotThrow(
+      () -> {
+        charge.update();
+        charge.update();
+      });
+    assertTrue(charge.isRushing());
+    verify(rushListener, times(1)).handle();
   }
 }
