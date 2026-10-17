@@ -19,17 +19,37 @@ class WinResultTest {
   private static final List<String> NONE_MISSING = List.of();
 
   private WinResult result(
-      WinTier tier,
-      boolean boss,
-      int defeated,
-      int required,
-      List<String> missing,
-      int quests,
-      int questsRequired) {
+    WinTier tier,
+    boolean boss,
+    int defeated,
+    int required,
+    List<String> missing,
+    int quests,
+    int questsRequired) {
     return new WinResult(tier, boss, defeated, required, missing, quests, questsRequired);
   }
 
   // ---------- storing ----------
+
+  /** Every value passed to the constructor comes back unchanged from its getter. */
+  @Test
+  void shouldReturnEveryValueItWasBuiltWith() {
+    List<String> missing = List.of("Medusa", "Zeus");
+
+    // Today this is the 9-argument constructor. After you group the values, only this
+    // line changes; the assertions below stay exactly as they are.
+    WinResult r = new WinResult(WinTier.VICTORY, true, 6, 8, missing, 2, 3, 4, 5);
+
+    assertEquals(WinTier.VICTORY, r.getTier(), "tier");
+    assertTrue(r.isFinalBossDefeated(), "final boss defeated");
+    assertEquals(6, r.getMiniBossesDefeated(), "mini bosses defeated");
+    assertEquals(8, r.getMiniBossesRequired(), "mini bosses required");
+    assertEquals(missing, r.getMissingMiniBosses(), "missing mini bosses");
+    assertEquals(2, r.getQuestsCompleted(), "quests completed");
+    assertEquals(3, r.getQuestsRequired(), "quests required");
+    assertEquals(4, r.getTortoisesFound(), "tortoises found");
+    assertEquals(5, r.getTortoisesTotal(), "tortoises total");
+  }
 
   @Test
   void shouldStoreEveryValueItWasGiven() {
@@ -95,30 +115,30 @@ class WinResultTest {
   @Test
   void shouldRejectANullTier() {
     assertThrows(
-        IllegalArgumentException.class, () -> result(null, true, 0, 0, NONE_MISSING, 0, 0));
+      IllegalArgumentException.class, () -> result(null, true, 0, 0, NONE_MISSING, 0, 0));
   }
 
   @Test
   void shouldRejectANullMissingList() {
     assertThrows(
-        IllegalArgumentException.class, () -> result(WinTier.VICTORY, true, 0, 0, null, 0, 0));
+      IllegalArgumentException.class, () -> result(WinTier.VICTORY, true, 0, 0, null, 0, 0));
   }
 
   @ParameterizedTest(name = "defeated {0}, required {1}, quests {2}, quests required {3}")
   @CsvSource({"-1, 0, 0, 0", "0, -1, 0, 0", "0, 0, -1, 0", "0, 0, 0, -1"})
   void shouldRejectANegativeCount(int defeated, int required, int quests, int questsRequired) {
     assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            result(
-                WinTier.VICTORY, true, defeated, required, NONE_MISSING, quests, questsRequired));
+      IllegalArgumentException.class,
+      () ->
+        result(
+          WinTier.VICTORY, true, defeated, required, NONE_MISSING, quests, questsRequired));
   }
 
   @Test
   void shouldRejectMoreDefeatedThanRequired() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> result(WinTier.GLORY, true, 9, 8, NONE_MISSING, 0, 3));
+      IllegalArgumentException.class,
+      () -> result(WinTier.GLORY, true, 9, 8, NONE_MISSING, 0, 3));
   }
 
   @ParameterizedTest(name = "defeated {0} of {1} with {2} missing")
@@ -129,8 +149,8 @@ class WinResultTest {
       missing.add("boss " + i);
     }
     assertThrows(
-        IllegalArgumentException.class,
-        () -> result(WinTier.VICTORY, true, defeated, required, missing, 0, 3));
+      IllegalArgumentException.class,
+      () -> result(WinTier.VICTORY, true, defeated, required, missing, 0, 3));
   }
 
   @Test

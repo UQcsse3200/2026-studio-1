@@ -51,6 +51,39 @@ class WinEvaluatorTest {
 
   // ---------- no win ----------
 
+  /** With nothing killed, none count and every required boss is missing. */
+  @Test
+  void shouldCountNoMiniBossesWhenNoneAreKilled() {
+    WinResult r = WinEvaluator.evaluate(true, List.of(), 0);
+
+    assertEquals(0, r.getMiniBossesDefeated());
+    assertEquals(BossRoster.getRequiredCount(), r.getMissingMiniBosses().size());
+  }
+
+  /** Killing every required boss counts them all and leaves none missing. */
+  @Test
+  void shouldCountEveryMiniBossWhenAllAreKilled() {
+    WinResult r = WinEvaluator.evaluate(true, allRequired(), 0);
+
+    assertEquals(BossRoster.getRequiredCount(), r.getMiniBossesDefeated());
+    assertTrue(r.getMissingMiniBosses().isEmpty());
+  }
+
+  /** Missing bosses are listed in roster order. */
+  @Test
+  void shouldListMissingMiniBossesInRosterOrder() {
+    List<String> expected = new ArrayList<>();
+    for (BossRoster.MiniBoss boss : BossRoster.getMiniBosses()) {
+      if (boss.isRequired()) {
+        expected.add(boss.getLabel());
+      }
+    }
+
+    WinResult r = WinEvaluator.evaluate(true, List.of(), 0);
+
+    assertEquals(expected, r.getMissingMiniBosses());
+  }
+
   @Test
   void shouldNotWinWhenTheFinalBossIsAlive() {
     WinResult r = WinEvaluator.evaluate(false, allRequired(), QUESTS);
@@ -66,7 +99,7 @@ class WinEvaluatorTest {
 
     assertEquals(WinTier.NONE, r.getTier());
     assertEquals(
-        BossRoster.getRequiredCount(), r.getMiniBossesDefeated(), "progress is still counted");
+      BossRoster.getRequiredCount(), r.getMiniBossesDefeated(), "progress is still counted");
   }
 
   @Test
@@ -106,10 +139,10 @@ class WinEvaluatorTest {
     WinResult r = WinEvaluator.evaluate(true, kills, QUESTS);
 
     assertEquals(
-        WinTier.VICTORY, r.getTier(), "all quests done, but a guardian lives: only Victory");
+      WinTier.VICTORY, r.getTier(), "all quests done, but a guardian lives: only Victory");
     assertEquals(7, r.getMiniBossesDefeated());
     assertEquals(1, r.getMissingMiniBosses().size());
-    assertTrue(labelsOf(spared).contains(r.getMissingMiniBosses().get(0)));
+    assertTrue(labelsOf(spared).contains(r.getMissingMiniBosses().getFirst()));
   }
 
   @ParameterizedTest(name = "{0} of 8 required defeated is still only Victory")
@@ -199,7 +232,7 @@ class WinEvaluatorTest {
   void shouldGiveGloryBelowTheQuestThreshold(int quests, WinTier expected) {
     // Written for the default threshold of 3; the first assertion makes that assumption explicit.
     assertEquals(
-        3, WinEvaluator.QUESTS_REQUIRED_FOR_LEGEND, "update this table if the threshold changes");
+      3, WinEvaluator.QUESTS_REQUIRED_FOR_LEGEND, "update this table if the threshold changes");
 
     assertEquals(expected, WinEvaluator.evaluate(true, allRequired(), quests).getTier());
   }
@@ -286,7 +319,7 @@ class WinEvaluatorTest {
   @ValueSource(ints = {-1, -5, Integer.MIN_VALUE})
   void shouldRejectANegativeQuestCount(int quests) {
     assertThrows(
-        IllegalArgumentException.class, () -> WinEvaluator.evaluate(true, allRequired(), quests));
+      IllegalArgumentException.class, () -> WinEvaluator.evaluate(true, allRequired(), quests));
   }
 
   @Test
@@ -318,14 +351,14 @@ class WinEvaluatorTest {
   @Test
   void shouldListOnlyTheBossesThatAreStillAlive() {
     List<String> kills = allRequired();
-    String first = kills.remove(0);
-    String last = kills.remove(kills.size() - 1);
+    String first = kills.removeFirst();
+    String last = kills.removeLast();
 
     WinResult r = WinEvaluator.evaluate(true, kills, 0);
 
     assertEquals(2, r.getMissingMiniBosses().size());
-    assertTrue(r.getMissingMiniBosses().contains(labelsOf(first).get(0)));
-    assertTrue(r.getMissingMiniBosses().contains(labelsOf(last).get(0)));
+    assertTrue(r.getMissingMiniBosses().contains(labelsOf(first).getFirst()));
+    assertTrue(r.getMissingMiniBosses().contains(labelsOf(last).getFirst()));
   }
 
   @Test
@@ -334,7 +367,7 @@ class WinEvaluatorTest {
       WinResult r = WinEvaluator.evaluate(true, allRequired().subList(0, defeated), 0);
 
       assertEquals(
-          r.getMiniBossesRequired() - r.getMiniBossesDefeated(), r.getMissingMiniBosses().size());
+        r.getMiniBossesRequired() - r.getMiniBossesDefeated(), r.getMissingMiniBosses().size());
     }
   }
 
@@ -405,7 +438,7 @@ class WinEvaluatorTest {
   }
 
   private static WinResult assertDoesNotThrowValue(
-      java.util.function.Supplier<WinResult> supplier) {
+    java.util.function.Supplier<WinResult> supplier) {
     return assertDoesNotThrow(supplier::get);
   }
 }
