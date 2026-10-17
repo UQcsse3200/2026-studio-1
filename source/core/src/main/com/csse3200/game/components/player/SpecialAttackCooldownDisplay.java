@@ -27,7 +27,7 @@ public class SpecialAttackCooldownDisplay extends UIComponent {
     table = new Table();
     table.top().left();
     table.setFillParent(true);
-    table.padTop(275f).padLeft(8f);
+    table.padTop(200f).padLeft(8f);
 
     specialAttackLabel = new Label("", skin, "default");
     areaAttackLabel = new Label("", skin, "default");

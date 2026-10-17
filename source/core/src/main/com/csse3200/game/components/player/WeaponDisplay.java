@@ -39,7 +39,7 @@ public class WeaponDisplay extends UIComponent {
     table = new Table();
     table.top().left();
     table.setFillParent(true);
-    table.padTop(125f).padLeft(10f);
+    table.padTop(55f).padLeft(10f);
 
     weaponImage = new Image(getWeaponTexture());
     applyTierColor();

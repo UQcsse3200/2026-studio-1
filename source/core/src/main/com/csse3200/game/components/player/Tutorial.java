@@ -28,10 +28,11 @@ public class Tutorial extends UIComponent {
 
   /** Creates and positions the tutorial box. */
   private void addActors() {
+
     rootTable = new Table();
     rootTable.setFillParent(true);
-    rootTable.align(Align.bottom);
-    rootTable.padBottom(20f);
+    rootTable.align(Align.top);
+    rootTable.padTop(480f);
 
     Table tutorialTable = new Table();
     tutorialTable.setBackground(skin.getDrawable("window"));
