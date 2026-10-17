@@ -77,7 +77,7 @@ class PetrifyEffectComponentTest {
   /** Builds a created shooter that petrifies for the given seconds with the given cooldown. */
   private static Entity shooter(float seconds, float cooldown) {
     Entity medusa =
-        new Entity().addComponent(PetrifyEffectComponent.forShooter(config(seconds), cooldown));
+      new Entity().addComponent(PetrifyEffectComponent.forShooter(config(seconds), cooldown));
     medusa.create();
     return medusa;
   }
@@ -85,8 +85,8 @@ class PetrifyEffectComponentTest {
   /** Calls the package-private cooldown rule by reflection, unwrapping the real exception. */
   private static void callRequireCooldown(float cooldown, float effectSeconds) throws Throwable {
     Method rule =
-        PetrifyEffectComponent.class.getDeclaredMethod(
-            "requireCooldownCoversEffect", float.class, float.class);
+      PetrifyEffectComponent.class.getDeclaredMethod(
+        "requireCooldownCoversEffect", float.class, float.class);
     rule.setAccessible(true);
     try {
       rule.invoke(null, cooldown, effectSeconds);
@@ -212,7 +212,7 @@ class PetrifyEffectComponentTest {
       medusa.getEvents().trigger("rangedAttackHit", target);
 
       verify(playerActions)
-          .addSpeedModifier(any(), eq(PetrifyEffectComponent.PETRIFY_SPEED_MULTIPLIER));
+        .addSpeedModifier(any(), eq(PetrifyEffectComponent.PETRIFY_SPEED_MULTIPLIER));
       assertEquals(0f, PetrifyEffectComponent.PETRIFY_SPEED_MULTIPLIER);
     }
 
@@ -256,9 +256,9 @@ class PetrifyEffectComponentTest {
 
       // 3 s petrify, 7 s cooldown
       assertDoesNotThrow(
-          () ->
-              PetrifyEffectComponent.forShooter(
-                  configs.medusa.petrify, configs.medusa.ranged.cooldown));
+        () ->
+          PetrifyEffectComponent.forShooter(
+            configs.medusa.petrify, configs.medusa.ranged.cooldown));
     }
   }
 
@@ -270,45 +270,45 @@ class PetrifyEffectComponentTest {
     @Test
     void shouldRejectANullConfig() {
       assertThrows(
-          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(null, 7f));
+        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(null, 7f));
     }
 
     /** Should reject a zero duration (zero ticks would petrify forever). */
     @Test
     void shouldRejectAZeroDuration() {
       assertThrows(
-          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(config(0f), 7f));
+        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(config(0f), 7f));
     }
 
     /** Should reject a negative duration. */
     @Test
     void shouldRejectANegativeDuration() {
       assertThrows(
-          IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(config(-1f), 7f));
+        IllegalArgumentException.class, () -> PetrifyEffectComponent.forShooter(config(-1f), 7f));
     }
 
     /** Should reject a NaN duration. */
     @Test
     void shouldRejectANaNDuration() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PetrifyEffectComponent.forShooter(config(Float.NaN), 7f));
+        IllegalArgumentException.class,
+        () -> PetrifyEffectComponent.forShooter(config(Float.NaN), 7f));
     }
 
     /** Should reject an infinite duration. */
     @Test
     void shouldRejectAnInfiniteDuration() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PetrifyEffectComponent.forShooter(config(Float.POSITIVE_INFINITY), 7f));
+        IllegalArgumentException.class,
+        () -> PetrifyEffectComponent.forShooter(config(Float.POSITIVE_INFINITY), 7f));
     }
 
     /** Should reject a duration shorter than one tick. */
     @Test
     void shouldRejectADurationShorterThanOneTick() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PetrifyEffectComponent.forShooter(config(0.001f), 7f));
+        IllegalArgumentException.class,
+        () -> PetrifyEffectComponent.forShooter(config(0.001f), 7f));
     }
 
     /** Should accept a cooldown more than twice the duration. */
@@ -327,25 +327,25 @@ class PetrifyEffectComponentTest {
     @Test
     void shouldRejectJustBelowTwiceTheDuration() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PetrifyEffectComponent.forShooter(config(2f), 3.9f));
+        IllegalArgumentException.class,
+        () -> PetrifyEffectComponent.forShooter(config(2f), 3.9f));
     }
 
     /** Should reject a NaN cooldown. */
     @Test
     void shouldRejectANaNCooldown() {
       assertThrows(
-          IllegalArgumentException.class,
-          () -> PetrifyEffectComponent.forShooter(config(2f), Float.NaN));
+        IllegalArgumentException.class,
+        () -> PetrifyEffectComponent.forShooter(config(2f), Float.NaN));
     }
 
     /** Should name the cooldown and the minimum in the message. */
     @Test
     void shouldNameTheCooldownAndTheMinimumInTheMessage() {
       IllegalArgumentException exception =
-          assertThrows(
-              IllegalArgumentException.class,
-              () -> PetrifyEffectComponent.forShooter(config(2f), 3f));
+        assertThrows(
+          IllegalArgumentException.class,
+          () -> PetrifyEffectComponent.forShooter(config(2f), 3f));
 
       assertTrue(exception.getMessage().contains("3"));
       assertTrue(exception.getMessage().contains("4"));
@@ -384,6 +384,17 @@ class PetrifyEffectComponentTest {
     @Test
     void shouldRejectNaN() {
       assertThrows(IllegalArgumentException.class, () -> callRequireCooldown(Float.NaN, 2f));
+    }
+
+    /** The exact minimum is accepted and NaN is rejected after the operator change. */
+    @Test
+    void shouldKeepTheExactMinimumAndNaNBehaviourAfterTheOperatorChange() throws Throwable {
+      callRequireCooldown(4f, 2f); // exactly twice the effect time, must not throw
+
+      assertThrows(IllegalArgumentException.class, () -> callRequireCooldown(Float.NaN, 2f));
+      assertThrows(
+        IllegalArgumentException.class,
+        () -> PetrifyEffectComponent.forShooter(config(Float.NaN), 7f));
     }
 
     /** Should turn seconds into ticks. */

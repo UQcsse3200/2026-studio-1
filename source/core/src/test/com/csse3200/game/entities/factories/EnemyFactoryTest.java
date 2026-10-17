@@ -68,7 +68,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 @ExtendWith(GameExtension.class)
 class EnemyFactoryTest {
   private static final String EVERY_ENEMY =
-      "com.csse3200.game.entities.factories.EnemyFactoryTest#everyEnemy";
+    "com.csse3200.game.entities.factories.EnemyFactoryTest#everyEnemy";
   private static final float TOLERANCE = 1e-4f;
   private static final String SKELETON_ATLAS = "images/enemies/skeleton.atlas";
   private static final String SWORD_ATLAS = "images/enemy_weapons/enemy_sword.atlas";
@@ -90,9 +90,9 @@ class EnemyFactoryTest {
     ServiceLocator.registerResourceService(mock(ResourceService.class));
     ServiceLocator.registerTimeSource(mock(GameTime.class));
     player =
-        new Entity()
-            .addComponent(new CombatStatsComponent(100, 0))
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER));
+      new Entity()
+        .addComponent(new CombatStatsComponent(100, 0))
+        .addComponent(new HitboxComponent().setLayer(PhysicsLayer.PLAYER));
     configs = (NPCConfigs) read(null, EnemyFactory.class, "configs");
     savedMedusaMelee = configs.medusa.melee.range;
     savedMedusaCooldown = configs.medusa.ranged.cooldown;
@@ -114,18 +114,18 @@ class EnemyFactoryTest {
 
   /** What the factory is expected to build for one enemy. */
   private record Spec(
-      String name,
-      Function<Entity, Entity> factory,
-      String label,
-      int gold,
-      WeaponType weapon,
-      int tier,
-      float scale,
-      float heightRatio,
-      float collisionX,
-      float collisionY,
-      boolean grounded,
-      List<String> animations) {
+    String name,
+    Function<Entity, Entity> factory,
+    String label,
+    int gold,
+    WeaponType weapon,
+    int tier,
+    float scale,
+    float heightRatio,
+    float collisionX,
+    float collisionY,
+    boolean grounded,
+    List<String> animations) {
     @Override
     public String toString() {
       return name;
@@ -134,184 +134,184 @@ class EnemyFactoryTest {
 
   static Stream<Spec> everyEnemy() {
     return Stream.of(
-        new Spec(
-            "skeleton",
-            EnemyFactory::createSkeleton,
-            "Skeleton",
-            3,
-            WeaponType.SWORD,
-            1,
-            1f,
-            1f,
-            0.45f,
-            0.6f,
-            true,
-            List.of("idlel", "idler", "walkl", "walkr")),
-        new Spec(
-            "ranged skeleton",
-            EnemyFactory::createRangedSkeleton,
-            "Ranged Skeleton",
-            3,
-            WeaponType.BOW,
-            1,
-            1f,
-            1f,
-            0.45f,
-            0.6f,
-            true,
-            List.of("idlel", "idler", "walkl", "walkr")),
-        new Spec(
-            "minotaur",
-            EnemyFactory::createMinotaur,
-            "Minotaur",
-            12,
-            WeaponType.AXE,
-            2,
-            4f,
-            80f / 96f,
-            0.8f,
-            0.7f,
-            true,
-            List.of(
-                "minotaur_idle_l",
-                "minotaur_idle_r",
-                "minotaur_walk_l",
-                "minotaur_walk_r",
-                "minotaur_charge_l",
-                "minotaur_charge_r",
-                "minotaur_swing_l",
-                "minotaur_swing_r")),
-        new Spec(
-            "centaur",
-            EnemyFactory::createCentaur,
-            "Centaur",
-            12,
-            WeaponType.BOW,
-            1,
-            4f,
-            53f / 66f,
-            0.4f,
-            0.5f,
-            true,
-            List.of(
-                "centaur_idle_l",
-                "centaur_idle_r",
-                "centaur_run_l",
-                "centaur_run_r",
-                "centaur_swing_l",
-                "centaur_swing_r",
-                "centaur_death_l",
-                "centaur_death_r")),
-        new Spec(
-            "cyclops",
-            EnemyFactory::createCyclops,
-            "Cyclops",
-            12,
-            null,
-            0,
-            2f,
-            48f / 64f,
-            0.4f,
-            0.5f,
-            true,
-            List.of(
-                "cyclops_idle_l",
-                "cyclops_idle_r",
-                "cyclops_walk_l",
-                "cyclops_walk_r",
-                "cyclops_rock_l",
-                "cyclops_rock_r",
-                "cyclops_stomp_l",
-                "cyclops_stomp_r",
-                "cyclops_death_l",
-                "cyclops_death_r",
-                "cyclops_taunt_l",
-                "cyclops_taunt_r",
-                "cyclops_eye_scratch_l",
-                "cyclops_eye_scratch_r")),
-        new Spec(
-            "medusa",
-            EnemyFactory::createMedusa,
-            "Medusa",
-            12,
-            null,
-            0,
-            2f,
-            91f / 128f,
-            0.4f,
-            0.5f,
-            true,
-            List.of(
-                "gorgon_idle_l",
-                "gorgon_idle_r",
-                "gorgon_walk_l",
-                "gorgon_walk_r",
-                "gorgon_attack_l",
-                "gorgon_attack_r",
-                "gorgon_dead_l",
-                "gorgon_dead_r")),
-        new Spec(
-            "cerberus",
-            EnemyFactory::createCerberus,
-            "Cerberus",
-            12,
-            null,
-            0,
-            1.5f,
-            96f / 150f,
-            0.45f,
-            0.6f,
-            true,
-            List.of("cerberus_l", "cerberus_r")),
-        new Spec(
-            "zeus",
-            EnemyFactory::createZeus,
-            "Zeus",
-            20,
-            null,
-            0,
-            2f,
-            68f / 37f,
-            0.4f,
-            0.5f,
-            true,
-            List.of(
-                "zeus_idle_l",
-                "zeus_idle_r",
-                "zeus_walk_l",
-                "zeus_walk_r",
-                "zeus_p_strike_l",
-                "zeus_p_strike_r",
-                "zeus_slam_l",
-                "zeus_slam_r",
-                "zeus_death_l",
-                "zeus_death_r")),
-        new Spec(
-            "harpy",
-            EnemyFactory::createHarpy,
-            "Harpy",
-            3,
-            WeaponType.SWORD,
-            1,
-            1f,
-            25f / 38f,
-            0.45f,
-            0.6f,
-            false,
-            List.of("harpy_y_l", "harpy_y_r")),
-        new Spec(
-            "ranged harpy",
-            EnemyFactory::createRangedHarpy,
-            "Ranged Harpy",
-            3,
-            WeaponType.BOW,
-            1,
-            1f,
-            25f / 38f,
-            0.45f,
-            0.6f,
-            false,
-            List.of("harpy_y_l", "harpy_y_r")));
+      new Spec(
+        "skeleton",
+        EnemyFactory::createSkeleton,
+        "Skeleton",
+        3,
+        WeaponType.SWORD,
+        1,
+        1f,
+        1f,
+        0.45f,
+        0.6f,
+        true,
+        List.of("idlel", "idler", "walkl", "walkr")),
+      new Spec(
+        "ranged skeleton",
+        EnemyFactory::createRangedSkeleton,
+        "Ranged Skeleton",
+        3,
+        WeaponType.BOW,
+        1,
+        1f,
+        1f,
+        0.45f,
+        0.6f,
+        true,
+        List.of("idlel", "idler", "walkl", "walkr")),
+      new Spec(
+        "minotaur",
+        EnemyFactory::createMinotaur,
+        "Minotaur",
+        12,
+        WeaponType.AXE,
+        2,
+        4f,
+        80f / 96f,
+        0.8f,
+        0.7f,
+        true,
+        List.of(
+          "minotaur_idle_l",
+          "minotaur_idle_r",
+          "minotaur_walk_l",
+          "minotaur_walk_r",
+          "minotaur_charge_l",
+          "minotaur_charge_r",
+          "minotaur_swing_l",
+          "minotaur_swing_r")),
+      new Spec(
+        "centaur",
+        EnemyFactory::createCentaur,
+        "Centaur",
+        12,
+        WeaponType.BOW,
+        1,
+        4f,
+        53f / 66f,
+        0.4f,
+        0.5f,
+        true,
+        List.of(
+          "centaur_idle_l",
+          "centaur_idle_r",
+          "centaur_run_l",
+          "centaur_run_r",
+          "centaur_swing_l",
+          "centaur_swing_r",
+          "centaur_death_l",
+          "centaur_death_r")),
+      new Spec(
+        "cyclops",
+        EnemyFactory::createCyclops,
+        "Cyclops",
+        12,
+        null,
+        0,
+        2f,
+        48f / 64f,
+        0.4f,
+        0.5f,
+        true,
+        List.of(
+          "cyclops_idle_l",
+          "cyclops_idle_r",
+          "cyclops_walk_l",
+          "cyclops_walk_r",
+          "cyclops_rock_l",
+          "cyclops_rock_r",
+          "cyclops_stomp_l",
+          "cyclops_stomp_r",
+          "cyclops_death_l",
+          "cyclops_death_r",
+          "cyclops_taunt_l",
+          "cyclops_taunt_r",
+          "cyclops_eye_scratch_l",
+          "cyclops_eye_scratch_r")),
+      new Spec(
+        "medusa",
+        EnemyFactory::createMedusa,
+        "Medusa",
+        12,
+        null,
+        0,
+        2f,
+        91f / 128f,
+        0.4f,
+        0.5f,
+        true,
+        List.of(
+          "gorgon_idle_l",
+          "gorgon_idle_r",
+          "gorgon_walk_l",
+          "gorgon_walk_r",
+          "gorgon_attack_l",
+          "gorgon_attack_r",
+          "gorgon_dead_l",
+          "gorgon_dead_r")),
+      new Spec(
+        "cerberus",
+        EnemyFactory::createCerberus,
+        "Cerberus",
+        12,
+        null,
+        0,
+        1.5f,
+        96f / 150f,
+        0.45f,
+        0.6f,
+        true,
+        List.of("cerberus_l", "cerberus_r")),
+      new Spec(
+        "zeus",
+        EnemyFactory::createZeus,
+        "Zeus",
+        20,
+        null,
+        0,
+        2f,
+        68f / 37f,
+        0.4f,
+        0.5f,
+        true,
+        List.of(
+          "zeus_idle_l",
+          "zeus_idle_r",
+          "zeus_walk_l",
+          "zeus_walk_r",
+          "zeus_p_strike_l",
+          "zeus_p_strike_r",
+          "zeus_slam_l",
+          "zeus_slam_r",
+          "zeus_death_l",
+          "zeus_death_r")),
+      new Spec(
+        "harpy",
+        EnemyFactory::createHarpy,
+        "Harpy",
+        3,
+        WeaponType.SWORD,
+        1,
+        1f,
+        25f / 38f,
+        0.45f,
+        0.6f,
+        false,
+        List.of("harpy_y_l", "harpy_y_r")),
+      new Spec(
+        "ranged harpy",
+        EnemyFactory::createRangedHarpy,
+        "Ranged Harpy",
+        3,
+        WeaponType.BOW,
+        1,
+        1f,
+        25f / 38f,
+        0.45f,
+        0.6f,
+        false,
+        List.of("harpy_y_l", "harpy_y_r")));
   }
 
   private BaseEntityConfig configFor(String name) {
@@ -332,7 +332,7 @@ class EnemyFactoryTest {
 
   /** Reads a private field, static when {@code owner} is null. */
   private static Object read(Object owner, Class<?> declaring, String name)
-      throws ReflectiveOperationException {
+    throws ReflectiveOperationException {
     Field field = declaring.getDeclaredField(name);
     field.setAccessible(true);
     return field.get(owner);
@@ -357,17 +357,17 @@ class EnemyFactoryTest {
   @SuppressWarnings("unchecked")
   private static List<PriorityTask> tasksOf(Entity entity) throws ReflectiveOperationException {
     return (List<PriorityTask>)
-        read(entity.getComponent(AITaskComponent.class), AITaskComponent.class, "priorityTasks");
+      read(entity.getComponent(AITaskComponent.class), AITaskComponent.class, "priorityTasks");
   }
 
   private static long countTasks(Entity entity, Class<? extends PriorityTask> type)
-      throws ReflectiveOperationException {
+    throws ReflectiveOperationException {
     return tasksOf(entity).stream().filter(type::isInstance).count();
   }
 
   /** The tasks of one type, in the order they were added. */
   private static List<PriorityTask> tasksOfType(Entity entity, Class<? extends PriorityTask> type)
-      throws ReflectiveOperationException {
+    throws ReflectiveOperationException {
     List<PriorityTask> found = new ArrayList<>();
     for (PriorityTask task : tasksOf(entity)) {
       if (type.isInstance(task)) {
@@ -397,11 +397,11 @@ class EnemyFactoryTest {
   /** {minX, minY, maxX, maxY} of the box in an entity's collider. */
   private static float[] colliderBounds(Entity entity) throws ReflectiveOperationException {
     FixtureDef definition =
-        (FixtureDef)
-            read(
-                entity.getComponent(ColliderComponent.class),
-                ColliderComponent.class,
-                "fixtureDef");
+      (FixtureDef)
+        read(
+          entity.getComponent(ColliderComponent.class),
+          ColliderComponent.class,
+          "fixtureDef");
     PolygonShape shape = (PolygonShape) definition.shape;
     Vector2 vertex = new Vector2();
     float[] bounds = {Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE};
@@ -438,7 +438,7 @@ class EnemyFactoryTest {
 
   private static AnimationRenderComponent newAnimator(String path) throws Throwable {
     return (AnimationRenderComponent)
-        call("newAnimator", new Class<?>[] {String.class, boolean.class}, path, true);
+      call("newAnimator", new Class<?>[] {String.class, boolean.class}, path, true);
   }
 
   // =======================================================================================
@@ -459,7 +459,7 @@ class EnemyFactoryTest {
     @MethodSource(EVERY_ENEMY)
     void shouldRejectANullTargetNamingTheEnemy(Spec spec) {
       IllegalArgumentException thrown =
-          assertThrows(IllegalArgumentException.class, () -> spec.factory().apply(null));
+        assertThrows(IllegalArgumentException.class, () -> spec.factory().apply(null));
 
       assertEquals(spec.label() + " needs a target", thrown.getMessage());
     }
@@ -468,8 +468,8 @@ class EnemyFactoryTest {
     @MethodSource(EVERY_ENEMY)
     void shouldCarryItsTypeLabel(Spec spec) {
       assertEquals(
-          spec.label(),
-          spec.factory().apply(player).getComponent(EnemyTypeComponent.class).getEnemyLabel());
+        spec.label(),
+        spec.factory().apply(player).getComponent(EnemyTypeComponent.class).getEnemyLabel());
     }
 
     @ParameterizedTest(name = "{0} has the shared parts")
@@ -490,7 +490,7 @@ class EnemyFactoryTest {
     @MethodSource(EVERY_ENEMY)
     void shouldTakeHealthAndBaseAttackFromTheConfig(Spec spec) {
       CombatStatsComponent stats =
-          spec.factory().apply(player).getComponent(CombatStatsComponent.class);
+        spec.factory().apply(player).getComponent(CombatStatsComponent.class);
       BaseEntityConfig config = configFor(spec.name());
 
       assertEquals(config.health, stats.getHealth(), "health");
@@ -501,8 +501,8 @@ class EnemyFactoryTest {
     @MethodSource(EVERY_ENEMY)
     void shouldPayItsGold(Spec spec) {
       assertEquals(
-          spec.gold(),
-          spec.factory().apply(player).getComponent(InventoryComponent.class).getGold());
+        spec.gold(),
+        spec.factory().apply(player).getComponent(InventoryComponent.class).getGold());
     }
 
     @ParameterizedTest(name = "{0} carries the right weapon")
@@ -535,7 +535,7 @@ class EnemyFactoryTest {
       Entity enemy = spec.factory().apply(player);
 
       assertEquals(
-          spec.grounded(), enemy.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
+        spec.grounded(), enemy.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
       assertEquals(spec.grounded(), enemy.getComponent(HazardAvoidanceComponent.class) != null);
       assertEquals(!spec.grounded(), enemy.getComponent(FlightComponent.class) != null);
       assertEquals(PhysicsLayer.NPC, enemy.getComponent(HitboxComponent.class).getLayer());
@@ -545,7 +545,7 @@ class EnemyFactoryTest {
     @MethodSource(EVERY_ENEMY)
     void shouldRegisterItsAnimations(Spec spec) {
       AnimationRenderComponent animator =
-          spec.factory().apply(player).getComponent(AnimationRenderComponent.class);
+        spec.factory().apply(player).getComponent(AnimationRenderComponent.class);
 
       for (String animation : spec.animations()) {
         assertTrue(animator.hasAnimation(animation), spec.name() + " is missing " + animation);
@@ -560,11 +560,11 @@ class EnemyFactoryTest {
 
       assertNotSame(first, second);
       assertNotSame(
-          first.getComponent(InventoryComponent.class),
-          second.getComponent(InventoryComponent.class));
+        first.getComponent(InventoryComponent.class),
+        second.getComponent(InventoryComponent.class));
       assertNotSame(
-          first.getComponent(AnimationRenderComponent.class),
-          second.getComponent(AnimationRenderComponent.class));
+        first.getComponent(AnimationRenderComponent.class),
+        second.getComponent(AnimationRenderComponent.class));
     }
 
     @ParameterizedTest(name = "{0} keeps its windups shorter than its cooldowns")
@@ -575,7 +575,7 @@ class EnemyFactoryTest {
       RangedAttackComponent ranged = enemy.getComponent(RangedAttackComponent.class);
 
       assertTrue(
-          melee != null || ranged != null || enemy.getComponent(RockAttackComponent.class) != null);
+        melee != null || ranged != null || enemy.getComponent(RockAttackComponent.class) != null);
       if (melee != null) {
         assertTrue(melee.getWindupDuration() < melee.getCooldown());
       }
@@ -593,7 +593,7 @@ class EnemyFactoryTest {
   @DisplayName("createSkeleton")
   class Skeleton {
     @Test
-    void shouldMeleeWithItsSwordFromTheConfig() throws ReflectiveOperationException {
+    void shouldMeleeWithItsSwordFromTheConfig() {
       Entity skeleton = EnemyFactory.createSkeleton(player);
       MeleeAttackComponent melee = skeleton.getComponent(MeleeAttackComponent.class);
 
@@ -636,7 +636,7 @@ class EnemyFactoryTest {
       assertEquals(configs.rangedSkeleton.ranged.range, ranged.getRange(), TOLERANCE);
       assertEquals(configs.rangedSkeleton.ranged.cooldown, ranged.getCooldown(), TOLERANCE);
       assertEquals(
-          configs.rangedSkeleton.ranged.projectileSpeed, ranged.getProjectileSpeed(), TOLERANCE);
+        configs.rangedSkeleton.ranged.projectileSpeed, ranged.getProjectileSpeed(), TOLERANCE);
       assertEquals(configs.rangedSkeleton.ranged.aimed, ranged.isAimed());
       assertNull(skeleton.getComponent(MeleeAttackComponent.class));
     }
@@ -658,7 +658,7 @@ class EnemyFactoryTest {
       assertEquals(1, countTasks(skeleton, ChaseTask.class));
       assertEquals(1, countTasks(skeleton, RangedAttackTask.class));
       assertEquals(0, countTasks(skeleton, MeleeAttackTask.class));
-      Integer priority = priorityField(tasksOfType(skeleton, RangedAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(skeleton, RangedAttackTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -672,13 +672,13 @@ class EnemyFactoryTest {
       Entity harpy = EnemyFactory.createHarpy(player);
 
       assertEquals(
-          configs.harpy.flightDamping,
-          harpy.getComponent(FlightComponent.class).getLinearDamping(),
-          TOLERANCE);
+        configs.harpy.flightDamping,
+        harpy.getComponent(FlightComponent.class).getLinearDamping(),
+        TOLERANCE);
       assertEquals(
-          configs.harpy.melee.range,
-          harpy.getComponent(MeleeAttackComponent.class).getRange(),
-          TOLERANCE);
+        configs.harpy.melee.range,
+        harpy.getComponent(MeleeAttackComponent.class).getRange(),
+        TOLERANCE);
       assertNull(harpy.getComponent(RangedAttackComponent.class));
       assertNotNull(harpy.getComponent(HarpyAnimationController.class));
       assertEquals(1, countTasks(harpy, MeleeAttackTask.class));
@@ -693,15 +693,15 @@ class EnemyFactoryTest {
       RangedAttackComponent ranged = harpy.getComponent(RangedAttackComponent.class);
 
       assertEquals(
-          configs.rangedHarpy.flightDamping,
-          harpy.getComponent(FlightComponent.class).getLinearDamping(),
-          TOLERANCE);
+        configs.rangedHarpy.flightDamping,
+        harpy.getComponent(FlightComponent.class).getLinearDamping(),
+        TOLERANCE);
       assertEquals(configs.rangedHarpy.ranged.range, ranged.getRange(), TOLERANCE);
       assertTrue(ranged.isAimed());
       assertNull(harpy.getComponent(MeleeAttackComponent.class));
       assertNotNull(harpy.getComponent(HarpyAnimationController.class));
       assertEquals(1, countTasks(harpy, RangedAttackTask.class));
-      Integer priority = priorityField(tasksOfType(harpy, RangedAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(harpy, RangedAttackTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -709,9 +709,9 @@ class EnemyFactoryTest {
     @Test
     void shouldUseTheNormalFrameTimeForBothHarpies() {
       for (Entity harpy :
-          List.of(EnemyFactory.createHarpy(player), EnemyFactory.createRangedHarpy(player))) {
+        List.of(EnemyFactory.createHarpy(player), EnemyFactory.createRangedHarpy(player))) {
         Animation<TextureRegion> left =
-            animationsOf(harpy.getComponent(AnimationRenderComponent.class)).get("harpy_y_l");
+          animationsOf(harpy.getComponent(AnimationRenderComponent.class)).get("harpy_y_l");
         assertEquals(0.1f, left.getFrameDuration(), TOLERANCE);
         assertEquals(Animation.PlayMode.LOOP, left.getPlayMode());
       }
@@ -727,9 +727,9 @@ class EnemyFactoryTest {
 
       assertEquals(0f, weaponOf(minotaur).getWindupDuration(), TOLERANCE);
       assertEquals(
-          configs.minotaur.melee.range,
-          minotaur.getComponent(MeleeAttackComponent.class).getRange(),
-          TOLERANCE);
+        configs.minotaur.melee.range,
+        minotaur.getComponent(MeleeAttackComponent.class).getRange(),
+        TOLERANCE);
       assertNotNull(minotaur.getComponent(MinotaurAnimationController.class));
     }
 
@@ -764,9 +764,9 @@ class EnemyFactoryTest {
       Entity centaur = EnemyFactory.createCentaur(player);
 
       assertEquals(
-          configs.centaur.ranged.range,
-          centaur.getComponent(RangedAttackComponent.class).getRange(),
-          TOLERANCE);
+        configs.centaur.ranged.range,
+        centaur.getComponent(RangedAttackComponent.class).getRange(),
+        TOLERANCE);
       assertNull(centaur.getComponent(MeleeAttackComponent.class));
       assertNotNull(centaur.getComponent(ChargeComponent.class));
       assertNotNull(centaur.getComponent(TouchAttackComponent.class));
@@ -779,7 +779,7 @@ class EnemyFactoryTest {
     @Test
     void shouldUseTheRangedPriority() throws ReflectiveOperationException {
       Entity centaur = EnemyFactory.createCentaur(player);
-      Integer priority = priorityField(tasksOfType(centaur, RangedAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(centaur, RangedAttackTask.class).getFirst());
 
       assumeTrue(priority != null);
       assertEquals(12, priority);
@@ -805,9 +805,9 @@ class EnemyFactoryTest {
       Entity cyclops = EnemyFactory.createCyclops(player);
 
       assertEquals(
-          configs.cyclops.melee.range,
-          cyclops.getComponent(MeleeAttackComponent.class).getRange(),
-          TOLERANCE);
+        configs.cyclops.melee.range,
+        cyclops.getComponent(MeleeAttackComponent.class).getRange(),
+        TOLERANCE);
       assertEquals(1, countTasks(cyclops, MeleeAttackTask.class));
       assertEquals(1, countTasks(cyclops, ChaseTask.class));
     }
@@ -828,7 +828,7 @@ class EnemyFactoryTest {
     @Test
     void shouldGiveTheLaserOverlayItsOwnAnimations() {
       EnemyWeaponAnimationComponent overlay =
-          EnemyFactory.createCyclops(player).getComponent(EnemyWeaponAnimationComponent.class);
+        EnemyFactory.createCyclops(player).getComponent(EnemyWeaponAnimationComponent.class);
       Map<String, Animation<TextureRegion>> animations = animationsOf(overlay);
 
       assertTrue(animations.containsKey("cyclops_laser_l"));
@@ -871,6 +871,34 @@ class EnemyFactoryTest {
       configs.medusa.melee.range = configs.medusa.ranged.range;
 
       assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+    }
+
+    /** A NaN melee range is still rejected after the operator change. */
+    @Test
+    void shouldRejectANaNMeleeRange() {
+      configs.medusa.melee.range = Float.NaN; // tearDown restores it
+
+      assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+    }
+
+    /** A NaN ranged range is still rejected after the operator change. */
+    @Test
+    void shouldRejectANaNRangedRange() {
+      float savedRangedRange = configs.medusa.ranged.range;
+      configs.medusa.ranged.range = Float.NaN;
+      try {
+        assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+      } finally {
+        configs.medusa.ranged.range = savedRangedRange;
+      }
+    }
+
+    /** A melee range just below the ranged range is accepted. */
+    @Test
+    void shouldAcceptAMeleeRangeJustBelowTheRangedRange() {
+      configs.medusa.melee.range = Math.nextDown(configs.medusa.ranged.range);
+
+      assertDoesNotThrow(() -> EnemyFactory.createMedusa(player));
     }
 
     @Test
@@ -950,13 +978,13 @@ class EnemyFactoryTest {
   class Helpers {
 
     @Test
-    void requireTargetShouldAcceptATargetAndRejectNull() throws Throwable {
+    void requireTargetShouldAcceptATargetAndRejectNull() {
       Class<?>[] types = {Entity.class, String.class};
 
       assertDoesNotThrow(() -> call("requireTarget", types, player, "Zeus"));
       IllegalArgumentException thrown =
-          assertThrows(
-              IllegalArgumentException.class, () -> call("requireTarget", types, null, "Zeus"));
+        assertThrows(
+          IllegalArgumentException.class, () -> call("requireTarget", types, null, "Zeus"));
       assertEquals("Zeus needs a target", thrown.getMessage());
     }
 
@@ -972,9 +1000,9 @@ class EnemyFactoryTest {
     @Test
     void loadIndependentAtlasShouldThrowForAMissingFile() {
       assertThrows(
-          GdxRuntimeException.class,
-          () ->
-              call("loadIndependentAtlas", new Class<?>[] {String.class}, "images/no-such.atlas"));
+        GdxRuntimeException.class,
+        () ->
+          call("loadIndependentAtlas", new Class<?>[] {String.class}, "images/no-such.atlas"));
     }
 
     @Test
@@ -1001,7 +1029,7 @@ class EnemyFactoryTest {
       assertTrue(base.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
       assertEquals(1, countTasks(base, PlatformWanderTask.class));
       assertEquals(1, countTasks(base, ChaseTask.class));
-      Integer priority = priorityField(tasksOfType(base, ChaseTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(base, ChaseTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(10, priority);
     }
@@ -1009,14 +1037,14 @@ class EnemyFactoryTest {
     @Test
     void createBasePlatformerEnemyShouldRejectANullTarget() {
       IllegalArgumentException thrown =
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  call(
-                      "createBasePlatformerEnemy",
-                      new Class<?>[] {Entity.class, float.class},
-                      null,
-                      0.2f));
+        assertThrows(
+          IllegalArgumentException.class,
+          () ->
+            call(
+              "createBasePlatformerEnemy",
+              new Class<?>[] {Entity.class, float.class},
+              null,
+              0.2f));
 
       assertEquals("Platformer Enemy needs a target", thrown.getMessage());
     }
@@ -1043,13 +1071,13 @@ class EnemyFactoryTest {
     @Test
     void createBaseFlyingEnemyShouldRejectNegativeDamping() {
       assertThrows(
-          RuntimeException.class,
-          () ->
-              call(
-                  "createBaseFlyingEnemy",
-                  new Class<?>[] {Entity.class, float.class},
-                  player,
-                  -1f));
+        RuntimeException.class,
+        () ->
+          call(
+            "createBaseFlyingEnemy",
+            new Class<?>[] {Entity.class, float.class},
+            player,
+            -1f));
     }
 
     @Test
@@ -1058,7 +1086,7 @@ class EnemyFactoryTest {
 
       for (WeaponType type : List.of(WeaponType.SWORD, WeaponType.BOW, WeaponType.AXE)) {
         InventoryComponent inventory =
-            (InventoryComponent) call("armedInventory", types, 7, type, 2);
+          (InventoryComponent) call("armedInventory", types, 7, type, 2);
         WeaponItem weapon = (WeaponItem) inventory.getItem(1);
 
         assertEquals(7, inventory.getGold());
@@ -1071,9 +1099,9 @@ class EnemyFactoryTest {
     void newAnimatorShouldPassOwnershipThrough() throws Throwable {
       Class<?>[] types = {String.class, boolean.class};
       AnimationRenderComponent owning =
-          (AnimationRenderComponent) call("newAnimator", types, SKELETON_ATLAS, true);
+        (AnimationRenderComponent) call("newAnimator", types, SKELETON_ATLAS, true);
       AnimationRenderComponent borrowing =
-          (AnimationRenderComponent) call("newAnimator", types, SKELETON_ATLAS, false);
+        (AnimationRenderComponent) call("newAnimator", types, SKELETON_ATLAS, false);
 
       Object ownsOwning = fieldOrNull(owning, "ownsAtlas");
       Object ownsBorrowing = fieldOrNull(borrowing, "ownsAtlas");
@@ -1106,7 +1134,7 @@ class EnemyFactoryTest {
         EnemyWeaponAnimationComponent.class, float.class, Animation.PlayMode.class, String[].class
       };
       TextureAtlas atlas =
-          (TextureAtlas) call("loadIndependentAtlas", new Class<?>[] {String.class}, SWORD_ATLAS);
+        (TextureAtlas) call("loadIndependentAtlas", new Class<?>[] {String.class}, SWORD_ATLAS);
       EnemyWeaponAnimationComponent overlay = new EnemyWeaponAnimationComponent(atlas);
 
       call("addAnimations", types, overlay, 0.25f, NORMAL, new String[] {"sword_l", "sword_r"});
@@ -1122,15 +1150,15 @@ class EnemyFactoryTest {
     void skeletonWeaponAnimatorShouldBuildTheSwordAndBowOverlays() throws Throwable {
       Class<?>[] types = {String.class, String.class, float.class};
       EnemyWeaponAnimationComponent sword =
-          (EnemyWeaponAnimationComponent)
-              call("skeletonWeaponAnimator", types, SWORD_ATLAS, "sword", 0.08f);
+        (EnemyWeaponAnimationComponent)
+          call("skeletonWeaponAnimator", types, SWORD_ATLAS, "sword", 0.08f);
       EnemyWeaponAnimationComponent bow =
-          (EnemyWeaponAnimationComponent)
-              call("skeletonWeaponAnimator", types, BOW_ATLAS, "bow", 0.1f);
+        (EnemyWeaponAnimationComponent)
+          call("skeletonWeaponAnimator", types, BOW_ATLAS, "bow", 0.1f);
 
       Map<String, Animation<TextureRegion>> swordAnimations = animationsOf(sword);
       assertEquals(
-          Set.of("default_l", "default_r", "sword_l", "sword_r"), swordAnimations.keySet());
+        Set.of("default_l", "default_r", "sword_l", "sword_r"), swordAnimations.keySet());
       assertEquals(0.1f, swordAnimations.get("default_l").getFrameDuration(), TOLERANCE);
       assertEquals(Animation.PlayMode.LOOP, swordAnimations.get("default_r").getPlayMode());
       assertEquals(0.08f, swordAnimations.get("sword_l").getFrameDuration(), TOLERANCE);
@@ -1142,12 +1170,12 @@ class EnemyFactoryTest {
     void meleeAttackShouldCopyTheConfigAndUseTheWeapon() throws Throwable {
       WeaponItem weapon = WeaponItem.natural("Test Bite", 9, 0.1f);
       MeleeAttackComponent melee =
-          (MeleeAttackComponent)
-              call(
-                  "meleeAttack",
-                  new Class<?>[] {configs.skeleton.melee.getClass(), WeaponItem.class},
-                  configs.skeleton.melee,
-                  weapon);
+        (MeleeAttackComponent)
+          call(
+            "meleeAttack",
+            new Class<?>[] {configs.skeleton.melee.getClass(), WeaponItem.class},
+            configs.skeleton.melee,
+            weapon);
 
       assertEquals(configs.skeleton.melee.range, melee.getRange(), TOLERANCE);
       assertEquals(configs.skeleton.melee.cooldown, melee.getCooldown(), TOLERANCE);
@@ -1160,14 +1188,14 @@ class EnemyFactoryTest {
       WeaponItem weapon = WeaponItem.natural("Test Bolt", 4, 0.1f);
       Class<?>[] types = {configs.rangedHarpy.ranged.getClass(), WeaponItem.class};
       RangedAttackComponent aimed =
-          (RangedAttackComponent) call("rangedAttack", types, configs.rangedHarpy.ranged, weapon);
+        (RangedAttackComponent) call("rangedAttack", types, configs.rangedHarpy.ranged, weapon);
       RangedAttackComponent flat =
-          (RangedAttackComponent)
-              call("rangedAttack", types, configs.rangedSkeleton.ranged, weapon);
+        (RangedAttackComponent)
+          call("rangedAttack", types, configs.rangedSkeleton.ranged, weapon);
 
       assertEquals(configs.rangedHarpy.ranged.range, aimed.getRange(), TOLERANCE);
       assertEquals(
-          configs.rangedHarpy.ranged.projectileSpeed, aimed.getProjectileSpeed(), TOLERANCE);
+        configs.rangedHarpy.ranged.projectileSpeed, aimed.getProjectileSpeed(), TOLERANCE);
       assertEquals(configs.rangedHarpy.ranged.aimed, aimed.isAimed());
       assertEquals(configs.rangedSkeleton.ranged.aimed, flat.isAimed());
     }
@@ -1176,12 +1204,12 @@ class EnemyFactoryTest {
     void addChargePartsShouldAddTheChargeAndTheTouchAttack() throws Throwable {
       Entity enemy = new Entity();
       ChargeComponent charge =
-          (ChargeComponent)
-              call(
-                  "addChargeParts",
-                  new Class<?>[] {Entity.class, configs.minotaur.charge.getClass()},
-                  enemy,
-                  configs.minotaur.charge);
+        (ChargeComponent)
+          call(
+            "addChargeParts",
+            new Class<?>[] {Entity.class, configs.minotaur.charge.getClass()},
+            enemy,
+            configs.minotaur.charge);
 
       assertSame(charge, enemy.getComponent(ChargeComponent.class));
       assertNotNull(enemy.getComponent(TouchAttackComponent.class));
@@ -1194,19 +1222,19 @@ class EnemyFactoryTest {
       AnimationRenderComponent animator = newAnimator(SKELETON_ATLAS);
 
       call(
-          "addCommonParts",
-          new Class<?>[] {
-            Entity.class,
-            BaseEntityConfig.class,
-            EnemyType.class,
-            InventoryComponent.class,
-            AnimationRenderComponent.class
-          },
-          enemy,
-          configs.skeleton,
-          EnemyType.SKELETON,
-          inventory,
-          animator);
+        "addCommonParts",
+        new Class<?>[] {
+          Entity.class,
+          BaseEntityConfig.class,
+          EnemyType.class,
+          InventoryComponent.class,
+          AnimationRenderComponent.class
+        },
+        enemy,
+        configs.skeleton,
+        EnemyType.SKELETON,
+        inventory,
+        animator);
 
       CombatStatsComponent stats = enemy.getComponent(CombatStatsComponent.class);
       assertEquals(configs.skeleton.health, stats.getHealth());
@@ -1223,14 +1251,14 @@ class EnemyFactoryTest {
       Entity enemy = new Entity().addComponent(new AITaskComponent());
 
       call(
-          "addMeleeTask",
-          new Class<?>[] {Entity.class, Entity.class, float.class},
-          enemy,
-          player,
-          2f);
+        "addMeleeTask",
+        new Class<?>[] {Entity.class, Entity.class, float.class},
+        enemy,
+        player,
+        2f);
 
       assertEquals(1, countTasks(enemy, MeleeAttackTask.class));
-      Integer priority = priorityField(tasksOfType(enemy, MeleeAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(enemy, MeleeAttackTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -1266,12 +1294,12 @@ class EnemyFactoryTest {
       ChargeComponent charge = new ChargeComponent(1f, 0.5f, 3f, 2f, 2f);
 
       call(
-          "addChargeTask",
-          new Class<?>[] {Entity.class, Entity.class, ChargeComponent.class, float.class},
-          enemy,
-          player,
-          charge,
-          5f);
+        "addChargeTask",
+        new Class<?>[] {Entity.class, Entity.class, ChargeComponent.class, float.class},
+        enemy,
+        player,
+        charge,
+        5f);
 
       assertEquals(1, countTasks(enemy, ChargeTask.class));
     }
@@ -1296,34 +1324,34 @@ class EnemyFactoryTest {
       Entity body = (Entity) call("createBaseStationaryEnemy", new Class<?>[0]);
       AnimationRenderComponent animator = newAnimator(SKELETON_ATLAS);
       call(
-          "addAnimations",
-          new Class<?>[] {
-            AnimationRenderComponent.class, float.class, Animation.PlayMode.class, String[].class
-          },
-          animator,
-          0.1f,
-          LOOP,
-          new String[] {"idlel", "idler"});
+        "addAnimations",
+        new Class<?>[] {
+          AnimationRenderComponent.class, float.class, Animation.PlayMode.class, String[].class
+        },
+        animator,
+        0.1f,
+        LOOP,
+        new String[] {"idlel", "idler"});
       body.addComponent(animator);
 
       Entity result =
-          (Entity)
-              call(
-                  "finishEnemy",
-                  new Class<?>[] {
-                    Entity.class,
-                    AnimationRenderComponent.class,
-                    float.class,
-                    float.class,
-                    float.class,
-                    float.class
-                  },
-                  body,
-                  animator,
-                  2f,
-                  0.5f,
-                  0.4f,
-                  0.6f);
+        (Entity)
+          call(
+            "finishEnemy",
+            new Class<?>[] {
+              Entity.class,
+              AnimationRenderComponent.class,
+              float.class,
+              float.class,
+              float.class,
+              float.class
+            },
+            body,
+            animator,
+            2f,
+            0.5f,
+            0.4f,
+            0.6f);
 
       assertSame(body, result);
       assertEquals(2f, body.getScale().x, TOLERANCE);
@@ -1340,11 +1368,11 @@ class EnemyFactoryTest {
       body.setScale(4f, 3.333f);
 
       call(
-          "setFootAlignedCollider",
-          new Class<?>[] {Entity.class, float.class, float.class},
-          body,
-          0.8f,
-          0.7f);
+        "setFootAlignedCollider",
+        new Class<?>[] {Entity.class, float.class, float.class},
+        body,
+        0.8f,
+        0.7f);
 
       float[] bounds = colliderBounds(body);
       assertEquals(3.2f, bounds[2] - bounds[0], TOLERANCE);
@@ -1354,30 +1382,29 @@ class EnemyFactoryTest {
     }
 
     @Test
-    void validateMeleeRangeBelowRangedRangeShouldAcceptOnlyAStrictlyShorterMeleeRange()
-        throws Throwable {
+    void validateMeleeRangeBelowRangedRangeShouldAcceptOnlyAStrictlyShorterMeleeRange() {
       Class<?>[] types = {float.class, float.class};
 
       assertDoesNotThrow(() -> call("validateMeleeRangeBelowRangedRange", types, 1f, 2f));
       for (float[] pair : new float[][] {{2f, 2f}, {3f, 2f}, {Float.NaN, 2f}, {1f, Float.NaN}}) {
         assertThrows(
-            IllegalArgumentException.class,
-            () -> call("validateMeleeRangeBelowRangedRange", types, pair[0], pair[1]),
-            pair[0] + " / " + pair[1]);
+          IllegalArgumentException.class,
+          () -> call("validateMeleeRangeBelowRangedRange", types, pair[0], pair[1]),
+          pair[0] + " / " + pair[1]);
       }
     }
 
     @Test
     void validateMeleeRangeBelowRangedRangeShouldNameBothRanges() {
       IllegalArgumentException thrown =
-          assertThrows(
-              IllegalArgumentException.class,
-              () ->
-                  call(
-                      "validateMeleeRangeBelowRangedRange",
-                      new Class<?>[] {float.class, float.class},
-                      3f,
-                      2f));
+        assertThrows(
+          IllegalArgumentException.class,
+          () ->
+            call(
+              "validateMeleeRangeBelowRangedRange",
+              new Class<?>[] {float.class, float.class},
+              3f,
+              2f));
 
       assertEquals("melee range 3.0 must be below ranged attack range 2.0", thrown.getMessage());
     }
@@ -1391,17 +1418,17 @@ class EnemyFactoryTest {
   @DisplayName("registerEnemySpawns")
   class SpawnRegistration {
     private static final Map<String, String> LABEL_BY_NAME =
-        Map.of(
-            "skeleton", "Skeleton",
-            "ranged-skeleton", "Ranged Skeleton",
-            "harpy", "Harpy",
-            "ranged-harpy", "Ranged Harpy",
-            "centaur", "Centaur",
-            "minotaur", "Minotaur",
-            "cyclops", "Cyclops",
-            "cerberus", "Cerberus",
-            "medusa", "Medusa",
-            "zeus", "Zeus");
+      Map.of(
+        "skeleton", "Skeleton",
+        "ranged-skeleton", "Ranged Skeleton",
+        "harpy", "Harpy",
+        "ranged-harpy", "Ranged Harpy",
+        "centaur", "Centaur",
+        "minotaur", "Minotaur",
+        "cyclops", "Cyclops",
+        "cerberus", "Cerberus",
+        "medusa", "Medusa",
+        "zeus", "Zeus");
 
     @Test
     void shouldRegisterExactlyTheTenEnemyNames() {
@@ -1415,13 +1442,13 @@ class EnemyFactoryTest {
       EnemyFactory.registerEnemySpawns();
 
       LABEL_BY_NAME.forEach(
-          (name, label) ->
-              assertEquals(
-                  label,
-                  EntitySpawnRegistry.create(name, player)
-                      .getComponent(EnemyTypeComponent.class)
-                      .getEnemyLabel(),
-                  name));
+        (name, label) ->
+          assertEquals(
+            label,
+            EntitySpawnRegistry.create(name, player)
+              .getComponent(EnemyTypeComponent.class)
+              .getEnemyLabel(),
+            name));
     }
 
     @Test
@@ -1462,7 +1489,7 @@ class EnemyFactoryTest {
       constructor.setAccessible(true);
 
       InvocationTargetException thrown =
-          assertThrows(InvocationTargetException.class, constructor::newInstance);
+        assertThrows(InvocationTargetException.class, constructor::newInstance);
 
       assertInstanceOf(IllegalStateException.class, thrown.getCause());
     }

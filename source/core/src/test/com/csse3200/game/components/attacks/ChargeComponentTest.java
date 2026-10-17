@@ -20,12 +20,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
 class ChargeComponentTest {
-  private GameTime gameTime;
 
   @BeforeEach
   void beforeEach() {
     ServiceLocator.registerPhysicsService(new PhysicsService());
-    gameTime = mock(GameTime.class);
+    GameTime gameTime = mock(GameTime.class);
     when(gameTime.getDeltaTime()).thenReturn(0.1f);
     ServiceLocator.registerTimeSource(gameTime);
   }
