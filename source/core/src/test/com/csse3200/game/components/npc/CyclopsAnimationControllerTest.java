@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.components.enemies.animation.CyclopsAnimationController;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;

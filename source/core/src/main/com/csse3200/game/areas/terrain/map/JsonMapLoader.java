@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *   },
  *   "spawns": {
  *     "player":  { "x": 1, "y": 1 },
- *     "enemies": [ { "type": "ghost", "x": 2, "y": 1 } ],
+ *     "enemies": [ { "type": "skeleton", "x": 2, "y": 1 } ],
  *     "loot":    [ { "x": 3, "y": 1 } ]
  *   }
  * }

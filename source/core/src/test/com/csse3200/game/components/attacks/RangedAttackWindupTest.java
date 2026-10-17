@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
