@@ -730,6 +730,33 @@ public class MainGameScreen extends ScreenAdapter {
     logger.info("Unlimited stamina {}", enabled ? "enabled" : "disabled");
   }
 
+  private WhereCommand.Location getWhereLocation() {
+    Entity player = getPlayerEntity();
+    if (player == null) {
+      return null;
+    }
+
+    PhysicsComponent physics = player.getComponent(PhysicsComponent.class);
+    if (physics == null || physics.getBody() == null) {
+      return null;
+    }
+
+    LevelView level = levelGameArea.getLevel();
+    Vector2 center = player.getCenterPosition();
+    int tileX = (int) Math.floor(center.x / level.tileSize());
+    int tileY = (int) Math.floor(center.y / level.tileSize());
+    SubLevel section = level.subLevelAt(tileY);
+
+    return new WhereCommand.Location(
+        level.name(),
+        currentRoomMapPath,
+        section == null ? "none" : section.id(),
+        tileX,
+        tileY,
+        physics.getBody().getLinearVelocity().y,
+        physics.getBody().getGravityScale());
+  }
+
   private void createSubLevelTravelPrompt(Entity player) {
 
     subLevelTravelPromptEntity =
@@ -832,6 +859,8 @@ public class MainGameScreen extends ScreenAdapter {
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
     terminal.addCommand("stamina", new StaminaCommand(this::setUnlimitedStamina));
+    terminal.addCommand(
+        "where", new WhereCommand(this::getWhereLocation, terminal::showOutputMessage));
     terminal.addCommand("perk", new PerkCommand());
     terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
