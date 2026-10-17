@@ -840,6 +840,9 @@ public class MainGameScreen extends ScreenAdapter {
     terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
+    KeyboardPauseInput keyboardPauseInput = new KeyboardPauseInput();
+    keyboardPauseInput.setPauseBlocked(
+        () -> deathScreenDisplay.isVisible() || winScreenDisplay.isVisible());
 
     UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
 
@@ -863,7 +866,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(noclipInputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
-        .addComponent(new KeyboardPauseInput())
+        .addComponent(keyboardPauseInput)
         .addComponent(new PauseMenuDisplay())
         .addComponent(pauseMenuActions)
         .addComponent(new PauseMenuInputComponent())
