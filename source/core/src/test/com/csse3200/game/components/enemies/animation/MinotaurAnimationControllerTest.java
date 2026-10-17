@@ -1,11 +1,10 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies.animation;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.csse3200.game.components.enemies.animation.MinotaurAnimationController;
 import com.csse3200.game.components.enemies.attacks.ChargeComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;
@@ -370,5 +369,182 @@ class MinotaurAnimationControllerTest {
     assertFalse(controller.isSwinging());
     verify(chargeRCallback, times(1)).handle();
     verify(animationRenderComponent).startAnimation("minotaur_charge_r");
+  }
+
+  /** A charge toward a target on the left plays the left charge animation. */
+  @Test
+  void shouldChargeLeftWhenTargetIsOnTheLeft() {
+    ChargeComponent chargeComponent = mock(ChargeComponent.class);
+    when(chargeComponent.getTargetPosition()).thenReturn(new Vector2(-5f, 0f));
+    entity.addComponent(chargeComponent);
+
+    EventListener0 chargeLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeLeftStart", chargeLCallback);
+
+    entity.create();
+    entity.setPosition(0f, 0f);
+
+    entity.getEvents().trigger("chargeStart");
+
+    verify(chargeLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("minotaur_charge_l");
+  }
+
+  /** A charge toward a target on the right plays the right charge animation. */
+  @Test
+  void shouldChargeRightWhenTargetIsOnTheRight() {
+    ChargeComponent chargeComponent = mock(ChargeComponent.class);
+    when(chargeComponent.getTargetPosition()).thenReturn(new Vector2(5f, 0f));
+    entity.addComponent(chargeComponent);
+
+    EventListener0 chargeRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeRightStart", chargeRCallback);
+
+    entity.create();
+    entity.setPosition(0f, 0f);
+
+    entity.getEvents().trigger("chargeStart");
+
+    verify(chargeRCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("minotaur_charge_r");
+  }
+
+  /** With no target, charge direction follows the velocity. */
+  @Test
+  void shouldChargeInDirectionOfVelocityWhenNoTarget() {
+    EventListener0 chargeLCallback = mock(EventListener0.class);
+    EventListener0 chargeRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeLeftStart", chargeLCallback);
+    entity.getEvents().addListener("chargeRightStart", chargeRCallback);
+
+    entity.create(); // no ChargeComponent on the entity, so there is no target position
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(-1f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(chargeLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("minotaur_charge_l");
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(chargeRCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("minotaur_charge_r");
+  }
+
+  /** With no target and no velocity, the charge keeps the current facing. */
+  @Test
+  void shouldChargeInCurrentFacingWhenStationaryAndNoTarget() {
+    EventListener0 chargeLCallback = mock(EventListener0.class);
+    EventListener0 chargeRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeLeftStart", chargeLCallback);
+    entity.getEvents().addListener("chargeRightStart", chargeRCallback);
+
+    entity.create(); // starts facing right
+
+    // facing right and stationary
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(chargeRCallback, times(1)).handle();
+    verify(chargeLCallback, never()).handle();
+
+    // walk left so the controller faces left, then stand still and charge
+    when(body.getLinearVelocity()).thenReturn(new Vector2(-1f, 0f));
+    controller.update();
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+    entity.getEvents().trigger("chargeStart");
+    verify(chargeLCallback, times(1)).handle();
+  }
+
+  /** With no physics body the charge still starts and does not throw. */
+  @Test
+  void shouldStartChargeWithoutPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    EventListener0 chargeRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeRightStart", chargeRCallback);
+
+    entity.create(); // facing right
+
+    assertDoesNotThrow(() -> entity.getEvents().trigger("chargeStart"));
+
+    verify(chargeRCallback, times(1)).handle();
+  }
+
+  /** During the windup, the state faces the target. */
+  @Test
+  void shouldFaceTargetDuringChargeWindup() {
+    ChargeComponent chargeComponent = mock(ChargeComponent.class);
+    when(chargeComponent.isCharging()).thenReturn(true);
+    when(chargeComponent.isRushing()).thenReturn(false);
+    when(chargeComponent.getTargetPosition()).thenReturn(new Vector2(-5f, 0f));
+    entity.addComponent(chargeComponent);
+
+    EventListener0 chargeLCallback = mock(EventListener0.class);
+    EventListener0 chargeRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeLeftStart", chargeLCallback);
+    entity.getEvents().addListener("chargeRightStart", chargeRCallback);
+
+    entity.create();
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+
+    controller.update(); // target on the left
+    verify(chargeLCallback, times(1)).handle();
+
+    when(chargeComponent.getTargetPosition()).thenReturn(new Vector2(5f, 0f));
+    controller.update(); // target moved to the right
+    verify(chargeRCallback, times(1)).handle();
+  }
+
+  /** During the windup with no target, the state keeps the current facing. */
+  @Test
+  void shouldKeepFacingDuringChargeWindupWhenNoTarget() {
+    ChargeComponent chargeComponent = mock(ChargeComponent.class);
+    when(chargeComponent.isCharging()).thenReturn(false);
+    when(chargeComponent.isRushing()).thenReturn(false);
+    // getTargetPosition() is not stubbed, so it returns null
+    entity.addComponent(chargeComponent);
+
+    EventListener0 chargeLCallback = mock(EventListener0.class);
+    EventListener0 chargeRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("chargeLeftStart", chargeLCallback);
+    entity.getEvents().addListener("chargeRightStart", chargeRCallback);
+
+    entity.create();
+
+    // walk left so the controller faces left, then begin the windup
+    when(body.getLinearVelocity()).thenReturn(new Vector2(-1f, 0f));
+    controller.update();
+    when(chargeComponent.isCharging()).thenReturn(true);
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+    controller.update();
+    verify(chargeLCallback, times(1)).handle();
+
+    // walk right so the controller faces right, then begin the windup again
+    when(chargeComponent.isCharging()).thenReturn(false);
+    when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
+    controller.update();
+    when(chargeComponent.isCharging()).thenReturn(true);
+    when(body.getLinearVelocity()).thenReturn(new Vector2(0f, 0f));
+    controller.update();
+    verify(chargeRCallback, times(1)).handle();
+  }
+
+  /** While rushing, the velocity decides the state, not the windup rule. */
+  @Test
+  void shouldUseVelocityWhileRushing() {
+    ChargeComponent chargeComponent = mock(ChargeComponent.class);
+    when(chargeComponent.isCharging()).thenReturn(true);
+    when(chargeComponent.isRushing()).thenReturn(true);
+    entity.addComponent(chargeComponent);
+
+    EventListener0 walkRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("walkRightStart", walkRCallback);
+
+    entity.create();
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
+    controller.update();
+
+    verify(walkRCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("minotaur_walk_r");
   }
 }
