@@ -1,5 +1,6 @@
 package com.csse3200.game.components.npc;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -22,8 +23,14 @@ public class DisplayDialogue extends UIComponent {
   // Must match the left/right args passed to dialogueTable.pad() below - subtracted from the
   // table width so the wrapped label never touches the background's edges.
   private static final float DIALOGUE_SIDE_PADDING = 30f;
+  private static final float SHOP_HINT_GAP = 12f;
 
   private final String speakerName;
+
+  // Set via enableShopHint() before create() runs (NPCFactory calls it right after attaching
+  // this component, before the entity's own create() is invoked) - only shopkeeper NPCs enable
+  // it, so every other NPC's dialogue box never shows a hint for a key that wouldn't do anything.
+  private boolean shopHintEnabled = false;
 
   private Table rootTable;
   private Table dialogueTable;
@@ -31,6 +38,7 @@ public class DisplayDialogue extends UIComponent {
   private Label speakerLabel;
   private Label dialogueLabel;
   private Label continueLabel;
+  private Label shopHintLabel;
 
   private Cell<Table> dialogueCell;
   private Cell<Label> dialogueLabelCell;
@@ -42,6 +50,14 @@ public class DisplayDialogue extends UIComponent {
    */
   public DisplayDialogue(String speakerName) {
     this.speakerName = speakerName;
+  }
+
+  /**
+   * Enables the "[key] Shop" hint next to "[E] Next" in this dialogue box. Must be called before
+   * {@link #create()} runs, since the hint row is only built once, at creation.
+   */
+  public void enableShopHint() {
+    shopHintEnabled = true;
   }
 
   /** Builds the dialogue UI and wires it up to this NPC's showDialogue/hideDialogue events. */
@@ -98,7 +114,17 @@ public class DisplayDialogue extends UIComponent {
     dialogueLabelCell = dialogueTable.add(dialogueLabel).left().padBottom(15f);
     dialogueTable.row();
 
-    dialogueTable.add(continueLabel).right().expandX();
+    // A sub-table rather than a second dialogueTable cell, so the hint and "[E] Next" sit right
+    // next to each other and share one right-aligned, width-bounded region instead of each
+    // claiming (and overflowing) their own expanding cell.
+    Table bottomRow = new Table();
+    if (shopHintEnabled) {
+      shopHintLabel = new Label(buildShopHintText(), textColor);
+      shopHintLabel.setAlignment(Align.right);
+      bottomRow.add(shopHintLabel).padRight(SHOP_HINT_GAP);
+    }
+    bottomRow.add(continueLabel);
+    dialogueTable.add(bottomRow).right().expandX();
 
     dialogueTable.pad(25f, DIALOGUE_SIDE_PADDING, 20f, DIALOGUE_SIDE_PADDING);
     dialogueCell = rootTable.add(dialogueTable).padTop(30f);
@@ -106,6 +132,13 @@ public class DisplayDialogue extends UIComponent {
     stage.addActor(rootTable);
 
     updateDialogueWidth();
+  }
+
+  /**
+   * Builds the shop hint text from SHOP_KEY, e.g. "[H] Shop", rather than hard-coding the letter.
+   */
+  private static String buildShopHintText() {
+    return "[" + Input.Keys.toString(ShopkeeperComponent.SHOP_KEY) + "] Shop";
   }
 
   /**

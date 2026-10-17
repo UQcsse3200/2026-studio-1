@@ -1,18 +1,23 @@
 package com.csse3200.game.components.npc;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.pausemenu.KeybindSettings;
 
 /**
- * Toggles the shop open/closed with the rebindable "shop" key while the player is in dialogue
- * range, and closes it when they leave. The key used to be hard-coded to F, which collides with the
+ * Toggles the shop open/closed with a fixed key while the player is in dialogue range, and closes
+ * it when they leave. The key is intentionally not rebindable, so an on-screen hint can always show
+ * it without ever going out of date. The key used to be hard-coded to F, which collides with the
  * default "specialAttack" binding and only ever opened the shop (pressing it again just reset the
  * shop back to the Items tab instead of closing it).
  */
 public class ShopkeeperComponent extends Component {
+
+  /** The fixed, non-rebindable key that opens and closes the shop. */
+  public static final int SHOP_KEY = Input.Keys.H;
+
   private final Entity player;
   private boolean playerInRange = false;
 
@@ -24,8 +29,8 @@ public class ShopkeeperComponent extends Component {
   }
 
   /**
-   * Toggles the shop when the bound "shop" key is pressed while the player is in range, and closes
-   * it if the player walks out of range. Does nothing if "shop" is currently unbound.
+   * Toggles the shop when SHOP_KEY is pressed while the player is in range, and closes it if the
+   * player walks out of range.
    */
   @Override
   public void update() {
@@ -35,11 +40,7 @@ public class ShopkeeperComponent extends Component {
     }
 
     boolean inRange = proximity.isPlayerInRange();
-    int shopKey = KeybindSettings.getKey("shop");
-    boolean shopKeyPressed =
-        shopKey != KeybindSettings.UNBOUND && Gdx.input.isKeyJustPressed(shopKey);
-
-    if (inRange && shopKeyPressed) {
+    if (inRange && Gdx.input.isKeyJustPressed(SHOP_KEY)) {
       toggleShop();
     } else if (playerInRange && !inRange) {
       closeShop();
