@@ -10,12 +10,15 @@ import static org.mockito.Mockito.when;
 
 import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.player.BallisticShieldComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.entities.spawn.NpcQuestRegistry;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.files.GameSaveData;
@@ -102,7 +105,9 @@ class PauseMenuActionsSaveFieldsTest {
             .addComponent(new InventoryComponent(0))
             .addComponent(new ShieldComponent(30000L))
             .addComponent(new BallisticShieldComponent(30000L))
-            .addComponent(new ShopComponent().seedDefaultCatalog());
+            .addComponent(
+                PlayerFactory.installDefaultCatalog(
+                    new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator()));
     entity.create();
     return entity;
   }
