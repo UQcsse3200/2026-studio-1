@@ -237,4 +237,53 @@ class WeaponRenderComponentTest {
     assertEquals(1.45f, scaleX.getValue(), 0.001f);
     assertEquals(1.45f, scaleY.getValue(), 0.001f);
   }
+
+  @Test
+  void shouldSwingAxeWhenAxeAttackTriggered() {
+    Texture axeTexture = mock(Texture.class);
+    when(axeTexture.getWidth()).thenReturn(32);
+    when(axeTexture.getHeight()).thenReturn(32);
+
+    ResourceService resources = mock(ResourceService.class);
+    when(resources.getAsset("images/items/axe.png", Texture.class)).thenReturn(axeTexture);
+
+    ServiceLocator.registerResourceService(resources);
+    ServiceLocator.registerRenderService(new RenderService());
+
+    InventoryComponent inventory = new InventoryComponent(0);
+    inventory.addItem(new WeaponItem("Axe", WeaponType.AXE, WeaponTier.TIER_1, 1, 1, 0f));
+
+    WeaponRenderComponent renderer = new WeaponRenderComponent();
+
+    Entity entity = new Entity().addComponent(inventory).addComponent(renderer);
+    entity.create();
+
+    entity.getEvents().trigger("axeAttack", 12);
+
+    SpriteBatch batch = mock(SpriteBatch.class);
+    renderer.render(batch);
+
+    ArgumentCaptor<Float> rotation = ArgumentCaptor.forClass(Float.class);
+
+    verify(batch)
+        .draw(
+            eq(axeTexture),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            anyFloat(),
+            rotation.capture(),
+            anyInt(),
+            anyInt(),
+            anyInt(),
+            anyInt(),
+            anyBoolean(),
+            anyBoolean());
+
+    assertEquals(-45f, rotation.getValue(), 0.001f);
+  }
 }
