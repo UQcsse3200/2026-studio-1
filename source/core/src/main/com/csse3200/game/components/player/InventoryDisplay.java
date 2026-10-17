@@ -1109,6 +1109,56 @@ public class InventoryDisplay extends UIComponent {
   }
 
   /** Frees every texture loaded by {@link #loadIcon(String)}. */
+
+  // ===========================================================================================
+  // PNG icons (source/core/assets/images/icons/)
+  // ===========================================================================================
+
+  /**
+   * Returns the icon for an item/upgrade name using {@link #ICON_RULES}, e.g. a name containing
+   * "bow" gives {@code images/icons/bow.png}.
+   *
+   * @param name item or upgrade name
+   * @return the icon, or null if no rule matches or the file is missing
+   */
+  private Drawable iconForName(String name) {
+    if (name == null) {
+      return null;
+    }
+    String lower = name.toLowerCase();
+    for (Map.Entry<String, String> rule : ICON_RULES.entrySet()) {
+      if (lower.contains(rule.getKey())) {
+        return loadIcon(rule.getValue());
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Loads (once) the PNG at an internal path such as {@link #ICON_BOW}.
+   *
+   * @param path path relative to the assets folder
+   * @return the icon, or null if the file doesn't exist
+   */
+  private Drawable loadIcon(String path) {
+    if (iconCache.containsKey(path)) {
+      return iconCache.get(path);
+    }
+
+    Drawable drawable = null;
+    if (Gdx.files.internal(path).exists()) {
+      // Mipmaps keep the large PNGs smooth when they are drawn at 38-80 px.
+      Texture texture = new Texture(Gdx.files.internal(path), true);
+      texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+      iconTextures.add(texture);
+      drawable = new TextureRegionDrawable(new TextureRegion(texture));
+    }
+
+    iconCache.put(path, drawable);
+    return drawable;
+  }
+
+  /** Frees every texture loaded by {@link #loadIcon(String)}. */
   private void disposeIcons() {
     for (Texture texture : iconTextures) {
       texture.dispose();
@@ -1116,4 +1166,19 @@ public class InventoryDisplay extends UIComponent {
     iconTextures.clear();
     iconCache.clear();
   }
+
+  /**
+   * Sets inventory to be visible or not. Used by terminal command {@link InventoryCommand}
+   *
+   * @param shouldHide boolean on whether to hide the inventory or not.
+   */
+  public void setHidden(boolean shouldHide) {
+    hidden = shouldHide;
+    if (hudTable != null) {
+      hudTable.setVisible(!hidden);
+      System.out.println("InventoryTable is hidden: " + hudTable.isVisible());
+    }
+  }
+}
+
 }
