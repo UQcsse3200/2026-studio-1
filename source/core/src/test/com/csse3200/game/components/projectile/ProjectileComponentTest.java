@@ -3,27 +3,37 @@ package com.csse3200.game.components.projectile;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
+import com.csse3200.game.physics.PhysicsService;
+import com.csse3200.game.physics.components.HitboxComponent;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 
 @ExtendWith(GameExtension.class)
 class ProjectileComponentTest {
@@ -123,28 +133,95 @@ class ProjectileComponentTest {
     // Hits arrive from inside Box2D's physics step, so the despawn must be deferred, not immediate
     assertFalse(projectile.getComponent(ProjectileComponent.class).isExpired());
 
-    runPostedRunnables();
+    projectile.update();
 
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
+    verify(movementStrategy, never()).update(eq(projectile), anyFloat());
+    verify(Gdx.app, never()).postRunnable(any(Runnable.class));
   }
 
   @Test
   void projectileExpiredEventShouldBeIdempotent() {
     Entity projectile = createProjectile(100f);
+    List<Vector2> relocations = new ArrayList<>();
+    projectile
+        .getEvents()
+        .addListener("setPosition", (Vector2 position) -> relocations.add(position));
 
     assertDoesNotThrow(
         () -> {
           projectile.getEvents().trigger("projectileExpired");
           projectile.getEvents().trigger("projectileExpired");
-          runPostedRunnables(); // both queued despawns run; the second must be a no-op
+          projectile.update();
+          projectile.update(); // repeated requests must still relocate the projectile only once
         });
     assertTrue(projectile.getComponent(ProjectileComponent.class).isExpired());
+    assertEquals(1, relocations.size());
   }
 
-  private void runPostedRunnables() {
-    ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
-    verify(Gdx.app, atLeastOnce()).postRunnable(captor.capture());
-    captor.getAllValues().forEach(Runnable::run);
+  @Test
+  void shouldDeferDespawnUntilUpdateAfterARealPhysicsContact() {
+    PhysicsService physicsService = new PhysicsService();
+    EntityService entities = new EntityService();
+    ServiceLocator.registerPhysicsService(physicsService);
+    ServiceLocator.registerEntityService(entities);
+    var physics = physicsService.getPhysics();
+    try {
+      Entity projectile =
+          new Entity()
+              .addComponent(new PhysicsComponent())
+              .addComponent(new HitboxComponent())
+              .addComponent(new ProjectileComponent(movementStrategy, 100f));
+      Entity wall =
+          new Entity()
+              .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+              .addComponent(new HitboxComponent());
+      entities.register(projectile);
+      entities.register(wall);
+      ProjectileComponent lifecycle = projectile.getComponent(ProjectileComponent.class);
+      Thread simulationThread = Thread.currentThread();
+      List<Thread> contacts = new ArrayList<>();
+      List<Vector2> relocations = new ArrayList<>();
+      projectile
+          .getEvents()
+          .addListener(
+              "collisionStart",
+              (Fixture me, Fixture other) -> {
+                assertTrue(physics.getWorld().isLocked());
+                projectile.getEvents().trigger("projectileExpired");
+                assertFalse(lifecycle.isExpired());
+                contacts.add(Thread.currentThread());
+              });
+      projectile
+          .getEvents()
+          .addListener(
+              "setPosition",
+              (Vector2 position) -> {
+                assertFalse(physics.getWorld().isLocked());
+                assertSame(simulationThread, Thread.currentThread());
+                relocations.add(position.cpy());
+              });
+
+      physics.update();
+
+      assertEquals(List.of(simulationThread), contacts);
+      assertFalse(lifecycle.isExpired());
+      assertTrue(relocations.isEmpty());
+      verify(Gdx.app, never()).postRunnable(any(Runnable.class));
+
+      projectile.earlyUpdate();
+      projectile.update();
+
+      assertTrue(lifecycle.isExpired());
+      assertEquals(List.of(new Vector2(-1000f, -1000f)), relocations);
+      assertEquals(
+          Vector2.Zero,
+          projectile.getComponent(PhysicsComponent.class).getBody().getLinearVelocity());
+      verify(movementStrategy, never()).update(eq(projectile), anyFloat());
+    } finally {
+      entities.dispose();
+      physics.dispose();
+    }
   }
 
   private Entity createProjectile(float maxRange) {
