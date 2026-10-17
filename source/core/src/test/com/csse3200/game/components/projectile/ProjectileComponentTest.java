@@ -22,6 +22,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.HitboxComponent;
@@ -144,9 +145,7 @@ class ProjectileComponentTest {
   void projectileExpiredEventShouldBeIdempotent() {
     Entity projectile = createProjectile(100f);
     List<Vector2> relocations = new ArrayList<>();
-    projectile
-        .getEvents()
-        .addListener("setPosition", (Vector2 position) -> relocations.add(position));
+    projectile.getEvents().addListener("setPosition", (EventListener1<Vector2>) relocations::add);
 
     assertDoesNotThrow(
         () -> {
