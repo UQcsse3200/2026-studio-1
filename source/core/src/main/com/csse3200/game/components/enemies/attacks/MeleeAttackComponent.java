@@ -40,8 +40,6 @@ public class MeleeAttackComponent extends Component {
   private float range;
   private float cooldown;
   private float knockback;
-  private boolean bribed;
-  private long bribedUntil;
   private WeaponItem weapon;
   /* This is set in the {@link WeaponItem} creation rather than here as animation is per weapon
    * Adjustments can be made as public setter and getter for the value is avaliable.
@@ -308,18 +306,12 @@ public class MeleeAttackComponent extends Component {
     return this.pendingTarget != null;
   }
 
-  public boolean isBribed() {
-    return bribed;
-  }
-
   /**
    * Bribes this enemy for 20 seconds.
    *
    * @return true when the bribe was applied
    */
   public boolean bribe() {
-    bribed = true;
-    bribedUntil = ServiceLocator.getTimeSource().getTime() + BRIBE_DURATION_MILLIS;
 
     pendingTarget = null;
     windupTimeRemaining = 0f;
@@ -330,18 +322,6 @@ public class MeleeAttackComponent extends Component {
 
     return true;
   }
-
-  /**
-   * Attempts to attack the given target entity: validates cooldown and range, then applies damage
-   * and knockback if both checks pass and the target has the required component(s).
-   *
-   * @param target the entity being attacked
-   *     <p>Expected effect: may reduce target's health and/or apply an impulse to target's physics
-   *     body.
-   *     <p><b>Limitation:</b> behaviour when {@code target} is {@code null} must be explicitly
-   *     decided — either guard against it here, or document that callers must never trigger the
-   *     event with a null target.
-   */
 
   /**
    * Attempts to attack the given target entity: validates cooldown and range, then applies damage
