@@ -9,6 +9,7 @@ import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ArrowFactory;
+import com.csse3200.game.entities.factories.ProjectileFactory;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.services.ServiceLocator;
 import org.slf4j.Logger;
@@ -138,7 +139,7 @@ public class RangedAttackComponent extends Component {
     if (weapon.getWeaponType() == WeaponType.DAGGER
         || weapon.getWeaponType() == WeaponType.SWORD
         || weapon.getWeaponType() == WeaponType.AXE) {
-      throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
+      throw new IllegalArgumentException("Ranged Attack cannot use a melee weapon");
     }
 
     if (weapon.getWindupDuration() < 0) {
@@ -520,12 +521,30 @@ public class RangedAttackComponent extends Component {
                   knockback,
                   PhysicsLayer.PLAYER);
       case LIGHTNING ->
-          ArrowFactory.createLightning(
+          ProjectileFactory.createLightning(
               target.getCenterPosition(),
               8f,
               12f,
               this.getDamage(),
               this.getLightningFreezeTicks(),
+              PhysicsLayer.PLAYER);
+      case LASER ->
+          ProjectileFactory.createLaser(
+              spawnPosition,
+              aimDirection,
+              projectileSpeed,
+              range,
+              this.getDamage(),
+              knockback,
+              PhysicsLayer.PLAYER);
+      case ROCK ->
+          ProjectileFactory.createRock(
+              spawnPosition,
+              aimDirection,
+              projectileSpeed,
+              range,
+              this.getDamage(),
+              knockback,
               PhysicsLayer.PLAYER);
     };
   }

@@ -8,6 +8,7 @@ import com.csse3200.game.services.ServiceLocator;
 
 /** Factory for creating gold coin entities. */
 public class GoldCoinFactory {
+  private static final float GOLD_COIN_SCALE = 0.5f;
 
   /**
    * Creates a gold coin entity with a looping spinning animation.
@@ -26,6 +27,7 @@ public class GoldCoinFactory {
     animator.startAnimation("gold_coin");
 
     coin.addComponent(animator);
+    coin.setScale(GOLD_COIN_SCALE, GOLD_COIN_SCALE);
 
     return coin;
   }

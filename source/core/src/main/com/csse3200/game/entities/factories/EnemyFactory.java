@@ -678,14 +678,14 @@ public final class EnemyFactory {
         target,
         LASER_TASK_PRIORITY,
         config.laser.range,
-        ProjectileType.ARROW,
+        ProjectileType.LASER,
         LASER_ATTACK_EVENT);
     addRangedTask(
         cyclops,
         target,
         RANGED_TASK_PRIORITY,
         config.rock.range,
-        ProjectileType.ARROW,
+        ProjectileType.ROCK,
         ROCK_ATTACK_EVENT);
     return finishEnemy(
         cyclops, animator, scale, CYCLOPS_HEIGHT_RATIO, MEDIUM_COLLISION_X, MEDIUM_COLLISION_Y);

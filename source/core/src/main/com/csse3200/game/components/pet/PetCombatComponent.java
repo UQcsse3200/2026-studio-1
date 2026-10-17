@@ -98,6 +98,19 @@ public class PetCombatComponent extends Component {
     entity.getEvents().trigger("petAttack", currentTarget);
   }
 
+  /**
+   * Whether this pet has a living combat target, including while waiting between shots.
+   *
+   * <p>A queued target takes precedence so movement can interrupt idle behaviour before the next
+   * combat update processes that request.
+   */
+  public boolean hasActiveTarget() {
+    return enabled
+        && !entity.isDisposed()
+        && isAlive(owner)
+        && isAlive(pendingTarget != null ? pendingTarget : currentTarget);
+  }
+
   @Override
   public void setEnabled(boolean enabled) {
     super.setEnabled(enabled);

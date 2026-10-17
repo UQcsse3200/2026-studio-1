@@ -31,7 +31,6 @@ public class PlayerStatsDisplay extends UIComponent {
   private static final float HEART_SIZE = 30f;
   private static final float STAMINA_BAR_WIDTH = 545f;
   private static final float STAMINA_BAR_HEIGHT = 10f;
-  private static final float HUD_GAP = 8f;
 
   private static final float BRIBE_MESSAGE_DURATION = 3f;
 
