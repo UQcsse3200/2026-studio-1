@@ -24,7 +24,6 @@ public class StoryCutsceneDisplay extends UIComponent {
 
   private Table rootTable;
   private Image background;
-  private Table panel;
   private Label titleLabel;
   private Label textLabel;
   private Label continueLabel;
@@ -69,7 +68,7 @@ public class StoryCutsceneDisplay extends UIComponent {
 
     rootTable.addActor(background);
 
-    panel = new Table();
+    Table panel = new Table();
     panel.setBackground(skin.newDrawable("white", new Color(0f, 0f, 0f, 0.95f)));
     panel.pad(PANEL_PADDING);
 
