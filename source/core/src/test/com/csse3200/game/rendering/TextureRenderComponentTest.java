@@ -1,6 +1,5 @@
 package com.csse3200.game.rendering;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,22 +41,6 @@ class TextureRenderComponentTest {
     component.render(spriteBatch);
 
     verify(spriteBatch)
-        .draw(
-            eq(texture),
-            eq(2f),
-            eq(2f),
-            eq(0.5f),
-            eq(0.5f),
-            eq(1f),
-            eq(1f),
-            eq(1f),
-            eq(1f),
-            eq(45f),
-            eq(0),
-            eq(0),
-            eq(0),
-            eq(0),
-            eq(false),
-            eq(false));
+        .draw(texture, 2f, 2f, 0.5f, 0.5f, 1f, 1f, 1f, 1f, 45f, 0, 0, 0, 0, false, false);
   }
 }
