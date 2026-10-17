@@ -47,12 +47,13 @@ public class ItemDropComponent extends Component {
   }
 
   /**
-   * Drops the whole stack from the currently selected inventory slot.
+   * Drops one unit from the currently selected inventory slot.
    *
-   * <p>Does nothing when the selected slot is empty. The selection stays on the same slot after
-   * dropping.
+   * <p>A stack above 1 stays in the slot and the spawned item has quantity 1. A stack of 1 leaves
+   * the slot. Does nothing when the selected slot is empty. The selection stays on the same slot
+   * after dropping.
    *
-   * @return {@code true} when a stack was removed and spawned
+   * @return {@code true} when a unit was removed and spawned
    */
   public boolean dropActiveStack() {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
@@ -68,39 +69,17 @@ public class ItemDropComponent extends Component {
       return false;
     }
 
-    Entity loot = lootFactory.apply(item, entity);
-    if (loot == null) {
-      logger.warn("Loot factory returned null for item {}", item.getName());
-      return false;
-    }
-
-    Item removed = inventory.removeItem(slot);
-    if (removed == null) {
-      return false;
-    }
-
-    float dropX = entity.getPosition().x + entity.getScale().x + HORIZONTAL_DROP_GAP;
-    loot.setPosition(dropX, entity.getPosition().y);
-
-    try {
-      lootSpawner.accept(loot);
-    } catch (RuntimeException exception) {
-      inventory.addItem(removed);
-      throw exception;
-    }
-
-    logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
-    entity.getEvents().trigger("itemDropped", removed, loot);
-    return true;
+    return spawnOneUnit(inventory, slot, item);
   }
 
   /**
-   * Drops the whole stack from the lowest-numbered occupied inventory slot.
+   * Drops one unit from the lowest-numbered occupied inventory slot.
    *
-   * <p>This is intentionally a small temporary selection rule. It can be replaced with an explicit
-   * selected-slot event without changing loot creation or spawning.
+   * <p>A stack above 1 stays in the slot and the spawned item has quantity 1. A stack of 1 leaves
+   * the slot. This is intentionally a small temporary selection rule. It can be replaced with an
+   * explicit selected-slot event without changing loot creation or spawning.
    *
-   * @return {@code true} when a stack was removed and spawned
+   * @return {@code true} when a unit was removed and spawned
    */
   public boolean dropFirstStack() {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
@@ -116,14 +95,28 @@ public class ItemDropComponent extends Component {
     }
 
     Item item = inventory.getItem(slot);
-    Entity loot = lootFactory.apply(item, entity);
+    return spawnOneUnit(inventory, slot, item);
+  }
+
+  /**
+   * Spawns one unit of {@code item} and removes that unit from {@code slot}.
+   *
+   * @param inventory inventory that holds the slot
+   * @param slot slot to take from
+   * @param item item currently in the slot
+   * @return {@code true} when a unit was removed and spawned
+   */
+  private boolean spawnOneUnit(InventoryComponent inventory, int slot, Item item) {
+    Item dropped = singleUnit(item);
+    Entity loot = lootFactory.apply(dropped, entity);
     if (loot == null) {
       logger.warn("Loot factory returned null for item {}", item.getName());
       return false;
     }
 
-    Item removed = inventory.removeItem(slot);
-    if (removed == null) {
+    if (item.getQuantity() > 1) {
+      inventory.removeItem(slot, 1);
+    } else if (inventory.removeItem(slot) == null) {
       return false;
     }
 
@@ -133,13 +126,31 @@ public class ItemDropComponent extends Component {
     try {
       lootSpawner.accept(loot);
     } catch (RuntimeException exception) {
-      inventory.addItem(removed);
+      inventory.addItem(dropped);
       throw exception;
     }
 
-    logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
-    entity.getEvents().trigger("itemDropped", removed, loot);
+    logger.info("Dropped {} x{} from slot {}", dropped.getName(), dropped.getQuantity(), slot);
+    entity.getEvents().trigger("itemDropped", dropped, loot);
     return true;
+  }
+
+  /**
+   * Returns the object to spawn for one dropped unit.
+   *
+   * <p>A stack of 1 is the slot object. A larger stack is a copy with quantity 1, so the slot can
+   * keep the rest.
+   *
+   * @param item item in the slot
+   * @return item to pass to the loot factory
+   */
+  private Item singleUnit(Item item) {
+    if (item.getQuantity() <= 1) {
+      return item;
+    }
+    Item dropped = item.copy();
+    dropped.setQuantity(1);
+    return dropped;
   }
 
   /**

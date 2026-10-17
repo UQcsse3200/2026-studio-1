@@ -9,13 +9,11 @@ import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.effects.HealthEffectComponent;
 import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.loot.ConsumableGenerator;
-import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.ConsumableType;
-import com.csse3200.game.components.loot.HealEffect;
+import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
-import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.components.player.BallisticShieldComponent;
@@ -61,6 +59,7 @@ import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Factory to create a player entity.
@@ -203,9 +202,9 @@ public class PlayerFactory {
   /**
    * Fills an empty shop with the default item, upgrade, pet, and gambling products.
    *
-   * <p>Weapon prizes use {@code weaponGenerator} and consumable prizes use {@code
-   * consumableGenerator}. {@link #createPlayer()} passes the same weapon generator that built the
-   * starting weapons.
+   * <p>Item listings and item prizes use {@code weaponGenerator} and {@code consumableGenerator}.
+   * {@link #createPlayer()} passes the same weapon generator that built the starting weapons. A
+   * listing buy price is the smallest cost whose 60 percent refund equals that item's sell price.
    *
    * @param shop shop to fill
    * @param weaponGenerator generator for weapon prizes
@@ -216,15 +215,13 @@ public class PlayerFactory {
       ShopComponent shop,
       WeaponGenerator weaponGenerator,
       ConsumableGenerator consumableGenerator) {
+    Item potion = consumableGenerator.generateConsumable(ConsumableType.HEALTH_POTION, 1);
     shop.setItemListing(
-        1,
-        new ShopComponent.ShopListing<>(
-            new ConsumableItem("Potion", ConsumableType.HEALTH_POTION, new HealEffect(25), 1, 9),
-            10));
+        1, new ShopComponent.ShopListing<>(potion, buyPriceFor(potion.getSellPrice())));
+
+    Item sword = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
     shop.setItemListing(
-        2,
-        new ShopComponent.ShopListing<>(
-            new WeaponItem("Sword", WeaponType.SWORD, WeaponTier.TIER_1, 1, 1, 2f), 20));
+        2, new ShopComponent.ShopListing<>(sword, buyPriceFor(sword.getSellPrice())));
     shop.setUpgradeListing(
         1, new ShopComponent.ShopListing<>(new ShopComponent.Upgrade("Health Upgrade"), 15));
     shop.setPetListing(1, new ShopComponent.ShopListing<>(new ShopComponent.Pet("Bird"), 20));
@@ -248,18 +245,10 @@ public class PlayerFactory {
   private static GamblingCatalogs.SpinCatalog standardSpinCatalog(
       ConsumableGenerator consumableGenerator, WeaponGenerator weaponGenerator) {
     Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> prizes = new HashMap<>();
-    prizes.put(
-        1,
-        prize(
-            consumablePrize(consumableGenerator, "Health Potion", ConsumableType.HEALTH_POTION, 1),
-            40));
-    prizes.put(
-        2,
-        prize(
-            consumablePrize(consumableGenerator, "Speed Potion", ConsumableType.SPEED_BUFF, 1),
-            25));
+    prizes.put(1, prize(consumablePrize(consumableGenerator, ConsumableType.HEALTH_POTION, 1), 40));
+    prizes.put(2, prize(consumablePrize(consumableGenerator, ConsumableType.SPEED_BUFF, 1), 25));
     prizes.put(3, prize(new GamblingCatalogs.GoldPrize(15), 20));
-    prizes.put(4, prize(weaponPrize(weaponGenerator, "Basic Sword", WeaponType.SWORD, 1), 10));
+    prizes.put(4, prize(weaponPrize(weaponGenerator, WeaponType.SWORD, 1), 10));
     prizes.put(5, prize(new ShopComponent.Pet("Bird"), 5));
     return new GamblingCatalogs.SpinCatalog(20, prizes);
   }
@@ -274,32 +263,34 @@ public class PlayerFactory {
   private static GamblingCatalogs.SpinCatalog premiumSpinCatalog(
       ConsumableGenerator consumableGenerator, WeaponGenerator weaponGenerator) {
     Map<Integer, GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize>> prizes = new HashMap<>();
-    prizes.put(
-        1,
-        prize(
-            consumablePrize(
-                consumableGenerator,
-                "Regeneration Potion (Tier 2)",
-                ConsumableType.REGENERATION,
-                2),
-            35));
+    prizes.put(1, prize(consumablePrize(consumableGenerator, ConsumableType.REGENERATION, 2), 35));
     prizes.put(2, prize(new GamblingCatalogs.GoldPrize(30), 15));
-    prizes.put(3, prize(weaponPrize(weaponGenerator, "Basic Bow", WeaponType.BOW, 3), 20));
+    prizes.put(3, prize(weaponPrize(weaponGenerator, WeaponType.BOW, 3), 20));
     prizes.put(4, prize(new ShopComponent.Upgrade("Regen on Kill"), 25));
     prizes.put(5, prize(new ShopComponent.Pet("Spirit"), 5));
     return new GamblingCatalogs.SpinCatalog(60, prizes);
   }
 
   private static GamblingCatalogs.ItemPrize consumablePrize(
-      ConsumableGenerator consumableGenerator, String displayName, ConsumableType type, int tier) {
-    return new GamblingCatalogs.ItemPrize(
-        displayName, ItemType.CONSUMABLE, () -> consumableGenerator.generateConsumable(type, tier));
+      ConsumableGenerator consumableGenerator, ConsumableType type, int tier) {
+    Supplier<Item> factory = () -> consumableGenerator.generateConsumable(type, tier);
+    return new GamblingCatalogs.ItemPrize(factory.get().getName(), ItemType.CONSUMABLE, factory);
   }
 
   private static GamblingCatalogs.ItemPrize weaponPrize(
-      WeaponGenerator weaponGenerator, String displayName, WeaponType type, int tier) {
-    return new GamblingCatalogs.ItemPrize(
-        displayName, ItemType.WEAPON, () -> weaponGenerator.generateWeapon(type, tier));
+      WeaponGenerator weaponGenerator, WeaponType type, int tier) {
+    Supplier<Item> factory = () -> weaponGenerator.generateWeapon(type, tier);
+    return new GamblingCatalogs.ItemPrize(factory.get().getName(), ItemType.WEAPON, factory);
+  }
+
+  /**
+   * Returns the smallest buy price whose 60 percent integer refund equals {@code sellPrice}.
+   *
+   * @param sellPrice generator sell price
+   * @return listing buy price
+   */
+  private static int buyPriceFor(int sellPrice) {
+    return (sellPrice * 5 + 2) / 3;
   }
 
   private static GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> prize(

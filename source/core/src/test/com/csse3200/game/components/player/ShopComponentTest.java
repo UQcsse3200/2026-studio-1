@@ -197,12 +197,13 @@ class ShopComponentTest {
         PlayerFactory.installDefaultCatalog(
             shop, new WeaponGenerator(), new ConsumableGenerator()));
 
-    assertEquals("Potion", shop.getItemListing(1).getProduct().getName());
+    assertEquals("Health Potion", shop.getItemListing(1).getProduct().getName());
     assertEquals(ItemType.CONSUMABLE, shop.getItemListing(1).getProduct().getItemType());
-    assertEquals(10, shop.getItemListing(1).getBuyPrice());
+    assertEquals(17, shop.getItemListing(1).getBuyPrice());
 
-    assertEquals("Sword", shop.getItemListing(2).getProduct().getName());
+    assertEquals("Basic Sword", shop.getItemListing(2).getProduct().getName());
     assertEquals(ItemType.WEAPON, shop.getItemListing(2).getProduct().getItemType());
+    assertEquals(17, shop.getItemListing(2).getBuyPrice());
 
     assertEquals("Health Upgrade", shop.getUpgradeListing(1).getProduct().getName());
     assertEquals(15, shop.getUpgradeListing(1).getBuyPrice());
@@ -252,7 +253,7 @@ class ShopComponentTest {
     Item catalogPotion = shop.getItemListing(1).getProduct();
     assertTrue(shop.buyItem(1));
 
-    assertEquals(90, inventory.getGold());
+    assertEquals(83, inventory.getGold());
     assertInstanceOf(ConsumableItem.class, inventory.getItem(1));
     assertNotSame(catalogPotion, inventory.getItem(1));
     assertTrue(player.getComponent(ConsumableUseComponent.class).useItem(1));
@@ -281,7 +282,7 @@ class ShopComponentTest {
     Item bought = inventory.getItem(1);
     assertInstanceOf(WeaponItem.class, bought);
     assertNotSame(catalogSword, bought);
-    assertEquals(80, inventory.getGold());
+    assertEquals(83, inventory.getGold());
     assertNull(shop.getItemListing(2));
 
     List<Integer> swings = new ArrayList<>();
@@ -289,6 +290,97 @@ class ShopComponentTest {
     player.getEvents().trigger("weaponAttack");
 
     assertEquals(List.of(10), swings);
+  }
+
+  @Test
+  void shouldStampBuyRefundToTheGeneratorSellPrice() {
+    WeaponGenerator weapons = new WeaponGenerator();
+    ConsumableGenerator consumables = new ConsumableGenerator();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(new ShopComponent(), weapons, consumables);
+
+    Item potion = shop.getItemListing(1).getProduct();
+    Item sword = shop.getItemListing(2).getProduct();
+    int potionSell = consumables.generateConsumable(ConsumableType.HEALTH_POTION, 1).getSellPrice();
+    int swordSell = weapons.generateWeapon(WeaponType.SWORD, 1).getSellPrice();
+
+    assertEquals(potionSell, potion.getSellPrice());
+    assertEquals(swordSell, sword.getSellPrice());
+    assertEquals(potionSell, (shop.getItemListing(1).getBuyPrice() * 3) / 5);
+    assertEquals(swordSell, (shop.getItemListing(2).getBuyPrice() * 3) / 5);
+    assertEquals(10, sword.getMaxQuantity());
+  }
+
+  @Test
+  void shouldStackBoughtSwordOntoGeneratedSword() {
+    WeaponGenerator weapons = new WeaponGenerator();
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+    PlayerFactory.installDefaultCatalog(shop, weapons, new ConsumableGenerator());
+
+    WeaponItem starting = weapons.generateWeapon(WeaponType.SWORD, 1);
+    inventory.addItem(starting);
+    int sellPrice = starting.getSellPrice();
+    int buyPrice = shop.getItemListing(2).getBuyPrice();
+
+    assertTrue(shop.buyItem(2));
+
+    assertEquals(100 - buyPrice, inventory.getGold());
+    assertEquals(1, inventory.getOccupiedSlots());
+    assertSame(starting, inventory.getItem(1));
+    assertEquals(2, inventory.getItem(1).getQuantity());
+    assertEquals(sellPrice, inventory.getItem(1).getSellPrice());
+    assertNull(shop.getItemListing(2));
+  }
+
+  @Test
+  void shouldStackBoughtPotionOntoGeneratedPotion() {
+    ConsumableGenerator consumables = new ConsumableGenerator();
+    InventoryComponent inventory = new InventoryComponent(100);
+    ShopComponent shop = new ShopComponent();
+    attach(inventory, shop);
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), consumables);
+
+    ConsumableItem starting = consumables.generateConsumable(ConsumableType.HEALTH_POTION, 1);
+    inventory.addItem(starting);
+
+    assertTrue(shop.buyItem(1));
+
+    assertEquals(1, inventory.getOccupiedSlots());
+    assertSame(starting, inventory.getItem(1));
+    assertEquals(2, inventory.getItem(1).getQuantity());
+    assertEquals(starting.getSellPrice(), inventory.getItem(1).getSellPrice());
+    assertEquals("Health Potion", inventory.getItem(1).getName());
+  }
+
+  @Test
+  void shouldCreateAFreshGeneratorItemForEachPrize() {
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
+
+    GamblingCatalogs.ItemPrize swordPrize =
+        (GamblingCatalogs.ItemPrize)
+            shop.getPrize(GamblingCatalogs.CatalogId.STANDARD, 4).product();
+    Item first = swordPrize.create();
+    Item second = swordPrize.create();
+
+    assertEquals("Basic Sword", swordPrize.getDisplayName());
+    assertEquals(swordPrize.getDisplayName(), first.getName());
+    assertEquals(first.getName(), second.getName());
+    assertEquals(first.getSellPrice(), second.getSellPrice());
+    assertNotSame(first, second);
+    assertInstanceOf(WeaponItem.class, first);
+    assertInstanceOf(WeaponItem.class, second);
+
+    GamblingCatalogs.ItemPrize potionPrize =
+        (GamblingCatalogs.ItemPrize) shop.getPrize(GamblingCatalogs.CatalogId.PREMIUM, 1).product();
+    Item regen = potionPrize.create();
+    assertEquals("Regeneration Potion (Tier 2)", potionPrize.getDisplayName());
+    assertEquals(potionPrize.getDisplayName(), regen.getName());
+    assertInstanceOf(ConsumableItem.class, regen);
+    assertNotSame(regen, potionPrize.create());
   }
 
   @Test
