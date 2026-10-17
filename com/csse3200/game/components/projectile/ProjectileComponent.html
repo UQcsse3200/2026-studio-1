@@ -100,8 +100,10 @@ loadScripts(document, 'script');</script>
  of whether the configured movement strategy actually travels in a straight line.
 
  <p>A projectile can also be despawned earlier by something else - e.g. <a href="ProjectileHitComponent.html" title="class in com.csse3200.game.components.projectile"><code>ProjectileHitComponent</code></a> - firing a <code>"projectileExpired"</code> event on the same entity, which
- this component listens for. This keeps collision/damage resolution completely decoupled from
- despawn/lifecycle logic: <a href="ProjectileHitComponent.html" title="class in com.csse3200.game.components.projectile"><code>ProjectileHitComponent</code></a> does not need to know this class exists.
+ this component listens for. The event requests despawning; <a href="#update()"><code>update()</code></a> performs it after
+ the physics step, when Box2D permits body changes. This keeps collision/damage resolution
+ completely decoupled from despawn/lifecycle logic: <a href="ProjectileHitComponent.html" title="class in com.csse3200.game.components.projectile"><code>ProjectileHitComponent</code></a> does not need
+ to know this class exists.
 
  <p><b>Despawning does not call <a href="../../entities/Entity.html#dispose()"><code>Entity.dispose()</code></a>.</b> Instead it disables the entity and
  moves it far outside the playable area. <code>Entity.dispose()</code> unregisters the entity from

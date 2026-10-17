@@ -94,7 +94,13 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PetMovementComponent</span>
 <span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
-<div class="block">Keeps a companion pet hovering above and behind its owner.</div>
+<div class="block">Keeps a companion pet hovering above and behind its owner.
+
+ <p>After three seconds without owner movement, the pet turns through all four directions once.
+ Two seconds after the turn, it flies to the other side of the owner and back. Each trip takes two
+ seconds and starts every four seconds while the owner stays still. Moving or having an active
+ combat target resets the idle sequence; the pet keeps following its owner during combat. Idle
+ timing uses game time, so it pauses with the game.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
