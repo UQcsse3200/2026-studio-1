@@ -21,6 +21,7 @@ import com.csse3200.game.areas.terrain.map.SpawnPoint;
 import com.csse3200.game.areas.terrain.map.TileDefinition;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
+import com.csse3200.game.components.enemies.EnemyTypeComponent;
 import com.csse3200.game.components.gamearea.GameAreaDisplay;
 import com.csse3200.game.components.lighting.EmitterScanner;
 import com.csse3200.game.components.lighting.LightColour;
@@ -38,27 +39,23 @@ import com.csse3200.game.components.loot.LootTable;
 import com.csse3200.game.components.loot.PersistentLootIdComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.components.npc.EnemyTypeComponent;
 import com.csse3200.game.components.npc.NameComponent;
 import com.csse3200.game.components.npc.NameDisplay;
 import com.csse3200.game.components.player.LadderComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.room.RoomTransitionComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.factories.LootFactory;
-import com.csse3200.game.entities.factories.NPCFactory;
-import com.csse3200.game.entities.factories.ObstacleFactory;
-import com.csse3200.game.entities.factories.PlayerFactory;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
-import com.csse3200.game.entities.spawn.EnemyId;
-import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.factories.*;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.entities.spawn.NpcQuestRegistry;
-import com.csse3200.game.entities.spawn.PersistentEnemyIdComponent;
 import com.csse3200.game.entities.spawn.PersistentNpcComponent;
+import com.csse3200.game.entities.spawn.enemies.EnemyId;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
+import com.csse3200.game.entities.spawn.enemies.PersistentEnemyIdComponent;
 import com.csse3200.game.events.listeners.EventListener2;
 import com.csse3200.game.pausemenu.AudioSettings;
-import com.csse3200.game.perks.TortoiseFactory;
+import com.csse3200.game.perks.tortoises.TortoiseCarrierAssigner;
+import com.csse3200.game.perks.tortoises.TortoiseFactory;
 import com.csse3200.game.physics.BodyUserData;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.ColliderComponent;
@@ -94,6 +91,7 @@ import org.slf4j.LoggerFactory;
 public class LevelGameArea extends GameArea {
   private static final Logger logger = LoggerFactory.getLogger(LevelGameArea.class);
   private static final float COLLIDER_HEIGHT = 0.2f;
+
   private static final String LEVEL_1_NAME = "Level 1 - Out of the Underworld";
   private static final String TORTOISE_LEVEL_1_A_ID = "level1_a";
   private static final GridPoint2 TORTOISE_LEVEL_1_A_SPAWN = new GridPoint2(52, 5);
@@ -120,8 +118,6 @@ public class LevelGameArea extends GameArea {
     "images/knight_default.png",
     "images/player/box_boy_crouch.png",
     "images/player/box_boy_slide.png",
-    "images/enemies/ghost_king.png",
-    "images/enemies/ghost_1.png",
     "images/items/sword.png",
     "images/items/sword_t2.png",
     "images/items/sword_t3.png",
@@ -165,9 +161,7 @@ public class LevelGameArea extends GameArea {
     "images/items/gold_coin/gold_coin.atlas",
     "images/pet.atlas",
     "images/tortoise.atlas",
-    "images/enemies/ghost.atlas",
     "images/KnightEffects.atlas",
-    "images/enemies/ghostKing.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
     "images/enemies/minotaur.atlas",
@@ -313,7 +307,7 @@ public class LevelGameArea extends GameArea {
 
   @Override
   public void create() {
-    DefaultEntitySpawns.registerAll();
+    EnemyFactory.registerEnemySpawns();
     NPCFactory.registerNpcSpawns();
     mapData = mapLoader.load(mapPath);
     loadAssets();
@@ -920,6 +914,10 @@ public class LevelGameArea extends GameArea {
   }
 
   private void spawnEnemies() {
+    List<Entity> enemies = new ArrayList<>();
+    List<GridPoint2> positions = new ArrayList<>();
+
+    // 1. Build every enemy but do not register or create any yet.
     for (SpawnPoint spawn : mapData.getSpawns().getEnemies()) {
       String id = EnemyId.of(mapData.getName(), spawn.getPosition());
       if (EnemyRegistry.isKilled(id)) {
@@ -927,20 +925,47 @@ public class LevelGameArea extends GameArea {
         continue;
       }
       Entity enemy = createEnemy(spawn.getType());
-      if (enemy != null) {
-        enemy.addComponent(new PersistentEnemyIdComponent(id));
-        armWinTrigger(enemy, id);
-
-        if (enemy.getComponent(NameComponent.class) != null) {
-          enemy.addComponent(new NameDisplay(enemy, worldCamera));
-        }
-        spawnEntityAt(enemy, spawn.getPosition(), true, true);
-        logger.info(
-            "Enemy: {} spawned at {}",
-            enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
-            enemy.getPosition());
+      if (enemy == null) {
+        continue;
       }
+      enemy.addComponent(new PersistentEnemyIdComponent(id));
+      armWinTrigger(enemy, id);
+      if (enemy.getComponent(NameComponent.class) != null) {
+        enemy.addComponent(new NameDisplay(enemy, worldCamera));
+      }
+      enemies.add(enemy);
+      positions.add(spawn.getPosition());
     }
+
+    // 2. Hand out tortoises while the enemies can still accept a component.
+    List<String> groundIds =
+        TortoiseCarrierAssigner.assign(mapData.getName(), enemies, new Random());
+
+    // 3. Now register/create them.
+    for (int i = 0; i < enemies.size(); i++) {
+      Entity enemy = enemies.get(i);
+      spawnEntityAt(enemy, positions.get(i), true, true);
+      logger.info(
+          "Enemy: {} spawned at {}",
+          enemy.getComponent(EnemyTypeComponent.class).getEnemyLabel(),
+          enemy.getPosition());
+    }
+
+    // 4. Tortoises with no carrier (none eligible, or the carrier is already dead) go on the
+    // ground.
+    for (int i = 0; i < groundIds.size(); i++) {
+      spawnTortoiseIfNotFound(groundIds.get(i), fallbackSpawn(i));
+    }
+  }
+
+  /** A spot near the player's start, spread out so several ground tortoises do not stack. */
+  private GridPoint2 fallbackSpawn(int index) {
+    GridPoint2 start = mapData.getSpawns().getPlayer();
+    if (start == null) {
+      start = new GridPoint2(1, 1);
+    }
+    int x = Math.min(start.x + 3 + index * 2, Math.max(0, mapData.getWidth() - 2));
+    return new GridPoint2(x, start.y);
   }
 
   /**
@@ -1174,6 +1199,25 @@ public class LevelGameArea extends GameArea {
     super.dispose();
     ServiceLocator.getResourceService().getAsset(BACKGROUND_MUSIC, Music.class).stop();
     unloadAssets();
+  }
+
+  /**
+   * Debug helper: kills the final boss if he is in this area.
+   *
+   * @return true if the final boss was here and alive, false otherwise
+   */
+  public boolean killFinalBoss() {
+    for (Entity entity : areaEntities) {
+      if (entity.getComponent(BossDefeatedWinComponent.class) == null) {
+        continue;
+      }
+      CombatStatsComponent stats = entity.getComponent(CombatStatsComponent.class);
+      if (stats != null && !stats.isDead()) {
+        stats.setHealth(0);
+        return true;
+      }
+    }
+    return false;
   }
 
   // Spawns the NPC placed at each "npc" marker in this map.

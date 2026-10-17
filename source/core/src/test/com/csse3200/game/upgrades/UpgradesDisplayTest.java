@@ -1,6 +1,8 @@
 package com.csse3200.game.upgrades;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -334,6 +336,21 @@ class UpgradesDisplayTest {
     assertEquals(0, stats.getShieldHits()); // reset to 0, not left at the 2 that were unused
   }
 
+  @Test
+  void shieldExpiryWithNoPlayerSetDoesNotThrow() throws Exception {
+    // Regression test for the null-check fix in removeShieldEffect(): no display.setPlayer()
+    // call at all here, so applyShieldEffect()'s flash/shield-hit effect no-ops (player is still
+    // null), same as theFirstSetPlayerCallAtGameStartClearsNothing() - but the node itself still
+    // becomes active regardless, and still expires normally via tickTime(). removeShieldEffect()
+    // used to call player.getComponent(...) directly and throw an NPE the moment that happened.
+    UpgradeNode shield = getDefenceUpgrades().get(0); // "shield_durability"
+    shield.purchaseNextTier(); // Tier 1: 20s, 3 shield hits (never applied - no player yet)
+
+    assertDoesNotThrow(() -> shield.tickTime(21f)); // more than enough to fully expire
+
+    assertEquals(0, shield.getCurrentTier());
+  }
+
   // --- Regen on Kill (defenceUpgrades.get(1), "regen_on_kill") ---
   //
   // TIME-based like Shield Durability, but its effect fires from onEnemyKilled() rather than from
@@ -495,6 +512,32 @@ class UpgradesDisplayTest {
     assertEquals(5, fired.size());
   }
 
+  /**
+   * Regression test: UpgradeNode.restore() (used to silently reapply a saved upgrade on load) used
+   * to fire the same tier-changed callback as a fresh purchase, including the "upgradeActivated"
+   * flash - popping the activation flash for every active upgrade the instant a save loaded. The
+   * gameplay effect must still apply either way; only the flash differs.
+   */
+  @Test
+  void restoringAnUpgradeAppliesItsEffectButDoesNotFireUpgradeActivated() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    CombatStatsComponent stats = player.getComponent(CombatStatsComponent.class);
+
+    List<Object> fired = new ArrayList<>();
+    player.getEvents().addListener("upgradeActivated", () -> fired.add(new Object()));
+
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    swordDamage.restore(1, 0f, 2); // as if loaded from a save: Tier 1, 2 kills remaining
+
+    assertEquals(15, stats.getBaseAttack()); // effect still applied: base 10 + Tier 1's +5
+    assertEquals(0, fired.size()); // but no activation flash for a silent restore
+
+    swordDamage.purchaseNextTier(); // Tier 2 - a REAL purchase this time
+
+    assertEquals(1, fired.size()); // normal purchases still fire the flash as before
+  }
+
   // --- clearAllUpgrades() wiring via setPlayer() ---
   //
   // Regression tests for the revive bug: MainGameScreen.revivePlayer() creates a brand-new player
@@ -588,6 +631,25 @@ class UpgradesDisplayTest {
   }
 
   @Test
+  void settingTheSamePlayerTwiceStillCountsOneKillAsOne() throws Exception {
+    // Regression test: setPlayer() used to add an "enemyKilled" listener unconditionally, even
+    // when newPlayer was the SAME entity already set - so calling it twice with the same entity
+    // left two listeners pointing at onEnemyKilled(), and a single real kill fired it twice,
+    // double-counting against every kill-count upgrade. The Javadoc already promised the same
+    // entity is a true no-op; now it actually is one.
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    display.setPlayer(player); // same entity again - must add no second listener
+
+    UpgradeNode swordDamage = getActionUpgrades().get(0);
+    swordDamage.purchaseNextTier(); // Tier 1: 2 kills remaining
+
+    killEnemies(player, 1); // exactly one real "enemyKilled" trigger
+
+    assertEquals("1 kills left", swordDamage.getRemainingText()); // dropped by exactly 1, not 2
+  }
+
+  @Test
   void theFirstSetPlayerCallAtGameStartClearsNothing() throws Exception {
     UpgradeNode swordDamage = getActionUpgrades().get(0);
     // Bought before any player has ever been set - this.player is still null inside display, so
@@ -599,5 +661,97 @@ class UpgradesDisplayTest {
     display.setPlayer(playerA); // first-ever call
 
     assertEquals(1, swordDamage.getCurrentTier()); // untouched - nothing to clear from
+  }
+
+  // --- onEnemyKilled() guard, getShieldHitsRemaining() ---
+
+  /**
+   * Regression/defensive test: onEnemyKilled() is driven by the player's own "enemyKilled" event
+   * once setPlayer() has run, so by the time it fires player is already non-null - its own {@code
+   * player == null} guard can only be exercised by calling the private method directly.
+   */
+  @Test
+  void onEnemyKilledWithNoPlayerSetDoesNotThrow() throws Exception {
+    Method method = UpgradesDisplay.class.getDeclaredMethod("onEnemyKilled");
+    method.setAccessible(true);
+
+    assertDoesNotThrow(() -> method.invoke(display));
+  }
+
+  /** getShieldHitsRemaining() returns 0 when no player has been set yet. */
+  @Test
+  void getShieldHitsRemainingIsZeroWithNoPlayerSet() {
+    assertEquals(0, display.getShieldHitsRemaining());
+  }
+
+  /** getShieldHitsRemaining() reflects the player's CombatStatsComponent shield-hit count. */
+  @Test
+  void getShieldHitsRemainingReflectsThePlayersCombatStats() {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+    player.getComponent(CombatStatsComponent.class).setShieldHits(4);
+
+    assertEquals(4, display.getShieldHitsRemaining());
+  }
+
+  // --- Regen on Kill's own expiry (removeRegenEffect() has no persistent stat to remove) ---
+
+  /**
+   * Regen on Kill fully expires like every other timed upgrade, even though it has no effect to
+   * undo.
+   */
+  @Test
+  void regenOnKillFullyExpiresAfterItsDurationElapses() throws Exception {
+    Entity player = newPlayerEntity();
+    display.setPlayer(player);
+
+    UpgradeNode regenOnKill = getDefenceUpgrades().get(1); // "regen_on_kill"
+    regenOnKill.purchaseNextTier(); // Tier 1: 15s remaining
+
+    regenOnKill.tickTime(16f); // more than enough to fully expire
+
+    assertEquals(0, regenOnKill.getCurrentTier());
+  }
+
+  // --- Attack Speed without a PlayerActions component ---
+
+  /** Buying and expiring Attack Speed without a PlayerActions component must not throw. */
+  @Test
+  void attackSpeedWithoutPlayerActionsDoesNotThrowOnApplyOrExpiry() throws Exception {
+    Entity player = new Entity(); // no PlayerActions component at all
+    display.setPlayer(player);
+    UpgradeNode attackSpeed = getActionUpgrades().get(1); // "attack_speed"
+
+    assertDoesNotThrow(attackSpeed::purchaseNextTier); // Tier 1: 5 kills remaining
+
+    assertDoesNotThrow(() -> killEnemies(player, 5)); // exhausts the 5 kills -> fully expires
+
+    assertEquals(0, attackSpeed.getCurrentTier());
+  }
+
+  /**
+   * A kill with an active Regen on Kill upgrade must not throw if the player has no
+   * CombatStatsComponent.
+   */
+  @Test
+  void regenOnKillWithoutCombatStatsComponentDoesNotThrow() throws Exception {
+    Entity player = new Entity().addComponent(new PlayerActions()); // no CombatStatsComponent
+    display.setPlayer(player);
+    getDefenceUpgrades().get(1).purchaseNextTier(); // "regen_on_kill" Tier 1
+
+    assertDoesNotThrow(() -> killEnemies(player, 1));
+  }
+
+  /** dispose() clears the root table's actors, same as every other UIComponent's dispose(). */
+  @Test
+  void disposeClearsTheRootTablesActors() throws Exception {
+    Field field = UpgradesDisplay.class.getDeclaredField("root");
+    field.setAccessible(true);
+    Table root = (Table) field.get(display);
+    assertTrue(root.getChildren().size > 0); // populated by addActors() during create()
+
+    display.dispose();
+
+    assertEquals(0, root.getChildren().size);
   }
 }

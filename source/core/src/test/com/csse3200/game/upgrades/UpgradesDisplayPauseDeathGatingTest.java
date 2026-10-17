@@ -158,6 +158,27 @@ class UpgradesDisplayPauseDeathGatingTest {
     assertEquals(1, playerSpeed.getCurrentTier());
   }
 
+  /**
+   * Regression test: {@code draw()} used to tick with {@code Gdx.graphics.getDeltaTime()} directly
+   * rather than {@code ServiceLocator.getTimeSource().getDeltaTime()} - the same source every other
+   * time-scaled system reads - so a {@code GameTime} with a different delta than the stubbed {@code
+   * Gdx.graphics} (set up in beforeEach()) proves which one draw() actually uses.
+   */
+  @Test
+  void tickingUsesTheGameClockDeltaNotTheRawGdxDelta() throws Exception {
+    UpgradeNode playerSpeed = getMovementUpgrades().get(0);
+    playerSpeed.purchaseNextTier(); // 10s remaining
+
+    GameTime scaledTime = mock(GameTime.class);
+    when(scaledTime.getDeltaTime()).thenReturn(3f); // deliberately NOT the stubbed Gdx 1f
+    ServiceLocator.registerTimeSource(scaledTime);
+
+    display.draw(null);
+
+    // 10 - 3, not 10 - 1 - proves draw() read the game clock's delta, not Gdx's raw one.
+    assertEquals(7f, getRemainingSeconds(playerSpeed), 0.0001f);
+  }
+
   @Test
   void tickingResumesFromTheExactFrozenValueOnceNoLongerDead() throws Exception {
     UpgradeNode playerSpeed = getMovementUpgrades().get(0);

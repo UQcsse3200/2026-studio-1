@@ -2,10 +2,10 @@ package com.csse3200.game.perks;
 
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.Component;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
-import com.csse3200.game.components.npc.EnemyDeathComponent;
+import com.csse3200.game.components.enemies.EnemyDeathComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.physics.components.PhysicsMovementComponent;

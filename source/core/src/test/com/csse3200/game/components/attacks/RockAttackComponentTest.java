@@ -12,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.AttackTestWorld;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RockAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;

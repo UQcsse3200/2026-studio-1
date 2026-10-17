@@ -10,8 +10,9 @@ import static org.mockito.Mockito.when;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.enemies.attacks.ChargeComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
-import com.csse3200.game.events.listeners.EventListener0;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.PhysicsService;
@@ -172,7 +173,7 @@ class ChargeComponentTouchDamageTest {
     stepWorld(2);
     ChargeComponent charge = attacker.getComponent(ChargeComponent.class);
     AtomicInteger ended = new AtomicInteger();
-    attacker.getEvents().addListener("chargeEnd", (EventListener0) ended::incrementAndGet);
+    attacker.getEvents().addListener("chargeEnd", ended::incrementAndGet);
 
     charge.startCharge(FAR_TARGET);
     step(attacker, WINDUP_AND_ONE_FRAMES);
@@ -267,7 +268,7 @@ class ChargeComponentTouchDamageTest {
     Entity attacker = createAttacker();
     ChargeComponent charge = attacker.getComponent(ChargeComponent.class);
     AtomicInteger ended = new AtomicInteger();
-    attacker.getEvents().addListener("chargeEnd", (EventListener0) ended::incrementAndGet);
+    attacker.getEvents().addListener("chargeEnd", ended::incrementAndGet);
 
     charge.startCharge(FAR_TARGET);
     step(attacker, (int) (CHARGE / DELTA) + 3);
@@ -306,7 +307,7 @@ class ChargeComponentTouchDamageTest {
   void shouldDoNothingWhenEndChargeIsCalledWhileNotCharging() {
     Entity attacker = createAttacker();
     AtomicInteger ended = new AtomicInteger();
-    attacker.getEvents().addListener("chargeEnd", (EventListener0) ended::incrementAndGet);
+    attacker.getEvents().addListener("chargeEnd", ended::incrementAndGet);
 
     assertDoesNotThrow(() -> attacker.getComponent(ChargeComponent.class).endCharge());
 
@@ -338,7 +339,7 @@ class ChargeComponentTouchDamageTest {
     charge.startCharge(FAR_TARGET);
     step(attacker, WINDUP_AND_ONE_FRAMES); // hit, charge over, cooling down
     AtomicInteger started = new AtomicInteger();
-    attacker.getEvents().addListener("chargeStart", (EventListener0) started::incrementAndGet);
+    attacker.getEvents().addListener("chargeStart", started::incrementAndGet);
 
     charge.startCharge(FAR_TARGET);
 
@@ -391,7 +392,7 @@ class ChargeComponentTouchDamageTest {
     Entity attacker = createAttacker();
     ChargeComponent charge = attacker.getComponent(ChargeComponent.class);
     AtomicInteger ended = new AtomicInteger();
-    attacker.getEvents().addListener("chargeEnd", (EventListener0) ended::incrementAndGet);
+    attacker.getEvents().addListener("chargeEnd", ended::incrementAndGet);
 
     assertDoesNotThrow(() -> attacker.getEvents().trigger("movementBlocked"));
 

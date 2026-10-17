@@ -3,19 +3,32 @@ package com.csse3200.game.Quests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.csse3200.game.components.QuestGiverComponent;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.components.loot.WeaponType;
+import com.csse3200.game.components.player.InventoryComponent;
+import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.entities.Entity;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ShieldsCollectedQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
+  static Entity player;
+  ShieldComponent shieldComponent;
+  static InventoryComponent inventoryComponent;
 
-  @BeforeAll
-  public static void createAQuestEntity() {
+  @BeforeEach
+  public void createAQuestEntity() {
     entity = new Entity();
-    questGiverComponent = new QuestGiverComponent(null, 0);
+    player = new Entity();
+    shieldComponent = new ShieldComponent();
+    player.addComponent(shieldComponent);
+    questGiverComponent = new QuestGiverComponent(player);
     entity.addComponent(questGiverComponent);
+    inventoryComponent = new InventoryComponent(0);
+    player.addComponent(inventoryComponent);
   }
 
   @Test
@@ -137,5 +150,66 @@ public class ShieldsCollectedQuestTest {
         "The questGiverComponent did not throw a NullPointerException when it "
             + "called checkShieldsCollectedQuestComplete when it did not create a"
             + "GoldSpentQuest");
+  }
+
+  @Test
+  public void testIfShieldsCollectedChangesQuestProgress() {
+    questGiverComponent.logShieldsCollectedQuest(2);
+    shieldComponent.grantShield();
+    assertEquals(50, questGiverComponent.checkShieldsCollectedQuestComplete());
+  }
+
+  @Test
+  public void testIfShieldsCollectedGiveProgressOver100() {
+    questGiverComponent.logShieldsCollectedQuest(1);
+    shieldComponent.grantShield();
+    shieldComponent.grantShield();
+    assertEquals(100, questGiverComponent.checkShieldsCollectedQuestComplete());
+  }
+
+  @Test
+  public void checkIfGivingShieldsToCollectAsZeroThrows() {
+    int number = 0;
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> questGiverComponent.logShieldsCollectedQuest(number),
+        "When the constructor for ShieldsCollectedQuest was given "
+            + number
+            + " as the "
+            + "parameter for shieldsToCollect, the constructor didn't throw an exception");
+  }
+
+  @Test
+  public void testIfGoldRewardIsGivenIfShieldQuestCompletedAndCleared() {
+    int goldToGive = 10;
+    questGiverComponent.setGoldToGive(goldToGive);
+    questGiverComponent.logShieldsCollectedQuest(1);
+    shieldComponent.grantShield();
+    questGiverComponent.clearShieldsCollectedQuest();
+    assertEquals(goldToGive, inventoryComponent.getGold());
+  }
+
+  @Test
+  public void testIfItemRewardIsGivenIfShieldQuestCompletedAndCleared() {
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logShieldsCollectedQuest(1);
+    shieldComponent.grantShield();
+    questGiverComponent.clearShieldsCollectedQuest();
+    assertEquals(inventoryComponent.getItem(1), weapon);
+  }
+
+  @Test
+  public void testIfRewardIsNotGivenIfShieldQuestIsNotCompletedAndCleared() {
+    int goldToGive = 10;
+    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
+    questGiverComponent.setGoldToGive(goldToGive);
+    questGiverComponent.setItemToGive(weapon);
+    questGiverComponent.logShieldsCollectedQuest(1);
+    questGiverComponent.clearShieldsCollectedQuest();
+    assertEquals(0, inventoryComponent.getGold());
+    assertNull(inventoryComponent.getItem(1));
   }
 }
