@@ -1149,12 +1149,13 @@ public class NPCFactory {
    */
   private static Entity createBaseStationaryNPC() {
     Entity npc =
-        new Entity()
-            .addComponent(new PhysicsComponent())
-            .addComponent(new PhysicsMovementComponent())
-            .addComponent(new ColliderComponent())
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(new AITaskComponent());
+            new Entity()
+                    .addComponent(new PhysicsComponent())
+                    .addComponent(new PhysicsMovementComponent())
+                    .addComponent(new ColliderComponent())
+                    .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+                    .addComponent(new AITaskComponent())
+                    .addComponent(new NameComponent(nameGenerator.generateName()));
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     npc.getComponent(PhysicsMovementComponent.class).setGroundedMovement(true);
@@ -1175,13 +1176,14 @@ public class NPCFactory {
             .addTask(new WanderTask(new Vector2(2f, 2f), 2f))
             .addTask(new ChaseTask(target, 10, 3f, 4f));
     Entity npc =
-        new Entity()
-            .addComponent(new PhysicsComponent())
-            .addComponent(new PhysicsMovementComponent())
-            .addComponent(new ColliderComponent())
-            .addComponent(new FlightComponent(flightDamping))
-            .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
-            .addComponent(aiComponent);
+            new Entity()
+                    .addComponent(new PhysicsComponent())
+                    .addComponent(new PhysicsMovementComponent())
+                    .addComponent(new ColliderComponent())
+                    .addComponent(new FlightComponent(flightDamping))
+                    .addComponent(new HitboxComponent().setLayer(PhysicsLayer.NPC))
+                    .addComponent(aiComponent)
+                    .addComponent(new NameComponent(nameGenerator.generateName()));
 
     PhysicsUtils.setScaledCollider(npc, 0.9f, 0.7f);
     // Not grounded, so the wander and chase tasks steer in both axes.
