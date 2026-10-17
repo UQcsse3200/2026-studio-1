@@ -74,10 +74,11 @@ public class Tutorial extends UIComponent {
 
   /** Builds and centres the guide. */
   private void addActors() {
+
     rootTable = new Table();
     rootTable.setFillParent(true);
-    rootTable.setTouchable(Touchable.disabled);
-    rootTable.align(Align.center);
+    rootTable.align(Align.top);
+    rootTable.padTop(480f);
 
     Table card = new Table();
     card.setBackground(panel);
