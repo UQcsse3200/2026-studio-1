@@ -14,8 +14,9 @@ import com.csse3200.game.services.ServiceLocator;
 /**
  * Controls a pet projectile's flight, contact damage, and deferred cleanup.
  *
- * <p>Only the enemy confirmed by the player hit can take damage. Damage uses the owner's combat
- * stats for kill credit, without emitting {@code playerAttackHit} and triggering another assist.
+ * <p>Projectiles pass through terrain, and only the enemy confirmed by the player hit can take
+ * damage. Damage uses the owner's combat stats for kill credit, without emitting {@code
+ * playerAttackHit} and triggering another assist.
  */
 public class PetProjectileComponent extends Component {
   private static final float LIFETIME = 4f;
@@ -83,10 +84,6 @@ public class PetProjectileComponent extends Component {
     }
 
     short layer = other.getFilterData().categoryBits;
-    if (PhysicsLayer.contains(PhysicsLayer.OBSTACLE, layer)) {
-      expire();
-      return;
-    }
     if (!PhysicsLayer.contains(PhysicsLayer.NPC, layer)) {
       return;
     }

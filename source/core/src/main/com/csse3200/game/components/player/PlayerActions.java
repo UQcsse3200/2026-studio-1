@@ -567,20 +567,31 @@ public class PlayerActions extends Component {
   }
 
   private void slide(boolean pressed) {
-    if (pressed) {
-      if (staminaComponent == null
-          || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
-        return;
-      }
-
-      staminaComponent.useStamina(staminaComponent.getSlideCost());
-
-      sliding = true;
-      slideTimer = 0;
-      slidingAction(walkDirection.cpy());
-    } else {
+    // Always allow the slide to stop when the key is released.
+    if (!pressed) {
       sliding = false;
+      return;
     }
+
+    // Do not consume stamina if the player is stationary.
+    if (walkDirection.isZero()) {
+      return;
+    }
+
+    if (dead || frozen) {
+      return;
+    }
+
+    if (staminaComponent == null
+        || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
+      return;
+    }
+
+    staminaComponent.useStamina(staminaComponent.getSlideCost());
+
+    sliding = true;
+    slideTimer = 0;
+    slidingAction(walkDirection.cpy());
   }
 
   private void slidingAction(Vector2 direction) {

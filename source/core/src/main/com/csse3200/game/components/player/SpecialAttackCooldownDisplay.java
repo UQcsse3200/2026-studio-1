@@ -62,7 +62,9 @@ public class SpecialAttackCooldownDisplay extends UIComponent {
   }
 
   @Override
-  public void draw(SpriteBatch batch) {}
+  public void draw(SpriteBatch batch) {
+    // Rendering is handled by the Stage actors created by this UI component.
+  }
 
   @Override
   public void dispose() {

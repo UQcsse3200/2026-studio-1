@@ -1,7 +1,6 @@
 package com.csse3200.game.components.player;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +37,7 @@ class ArrowMovementComponentTest {
 
     verify(body).setType(BodyType.KinematicBody);
     verify(body).setGravityScale(0f);
-    verify(body).setLinearVelocity(eq(new Vector2(0f, 8f)));
+    verify(body).setLinearVelocity(new Vector2(0f, 8f));
 
     arrow.dispose();
   }
