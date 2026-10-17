@@ -30,6 +30,7 @@ import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.NoclipInputComponent;
 import com.csse3200.game.components.player.ProgressionMiniMapDisplay;
 import com.csse3200.game.components.player.ShopDisplay;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
 import com.csse3200.game.difficulty.Difficulty;
@@ -717,6 +718,18 @@ public class MainGameScreen extends ScreenAdapter {
     logger.info("God mode {}", enabled ? "enabled" : "disabled");
   }
 
+  private void setUnlimitedStamina(boolean enabled) {
+    Entity player = getPlayerEntity();
+    StaminaComponent stamina = player == null ? null : player.getComponent(StaminaComponent.class);
+    if (stamina == null) {
+      logger.warn("Cannot change unlimited stamina: the current player has no stamina component");
+      return;
+    }
+
+    stamina.setUnlimitedStamina(enabled);
+    logger.info("Unlimited stamina {}", enabled ? "enabled" : "disabled");
+  }
+
   private void createSubLevelTravelPrompt(Entity player) {
 
     subLevelTravelPromptEntity =
@@ -818,6 +831,7 @@ public class MainGameScreen extends ScreenAdapter {
                 "lvl3", () -> debugTeleport(THIRD_ROOM_MAP, null))));
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
+    terminal.addCommand("stamina", new StaminaCommand(this::setUnlimitedStamina));
     terminal.addCommand("perk", new PerkCommand());
     terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
