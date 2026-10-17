@@ -97,9 +97,8 @@ public class MedusaAnimationController extends Component {
         }
       }
     } else {
-      if (!isAttacking
-          && (currentAnimState == AnimationState.ATTACK_LEFT
-              || currentAnimState == AnimationState.ATTACK_RIGHT)) {
+      if (currentAnimState == AnimationState.ATTACK_LEFT
+          || currentAnimState == AnimationState.ATTACK_RIGHT) {
         currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
         triggerStateEvent(currentAnimState);
       }

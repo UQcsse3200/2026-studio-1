@@ -102,11 +102,10 @@ public class ZeusAnimationController extends Component {
         }
       }
     } else {
-      if (!isAttacking
-          && (currentAnimState == AnimationState.STRIKE_LEFT
-              || currentAnimState == AnimationState.STRIKE_RIGHT
-              || currentAnimState == AnimationState.SLAM_LEFT
-              || currentAnimState == AnimationState.SLAM_RIGHT)) {
+      if (currentAnimState == AnimationState.STRIKE_LEFT
+          || currentAnimState == AnimationState.STRIKE_RIGHT
+          || currentAnimState == AnimationState.SLAM_LEFT
+          || currentAnimState == AnimationState.SLAM_RIGHT) {
         currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
         triggerStateEvent(currentAnimState);
       }
