@@ -90,28 +90,32 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="caption"><span>Classes</span></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button></div>
+<div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="EnemyDeathComponent.html" title="class in com.csse3200.game.components.enemies">EnemyDeathComponent</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="EnemyTypeComponent.html" title="class in com.csse3200.game.components.enemies">EnemyTypeComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="FlightComponent.html" title="class in com.csse3200.game.components.enemies">FlightComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="EnemyType.html" title="enum class in com.csse3200.game.components.enemies">EnemyType</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab3">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="EnemyTypeComponent.html" title="class in com.csse3200.game.components.enemies">EnemyTypeComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="FlightComponent.html" title="class in com.csse3200.game.components.enemies">FlightComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Makes an entity fly: zeroes its physics body's gravity scale once created, so the world's gravity
  never pulls it down between steering updates, and applies linear damping so knockback impulses
  fade out instead of carrying the entity away indefinitely (ground NPCs get the same effect for
  free from floor friction, which a flying entity has none of).</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="HazardAvoidanceComponent.html" title="class in com.csse3200.game.components.enemies">HazardAvoidanceComponent</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="HazardAvoidanceComponent.html" title="class in com.csse3200.game.components.enemies">HazardAvoidanceComponent</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Makes a grounded enemy stop at the edge of a hazard instead of walking into it.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="HazardContactDamageComponent.html" title="class in com.csse3200.game.components.enemies">HazardContactDamageComponent</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="HazardContactDamageComponent.html" title="class in com.csse3200.game.components.enemies">HazardContactDamageComponent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Lets an entity take damage from hazard tiles it touches: spikes, rivers and fire alike.</div>
+</div>
 </div>
 </div>
 </div>
