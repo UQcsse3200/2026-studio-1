@@ -300,6 +300,7 @@ public class PerkSelectionDisplay extends UIComponent {
     refreshCard(selectedIndex);
   }
 
+
   private void refreshCard(int index) {
     if (cardFrames == null || perks == null || index < 0 || index >= cardFrames.length) {
       return;
@@ -307,19 +308,31 @@ public class PerkSelectionDisplay extends UIComponent {
 
     Perk perk = perks.get(index);
     Table frame = cardFrames[index];
-    Table card = (Table) frame.getChild(0);
+
     frame.setBackground(skin.newDrawable(WHITE, borderColorFor(perk, index)));
+
+    // Some tests inject frames without the complete UI hierarchy.
+    if (frame.getChildren().size == 0) {
+      return;
+    }
+
+    Table card = (Table) frame.getChild(0);
     card.setBackground(skin.newDrawable(WHITE, panelColorFor(perk)));
 
-    // Update the decorative strip and text/progress colours after activation toggles.
+    // The accent strip exists in fully constructed UI cards.
+    if (card.getChildren().size == 0) {
+      return;
+    }
+
     Table accent = (Table) card.getChild(0);
     accent.setBackground(
-        skin.newDrawable(
-            WHITE,
-            perk.isActive()
-                ? new Color(0.95f, 0.69f, 0.28f, 1f)
-                : new Color(0.18f, 0.58f, 0.54f, 1f)));
+            skin.newDrawable(
+                    WHITE,
+                    perk.isActive()
+                            ? new Color(0.95f, 0.69f, 0.28f, 1f)
+                            : new Color(0.18f, 0.58f, 0.54f, 1f)));
   }
+
 
   private void updateFocus() {
     if (cardFrames != null) {
@@ -328,7 +341,7 @@ public class PerkSelectionDisplay extends UIComponent {
       }
     }
     if (continueButton != null) {
-      continueButton.setColor(selectedIndex == perks.size() ? FOCUS_BORDER_COLOR : Color.WHITE);
+      continueButton.setColor(selectedIndex == perks.size() ? Color.CYAN : Color.WHITE);
     }
   }
 
