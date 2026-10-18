@@ -1,13 +1,15 @@
 package com.csse3200.game.components.npc;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.pausemenu.KeybindSettings;
 
-/** Opens the shop with F while the player is in dialogue range, and closes it when they leave. */
+/** Opens the shop with the shop key while the player is in range, and closes it on leaving. */
 public class ShopkeeperComponent extends Component {
+  private static final String SHOP_ACTION = "shop";
+
   private final Entity player;
   private boolean playerInRange = false;
 
@@ -23,7 +25,7 @@ public class ShopkeeperComponent extends Component {
     }
 
     boolean inRange = proximity.isPlayerInRange();
-    if (inRange && Gdx.input.isKeyJustPressed(Input.Keys.F)) {
+    if (inRange && isShopKeyJustPressed()) {
       player.getEvents().trigger("openShop");
     } else if (playerInRange && !inRange) {
       ShopDisplay shop = player.getComponent(ShopDisplay.class);
@@ -32,5 +34,11 @@ public class ShopkeeperComponent extends Component {
       }
     }
     playerInRange = inRange;
+  }
+
+  /** Checks the shop keybind, ignoring it while unbound so it never matches any key. */
+  private boolean isShopKeyJustPressed() {
+    int key = KeybindSettings.getKey(SHOP_ACTION);
+    return key != KeybindSettings.UNBOUND && Gdx.input.isKeyJustPressed(key);
   }
 }

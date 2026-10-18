@@ -1222,7 +1222,11 @@ public class LevelGameArea extends GameArea {
 
   // Spawns the NPC placed at each "npc" marker in this map.
   private void spawnNpcs() {
-    for (Marker marker : getLevel().markers("npc")) {
+    LevelView level = getLevel();
+    if (level == null) {
+      return;
+    }
+    for (Marker marker : level.markers("npc")) {
       String npcId = marker.id() + "@" + EnemyId.of(mapData.getName(), marker.position());
       if (NpcQuestRegistry.isKilled(npcId)) {
         continue;
