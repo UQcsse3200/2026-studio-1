@@ -132,7 +132,7 @@ public class ItemDropComponent extends Component {
     }
 
     logger.info("Dropped {} x{} from slot {}", dropped.getName(), dropped.getQuantity(), slot);
-    entity.getEvents().trigger("itemDropped", dropped, loot);
+    entity.getEvents().trigger(ITEM_DROPPED_EVENT, dropped, loot);
     return true;
   }
 
