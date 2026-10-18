@@ -1186,6 +1186,42 @@ public class InventoryDisplay extends UIComponent {
   }
 
   /**
+   * Returns the x position of the inventory HUD (bottom-left corner) in stage coordinates.
+   *
+   * @return HUD x position, or 0 if the HUD has not been built yet
+   */
+  public float getHudX() {
+    return hudTable == null ? 0f : hudTable.getX();
+  }
+
+  /**
+   * Returns the y position of the inventory HUD (bottom-left corner) in stage coordinates.
+   *
+   * @return HUD y position, or 0 if the HUD has not been built yet
+   */
+  public float getHudY() {
+    return hudTable == null ? 0f : hudTable.getY();
+  }
+
+  /**
+   * Returns the width of the whole inventory HUD (gold counter, hotbar and pet panel).
+   *
+   * @return HUD width, or 0 if the HUD has not been built yet
+   */
+  public float getHudWidth() {
+    return hudTable == null ? 0f : hudTable.getWidth();
+  }
+
+  /**
+   * Returns the height of the whole inventory HUD (gold counter plus hotbar row).
+   *
+   * @return HUD height, or 0 if the HUD has not been built yet
+   */
+  public float getHudHeight() {
+    return hudTable == null ? 0f : hudTable.getHeight();
+  }
+
+  /**
    * Sets whether the inventory is visible.
    *
    * @param shouldHide whether to hide the inventory
