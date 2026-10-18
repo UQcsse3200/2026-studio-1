@@ -120,16 +120,12 @@ class RockAttackComponentTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> new RockAttackComponent(RANGE, COOLDOWN, -1f, weapon, SPAWN_HEIGHT, MULTIPLIER));
+    WeaponItem naturalWeapon = AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN);
     assertThrows(
         IllegalArgumentException.class,
         () ->
             new RockAttackComponent(
-                RANGE,
-                COOLDOWN,
-                KNOCKBACK,
-                AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN),
-                SPAWN_HEIGHT,
-                MULTIPLIER));
+                RANGE, COOLDOWN, KNOCKBACK, naturalWeapon, SPAWN_HEIGHT, MULTIPLIER));
   }
 
   @Test
@@ -163,7 +159,7 @@ class RockAttackComponentTest {
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
 
     assertEquals(1, windups.size());
-    assertSame(target, windups.get(0));
+    assertSame(target, windups.getFirst());
   }
 
   @Test
@@ -176,7 +172,7 @@ class RockAttackComponentTest {
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
 
     assertEquals(1, fired.size());
-    assertSame(target, fired.get(0));
+    assertSame(target, fired.getFirst());
   }
 
   @Test
@@ -288,13 +284,13 @@ class RockAttackComponentTest {
   @Test
   void shouldCarryTheWeaponDamageTimesTheMultiplier() {
     // 10 damage x 1.5 = 15 on contact. Rock flies an arc to the target's position at launch.
-    assertEquals(50 - 15, healthAfterRockHits(WEAPON_DAMAGE, MULTIPLIER, 50));
+    assertEquals(50 - 15, healthAfterRockHits(WEAPON_DAMAGE, MULTIPLIER));
   }
 
   @Test
   void shouldRoundTheScaledDamageAndNeverGoBelowOne() {
     // 1 damage x 0.2 = 0.2 rounds to 0, but a rock always does at least 1.
-    assertEquals(50 - 1, healthAfterRockHits(1, 0.2f, 50));
+    assertEquals(50 - 1, healthAfterRockHits(1, 0.2f));
   }
 
   @Test
@@ -305,7 +301,7 @@ class RockAttackComponentTest {
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-    Entity rock = world.registeredSince(before).get(0);
+    Entity rock = world.registeredSince(before).getFirst();
 
     assertTrue(
         AttackTestWorld.velocityOf(rock).x > 0f, "the rock leaves heading toward the target");
@@ -319,7 +315,7 @@ class RockAttackComponentTest {
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-    Entity rock = world.registeredSince(before).get(0);
+    Entity rock = world.registeredSince(before).getFirst();
 
     assertTrue(AttackTestWorld.velocityOf(rock).x < 0f);
   }
@@ -423,13 +419,13 @@ class RockAttackComponentTest {
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-    return world.registeredSince(before).get(0).getPosition().cpy();
+    return world.registeredSince(before).getFirst().getPosition().cpy();
   }
 
   /**
    * Throws one rock at a stationary target and steps until it lands; returns the target's health.
    */
-  private int healthAfterRockHits(int weaponDamage, float multiplier, int targetHealth) {
+  private int healthAfterRockHits(int weaponDamage, float multiplier) {
     RockAttackComponent rock =
         new RockAttackComponent(
             RANGE,
@@ -440,7 +436,7 @@ class RockAttackComponentTest {
             multiplier);
     rock.setProjectileSpeed(SPEED);
     Entity owner = world.newAttacker(rock);
-    Entity target = world.newTarget(4f, 1.2f, targetHealth);
+    Entity target = world.newTarget(4f, 1.2f, 50);
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);

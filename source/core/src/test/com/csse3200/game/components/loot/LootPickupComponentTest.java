@@ -1,8 +1,6 @@
 package com.csse3200.game.components.loot;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -89,8 +87,7 @@ class LootPickupComponentTest {
 
     triggerPlayerCollision(loot, player);
 
-    assertFalse(
-        loot.getComponent(HitboxComponent.class) == null, "loot entity should be untouched");
+    assertNotNull(loot.getComponent(HitboxComponent.class), "loot entity should be untouched");
     assertEquals(
         0,
         player.getComponent(InventoryComponent.class).getOccupiedSlots(),
