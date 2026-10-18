@@ -1,4 +1,4 @@
-package com.csse3200.game.components.tasks;
+package com.csse3200.game.components.enemies.tasks;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.enemies.attacks.ChargeComponent;
-import com.csse3200.game.components.enemies.tasks.ChargeTask;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;

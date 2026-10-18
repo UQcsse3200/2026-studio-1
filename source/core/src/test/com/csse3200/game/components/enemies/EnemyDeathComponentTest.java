@@ -1,13 +1,10 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies;
 
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.csse3200.game.components.ComponentPriority;
-import com.csse3200.game.components.enemies.EnemyDeathComponent;
-import com.csse3200.game.components.enemies.EnemyType;
-import com.csse3200.game.components.enemies.EnemyTypeComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;

@@ -2,7 +2,7 @@ package com.csse3200.game.Quests;
 
 public class EnemiesKilledQuest {
   float globalEnemiesKilledSnapshot;
-  float enemiesToKill;
+  int enemiesToKill;
 
   public EnemiesKilledQuest(int enemiesToKill) {
     if (enemiesToKill <= 0) {

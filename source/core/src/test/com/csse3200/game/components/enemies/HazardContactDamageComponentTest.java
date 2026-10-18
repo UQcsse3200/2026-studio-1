@@ -1,4 +1,4 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.HazardDamageComponent;
-import com.csse3200.game.components.enemies.HazardContactDamageComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
@@ -284,8 +283,7 @@ class HazardContactDamageComponentTest {
   // ---------- helpers ----------
 
   private Entity createHazard(float x, float y, int damage) {
-    Entity hazard = createSensor(x, y, PhysicsLayer.HAZARD, damage);
-    return hazard;
+    return createSensor(x, y, PhysicsLayer.HAZARD, damage);
   }
 
   private Entity createHazardWithoutDamage(float x, float y) {

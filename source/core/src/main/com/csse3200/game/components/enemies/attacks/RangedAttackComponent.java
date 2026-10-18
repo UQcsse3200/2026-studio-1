@@ -12,8 +12,6 @@ import com.csse3200.game.entities.factories.ArrowFactory;
 import com.csse3200.game.entities.factories.ProjectileFactory;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.services.ServiceLocator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Fires a real arrow projectile at a target entity when triggered, provided the target is within
@@ -69,7 +67,6 @@ public class RangedAttackComponent extends Component {
   private float cooldown;
   private float knockback;
   private float projectileSpeed;
-  private float damage;
   private WeaponItem weapon;
   private float windupDuration;
   // Difficulty damage multiplier, set by DifficultyScaler at spawn - see
@@ -88,7 +85,6 @@ public class RangedAttackComponent extends Component {
   // When true, arrows fly straight at the target's centre instead of along the x axis.
   private boolean aimed = false;
   private CombatStatsComponent combatStats;
-  private static final Logger logger = LoggerFactory.getLogger(RangedAttackComponent.class);
 
   /**
    * Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
@@ -152,7 +148,6 @@ public class RangedAttackComponent extends Component {
 
     this.windupDuration = weapon.getWindupDuration();
     this.timeSinceLastAttack = cooldown;
-    this.damage = this.weapon.getDamage();
   }
 
   /**
@@ -351,15 +346,6 @@ public class RangedAttackComponent extends Component {
    */
   public float getWindupDuration() {
     return windupDuration;
-  }
-
-  /**
-   * Returns how much of the current windup is left.
-   *
-   * @return seconds remaining, or {@code 0f} when no windup is in progress
-   */
-  public float getWindupTimeRemaining() {
-    return pendingTarget == null ? 0f : Math.max(0f, windupTimeRemaining);
   }
 
   /**

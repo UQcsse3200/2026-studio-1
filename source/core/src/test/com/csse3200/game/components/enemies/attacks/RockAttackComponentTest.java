@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,8 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.AttackTestWorld;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
-import com.csse3200.game.components.enemies.attacks.RockAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
@@ -80,9 +78,10 @@ class RockAttackComponentTest {
   @ParameterizedTest(name = "spawnHeightFraction {0} is rejected")
   @ValueSource(floats = {-0.01f, 1.01f, 2f, -5f})
   void shouldRejectASpawnHeightOutsideZeroToOne(float fraction) {
+    var weapon = weapon();
     assertThrows(
         IllegalArgumentException.class,
-        () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER));
+        () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, fraction, MULTIPLIER));
   }
 
   @ParameterizedTest(name = "spawnHeightFraction {0} is accepted")
@@ -95,41 +94,38 @@ class RockAttackComponentTest {
   @ParameterizedTest(name = "damageMultiplier {0} is rejected")
   @ValueSource(floats = {0f, -1f, -0.0001f})
   void shouldRejectAZeroOrNegativeMultiplier(float multiplier) {
+    var weapon = weapon();
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new RockAttackComponent(
-                RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, multiplier));
+            new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, multiplier));
   }
 
   @Test
   void shouldRejectANotANumberMultiplier() {
+    var weapon = weapon();
     assertThrows(
         IllegalArgumentException.class,
-        () ->
-            new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, Float.NaN));
+        () -> new RockAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, Float.NaN));
   }
 
   @Test
   void shouldInheritTheRulesOfTheRangedConstructor() {
+    var weapon = weapon();
     // A zero range, a negative knockback and a windup as long as the cooldown are all refused by
     // the parent. A copy of this test for the laser keeps the same three cases.
     assertThrows(
         IllegalArgumentException.class,
-        () -> new RockAttackComponent(0f, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, MULTIPLIER));
+        () -> new RockAttackComponent(0f, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, MULTIPLIER));
     assertThrows(
         IllegalArgumentException.class,
-        () -> new RockAttackComponent(RANGE, COOLDOWN, -1f, weapon(), SPAWN_HEIGHT, MULTIPLIER));
+        () -> new RockAttackComponent(RANGE, COOLDOWN, -1f, weapon, SPAWN_HEIGHT, MULTIPLIER));
+    WeaponItem naturalWeapon = AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN);
     assertThrows(
         IllegalArgumentException.class,
         () ->
             new RockAttackComponent(
-                RANGE,
-                COOLDOWN,
-                KNOCKBACK,
-                AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN),
-                SPAWN_HEIGHT,
-                MULTIPLIER));
+                RANGE, COOLDOWN, KNOCKBACK, naturalWeapon, SPAWN_HEIGHT, MULTIPLIER));
   }
 
   @Test
@@ -158,33 +154,33 @@ class RockAttackComponentTest {
   void shouldAnnounceTheWindupUnderTheRockPrefix() {
     Entity owner = world.newAttacker(newRock());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> windups = AttackTestWorld.record(owner, "rockAttackWindup");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "rockAttackWindup");
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
 
     assertEquals(1, windups.size());
-    assertSame(target, windups.get(0));
+    assertSame(target, windups.getFirst());
   }
 
   @Test
   void shouldAnnounceTheShotUnderTheRockPrefixWhenTheWindupEnds() {
     Entity owner = world.newAttacker(newRock());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> fired = AttackTestWorld.record(owner, "rockAttackFired");
+    List<Entity> fired = AttackTestWorld.recordEvents(owner, "rockAttackFired");
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
 
     assertEquals(1, fired.size());
-    assertSame(target, fired.get(0));
+    assertSame(target, fired.getFirst());
   }
 
   @Test
   void shouldNeverUseTheDefaultRangedPrefix() {
     Entity owner = world.newAttacker(newRock());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> windups = AttackTestWorld.record(owner, "rangedAttackWindup");
-    List<Entity> fired = AttackTestWorld.record(owner, "rangedAttackFired");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "rangedAttackWindup");
+    List<Entity> fired = AttackTestWorld.recordEvents(owner, "rangedAttackFired");
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
@@ -198,7 +194,7 @@ class RockAttackComponentTest {
     // The Zeus lightning and the skeleton arrow still answer to "rangedAttack"; a rock must not.
     Entity owner = world.newAttacker(newRock());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> windups = AttackTestWorld.record(owner, "rockAttackWindup");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "rockAttackWindup");
 
     owner.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
@@ -288,13 +284,13 @@ class RockAttackComponentTest {
   @Test
   void shouldCarryTheWeaponDamageTimesTheMultiplier() {
     // 10 damage x 1.5 = 15 on contact. Rock flies an arc to the target's position at launch.
-    assertEquals(50 - 15, healthAfterRockHits(WEAPON_DAMAGE, MULTIPLIER, 50));
+    assertEquals(50 - 15, healthAfterRockHits(WEAPON_DAMAGE, MULTIPLIER));
   }
 
   @Test
   void shouldRoundTheScaledDamageAndNeverGoBelowOne() {
     // 1 damage x 0.2 = 0.2 rounds to 0, but a rock always does at least 1.
-    assertEquals(50 - 1, healthAfterRockHits(1, 0.2f, 50));
+    assertEquals(50 - 1, healthAfterRockHits(1, 0.2f));
   }
 
   @Test
@@ -305,7 +301,7 @@ class RockAttackComponentTest {
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-    Entity rock = world.registeredSince(before).get(0);
+    Entity rock = world.registeredSince(before).getFirst();
 
     assertTrue(
         AttackTestWorld.velocityOf(rock).x > 0f, "the rock leaves heading toward the target");
@@ -319,7 +315,7 @@ class RockAttackComponentTest {
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-    Entity rock = world.registeredSince(before).get(0);
+    Entity rock = world.registeredSince(before).getFirst();
 
     assertTrue(AttackTestWorld.velocityOf(rock).x < 0f);
   }
@@ -344,7 +340,7 @@ class RockAttackComponentTest {
     Entity owner = world.newAttacker(newRock());
     Entity target = world.newTarget(RANGE + 5f, 0f, 50);
     int before = world.mark();
-    List<Entity> windups = AttackTestWorld.record(owner, "rockAttackWindup");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "rockAttackWindup");
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
@@ -357,7 +353,7 @@ class RockAttackComponentTest {
   void shouldCancelWhenTheTargetDiesDuringTheWindup() {
     Entity owner = world.newAttacker(newRock());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> cancelled = AttackTestWorld.record(owner, "rockAttackCancelled");
+    List<Entity> cancelled = AttackTestWorld.recordEvents(owner, "rockAttackCancelled");
     int before = world.mark();
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
@@ -388,7 +384,7 @@ class RockAttackComponentTest {
         };
     Entity owner = world.newAttacker(rock, other);
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> otherWindups = AttackTestWorld.record(owner, "rangedAttackWindup");
+    List<Entity> otherWindups = AttackTestWorld.recordEvents(owner, "rangedAttackWindup");
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
 
@@ -423,13 +419,13 @@ class RockAttackComponentTest {
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
-    return world.registeredSince(before).get(0).getPosition().cpy();
+    return world.registeredSince(before).getFirst().getPosition().cpy();
   }
 
   /**
    * Throws one rock at a stationary target and steps until it lands; returns the target's health.
    */
-  private int healthAfterRockHits(int weaponDamage, float multiplier, int targetHealth) {
+  private int healthAfterRockHits(int weaponDamage, float multiplier) {
     RockAttackComponent rock =
         new RockAttackComponent(
             RANGE,
@@ -440,7 +436,7 @@ class RockAttackComponentTest {
             multiplier);
     rock.setProjectileSpeed(SPEED);
     Entity owner = world.newAttacker(rock);
-    Entity target = world.newTarget(4f, 1.2f, targetHealth);
+    Entity target = world.newTarget(4f, 1.2f, 50);
 
     owner.getEvents().trigger("rockAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
