@@ -2,6 +2,8 @@ package com.csse3200.game.components.enemies.animation;
 
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -31,6 +33,8 @@ public class MedusaAnimationController extends Component {
     WALK_RIGHT,
     ATTACK_LEFT,
     ATTACK_RIGHT,
+    PETRIFY_LEFT,
+    PETRIFY_RIGHT,
     DEATH_LEFT,
     DEATH_RIGHT
   }
@@ -47,24 +51,26 @@ public class MedusaAnimationController extends Component {
     entity.getEvents().addListener("walkLeftStart", this::animateWalkL);
     entity.getEvents().addListener("walkRightStart", this::animateWalkR);
 
-    // Attack listeners - melee bite and ranged gaze both play the same attack animation, since
-    // the gorgon atlas has one attack animation per side rather than separate melee/ranged ones.
+    // Melee attack listeners (bite)
     entity.getEvents().addListener("attackLeftStart", this::animateAttackL);
     entity.getEvents().addListener("attackRightStart", this::animateAttackR);
-
-    // Melee attack listeners (bite)
-    entity.getEvents().addListener("meleeAttack", this::onAttack);
+    entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
     entity.getEvents().addListener("meleeAttackWindup", this::onAttack);
     entity.getEvents().addListener("bite", this::onAttack);
 
-    // Ranged attack listeners (gaze)
-    entity.getEvents().addListener("rangedAttackWindup", this::onAttack);
-    entity.getEvents().addListener("rangedAttackFired", this::onAttack);
-    entity.getEvents().addListener("rangedAttackStart", () -> onAttack(null));
+    // Petrify / ranged gaze attack listeners
+    entity.getEvents().addListener("petrifyLeftStart", this::animatePetrifyL);
+    entity.getEvents().addListener("petrifyRightStart", this::animatePetrifyR);
+    entity.getEvents().addListener("petrify", this::onPetrify);
+    entity.getEvents().addListener("petrifyAttack", this::onPetrify);
+    entity.getEvents().addListener("gaze", this::onPetrify);
+    entity.getEvents().addListener("rangedAttackWindup", this::onPetrify);
+    entity.getEvents().addListener("rangedAttackFired", this::onRangedFired);
+    entity.getEvents().addListener("rangedAttackStart", () -> onRangedAttack(null));
     entity
         .getEvents()
-        .addListener("rangedAttack", (Entity target, ProjectileType type) -> onAttack(target));
-    entity.getEvents().addListener("gaze", this::onAttack);
+        .addListener(
+            "rangedAttack", (Entity target, ProjectileType type) -> onRangedAttack(target));
 
     // Death listeners
     entity.getEvents().addListener("deathLeftStart", this::animateDeathL);
@@ -82,13 +88,31 @@ public class MedusaAnimationController extends Component {
     if (isDead) {
       return;
     }
-    if (isAttackStillPlaying()) {
-      return;
+    if (isAttacking) {
+      if (animator != null && animator.isFinished()) {
+        isAttacking = false;
+      } else {
+        return;
+      }
     }
-    if (hasPhysicsBody()) {
-      updateFromVelocity();
+    if (physicsComponent != null && physicsComponent.getBody() != null) {
+      Vector2 velocity = physicsComponent.getBody().getLinearVelocity();
+      if (velocity != null) {
+        AnimationState targetState = getTargetState(velocity);
+        if (targetState != currentAnimState) {
+          currentAnimState = targetState;
+          triggerStateEvent(currentAnimState);
+        }
+      }
     } else {
-      returnToIdleAfterAttack();
+      if (!isAttacking
+          && (currentAnimState == AnimationState.ATTACK_LEFT
+              || currentAnimState == AnimationState.ATTACK_RIGHT
+              || currentAnimState == AnimationState.PETRIFY_LEFT
+              || currentAnimState == AnimationState.PETRIFY_RIGHT)) {
+        currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
+        triggerStateEvent(currentAnimState);
+      }
     }
   }
 
@@ -126,6 +150,12 @@ public class MedusaAnimationController extends Component {
       case ATTACK_RIGHT:
         entity.getEvents().trigger("attackRightStart");
         break;
+      case PETRIFY_LEFT:
+        entity.getEvents().trigger("petrifyLeftStart");
+        break;
+      case PETRIFY_RIGHT:
+        entity.getEvents().trigger("petrifyRightStart");
+        break;
       case DEATH_LEFT:
         entity.getEvents().trigger("deathLeftStart");
         break;
@@ -135,8 +165,29 @@ public class MedusaAnimationController extends Component {
     }
   }
 
+  private void onMeleeAttack(Entity target) {
+    if (entity != null && entity.getComponent(MeleeAttackComponent.class) != null) {
+      return;
+    }
+    onAttack(target);
+  }
+
+  private void onRangedAttack(Entity target) {
+    if (entity != null && entity.getComponent(RangedAttackComponent.class) != null) {
+      return;
+    }
+    onPetrify(target);
+  }
+
+  private void onRangedFired(Entity target) {
+    if (entity != null && entity.getComponent(RangedAttackComponent.class) != null) {
+      return;
+    }
+    onPetrify(target);
+  }
+
   private void onAttack(Entity target) {
-    if (isDead) {
+    if (isDead || isAttacking) {
       return;
     }
     if (target != null
@@ -149,6 +200,26 @@ public class MedusaAnimationController extends Component {
               : AnimationState.ATTACK_RIGHT;
     } else {
       currentAnimState = isFacingLeft() ? AnimationState.ATTACK_LEFT : AnimationState.ATTACK_RIGHT;
+    }
+    isAttacking = true;
+    triggerStateEvent(currentAnimState);
+  }
+
+  private void onPetrify(Entity target) {
+    if (isDead || isAttacking) {
+      return;
+    }
+    if (target != null
+        && target.getPosition() != null
+        && entity != null
+        && entity.getPosition() != null) {
+      currentAnimState =
+          (target.getPosition().x < entity.getPosition().x)
+              ? AnimationState.PETRIFY_LEFT
+              : AnimationState.PETRIFY_RIGHT;
+    } else {
+      currentAnimState =
+          isFacingLeft() ? AnimationState.PETRIFY_LEFT : AnimationState.PETRIFY_RIGHT;
     }
     isAttacking = true;
     triggerStateEvent(currentAnimState);
@@ -209,12 +280,32 @@ public class MedusaAnimationController extends Component {
     }
   }
 
+  void animatePetrifyL() {
+    currentAnimState = AnimationState.PETRIFY_LEFT;
+    isAttacking = true;
+    if (animator != null) {
+      animator.startAnimation("gorgon_petrify_l");
+    }
+  }
+
+  void animatePetrifyR() {
+    currentAnimState = AnimationState.PETRIFY_RIGHT;
+    isAttacking = true;
+    if (animator != null) {
+      animator.startAnimation("gorgon_petrify_r");
+    }
+  }
+
   void animateDeathL() {
     currentAnimState = AnimationState.DEATH_LEFT;
     isDead = true;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_dead_l");
+      if (animator.hasAnimation("gorgon_dead_l")) {
+        animator.startAnimation("gorgon_dead_l");
+      } else {
+        animator.startAnimation("gorgon_death_l");
+      }
     }
   }
 
@@ -223,7 +314,11 @@ public class MedusaAnimationController extends Component {
     isDead = true;
     isAttacking = false;
     if (animator != null) {
-      animator.startAnimation("gorgon_dead_r");
+      if (animator.hasAnimation("gorgon_dead_r")) {
+        animator.startAnimation("gorgon_dead_r");
+      } else {
+        animator.startAnimation("gorgon_death_r");
+      }
     }
   }
 
@@ -231,6 +326,7 @@ public class MedusaAnimationController extends Component {
     return currentAnimState == AnimationState.IDLE_LEFT
         || currentAnimState == AnimationState.WALK_LEFT
         || currentAnimState == AnimationState.ATTACK_LEFT
+        || currentAnimState == AnimationState.PETRIFY_LEFT
         || currentAnimState == AnimationState.DEATH_LEFT;
   }
 
@@ -238,6 +334,7 @@ public class MedusaAnimationController extends Component {
     return currentAnimState == AnimationState.IDLE_RIGHT
         || currentAnimState == AnimationState.WALK_RIGHT
         || currentAnimState == AnimationState.ATTACK_RIGHT
+        || currentAnimState == AnimationState.PETRIFY_RIGHT
         || currentAnimState == AnimationState.DEATH_RIGHT;
   }
 
@@ -251,51 +348,5 @@ public class MedusaAnimationController extends Component {
 
   public boolean isDead() {
     return isDead;
-  }
-
-  /**
-   * Returns true while an attack animation is still playing, and clears the flag once it finishes.
-   */
-  private boolean isAttackStillPlaying() {
-    if (!isAttacking) {
-      return false;
-    }
-    if (animator != null && animator.isFinished()) {
-      isAttacking = false;
-      return false;
-    }
-    return true;
-  }
-
-  /** Returns true when the entity has a physics component with a body. */
-  private boolean hasPhysicsBody() {
-    return physicsComponent != null && physicsComponent.getBody() != null;
-  }
-
-  /** Switches to the walk or idle state that matches the current velocity. */
-  void updateFromVelocity() {
-    Vector2 velocity = physicsComponent.getBody().getLinearVelocity();
-    if (velocity == null) {
-      return;
-    }
-    AnimationState targetState = getTargetState(velocity);
-    if (targetState != currentAnimState) {
-      currentAnimState = targetState;
-      triggerStateEvent(currentAnimState);
-    }
-  }
-
-  /** Returns to the matching idle state when an attack ends and there is no physics body. */
-  private void returnToIdleAfterAttack() {
-    if (!isAttackState(currentAnimState)) {
-      return;
-    }
-    currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
-    triggerStateEvent(currentAnimState);
-  }
-
-  /** Returns true for the states that count as an attack. */
-  private boolean isAttackState(AnimationState state) {
-    return state == AnimationState.ATTACK_LEFT || state == AnimationState.ATTACK_RIGHT;
   }
 }
