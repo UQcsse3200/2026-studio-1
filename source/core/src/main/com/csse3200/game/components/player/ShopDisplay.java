@@ -1479,6 +1479,13 @@ public class ShopDisplay extends UIComponent {
     hideUpgradePopup();
   }
 
+  /**
+   * @return whether the shop window is currently open (visible).
+   */
+  public boolean isShopOpen() {
+    return shopTable != null && shopTable.isVisible();
+  }
+
   private void positionShop() {
     if (shopTable == null) return;
 
