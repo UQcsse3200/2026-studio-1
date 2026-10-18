@@ -82,6 +82,7 @@ public class ShopDisplay extends UIComponent {
   private static final String LABEL_STYLE = "small";
   private static final String WINDOW_BACKGROUND = "window";
   private static final String EMPTY_TEXT = "Empty";
+  private static final String GOLD_PREFIX = "Gold: ";
 
   // Used only by the Upgrades-tab popup and purchase toast, to visually match the shop's dark
   // green look - "window-c" is a Skin$TintedDrawable (name: window, color: color) with its green
@@ -757,7 +758,7 @@ public class ShopDisplay extends UIComponent {
       addAccentStrip(card, rarity.color);
       addCardIcon(card, name, rarity);
       addNameLabel(card, name);
-      addPriceLabel(card, "Gold: " + sellPrice, GOLD_COLOR);
+      addPriceLabel(card, GOLD_PREFIX + sellPrice, GOLD_COLOR);
 
       card.addListener(
           new ClickListener() {
@@ -844,7 +845,7 @@ public class ShopDisplay extends UIComponent {
     addAccentStrip(card, rarity.color);
     addCardIcon(card, name, rarity);
     addNameLabel(card, name);
-    addPriceLabel(card, cardMaxTier ? "MAX" : "Gold: " + price, priceColor(cardMaxTier, price));
+    addPriceLabel(card, cardMaxTier ? "MAX" : GOLD_PREFIX + price, priceColor(cardMaxTier, price));
 
     card.addListener(
         new ClickListener() {
@@ -1163,7 +1164,7 @@ public class ShopDisplay extends UIComponent {
     detailNameLabel.setText(selection.name());
     detailNameLabel.setColor(TEXT_PRIMARY);
 
-    detailPriceLabel.setText(selection.maxTier() ? "MAX" : "Gold: " + selection.price());
+    detailPriceLabel.setText(selection.maxTier() ? "MAX" : GOLD_PREFIX + selection.price());
     if (selection.maxTier()) {
       detailPriceLabel.setColor(TEXT_MUTED);
     } else if (selection.requiresAffordability() && !canPerformAction) {
@@ -1445,8 +1446,8 @@ public class ShopDisplay extends UIComponent {
 
   private String getGoldText() {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
-    if (inventory == null) return "Gold: 0";
-    return "Gold: " + inventory.getGold();
+    if (inventory == null) return GOLD_PREFIX + 0;
+    return GOLD_PREFIX + inventory.getGold();
   }
 
   private boolean canAfford(int price) {
