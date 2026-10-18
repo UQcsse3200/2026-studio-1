@@ -52,8 +52,8 @@ public final class PerkService {
    * Registers a perk definition. Call once per perk (see {@link PerkDefinitions#registerAll()})
    * before any recordEvent(...) calls for it will have any effect.
    *
-   * <p>Re-registering an id that is already registered does nothing, so the live {@link Perk}
-   * (and its unlocked/active state and callbacks) survives the main menu and Perks screens calling
+   * <p>Re-registering an id that is already registered does nothing, so the live {@link Perk} (and
+   * its unlocked/active state and callbacks) survives the main menu and Perks screens calling
    * registerAll() again. The first registration in a process ignores whatever a previous session
    * left in Preferences and clears it, so a relaunch always starts with every perk locked. Saved
    * games restore their own perk state through {@link #restorePerk}.
