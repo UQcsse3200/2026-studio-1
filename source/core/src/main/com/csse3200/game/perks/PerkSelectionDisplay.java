@@ -26,7 +26,6 @@ import java.util.List;
 public class PerkSelectionDisplay extends UIComponent {
   private static final Color TITLE_TEXT_COLOR = new Color(0.95f, 0.85f, 0.55f, 1f);
   private static final Color FOCUS_BORDER_COLOR = new Color(0.12f, 0.92f, 0.85f, 1f);
-  private static final Color NO_BORDER_COLOR = Color.CLEAR;
   private static final float CARD_SIZE = 200f;
   private static final float CARD_HEIGHT = 286f;
   private static final float BORDER_PAD = 5f;
@@ -339,7 +338,11 @@ public class PerkSelectionDisplay extends UIComponent {
       }
     }
     if (continueButton != null) {
-      continueButton.setColor(selectedIndex == perks.size() ? Color.CYAN : Color.WHITE);
+      if (selectedIndex == perks.size()) {
+        continueButton.setColor(Color.CYAN);
+      } else {
+        continueButton.setColor(Color.WHITE);
+      }
     }
   }
 

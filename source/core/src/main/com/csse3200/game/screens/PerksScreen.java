@@ -105,8 +105,8 @@ public class PerksScreen extends ScreenAdapter {
 
   private void createUI() {
     logger.debug("Creating ui");
-    System.out.println("Background texture: " + backgroundTexture);
-    System.out.println("Perk textures loaded: " + perkTextures.size());
+    logger.debug("Background texture: {}", backgroundTexture);
+    logger.debug("Perk textures loaded: {}", perkTextures.size());
     Stage stage = ServiceLocator.getRenderService().getStage();
     Image background = new Image(backgroundTexture);
     background.setFillParent(true);
