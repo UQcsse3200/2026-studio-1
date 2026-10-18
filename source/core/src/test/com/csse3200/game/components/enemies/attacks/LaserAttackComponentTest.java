@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.AttackTestWorld;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.loot.WeaponItem;
-import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
@@ -153,12 +152,7 @@ class LaserAttackComponentTest {
         IllegalArgumentException.class,
         () ->
             new LaserAttackComponent(
-                RANGE,
-                COOLDOWN,
-                KNOCKBACK,
-              invalidWeapon,
-                SPAWN_HEIGHT,
-                MULTIPLIER));
+                RANGE, COOLDOWN, KNOCKBACK, invalidWeapon, SPAWN_HEIGHT, MULTIPLIER));
   }
 
   @Test
