@@ -1233,8 +1233,13 @@ public final class EnemyFactory {
    * @throws IllegalArgumentException if meleeRange is not strictly less than rangedRange
    */
   private static void validateMeleeRangeBelowRangedRange(float meleeRange, float rangedRange) {
-    // negated form so Nan is rejected too.
-    if (!(meleeRange < rangedRange)) {
+    if (Float.isNaN(meleeRange)) {
+      throw new IllegalArgumentException("melee range must be a number.");
+    }
+    if (Float.isNaN(rangedRange)) {
+      throw new IllegalArgumentException("ranged range must be a number.");
+    }
+    if (meleeRange >= rangedRange) {
       throw new IllegalArgumentException(
           "melee range " + meleeRange + " must be below ranged attack range " + rangedRange);
     }
