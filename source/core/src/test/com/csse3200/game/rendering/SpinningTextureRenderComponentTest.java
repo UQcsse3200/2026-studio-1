@@ -36,7 +36,8 @@ class SpinningTextureRenderComponentTest {
     ServiceLocator.registerTimeSource(time);
 
     ResourceService resources = mock(ResourceService.class);
-    when(resources.getAsset(TEXTURE, Texture.class)).thenReturn(mock(Texture.class));
+    Texture texture = mock(Texture.class);
+    when(resources.getAsset(TEXTURE, Texture.class)).thenReturn(texture);
     ServiceLocator.registerResourceService(resources);
 
     spinner = new SpinningTextureRenderComponent(TEXTURE, DEGREES_PER_SECOND);

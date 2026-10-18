@@ -9,6 +9,7 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.QuestGiverComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,7 +168,7 @@ class DialogueComponentTest {
             .addComponent(new DialogueComponent(LINES, Quest.JUMP_QUEST, JUMPS_TO_DO));
     npc.create();
     dialogue = npc.getComponent(DialogueComponent.class);
-    npc.getEvents().addListener("showDialogue", (String text) -> shown.add(text));
+    npc.getEvents().addListener("showDialogue", (EventListener1<String>) shown::add);
     npc.getEvents().addListener("hideDialogue", () -> hides++);
   }
 
