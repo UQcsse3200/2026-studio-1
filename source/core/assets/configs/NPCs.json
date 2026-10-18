@@ -63,7 +63,7 @@
     "rock":  { "range": 11, "cooldown": 7, "projectileSpeed": 8,  "knockback": 3, "windup": 1.1,
       "damageMultiplier": 1.5, "spawnHeightFraction": 0.85 },
     "laser": { "range": 7,  "cooldown": 4, "projectileSpeed": 20, "knockback": 0, "windup": 0.5,
-      "damageMultiplier": 0.6, "spawnHeightFraction": 0.75 }
+      "damageMultiplier": 0.6, "spawnHeightFraction": 0.6 }
   },
   "medusa": {
     "health": 150,
@@ -76,7 +76,8 @@
   "cerberus": {
     "health": 250,
     "baseAttack": 12,
-    "melee": { "range": 4, "cooldown": 1.5, "knockback": 2, "windup": 0.5 }
+    "melee": { "range": 4, "cooldown": 1.5, "knockback": 2, "windup": 0.5 },
+    "pacing": { "radius": 2.0 }
   },
   "zeus": {
     "health": 300,

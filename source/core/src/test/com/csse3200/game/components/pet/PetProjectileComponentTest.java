@@ -21,8 +21,8 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.EnemyType;
-import com.csse3200.game.components.npc.EnemyDeathComponent;
-import com.csse3200.game.components.npc.EnemyTypeComponent;
+import com.csse3200.game.components.enemies.EnemyDeathComponent;
+import com.csse3200.game.components.enemies.EnemyTypeComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.entities.Entity;
@@ -254,6 +254,58 @@ class PetProjectileComponentTest {
     }
   }
 
+  @Test
+  void shouldIgnoreAttackEventsWhileSpawnerIsDisabledAndResumeForNewRequests() {
+    Entity ignoredTarget = createEnemy(4f, 0f, 100, null);
+    Entity nextTarget = createEnemy(6f, 3f, 100, null);
+    PetProjectileSpawnerComponent spawner = pet.getComponent(PetProjectileSpawnerComponent.class);
+    int initialBodyCount = physics.getWorld().getBodyCount();
+    spawner.setEnabled(false);
+
+    // Disabling a component does not remove its event listeners.
+    pet.getEvents().trigger("petAttack", ignoredTarget);
+
+    assertTrue(entities.getEntitiesWithComponent(PetProjectileComponent.class).isEmpty());
+    assertEquals(initialBodyCount, physics.getWorld().getBodyCount());
+
+    spawner.setEnabled(true);
+    entities.update();
+    assertNull(findPetProjectile(), "Ignored requests must not fire when the spawner is enabled.");
+    pet.getEvents().trigger("petAttack", nextTarget);
+
+    assertEquals(1, entities.getEntitiesWithComponent(PetProjectileComponent.class).size());
+    assertEquals(initialBodyCount + 1, physics.getWorld().getBodyCount());
+    Entity projectile = findPetProjectile();
+    assertNotNull(projectile);
+    flyUntilDisposed(projectile);
+    assertEquals(100, health(ignoredTarget));
+    assertEquals(95, health(nextTarget));
+  }
+
+  @Test
+  void shouldIgnoreLateAttackEventsFromReplacedPetAndAllowNewPetToFire() {
+    Entity target = createEnemy(4f, 0f, 100, null);
+    Entity previousPet = pet;
+    activatePet(PetType.BAT);
+    assertTrue(previousPet.isDisposed());
+    int initialBodyCount = physics.getWorld().getBodyCount();
+
+    // A stale reference can still emit events after the old pet has been disposed.
+    previousPet.getEvents().trigger("petAttack", target);
+
+    assertTrue(entities.getEntitiesWithComponent(PetProjectileComponent.class).isEmpty());
+    assertEquals(initialBodyCount, physics.getWorld().getBodyCount());
+
+    pet.getEvents().trigger("petAttack", target);
+
+    assertEquals(1, entities.getEntitiesWithComponent(PetProjectileComponent.class).size());
+    assertEquals(initialBodyCount + 1, physics.getWorld().getBodyCount());
+    Entity projectile = findPetProjectile();
+    assertNotNull(projectile);
+    flyUntilDisposed(projectile);
+    assertEquals(95, health(target));
+  }
+
   @ParameterizedTest
   @ValueSource(floats = {0f, 45f, 90f, 180f})
   void shouldWaveOnBothSidesOfTheFiringDirection(float angle) {
@@ -367,20 +419,48 @@ class PetProjectileComponentTest {
 
   @ParameterizedTest
   @EnumSource(PetType.class)
-  void shouldBeBlockedByStaticTerrainBeforeReachingTarget(PetType type) {
+  void shouldPassThroughStaticWallAndHitEnemyBelow(PetType type) {
     activatePet(type);
-    Entity target = createEnemy(5f, 3f, 100, null);
+    Entity target = createEnemy(5f, 0f, 100, null);
     Entity wall =
         new Entity()
             .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
             .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
-    wall.setPosition(2f, 3f);
+    wall.setScale(1f, 5f);
+    wall.setPosition(2f, -0.5f);
     entities.register(wall);
     Entity projectile = fireAt(target);
 
     flyUntilDisposed(projectile);
 
-    assertEquals(100, health(target));
+    assertEquals(95, health(target));
+    assertEquals(2, physics.getWorld().getBodyCount());
+  }
+
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldReachEnemyBelowWhenShotStartsInsidePlatform(PetType type) {
+    activatePet(type);
+    Entity target = createEnemy(4f, 0f, 100, null);
+    Entity platform =
+        new Entity()
+            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+            .addComponent(
+                new ColliderComponent()
+                    .setLayer((short) (PhysicsLayer.OBSTACLE | PhysicsLayer.PLATFORM)));
+    platform.setScale(4f, 0.4f);
+    platform.setPosition(-1f, 3.3f);
+    entities.register(platform);
+    Entity projectile = fireAt(target);
+    assertTrue(
+        platform
+            .getComponent(ColliderComponent.class)
+            .getFixture()
+            .testPoint(projectile.getCenterPosition()));
+
+    flyUntilDisposed(projectile);
+
+    assertEquals(95, health(target));
     assertEquals(2, physics.getWorld().getBodyCount());
   }
 

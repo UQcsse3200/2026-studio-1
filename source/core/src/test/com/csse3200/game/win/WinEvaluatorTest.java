@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

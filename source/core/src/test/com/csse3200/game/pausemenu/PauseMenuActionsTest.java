@@ -18,12 +18,13 @@ import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.difficulty.Difficulty;
 import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
-import com.csse3200.game.entities.spawn.EnemyRegistry;
+import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.files.GameSaveData;
 import com.csse3200.game.files.LoadService;
@@ -158,6 +159,16 @@ class PauseMenuActionsTest {
 
     assertTrue(data.ownedPetNames.isEmpty());
     assertNull(data.activePetName);
+  }
+
+  @Test
+  void shouldSavePetsFromInventorySlotsInOrder() {
+    inventory.addPet(new ShopComponent.Pet("Dog"));
+    inventory.addPet(new ShopComponent.Pet("Cat"));
+
+    GameSaveData data = actions.createSaveData(player);
+
+    assertEquals(List.of("Dog", "Cat"), data.ownedPetNames);
   }
 
   // ---------------------------------------------------------------- inventory

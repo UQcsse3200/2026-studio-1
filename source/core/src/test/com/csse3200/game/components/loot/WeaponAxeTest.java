@@ -11,8 +11,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.entities.Entity;

@@ -9,7 +9,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.areas.terrain.TileType;
-import com.csse3200.game.entities.spawn.DefaultEntitySpawns;
+import com.csse3200.game.entities.factories.EnemyFactory;
+import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
@@ -186,7 +187,7 @@ class SideRoomsTest {
   @AfterEach
   void resetRegistry() {
     EntitySpawnRegistry.clear();
-    DefaultEntitySpawns.reset();
+    EnemyFactory.registerEnemySpawns();
   }
 
   // ---------- the room itself ----------
@@ -494,8 +495,8 @@ class SideRoomsTest {
   @MethodSource("rooms")
   void shouldHaveAnEnemyTypeFactoryForEveryEnemy(Room room) {
     EntitySpawnRegistry.clear();
-    DefaultEntitySpawns.reset();
-    DefaultEntitySpawns.registerAll();
+    EnemyFactory.registerEnemySpawns();
+    NPCFactory.registerNpcSpawns();
 
     List<String> unknown = new ArrayList<>();
     for (SpawnPoint spawn : loader.load(room.path()).getSpawns().getEnemies()) {

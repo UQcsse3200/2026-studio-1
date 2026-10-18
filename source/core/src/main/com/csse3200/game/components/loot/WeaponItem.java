@@ -134,6 +134,23 @@ public class WeaponItem extends Item {
     return weaponType;
   }
 
+  @Override
+  public WeaponItem copy() {
+    WeaponItem copy =
+        weaponStats != null
+            ? new WeaponItem(
+                getName(),
+                weaponType,
+                WeaponTier.fromTierNumber(tier),
+                getQuantity(),
+                getMaxQuantity(),
+                windupDuration)
+            : new WeaponItem(
+                getName(), weaponType, damage, getQuantity(), getMaxQuantity(), windupDuration);
+    copy.setSellPrice(getSellPrice());
+    return copy;
+  }
+
   public int getDamage() {
     if (weaponStats != null) {
       return weaponStats.getDamage();
@@ -176,5 +193,15 @@ public class WeaponItem extends Item {
 
   public int getProjectileCount() {
     return this.projectileCount;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }

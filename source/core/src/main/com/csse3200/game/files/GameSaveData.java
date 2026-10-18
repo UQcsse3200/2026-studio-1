@@ -45,4 +45,31 @@ public class GameSaveData {
   public int questEnemiesKilled;
   public int questGoldSpent;
   public int questShieldsCollected;
+
+  /** Stored tortoise total so it isn't recreated every time */
+  public int tortoiseTotal;
+
+  /**
+   * A saved plan of where each tortoise component is being created across the game, and storing
+   * which ones have already been found and collected
+   */
+  public Map<String, Integer> tortoisePlan = new HashMap<>();
+
+  /** Whether a shield was picked up but not used yet. */
+  public boolean shieldHeld;
+
+  /** Time left on an active shield, in milliseconds. Zero means not active. */
+  public long shieldRemainingMillis;
+
+  /** Whether a Ballistic Shield was picked up but not used yet. */
+  public boolean ballisticShieldHeld;
+
+  /** Time left on an active Ballistic Shield, in milliseconds. Zero means not active. */
+  public long ballisticShieldRemainingMillis;
+
+  /** Item shop slots still in stock. Null in older saves, which means do not change the shop. */
+  public List<Integer> shopItemSlots = null;
+
+  /** State of every perk. Null in older saves, which means leave the perks as they are. */
+  public List<SavedPerk> perks = null;
 }

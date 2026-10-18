@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * <p>Register once at start-up, from your own team's code:
  *
  * <pre>{@code
- * EntitySpawnRegistry.register("skeleton", NPCFactory::createSkeleton);
+ * EntitySpawnRegistry.register("skeleton", EnemyFactory::createSkeleton);
  * EntitySpawnRegistry.register("pet:companion", PetFactory::createCompanion);
  * }</pre>
  *

@@ -39,7 +39,8 @@ class ArrowFactoryLightningTest {
   }
 
   private Entity bolt() {
-    return ArrowFactory.createLightning(new Vector2(10f, 3f), 8f, 12f, 0, 120, PhysicsLayer.PLAYER);
+    return ProjectileFactory.createLightning(
+        new Vector2(10f, 3f), 8f, 12f, 0, 120, PhysicsLayer.PLAYER);
   }
 
   @Test

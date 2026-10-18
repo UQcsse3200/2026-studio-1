@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.difficulty.Difficulty;

@@ -19,7 +19,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.attacks.RangedAttackComponent;
+import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
@@ -33,6 +33,7 @@ import com.csse3200.game.physics.components.ColliderComponent;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.RenderService;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
@@ -225,10 +226,14 @@ class AimedArrowTest {
   }
 
   @Test
-  void strategyRejectsNonFiniteDirections() {
+  void strategyRejectsNonNumberDirections() {
     assertThrows(
         IllegalArgumentException.class,
         () -> new AimedLineMovementStrategy(SPEED, new Vector2(Float.NaN, 1f)));
+  }
+
+  @Test
+  void strategyRejectsNonFiniteDirections() {
     assertThrows(
         IllegalArgumentException.class,
         () -> new AimedLineMovementStrategy(SPEED, new Vector2(Float.POSITIVE_INFINITY, 0f)));
@@ -416,6 +421,58 @@ class AimedArrowTest {
     assertEquals(0, fired.size());
   }
 
+  // ---------- texture rotation ----------
+
+  @ParameterizedTest(name = "direction ({0},{1}) -> {2} degrees")
+  @CsvSource({
+    "1, 0, 0.0", // right
+    "1, 1, 45.0", // up and right at 45 degrees
+    "0, 1, 90.0", // up
+    "-1, 1, 135.0", // up and left at 45 degrees
+    "-1, 0, 180.0", // left
+    "-1, -1, 225.0", // left and down at 45 degrees
+    "0, -1, 270.0", // down
+    "1, -1, 315.0", // down and right at 45 degrees
+  })
+  void correctArrowVisualAngleFromDirection(float dx, float dy, float expectedDegrees) {
+    Entity arrow =
+        ArrowFactory.createAimedArrow(
+            new Vector2(0, 5), new Vector2(dx, dy), SPEED, 10f, 4, 0f, PhysicsLayer.PLAYER);
+    register(arrow);
+
+    assertEquals(0f, smallestAngleBetween(arrowRotation(arrow), expectedDegrees), TOLERANCE);
+  }
+
+  @ParameterizedTest(name = "direction {0} degrees")
+  @CsvSource({
+    "0", // right
+    "45", // up and right at 45 degrees
+    "90", // up
+    "135", // up and left at 45 degrees
+    "180", // left
+    "225", // left and down at 45 degrees
+    "270", // down
+    "315", // down and right at 45 degrees
+  })
+  void textureDirectionMatchesPhysicsDirection(int degrees) {
+    // Get the direction of the current angle in Vector2 using going to the right as a base
+    Vector2 direction = new Vector2(1f, 0f).setAngleDeg(degrees).scl(5f);
+
+    Entity arrow =
+        ArrowFactory.createAimedArrow(
+            new Vector2(0, 5),
+            new Vector2(direction.x, direction.y),
+            SPEED,
+            10f,
+            4,
+            0f,
+            PhysicsLayer.PLAYER);
+    register(arrow);
+
+    assertEquals(
+        0f, smallestAngleBetween(arrowRotation(arrow), velocityOf(arrow).angleDeg()), TOLERANCE);
+  }
+
   // ---------- helpers ----------
 
   private WeaponItem bow() {
@@ -489,5 +546,14 @@ class AimedArrowTest {
         entity.update();
       }
     }
+  }
+
+  private float arrowRotation(Entity arrow) {
+    return arrow.getComponent(TextureRenderComponent.class).getRotationDegrees();
+  }
+
+  private float smallestAngleBetween(float a, float b) {
+    float diff = Math.abs(a - b) % 360f;
+    return diff > 180f ? 360f - diff : diff;
   }
 }

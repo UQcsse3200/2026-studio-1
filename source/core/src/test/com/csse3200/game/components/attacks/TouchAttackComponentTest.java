@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;

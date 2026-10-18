@@ -10,8 +10,10 @@ import com.csse3200.game.Quests.Quest;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
-import com.csse3200.game.components.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.attacks.TouchAttackComponent;
+import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
+import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
@@ -47,7 +49,9 @@ public class PlayerActions extends Component {
   private static final int AREA_ATTACK_DAMAGE_MULTIPLIER = 2;
 
   private static final int BRIBE_COST = 50;
+  private static final String BRIBE_NO_TARGET_EVENT = "bribeNoTarget";
 
+  private int swordDamageBonus = 0;
   private float attackCooldownRemaining = 0f;
   private float specialAttackCooldownRemaining = 0f;
   private float areaAttackCooldownRemaining = 0f;
@@ -62,10 +66,10 @@ public class PlayerActions extends Component {
 
   private Vector2 walkDirection = Vector2.Zero.cpy();
   private Vector2 Speed = MAX_SPEED.cpy();
-  private float CrouchSpeedRate = 0.2f;
-  private float dashspeed = 5f;
-  private float slidespeed = 3f;
-  private float SlideTimer = 0f;
+  private static final float crouchSpeedRate = 0.2f;
+  private static final float dashSpeed = 5f;
+  private static final float slideSpeed = 3f;
+  private float slideTimer = 0f;
   private boolean crouching = false;
   private boolean moving = false;
   private boolean sliding = false;
@@ -100,7 +104,7 @@ public class PlayerActions extends Component {
 
   @Override
   public void create() {
-    System.out.println("PLAYER ACTIONS CREATED entity=" + entity.getId());
+    logger.debug("Player actions created for entity {}", entity.getId());
 
     physicsComponent = entity.getComponent(PhysicsComponent.class);
     platformerComponent = entity.getComponent(PlatformerComponent.class);
@@ -109,21 +113,19 @@ public class PlayerActions extends Component {
     playerAnimationControllerComponent = entity.getComponent(PlayerAnimationController.class);
     staminaComponent = entity.getComponent(StaminaComponent.class);
 
-    System.out.println(
-        "PLAYER ACTIONS COMPONENTS entity="
-            + entity.getId()
-            + " physics="
-            + (physicsComponent != null)
-            + " platformer="
-            + (platformerComponent != null)
-            + " stamina="
-            + (staminaComponent != null));
+    logger.debug(
+        "Player actions components for entity {}: physics={}, platformer={}, stamina={}",
+        entity.getId(),
+        physicsComponent != null,
+        platformerComponent != null,
+        staminaComponent != null);
 
     entity.getEvents().addListener("walk", this::walk);
     entity.getEvents().addListener("walkStop", this::stopWalking);
     entity.getEvents().addListener("attack", this::attack);
     entity.getEvents().addListener("specialAttack", this::specialAttack);
     entity.getEvents().addListener("areaAttack", this::areaAttack);
+    entity.getEvents().addListener("swordDamageBonusChanged", this::onSwordDamageBonusChanged);
 
     // Bribe support.
     entity.getEvents().addListener("damagedBy", this::onDamagedBy);
@@ -273,19 +275,19 @@ public class PlayerActions extends Component {
 
   private void updateSpeed() {
     if (physicsComponent == null) {
-      System.out.println("MOVEMENT ERROR entity=" + entity.getId() + " physicsComponent is NULL");
+      logger.error("Cannot move entity {}: physics component is missing", entity.getId());
       return;
     }
 
     Body body = physicsComponent.getBody();
 
     if (body == null) {
-      System.out.println("MOVEMENT ERROR entity=" + entity.getId() + " physics body is NULL");
+      logger.error("Cannot move entity {}: physics body is missing", entity.getId());
       return;
     }
 
     if (crouching) {
-      Speed.x = MAX_SPEED.cpy().x * CrouchSpeedRate;
+      Speed.x = MAX_SPEED.cpy().x * crouchSpeedRate;
     } else {
       Speed = MAX_SPEED.cpy();
     }
@@ -393,7 +395,7 @@ public class PlayerActions extends Component {
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
-      if (hitEnemy(enemy, combatStats.getBaseAttack())) {
+      if (hitEnemy(enemy, getCurrentAttackDamage())) {
         logger.info(
             "Enemy health decreased; health = {}",
             enemy.getComponent(CombatStatsComponent.class).getHealth());
@@ -423,7 +425,7 @@ public class PlayerActions extends Component {
     int damage =
         (int)
             Math.min(
-                (long) combatStats.getBaseAttack() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
+                (long) getCurrentAttackDamage() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
                 Integer.MAX_VALUE);
     if (hitEnemy(target, damage)) {
       entity.getEvents().trigger("specialAttackHit", target);
@@ -470,8 +472,7 @@ public class PlayerActions extends Component {
     int damage =
         (int)
             Math.min(
-                (long) combatStats.getBaseAttack() * AREA_ATTACK_DAMAGE_MULTIPLIER,
-                Integer.MAX_VALUE);
+                (long) getCurrentAttackDamage() * AREA_ATTACK_DAMAGE_MULTIPLIER, Integer.MAX_VALUE);
 
     for (Entity target : targets) {
       if (hitEnemy(target, damage)) {
@@ -480,6 +481,44 @@ public class PlayerActions extends Component {
     }
 
     areaAttackCooldownRemaining = AREA_ATTACK_COOLDOWN;
+  }
+
+  /** Updates the additive Sword Damage upgrade bonus. */
+  private void onSwordDamageBonusChanged(int bonus) {
+    swordDamageBonus = Math.max(0, bonus);
+  }
+
+  /**
+   * Calculates direct attack damage from the equipped melee weapon. Strength multiplies weapon
+   * damage; Sword Damage adds its bonus to swords only. Other weapons retain the existing
+   * base-attack fallback for close-range hits.
+   */
+  private int getCurrentAttackDamage() {
+    if (combatStats == null) {
+      return 0;
+    }
+
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory == null || !(inventory.getActiveItem() instanceof WeaponItem)) {
+      return Math.max(0, combatStats.getBaseAttack());
+    }
+
+    WeaponItem weapon = (WeaponItem) inventory.getActiveItem();
+    WeaponType type = weapon.getWeaponType();
+
+    if (type != WeaponType.SWORD && type != WeaponType.AXE) {
+      return Math.max(0, combatStats.getBaseAttack());
+    }
+
+    int damage = weapon.getDamage();
+    if (type == WeaponType.SWORD) {
+      damage += swordDamageBonus;
+    }
+
+    PlayerBuffComponent buff = entity.getComponent(PlayerBuffComponent.class);
+    float multiplier = buff == null ? 1f : buff.getDamageMultiplier();
+
+    return Math.max(0, Math.round(damage * multiplier));
   }
 
   /** Resolves a player hit before notifying listeners of the enemy that was struck. */
@@ -545,7 +584,7 @@ public class PlayerActions extends Component {
 
     Body body = physicsComponent.getBody();
 
-    Vector2 impulse = direction.cpy().scl(dashspeed);
+    Vector2 impulse = direction.cpy().scl(dashSpeed);
 
     body.applyLinearImpulse(impulse, body.getWorldCenter(), true);
 
@@ -569,26 +608,37 @@ public class PlayerActions extends Component {
   }
 
   private void slide(boolean pressed) {
-    if (pressed) {
-      if (staminaComponent == null
-          || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
-        return;
-      }
-
-      staminaComponent.useStamina(staminaComponent.getSlideCost());
-
-      sliding = true;
-      SlideTimer = 0;
-      slidingAction(walkDirection.cpy());
-    } else {
+    // Always allow the slide to stop when the key is released.
+    if (!pressed) {
       sliding = false;
+      return;
     }
+
+    // Do not consume stamina if the player is stationary.
+    if (walkDirection.isZero()) {
+      return;
+    }
+
+    if (dead || frozen) {
+      return;
+    }
+
+    if (staminaComponent == null
+        || !staminaComponent.hasEnoughStamina(staminaComponent.getSlideCost())) {
+      return;
+    }
+
+    staminaComponent.useStamina(staminaComponent.getSlideCost());
+
+    sliding = true;
+    slideTimer = 0;
+    slidingAction(walkDirection.cpy());
   }
 
   private void slidingAction(Vector2 direction) {
     Body body = physicsComponent.getBody();
 
-    Vector2 impulse = direction.cpy().scl(slidespeed);
+    Vector2 impulse = direction.cpy().scl(slideSpeed);
 
     if (impulse.x != 0f) {
       entity
@@ -605,9 +655,9 @@ public class PlayerActions extends Component {
       return;
     }
 
-    SlideTimer += Gdx.graphics.getDeltaTime();
+    slideTimer += Gdx.graphics.getDeltaTime();
 
-    if (SlideTimer >= SLIDE_MAX_TIME) {
+    if (slideTimer >= SLIDE_MAX_TIME) {
       sliding = false;
     }
   }
@@ -641,7 +691,7 @@ public class PlayerActions extends Component {
   public boolean bribeLastAttacker() {
     if (dead || lastDamageDealer == null) {
       if (!dead) {
-        entity.getEvents().trigger("bribeNoTarget");
+        entity.getEvents().trigger(BRIBE_NO_TARGET_EVENT);
       }
       return false;
     }
@@ -650,7 +700,7 @@ public class PlayerActions extends Component {
 
     if (attackerStats == null || attackerStats.isDead()) {
       lastDamageDealer = null;
-      entity.getEvents().trigger("bribeNoTarget");
+      entity.getEvents().trigger(BRIBE_NO_TARGET_EVENT);
       return false;
     }
 
@@ -678,7 +728,7 @@ public class PlayerActions extends Component {
 
     if (!bribed) {
       logger.info("Bribe failed: target has no supported attack component");
-      entity.getEvents().trigger("bribeNoTarget");
+      entity.getEvents().trigger(BRIBE_NO_TARGET_EVENT);
       return false;
     }
 
@@ -728,7 +778,7 @@ public class PlayerActions extends Component {
 
   /** Stops all player actions when the player dies. */
   private void onDeath() {
-    System.out.println("PLAYER ACTIONS DEATH entity=" + entity.getId());
+    logger.debug("Player actions stopped for entity {} after death", entity.getId());
 
     dead = true;
     moving = false;

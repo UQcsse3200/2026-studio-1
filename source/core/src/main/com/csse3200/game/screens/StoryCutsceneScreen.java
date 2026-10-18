@@ -43,7 +43,6 @@ public class StoryCutsceneScreen extends ScreenAdapter {
   private Stage stage;
 
   private Image backgroundImage;
-  private Image darkOverlay;
 
   private Table dialoguePanel;
   private Label titleLabel;
@@ -59,6 +58,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
   private int revealedWords = 0;
   private float revealTimer = 0f;
   private boolean textFullyRevealed = false;
+  private boolean cutsceneFinished = false;
 
   /**
    * Creates the story cutscene screen and returns to the main game when finished.
@@ -114,6 +114,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   @Override
   public void show() {
+    cutsceneFinished = false;
     stage = new Stage(new ScreenViewport());
 
     createBackground();
@@ -137,7 +138,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   /** Adds a subtle dark overlay so the dialogue remains readable. */
   private void createDarkOverlay() {
-    darkOverlay = new Image();
+    Image darkOverlay = new Image();
     darkOverlay.setFillParent(true);
     darkOverlay.setColor(new Color(0f, 0f, 0f, 0.18f));
 
@@ -160,7 +161,8 @@ public class StoryCutsceneScreen extends ScreenAdapter {
     textLabel.setWrap(true);
     textLabel.setAlignment(1);
 
-    continueLabel = new Label("PRESS SPACE OR ENTER TO CONTINUE", createPromptStyle());
+    continueLabel =
+        new Label("SPACE / ENTER: CONTINUE     ESC: SKIP CUTSCENE", createPromptStyle());
 
     dialoguePanel.add(titleLabel).center().growX();
 
@@ -280,18 +282,20 @@ public class StoryCutsceneScreen extends ScreenAdapter {
     backgroundImage.setDrawable(new TextureRegionDrawable(currentTexture));
   }
 
-  /** Creates keyboard input for advancing the cutscene. */
+  /** Creates keyboard input for advancing or skipping the cutscene. */
   private void createInput() {
     input =
         new InputAdapter() {
 
           @Override
           public boolean keyDown(int keycode) {
+            if (keycode == Input.Keys.ESCAPE) {
+              finishCutscene();
+              return true;
+            }
 
             if (keycode == Input.Keys.SPACE || keycode == Input.Keys.ENTER) {
-
               advanceRequested();
-
               return true;
             }
 
@@ -307,6 +311,9 @@ public class StoryCutsceneScreen extends ScreenAdapter {
    * sentence. A second press advances the scene.
    */
   private void advanceRequested() {
+    if (cutsceneFinished) {
+      return;
+    }
 
     if (!textFullyRevealed) {
       revealAllText();
@@ -316,15 +323,34 @@ public class StoryCutsceneScreen extends ScreenAdapter {
     boolean finished = cutscene.advance();
 
     if (finished) {
-      if (onFinished != null) {
-        onFinished.run();
-      } else {
-        game.setScreen(destinationScreen);
-      }
+      finishCutscene();
       return;
     }
 
     updateScene();
+  }
+
+  /**
+   * Finishes the cutscene and transitions to its configured destination.
+   *
+   * <p>Used by both normal cutscene completion and the skip input.
+   */
+  private void finishCutscene() {
+    if (cutsceneFinished) {
+      return;
+    }
+
+    cutsceneFinished = true;
+
+    if (onFinished != null) {
+      onFinished.run();
+    } else if (destinationScreen != null) {
+      game.setScreen(destinationScreen);
+    } else {
+      Gdx.app.error(
+          "StoryCutsceneScreen",
+          "Cannot finish cutscene: no destination screen or completion callback was provided.");
+    }
   }
 
   /** Reveals all remaining words immediately. */
@@ -339,22 +365,19 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   /** Updates the word-by-word text reveal. */
   private void updateTextReveal(float delta) {
-
-    if (textFullyRevealed || words.length == 0) {
+    if (cutsceneFinished || textFullyRevealed || words.length == 0) {
       return;
     }
 
     revealTimer += delta;
 
     while (revealTimer >= WORD_REVEAL_TIME && revealedWords < words.length) {
-
       revealTimer -= WORD_REVEAL_TIME;
       revealedWords++;
 
       StringBuilder visibleText = new StringBuilder();
 
       for (int i = 0; i < revealedWords; i++) {
-
         if (i > 0) {
           visibleText.append(" ");
         }
@@ -382,7 +405,6 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   @Override
   public void render(float delta) {
-
     Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
 
     Gdx.gl.glClear(com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT);
@@ -395,11 +417,8 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   @Override
   public void resize(int width, int height) {
-
     if (stage != null) {
-
       stage.getViewport().update(width, height, true);
-
       positionDialoguePanel();
     }
   }
@@ -411,7 +430,6 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   @Override
   public void dispose() {
-
     Gdx.input.setInputProcessor(null);
 
     if (currentTexture != null) {
