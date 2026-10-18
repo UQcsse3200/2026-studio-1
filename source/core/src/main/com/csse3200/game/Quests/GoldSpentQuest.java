@@ -10,8 +10,8 @@ public class GoldSpentQuest {
           "The constructor for GoldSpentQuest recieved "
               + "a 0 or less for the parameter goldToSpend when it shouldn't have");
     }
-    this.goldToSpend = (float) goldToSpend;
-    this.goldSpentSnapshot = (float) Quest.getGlobalGoldSpent();
+    this.goldToSpend = goldToSpend;
+    this.goldSpentSnapshot = Quest.getGlobalGoldSpent();
   }
 
   public int checkQuestProgress() {
