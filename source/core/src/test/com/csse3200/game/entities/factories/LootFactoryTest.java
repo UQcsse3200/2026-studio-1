@@ -9,9 +9,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.utils.Array;
 import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.ConsumableItem;
 import com.csse3200.game.components.loot.ConsumableType;
+import com.csse3200.game.components.loot.Item;
+import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.LootPickupComponent;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
@@ -42,11 +46,27 @@ class LootFactoryTest {
 
     ResourceService resourceService = mock(ResourceService.class);
     when(resourceService.getAsset(anyString(), eq(Texture.class))).thenReturn(texture);
+    TextureAtlas atlas = mock(TextureAtlas.class);
+    Array<TextureAtlas.AtlasRegion> regions = new Array<>();
+    regions.add(mock(TextureAtlas.AtlasRegion.class));
 
+    when(atlas.findRegions("gold_coin")).thenReturn(regions);
+    when(resourceService.getAsset(anyString(), eq(TextureAtlas.class))).thenReturn(atlas);
     ServiceLocator.registerResourceService(resourceService);
     ServiceLocator.registerRenderService(mock(RenderService.class));
     ServiceLocator.registerTimeSource(mock(GameTime.class));
     ServiceLocator.registerPhysicsService(new PhysicsService());
+  }
+
+  /** Currency loot should use the reduced gold coin display size. */
+  @Test
+  void shouldRenderCurrencyLootAtReducedGoldCoinSize() {
+    Item currency = new Item("Gold Coin", ItemType.CURRENCY, 1, 1);
+
+    Entity loot = LootFactory.createLoot(currency);
+
+    assertEquals(0.5f, loot.getScale().x, 0.001f);
+    assertEquals(0.5f, loot.getScale().y, 0.001f);
   }
 
   /** Consumables get their own sprite and the bobbing motion, not the currency animation. */
