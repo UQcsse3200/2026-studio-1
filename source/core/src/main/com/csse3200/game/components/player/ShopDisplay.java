@@ -453,6 +453,26 @@ public class ShopDisplay extends UIComponent {
     Label titleLabel = new Label("SHOP", whiteLabelStyle);
     titleLabel.setColor(GOLD_COLOR);
 
+    TextButton closeButton = new TextButton("X", skin);
+    closeButton.setColor(SELL_MODE_TINT);
+    closeButton.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            closeShop();
+          }
+        });
+
+    headerTable.add(titleLabel).left().expandX();
+    headerTable.add(createGoldPill()).center().padRight(12f);
+    headerTable.add(closeButton).size(40f, 32f).right();
+
+    shopTable.add(headerTable).growX().height(40f).top();
+    shopTable.row();
+  }
+
+  /** Builds the gold counter pill (coin icon + amount) shown in the header. */
+  private Table createGoldPill() {
     Table goldPill = new Table();
     goldPill.setBackground(skin.getDrawable(FLAT_BACKGROUND));
     goldPill.getColor().set(GOLD_PILL_TINT);
@@ -470,22 +490,7 @@ public class ShopDisplay extends UIComponent {
     goldLabel.setColor(GOLD_COLOR);
     goldPill.add(goldLabel);
 
-    TextButton closeButton = new TextButton("X", skin);
-    closeButton.setColor(SELL_MODE_TINT);
-    closeButton.addListener(
-        new ClickListener() {
-          @Override
-          public void clicked(InputEvent event, float x, float y) {
-            closeShop();
-          }
-        });
-
-    headerTable.add(titleLabel).left().expandX();
-    headerTable.add(goldPill).center().padRight(12f);
-    headerTable.add(closeButton).size(40f, 32f).right();
-
-    shopTable.add(headerTable).growX().height(40f).top();
-    shopTable.row();
+    return goldPill;
   }
 
   /** Adds a decorative golden divider line separating the header from the category tabs. */
@@ -520,30 +525,13 @@ public class ShopDisplay extends UIComponent {
    */
   private void addTabButton(Table tabTable, String text, ShopTab tab, String iconPath) {
     TextButton button = new TextButton(text, skin, "shop");
-
-    Drawable tabIcon = iconPath == null ? null : loadIcon(iconPath);
-    if (tabIcon != null) {
-      Label label = button.getLabel();
-      button.clearChildren();
-      Image tabImage = new Image(tabIcon);
-      tabImage.setScaling(Scaling.fit);
-      button.add(tabImage).size(22f).padRight(6f);
-      button.add(label);
-    }
+    applyTabIcon(button, iconPath);
 
     button.addListener(
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            currentTab = tab;
-            if (tab == ShopTab.ITEMS) {
-              sellMode = false;
-            }
-            if (tab == ShopTab.UPGRADES) {
-              // Resync before the rebuild, not from inside refreshContent() - see its warning.
-              syncUpgradeCatalog();
-            }
-            refreshContent();
+            onTabClicked(tab);
           }
         });
 
@@ -559,6 +547,34 @@ public class ShopDisplay extends UIComponent {
     tabUnderlines.put(tab, underline);
 
     tabTable.add(tabWrap).padRight(6f);
+  }
+
+  /** Puts an icon in front of a tab button's label when the PNG exists. */
+  private void applyTabIcon(TextButton button, String iconPath) {
+    Drawable tabIcon = iconPath == null ? null : loadIcon(iconPath);
+    if (tabIcon == null) {
+      return;
+    }
+
+    Label label = button.getLabel();
+    button.clearChildren();
+    Image tabImage = new Image(tabIcon);
+    tabImage.setScaling(Scaling.fit);
+    button.add(tabImage).size(22f).padRight(6f);
+    button.add(label);
+  }
+
+  /** Switches to the clicked category tab and rebuilds the content. */
+  private void onTabClicked(ShopTab tab) {
+    currentTab = tab;
+    if (tab == ShopTab.ITEMS) {
+      sellMode = false;
+    }
+    if (tab == ShopTab.UPGRADES) {
+      // Resync before the rebuild, not from inside refreshContent() - see its warning.
+      syncUpgradeCatalog();
+    }
+    refreshContent();
   }
 
   /** Updates tint and text colors across all category tabs based on selection. */
@@ -592,11 +608,7 @@ public class ShopDisplay extends UIComponent {
     // themselves BEFORE calling this.
     hideUpgradePopup();
     contentTable.clearChildren();
-
-    if (gamblingWheel != null) {
-      gamblingWheel.dispose();
-      gamblingWheel = null;
-    }
+    disposeGamblingWheel();
 
     updateGold();
     updateTabHighlights();
@@ -606,6 +618,20 @@ public class ShopDisplay extends UIComponent {
       createItemSubTabs();
     }
 
+    buildContentScroll();
+    populateCurrentTab();
+  }
+
+  /** Disposes the gambling animation, if one is currently shown. */
+  private void disposeGamblingWheel() {
+    if (gamblingWheel != null) {
+      gamblingWheel.dispose();
+      gamblingWheel = null;
+    }
+  }
+
+  /** Creates the scrollable grid that holds the current tab's cards. */
+  private void buildContentScroll() {
     activeGrid = new Table();
     activeGrid.top();
 
@@ -624,7 +650,10 @@ public class ShopDisplay extends UIComponent {
         });
 
     contentTable.add(contentScroll).grow().minHeight(0f).top().left();
+  }
 
+  /** Fills the grid for whichever category tab is active. */
+  private void populateCurrentTab() {
     switch (currentTab) {
       case ITEMS:
         if (sellMode) {
@@ -726,19 +755,9 @@ public class ShopDisplay extends UIComponent {
       Rarity rarity = getRarityForPrice(sellPrice);
 
       addAccentStrip(card, rarity.color);
-      card.add(createIconStack(name, rarity)).size(38f, 38f).padBottom(4f);
-      card.row();
-
-      Label nameLabel = new Label(name, whiteLabelStyle);
-      nameLabel.setColor(TEXT_PRIMARY);
-      nameLabel.setAlignment(Align.center);
-      nameLabel.setEllipsis(true);
-      card.add(nameLabel).growX().center();
-      card.row();
-
-      Label priceLabel = new Label("Gold: " + sellPrice, whiteLabelStyle);
-      priceLabel.setColor(GOLD_COLOR);
-      card.add(priceLabel).padTop(2f).center();
+      addCardIcon(card, name, rarity);
+      addNameLabel(card, name);
+      addPriceLabel(card, "Gold: " + sellPrice, GOLD_COLOR);
 
       card.addListener(
           new ClickListener() {
@@ -798,69 +817,102 @@ public class ShopDisplay extends UIComponent {
     if (listing == null || listing.getProduct() == null) {
       addEmptyCardContent(card, catalogSlot);
     } else {
-      T product = listing.getProduct();
-      String name = nameExtractor.apply(product);
-      int price = listing.getBuyPrice();
-      Rarity rarity = getRarityForPrice(price);
-
-      // An Upgrade card at max tier has no next-tier price (synced to 0) - show "MAX" instead of
-      // the misleading "Gold: 0" and keep the card from offering a purchase.
-      UpgradeNode cardUpgradeNode =
-          currentTab == ShopTab.UPGRADES ? findUpgradeNodeByName(name) : null;
-      boolean cardMaxTier = cardUpgradeNode != null && cardUpgradeNode.isMaxTier();
-
-      addAccentStrip(card, rarity.color);
-
-      if (currentTab == ShopTab.PETS) {
-        card.add(createPetIconStack(rarity, name)).size(38f, 38f).padBottom(4f);
-      } else {
-        card.add(createIconStack(name, rarity)).size(38f, 38f).padBottom(4f);
-      }
-
-      card.row();
-
-      Label nameLabel = new Label(name, whiteLabelStyle);
-      nameLabel.setColor(TEXT_PRIMARY);
-      nameLabel.setAlignment(Align.center);
-      nameLabel.setEllipsis(true);
-      card.add(nameLabel).growX().center();
-      card.row();
-
-      Label priceLabel = new Label(cardMaxTier ? "MAX" : "Gold: " + price, whiteLabelStyle);
-      priceLabel.setColor(priceColor(cardMaxTier, price));
-      card.add(priceLabel).padTop(2f).center();
-
-      card.addListener(
-          new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-              if (currentTab == ShopTab.UPGRADES) {
-                UpgradeNode node = findUpgradeNodeByName(name);
-                if (node != null) {
-                  showUpgradePopup(node);
-                }
-                boolean maxTier = node != null && node.isMaxTier();
-                selectCard(
-                    card,
-                    new CardSelection(
-                        upgradeDetailName(name, node),
-                        price,
-                        rarity,
-                        () -> attemptUpgradePurchase(catalogSlot, node),
-                        "BUY",
-                        true,
-                        maxTier));
-              } else {
-                selectCard(
-                    card,
-                    new CardSelection(
-                        name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true));
-              }
-            }
-          });
+      populateCatalogCard(card, listing, catalogSlot, nameExtractor, buyAction);
     }
 
     addCardToContent(card);
+  }
+
+  /** Fills an occupied catalog card with icon, name, price and its click behaviour. */
+  private <T> void populateCatalogCard(
+      Table card,
+      ShopComponent.ShopListing<T> listing,
+      int catalogSlot,
+      Function<T, String> nameExtractor,
+      IntConsumer buyAction) {
+
+    String name = nameExtractor.apply(listing.getProduct());
+    int price = listing.getBuyPrice();
+    Rarity rarity = getRarityForPrice(price);
+
+    // An Upgrade card at max tier has no next-tier price (synced to 0) - show "MAX" instead of
+    // the misleading "Gold: 0" and keep the card from offering a purchase.
+    UpgradeNode cardUpgradeNode =
+        currentTab == ShopTab.UPGRADES ? findUpgradeNodeByName(name) : null;
+    boolean cardMaxTier = cardUpgradeNode != null && cardUpgradeNode.isMaxTier();
+
+    addAccentStrip(card, rarity.color);
+    addCardIcon(card, name, rarity);
+    addNameLabel(card, name);
+    addPriceLabel(card, cardMaxTier ? "MAX" : "Gold: " + price, priceColor(cardMaxTier, price));
+
+    card.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            onCatalogCardClicked(card, name, price, rarity, catalogSlot, buyAction);
+          }
+        });
+  }
+
+  /** Selects a clicked catalog card, using the Upgrade-specific flow on the Upgrades tab. */
+  private void onCatalogCardClicked(
+      Table card, String name, int price, Rarity rarity, int catalogSlot, IntConsumer buyAction) {
+    if (currentTab == ShopTab.UPGRADES) {
+      selectUpgradeCard(card, name, price, rarity, catalogSlot);
+      return;
+    }
+
+    selectCard(
+        card,
+        new CardSelection(name, price, rarity, () -> buyAction.accept(catalogSlot), "BUY", true));
+  }
+
+  /** Selects an Upgrade card: shows its popup and wires the tiered purchase. */
+  private void selectUpgradeCard(
+      Table card, String name, int price, Rarity rarity, int catalogSlot) {
+    UpgradeNode node = findUpgradeNodeByName(name);
+    if (node != null) {
+      showUpgradePopup(node);
+    }
+    boolean maxTier = node != null && node.isMaxTier();
+    selectCard(
+        card,
+        new CardSelection(
+            upgradeDetailName(name, node),
+            price,
+            rarity,
+            () -> attemptUpgradePurchase(catalogSlot, node),
+            "BUY",
+            true,
+            maxTier));
+  }
+
+  /** Adds the card's icon badge (pet sprite on the Pets tab, item/upgrade icon elsewhere). */
+  private void addCardIcon(Table card, String name, Rarity rarity) {
+    Stack icon =
+        currentTab == ShopTab.PETS
+            ? createPetIconStack(rarity, name)
+            : createIconStack(name, rarity);
+    card.add(icon).size(38f, 38f).padBottom(4f);
+    card.row();
+  }
+
+  /** Adds the centred, ellipsised product name to a card. */
+  private void addNameLabel(Table card, String name) {
+    Label nameLabel = new Label(name, whiteLabelStyle);
+    nameLabel.setColor(TEXT_PRIMARY);
+    nameLabel.setAlignment(Align.center);
+    nameLabel.setEllipsis(true);
+    card.add(nameLabel).growX().center();
+    card.row();
+  }
+
+  /** Adds the price line to a card in the given color. */
+  private void addPriceLabel(Table card, String text, Color color) {
+    Label priceLabel = new Label(text, whiteLabelStyle);
+    priceLabel.setColor(color);
+    card.add(priceLabel).padTop(2f).center();
   }
 
   /** Appends a colored top accent strip indicating rarity. */
@@ -973,6 +1025,26 @@ public class ShopDisplay extends UIComponent {
     detailPanel.setColor(CARD_TINT);
     detailPanel.pad(10f);
 
+    detailNameLabel = new Label("Select an item to view details", whiteLabelStyle);
+    detailNameLabel.setColor(TEXT_MUTED);
+    detailNameLabel.setEllipsis(true);
+
+    detailPriceLabel = new Label("", whiteLabelStyle);
+    detailPriceLabel.setColor(GOLD_COLOR);
+
+    createDetailActionButton();
+
+    Table textColumn = new Table();
+    textColumn.add(detailNameLabel).growX().left().row();
+    textColumn.add(detailPriceLabel).left().padTop(2f);
+
+    detailPanel.add(createDetailIconStack()).size(40f, 40f).padRight(10f);
+    detailPanel.add(textColumn).growX().left();
+    detailPanel.add(detailActionButton).size(85f, 36f).right();
+  }
+
+  /** Builds the icon stack (background, letter fallback, PNG) of the detail panel. */
+  private Stack createDetailIconStack() {
     detailIconBg = new Image(skin.getDrawable(FLAT_BACKGROUND));
     detailIconLabel = new Label("", whiteLabelStyle);
     detailIconLabel.setColor(Color.WHITE);
@@ -986,14 +1058,11 @@ public class ShopDisplay extends UIComponent {
     detailIconStack.add(detailIconBg);
     detailIconStack.add(detailIconLabel);
     detailIconStack.add(detailIconImage);
+    return detailIconStack;
+  }
 
-    detailNameLabel = new Label("Select an item to view details", whiteLabelStyle);
-    detailNameLabel.setColor(TEXT_MUTED);
-    detailNameLabel.setEllipsis(true);
-
-    detailPriceLabel = new Label("", whiteLabelStyle);
-    detailPriceLabel.setColor(GOLD_COLOR);
-
+  /** Builds the BUY/SELL button of the detail panel (disabled until a card is selected). */
+  private void createDetailActionButton() {
     detailActionButton = new TextButton("BUY", skin, "shop");
     detailActionButton.setColor(BUY_MODE_TINT);
     detailActionButton.setDisabled(true);
@@ -1008,14 +1077,6 @@ public class ShopDisplay extends UIComponent {
             }
           }
         });
-
-    Table textColumn = new Table();
-    textColumn.add(detailNameLabel).growX().left().row();
-    textColumn.add(detailPriceLabel).left().padTop(2f);
-
-    detailPanel.add(detailIconStack).size(40f, 40f).padRight(10f);
-    detailPanel.add(textColumn).growX().left();
-    detailPanel.add(detailActionButton).size(85f, 36f).right();
   }
 
   /**
@@ -1048,6 +1109,20 @@ public class ShopDisplay extends UIComponent {
    * Updates selection highlights, applies pulsing scale, and attaches a bobbing arrow indicator.
    */
   private void selectCard(Table card, CardSelection selection) {
+    highlightSelectedCard(card);
+
+    boolean canPerformAction =
+        !selection.maxTier()
+            && (!selection.requiresAffordability() || canAfford(selection.price()));
+    pendingAction = canPerformAction ? selection.action() : null;
+
+    updateDetailIcon(selection);
+    updateDetailText(selection, canPerformAction);
+    updateDetailButton(selection.actionLabel(), canPerformAction);
+  }
+
+  /** Resets the previous selection, then highlights, pulses and marks the new card. */
+  private void highlightSelectedCard(Table card) {
     // Reset previously selected card
     if (selectedCard != null) {
       selectedCard.clearActions();
@@ -1067,14 +1142,11 @@ public class ShopDisplay extends UIComponent {
 
     // Attach / Position bobbing indicator arrow
     attachSelectionArrow(card);
+  }
 
+  /** Shows the selected product's icon (PNG when available, otherwise its initial). */
+  private void updateDetailIcon(CardSelection selection) {
     String name = selection.name();
-    int price = selection.price();
-    boolean maxTier = selection.maxTier();
-    boolean requiresAffordability = selection.requiresAffordability();
-
-    boolean canPerformAction = !maxTier && (!requiresAffordability || canAfford(price));
-    pendingAction = canPerformAction ? selection.action() : null;
 
     detailIconBg.setColor(selection.rarity().color);
     detailIconLabel.setText(
@@ -1084,20 +1156,25 @@ public class ShopDisplay extends UIComponent {
     Drawable detailIcon = currentTab == ShopTab.PETS ? null : iconForName(name);
     detailIconImage.setDrawable(detailIcon);
     detailIconLabel.setVisible(detailIcon == null);
+  }
 
-    detailNameLabel.setText(name);
+  /** Shows the selected product's name and price in the detail panel. */
+  private void updateDetailText(CardSelection selection, boolean canPerformAction) {
+    detailNameLabel.setText(selection.name());
     detailNameLabel.setColor(TEXT_PRIMARY);
 
-    detailPriceLabel.setText(maxTier ? "MAX" : "Gold: " + price);
-    if (maxTier) {
+    detailPriceLabel.setText(selection.maxTier() ? "MAX" : "Gold: " + selection.price());
+    if (selection.maxTier()) {
       detailPriceLabel.setColor(TEXT_MUTED);
-    } else if (requiresAffordability && !canPerformAction) {
+    } else if (selection.requiresAffordability() && !canPerformAction) {
       detailPriceLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
     } else {
       detailPriceLabel.setColor(GOLD_COLOR);
     }
+  }
 
-    String actionLabel = selection.actionLabel();
+  /** Configures the detail panel's BUY/SELL button for the current selection. */
+  private void updateDetailButton(String actionLabel, boolean canPerformAction) {
     detailActionButton.setText(actionLabel);
     detailActionButton.setColor("BUY".equals(actionLabel) ? BUY_MODE_TINT : SELL_MODE_TINT);
     detailActionButton.setDisabled(!canPerformAction);
@@ -1231,6 +1308,14 @@ public class ShopDisplay extends UIComponent {
     upgradePopupTierLabel = new Label("", whiteLabelStyle);
     upgradePopupTierLabel.setColor(GOLD_COLOR);
 
+    layoutUpgradePopup();
+
+    stage.addActor(upgradePopup);
+    upgradePopup.setVisible(false);
+  }
+
+  /** Arranges the popup's close button and labels. */
+  private void layoutUpgradePopup() {
     upgradePopup.add(upgradePopupCloseButton).size(22f, 22f).right().padBottom(6f);
     upgradePopup.row();
     upgradePopup.add(upgradePopupNameLabel).left().row();
@@ -1241,9 +1326,6 @@ public class ShopDisplay extends UIComponent {
         .padTop(8f)
         .row();
     upgradePopup.add(upgradePopupTierLabel).left().padTop(8f);
-
-    stage.addActor(upgradePopup);
-    upgradePopup.setVisible(false);
   }
 
   private void populateUpgradePopup(UpgradeNode node) {
@@ -1416,6 +1498,26 @@ public class ShopDisplay extends UIComponent {
 
   @Override
   public void dispose() {
+    removeShopActors();
+    disposeGamblingWheel();
+
+    // Textures loaded from images/icons/ are tracked separately.
+    disposeIcons();
+
+    contentTable = null;
+    activeGrid = null;
+    contentScroll = null;
+    detailPanel = null;
+    detailIconImage = null;
+    goldLabel = null;
+    selectedCard = null;
+    pendingAction = null;
+
+    super.dispose();
+  }
+
+  /** Removes every actor this component added to the stage and releases the pet atlas. */
+  private void removeShopActors() {
     if (shopTable != null) {
       shopTable.remove();
       shopTable = null;
@@ -1444,26 +1546,11 @@ public class ShopDisplay extends UIComponent {
       batchColorReset.remove();
       batchColorReset = null;
     }
-
-    if (gamblingWheel != null) {
-      gamblingWheel.dispose();
-      gamblingWheel = null;
-    }
-
-    // Textures loaded from images/icons/ are tracked separately.
-    disposeIcons();
-
-    contentTable = null;
-    activeGrid = null;
-    contentScroll = null;
-    detailPanel = null;
-    detailIconImage = null;
-    goldLabel = null;
-    selectedCard = null;
-    pendingAction = null;
-
-    super.dispose();
   }
+
+  // ===========================================================================================
+  // Gambling tab
+  // ===========================================================================================
 
   /** Builds the gambling wheel tab with mode selections. */
   private void createGamblingTab() {
@@ -1472,113 +1559,82 @@ public class ShopDisplay extends UIComponent {
       return;
     }
 
-    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
-
-    if (catalogs == null) {
-      Label unavailable = new Label("Gambling is not available.", whiteLabelStyle);
-
-      unavailable.setColor(TEXT_MUTED);
-      unavailable.setAlignment(Align.center);
-
-      activeGrid.add(unavailable).grow().center();
-
+    if (shop.getGamblingCatalogs() == null) {
+      addGamblingUnavailable();
       return;
     }
 
-    /*
-     * Root container for the gambling tab.
-     *
-     * The root itself fills the available shop area and is explicitly
-     * centred so every gambling element is positioned relative to the
-     * middle of the tab.
-     */
+    // Root container for the gambling tab; every element is centred relative to its middle.
     Table gamblingRoot = new Table();
     gamblingRoot.setFillParent(false);
     gamblingRoot.defaults().pad(2f);
     gamblingRoot.center();
 
-    /*
-     * ------------------------------------------------------------
-     * STANDARD / PREMIUM
-     * ------------------------------------------------------------
-     */
+    gamblingRoot.add(createGamblingModeRow()).center().padBottom(4f).row();
+
+    // GamblingWheel is still the existing class/API; it shows the square lottery animation.
+    gamblingWheel = new GamblingWheel(whiteLabelStyle);
+    gamblingRoot.add(gamblingWheel).size(380f, 248f).center().padTop(2f).padBottom(4f).row();
+
+    gamblingRoot.add(createGamblingSpinRow()).center().padTop(2f).padBottom(4f).row();
+    gamblingRoot.add(createGamblingResultLabel()).center().padTop(2f).row();
+
+    // grow() lets the root fill the tab area while center() keeps its contents centred.
+    activeGrid.add(gamblingRoot).grow().center();
+
+    // Load the currently selected catalogue.
+    refreshGamblingWheel();
+  }
+
+  /** Shows a placeholder message when no gambling catalogs are installed. */
+  private void addGamblingUnavailable() {
+    Label unavailable = new Label("Gambling is not available.", whiteLabelStyle);
+    unavailable.setColor(TEXT_MUTED);
+    unavailable.setAlignment(Align.center);
+    activeGrid.add(unavailable).grow().center();
+  }
+
+  /** Builds the STANDARD / PREMIUM catalogue switch buttons. */
+  private Table createGamblingModeRow() {
     Table modeRow = new Table();
     modeRow.defaults().pad(0f);
 
     standardGamblingButton = new TextButton("STANDARD", skin, "shop");
-
     premiumGamblingButton = new TextButton("PREMIUM", skin, "shop");
 
     standardGamblingButton.addListener(
-        new ClickListener() {
-          @Override
-          public void clicked(InputEvent event, float x, float y) {
-            if (gamblingWheel != null && gamblingWheel.isSpinning()) {
-              return;
-            }
-
-            currentGamblingCatalog = GamblingCatalogs.CatalogId.STANDARD;
-
-            refreshGamblingWheel();
-          }
-        });
-
+        createCatalogSwitchListener(GamblingCatalogs.CatalogId.STANDARD));
     premiumGamblingButton.addListener(
-        new ClickListener() {
-          @Override
-          public void clicked(InputEvent event, float x, float y) {
-            if (gamblingWheel != null && gamblingWheel.isSpinning()) {
-              return;
-            }
-
-            currentGamblingCatalog = GamblingCatalogs.CatalogId.PREMIUM;
-
-            refreshGamblingWheel();
-          }
-        });
+        createCatalogSwitchListener(GamblingCatalogs.CatalogId.PREMIUM));
 
     modeRow.add(standardGamblingButton).width(120f).height(32f).padRight(8f);
-
     modeRow.add(premiumGamblingButton).width(120f).height(32f);
+    return modeRow;
+  }
 
-    gamblingRoot.add(modeRow).center().padBottom(4f).row();
+  /** Creates a click listener that switches to the given catalogue (ignored while spinning). */
+  private ClickListener createCatalogSwitchListener(GamblingCatalogs.CatalogId catalogId) {
+    return new ClickListener() {
+      @Override
+      public void clicked(InputEvent event, float x, float y) {
+        if (gamblingWheel != null && gamblingWheel.isSpinning()) {
+          return;
+        }
 
-    /*
-     * ------------------------------------------------------------
-     * LOTTERY BOX
-     * ------------------------------------------------------------
-     *
-     * GamblingWheel is still the existing class/API.
-     * It now displays the square lottery animation rather than
-     * a rotating wheel.
-     */
-    gamblingWheel = new GamblingWheel(whiteLabelStyle);
+        currentGamblingCatalog = catalogId;
+        refreshGamblingWheel();
+      }
+    };
+  }
 
-    gamblingRoot.add(gamblingWheel).size(380f, 248f).center().padTop(2f).padBottom(4f).row();
-
-    /*
-     * ------------------------------------------------------------
-     * PRICE
-     * ------------------------------------------------------------
-     */
+  /** Builds the row holding the spin price and the SPIN button. */
+  private Table createGamblingSpinRow() {
     gamblingPriceLabel = new Label("", whiteLabelStyle);
-
     gamblingPriceLabel.setColor(GOLD_COLOR);
     gamblingPriceLabel.setAlignment(Align.center);
 
-    Table spinRow = new Table();
-
-    spinRow.add(gamblingPriceLabel).center().padRight(16f);
-
-    /*
-     * ------------------------------------------------------------
-     * SPIN BUTTON
-     * ------------------------------------------------------------
-     */
     spinButton = new TextButton("SPIN", skin, "shop");
-
     spinButton.setColor(SPIN_BUTTON_TINT);
-
     spinButton.addListener(
         new ClickListener() {
           @Override
@@ -1587,46 +1643,34 @@ public class ShopDisplay extends UIComponent {
           }
         });
 
+    Table spinRow = new Table();
+    spinRow.add(gamblingPriceLabel).center().padRight(16f);
     spinRow.add(spinButton).width(120f).height(32f).center();
+    return spinRow;
+  }
 
-    gamblingRoot.add(spinRow).center().padTop(2f).padBottom(4f).row();
-
-    /*
-     * ------------------------------------------------------------
-     * RESULT MESSAGE
-     * ------------------------------------------------------------
-     */
+  /** Builds the label that reports the spin result. */
+  private Label createGamblingResultLabel() {
     gamblingResultLabel = new Label("Choose a catalogue and spin!", whiteLabelStyle);
-
     gamblingResultLabel.setColor(TEXT_PRIMARY);
     gamblingResultLabel.setAlignment(Align.center);
+    return gamblingResultLabel;
+  }
 
-    gamblingRoot.add(gamblingResultLabel).center().padTop(2f).row();
-
-    /*
-     * ------------------------------------------------------------
-     * ADD GAMBLING CONTENT TO SHOP
-     * ------------------------------------------------------------
-     *
-     * grow() allows gamblingRoot to occupy the available tab
-     * area, while center() keeps its contents centred.
-     */
-    activeGrid.add(gamblingRoot).grow().center();
-
-    /*
-     * Load the currently selected catalogue.
-     */
-    refreshGamblingWheel();
+  /** Returns the currently selected spin catalogue, or null when unavailable. */
+  private GamblingCatalogs.SpinCatalog currentSpinCatalog(ShopComponent shop) {
+    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
+    if (catalogs == null) {
+      return null;
+    }
+    return catalogs.get(currentGamblingCatalog);
   }
 
   private void refreshGamblingWheel() {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
     if (shop == null || gamblingWheel == null) return;
 
-    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
-    if (catalogs == null) return;
-
-    GamblingCatalogs.SpinCatalog catalog = catalogs.get(currentGamblingCatalog);
+    GamblingCatalogs.SpinCatalog catalog = currentSpinCatalog(shop);
     if (catalog == null) return;
 
     gamblingWheel.setCatalog(currentGamblingCatalog, catalog);
@@ -1655,51 +1699,65 @@ public class ShopDisplay extends UIComponent {
     ShopComponent shop = entity.getComponent(ShopComponent.class);
     if (shop == null || gamblingWheel == null || gamblingWheel.isSpinning()) return;
 
-    GamblingCatalogs catalogs = shop.getGamblingCatalogs();
-    if (catalogs == null) return;
-
-    GamblingCatalogs.SpinCatalog catalog = catalogs.get(currentGamblingCatalog);
+    GamblingCatalogs.SpinCatalog catalog = currentSpinCatalog(shop);
     if (catalog == null) return;
 
     if (!canAfford(catalog.getSpinPrice())) {
-      gamblingResultLabel.setText("Not enough gold.");
-      gamblingResultLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
+      showGamblingMessage("Not enough gold.", INSUFFICIENT_FUNDS_COLOR);
       return;
     }
 
     GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> result =
         shop.buySpin(currentGamblingCatalog);
     if (result == null) {
-      gamblingResultLabel.setText("Spin failed.");
-      gamblingResultLabel.setColor(INSUFFICIENT_FUNDS_COLOR);
+      showGamblingMessage("Spin failed.", INSUFFICIENT_FUNDS_COLOR);
       refreshGamblingWheel();
       return;
     }
 
-    if (result.product() instanceof ShopComponent.Upgrade upgrade) {
-      UpgradeNode node = findUpgradeNodeByName(upgrade.getName());
-      if (node != null && !node.isMaxTier()) {
-        node.purchaseNextTier();
-        showPurchaseToast(node);
-      }
-    }
+    applyUpgradePrize(result);
 
     int winningSlot = findPrizeSlot(catalog, result);
     if (winningSlot < 1) {
-      gamblingResultLabel.setText("Prize received.");
-      gamblingResultLabel.setColor(GOLD_COLOR);
+      showGamblingMessage("Prize received.", GOLD_COLOR);
       refreshGamblingWheel();
       return;
     }
 
+    animateSpin(shop, winningSlot, result);
+  }
+
+  /** Sets the gambling result label's text and color. */
+  private void showGamblingMessage(String text, Color color) {
+    gamblingResultLabel.setText(text);
+    gamblingResultLabel.setColor(color);
+  }
+
+  /** Activates the next tier of an Upgrade that was won from the wheel. */
+  private void applyUpgradePrize(GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> result) {
+    if (!(result.product() instanceof ShopComponent.Upgrade upgrade)) {
+      return;
+    }
+
+    UpgradeNode node = findUpgradeNodeByName(upgrade.getName());
+    if (node != null && !node.isMaxTier()) {
+      node.purchaseNextTier();
+      showPurchaseToast(node);
+    }
+  }
+
+  /** Locks the SPIN button, runs the wheel animation, then reveals the prize. */
+  private void animateSpin(
+      ShopComponent shop,
+      int winningSlot,
+      GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> result) {
     spinButton.setDisabled(true);
     spinButton.setTouchable(Touchable.disabled);
 
     gamblingWheel.spinToSlot(
         winningSlot,
         () -> {
-          gamblingResultLabel.setText("You won: " + getPrizeName(result));
-          gamblingResultLabel.setColor(GOLD_COLOR);
+          showGamblingMessage("You won: " + getPrizeName(result), GOLD_COLOR);
           refreshGamblingWheel();
 
           if (shop.getPendingPetReplacement() != null) {
@@ -1788,52 +1846,49 @@ public class ShopDisplay extends UIComponent {
             + ", but both pet slots are full.\n"
             + "Choose a pet to replace, or cancel.");
 
+    addPetReplacementButtons(dialog, shop, inventory);
+
+    dialog.show(stage);
+  }
+
+  /** Adds "Replace 6", "Replace 7" and "Cancel" buttons to the pet replacement dialog. */
+  private void addPetReplacementButtons(
+      Dialog dialog, ShopComponent shop, InventoryComponent inventory) {
     ShopComponent.Pet slot1 = inventory.getPet(1);
     ShopComponent.Pet slot2 = inventory.getPet(2);
 
-    TextButton replaceSlot1Button =
-        new TextButton("Replace 6. " + (slot1 == null ? EMPTY_TEXT : slot1.getName()), skin);
+    dialog
+        .getButtonTable()
+        .add(
+            createDialogButton(
+                dialog,
+                "Replace 6. " + (slot1 == null ? EMPTY_TEXT : slot1.getName()),
+                () -> shop.replacePetWithPendingPrize(1)));
+    dialog
+        .getButtonTable()
+        .add(
+            createDialogButton(
+                dialog,
+                "Replace 7. " + (slot2 == null ? EMPTY_TEXT : slot2.getName()),
+                () -> shop.replacePetWithPendingPrize(2)));
+    dialog
+        .getButtonTable()
+        .add(createDialogButton(dialog, "Cancel", shop::cancelPendingPetReplacement));
+  }
 
-    TextButton replaceSlot2Button =
-        new TextButton("Replace 7. " + (slot2 == null ? EMPTY_TEXT : slot2.getName()), skin);
-
-    TextButton cancelButton = new TextButton("Cancel", skin);
-
-    replaceSlot1Button.addListener(
+  /** Creates a dialog button that runs an action, closes the dialog and refreshes the wheel. */
+  private TextButton createDialogButton(Dialog dialog, String label, Runnable action) {
+    TextButton button = new TextButton(label, skin);
+    button.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            shop.replacePetWithPendingPrize(1);
+            action.run();
             dialog.hide();
             refreshGamblingWheel();
           }
         });
-
-    replaceSlot2Button.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            shop.replacePetWithPendingPrize(2);
-            dialog.hide();
-            refreshGamblingWheel();
-          }
-        });
-
-    cancelButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            shop.cancelPendingPetReplacement();
-            dialog.hide();
-            refreshGamblingWheel();
-          }
-        });
-
-    dialog.getButtonTable().add(replaceSlot1Button);
-    dialog.getButtonTable().add(replaceSlot2Button);
-    dialog.getButtonTable().add(cancelButton);
-
-    dialog.show(stage);
+    return button;
   }
 
   // ===========================================================================================

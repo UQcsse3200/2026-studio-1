@@ -115,12 +115,6 @@ public class InventoryDisplay extends UIComponent {
   private static final Color SELECTION_PET_COLOR = new Color(1f, 0.8f, 0.3f, 1f);
   private static final Color FRAME_IDLE_TINT = new Color(0.62f, 0.62f, 0.66f, 1f);
 
-  // --- State ---------------------------------------------------------------------------------
-  private Table hudTable;
-  private Table tooltipTable;
-  private Label.LabelStyle labelStyle;
-  private boolean hidden = false;
-
   // --- Icon PNGs: source/core/assets/images/icons/ (libGDX paths are relative to assets/) ----
   private static final String ICON_POTION_RED = "images/icons/potion_red.png";
   private static final String ICON_POTION_BLUE = "images/icons/potion_blue.png";
@@ -150,10 +144,16 @@ public class InventoryDisplay extends UIComponent {
     ICON_RULES.put("bow", ICON_BOW);
   }
 
+  // --- State ---------------------------------------------------------------------------------
+  private Table hudTable;
+  private Table tooltipTable;
+  private Label.LabelStyle labelStyle;
+  private boolean hidden = false;
+
   private final Map<String, Drawable> iconCache = new HashMap<>();
   private final List<Texture> iconTextures = new ArrayList<>();
-
   private final List<Texture> generatedTextures = new ArrayList<>();
+
   private Drawable slotDrawable;
   private Drawable petSlotDrawable;
   private Drawable selectionDrawable;
@@ -244,10 +244,26 @@ public class InventoryDisplay extends UIComponent {
    */
   private Actor createHotbarRow(InventoryComponent inventory) {
     Table row = new Table();
+    row.add(createItemPanel(inventory)).bottom();
 
-    Table itemPanel = new Table();
-    itemPanel.setBackground(panelDrawable);
-    itemPanel.pad(PANEL_PADDING);
+    if (inventory.getPetSlotCount() > 0) {
+      row.add(createPetPanel(inventory)).bottom().padLeft(GROUP_GAP);
+    }
+
+    return row;
+  }
+
+  /** Creates a beveled panel that holds a row of slots. */
+  private Table newSlotPanel() {
+    Table panel = new Table();
+    panel.setBackground(panelDrawable);
+    panel.pad(PANEL_PADDING);
+    return panel;
+  }
+
+  /** Creates the panel holding the item slots. */
+  private Table createItemPanel(InventoryComponent inventory) {
+    Table itemPanel = newSlotPanel();
 
     for (int slotNumber = 1; slotNumber <= inventory.getMaxSlots(); slotNumber++) {
       boolean active = inventory.getActiveSlot() == slotNumber;
@@ -256,32 +272,29 @@ public class InventoryDisplay extends UIComponent {
           .size(SLOT_SIZE);
     }
 
-    row.add(itemPanel).bottom();
+    return itemPanel;
+  }
 
-    int petSlots = inventory.getPetSlotCount();
-    if (petSlots > 0) {
-      PetManagerComponent petManager = entity.getComponent(PetManagerComponent.class);
+  /** Creates the panel holding the pet slots. */
+  private Table createPetPanel(InventoryComponent inventory) {
+    PetManagerComponent petManager = entity.getComponent(PetManagerComponent.class);
+    Table petPanel = newSlotPanel();
 
-      Table petPanel = new Table();
-      petPanel.setBackground(panelDrawable);
-      petPanel.pad(PANEL_PADDING);
-
-      for (int petSlot = 1; petSlot <= petSlots; petSlot++) {
-        ShopComponent.Pet pet = inventory.getPet(petSlot);
-
-        boolean active =
-            pet != null
-                && petManager != null
-                && petManager.getActivePetType() != null
-                && petManager.getActivePetType().getName().equals(pet.getName());
-
-        petPanel.add(createPetSlot(pet, petSlot, active)).size(SLOT_SIZE);
-      }
-
-      row.add(petPanel).bottom().padLeft(GROUP_GAP);
+    for (int petSlot = 1; petSlot <= inventory.getPetSlotCount(); petSlot++) {
+      ShopComponent.Pet pet = inventory.getPet(petSlot);
+      boolean active = isActivePet(pet, petManager);
+      petPanel.add(createPetSlot(pet, petSlot, active)).size(SLOT_SIZE);
     }
 
-    return row;
+    return petPanel;
+  }
+
+  /** Returns whether the given pet is the player's currently active companion. */
+  private static boolean isActivePet(ShopComponent.Pet pet, PetManagerComponent petManager) {
+    return pet != null
+        && petManager != null
+        && petManager.getActivePetType() != null
+        && petManager.getActivePetType().getName().equals(pet.getName());
   }
 
   /**
@@ -336,8 +349,8 @@ public class InventoryDisplay extends UIComponent {
   }
 
   /**
-   * Assembles a slot out of stacked layers: background, selection frame, icon, hotkey number and
-   * stack count.
+   * Assembles a slot out of stacked layers: background, glow, icon, frame, hotkey number, stack
+   * count and hover overlay.
    *
    * @param background beveled slot background
    * @param hotkey text for the key number in the top-left corner
@@ -361,110 +374,161 @@ public class InventoryDisplay extends UIComponent {
     // The slot itself receives clicks; every layer inside it lets them fall through.
     slot.setTouchable(Touchable.enabled);
 
-    Image backgroundImage = new Image(background);
-    backgroundImage.setTouchable(Touchable.disabled);
-    slot.add(backgroundImage);
+    slot.add(passive(new Image(background)));
+    addGlowLayer(slot, active, selectionColor);
+    addIconLayer(slot, icon);
+    addFrameLayer(slot, active, icon == null, selectionColor);
+    addKeyLayer(slot, hotkey, active);
+    addQuantityLayer(slot, quantity);
+    addHoverAndClick(slot, onClick);
+    popIfSelected(slot, active, hotkey);
 
-    // The new selected-slot artwork already has its own glow, so only add the pulsing glow
-    // when that PNG is missing.
-    if (active && selectedFrameDrawable == null) {
-      Image glow = new Image(glowDrawable);
-      glow.setColor(selectionColor);
-      glow.setTouchable(Touchable.disabled);
-      glow.addAction(
-          Actions.forever(Actions.sequence(Actions.alpha(0.45f, 0.8f), Actions.alpha(1f, 0.8f))));
-      slot.add(glow);
+    return slot;
+  }
+
+  /** Makes an image ignore touches so clicks fall through to the slot. */
+  private static Image passive(Image image) {
+    image.setTouchable(Touchable.disabled);
+    return image;
+  }
+
+  /** Creates an empty layer table that ignores touches. */
+  private static Table passiveLayer() {
+    Table layer = new Table();
+    layer.setTouchable(Touchable.disabled);
+    return layer;
+  }
+
+  /** Adds the pulsing glow behind the icon (only when the selected PNG has no glow of its own). */
+  private void addGlowLayer(Stack slot, boolean active, Color selectionColor) {
+    if (!active || selectedFrameDrawable != null) {
+      return;
     }
 
-    if (icon != null) {
-      Table iconLayer = new Table();
-      iconLayer.setTouchable(Touchable.disabled);
-      iconLayer.add(icon).size(ICON_SIZE);
-      slot.add(iconLayer);
+    Image glow = passive(new Image(glowDrawable));
+    glow.setColor(selectionColor);
+    glow.addAction(
+        Actions.forever(Actions.sequence(Actions.alpha(0.45f, 0.8f), Actions.alpha(1f, 0.8f))));
+    slot.add(glow);
+  }
+
+  /** Adds the item/pet icon layer, if the slot holds something. */
+  private void addIconLayer(Stack slot, Actor icon) {
+    if (icon == null) {
+      return;
     }
 
-    // Frame: selected PNG > empty PNG > normal PNG > legacy hotbar_frame_40.png > generated ring.
-    Drawable chosenFrame;
-    boolean customFrame = true;
+    Table iconLayer = passiveLayer();
+    iconLayer.add(icon).size(ICON_SIZE);
+    slot.add(iconLayer);
+  }
+
+  /** Picks the frame: selected PNG > empty PNG > normal PNG > legacy frame (may be null). */
+  private Drawable pickFrame(boolean active, boolean empty) {
     if (active && selectedFrameDrawable != null) {
-      chosenFrame = selectedFrameDrawable;
-    } else if (!active && icon == null && emptyFrameDrawable != null) {
-      chosenFrame = emptyFrameDrawable;
-    } else if (normalFrameDrawable != null) {
-      chosenFrame = normalFrameDrawable;
-    } else {
-      chosenFrame = frameDrawable;
-      customFrame = false;
+      return selectedFrameDrawable;
     }
+    if (!active && empty && emptyFrameDrawable != null) {
+      return emptyFrameDrawable;
+    }
+    if (normalFrameDrawable != null) {
+      return normalFrameDrawable;
+    }
+    return frameDrawable;
+  }
 
-    if (chosenFrame != null) {
-      Image frame = new Image(chosenFrame);
+  /** Adds the frame layer, or the generated selection ring when there is no frame image. */
+  private void addFrameLayer(Stack slot, boolean active, boolean empty, Color selectionColor) {
+    Drawable chosen = pickFrame(active, empty);
+
+    if (chosen != null) {
       // New artwork carries its own colours; only the legacy frame is dimmed when idle.
+      boolean customFrame = chosen != frameDrawable;
+      Image frame = passive(new Image(chosen));
       frame.setColor(active || customFrame ? Color.WHITE : FRAME_IDLE_TINT);
-      frame.setTouchable(Touchable.disabled);
       slot.add(frame);
     } else if (active) {
-      // No frame image at all: fall back to the generated selection ring.
-      Image selection = new Image(selectionDrawable);
+      Image selection = passive(new Image(selectionDrawable));
       selection.setColor(selectionColor);
-      selection.setTouchable(Touchable.disabled);
       slot.add(selection);
     }
+  }
 
-    Table keyLayer = new Table();
-    keyLayer.setTouchable(Touchable.disabled);
+  /** Adds the hotkey number in the top-left corner. */
+  private void addKeyLayer(Stack slot, String hotkey, boolean active) {
+    Table keyLayer = passiveLayer();
     keyLayer.top().left().pad(14f, 18f, 0f, 0f);
     keyLayer.add(shadowText(hotkey, active ? TEXT_WHITE : TEXT_KEY_IDLE, 0.6f));
     slot.add(keyLayer);
+  }
 
-    if (quantity != null) {
-      Table quantityLayer = new Table();
-      quantityLayer.setTouchable(Touchable.disabled);
-      quantityLayer.bottom().right().pad(0f, 0f, 14f, 16f);
-      quantityLayer.add(shadowText(quantity, TEXT_WHITE, 0.8f));
-      slot.add(quantityLayer);
+  /** Adds the stack count in the bottom-right corner, if there is one. */
+  private void addQuantityLayer(Stack slot, String quantity) {
+    if (quantity == null) {
+      return;
     }
 
-    if (onClick != null) {
-      Image hover = new Image(hoverDrawable);
-      hover.setTouchable(Touchable.disabled);
-      hover.setVisible(false);
-      slot.add(hover);
+    Table quantityLayer = passiveLayer();
+    quantityLayer.bottom().right().pad(0f, 0f, 14f, 16f);
+    quantityLayer.add(shadowText(quantity, TEXT_WHITE, 0.8f));
+    slot.add(quantityLayer);
+  }
 
-      slot.addListener(
-          new ClickListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-              super.enter(event, x, y, pointer, fromActor);
-              if (pointer == -1) {
-                hover.setVisible(true);
-              }
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-              super.exit(event, x, y, pointer, toActor);
-              if (pointer == -1) {
-                hover.setVisible(false);
-              }
-            }
-
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-              onClick.run();
-            }
-          });
+  /** Adds the hover overlay and click handling for clickable slots. */
+  private void addHoverAndClick(Stack slot, Runnable onClick) {
+    if (onClick == null) {
+      return;
     }
 
-    if (active && hotkey.equals(popHotkey)) {
-      // Bounce in when freshly selected.
-      slot.setTransform(true);
-      slot.setOrigin(SLOT_SIZE / 2f, SLOT_SIZE / 2f);
-      slot.setScale(0.8f);
-      slot.addAction(Actions.scaleTo(1f, 1f, 0.35f, Interpolation.swingOut));
+    Image hover = passive(new Image(hoverDrawable));
+    hover.setVisible(false);
+    slot.add(hover);
+
+    slot.addListener(new HoverClickListener(hover, onClick));
+  }
+
+  /** Bounces the slot in when it was freshly selected. */
+  private void popIfSelected(Stack slot, boolean active, String hotkey) {
+    if (!active || !hotkey.equals(popHotkey)) {
+      return;
     }
 
-    return slot;
+    slot.setTransform(true);
+    slot.setOrigin(SLOT_SIZE / 2f, SLOT_SIZE / 2f);
+    slot.setScale(0.8f);
+    slot.addAction(Actions.scaleTo(1f, 1f, 0.35f, Interpolation.swingOut));
+  }
+
+  /** Shows a hover overlay while the mouse is over a slot and runs an action on click. */
+  private static class HoverClickListener extends ClickListener {
+    private final Image hover;
+    private final Runnable onClick;
+
+    HoverClickListener(Image hover, Runnable onClick) {
+      this.hover = hover;
+      this.onClick = onClick;
+    }
+
+    @Override
+    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+      super.enter(event, x, y, pointer, fromActor);
+      if (pointer == -1) {
+        hover.setVisible(true);
+      }
+    }
+
+    @Override
+    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+      super.exit(event, x, y, pointer, toActor);
+      if (pointer == -1) {
+        hover.setVisible(false);
+      }
+    }
+
+    @Override
+    public void clicked(InputEvent event, float x, float y) {
+      onClick.run();
+    }
   }
 
   /**
@@ -648,13 +712,13 @@ public class InventoryDisplay extends UIComponent {
     glowDrawable = buildGlowDrawable();
 
     // New artwork from source/core/assets/images/icons/ (falls back to the above when missing).
-    Drawable coinPng = loadIcon(ICON_COIN); // images/icons/coin.png
+    Drawable coinPng = loadIcon(ICON_COIN);
     if (coinPng != null) {
       coinDrawable = coinPng;
     }
-    emptyFrameDrawable = loadIcon(ICON_SLOT_EMPTY); // images/icons/slot_empty.png
-    normalFrameDrawable = loadIcon(ICON_SLOT_NORMAL); // images/icons/slot_normal.png
-    selectedFrameDrawable = loadIcon(ICON_SLOT_SELECTED); // images/icons/slot_selected.png
+    emptyFrameDrawable = loadIcon(ICON_SLOT_EMPTY);
+    normalFrameDrawable = loadIcon(ICON_SLOT_NORMAL);
+    selectedFrameDrawable = loadIcon(ICON_SLOT_SELECTED);
   }
 
   /**
@@ -670,6 +734,11 @@ public class InventoryDisplay extends UIComponent {
 
     generatedTextures.add(texture);
     return texture;
+  }
+
+  /** Wraps a finished pixmap as a drawable (the pixmap is disposed). */
+  private Drawable toDrawable(Pixmap pixmap) {
+    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
   }
 
   /** Creates a pixmap that writes colours exactly as given (no alpha blending). */
@@ -715,7 +784,7 @@ public class InventoryDisplay extends UIComponent {
       }
     }
 
-    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
+    return toDrawable(pixmap);
   }
 
   /** Builds the selection frame: a black outline with a white ring inside, centre transparent. */
@@ -739,7 +808,7 @@ public class InventoryDisplay extends UIComponent {
       }
     }
 
-    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
+    return toDrawable(pixmap);
   }
 
   /** Builds the beveled, scalable nine-patch panel used behind the hotbar and gold counter. */
@@ -821,7 +890,7 @@ public class InventoryDisplay extends UIComponent {
       }
     }
 
-    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
+    return toDrawable(pixmap);
   }
 
   /**
@@ -858,7 +927,7 @@ public class InventoryDisplay extends UIComponent {
       }
     }
 
-    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
+    return toDrawable(pixmap);
   }
 
   /** Builds the translucent white overlay shown over a hovered, clickable slot. */
@@ -873,18 +942,12 @@ public class InventoryDisplay extends UIComponent {
       }
     }
 
-    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
+    return toDrawable(pixmap);
   }
 
   /** Builds a small pixel-art gold coin (outline, rim, face, centre groove and a shine). */
   private Drawable buildCoinDrawable() {
     Pixmap pixmap = newPixmap(COIN_PX);
-
-    int outline = Color.rgba8888(COIN_OUTLINE);
-    int edge = Color.rgba8888(COIN_EDGE);
-    int fill = Color.rgba8888(COIN_FILL);
-    int groove = Color.rgba8888(COIN_GROOVE);
-    int shine = Color.rgba8888(COIN_SHINE);
 
     float center = (COIN_PX - 1) / 2f;
 
@@ -894,31 +957,32 @@ public class InventoryDisplay extends UIComponent {
         float dy = y - center;
         float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
-        if (distance > 4.7f) {
-          continue;
+        if (distance <= 4.7f) {
+          pixmap.drawPixel(x, y, Color.rgba8888(coinColor(x, y, distance)));
         }
-
-        int color;
-        if (distance > 3.7f) {
-          color = outline;
-        } else if ((x == 4 || x == 5) && y >= 2 && y <= 7) {
-          color = groove;
-        } else if (distance > 2.9f) {
-          color = edge;
-        } else {
-          color = fill;
-        }
-
-        boolean isShine = (y == 2 && (x == 2 || x == 3)) || (x == 2 && y == 3);
-        if (isShine) {
-          color = shine;
-        }
-
-        pixmap.drawPixel(x, y, color);
       }
     }
 
-    return new TextureRegionDrawable(new TextureRegion(buildTexture(pixmap)));
+    return toDrawable(pixmap);
+  }
+
+  /** Picks the colour of one coin pixel from its position and distance to the centre. */
+  private static Color coinColor(int x, int y, float distance) {
+    boolean isShine = (y == 2 && (x == 2 || x == 3)) || (x == 2 && y == 3);
+
+    if (isShine) {
+      return COIN_SHINE;
+    }
+    if (distance > 3.7f) {
+      return COIN_OUTLINE;
+    }
+    if ((x == 4 || x == 5) && y >= 2 && y <= 7) {
+      return COIN_GROOVE;
+    }
+    if (distance > 2.9f) {
+      return COIN_EDGE;
+    }
+    return COIN_FILL;
   }
 
   // ===========================================================================================
@@ -1044,7 +1108,13 @@ public class InventoryDisplay extends UIComponent {
 
     // Textures loaded from images/icons/ are tracked separately.
     disposeIcons();
+    clearDrawables();
 
+    super.dispose();
+  }
+
+  /** Drops every drawable reference so nothing points at a disposed texture. */
+  private void clearDrawables() {
     slotDrawable = null;
     petSlotDrawable = null;
     selectionDrawable = null;
@@ -1057,8 +1127,6 @@ public class InventoryDisplay extends UIComponent {
     emptyFrameDrawable = null;
     normalFrameDrawable = null;
     selectedFrameDrawable = null;
-
-    super.dispose();
   }
 
   /**
