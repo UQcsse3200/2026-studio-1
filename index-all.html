@@ -1088,6 +1088,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Team rule: the attack that petrifies must wait at least this many times the petrify duration.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/loot/ConsumableItem.html#copy()" class="member-name-link">copy()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/ConsumableItem.html" title="class in com.csse3200.game.components.loot">ConsumableItem</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/loot/Item.html#copy()" class="member-name-link">copy()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/Item.html" title="class in com.csse3200.game.components.loot">Item</a></dt>
+<dd>
+<div class="block">Returns a new item with the same name, type, quantity, max stack, and sell price.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/loot/WeaponItem.html#copy()" class="member-name-link">copy()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/WeaponItem.html" title="class in com.csse3200.game.components.loot">WeaponItem</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/perks/tortoises/TortoisePlan.html#countFor(java.lang.String)" class="member-name-link">countFor(String)</a> - Static method in class com.csse3200.game.perks.tortoises.<a href="com/csse3200/game/perks/tortoises/TortoisePlan.html" title="class in com.csse3200.game.perks.tortoises">TortoisePlan</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/GameArea.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.areas.<a href="com/csse3200/game/areas/GameArea.html" title="class in com.csse3200.game.areas">GameArea</a></dt>
@@ -2099,11 +2107,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropActiveStack()" class="member-name-link">dropActiveStack()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
 <dd>
-<div class="block">Drops the whole stack from the currently selected inventory slot.</div>
+<div class="block">Drops one unit from the currently selected inventory slot.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropFirstStack()" class="member-name-link">dropFirstStack()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
 <dd>
-<div class="block">Drops the whole stack from the lowest-numbered occupied inventory slot.</div>
+<div class="block">Drops one unit from the lowest-numbered occupied inventory slot.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ItemDropComponent.html#dropGold()" class="member-name-link">dropGold()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ItemDropComponent.html" title="class in com.csse3200.game.components.player">ItemDropComponent</a></dt>
 <dd>
@@ -3029,13 +3037,21 @@ loadScripts(document, 'script');</script>
 <div class="block">Gets the sideways speed.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#getHudHeight()" class="member-name-link">getHudHeight()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the height of the whole inventory HUD (gold counter plus hotbar row).</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#getHudWidth()" class="member-name-link">getHudWidth()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the width of the whole inventory HUD (gold counter, hotbar and pet panel).</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#getHudX()" class="member-name-link">getHudX()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the x position of the inventory HUD (bottom-left corner) in stage coordinates.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#getHudY()" class="member-name-link">getHudY()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Returns the y position of the inventory HUD (bottom-left corner) in stage coordinates.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/RoomTransition.html#getId()" class="member-name-link">getId()</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/RoomTransition.html" title="class in com.csse3200.game.areas.terrain.map">RoomTransition</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainTile.html#getId()" class="member-name-link">getId()</a> - Method in class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></dt>
@@ -4261,6 +4277,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/input/InputService.html#%3Cinit%3E(com.csse3200.game.input.InputFactory)" class="member-name-link">InputService(InputFactory)</a> - Constructor for class com.csse3200.game.input.<a href="com/csse3200/game/input/InputService.html" title="class in com.csse3200.game.input">InputService</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/entities/factories/PlayerFactory.html#installDefaultCatalog(com.csse3200.game.components.player.ShopComponent,com.csse3200.game.components.loot.WeaponGenerator,com.csse3200.game.components.loot.ConsumableGenerator)" class="member-name-link">installDefaultCatalog(ShopComponent, WeaponGenerator, ConsumableGenerator)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/PlayerFactory.html" title="class in com.csse3200.game.entities.factories">PlayerFactory</a></dt>
+<dd>
+<div class="block">Fills an empty shop with the default item, upgrade, pet, and gambling products.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/lighting/LightingConfig.Ambient.html#intensity()" class="member-name-link">intensity()</a> - Method in record class com.csse3200.game.components.lighting.<a href="com/csse3200/game/components/lighting/LightingConfig.Ambient.html" title="class in com.csse3200.game.components.lighting">LightingConfig.Ambient</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>intensity</code> record component.</div>
@@ -4289,7 +4309,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.player">InventoryDisplay</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
 <dd>
-<div class="block">A HUD-style UI component for displaying the player's inventory.</div>
+<div class="block">A Minecraft-style HUD for the player's inventory.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#%3Cinit%3E()" class="member-name-link">InventoryDisplay()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
 <dd>&nbsp;</dd>
@@ -4525,6 +4545,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/enemies/attacks/ChargeComponent.html#isRushing()" class="member-name-link">isRushing()</a> - Method in class com.csse3200.game.components.enemies.attacks.<a href="com/csse3200/game/components/enemies/attacks/ChargeComponent.html" title="class in com.csse3200.game.components.enemies.attacks">ChargeComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/ShopComponent.html#isSellable(com.csse3200.game.components.loot.Item)" class="member-name-link">isSellable(Item)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
+<dd>
+<div class="block">Returns whether <code>item</code> can be sold.</div>
+</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/LevelView.html#isSolid(int,int)" class="member-name-link">isSolid(int, int)</a> - Method in interface com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/LevelView.html" title="interface in com.csse3200.game.areas.terrain.map">LevelView</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/areas/terrain/map/MapDataLevelView.html#isSolid(int,int)" class="member-name-link">isSolid(int, int)</a> - Method in class com.csse3200.game.areas.terrain.map.<a href="com/csse3200/game/areas/terrain/map/MapDataLevelView.html" title="class in com.csse3200.game.areas.terrain.map">MapDataLevelView</a></dt>
@@ -6817,10 +6841,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Scrolling up will open the terminal and scrolling down will close the terminal.</div>
 </dd>
-<dt><a href="com/csse3200/game/components/player/ShopComponent.html#seedDefaultCatalog()" class="member-name-link">seedDefaultCatalog()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
-<dd>
-<div class="block">Fills placeholder listings so the in-game shop is not empty.</div>
-</dd>
 <dt><a href="com/csse3200/game/components/player/ShopComponent.html#sellItem(int)" class="member-name-link">sellItem(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
 <dd>
 <div class="block">Sells one unit from the stack in a player inventory slot and refunds <a href="com/csse3200/game/components/player/ShopComponent.html#getSellPrice(com.csse3200.game.components.loot.Item)"><code>ShopComponent.getSellPrice(Item)</code></a> once.</div>
@@ -6965,6 +6985,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Set friction.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/ShopComponent.html#setGamblingCatalogs(com.csse3200.game.components.player.GamblingCatalogs)" class="member-name-link">setGamblingCatalogs(GamblingCatalogs)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
+<dd>
+<div class="block">Installs the Standard and Premium spin catalogs.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryComponent.html#setGold(int)" class="member-name-link">setGold(int)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryComponent.html" title="class in com.csse3200.game.components.player">InventoryComponent</a></dt>
 <dd>
 <div class="block">Sets the player's gold.</div>
@@ -6981,7 +7005,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#setHidden(boolean)" class="member-name-link">setHidden(boolean)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
 <dd>
-<div class="block">Sets inventory to be visible or not.</div>
+<div class="block">Sets whether the inventory is visible.</div>
 </dd>
 <dt><a href="com/csse3200/game/areas/terrain/TerrainTile.html#setId(int)" class="member-name-link">setId(int)</a> - Method in class com.csse3200.game.areas.terrain.<a href="com/csse3200/game/areas/terrain/TerrainTile.html" title="class in com.csse3200.game.areas.terrain">TerrainTile</a></dt>
 <dd>&nbsp;</dd>
@@ -8199,7 +8223,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/Tutorial.html" class="type-name-link" title="class in com.csse3200.game.components.player">Tutorial</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
 <dd>
-<div class="block">UI component for displaying the basic player controls.</div>
+<div class="block">Minecraft-style controls guide.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/Tutorial.html#%3Cinit%3E()" class="member-name-link">Tutorial()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/Tutorial.html" title="class in com.csse3200.game.components.player">Tutorial</a></dt>
 <dd>&nbsp;</dd>
@@ -8396,8 +8420,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/SpecialAttackEffectComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/SpecialAttackEffectComponent.html" title="class in com.csse3200.game.components.player">SpecialAttackEffectComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/SubLevelTravelComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/SubLevelTravelComponent.html" title="class in com.csse3200.game.components.player">SubLevelTravelComponent</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/components/player/Tutorial.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/Tutorial.html" title="class in com.csse3200.game.components.player">Tutorial</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/UpgradeActivationFlashComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/UpgradeActivationFlashComponent.html" title="class in com.csse3200.game.components.player">UpgradeActivationFlashComponent</a></dt>
 <dd>&nbsp;</dd>

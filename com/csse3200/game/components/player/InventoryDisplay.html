@@ -102,7 +102,26 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">InventoryDisplay</span>
 <span class="extends-implements">extends <a href="../../ui/UIComponent.html" title="class in com.csse3200.game.ui">UIComponent</a></span></div>
-<div class="block">A HUD-style UI component for displaying the player's inventory.</div>
+<div class="block">A Minecraft-style HUD for the player's inventory.
+
+ <p>The inventory is drawn as a hotbar docked at the bottom centre of the screen:
+
+ <ul>
+   <li>A row of item slots (keys 1..N) with a selection frame on the active slot.
+   <li>A separate pet panel (keys 6 and 7) with purple-tinted slots; the active pet gets a gold
+       selection frame.
+   <li>A gold counter with a coin icon above the hotbar.
+   <li>Stack counts in the bottom-right corner of a slot (hidden for single items, exactly like
+       Minecraft) and a fading item-name tooltip above the hotbar when the active slot changes.
+ </ul>
+
+ <p>Slots are clickable: clicking an item slot selects it as the active slot, and clicking an
+ owned pet slot switches the active pet. Clickable slots light up while hovered. Clicks are
+ ignored while the game is paused.
+
+ <p>Artwork is loaded from <code>source/core/assets/images/icons/</code> through <code>loadIcon(String)</code> (item icons, coin, empty/normal/selected slot frames). Anything whose PNG is
+ missing falls back to a texture generated at runtime as tiny pixel art, so the HUD always
+ renders.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -159,20 +178,28 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHudHeight()" class="member-name-link">getHudHeight</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the height of the whole inventory HUD (gold counter plus hotbar row).</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHudWidth()" class="member-name-link">getHudWidth</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the width of the whole inventory HUD (gold counter, hotbar and pet panel).</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHudX()" class="member-name-link">getHudX</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the x position of the inventory HUD (bottom-left corner) in stage coordinates.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHudY()" class="member-name-link">getHudY</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the y position of the inventory HUD (bottom-left corner) in stage coordinates.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setHidden(boolean)" class="member-name-link">setHidden</a><wbr>(boolean&nbsp;shouldHide)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Sets inventory to be visible or not.</div>
+<div class="block">Sets whether the inventory is visible.</div>
 </div>
 </div>
 </div>
@@ -232,30 +259,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getHudX()">
-<h3>getHudX</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudX</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="getHudY()">
-<h3>getHudY</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudY</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="getHudWidth()">
-<h3>getHudWidth</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudWidth</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="getHudHeight()">
-<h3>getHudHeight</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudHeight</span>()</div>
-</section>
-</li>
-<li>
 <section class="detail" id="draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)">
 <h3>draw</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">draw</span><wbr><span class="parameters">(com.badlogic.gdx.graphics.g2d.SpriteBatch&nbsp;batch)</span></div>
@@ -284,13 +287,57 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getHudX()">
+<h3>getHudX</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudX</span>()</div>
+<div class="block">Returns the x position of the inventory HUD (bottom-left corner) in stage coordinates.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>HUD x position, or 0 if the HUD has not been built yet</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getHudY()">
+<h3>getHudY</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudY</span>()</div>
+<div class="block">Returns the y position of the inventory HUD (bottom-left corner) in stage coordinates.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>HUD y position, or 0 if the HUD has not been built yet</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getHudWidth()">
+<h3>getHudWidth</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudWidth</span>()</div>
+<div class="block">Returns the width of the whole inventory HUD (gold counter, hotbar and pet panel).</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>HUD width, or 0 if the HUD has not been built yet</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getHudHeight()">
+<h3>getHudHeight</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getHudHeight</span>()</div>
+<div class="block">Returns the height of the whole inventory HUD (gold counter plus hotbar row).</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>HUD height, or 0 if the HUD has not been built yet</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="setHidden(boolean)">
 <h3>setHidden</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setHidden</span><wbr><span class="parameters">(boolean&nbsp;shouldHide)</span></div>
-<div class="block">Sets inventory to be visible or not. Used by terminal command <a href="../../ui/terminal/commands/InventoryCommand.html" title="class in com.csse3200.game.ui.terminal.commands"><code>InventoryCommand</code></a></div>
+<div class="block">Sets whether the inventory is visible.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>shouldHide</code> - boolean on whether to hide the inventory or not.</dd>
+<dd><code>shouldHide</code> - whether to hide the inventory</dd>
 </dl>
 </section>
 </li>

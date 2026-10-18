@@ -120,6 +120,13 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Create a player, optionally enabling ladder traversal for a tile map.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../../components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#installDefaultCatalog(com.csse3200.game.components.player.ShopComponent,com.csse3200.game.components.loot.WeaponGenerator,com.csse3200.game.components.loot.ConsumableGenerator)" class="member-name-link">installDefaultCatalog</a><wbr>(<a href="../../components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a>&nbsp;shop,
+ <a href="../../components/loot/WeaponGenerator.html" title="class in com.csse3200.game.components.loot">WeaponGenerator</a>&nbsp;weaponGenerator,
+ <a href="../../components/loot/ConsumableGenerator.html" title="class in com.csse3200.game.components.loot">ConsumableGenerator</a>&nbsp;consumableGenerator)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Fills an empty shop with the default item, upgrade, pet, and gambling products.</div>
+</div>
 </div>
 </div>
 </div>
@@ -153,6 +160,27 @@ loadScripts(document, 'script');</script>
 <h3>createPlayer</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../Entity.html" title="class in com.csse3200.game.entities">Entity</a></span>&nbsp;<span class="element-name">createPlayer</span><wbr><span class="parameters">(<a href="../../areas/terrain/map/LevelMapData.html" title="class in com.csse3200.game.areas.terrain.map">LevelMapData</a>&nbsp;mapData)</span></div>
 <div class="block">Create a player, optionally enabling ladder traversal for a tile map.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="installDefaultCatalog(com.csse3200.game.components.player.ShopComponent,com.csse3200.game.components.loot.WeaponGenerator,com.csse3200.game.components.loot.ConsumableGenerator)">
+<h3>installDefaultCatalog</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../../components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></span>&nbsp;<span class="element-name">installDefaultCatalog</span><wbr><span class="parameters">(<a href="../../components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a>&nbsp;shop,
+ <a href="../../components/loot/WeaponGenerator.html" title="class in com.csse3200.game.components.loot">WeaponGenerator</a>&nbsp;weaponGenerator,
+ <a href="../../components/loot/ConsumableGenerator.html" title="class in com.csse3200.game.components.loot">ConsumableGenerator</a>&nbsp;consumableGenerator)</span></div>
+<div class="block">Fills an empty shop with the default item, upgrade, pet, and gambling products.
+
+ <p>Item listings and item prizes use <code>weaponGenerator</code> and <code>consumableGenerator</code>.
+ <a href="#createPlayer()"><code>createPlayer()</code></a> passes the same weapon generator that built the starting weapons. A
+ listing buy price is the smallest cost whose 60 percent refund equals that item's sell price.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>shop</code> - shop to fill</dd>
+<dd><code>weaponGenerator</code> - generator for weapon prizes</dd>
+<dd><code>consumableGenerator</code> - generator for consumable prizes</dd>
+<dt>Returns:</dt>
+<dd>the same shop</dd>
+</dl>
 </section>
 </li>
 </ul>
