@@ -62,6 +62,7 @@ public class HordeCommand implements Command {
     int playerX = (int) Math.floor(playerCenter.x / tileSize);
     int playerY = (int) Math.floor(playerCenter.y / tileSize);
 
+    // Ground tiles have support below; keep only nearby spots with room for an enemy to stand.
     List<GridPoint2> candidates = new ArrayList<>(level.groundTiles());
     candidates.removeIf(
         tile ->
@@ -76,6 +77,7 @@ public class HordeCommand implements Command {
 
     List<GridPoint2> spawnTiles = new ArrayList<>();
     Set<Integer> usedColumns = new HashSet<>();
+    // One enemy per column avoids stacking enemies on platforms directly above each other.
     for (GridPoint2 tile : candidates) {
       if (usedColumns.add(tile.x)) {
         spawnTiles.add(tile);
@@ -84,6 +86,7 @@ public class HordeCommand implements Command {
         break;
       }
     }
+    // Choose all positions first so a crowded area does not produce a partial horde.
     if (spawnTiles.size() < count) {
       showOutput.accept("Not enough nearby ground to spawn " + count + " enemies.");
       return false;
