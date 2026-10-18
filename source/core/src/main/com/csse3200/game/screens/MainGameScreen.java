@@ -604,6 +604,7 @@ public class MainGameScreen extends ScreenAdapter {
             transition.getDestinationMap(),
             player,
             transition.getDestinationSpawn(),
+            savedSeed,
             renderer.getCamera().getCamera());
 
     nextArea.create();

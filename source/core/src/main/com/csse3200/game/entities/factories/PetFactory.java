@@ -43,6 +43,8 @@ public class PetFactory {
     animator.addAnimation(animationPrefix + "_left", 0.15f, Animation.PlayMode.LOOP);
 
     animator.addAnimation(animationPrefix + "_right", 0.15f, Animation.PlayMode.LOOP);
+    animator.addAnimation(animationPrefix + "_front", 0.15f, Animation.PlayMode.LOOP);
+    animator.addAnimation(animationPrefix + "_back", 0.15f, Animation.PlayMode.LOOP);
 
     Entity pet =
         new Entity()

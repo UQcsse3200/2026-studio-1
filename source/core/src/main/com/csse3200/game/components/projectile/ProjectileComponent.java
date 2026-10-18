@@ -1,6 +1,5 @@
 package com.csse3200.game.components.projectile;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.Component;
 import com.csse3200.game.entities.Entity;
@@ -16,8 +15,10 @@ import com.csse3200.game.services.ServiceLocator;
  *
  * <p>A projectile can also be despawned earlier by something else - e.g. {@link
  * ProjectileHitComponent} - firing a {@code "projectileExpired"} event on the same entity, which
- * this component listens for. This keeps collision/damage resolution completely decoupled from
- * despawn/lifecycle logic: {@link ProjectileHitComponent} does not need to know this class exists.
+ * this component listens for. The event requests despawning; {@link #update()} performs it after
+ * the physics step, when Box2D permits body changes. This keeps collision/damage resolution
+ * completely decoupled from despawn/lifecycle logic: {@link ProjectileHitComponent} does not need
+ * to know this class exists.
  *
  * <p><b>Despawning does not call {@link Entity#dispose()}.</b> Instead it disables the entity and
  * moves it far outside the playable area. {@code Entity.dispose()} unregisters the entity from
@@ -36,6 +37,7 @@ public class ProjectileComponent extends Component {
   private final float maxRange;
   private Vector2 spawnPosition;
   private boolean expired = false;
+  private boolean despawnRequested = false;
 
   /**
    * @param movementStrategy how this projectile moves each frame - swap implementations to change
@@ -57,12 +59,19 @@ public class ProjectileComponent extends Component {
   public void create() {
     spawnPosition = entity.getPosition();
     movementStrategy.start(entity);
-    entity.getEvents().addListener("projectileExpired", () -> Gdx.app.postRunnable(this::despawn));
+    entity.getEvents().addListener("projectileExpired", () -> despawnRequested = true);
   }
 
   @Override
   public void update() {
     if (expired) {
+      return;
+    }
+
+    // Collision callbacks run while Box2D is locked. Despawn here on the simulation thread instead
+    // of posting body changes to a potentially different application thread (e.g. headless tests).
+    if (despawnRequested) {
+      despawn();
       return;
     }
 

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 public class ItemDropComponent extends Component {
   private static final Logger logger = LoggerFactory.getLogger(ItemDropComponent.class);
   private static final float HORIZONTAL_DROP_GAP = 0.25f;
+  private static final String ITEM_DROPPED_EVENT = "itemDropped";
 
   private final BiFunction<Item, Entity, Entity> lootFactory;
   private final Consumer<Entity> lootSpawner;
@@ -90,7 +91,7 @@ public class ItemDropComponent extends Component {
     }
 
     logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
-    entity.getEvents().trigger("itemDropped", removed, loot);
+    entity.getEvents().trigger(ITEM_DROPPED_EVENT, removed, loot);
     return true;
   }
 
@@ -138,7 +139,7 @@ public class ItemDropComponent extends Component {
     }
 
     logger.info("Dropped {} x{} from slot {}", removed.getName(), removed.getQuantity(), slot);
-    entity.getEvents().trigger("itemDropped", removed, loot);
+    entity.getEvents().trigger(ITEM_DROPPED_EVENT, removed, loot);
     return true;
   }
 
@@ -218,7 +219,7 @@ public class ItemDropComponent extends Component {
     }
 
     logger.info("Dropped held shield");
-    entity.getEvents().trigger("itemDropped", shieldItem, loot);
+    entity.getEvents().trigger(ITEM_DROPPED_EVENT, shieldItem, loot);
     return true;
   }
 
