@@ -20,10 +20,12 @@ import org.slf4j.LoggerFactory;
  * recordEvent(...) call at the point that milestone happens (e.g. inside the wall-jump code, once
  * it exists), plus a new PerkDefinitions entry - nothing about this class changes either way.
  *
- * <p>Unlocked/progress/active state persists via Preferences, the same pattern PauseMenuDisplay
- * already uses for audio settings - but only within one playthrough: it survives death/revive (that
- * never touches this class at all), but {@link #resetAll()} is called on every fresh game start
- * (Start or Restart, not Load) - see {@code MainGameScreen}'s constructor.
+ * <p>Unlocked/progress/active state is kept in memory for the current playthrough: it survives
+ * death/revive (that never touches this class at all) and the menu screens re-registering the
+ * perks, but {@link #resetAll()} is called on every fresh game start (Start or Restart, not Load) -
+ * see {@code MainGameScreen}'s constructor - and a relaunch always starts with every perk locked.
+ * Changes are still written to Preferences, but nothing reads them back; saved games carry their
+ * own perk state (see {@link #restorePerk}).
  *
  * <p>Unlocking a perk (permanent, once earned) is separate from making it active (up to {@value
  * #MAX_ACTIVE_PERKS} at a time, freely toggled via {@link #activate}/{@link #deactivate} - see the
@@ -47,14 +49,21 @@ public final class PerkService {
   private PerkService() {}
 
   /**
-   * Registers a perk definition and loads any previously-saved progress for it. Call once per perk
-   * (see {@link PerkDefinitions#registerAll()}) before any recordEvent(...) calls for it will have
-   * any effect. Safe to call again for the same id - re-registering just reloads saved state, it
-   * doesn't duplicate the perk.
+   * Registers a perk definition. Call once per perk (see {@link PerkDefinitions#registerAll()})
+   * before any recordEvent(...) calls for it will have any effect.
+   *
+   * <p>Re-registering an id that is already registered does nothing, so the live {@link Perk}
+   * (and its unlocked/active state and callbacks) survives the main menu and Perks screens calling
+   * registerAll() again. The first registration in a process ignores whatever a previous session
+   * left in Preferences and clears it, so a relaunch always starts with every perk locked. Saved
+   * games restore their own perk state through {@link #restorePerk}.
    */
   public static void register(Perk perk) {
+    if (perksById.containsKey(perk.getId())) {
+      return;
+    }
     perksById.put(perk.getId(), perk);
-    loadState(perk);
+    clearSavedState(perk.getId());
   }
 
   /**
@@ -133,14 +142,24 @@ public final class PerkService {
     perk.notifyDeactivated();
   }
 
-  private static void loadState(Perk perk) {
+  private static void clearSavedState(String id) {
+    removeSavedKeys(id);
+    flushPrefs();
+  }
+
+  private static void removeSavedKeys(String id) {
     if (prefs == null) {
       return;
     }
-    int progress = prefs.getInteger(perk.getId() + PREFS_PROGRESS_SUFFIX, 0);
-    boolean unlocked = prefs.getBoolean(perk.getId() + PREFS_UNLOCKED_SUFFIX, false);
-    boolean active = prefs.getBoolean(perk.getId() + PREFS_ACTIVE_SUFFIX, false);
-    perk.restoreState(progress, unlocked, active);
+    prefs.remove(id + PREFS_PROGRESS_SUFFIX);
+    prefs.remove(id + PREFS_UNLOCKED_SUFFIX);
+    prefs.remove(id + PREFS_ACTIVE_SUFFIX);
+  }
+
+  private static void flushPrefs() {
+    if (prefs != null) {
+      prefs.flush();
+    }
   }
 
   private static void saveState(Perk perk) {
@@ -161,15 +180,9 @@ public final class PerkService {
   public static void resetAll() {
     for (Perk perk : perksById.values()) {
       perk.restoreState(0, false, false);
-      if (prefs != null) {
-        prefs.remove(perk.getId() + PREFS_PROGRESS_SUFFIX);
-        prefs.remove(perk.getId() + PREFS_UNLOCKED_SUFFIX);
-        prefs.remove(perk.getId() + PREFS_ACTIVE_SUFFIX);
-      }
+      removeSavedKeys(perk.getId());
     }
-    if (prefs != null) {
-      prefs.flush();
-    }
+    flushPrefs();
   }
 
   /**
@@ -189,12 +202,7 @@ public final class PerkService {
       return;
     }
     perk.restoreState(0, false, false);
-    if (prefs != null) {
-      prefs.remove(id + PREFS_PROGRESS_SUFFIX);
-      prefs.remove(id + PREFS_UNLOCKED_SUFFIX);
-      prefs.remove(id + PREFS_ACTIVE_SUFFIX);
-      prefs.flush();
-    }
+    clearSavedState(id);
   }
 
   /**
