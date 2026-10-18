@@ -121,6 +121,21 @@ class PlayerRegenComponentTest {
     assertEquals(65, stats.getHealth(), "all three ticks missed in one slow frame should apply");
   }
 
+  /** Regeneration must stop when the player dies and must not restore health afterwards. */
+  @Test
+  void shouldStopRegeneratingWhenPlayerDies() {
+    regen.startRegen(5, 5f);
+
+    stats.setHealth(0);
+    assertTrue(regen.isRegenerating(), "death should be detected on the next update");
+
+    when(time.getTime()).thenReturn(1000L);
+    player.update();
+
+    assertEquals(0, stats.getHealth(), "regeneration must not revive a dead player");
+    assertFalse(regen.isRegenerating(), "regeneration should stop after death");
+  }
+
   /** A regeneration with no healing or no duration is rejected. */
   @Test
   void shouldRejectRegenerationThatWouldDoNothing() {

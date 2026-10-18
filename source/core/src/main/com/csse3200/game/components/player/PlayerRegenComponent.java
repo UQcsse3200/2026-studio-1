@@ -82,6 +82,13 @@ public class PlayerRegenComponent extends Component {
       return;
     }
 
+    CombatStatsComponent stats =
+        entity == null ? null : entity.getComponent(CombatStatsComponent.class);
+    if (stats != null && stats.isDead()) {
+      stopRegen();
+      return;
+    }
+
     long now = timeSource.getTime();
     while (nextTickTime <= now && nextTickTime <= endTime) {
       heal();
