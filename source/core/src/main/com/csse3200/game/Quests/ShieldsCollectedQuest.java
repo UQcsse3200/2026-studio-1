@@ -10,8 +10,8 @@ public class ShieldsCollectedQuest {
           "ShieldsCollectedQuest was given a shieldsToCollect that was less "
               + "than or equal to zero when it shouldn't have");
     }
-    this.shieldsToCollect = shieldsToCollect;
-    this.globalShieldsCollectedSnapshot = Quest.getGlobalShieldsCollected();
+    this.shieldsToCollect = (float) shieldsToCollect;
+    this.globalShieldsCollectedSnapshot = (float) Quest.getGlobalShieldsCollected();
   }
 
   public int checkQuestProgress() {

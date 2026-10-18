@@ -10,8 +10,8 @@ public class JumpQuest {
           "JumpQuest was given a jumpsToDo that was less "
               + "than or equal to zero when it shouldn't have");
     }
-    this.jumpsToDo = jumpsToDo;
-    this.globalJumpsSnapshot = Quest.getGlobalJumps();
+    this.jumpsToDo = (float) jumpsToDo;
+    this.globalJumpsSnapshot = (float) Quest.getGlobalJumps();
   }
 
   // Gives out the quest progress in a percentage

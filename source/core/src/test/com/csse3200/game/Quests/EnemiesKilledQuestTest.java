@@ -11,7 +11,7 @@ import com.csse3200.game.entities.Entity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class EnemiesKilledQuestTest {
+class EnemiesKilledQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
   static Entity player;
@@ -19,7 +19,7 @@ public class EnemiesKilledQuestTest {
   static Item weapon;
 
   @BeforeEach
-  public void createAQuestEntity() {
+  void createAQuestEntity() {
     entity = new Entity();
     player = new Entity();
     weapon = (new WeaponGenerator()).generateWeapon(WeaponType.SWORD, 1);
@@ -30,7 +30,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testIfCompletingAEnemiesKilledQuestWorks() {
+  void testIfCompletingAEnemiesKilledQuestWorks() {
     if (Quest.getQuestActiveForNPCID().get(questGiverComponent.uniqueNPCID)) {
       fail(
           "The test testIfCompletingAEnemiesKilledQuestWorks failed because Quest.getQuestActiveForNPCID()"
@@ -64,7 +64,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testMultipleSettingOfEnemiesKilledQuest() {
+  void testMultipleSettingOfEnemiesKilledQuest() {
     Entity entity1 = new Entity();
     Entity entity2 = new Entity();
     Entity entity3 = new Entity();
@@ -137,7 +137,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testCheckGoldSpentCompleteWhenNoQuestWasMade() {
+  void testCheckGoldSpentCompleteWhenNoQuestWasMade() {
     if (questGiverComponent.clearEnemiesKilledQuest()) {
       fail(
           "The function clearEnemiesKilledQuest should have returned false when there's no quest to clear but did not");
@@ -151,14 +151,14 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testIfEnemiesKilledQuestChangesProgress() {
+  void testIfEnemiesKilledQuestChangesProgress() {
     questGiverComponent.logEnemiesKilledQuest(2);
     Quest.incrementGlobalEnemiesKilled();
     assertEquals(50, questGiverComponent.checkEnemiesKilledQuestComplete());
   }
 
   @Test
-  public void testIfEnemiesKilledQuestGivesProgressOver100() {
+  void testIfEnemiesKilledQuestGivesProgressOver100() {
     questGiverComponent.logEnemiesKilledQuest(1);
     Quest.incrementGlobalEnemiesKilled();
     Quest.incrementGlobalEnemiesKilled();
@@ -166,7 +166,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void checkIfGivingEnemiesToKillAsZeroThrows() {
+  void checkIfGivingEnemiesToKillAsZeroThrows() {
     int number = 0;
     assertThrows(
         IllegalArgumentException.class,
@@ -178,7 +178,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testIfGoldRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared() {
+  void testIfGoldRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared() {
     questGiverComponent.setGoldToGive(10);
     questGiverComponent.logEnemiesKilledQuest(1);
     Quest.incrementGlobalEnemiesKilled();
@@ -187,7 +187,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testIfItemRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared() {
+  void testIfItemRewardIsGivenIfEnemiesKilledQuestCompletedAndCleared() {
     questGiverComponent.setItemToGive(weapon);
     questGiverComponent.logEnemiesKilledQuest(1);
     Quest.incrementGlobalEnemiesKilled();
@@ -196,7 +196,7 @@ public class EnemiesKilledQuestTest {
   }
 
   @Test
-  public void testIfRewardIsNotGivenIfEnemiesKilledQuestIsNotCompletedAndCleared() {
+  void testIfRewardIsNotGivenIfEnemiesKilledQuestIsNotCompletedAndCleared() {
     int goldToGive = 10;
     questGiverComponent.setGoldToGive(goldToGive);
     questGiverComponent.setItemToGive(weapon);

@@ -10,8 +10,8 @@ public class EnemiesKilledQuest {
           "EnemiesKilledQuest was given a enemiesToKill that was less "
               + "than or equal to zero when it shouldn't have");
     }
-    this.enemiesToKill = enemiesToKill;
-    this.globalEnemiesKilledSnapshot = Quest.getGlobalEnemiesKilled();
+    this.enemiesToKill = (float) enemiesToKill;
+    this.globalEnemiesKilledSnapshot = (float) Quest.getGlobalEnemiesKilled();
   }
 
   public int checkQuestProgress() {
