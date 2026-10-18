@@ -194,29 +194,62 @@ class MedusaAnimationControllerTest {
   }
 
   @Test
-  void shouldTransitionToAttackOnRangedAttackEvents() {
+  void shouldTransitionToPetrifyOnRangedAttackEvents() {
     entity.setPosition(0f, 0f);
     Entity target = new Entity();
     target.setPosition(-5f, 0f);
 
-    EventListener0 attackLCallback = mock(EventListener0.class);
-    entity.getEvents().addListener("attackLeftStart", attackLCallback);
+    EventListener0 petrifyLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("petrifyLeftStart", petrifyLCallback);
 
     entity.create();
 
     // Ranged attack with projectile
     entity.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
 
-    verify(attackLCallback, times(1)).handle();
-    verify(animationRenderComponent).startAnimation("gorgon_attack_l");
+    verify(petrifyLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("gorgon_petrify_l");
     assertTrue(controller.isAttacking());
+    assertEquals(
+        MedusaAnimationController.AnimationState.PETRIFY_LEFT, controller.getCurrentState());
+    assertTrue(controller.isFacingLeft());
 
-    // Windup and fired
+    // While attacking, subsequent attack events must not restart the animation
     entity.getEvents().trigger("rangedAttackWindup", target);
     entity.getEvents().trigger("rangedAttackFired", target);
 
-    verify(attackLCallback, times(3)).handle();
-    verify(animationRenderComponent, times(3)).startAnimation("gorgon_attack_l");
+    verify(petrifyLCallback, times(1)).handle();
+    verify(animationRenderComponent, times(1)).startAnimation("gorgon_petrify_l");
+
+    // Once finished, new attack can trigger animation
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+    assertFalse(controller.isAttacking());
+
+    entity.getEvents().trigger("rangedAttackWindup", target);
+    verify(petrifyLCallback, times(2)).handle();
+    verify(animationRenderComponent, times(2)).startAnimation("gorgon_petrify_l");
+  }
+
+  @Test
+  void shouldTransitionToPetrifyRightWhenTargetOnRight() {
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    EventListener0 petrifyRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("petrifyRightStart", petrifyRCallback);
+
+    entity.create();
+
+    entity.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+
+    verify(petrifyRCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("gorgon_petrify_r");
+    assertTrue(controller.isAttacking());
+    assertEquals(
+        MedusaAnimationController.AnimationState.PETRIFY_RIGHT, controller.getCurrentState());
+    assertTrue(controller.isFacingRight());
   }
 
   @Test
@@ -271,7 +304,7 @@ class MedusaAnimationControllerTest {
 
     entity.getEvents().trigger("death");
 
-    verify(animationRenderComponent).startAnimation("gorgon_dead_r");
+    verify(animationRenderComponent).startAnimation("gorgon_death_r");
     assertTrue(controller.isDead());
     assertFalse(controller.isAttacking());
 
@@ -297,7 +330,7 @@ class MedusaAnimationControllerTest {
 
     entity.getEvents().trigger("death");
 
-    verify(animationRenderComponent).startAnimation("gorgon_dead_l");
+    verify(animationRenderComponent).startAnimation("gorgon_death_l");
     assertTrue(controller.isDead());
   }
 
@@ -314,11 +347,104 @@ class MedusaAnimationControllerTest {
     assertTrue(controller.isAttacking());
 
     entity.getEvents().trigger("deathLeftStart");
-    verify(animationRenderComponent).startAnimation("gorgon_dead_l");
+    verify(animationRenderComponent).startAnimation("gorgon_death_l");
     assertTrue(controller.isDead());
 
     entity.getEvents().trigger("deathRightStart");
-    verify(animationRenderComponent).startAnimation("gorgon_dead_r");
+    verify(animationRenderComponent).startAnimation("gorgon_death_r");
     assertTrue(controller.isDead());
+
+    entity.getEvents().trigger("petrifyLeftStart");
+    verify(animationRenderComponent).startAnimation("gorgon_petrify_l");
+    assertTrue(controller.isAttacking());
+    assertEquals(
+        MedusaAnimationController.AnimationState.PETRIFY_LEFT, controller.getCurrentState());
+
+    entity.getEvents().trigger("petrifyRightStart");
+    verify(animationRenderComponent).startAnimation("gorgon_petrify_r");
+    assertTrue(controller.isAttacking());
+    assertEquals(
+        MedusaAnimationController.AnimationState.PETRIFY_RIGHT, controller.getCurrentState());
+  }
+
+  @Test
+  void shouldPlayPetrifyOnDirectPetrifyAndGazeEvents() {
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    EventListener0 petrifyRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("petrifyRightStart", petrifyRCallback);
+
+    entity.create();
+
+    entity.getEvents().trigger("petrify", target);
+    verify(petrifyRCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("gorgon_petrify_r");
+
+    // Complete first attack
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+
+    entity.getEvents().trigger("gaze", target);
+    verify(petrifyRCallback, times(2)).handle();
+    verify(animationRenderComponent, times(2)).startAnimation("gorgon_petrify_r");
+
+    // Complete second attack
+    controller.update();
+
+    entity.getEvents().trigger("petrifyAttack", target);
+    verify(petrifyRCallback, times(3)).handle();
+    verify(animationRenderComponent, times(3)).startAnimation("gorgon_petrify_r");
+  }
+
+  @Test
+  void shouldDelegateRangedTaskPollingWhenRangedAttackComponentPresent() {
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(-5f, 0f);
+
+    com.csse3200.game.components.enemies.attacks.RangedAttackComponent rangedComp =
+        mock(com.csse3200.game.components.enemies.attacks.RangedAttackComponent.class);
+    entity.addComponent(rangedComp);
+
+    EventListener0 petrifyLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("petrifyLeftStart", petrifyLCallback);
+
+    entity.create();
+
+    // Ranged task poll ("rangedAttack") should NOT trigger animation directly when
+    // RangedAttackComponent is present
+    entity.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    verify(petrifyLCallback, never()).handle();
+    verify(animationRenderComponent, never()).startAnimation("gorgon_petrify_l");
+
+    // RangedAttackComponent announces windup when attack is accepted: animation starts
+    entity.getEvents().trigger("rangedAttackWindup", target);
+    verify(petrifyLCallback, times(1)).handle();
+    verify(animationRenderComponent, times(1)).startAnimation("gorgon_petrify_l");
+
+    // Repeated task polling during windup does not restart the animation
+    entity.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    verify(petrifyLCallback, times(1)).handle();
+
+    // RangedAttackComponent announces fired when projectile releases: does not replay
+    entity.getEvents().trigger("rangedAttackFired", target);
+    verify(petrifyLCallback, times(1)).handle();
+  }
+
+  @Test
+  void shouldNotPlayPetrifyAfterDeath() {
+    entity.create();
+    entity.getEvents().trigger("death");
+    assertTrue(controller.isDead());
+
+    Entity target = new Entity();
+    target.setPosition(-5f, 0f);
+    entity.getEvents().trigger("petrify", target);
+    verify(animationRenderComponent, never()).startAnimation("gorgon_petrify_l");
+
+    entity.getEvents().trigger("rangedAttack", target, ProjectileType.ARROW);
+    verify(animationRenderComponent, never()).startAnimation("gorgon_petrify_l");
   }
 }
