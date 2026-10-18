@@ -194,4 +194,14 @@ public class WeaponItem extends Item {
   public int getProjectileCount() {
     return this.projectileCount;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
 }

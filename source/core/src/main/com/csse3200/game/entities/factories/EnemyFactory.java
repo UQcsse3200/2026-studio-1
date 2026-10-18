@@ -19,6 +19,8 @@ import com.csse3200.game.components.enemies.attacks.*;
 import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.enemies.tasks.*;
 import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameGenerator;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.projectile.ProjectileType;
@@ -614,6 +616,7 @@ public final class EnemyFactory {
     float scale = BOSS_SCALE;
     Entity cyclops =
         createBasePlatformerEnemy(target, scale * MEDIUM_COLLISION_X * FLOOR_PROBE_FRACTION);
+    cyclops.getComponent(NameComponent.class).setName("Cyclops");
     InventoryComponent inventory = new InventoryComponent(MINI_BOSS_GOLD); // gold only
     AnimationRenderComponent animator = newAnimator(CYCLOPS_ATLAS_PATH, true);
     addAnimations(
@@ -678,14 +681,14 @@ public final class EnemyFactory {
         target,
         LASER_TASK_PRIORITY,
         config.laser.range,
-        ProjectileType.ARROW,
+        ProjectileType.LASER,
         LASER_ATTACK_EVENT);
     addRangedTask(
         cyclops,
         target,
         RANGED_TASK_PRIORITY,
         config.rock.range,
-        ProjectileType.ARROW,
+        ProjectileType.ROCK,
         ROCK_ATTACK_EVENT);
     return finishEnemy(
         cyclops, animator, scale, CYCLOPS_HEIGHT_RATIO, MEDIUM_COLLISION_X, MEDIUM_COLLISION_Y);
@@ -714,6 +717,7 @@ public final class EnemyFactory {
         PetrifyEffectComponent.forShooter(config.petrify, config.ranged.cooldown);
     float scale = BOSS_SCALE;
     Entity medusa = createBaseStationaryEnemy();
+    medusa.getComponent(NameComponent.class).setName("Medusa");
     InventoryComponent inventory = new InventoryComponent(MINI_BOSS_GOLD);
     AnimationRenderComponent animator = newAnimator(MEDUSA_ATLAS_PATH, true);
     addAnimations(
@@ -808,6 +812,7 @@ public final class EnemyFactory {
     float scale = BOSS_SCALE;
     Entity zeus =
         createBasePlatformerEnemy(target, scale * MEDIUM_COLLISION_X * FLOOR_PROBE_FRACTION);
+    zeus.getComponent(NameComponent.class).setName("Zeus");
     // NO SWORD FOR ZEUS
     InventoryComponent inventory = new InventoryComponent(FINAL_BOSS_GOLD);
     AnimationRenderComponent animator = newAnimator(ZEUS_ATLAS_PATH, true);
@@ -876,8 +881,11 @@ public final class EnemyFactory {
    *     flies
    * @return a new entity that is not yet created
    */
+  private static final NameGenerator NAME_GENERATOR = new NameGenerator();
+
   private static Entity newEnemyBody(AITaskComponent aiComponent, boolean grounded) {
     Entity enemyBody = new Entity();
+    enemyBody.addComponent(new NameComponent(NAME_GENERATOR.generateName()));
     enemyBody
         .addComponent(new PhysicsComponent())
         .addComponent(new PhysicsMovementComponent())

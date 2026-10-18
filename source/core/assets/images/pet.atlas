@@ -10,6 +10,27 @@ default
   orig: 32, 32
   offset: 0, 0
   index: 0
+bird_front
+  rotate: false
+  xy: 288, 256
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bird_front
+  rotate: false
+  xy: 320, 256
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bird_front
+  rotate: false
+  xy: 352, 256
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
 bird_left
   rotate: false
   xy: 288, 288
@@ -48,6 +69,48 @@ bird_right
 bird_right
   rotate: false
   xy: 352, 320
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+bird_back
+  rotate: false
+  xy: 288, 352
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bird_back
+  rotate: false
+  xy: 320, 352
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bird_back
+  rotate: false
+  xy: 352, 352
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+bat_front
+  rotate: false
+  xy: 288, 384
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bat_front
+  rotate: false
+  xy: 320, 384
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bat_front
+  rotate: false
+  xy: 352, 384
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
@@ -94,6 +157,48 @@ bat_right
   orig: 32, 32
   offset: 0, 0
   index: 2
+bat_back
+  rotate: false
+  xy: 288, 480
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+bat_back
+  rotate: false
+  xy: 320, 480
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+bat_back
+  rotate: false
+  xy: 352, 480
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+spirit_front
+  rotate: false
+  xy: 384, 128
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+spirit_front
+  rotate: false
+  xy: 416, 128
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+spirit_front
+  rotate: false
+  xy: 448, 128
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
 spirit_left
   rotate: false
   xy: 384, 160
@@ -132,6 +237,27 @@ spirit_right
 spirit_right
   rotate: false
   xy: 448, 192
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 2
+spirit_back
+  rotate: false
+  xy: 384, 224
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 0
+spirit_back
+  rotate: false
+  xy: 416, 224
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: 1
+spirit_back
+  rotate: false
+  xy: 448, 224
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

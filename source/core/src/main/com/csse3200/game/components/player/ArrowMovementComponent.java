@@ -14,7 +14,6 @@ public class ArrowMovementComponent extends Component {
 
   private final Vector2 direction;
   private float timeAlive;
-  private Body body;
 
   public ArrowMovementComponent(Vector2 direction) {
     if (direction == null || direction.isZero()) {
@@ -29,7 +28,7 @@ public class ArrowMovementComponent extends Component {
     PhysicsComponent physicsComponent = entity.getComponent(PhysicsComponent.class);
 
     if (physicsComponent != null) {
-      body = physicsComponent.getBody();
+      Body body = physicsComponent.getBody();
 
       body.setGravityScale(0f);
 

@@ -201,15 +201,10 @@ public class InventoryDisplay extends UIComponent {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
     hudTable = new Table();
-
-    hudTable.add(createGoldPill(inventory.getGold())).left().padBottom(8f);
-    hudTable.row();
     hudTable.add(createHotbarRow(inventory));
 
     hudTable.pack();
-
     positionHud();
-
     hudTable.setVisible(!hidden);
     stage.addActor(hudTable);
 
@@ -570,6 +565,32 @@ public class InventoryDisplay extends UIComponent {
     float y = BOTTOM_MARGIN;
 
     hudTable.setPosition(x, y);
+  }
+
+  private void positionGold() {
+    float screenWidth = stage.getViewport().getWorldWidth();
+    float screenHeight = stage.getViewport().getWorldHeight();
+
+    float x = screenWidth - goldTable.getWidth() - 160f;
+    float y = screenHeight - goldTable.getHeight() - 10f;
+
+    goldTable.setPosition(x, y);
+  }
+
+  public float getHudX() {
+    return hudTable == null ? 0f : hudTable.getX();
+  }
+
+  public float getHudY() {
+    return hudTable == null ? 0f : hudTable.getY();
+  }
+
+  public float getHudWidth() {
+    return hudTable == null ? 0f : hudTable.getWidth();
+  }
+
+  public float getHudHeight() {
+    return hudTable == null ? 0f : hudTable.getHeight();
   }
 
   // ===========================================================================================
@@ -1045,6 +1066,11 @@ public class InventoryDisplay extends UIComponent {
       hudTable = null;
     }
 
+    if (goldTable != null) {
+      goldTable.remove();
+      goldTable = null;
+    }
+
     createInventory();
   }
 
@@ -1094,6 +1120,10 @@ public class InventoryDisplay extends UIComponent {
     if (hudTable != null) {
       hudTable.remove();
       hudTable = null;
+    }
+    if (goldTable != null) {
+      goldTable.remove();
+      goldTable = null;
     }
 
     if (tooltipTable != null) {

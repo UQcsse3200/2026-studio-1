@@ -146,14 +146,14 @@ public class PauseMenuDisplay extends UIComponent {
           : DEFAULT_EFFECTS_VOL;
   private boolean musicVolumeApplied = false;
 
-  private Table root;
+  Table root;
   private Table mainPanel;
   private Table settingsPanel;
   private Table detailSlot;
   private Table audioPanel;
   private Table keybindsPanel;
   private ScrollPane keybindsScroll;
-  private Table restartOverlay;
+  Table restartOverlay;
   private Image pauseOverlay;
 
   // Non-selectable - deliberately kept out of MAIN_ITEMS/mainLabels so keyboard and mouse
@@ -180,7 +180,7 @@ public class PauseMenuDisplay extends UIComponent {
   private Label restartConfirmMessageLabel;
   private Label restartYesLabel;
   private Label restartNoLabel;
-  private Table restartConfirmPanel;
+  Table restartConfirmPanel;
   private int restartConfirmIndex = 0;
 
   private PauseMenuComponent pauseMenu;
@@ -282,8 +282,6 @@ public class PauseMenuDisplay extends UIComponent {
 
     detailSlot = new Table();
     panelStack.add(detailSlot);
-
-    panelStack.add(restartConfirmPanel);
 
     Label pauseTitle = new Label("PAUSED", skin, "title");
     pauseTitle.setFontScale(1.2f);
@@ -918,6 +916,7 @@ public class PauseMenuDisplay extends UIComponent {
       pauseOverlay.setVisible(true);
       pauseOverlay.toFront();
       root.toFront();
+      restartOverlay.toFront();
     }
 
     if (isPaused && !wasPaused) {

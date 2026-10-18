@@ -60,6 +60,7 @@ class LaserAttackComponentTest {
   private static final float SPEED = 20f;
   private static final float OWNER_WIDTH = 1f;
   private static final float OWNER_HEIGHT = 2f;
+  private static final float EYE_OFFSET_X = 0.3f;
 
   private AttackTestWorld world;
 
@@ -350,10 +351,18 @@ class LaserAttackComponentTest {
   @ParameterizedTest(name = "fraction {0} launches from height {1}")
   @CsvSource({"0, 0", "0.5, 1", "0.75, 1.5", "1, 2"})
   void shouldLaunchFromTheOwnersCentreLineAtTheSpawnHeight(float fraction, float expectedHeight) {
-    Vector2 launch = launchCentreFor(fraction);
+    Vector2 launch = launchCentreFor(fraction, 4f);
 
-    assertEquals(OWNER_WIDTH / 2f, launch.x, 0.05f, "the eye is on the owner's centre line");
+    assertEquals(
+        OWNER_WIDTH / 2f + EYE_OFFSET_X, launch.x, 0.05f, "the eye is on the owner's centre line");
     assertEquals(expectedHeight, launch.y, 0.05f);
+  }
+
+  @Test
+  void shouldOffsetTheLaunchTheOtherWayWhenTheTargetIsOnTheLeft() {
+    Vector2 launch = launchCentreFor(SPAWN_HEIGHT, -5f);
+
+    assertEquals(OWNER_WIDTH / 2f - EYE_OFFSET_X, launch.x, 0.05f, "eye is on the left");
   }
 
   @Test
@@ -376,8 +385,12 @@ class LaserAttackComponentTest {
   void shouldAimStraightAtTheTargetsCentre(float targetX, float targetY) {
     float fraction = 0.5f; // the eye is at (0.5, 1.0)
     Entity target = world.newTarget(targetX, targetY, 50);
-    Vector2 expected =
-        target.getCenterPosition().sub(OWNER_WIDTH / 2f, OWNER_HEIGHT * fraction).nor().scl(SPEED);
+    // The eye is the owner's centre line pushed towards the target by EYE_OFFSET_X (not at all
+    // when the target is exactly in line), at the spawn height.
+    float centreX = OWNER_WIDTH / 2f;
+    float side = Math.signum(target.getCenterPosition().x - centreX);
+    Vector2 eye = new Vector2(centreX + side * EYE_OFFSET_X, OWNER_HEIGHT * fraction);
+    Vector2 expected = target.getCenterPosition().sub(eye).nor().scl(SPEED);
 
     Entity laser = fireAt(target, fraction);
 
@@ -618,8 +631,17 @@ class LaserAttackComponentTest {
    * appears, which is the point it was launched from.
    */
   private Vector2 launchCentreFor(float fraction) {
+    return launchCentreFor(fraction, 4f);
+  }
+
+  /**
+   * Fires one laser with the given spawn height at a target {@code targetX} along the ground, and
+   * returns the centre of the laser on the frame it appears, which is the point it was launched
+   * from.
+   */
+  private Vector2 launchCentreFor(float fraction, float targetX) {
     Entity owner = world.newAttacker(newLaser(fraction, MULTIPLIER, RANGE));
-    Entity target = world.newTarget(4f, 0f, 50);
+    Entity target = world.newTarget(targetX, 0f, 50);
     int before = world.mark();
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
