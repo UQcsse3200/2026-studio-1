@@ -8,8 +8,10 @@
     "entityLegend": "Entity symbols, a SEPARATE namespace from legend, so the same letter can mean different things in the two. type is PLAYER, ENEMY, LOOT or MARKER.",
     "marker": "A MARKER needs a kind, which groups it, and may have an id and any other keys. Read them back with getSpawns().getMarkers(kind). Use this to place anything the map system does not know about.",
     "enemyType": "Must match a name registered with EntitySpawnRegistry. An unregistered name is logged and skipped, so you may place an entity before its code exists.",
+    "lighting": "Optional. Set ambient color and intensity (0 to 1), plus the player's light color and radius. Maps with subLevels can override ambient lighting by sub-level id.",
     "layers": "Drawn back to front in this order. background and foreground are art only; terrain also drives collision; entities is spawn data, not tiles.",
     "rows": "Rows read top to bottom, but the loader flips them, so y = 0 is the BOTTOM row. A space is an empty cell.",
+    "backdrops": "Optional parallax images behind the tiles. Use * for the whole map or a sub-level id; list layers back to front. Each layer needs a texture and may set scroll, drift, or spansMap.",
     "transitions": "Doorways. x and y are on THIS map; destinationSpawn is a tile on the destination map."
   },
 
@@ -30,6 +32,11 @@
     "L": { "type": "LOOT" },
     "N": { "type": "MARKER", "kind": "npc", "id": "traveler" },
     "T": { "type": "MARKER", "kind": "light", "radius": "6" }
+  },
+
+  "lighting": {
+    "ambient": { "color": "ambient_light", "intensity": 0.6 },
+    "player": { "radius": 2.0, "color": "resinous_torch" }
   },
 
   "layers": {
@@ -64,6 +71,12 @@
       "    S  R L    N",
       "               ",
       "               "
+    ]
+  },
+
+  "backdrops": {
+    "*": [
+      { "texture": "images/level1/backgrounds/dungeon/0-back.png", "scroll": 0.05 }
     ]
   },
 
