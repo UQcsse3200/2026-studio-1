@@ -42,6 +42,8 @@ public class PerkSelectionDisplay extends UIComponent {
   private final boolean mainMenuStyle;
   private Table rootTable;
   private Table[] cardFrames;
+  private Label[] nameLabels;
+  private Label[] statusLabels;
   private TextButton continueButton;
   private List<Perk> perks;
   private List<Texture> perkTextures;
@@ -93,6 +95,8 @@ public class PerkSelectionDisplay extends UIComponent {
 
     Table cardsRow = new Table();
     cardFrames = new Table[perks.size()];
+    nameLabels = new Label[perks.size()];
+    statusLabels = new Label[perks.size()];
     for (int i = 0; i < perks.size(); i++) {
       cardFrames[i] = buildCardFrame(perks.get(i), i);
       cardsRow.add(cardFrames[i]).pad(8f);
@@ -166,6 +170,7 @@ public class PerkSelectionDisplay extends UIComponent {
             perk.isUnlocked()
                 ? new Color(1f, 0.82f, 0.48f, 1f)
                 : new Color(0.62f, 0.65f, 0.64f, 1f));
+    nameLabels[index] = nameLabel;
     nameLabel.setWrap(true);
     nameLabel.setAlignment(Align.center);
     card.add(nameLabel).width(CARD_SIZE - 34f).minHeight(42f).padBottom(8f).row();
@@ -180,6 +185,7 @@ public class PerkSelectionDisplay extends UIComponent {
         createCardLabel(
             perk.getProgressText(),
             perk.isActive() ? new Color(1f, 0.78f, 0.32f, 1f) : new Color(0.47f, 0.88f, 0.78f, 1f));
+    statusLabels[index] = statusLabel;
     statusLabel.setAlignment(Align.center);
 
     Table badge = new Table(skin);
@@ -304,6 +310,7 @@ public class PerkSelectionDisplay extends UIComponent {
     Table frame = cardFrames[index];
 
     frame.setBackground(skin.newDrawable(WHITE, borderColorFor(perk, index)));
+    refreshLabels(perk, index);
 
     // Some tests inject frames without the complete UI hierarchy.
     if (frame.getChildren().size == 0) {
@@ -325,6 +332,25 @@ public class PerkSelectionDisplay extends UIComponent {
             perk.isActive()
                 ? new Color(0.95f, 0.69f, 0.28f, 1f)
                 : new Color(0.18f, 0.58f, 0.54f, 1f)));
+  }
+
+  /**
+   * Re-reads the perk's name colour and progress/status badge. These labels are created once in
+   * buildCardFrame, so without this a perk unlocked after the screen was built would keep showing
+   * its old "3/10" text and locked colour.
+   */
+  private void refreshLabels(Perk perk, int index) {
+    if (nameLabels == null || statusLabels == null) {
+      return;
+    }
+    if (index >= nameLabels.length || nameLabels[index] == null || statusLabels[index] == null) {
+      return;
+    }
+    nameLabels[index].getStyle().fontColor =
+        perk.isUnlocked() ? new Color(1f, 0.82f, 0.48f, 1f) : new Color(0.62f, 0.65f, 0.64f, 1f);
+    statusLabels[index].setText(perk.getProgressText());
+    statusLabels[index].getStyle().fontColor =
+        perk.isActive() ? new Color(1f, 0.78f, 0.32f, 1f) : new Color(0.47f, 0.88f, 0.78f, 1f);
   }
 
   private void updateFocus() {

@@ -105,7 +105,7 @@ class TortoiseComponentTest {
 
   @Test
   void shouldReportOnePerkProgress() {
-    Perk perk = new Perk("tortoiseTestPerk", "Test", "Test", "Tortoise", 5);
+    Perk perk = new Perk("tortoiseTestPerkReport", "Test", "Test", "Tortoise", 5);
     PerkService.register(perk);
     int before = perk.getProgress();
 
@@ -127,7 +127,7 @@ class TortoiseComponentTest {
 
   @Test
   void shouldCollectOnlyOnce() {
-    Perk perk = new Perk("tortoiseTestPerk", "Test", "Test", "Tortoise", 5);
+    Perk perk = new Perk("tortoiseTestPerkOnce", "Test", "Test", "Tortoise", 5);
     PerkService.register(perk);
     int before = perk.getProgress();
     Entity tortoise = tortoise();
