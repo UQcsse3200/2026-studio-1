@@ -29,7 +29,7 @@ public class QuestDisplay extends UIComponent {
   private final Set<GoldSpentQuest> completedGoldSpentQuest = new HashSet<>();
   private final Set<ShieldsCollectedQuest> completedShieldsCollectedQuest = new HashSet<>();
 
-  private final String TIME_LORD = "timeLord";
+  private final static String TIME_LORD = "timeLord";
 
   @Override
   public void create() {
