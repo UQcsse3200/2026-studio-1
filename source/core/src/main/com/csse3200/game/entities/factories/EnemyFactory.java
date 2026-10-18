@@ -823,8 +823,7 @@ public final class EnemyFactory {
     zeus.addComponent(meleeAttack(config.melee, sword));
     zeus.addComponent(rangedAttack(config.ranged, lightning));
     zeus.addComponent(new ZeusAnimationController());
-    // Zeus's tortoise drop goes here once TortoiseDropComponent is on the branch (see the
-    // commented addTortoiseDrop helper below).
+    // Zeus's tortoise drop
     addTortoiseDrop(zeus, ZEUS_TORTOISE_ID);
     addMeleeTask(zeus, target, config.melee.range);
     addRangedTask(
