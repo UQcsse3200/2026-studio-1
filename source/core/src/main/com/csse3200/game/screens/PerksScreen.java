@@ -1,14 +1,10 @@
 package com.csse3200.game.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import java.util.ArrayList;
-import java.util.List;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
@@ -22,6 +18,8 @@ import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +54,7 @@ public class PerksScreen extends ScreenAdapter {
     renderer = RenderFactory.createRenderer();
 
     loadPerkTextures();
-    backgroundTexture = new Texture(
-            Gdx.files.internal("images/ui/main-menu-bg.png")
-    );
+    backgroundTexture = new Texture(Gdx.files.internal("images/ui/main-menu-bg.png"));
 
     createUI();
   }
@@ -96,10 +92,10 @@ public class PerksScreen extends ScreenAdapter {
    */
   private void loadPerkTextures() {
     String[] paths = {
-            "images/ui/perks/shield-enhancement.png",
-            "images/ui/perks/max-health.png",
-            "images/ui/perks/time-freeze.png",
-            "images/ui/perks/loot-drop.png"
+      "images/ui/perks/shield-enhancement.png",
+      "images/ui/perks/max-health.png",
+      "images/ui/perks/time-freeze.png",
+      "images/ui/perks/loot-drop.png"
     };
 
     for (String path : paths) {
@@ -118,11 +114,8 @@ public class PerksScreen extends ScreenAdapter {
     background.toBack();
 
     PerkSelectionDisplay perkSelectionDisplay =
-            new PerkSelectionDisplay(
-                    () -> game.setScreen(GdxGame.ScreenType.MAIN_MENU),
-                    true,
-                    perkTextures
-            );
+        new PerkSelectionDisplay(
+            () -> game.setScreen(GdxGame.ScreenType.MAIN_MENU), true, perkTextures);
 
     Entity ui = new Entity();
     ui.addComponent(perkSelectionDisplay)

@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Perk-selection UI shared by the main-menu perks screen and the in-game death overlay.
- * Both variants use the same dark fantasy cards. The main-menu variant uses a lighter scrim,
- * while the death overlay darkens the game view to keep the player's attention on the selection.
+ * Perk-selection UI shared by the main-menu perks screen and the in-game death overlay. Both
+ * variants use the same dark fantasy cards. The main-menu variant uses a lighter scrim, while the
+ * death overlay darkens the game view to keep the player's attention on the selection.
  */
 public class PerkSelectionDisplay extends UIComponent {
   private static final Color TITLE_TEXT_COLOR = new Color(0.95f, 0.85f, 0.55f, 1f);
@@ -33,10 +33,10 @@ public class PerkSelectionDisplay extends UIComponent {
   private static final String WHITE = "white";
 
   private static final String[] PERK_TEXTURE_PATHS = {
-          "images/ui/perks/shield-enhancement.png",
-          "images/ui/perks/max-health.png",
-          "images/ui/perks/time-freeze.png",
-          "images/ui/perks/loot-drop.png"
+    "images/ui/perks/shield-enhancement.png",
+    "images/ui/perks/max-health.png",
+    "images/ui/perks/time-freeze.png",
+    "images/ui/perks/loot-drop.png"
   };
 
   private final Runnable onContinue;
@@ -62,7 +62,7 @@ public class PerkSelectionDisplay extends UIComponent {
   }
 
   public PerkSelectionDisplay(
-          Runnable onContinue, boolean mainMenuStyle, List<Texture> perkTextures) {
+      Runnable onContinue, boolean mainMenuStyle, List<Texture> perkTextures) {
     this(onContinue, mainMenuStyle);
     this.perkTextures = perkTextures;
   }
@@ -76,19 +76,19 @@ public class PerkSelectionDisplay extends UIComponent {
     rootTable = new Table();
     rootTable.setFillParent(true);
     rootTable.setBackground(
-            skin.newDrawable(
-                    WHITE,
-                    mainMenuStyle
-                            ? new Color(0f, 0f, 0f, 0.20f)
-                            : new Color(0.008f, 0.018f, 0.018f, 0.64f)));
+        skin.newDrawable(
+            WHITE,
+            mainMenuStyle
+                ? new Color(0f, 0f, 0f, 0.20f)
+                : new Color(0.008f, 0.018f, 0.018f, 0.64f)));
 
     Table popup = new Table(skin);
     popup.setBackground(
-            skin.newDrawable(
-                    WHITE,
-                    mainMenuStyle
-                            ? new Color(0.025f, 0.045f, 0.035f, 0.67f)
-                            : new Color(0.025f, 0.045f, 0.035f, 0.88f)));
+        skin.newDrawable(
+            WHITE,
+            mainMenuStyle
+                ? new Color(0.025f, 0.045f, 0.035f, 0.67f)
+                : new Color(0.025f, 0.045f, 0.035f, 0.88f)));
     popup.pad(30f);
     popup.defaults().space(10f);
 
@@ -107,12 +107,12 @@ public class PerkSelectionDisplay extends UIComponent {
 
     continueButton = new TextButton("Continue", skin);
     continueButton.addListener(
-            new ChangeListener() {
-              @Override
-              public void changed(ChangeEvent event, Actor actor) {
-                close();
-              }
-            });
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            close();
+          }
+        });
     popup.add(continueButton).padTop(18f);
 
     rootTable.add(popup);
@@ -148,77 +148,63 @@ public class PerkSelectionDisplay extends UIComponent {
     // Decorative top edge.
     Table accent = new Table();
     accent.setBackground(
-            skin.newDrawable(
-                    WHITE,
-                    perk.isActive()
-                            ? new Color(0.95f, 0.69f, 0.28f, 1f)
-                            : new Color(0.18f, 0.58f, 0.54f, 1f)));
+        skin.newDrawable(
+            WHITE,
+            perk.isActive()
+                ? new Color(0.95f, 0.69f, 0.28f, 1f)
+                : new Color(0.18f, 0.58f, 0.54f, 1f)));
     card.add(accent).growX().height(3f).padBottom(10f).row();
 
     // Icon inset.
     if (perkTextures != null && index < perkTextures.size()) {
       Table iconPanel = new Table(skin);
-      iconPanel.setBackground(
-              skin.newDrawable(WHITE, new Color(0.10f, 0.14f, 0.15f, 1f)));
+      iconPanel.setBackground(skin.newDrawable(WHITE, new Color(0.10f, 0.14f, 0.15f, 1f)));
       Image icon = new Image(perkTextures.get(index));
       icon.setScaling(Scaling.fit);
       iconPanel.add(icon).size(68f, 68f).pad(5f);
       card.add(iconPanel).size(80f, 80f).padBottom(10f).row();
     }
 
-    Label nameLabel = createCardLabel(
+    Label nameLabel =
+        createCardLabel(
             perk.getName(),
             perk.isUnlocked()
-                    ? new Color(1f, 0.82f, 0.48f, 1f)
-                    : new Color(0.62f, 0.65f, 0.64f, 1f));
+                ? new Color(1f, 0.82f, 0.48f, 1f)
+                : new Color(0.62f, 0.65f, 0.64f, 1f));
     nameLabel.setWrap(true);
     nameLabel.setAlignment(Align.center);
-    card.add(nameLabel)
-            .width(CARD_SIZE - 34f)
-            .minHeight(42f)
-            .padBottom(8f)
-            .row();
+    card.add(nameLabel).width(CARD_SIZE - 34f).minHeight(42f).padBottom(8f).row();
 
-    Label descriptionLabel = createCardLabel(
-            perk.getDescription(), new Color(0.88f, 0.86f, 0.78f, 1f));
+    Label descriptionLabel =
+        createCardLabel(perk.getDescription(), new Color(0.88f, 0.86f, 0.78f, 1f));
     descriptionLabel.setWrap(true);
     descriptionLabel.setAlignment(Align.center);
-    card.add(descriptionLabel)
-            .width(CARD_SIZE - 34f)
-            .height(76f)
-            .padBottom(8f)
-            .row();
+    card.add(descriptionLabel).width(CARD_SIZE - 34f).height(76f).padBottom(8f).row();
 
-    Label statusLabel = createCardLabel(
+    Label statusLabel =
+        createCardLabel(
             perk.getProgressText(),
-            perk.isActive()
-                    ? new Color(1f, 0.78f, 0.32f, 1f)
-                    : new Color(0.47f, 0.88f, 0.78f, 1f));
+            perk.isActive() ? new Color(1f, 0.78f, 0.32f, 1f) : new Color(0.47f, 0.88f, 0.78f, 1f));
     statusLabel.setAlignment(Align.center);
 
     Table badge = new Table(skin);
-    badge.setBackground(
-            skin.newDrawable(WHITE, new Color(0.09f, 0.14f, 0.14f, 1f)));
+    badge.setBackground(skin.newDrawable(WHITE, new Color(0.09f, 0.14f, 0.14f, 1f)));
     badge.pad(5f, 9f, 5f, 9f);
     badge.add(statusLabel);
     card.add(badge).padTop(2f).row();
 
-    frame.add(card)
-            .width(CARD_SIZE)
-            .height(CARD_HEIGHT)
-            .pad(BORDER_PAD);
+    frame.add(card).width(CARD_SIZE).height(CARD_HEIGHT).pad(BORDER_PAD);
 
     card.addListener(
-            new InputListener() {
-              @Override
-              public boolean touchDown(
-                      InputEvent event, float x, float y, int pointer, int button) {
-                selectedIndex = index;
-                onConfirm();
-                updateFocus();
-                return true;
-              }
-            });
+        new InputListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            selectedIndex = index;
+            onConfirm();
+            updateFocus();
+            return true;
+          }
+        });
 
     return frame;
   }
@@ -328,11 +314,11 @@ public class PerkSelectionDisplay extends UIComponent {
     // Update the decorative strip and text/progress colours after activation toggles.
     Table accent = (Table) card.getChild(0);
     accent.setBackground(
-            skin.newDrawable(
-                    WHITE,
-                    perk.isActive()
-                            ? new Color(0.95f, 0.69f, 0.28f, 1f)
-                            : new Color(0.18f, 0.58f, 0.54f, 1f)));
+        skin.newDrawable(
+            WHITE,
+            perk.isActive()
+                ? new Color(0.95f, 0.69f, 0.28f, 1f)
+                : new Color(0.18f, 0.58f, 0.54f, 1f)));
   }
 
   private void updateFocus() {
