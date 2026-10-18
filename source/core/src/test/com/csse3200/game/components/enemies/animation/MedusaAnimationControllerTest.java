@@ -1,11 +1,11 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies.animation;
 
+import static com.csse3200.game.components.enemies.animation.MedusaAnimationController.AnimationState.IDLE_RIGHT;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.csse3200.game.components.enemies.animation.MedusaAnimationController;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;
@@ -52,7 +52,7 @@ class MedusaAnimationControllerTest {
     verify(animationRenderComponent).startAnimation("gorgon_idle_r");
     assertTrue(controller.isFacingRight());
     assertFalse(controller.isFacingLeft());
-    assertEquals(MedusaAnimationController.AnimationState.IDLE_RIGHT, controller.getCurrentState());
+    assertEquals(IDLE_RIGHT, controller.getCurrentState());
     assertFalse(controller.isAttacking());
     assertFalse(controller.isDead());
   }
@@ -320,5 +320,128 @@ class MedusaAnimationControllerTest {
     entity.getEvents().trigger("deathRightStart");
     verify(animationRenderComponent).startAnimation("gorgon_dead_r");
     assertTrue(controller.isDead());
+  }
+
+  /** With no physics body, a Medusa that finishes a left attack returns to idle facing left. */
+  @Test
+  void shouldReturnToIdleLeftAfterStrikeLeftWhenNoPhysicsBody() {
+    // beforeEach stubs getBody() with the mock body, so override it to simulate no body
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(-5f, 0f);
+
+    EventListener0 idleLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleLeftStart", idleLCallback);
+
+    entity.create(); // fires idleRightStart once
+
+    // start an attack to the left, which sets isAttacking to true
+    entity.getEvents().trigger("meleeAttack", target);
+    assertTrue(controller.isAttacking());
+    assertEquals(
+        MedusaAnimationController.AnimationState.ATTACK_LEFT, controller.getCurrentState());
+
+    // isFinished() returns false on a mock by default. It must be true here, otherwise
+    // update() returns early and never reaches the else branch.
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+
+    assertFalse(controller.isAttacking());
+    assertEquals(MedusaAnimationController.AnimationState.IDLE_LEFT, controller.getCurrentState());
+    verify(idleLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("gorgon_idle_l");
+  }
+
+  /** With no physics body, a Medusa that finishes a right attack returns to idle facing right. */
+  @Test
+  void shouldReturnToIdleRightAfterAttackRightWhenNoPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    EventListener0 idleRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleRightStart", idleRCallback);
+    // fires idleRightStart once
+    entity.create();
+
+    entity.getEvents().trigger("meleeAttack", target);
+    assertTrue(controller.isAttacking());
+    assertEquals(
+        MedusaAnimationController.AnimationState.ATTACK_RIGHT, controller.getCurrentState());
+
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+
+    assertFalse(controller.isAttacking());
+    assertEquals(MedusaAnimationController.AnimationState.IDLE_RIGHT, controller.getCurrentState());
+    // idleRightStart fired once from create() and once more now
+    verify(idleRCallback, times(2)).handle();
+    verify(animationRenderComponent, times(2)).startAnimation("gorgon_idle_r");
+  }
+
+  /** With no physics body and no attack, nothing changes. */
+  @Test
+  void noBodyAndNoAttackingKeepsState() {
+    // beforeEach stubs getBody() with the mock body, so override it to simulate no body
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+    // create mock event listens  for testing
+    EventListener0 idleLCallback = mock(EventListener0.class);
+    EventListener0 idleRCallback = mock(EventListener0.class);
+    EventListener0 walkLCallback = mock(EventListener0.class);
+    EventListener0 walkRCallback = mock(EventListener0.class);
+    // add created mock event listeners to entity
+    entity.getEvents().addListener("idleLeftStart", idleLCallback);
+    entity.getEvents().addListener("idleRightStart", idleRCallback);
+    entity.getEvents().addListener("walkLeftStart", walkLCallback);
+    entity.getEvents().addListener("walkRightStart", walkRCallback);
+    // starts at IDLE_RIGHT and fires idleRightStart once
+    entity.create();
+    // forget the calls made by create() so only update() is measured.
+    clearInvocations(
+        idleLCallback, idleRCallback, walkLCallback, walkRCallback, animationRenderComponent);
+
+    controller.update();
+
+    assertEquals(IDLE_RIGHT, controller.getCurrentState());
+    verify(idleLCallback, never()).handle();
+    verify(idleRCallback, never()).handle();
+    verify(walkLCallback, never()).handle();
+    verify(walkRCallback, never()).handle();
+    verify(animationRenderComponent, never()).startAnimation(anyString());
+  }
+
+  /** A controller with no PhysicsComponent at all must not throw in update(). */
+  @Test
+  void missingPhysicsComponentDoesNotThrow() {
+    Entity bare = new Entity();
+    MedusaAnimationController bareController = new MedusaAnimationController();
+    bare.addComponent(mock(AnimationRenderComponent.class)).addComponent(bareController);
+
+    bare.create();
+
+    assertDoesNotThrow(bareController::update);
+  }
+
+  /** A velocity change switches the animation state once. */
+  @Test
+  void shouldSwitchToWalkRightOnceWhenVelocityChanges() {
+    EventListener0 walkRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("walkRightStart", walkRCallback);
+
+    entity.create();
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
+    controller.update();
+
+    assertEquals(MedusaAnimationController.AnimationState.WALK_RIGHT, controller.getCurrentState());
+    verify(walkRCallback, times(1)).handle();
+
+    // same velocity again must not fire the event a second time
+    controller.update();
+    verify(walkRCallback, times(1)).handle();
   }
 }

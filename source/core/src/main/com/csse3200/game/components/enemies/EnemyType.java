@@ -1,4 +1,4 @@
-package com.csse3200.game.components;
+package com.csse3200.game.components.enemies;
 
 public enum EnemyType {
   SKELETON,
