@@ -1,8 +1,12 @@
 package com.csse3200.game.pausemenu;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.difficulty.Difficulty;
 import com.csse3200.game.difficulty.DifficultyService;
@@ -81,5 +85,25 @@ class PauseMenuDisplayTest {
       display.navigateDown();
     }
     assertEquals(0, display.mainIndex, "Expected 5 navigable items to cycle back to the start.");
+  }
+
+  @Test
+  void restartConfirmationBelongsToModalOverlayInsteadOfPauseMenu() {
+    assertSame(display.restartOverlay, display.restartConfirmPanel.getParent());
+    assertFalse(
+        containsActor(display.root, display.restartConfirmPanel),
+        "The confirmation dialog must not also be nested in the pause menu.");
+  }
+
+  private static boolean containsActor(Group group, Actor target) {
+    if (group.getChildren().contains(target, true)) {
+      return true;
+    }
+    for (Actor child : group.getChildren()) {
+      if (child instanceof Group childGroup && containsActor(childGroup, target)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
