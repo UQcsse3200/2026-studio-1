@@ -9,12 +9,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.csse3200.game.Quests.Quest;
+import com.csse3200.game.components.loot.ConsumableGenerator;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.ItemType;
 import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
 import java.util.List;
@@ -220,7 +222,11 @@ class ShopGamblingTest {
 
   @Test
   void shouldRejectSpinWithoutInventory() {
-    ShopComponent shop = new ShopComponent(new FixedRandom(POTION_DRAW)).seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(new FixedRandom(POTION_DRAW)),
+            new WeaponGenerator(),
+            new ConsumableGenerator());
     new Entity().addComponent(shop);
 
     assertNull(shop.buySpin(STANDARD), "a spin needs an inventory to pay and receive the prize");
@@ -228,7 +234,11 @@ class ShopGamblingTest {
 
   @Test
   void shouldRejectSpinWhenShopIsUnattached() {
-    ShopComponent shop = new ShopComponent(new FixedRandom(POTION_DRAW)).seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(new FixedRandom(POTION_DRAW)),
+            new WeaponGenerator(),
+            new ConsumableGenerator());
 
     assertNull(shop.buySpin(STANDARD), "an unattached shop has no inventory");
   }
@@ -360,7 +370,7 @@ class ShopGamblingTest {
   void shouldSpinSeededTicketUpToItsRarestPrize(GamblingCatalogs.CatalogId catalogId) {
     ShopComponent shop = new ShopComponent(new FixedRandom(99));
     new Entity().addComponent(new InventoryComponent(100)).addComponent(shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     assertInstanceOf(
         ShopComponent.Pet.class,
@@ -429,7 +439,7 @@ class ShopGamblingTest {
   private static ShopComponent newShop(InventoryComponent inventory, FixedRandom random) {
     ShopComponent shop = new ShopComponent(random);
     new Entity().addComponent(inventory).addComponent(shop);
-    shop.seedDefaultCatalog();
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
 
     WeaponGenerator weapons = new WeaponGenerator();
     shop.setSpinPrice(STANDARD, SPIN_PRICE);
