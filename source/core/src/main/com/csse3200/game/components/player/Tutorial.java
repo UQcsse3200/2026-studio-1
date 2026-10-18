@@ -76,8 +76,8 @@ public class Tutorial extends UIComponent {
 
     rootTable = new Table();
     rootTable.setFillParent(true);
-    rootTable.align(Align.top);
-    rootTable.padTop(480f);
+    rootTable.align(Align.center);
+    rootTable.padBottom(80f);
 
     Table card = new Table();
     card.setBackground(panel);
