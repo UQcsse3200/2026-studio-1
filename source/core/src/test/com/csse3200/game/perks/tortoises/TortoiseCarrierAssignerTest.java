@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.csse3200.game.components.EnemyType;
+import com.csse3200.game.components.enemies.EnemyType;
 import com.csse3200.game.components.enemies.EnemyTypeComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;

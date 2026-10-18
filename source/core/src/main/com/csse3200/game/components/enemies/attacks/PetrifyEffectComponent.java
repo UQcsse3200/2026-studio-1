@@ -94,8 +94,11 @@ public class PetrifyEffectComponent extends Component {
     if (petrify == null) {
       throw new IllegalArgumentException("petrify config is required");
     }
-    // Written as a negated comparison so NaN is rejected; zero ticks would mean "permanent".
-    if (!(petrify.duration > 0) || Float.isInfinite(petrify.duration)) {
+    // NaN is checked explicitly because it fails every comparison; zero ticks would mean
+    // "permanent".
+    if (Float.isNaN(petrify.duration)
+        || petrify.duration <= 0
+        || Float.isInfinite(petrify.duration)) {
       throw new IllegalArgumentException("petrify duration must be above zero");
     }
     requireCooldownCoversEffect(attackCooldown, petrify.duration);
@@ -119,7 +122,7 @@ public class PetrifyEffectComponent extends Component {
   /**
    * Team design rule: an attack that applies a timed effect must have a cooldown of at least {@code
    * COOLDOWN_EFFECT_MULTIPLIER} times the effect's duration, so the player always gets a window to
-   * act. Written as a negated comparison so a NaN is rejected too.
+   * act. A NaN cooldown or effect duration is rejected too.
    *
    * @param cooldown the attack's cooldown in seconds
    * @param effectSeconds the effect's duration in seconds
@@ -128,7 +131,7 @@ public class PetrifyEffectComponent extends Component {
    */
   static void requireCooldownCoversEffect(float cooldown, float effectSeconds) {
     float minimum = COOLDOWN_EFFECT_MULTIPLIER * effectSeconds;
-    if (!(cooldown >= minimum)) {
+    if (Float.isNaN(cooldown) || Float.isNaN(minimum) || cooldown < minimum) {
       throw new IllegalArgumentException("cooldown " + cooldown + " must be at least " + minimum);
     }
   }

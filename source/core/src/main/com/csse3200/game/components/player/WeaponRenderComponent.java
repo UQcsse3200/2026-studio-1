@@ -192,7 +192,7 @@ public class WeaponRenderComponent extends RenderComponent {
   }
 
   private void startSwing(int damage) {
-    if (!isCurrentWeapon(WeaponType.SWORD)) {
+    if (!isCurrentWeapon(WeaponType.SWORD) && !isCurrentWeapon(WeaponType.AXE)) {
       return;
     }
 

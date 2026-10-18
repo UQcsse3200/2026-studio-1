@@ -216,7 +216,7 @@ class WeaponUpgradeEffectTest {
   void shouldAnnounceTheUpgradedWeapon() {
     List<WeaponItem> announced = new ArrayList<>();
     givePlayer(weapons.generateWeapon(WeaponType.SWORD, 1), stone());
-    player.getEvents().addListener("weaponUpgraded", (WeaponItem weapon) -> announced.add(weapon));
+    player.getEvents().<WeaponItem>addListener("weaponUpgraded", announced::add);
 
     pressSlotKey(2);
 

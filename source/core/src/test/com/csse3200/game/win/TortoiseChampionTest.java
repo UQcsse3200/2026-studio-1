@@ -28,12 +28,15 @@ class TortoiseChampionTest {
 
   @BeforeEach
   void setUp() {
-    TortoiseLedger.reset();
-    TortoiseLedger.setTotal(0);
+    resetStatics();
   }
 
   @AfterEach
   void tearDown() {
+    resetStatics();
+  }
+
+  private static void resetStatics() {
     TortoiseLedger.reset();
     TortoiseLedger.setTotal(0);
   }

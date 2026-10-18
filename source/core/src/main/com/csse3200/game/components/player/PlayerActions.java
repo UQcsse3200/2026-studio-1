@@ -12,6 +12,8 @@ import com.csse3200.game.components.Component;
 import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
 import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.AudioSettings;
 import com.csse3200.game.physics.BodyUserData;
@@ -49,6 +51,7 @@ public class PlayerActions extends Component {
   private static final int BRIBE_COST = 50;
   private static final String BRIBE_NO_TARGET_EVENT = "bribeNoTarget";
 
+  private int swordDamageBonus = 0;
   private float attackCooldownRemaining = 0f;
   private float specialAttackCooldownRemaining = 0f;
   private float areaAttackCooldownRemaining = 0f;
@@ -122,6 +125,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("attack", this::attack);
     entity.getEvents().addListener("specialAttack", this::specialAttack);
     entity.getEvents().addListener("areaAttack", this::areaAttack);
+    entity.getEvents().addListener("swordDamageBonusChanged", this::onSwordDamageBonusChanged);
 
     // Bribe support.
     entity.getEvents().addListener("damagedBy", this::onDamagedBy);
@@ -391,7 +395,7 @@ public class PlayerActions extends Component {
 
     // Existing melee combat from main
     for (Entity enemy : enemiesInRange) {
-      if (hitEnemy(enemy, combatStats.getBaseAttack())) {
+      if (hitEnemy(enemy, getCurrentAttackDamage())) {
         logger.info(
             "Enemy health decreased; health = {}",
             enemy.getComponent(CombatStatsComponent.class).getHealth());
@@ -421,7 +425,7 @@ public class PlayerActions extends Component {
     int damage =
         (int)
             Math.min(
-                (long) combatStats.getBaseAttack() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
+                (long) getCurrentAttackDamage() * SPECIAL_ATTACK_DAMAGE_MULTIPLIER,
                 Integer.MAX_VALUE);
     if (hitEnemy(target, damage)) {
       entity.getEvents().trigger("specialAttackHit", target);
@@ -468,8 +472,7 @@ public class PlayerActions extends Component {
     int damage =
         (int)
             Math.min(
-                (long) combatStats.getBaseAttack() * AREA_ATTACK_DAMAGE_MULTIPLIER,
-                Integer.MAX_VALUE);
+                (long) getCurrentAttackDamage() * AREA_ATTACK_DAMAGE_MULTIPLIER, Integer.MAX_VALUE);
 
     for (Entity target : targets) {
       if (hitEnemy(target, damage)) {
@@ -478,6 +481,44 @@ public class PlayerActions extends Component {
     }
 
     areaAttackCooldownRemaining = AREA_ATTACK_COOLDOWN;
+  }
+
+  /** Updates the additive Sword Damage upgrade bonus. */
+  private void onSwordDamageBonusChanged(int bonus) {
+    swordDamageBonus = Math.max(0, bonus);
+  }
+
+  /**
+   * Calculates direct attack damage from the equipped melee weapon. Strength multiplies weapon
+   * damage; Sword Damage adds its bonus to swords only. Other weapons retain the existing
+   * base-attack fallback for close-range hits.
+   */
+  private int getCurrentAttackDamage() {
+    if (combatStats == null) {
+      return 0;
+    }
+
+    InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
+    if (inventory == null || !(inventory.getActiveItem() instanceof WeaponItem)) {
+      return Math.max(0, combatStats.getBaseAttack());
+    }
+
+    WeaponItem weapon = (WeaponItem) inventory.getActiveItem();
+    WeaponType type = weapon.getWeaponType();
+
+    if (type != WeaponType.SWORD && type != WeaponType.AXE) {
+      return Math.max(0, combatStats.getBaseAttack());
+    }
+
+    int damage = weapon.getDamage();
+    if (type == WeaponType.SWORD) {
+      damage += swordDamageBonus;
+    }
+
+    PlayerBuffComponent buff = entity.getComponent(PlayerBuffComponent.class);
+    float multiplier = buff == null ? 1f : buff.getDamageMultiplier();
+
+    return Math.max(0, Math.round(damage * multiplier));
   }
 
   /** Resolves a player hit before notifying listeners of the enemy that was struck. */

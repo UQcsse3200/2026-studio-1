@@ -94,6 +94,7 @@ public class RockAttackComponent extends RangedAttackComponent {
   /**
    * @return the damage multiplier applied to the weapon damage
    */
+  @Override
   public float getDamageMultiplier() {
     return damageMultiplier;
   }

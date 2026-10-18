@@ -174,7 +174,7 @@ public final class AttackTestWorld {
    * @param eventName the event to listen for
    * @return a live list that fills as the event fires
    */
-  public static List<Entity> record(Entity source, String eventName) {
+  public static List<Entity> recordEvents(Entity source, String eventName) {
     List<Entity> seen = new ArrayList<>();
     source.getEvents().addListener(eventName, (EventListener1<Entity>) seen::add);
     return seen;

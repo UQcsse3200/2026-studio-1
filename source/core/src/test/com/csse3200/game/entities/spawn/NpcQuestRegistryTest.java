@@ -75,6 +75,7 @@ class NpcQuestRegistryTest {
   void reviveKeepsQuestInProgress() {
     Entity first = createNpc(NPC_ID);
     first.getEvents().trigger("nextDialogue");
+    first.getEvents().trigger("nextDialogue");
     assertEquals("CHECKING", dialogue(first).getQuestState());
 
     // On a revive the new NPC is created before the old one is disposed.
@@ -100,6 +101,7 @@ class NpcQuestRegistryTest {
   @Test
   void saveAndLoadKeepsQuestProgress() {
     Entity npc = createNpc(NPC_ID);
+    npc.getEvents().trigger("nextDialogue");
     npc.getEvents().trigger("nextDialogue");
     Quest.incrementGlobalJumps();
     Quest.incrementGlobalJumps();
@@ -212,6 +214,7 @@ class NpcQuestRegistryTest {
   void differentNpcsKeepSeparateState() {
     Entity wizard = createNpc(NPC_ID);
     Entity satyr = createNpc("npc:satyr@level1:20,5");
+    wizard.getEvents().trigger("nextDialogue");
     wizard.getEvents().trigger("nextDialogue");
 
     assertNotEquals(giver(wizard).uniqueNPCID, giver(satyr).uniqueNPCID);

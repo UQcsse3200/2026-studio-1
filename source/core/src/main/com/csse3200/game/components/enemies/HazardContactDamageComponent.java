@@ -164,8 +164,8 @@ public class HazardContactDamageComponent extends Component {
   /** Finds the entity that owns the fixture's body through the body's user data, or null. */
   private static Entity ownerOf(Fixture fixture) {
     Object userData = fixture.getBody().getUserData();
-    if (userData instanceof BodyUserData) {
-      return ((BodyUserData) userData).entity;
+    if (userData instanceof BodyUserData bodyUserData) {
+      return bodyUserData.entity;
     }
     return null;
   }

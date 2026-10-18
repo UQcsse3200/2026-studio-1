@@ -16,8 +16,8 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.ai.tasks.PriorityTask;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.enemies.*;
+import com.csse3200.game.components.enemies.EnemyType;
 import com.csse3200.game.components.enemies.animation.*;
 import com.csse3200.game.components.enemies.attacks.*;
 import com.csse3200.game.components.enemies.tasks.*;
@@ -167,9 +167,9 @@ class EnemyFactoryTest {
             12,
             WeaponType.AXE,
             2,
-            4f,
+            2.5f,
             80f / 96f,
-            0.8f,
+            0.5f,
             0.7f,
             true,
             List.of(
@@ -458,8 +458,9 @@ class EnemyFactoryTest {
     @ParameterizedTest(name = "{0} rejects a null target by name")
     @MethodSource(EVERY_ENEMY)
     void shouldRejectANullTargetNamingTheEnemy(Spec spec) {
+      var factory = spec.factory();
       IllegalArgumentException thrown =
-          assertThrows(IllegalArgumentException.class, () -> spec.factory().apply(null));
+          assertThrows(IllegalArgumentException.class, () -> factory.apply(null));
 
       assertEquals(spec.label() + " needs a target", thrown.getMessage());
     }
@@ -593,7 +594,7 @@ class EnemyFactoryTest {
   @DisplayName("createSkeleton")
   class Skeleton {
     @Test
-    void shouldMeleeWithItsSwordFromTheConfig() throws ReflectiveOperationException {
+    void shouldMeleeWithItsSwordFromTheConfig() {
       Entity skeleton = EnemyFactory.createSkeleton(player);
       MeleeAttackComponent melee = skeleton.getComponent(MeleeAttackComponent.class);
 
@@ -658,7 +659,7 @@ class EnemyFactoryTest {
       assertEquals(1, countTasks(skeleton, ChaseTask.class));
       assertEquals(1, countTasks(skeleton, RangedAttackTask.class));
       assertEquals(0, countTasks(skeleton, MeleeAttackTask.class));
-      Integer priority = priorityField(tasksOfType(skeleton, RangedAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(skeleton, RangedAttackTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -701,7 +702,7 @@ class EnemyFactoryTest {
       assertNull(harpy.getComponent(MeleeAttackComponent.class));
       assertNotNull(harpy.getComponent(HarpyAnimationController.class));
       assertEquals(1, countTasks(harpy, RangedAttackTask.class));
-      Integer priority = priorityField(tasksOfType(harpy, RangedAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(harpy, RangedAttackTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -750,7 +751,7 @@ class EnemyFactoryTest {
       Entity minotaur = EnemyFactory.createMinotaur(player);
       float[] bounds = colliderBounds(minotaur);
 
-      float expectedBottom = 16f * minotaur.getScale().y / 80f;
+      float expectedBottom = 8f * minotaur.getScale().y / 80f;
       assertEquals(expectedBottom, bounds[1], TOLERANCE);
       assertEquals(minotaur.getScale().x / 2f, (bounds[0] + bounds[2]) / 2f, TOLERANCE);
     }
@@ -779,7 +780,7 @@ class EnemyFactoryTest {
     @Test
     void shouldUseTheRangedPriority() throws ReflectiveOperationException {
       Entity centaur = EnemyFactory.createCentaur(player);
-      Integer priority = priorityField(tasksOfType(centaur, RangedAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(centaur, RangedAttackTask.class).getFirst());
 
       assumeTrue(priority != null);
       assertEquals(12, priority);
@@ -871,6 +872,34 @@ class EnemyFactoryTest {
       configs.medusa.melee.range = configs.medusa.ranged.range;
 
       assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+    }
+
+    /** A NaN melee range is still rejected after the operator change. */
+    @Test
+    void shouldRejectANaNMeleeRange() {
+      configs.medusa.melee.range = Float.NaN; // tearDown restores it
+
+      assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+    }
+
+    /** A NaN ranged range is still rejected after the operator change. */
+    @Test
+    void shouldRejectANaNRangedRange() {
+      float savedRangedRange = configs.medusa.ranged.range;
+      configs.medusa.ranged.range = Float.NaN;
+      try {
+        assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+      } finally {
+        configs.medusa.ranged.range = savedRangedRange;
+      }
+    }
+
+    /** A melee range just below the ranged range is accepted. */
+    @Test
+    void shouldAcceptAMeleeRangeJustBelowTheRangedRange() {
+      configs.medusa.melee.range = Math.nextDown(configs.medusa.ranged.range);
+
+      assertDoesNotThrow(() -> EnemyFactory.createMedusa(player));
     }
 
     @Test
@@ -1001,7 +1030,7 @@ class EnemyFactoryTest {
       assertTrue(base.getComponent(PhysicsMovementComponent.class).isGroundedMovement());
       assertEquals(1, countTasks(base, PlatformWanderTask.class));
       assertEquals(1, countTasks(base, ChaseTask.class));
-      Integer priority = priorityField(tasksOfType(base, ChaseTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(base, ChaseTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(10, priority);
     }
@@ -1230,7 +1259,7 @@ class EnemyFactoryTest {
           2f);
 
       assertEquals(1, countTasks(enemy, MeleeAttackTask.class));
-      Integer priority = priorityField(tasksOfType(enemy, MeleeAttackTask.class).get(0));
+      Integer priority = priorityField(tasksOfType(enemy, MeleeAttackTask.class).getFirst());
       assumeTrue(priority != null);
       assertEquals(15, priority);
     }
@@ -1349,7 +1378,7 @@ class EnemyFactoryTest {
       float[] bounds = colliderBounds(body);
       assertEquals(3.2f, bounds[2] - bounds[0], TOLERANCE);
       assertEquals(3.333f * 0.7f, bounds[3] - bounds[1], TOLERANCE);
-      assertEquals(16f * 3.333f / 80f, bounds[1], TOLERANCE);
+      assertEquals(8f * 3.333f / 80f, bounds[1], TOLERANCE);
       assertEquals(2f, (bounds[0] + bounds[2]) / 2f, TOLERANCE);
     }
 

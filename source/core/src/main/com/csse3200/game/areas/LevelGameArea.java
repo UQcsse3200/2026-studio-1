@@ -156,14 +156,12 @@ public class LevelGameArea extends GameArea {
   };
 
   private static final String[] entityAtlases = {
-    "images/knight.atlas",
-    "images/LeftKnight.atlas",
+    "images/Knight.atlas",
     "images/enemy_weapons/enemy_bow.atlas",
     "images/enemy_weapons/enemy_sword.atlas",
     "images/items/gold_coin/gold_coin.atlas",
     "images/pet.atlas",
     "images/tortoise.atlas",
-    "images/KnightEffects.atlas",
     "images/enemies/skeleton.atlas",
     "images/enemies/cyclops.atlas",
     "images/enemies/minotaur.atlas",
@@ -1224,7 +1222,11 @@ public class LevelGameArea extends GameArea {
 
   // Spawns the NPC placed at each "npc" marker in this map.
   private void spawnNpcs() {
-    for (Marker marker : getLevel().markers("npc")) {
+    LevelView level = getLevel();
+    if (level == null) {
+      return;
+    }
+    for (Marker marker : level.markers("npc")) {
       String npcId = marker.id() + "@" + EnemyId.of(mapData.getName(), marker.position());
       if (NpcQuestRegistry.isKilled(npcId)) {
         continue;
