@@ -219,4 +219,23 @@ class ConsumableGeneratorTest {
       assertNotNull(item.getTexturePath());
     }
   }
+
+  /** A missing config file must fail with a clear message naming the file, not pass on null. */
+  @Test
+  void shouldFailClearlyWhenConfigFileIsMissing() {
+    IllegalStateException error =
+        assertThrows(
+            IllegalStateException.class,
+            () -> ConsumableGenerator.loadConfigs("test/files/missing.json"));
+
+    assertTrue(error.getMessage().contains("test/files/missing.json"));
+  }
+
+  /** The real config file should still be used when it can be read. */
+  @Test
+  void shouldLoadConfigsFromFileWhenItExists() {
+    ConsumableConfigs configs = ConsumableGenerator.loadConfigs("configs/consumables.json");
+
+    assertEquals("Health Potion", configs.healthPotion.name);
+  }
 }
