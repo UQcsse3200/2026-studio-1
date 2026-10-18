@@ -40,10 +40,10 @@ class WeaponItemTest {
 
   @Test
   void shouldRejectNegativeTier() {
-    WeaponGenerator weaponGenerator = new WeaponGenerator();
+    WeaponGenerator generator = new WeaponGenerator();
+
     assertThrows(
-        IllegalArgumentException.class,
-        () -> weaponGenerator.generateWeapon(WeaponType.DAGGER, -1));
+        IllegalArgumentException.class, () -> generator.generateWeapon(WeaponType.DAGGER, -1));
   }
 
   // --- Added tests below (existing tests above are unchanged) ---

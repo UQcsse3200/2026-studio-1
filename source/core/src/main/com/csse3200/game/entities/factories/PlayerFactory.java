@@ -61,9 +61,7 @@ import com.csse3200.game.services.ServiceLocator;
  */
 public class PlayerFactory {
   static Texture size = new Texture("images/knight_default.png");
-  static TextureAtlas rightAtlas = new TextureAtlas("images/knight.atlas");
-  static TextureAtlas leftAtlas = new TextureAtlas("images/LeftKnight.atlas");
-  static TextureAtlas effectsAtlas = new TextureAtlas("images/KnightEffects.atlas");
+  static TextureAtlas playerAtlas = new TextureAtlas("images/Knight.atlas");
   private static final PlayerConfig stats =
       FileLoader.readClass(PlayerConfig.class, "configs/player.json");
 
@@ -135,7 +133,7 @@ public class PlayerFactory {
             .addComponent(new SpeedEffectComponent())
             .addComponent(new HealthEffectComponent());
 
-    PlayerRenderComponent animator = new PlayerRenderComponent(rightAtlas, leftAtlas, effectsAtlas);
+    PlayerRenderComponent animator = new PlayerRenderComponent(playerAtlas);
 
     animator.addAnimation("Idle", 0.1f, Animation.PlayMode.LOOP);
     animator.addAnimation("Jump", 0.1f, Animation.PlayMode.NORMAL);

@@ -7,8 +7,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.loot.Item;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
-import com.csse3200.game.entities.Entity;
-import com.csse3200.game.entities.factories.DaggerFactory;
 import com.csse3200.game.rendering.RenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 
@@ -33,6 +31,7 @@ public class WeaponRenderComponent extends RenderComponent {
 
   private static final float AXE_WIDTH = 0.385f;
   private static final float AXE_HEIGHT = 0.9f;
+
   // Animation durations.
   private static final float SWING_DURATION = 0.3f;
   private static final float DAGGER_THROW_DURATION = 1.5f;
@@ -230,21 +229,6 @@ public class WeaponRenderComponent extends RenderComponent {
     }
   }
 
-  private void throwDagger() {
-    Vector2 playerPosition = entity.getPosition();
-    Vector2 playerScale = entity.getScale();
-
-    float handOffsetX = getHandOffsetX();
-
-    handAnchor.set(
-        playerPosition.x + playerScale.x * handOffsetX,
-        playerPosition.y + playerScale.y * HAND_OFFSET_Y);
-
-    Entity dagger = DaggerFactory.createDagger(handAnchor, aimDirection);
-
-    ServiceLocator.getEntityService().register(dagger);
-  }
-
   private void updateFacing(Vector2 direction) {
     if (direction == null || direction.isZero()) {
       return;
@@ -406,6 +390,7 @@ public class WeaponRenderComponent extends RenderComponent {
           case 3 -> 1.20f;
           default -> 1.00f;
         };
+
     return new WeaponVisualConfig(AXE_WIDTH, AXE_HEIGHT, scale, scale, false);
   }
 

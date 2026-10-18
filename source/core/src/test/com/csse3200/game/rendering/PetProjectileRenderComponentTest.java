@@ -1,9 +1,11 @@
 package com.csse3200.game.rendering;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Pixmap;
@@ -33,6 +35,76 @@ class PetProjectileRenderComponentTest {
     ServiceLocator.registerEntityService(new EntityService());
     ServiceLocator.registerRenderService(new RenderService());
     body = mock(Body.class);
+  }
+
+  @Test
+  void shouldRejectMissingPetType() {
+    assertThrows(IllegalArgumentException.class, () -> new PetProjectileRenderComponent(null));
+  }
+
+  @Test
+  void shouldNotDrawBeforeTextureIsCreated() {
+    PetProjectileRenderComponent renderer = new PetProjectileRenderComponent(PetType.BIRD);
+    new Entity().addComponent(renderer);
+    SpriteBatch batch = mock(SpriteBatch.class);
+
+    renderer.render(batch);
+
+    verifyNoInteractions(batch);
+  }
+
+  @Test
+  void shouldDrawUnrotatedWhenProjectileHasNoPhysics() {
+    try (MockedConstruction<Texture> textures = mockTextures()) {
+      PetProjectileRenderComponent renderer = new PetProjectileRenderComponent(PetType.BIRD);
+      Entity projectile = new Entity().addComponent(renderer);
+      projectile.setPosition(2f, 3f);
+      projectile.setScale(0.4f, 0.2f);
+      ServiceLocator.getEntityService().register(projectile);
+      SpriteBatch batch = mock(SpriteBatch.class);
+
+      renderer.render(batch);
+
+      verifyDraw(batch, textures.constructed().getFirst(), 0f);
+      projectile.dispose();
+    }
+  }
+
+  @Test
+  void shouldSkipDisposedEntityBeforeItsTextureIsReleased() {
+    try (MockedConstruction<Texture> textures = mockTextures()) {
+      Entity projectile = mock(Entity.class);
+      PetProjectileRenderComponent renderer = new PetProjectileRenderComponent(PetType.BIRD);
+      renderer.setEntity(projectile);
+      renderer.create();
+      SpriteBatch batch = mock(SpriteBatch.class);
+      // Entity disposal marks the entity first, before cleaning up its components.
+      when(projectile.isDisposed()).thenReturn(true);
+
+      renderer.render(batch);
+
+      verifyNoInteractions(batch);
+      renderer.dispose();
+      verify(textures.constructed().getFirst()).dispose();
+    }
+  }
+
+  @Test
+  void shouldNotDrawOrReleaseTextureAgainAfterRendererDisposal() {
+    try (MockedConstruction<Texture> textures = mockTextures()) {
+      Entity projectile = createProjectile(PetType.BIRD);
+      PetProjectileRenderComponent renderer =
+          projectile.getComponent(PetProjectileRenderComponent.class);
+      SpriteBatch batch = mock(SpriteBatch.class);
+
+      renderer.dispose();
+      renderer.dispose();
+      renderer.render(batch);
+      projectile.dispose();
+
+      verifyNoInteractions(batch);
+      verify(textures.constructed().getFirst()).dispose();
+    }
   }
 
   @Test
