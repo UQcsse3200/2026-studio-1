@@ -11,6 +11,7 @@ import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.input.InputComponent;
 import com.csse3200.game.pausemenu.KeybindSettings;
 import com.csse3200.game.pausemenu.PauseMenuComponent;
+import com.csse3200.game.rendering.PlayerRenderComponent;
 import com.csse3200.game.utils.math.Vector2Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -442,6 +443,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     }
     if (keycode == KeybindSettings.getKey("jump")) {
       stopClimbing();
+      if (entity.getComponent(PlayerRenderComponent.class).getCurrentAnimation().equals("climb")) {
+        entity.getEvents().trigger("idle", direction);
+      }
       return true;
     }
     if (keycode == KeybindSettings.getKey(MOVE_LEFT)) {
