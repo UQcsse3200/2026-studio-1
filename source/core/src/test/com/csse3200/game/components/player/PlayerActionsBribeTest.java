@@ -1,5 +1,4 @@
 package com.csse3200.game.components.player;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,6 +11,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -37,11 +37,13 @@ class PlayerActionsBribeTest {
     Entity enemy =
         new Entity().addComponent(new CombatStatsComponent(100, 10)).addComponent(meleeAttack);
     enemy.create();
+    AtomicLong bribeDuration = new AtomicLong(-1L);
+    enemy.getEvents().addListener("enemyBribed", bribeDuration::set);
 
     player.getEvents().trigger("damagedBy", enemy);
 
     assertTrue(actions.bribeLastAttacker());
-    assertTrue(meleeAttack.isBribed());
+    assertEquals(20_000L, bribeDuration.get());
     assertEquals(10, inventory.getGold());
     assertFalse(actions.bribeLastAttacker());
   }
