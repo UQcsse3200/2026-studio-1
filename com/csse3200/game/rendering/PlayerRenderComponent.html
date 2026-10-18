@@ -125,9 +125,7 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.badlogic.gdx.graphics.g2d.TextureAtlas,com.badlogic.gdx.graphics.g2d.TextureAtlas,com.badlogic.gdx.graphics.g2d.TextureAtlas)" class="member-name-link">PlayerRenderComponent</a><wbr>(com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;rightAtlas,
- com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;leftAtlas,
- com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;effectsAtlas)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.badlogic.gdx.graphics.g2d.TextureAtlas)" class="member-name-link">PlayerRenderComponent</a><wbr>(com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;playerAtlas)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Create the component for a given texture atlas.</div>
 </div>
@@ -145,16 +143,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addAnimation(java.lang.String,float,com.badlogic.gdx.graphics.g2d.Animation.PlayMode)" class="member-name-link">addAnimation</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
- float&nbsp;frameDuration,
- com.badlogic.gdx.graphics.g2d.Animation.PlayMode&nbsp;playMode)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw</a><wbr>(com.badlogic.gdx.graphics.g2d.SpriteBatch&nbsp;batch)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Register an animation from the texture atlas.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw</a><wbr>(com.badlogic.gdx.graphics.g2d.SpriteBatch&nbsp;batch)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Draw the renderable.</div>
 </div>
 </div>
@@ -162,7 +153,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.csse3200.game.rendering.AnimationRenderComponent">Methods inherited from class&nbsp;com.csse3200.game.rendering.<a href="AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></h3>
-<code><a href="AnimationRenderComponent.html#addAnimation(java.lang.String,float)">addAnimation</a>, <a href="AnimationRenderComponent.html#dispose()">dispose</a>, <a href="AnimationRenderComponent.html#getCurrentAnimation()">getCurrentAnimation</a>, <a href="AnimationRenderComponent.html#hasAnimation(java.lang.String)">hasAnimation</a>, <a href="AnimationRenderComponent.html#isFinished()">isFinished</a>, <a href="AnimationRenderComponent.html#removeAnimation(java.lang.String)">removeAnimation</a>, <a href="AnimationRenderComponent.html#scaleEntity()">scaleEntity</a>, <a href="AnimationRenderComponent.html#startAnimation(java.lang.String)">startAnimation</a>, <a href="AnimationRenderComponent.html#stopAnimation()">stopAnimation</a></code></div>
+<code><a href="AnimationRenderComponent.html#addAnimation(java.lang.String,float)">addAnimation</a>, <a href="AnimationRenderComponent.html#addAnimation(java.lang.String,float,com.badlogic.gdx.graphics.g2d.Animation.PlayMode)">addAnimation</a>, <a href="AnimationRenderComponent.html#dispose()">dispose</a>, <a href="AnimationRenderComponent.html#getCurrentAnimation()">getCurrentAnimation</a>, <a href="AnimationRenderComponent.html#hasAnimation(java.lang.String)">hasAnimation</a>, <a href="AnimationRenderComponent.html#isFinished()">isFinished</a>, <a href="AnimationRenderComponent.html#removeAnimation(java.lang.String)">removeAnimation</a>, <a href="AnimationRenderComponent.html#scaleEntity()">scaleEntity</a>, <a href="AnimationRenderComponent.html#startAnimation(java.lang.String)">startAnimation</a>, <a href="AnimationRenderComponent.html#stopAnimation()">stopAnimation</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.csse3200.game.rendering.RenderComponent">Methods inherited from class&nbsp;com.csse3200.game.rendering.<a href="RenderComponent.html" title="class in com.csse3200.game.rendering">RenderComponent</a></h3>
 <code><a href="RenderComponent.html#compareTo(com.csse3200.game.rendering.Renderable)">compareTo</a>, <a href="RenderComponent.html#create()">create</a>, <a href="RenderComponent.html#getLayer()">getLayer</a>, <a href="RenderComponent.html#getZIndex()">getZIndex</a>, <a href="RenderComponent.html#render(com.badlogic.gdx.graphics.g2d.SpriteBatch)">render</a></code></div>
@@ -184,16 +175,13 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(com.badlogic.gdx.graphics.g2d.TextureAtlas,com.badlogic.gdx.graphics.g2d.TextureAtlas,com.badlogic.gdx.graphics.g2d.TextureAtlas)">
+<section class="detail" id="&lt;init&gt;(com.badlogic.gdx.graphics.g2d.TextureAtlas)">
 <h3>PlayerRenderComponent</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PlayerRenderComponent</span><wbr><span class="parameters">(com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;rightAtlas,
- com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;leftAtlas,
- com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;effectsAtlas)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PlayerRenderComponent</span><wbr><span class="parameters">(com.badlogic.gdx.graphics.g2d.TextureAtlas&nbsp;playerAtlas)</span></div>
 <div class="block">Create the component for a given texture atlas.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>rightAtlas</code> - libGDX-supported texture atlas containing right-facing animations</dd>
-<dd><code>leftAtlas</code> - libGDX-supported texture atlas containing left-facing animations</dd>
+<dd><code>playerAtlas</code> - libGDX-supported texture atlas containing player animations</dd>
 </dl>
 </section>
 </li>
@@ -205,26 +193,6 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="addAnimation(java.lang.String,float,com.badlogic.gdx.graphics.g2d.Animation.PlayMode)">
-<h3>addAnimation</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">addAnimation</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
- float&nbsp;frameDuration,
- com.badlogic.gdx.graphics.g2d.Animation.PlayMode&nbsp;playMode)</span></div>
-<div class="block">Register an animation from the texture atlas.</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="AnimationRenderComponent.html#addAnimation(java.lang.String,float,com.badlogic.gdx.graphics.g2d.Animation.PlayMode)">addAnimation</a></code>&nbsp;in class&nbsp;<code><a href="AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></code></dd>
-<dt>Parameters:</dt>
-<dd><code>name</code> - Name of the animation. Must match the name of this animation inside the texture
-     atlas.</dd>
-<dd><code>frameDuration</code> - How long, in seconds, to show each frame of the animation for when playing</dd>
-<dd><code>playMode</code> - How the animation should be played (e.g. looping, backwards)</dd>
-<dt>Returns:</dt>
-<dd>true if added successfully, false otherwise</dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)">
 <h3>draw</h3>
