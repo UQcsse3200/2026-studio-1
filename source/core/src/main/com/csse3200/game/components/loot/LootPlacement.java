@@ -25,6 +25,7 @@ public class LootPlacement {
    * @return the planned loot, in spawn point order; empty when the map declares none
    * @throws IllegalArgumentException if either argument is null
    */
+  @SuppressWarnings("java:S9391")
   public static List<PlacedLoot> forSpawnPoints(LootTable table, List<SpawnPoint> lootSpawns) {
     if (table == null) {
       throw new IllegalArgumentException("LootTable must not be null.");
@@ -34,6 +35,8 @@ public class LootPlacement {
       throw new IllegalArgumentException("Loot spawns must not be null.");
     }
 
+    // A plain loop instead of a stream: rollItem() uses the random source, and a loop makes it
+    // clear that exactly one roll happens per spawn point, in order.
     List<PlacedLoot> placed = new ArrayList<>();
     for (SpawnPoint spawn : lootSpawns) {
       placed.add(new PlacedLoot(spawn.getPosition(), table.rollItem()));
