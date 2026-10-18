@@ -99,7 +99,10 @@ loadScripts(document, 'script');</script>
 
  <p>A consumable has the common properties of an <a href="Item.html" title="class in com.csse3200.game.components.loot"><code>Item</code></a>, plus a <a href="ConsumableType.html" title="enum class in com.csse3200.game.components.loot"><code>ConsumableType</code></a> and
  the <a href="ConsumableEffect.html" title="interface in com.csse3200.game.components.loot"><code>ConsumableEffect</code></a> it applies when used. Following <code>WeaponItem</code>, this stays a
- plain data class: the use handler lives in <code>ConsumableUseComponent</code> on the player entity.</div>
+ plain data class: the use handler lives in <code>ConsumableUseComponent</code> on the player entity.
+
+ <p><a href="Item.html#equals(java.lang.Object)"><code>Item.equals(java.lang.Object)</code></a> is inherited on purpose. Every item gets a unique id, and two items are
+ only the same if their ids match, so comparing the type and effect as well would add nothing.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
