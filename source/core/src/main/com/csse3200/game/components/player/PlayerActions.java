@@ -60,7 +60,7 @@ public class PlayerActions extends Component {
   private PhysicsComponent physicsComponent;
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
-  private PlatformerComponent platformerComponent;
+  public static PlatformerComponent platformerComponent;
   private PlayerAnimationController playerAnimationControllerComponent;
   private StaminaComponent staminaComponent;
 

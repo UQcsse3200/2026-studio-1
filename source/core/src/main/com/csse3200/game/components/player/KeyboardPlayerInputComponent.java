@@ -197,7 +197,9 @@ public class KeyboardPlayerInputComponent extends InputComponent {
     stopClimbing();
     jumpDirection.add(Vector2Utils.UP); // Adds to the y vector
     triggerJumpEvent();
-    entity.getEvents().trigger("jumping", direction);
+    if(PlayerActions.platformerComponent.getJumpingBool()) {
+      entity.getEvents().trigger("jumping", direction);
+    }
     jumped = true;
     return true;
   }
