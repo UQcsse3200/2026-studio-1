@@ -760,11 +760,6 @@ public class MainGameScreen extends ScreenAdapter {
       return null;
     }
 
-    PhysicsComponent physics = player.getComponent(PhysicsComponent.class);
-    if (physics == null || physics.getBody() == null) {
-      return null;
-    }
-
     LevelView level = levelGameArea.getLevel();
     Vector2 center = player.getCenterPosition();
     int tileX = (int) Math.floor(center.x / level.tileSize());
@@ -772,13 +767,7 @@ public class MainGameScreen extends ScreenAdapter {
     SubLevel section = level.subLevelAt(tileY);
 
     return new WhereCommand.Location(
-        level.name(),
-        currentRoomMapPath,
-        section == null ? "none" : section.id(),
-        tileX,
-        tileY,
-        physics.getBody().getLinearVelocity().y,
-        physics.getBody().getGravityScale());
+        level.name(), currentRoomMapPath, section == null ? "none" : section.id(), tileX, tileY);
   }
 
   private void createSubLevelTravelPrompt(Entity player) {

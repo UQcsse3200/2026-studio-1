@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Displays the player's current room, position, and vertical physics state. */
+/** Displays the player's current room and tile position. */
 public class WhereCommand implements Command {
   private static final Logger logger = LoggerFactory.getLogger(WhereCommand.class);
 
@@ -33,26 +33,16 @@ public class WhereCommand implements Command {
     String output =
         String.format(
             Locale.ROOT,
-            "Room: %s%nMap: %s%nSublevel: %s%nTile: (%d, %d)%n"
-                + "Vertical speed: %.2f  Gravity scale: %.2f",
+            "Room: %s%nMap: %s%nSublevel: %s%nTile: (%d, %d)",
             location.roomName(),
             location.mapPath(),
             location.sublevel(),
             location.tileX(),
-            location.tileY(),
-            location.verticalVelocity(),
-            location.gravityScale());
+            location.tileY());
     showOutput.accept(output);
     logger.info("{}", output);
     return true;
   }
 
-  public record Location(
-      String roomName,
-      String mapPath,
-      String sublevel,
-      int tileX,
-      int tileY,
-      float verticalVelocity,
-      float gravityScale) {}
+  public record Location(String roomName, String mapPath, String sublevel, int tileX, int tileY) {}
 }

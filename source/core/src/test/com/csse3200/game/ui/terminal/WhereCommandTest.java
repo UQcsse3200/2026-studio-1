@@ -1,5 +1,6 @@
 package com.csse3200.game.ui.terminal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,20 +13,22 @@ import org.junit.jupiter.api.Test;
 
 class WhereCommandTest {
   private static final WhereCommand.Location LOCATION =
-      new WhereCommand.Location("Level 1", "maps/level1-greek.json", "nether", 27, 34, -2f, 1f);
+      new WhereCommand.Location("Level 1", "maps/level1-greek.json", "nether", 27, 34);
 
   @Test
-  void displaysCurrentRoomPositionAndPhysics() {
+  void displaysCurrentRoomAndTile() {
     AtomicReference<String> output = new AtomicReference<>();
     WhereCommand command = new WhereCommand(() -> LOCATION, output::set);
 
     assertTrue(command.action(args()));
-    assertTrue(output.get().contains("Room: Level 1"));
-    assertTrue(output.get().contains("Map: maps/level1-greek.json"));
-    assertTrue(output.get().contains("Sublevel: nether"));
-    assertTrue(output.get().contains("Tile: (27, 34)"));
-    assertFalse(output.get().contains("Center:"));
-    assertTrue(output.get().contains("Vertical speed: -2.00  Gravity scale: 1.00"));
+    assertEquals(
+        String.join(
+            System.lineSeparator(),
+            "Room: Level 1",
+            "Map: maps/level1-greek.json",
+            "Sublevel: nether",
+            "Tile: (27, 34)"),
+        output.get());
   }
 
   @Test
