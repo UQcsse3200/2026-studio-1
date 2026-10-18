@@ -9,6 +9,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +29,9 @@ class ShopGamblingUITest {
   void setUp() {
     labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
 
-    ShopComponent shop = new ShopComponent().seedDefaultCatalog();
+    ShopComponent shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     catalogs = shop.getGamblingCatalogs();
   }
 

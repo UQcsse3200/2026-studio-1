@@ -87,8 +87,23 @@ public class WeaponAttackComponent extends Component {
     entity.getEvents().trigger("swordAttack", activeWeapon.getDamage());
   }
 
+  /** Calculates weapon damage after applying the player's active Strength buff. */
+  private int getBuffedWeaponDamage(WeaponItem activeWeapon) {
+    PlayerBuffComponent buff = entity.getComponent(PlayerBuffComponent.class);
+    float multiplier = buff == null ? 1f : buff.getDamageMultiplier();
+
+    return calculateBuffedWeaponDamage(activeWeapon.getDamage(), multiplier);
+  }
+
+  /** Calculates non-negative weapon damage after applying a damage multiplier. */
+  static int calculateBuffedWeaponDamage(int baseDamage, float multiplier) {
+    return Math.max(0, Math.round(baseDamage * multiplier));
+  }
+
   private void bowAttack(WeaponItem activeWeapon) {
-    entity.getEvents().trigger("bowAttack", activeWeapon.getDamage());
+    int damage = getBuffedWeaponDamage(activeWeapon);
+
+    entity.getEvents().trigger("bowAttack", damage);
 
     Vector2 spawnPosition = entity.getCenterPosition();
     Vector2 direction = getProjectileDirection();
@@ -100,7 +115,7 @@ public class WeaponAttackComponent extends Component {
           ArrowFactory.createArrow(
               spawnPosition,
               getBowProjectileDirection(direction, i, projectileCount),
-              activeWeapon.getDamage(),
+              damage,
               entity);
 
       ServiceLocator.getEntityService().register(arrow);
@@ -132,9 +147,9 @@ public class WeaponAttackComponent extends Component {
 
     Vector2 spawnPosition = entity.getCenterPosition();
     Vector2 direction = getProjectileDirection();
+    int damage = getBuffedWeaponDamage(activeWeapon);
 
-    Entity dagger =
-        DaggerFactory.createDagger(spawnPosition, direction, activeWeapon.getDamage(), entity);
+    Entity dagger = DaggerFactory.createDagger(spawnPosition, direction, damage, entity);
 
     ServiceLocator.getEntityService().register(dagger);
 

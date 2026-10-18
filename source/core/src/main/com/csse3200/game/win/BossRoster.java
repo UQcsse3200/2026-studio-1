@@ -2,9 +2,9 @@ package com.csse3200.game.win;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.csse3200.game.entities.spawn.enemies.EnemyId;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The fixed list of bosses the win depends on: the final boss (Zeus in Level 3) and the mini bosses
@@ -20,6 +20,21 @@ public final class BossRoster {
   /** The id of the final boss: Zeus in Level 3. */
   public static final String FINAL_BOSS_ID = "Level 3 - Zeus's Palace:26,4";
 
+  /** Enemy type written in the map file for a Medusa. */
+  private static final String MEDUSA = "medusa";
+
+  /** Enemy type written in the map file for a Centaur. */
+  private static final String CENTAUR = "centaur";
+
+  /** Name of the Labyrinth room, which holds a required Minotaur and an escort Centaur. */
+  private static final String LABYRINTH = "Minotaur's Labyrinth";
+
+  /** Name of the Pavilion room, which holds a required Centaur and an escort Centaur. */
+  private static final String PAVILION = "Centaur Pavilion";
+
+  /** Name of the Outer Guard room, which holds a required Medusa and an escort Cyclops. */
+  private static final String OUTER_GUARD = "Zeus's Outer Guard";
+
   /** Every mini boss: the eight required ones first, then the three escorts. */
   private static final List<MiniBoss> MINI_BOSSES =
       List.of(
@@ -33,12 +48,12 @@ public final class BossRoster {
               EnemyId.of("Gorgon's Gallery", new GridPoint2(37, 11)),
               "Medusa of the Gorgon's Gallery",
               "Gorgon's Gallery",
-              "medusa",
+              MEDUSA,
               true),
           new MiniBoss(
-              EnemyId.of("Minotaur's Labyrinth", new GridPoint2(24, 35)),
+              EnemyId.of(LABYRINTH, new GridPoint2(24, 35)),
               "Minotaur of the Labyrinth",
-              "Minotaur's Labyrinth",
+              LABYRINTH,
               "minotaur",
               true),
           new MiniBoss(
@@ -54,39 +69,39 @@ public final class BossRoster {
               "cyclops",
               true),
           new MiniBoss(
-              EnemyId.of("Centaur Pavilion", new GridPoint2(44, 12)),
+              EnemyId.of(PAVILION, new GridPoint2(44, 12)),
               "Centaur of the Pavilion heights",
-              "Centaur Pavilion",
-              "centaur",
+              PAVILION,
+              CENTAUR,
               true),
           new MiniBoss(
-              EnemyId.of("Zeus's Outer Guard", new GridPoint2(24, 16)),
+              EnemyId.of(OUTER_GUARD, new GridPoint2(24, 16)),
               "Medusa of the Outer Guard",
-              "Zeus's Outer Guard",
-              "medusa",
+              OUTER_GUARD,
+              MEDUSA,
               true),
           new MiniBoss(
               EnemyId.of("Zeus's Thunder Hall", new GridPoint2(26, 12)),
               "Medusa of the Thunder Hall",
               "Zeus's Thunder Hall",
-              "medusa",
+              MEDUSA,
               true),
           new MiniBoss(
-              EnemyId.of("Minotaur's Labyrinth", new GridPoint2(28, 17)),
+              EnemyId.of(LABYRINTH, new GridPoint2(28, 17)),
               "Centaur of the Labyrinth",
-              "Minotaur's Labyrinth",
-              "centaur",
+              LABYRINTH,
+              CENTAUR,
               false),
           new MiniBoss(
-              EnemyId.of("Centaur Pavilion", new GridPoint2(40, 5)),
+              EnemyId.of(PAVILION, new GridPoint2(40, 5)),
               "Centaur of the Pavilion floor",
-              "Centaur Pavilion",
-              "centaur",
+              PAVILION,
+              CENTAUR,
               false),
           new MiniBoss(
-              EnemyId.of("Zeus's Outer Guard", new GridPoint2(32, 9)),
+              EnemyId.of(OUTER_GUARD, new GridPoint2(32, 9)),
               "Cyclops of the Outer Guard",
-              "Zeus's Outer Guard",
+              OUTER_GUARD,
               "cyclops",
               false));
 
@@ -103,39 +118,30 @@ public final class BossRoster {
    * @return the required ids, as a set that cannot be changed
    */
   private static Set<String> collectRequiredIds() {
-    Set<String> ids = new HashSet<>();
-    for (MiniBoss miniBoss : MINI_BOSSES) {
-      if (miniBoss.isRequired()) {
-        ids.add(miniBoss.getId());
-      }
-    }
-    return Set.copyOf(ids);
+    return MINI_BOSSES.stream()
+        .filter(MiniBoss::isRequired)
+        .map(MiniBoss::getId)
+        .collect(Collectors.toUnmodifiableSet());
   }
 
-  /** One mini boss in the roster. Each entry holds its own values, which never change. */
-  public static final class MiniBoss {
-    private final String id;
-    private final String label;
-    private final String roomName;
-    private final String enemyType;
-    private final boolean required;
+  /**
+   * One mini boss in the roster. Each entry holds its own values, which never change.
+   *
+   * @param id the kill id; not blank
+   * @param label the name shown on the win screen; not blank
+   * @param roomName the room it guards; not blank
+   * @param enemyType the enemy type as written in the map file; not blank
+   * @param required true if this boss is needed for Glory
+   */
+  public record MiniBoss(
+      String id, String label, String roomName, String enemyType, boolean required) {
 
-    /**
-     * Creates one roster entry.
-     *
-     * @param id the kill id; not blank
-     * @param label the name shown on the win screen; not blank
-     * @param roomName the room it guards; not blank
-     * @param enemyType the enemy type as written in the map file; not blank
-     * @param required true if this boss is needed for Glory
-     * @throws IllegalArgumentException if any of the text values is null or blank
-     */
-    public MiniBoss(String id, String label, String roomName, String enemyType, boolean required) {
-      this.id = requireText(id, "id");
-      this.label = requireText(label, "label");
-      this.roomName = requireText(roomName, "roomName");
-      this.enemyType = requireText(enemyType, "enemyType");
-      this.required = required;
+    /** Checks that every piece of text was really given. */
+    public MiniBoss {
+      requireText(id, "id");
+      requireText(label, "label");
+      requireText(roomName, "roomName");
+      requireText(enemyType, "enemyType");
     }
 
     /**
@@ -143,14 +149,12 @@ public final class BossRoster {
      *
      * @param value the text to check
      * @param name what the text is called, for the error message
-     * @return the same text, if it is neither null nor blank
      * @throws IllegalArgumentException if the text is null or blank
      */
-    private static String requireText(String value, String name) {
+    private static void requireText(String value, String name) {
       if (value == null || value.isBlank()) {
         throw new IllegalArgumentException(name + " must not be blank");
       }
-      return value;
     }
 
     /**

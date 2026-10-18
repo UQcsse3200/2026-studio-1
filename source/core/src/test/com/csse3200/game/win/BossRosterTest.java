@@ -133,12 +133,23 @@ class BossRosterTest {
     }
   }
 
+  /** Every roster entry has a non-blank id, label and room name. */
+  @Test
+  void shouldGiveEveryMiniBossAnIdLabelAndRoomName() {
+    for (BossRoster.MiniBoss boss : BossRoster.getMiniBosses()) {
+      assertFalse(boss.getId().isBlank(), "a mini boss has a blank id");
+      assertFalse(boss.getLabel().isBlank(), boss.getId() + " has a blank label");
+      assertFalse(boss.getRoomName().isBlank(), boss.getId() + " has a blank room name");
+    }
+  }
+
   @Test
   void shouldHandBackAListThatCannotBeChanged() {
     List<BossRoster.MiniBoss> bosses = BossRoster.getMiniBosses();
 
     assertThrows(UnsupportedOperationException.class, bosses::clear);
-    assertThrows(UnsupportedOperationException.class, () -> bosses.add(bosses.get(0)));
+    BossRoster.MiniBoss first = bosses.get(0);
+    assertThrows(UnsupportedOperationException.class, () -> bosses.add(first));
   }
 
   @Test

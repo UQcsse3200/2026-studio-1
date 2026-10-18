@@ -9,10 +9,9 @@ import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ArrowFactory;
+import com.csse3200.game.entities.factories.ProjectileFactory;
 import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.services.ServiceLocator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Fires a real arrow projectile at a target entity when triggered, provided the target is within
@@ -68,7 +67,6 @@ public class RangedAttackComponent extends Component {
   private float cooldown;
   private float knockback;
   private float projectileSpeed;
-  private float damage;
   private WeaponItem weapon;
   private float windupDuration;
   // Difficulty damage multiplier, set by DifficultyScaler at spawn - see
@@ -87,7 +85,6 @@ public class RangedAttackComponent extends Component {
   // When true, arrows fly straight at the target's centre instead of along the x axis.
   private boolean aimed = false;
   private CombatStatsComponent combatStats;
-  private static final Logger logger = LoggerFactory.getLogger(RangedAttackComponent.class);
 
   /**
    * Creates a ranged attack component with configurable range, cooldown, knockback, and projectile
@@ -138,7 +135,7 @@ public class RangedAttackComponent extends Component {
     if (weapon.getWeaponType() == WeaponType.DAGGER
         || weapon.getWeaponType() == WeaponType.SWORD
         || weapon.getWeaponType() == WeaponType.AXE) {
-      throw new IllegalArgumentException("Ranged Attack cannot use a dagger or sword weapon");
+      throw new IllegalArgumentException("Ranged Attack cannot use a melee weapon");
     }
 
     if (weapon.getWindupDuration() < 0) {
@@ -151,7 +148,6 @@ public class RangedAttackComponent extends Component {
 
     this.windupDuration = weapon.getWindupDuration();
     this.timeSinceLastAttack = cooldown;
-    this.damage = this.weapon.getDamage();
   }
 
   /**
@@ -353,15 +349,6 @@ public class RangedAttackComponent extends Component {
   }
 
   /**
-   * Returns how much of the current windup is left.
-   *
-   * @return seconds remaining, or {@code 0f} when no windup is in progress
-   */
-  public float getWindupTimeRemaining() {
-    return pendingTarget == null ? 0f : Math.max(0f, windupTimeRemaining);
-  }
-
-  /**
    * Reports whether a shot is currently winding up.
    *
    * @return true between an accepted trigger and the shot resolving
@@ -520,12 +507,30 @@ public class RangedAttackComponent extends Component {
                   knockback,
                   PhysicsLayer.PLAYER);
       case LIGHTNING ->
-          ArrowFactory.createLightning(
+          ProjectileFactory.createLightning(
               target.getCenterPosition(),
               8f,
               12f,
               this.getDamage(),
               this.getLightningFreezeTicks(),
+              PhysicsLayer.PLAYER);
+      case LASER ->
+          ProjectileFactory.createLaser(
+              spawnPosition,
+              aimDirection,
+              projectileSpeed,
+              range,
+              this.getDamage(),
+              knockback,
+              PhysicsLayer.PLAYER);
+      case ROCK ->
+          ProjectileFactory.createRock(
+              spawnPosition,
+              aimDirection,
+              projectileSpeed,
+              range,
+              this.getDamage(),
+              knockback,
               PhysicsLayer.PLAYER);
     };
   }

@@ -13,11 +13,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.ShopDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -29,6 +32,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /** Exercises pet purchases with the real shop listeners, pet atlas, and Box2D bodies. */
 @ExtendWith(GameExtension.class)
@@ -37,10 +42,11 @@ class PetShopIntegrationTest {
   private ShopComponent shop;
   private PetManagerComponent manager;
   private SpriteBatch batch;
+  private GameTime timeSource;
 
   @BeforeEach
   void setUp() {
-    GameTime timeSource = mock(GameTime.class);
+    timeSource = mock(GameTime.class);
     when(timeSource.getDeltaTime()).thenReturn(0.1f);
     ServiceLocator.registerTimeSource(timeSource);
     ServiceLocator.registerPhysicsService(new PhysicsService());
@@ -56,7 +62,9 @@ class PetShopIntegrationTest {
     ServiceLocator.registerRenderService(renderService);
     batch = mock(SpriteBatch.class);
 
-    shop = new ShopComponent().seedDefaultCatalog();
+    shop =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     manager = new PetManagerComponent();
     owner =
         new Entity()
@@ -175,6 +183,81 @@ class PetShopIntegrationTest {
     assertEquals(0, ServiceLocator.getPhysicsService().getPhysics().getWorld().getBodyCount());
 
     updateAndRender();
+  }
+
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldPlayIdleSpinUsingEachPetsAtlasRegions(PetType type) {
+    manager.activatePet(new ShopComponent.Pet(type.name()));
+    Entity pet = manager.getActivePet();
+    AnimationRenderComponent animator = pet.getComponent(AnimationRenderComponent.class);
+    String prefix = type.getAnimationPrefix();
+    Vector2 initialPosition = pet.getPosition();
+
+    when(timeSource.getDeltaTime()).thenReturn(3f);
+    pet.update();
+    ServiceLocator.getRenderService().render(batch);
+    assertEquals(prefix + "_back", animator.getCurrentAnimation());
+
+    when(timeSource.getDeltaTime()).thenReturn(0.3f);
+    for (String direction : new String[] {"left", "front", "right"}) {
+      pet.update();
+      ServiceLocator.getRenderService().render(batch);
+      assertEquals(prefix + "_" + direction, animator.getCurrentAnimation());
+      assertTrue(initialPosition.epsilonEquals(pet.getPosition(), 0.001f));
+    }
+  }
+
+  @ParameterizedTest
+  @EnumSource(PetType.class)
+  void shouldFlyAcrossOwnerAndBackWithPhysicsAndAnimations(PetType type) {
+    manager.activatePet(new ShopComponent.Pet(type.name()));
+    Entity pet = manager.getActivePet();
+    AnimationRenderComponent animator = pet.getComponent(AnimationRenderComponent.class);
+    Vector2 restingPosition = pet.getPosition();
+    String prefix = type.getAnimationPrefix();
+    for (float delta : new float[] {3f, 1.2f, 2f, 1f}) {
+      when(timeSource.getDeltaTime()).thenReturn(delta);
+      pet.update();
+    }
+
+    assertTrue(pet.getPosition().x > owner.getPosition().x + owner.getScale().x);
+    assertEquals(prefix + "_left", animator.getCurrentAnimation());
+    assertTrue(
+        pet.getPosition()
+            .epsilonEquals(pet.getComponent(PhysicsComponent.class).getBody().getPosition()));
+    ServiceLocator.getRenderService().render(batch);
+
+    pet.update();
+    assertTrue(restingPosition.epsilonEquals(pet.getPosition(), 0.001f));
+    assertEquals(prefix + "_right", animator.getCurrentAnimation());
+    assertTrue(
+        pet.getPosition()
+            .epsilonEquals(pet.getComponent(PhysicsComponent.class).getBody().getPosition()));
+  }
+
+  @Test
+  void shouldStartReplacementPetWithAFreshIdleSequence() {
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity previousPet = manager.getActivePet();
+    for (float delta : new float[] {3f, 1.2f, 2f, 0.5f}) {
+      when(timeSource.getDeltaTime()).thenReturn(delta);
+      previousPet.update();
+    }
+    manager.activatePet(new ShopComponent.Pet("Bat"));
+    Entity pet = manager.getActivePet();
+    AnimationRenderComponent animator = pet.getComponent(AnimationRenderComponent.class);
+    Vector2 restingPosition = pet.getPosition();
+
+    when(timeSource.getDeltaTime()).thenReturn(2.9f);
+    pet.update();
+    assertTrue(previousPet.isDisposed());
+    assertTrue(restingPosition.epsilonEquals(pet.getPosition(), 0.001f));
+    assertEquals("bat_right", animator.getCurrentAnimation());
+
+    when(timeSource.getDeltaTime()).thenReturn(0.1f);
+    pet.update();
+    assertEquals("bat_back", animator.getCurrentAnimation());
   }
 
   private void updateAndRender() {

@@ -26,6 +26,8 @@ public class LaserAttackComponent extends RangedAttackComponent {
   private final float spawnHeightFraction;
   private final float damageMultiplier;
 
+  private static final float EYE_OFFSET_X = 0.3f;
+
   /**
    * Creates a laser attack.
    *
@@ -66,8 +68,10 @@ public class LaserAttackComponent extends RangedAttackComponent {
   protected Entity createProjectile(Entity target, ProjectileType projectile) {
     Vector2 position = entity.getPosition();
     Vector2 scale = entity.getScale();
+    float centreX = position.x + scale.x / 2f;
+    float facing = Math.signum(target.getCenterPosition().x - centreX); // -1 left, +1 right
     Vector2 launch =
-        new Vector2(position.x + scale.x / 2f, position.y + scale.y * spawnHeightFraction);
+        new Vector2(centreX + facing * EYE_OFFSET_X, position.y + scale.y * spawnHeightFraction);
     Vector2 direction = target.getCenterPosition().sub(launch);
     if (direction.isZero()) {
       direction.set(1f, 0f);
@@ -93,6 +97,7 @@ public class LaserAttackComponent extends RangedAttackComponent {
   /**
    * @return the damage multiplier applied to the weapon damage
    */
+  @Override
   public float getDamageMultiplier() {
     return damageMultiplier;
   }

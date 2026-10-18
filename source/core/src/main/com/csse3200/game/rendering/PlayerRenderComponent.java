@@ -1,75 +1,21 @@
 package com.csse3200.game.rendering;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 
 public class PlayerRenderComponent extends AnimationRenderComponent {
-  private TextureAtlas leftAtlas;
-  private TextureAtlas rightAtlas;
-  private TextureAtlas effectsAtlas;
+  private final TextureAtlas playerAtlas;
 
   /**
    * Create the component for a given texture atlas.
    *
-   * @param rightAtlas libGDX-supported texture atlas containing right-facing animations
-   * @param leftAtlas libGDX-supported texture atlas containing left-facing animations
+   * @param playerAtlas libGDX-supported texture atlas containing player animations
    */
-  public PlayerRenderComponent(
-      TextureAtlas rightAtlas, TextureAtlas leftAtlas, TextureAtlas effectsAtlas) {
-    super(rightAtlas);
-    this.leftAtlas = leftAtlas;
-    this.rightAtlas = rightAtlas;
-    this.effectsAtlas = effectsAtlas;
-  }
-
-  /**
-   * Register an animation from the texture atlas.
-   *
-   * @param name Name of the animation. Must match the name of this animation inside the texture
-   *     atlas.
-   * @param frameDuration How long, in seconds, to show each frame of the animation for when playing
-   * @param playMode How the animation should be played (e.g. looping, backwards)
-   * @return true if added successfully, false otherwise
-   */
-  @Override
-  public boolean addAnimation(String name, float frameDuration, Animation.PlayMode playMode) {
-    Array<TextureAtlas.AtlasRegion> regions = rightAtlas.findRegions(name);
-    Array<TextureAtlas.AtlasRegion> leftregions = this.leftAtlas.findRegions(name);
-    Array<TextureAtlas.AtlasRegion> effectsregions = this.effectsAtlas.findRegions(name);
-
-    if (animations.containsKey(name)) {
-      logger.warn(
-          "Animation {} already added in texture atlas. Animations should only be added once.",
-          name);
-      return false;
-    }
-
-    if (!(regions == null || regions.size == 0)) {
-      Animation<TextureRegion> animation = new Animation<>(frameDuration, regions, playMode);
-      animations.put(name, animation);
-      logger.debug("Adding animation {}", name);
-      return true;
-    }
-
-    if (!(leftregions == null || leftregions.size == 0)) {
-      Animation<TextureRegion> animation = new Animation<>(frameDuration, leftregions, playMode);
-      animations.put(name, animation);
-      logger.debug("Adding animation {}", name);
-      return true;
-    }
-
-    if (!(effectsregions == null || effectsregions.size == 0)) {
-      Animation<TextureRegion> animation = new Animation<>(frameDuration, effectsregions, playMode);
-      animations.put(name, animation);
-      logger.debug("Adding animation {}", name);
-      return true;
-    }
-    logger.warn("Animation {} not found in texture atlas", name);
-    return false;
+  public PlayerRenderComponent(TextureAtlas playerAtlas) {
+    super(playerAtlas);
+    this.playerAtlas = playerAtlas;
   }
 
   @Override
@@ -83,12 +29,14 @@ public class PlayerRenderComponent extends AnimationRenderComponent {
 
     TextureRegion region = currentAnimation.getKeyFrame(animationPlayTime);
     Vector2 pos = entity.getPosition();
+    Vector2 scale = entity.getScale();
 
     float pixel = 1f / 42f;
     float width = pixel * region.getRegionWidth();
     float height = pixel * region.getRegionHeight();
+    float offset = (scale.x - width) / 2f;
 
-    batch.draw(region, pos.x, pos.y, width, height);
+    batch.draw(region, pos.x + offset, pos.y, width, height);
 
     animationPlayTime += timeSource.getDeltaTime();
   }
