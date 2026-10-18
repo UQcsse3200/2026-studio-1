@@ -22,9 +22,7 @@ class PlayerRenderComponentTest {
   @Test
   void shouldAddRemoveAnimation() {
     TextureAtlas atlas = createMockAtlas("test_name", 1);
-    TextureAtlas atlas2 = mock(TextureAtlas.class);
-    TextureAtlas atlas3 = mock(TextureAtlas.class);
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas, atlas2, atlas3);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
 
     assertTrue(animator.addAnimation("test_name", 0.1f));
     assertTrue(animator.removeAnimation("test_name"));
@@ -33,11 +31,9 @@ class PlayerRenderComponentTest {
 
   @Test
   void shouldFailRemoveInvalidAnimation() {
-    TextureAtlas atlas1 = mock(TextureAtlas.class);
-    TextureAtlas atlas2 = mock(TextureAtlas.class);
-    TextureAtlas atlas3 = mock(TextureAtlas.class);
-    when(atlas1.findRegions("test_name")).thenReturn(null);
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas1, atlas2, atlas3);
+    TextureAtlas atlas = mock(TextureAtlas.class);
+    when(atlas.findRegions("test_name")).thenReturn(null);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
 
     assertFalse(animator.addAnimation("test_name", 0.1f));
     assertFalse(animator.removeAnimation("test_name"));
@@ -45,10 +41,8 @@ class PlayerRenderComponentTest {
 
   @Test
   void shouldFailDuplicateAddAnimation() {
-    TextureAtlas atlas1 = createMockAtlas("test_name", 1);
-    TextureAtlas atlas2 = mock(TextureAtlas.class);
-    TextureAtlas atlas3 = mock(TextureAtlas.class);
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas1, atlas2, atlas3);
+    TextureAtlas atlas = createMockAtlas("test_name", 1);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
 
     assertTrue(animator.addAnimation("test_name", 0.1f));
     assertFalse(animator.addAnimation("test_name", 0.2f));
@@ -57,16 +51,10 @@ class PlayerRenderComponentTest {
   @Test
   void shouldHaveAnimation() {
     TextureAtlas atlas = createMockAtlas("test_name", 1);
-    TextureAtlas atlas2 = createMockAtlas("test2_name", 1);
-    TextureAtlas atlas3 = createMockAtlas("test3_name", 1);
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas, atlas2, atlas3);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
 
     animator.addAnimation("test_name", 0.1f);
-    animator.addAnimation("test2_name", 0.1f);
-    animator.addAnimation("test3_name", 0.1f);
     assertTrue(animator.hasAnimation("test_name"));
-    assertTrue(animator.hasAnimation("test2_name"));
-    assertTrue(animator.hasAnimation("test3_name"));
     animator.removeAnimation("test_name");
     assertFalse(animator.hasAnimation("test_name"));
   }
@@ -79,8 +67,6 @@ class PlayerRenderComponentTest {
 
     // Mock texture atlas
     TextureAtlas atlas = createMockAtlas(animName, numFrames);
-    TextureAtlas atlas2 = createMockAtlas(animName, numFrames);
-    TextureAtlas atlas3 = createMockAtlas(animName, numFrames);
     Array<TextureAtlas.AtlasRegion> regions = atlas.findRegions(animName);
     for (TextureAtlas.AtlasRegion region : regions) {
       when(region.getRegionWidth()).thenReturn(42);
@@ -94,7 +80,7 @@ class PlayerRenderComponentTest {
     when(gameTime.getDeltaTime()).thenReturn(frameTime);
 
     // Start animation
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas, atlas2, atlas3);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
     Entity entity = new Entity();
     animator.setEntity(entity);
     animator.addAnimation(animName, frameTime);
@@ -110,15 +96,13 @@ class PlayerRenderComponentTest {
   @Test
   void shouldFinish() {
     TextureAtlas atlas = createMockAtlas("test_name", 1);
-    TextureAtlas atlas2 = createMockAtlas("test_name", 1);
-    TextureAtlas atlas3 = createMockAtlas("test_name", 1);
     SpriteBatch batch = mock(SpriteBatch.class);
 
     GameTime gameTime = mock(GameTime.class);
     ServiceLocator.registerTimeSource(gameTime);
     when(gameTime.getDeltaTime()).thenReturn(1f);
 
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas, atlas2, atlas3);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
     Entity entity = new Entity();
     animator.setEntity(entity);
     animator.addAnimation("test_name", 1f);
@@ -134,9 +118,7 @@ class PlayerRenderComponentTest {
   @Test
   void shouldStopAnimation() {
     TextureAtlas atlas = createMockAtlas("test_name", 1);
-    TextureAtlas atlas2 = createMockAtlas("test_name", 1);
-    TextureAtlas atlas3 = createMockAtlas("test_name", 1);
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas, atlas2, atlas3);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
     animator.addAnimation("test_name", 1f);
     assertFalse(animator.stopAnimation());
 
@@ -148,10 +130,8 @@ class PlayerRenderComponentTest {
   @Test
   void shouldNotDisposeSharedAtlas() {
     TextureAtlas atlas = mock(TextureAtlas.class);
-    TextureAtlas atlas2 = mock(TextureAtlas.class);
-    TextureAtlas atlas3 = mock(TextureAtlas.class);
     ServiceLocator.registerRenderService(new RenderService());
-    PlayerRenderComponent animator = new PlayerRenderComponent(atlas, atlas2, atlas3);
+    PlayerRenderComponent animator = new PlayerRenderComponent(atlas);
 
     animator.dispose();
 

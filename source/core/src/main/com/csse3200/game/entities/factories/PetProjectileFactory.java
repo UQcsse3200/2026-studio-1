@@ -14,7 +14,7 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.PetProjectileRenderComponent;
 
-/** Creates companion projectiles aimed at the enemy just hit by their owner. */
+/** Creates terrain-piercing companion projectiles aimed at the enemy hit by their owner. */
 public final class PetProjectileFactory {
   private static final int DAMAGE = 5;
   private static final float SPEED = 8f;
@@ -54,12 +54,10 @@ public final class PetProjectileFactory {
     Entity projectile =
         new Entity()
             .addComponent(new PetProjectileRenderComponent(type))
-            // A dynamic sensor detects static terrain as well as moving enemies.
+            // Only enemy hitboxes matter: hovering pets can fire through walls and platforms.
             .addComponent(new PhysicsComponent())
             .addComponent(
-                new HitboxComponent()
-                    .setLayer(PhysicsLayer.DEFAULT)
-                    .setMask((short) (PhysicsLayer.NPC | PhysicsLayer.OBSTACLE)))
+                new HitboxComponent().setLayer(PhysicsLayer.DEFAULT).setMask(PhysicsLayer.NPC))
             .addComponent(new PetProjectileComponent(pet, target, DAMAGE, movement));
     projectile.setScale(width, height);
     projectile.setPosition(spawnCentre.x - width / 2f, spawnCentre.y - height / 2f);

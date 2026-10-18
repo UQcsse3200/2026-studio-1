@@ -43,7 +43,6 @@ public class StoryCutsceneScreen extends ScreenAdapter {
   private Stage stage;
 
   private Image backgroundImage;
-  private Image darkOverlay;
 
   private Table dialoguePanel;
   private Label titleLabel;
@@ -139,7 +138,7 @@ public class StoryCutsceneScreen extends ScreenAdapter {
 
   /** Adds a subtle dark overlay so the dialogue remains readable. */
   private void createDarkOverlay() {
-    darkOverlay = new Image();
+    Image darkOverlay = new Image();
     darkOverlay.setFillParent(true);
     darkOverlay.setColor(new Color(0f, 0f, 0f, 0.18f));
 

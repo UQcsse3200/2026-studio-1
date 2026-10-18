@@ -4,6 +4,8 @@ import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.entities.configs.ConsumableConfig;
 import com.csse3200.game.entities.configs.ConsumableConfigs;
 import com.csse3200.game.files.FileLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generates consumable items with properties scaled by loot tier.
@@ -18,6 +20,7 @@ import com.csse3200.game.files.FileLoader;
  * and stack size, so this keeps a weak potion from stacking with a strong one.
  */
 public class ConsumableGenerator {
+  private static final Logger logger = LoggerFactory.getLogger(ConsumableGenerator.class);
   private static final String CONFIG_PATH = "configs/consumables.json";
 
   /** Floor for reduction buffs, so no tier can reduce incoming damage to nothing. */
@@ -27,7 +30,29 @@ public class ConsumableGenerator {
 
   /** Creates a generator using the consumable configs on disk. */
   public ConsumableGenerator() {
-    this(FileLoader.readClass(ConsumableConfigs.class, CONFIG_PATH));
+    this(loadConfigs(CONFIG_PATH));
+  }
+
+  /**
+   * Reads consumable configs from a JSON file.
+   *
+   * <p>{@link FileLoader#readClass} returns null when the file is missing or invalid. That null is
+   * checked here instead of being passed on, because the config file ships with the game: if it
+   * cannot be read the build is broken, so this fails straight away with a message naming the file.
+   * Falling back to default values would not help, as the defaults (such as a heal amount of 0) are
+   * not valid for generating items.
+   *
+   * @param path internal path of the config file
+   * @return the loaded configs
+   * @throws IllegalStateException if the file is missing or invalid
+   */
+  static ConsumableConfigs loadConfigs(String path) {
+    ConsumableConfigs loaded = FileLoader.readClass(ConsumableConfigs.class, path);
+    if (loaded == null) {
+      logger.error("Could not load consumable configs from {}", path);
+      throw new IllegalStateException("Could not load consumable configs from " + path);
+    }
+    return loaded;
   }
 
   /**

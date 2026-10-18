@@ -71,7 +71,7 @@ public class Item {
   }
 
   public void setQuantity(int quantity) {
-    this.quantity = Math.max(0, Math.min(quantity, maxQuantity));
+    this.quantity = Math.clamp(quantity, 0, maxQuantity);
   }
 
   public void addQuantity(int delta) {
