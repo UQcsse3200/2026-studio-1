@@ -79,7 +79,7 @@ class AllMapsEnemyPlacementTest {
   private static final double MINOTAUR_HEIGHT = 4.0 * 80.0 / 96.0;
   private static final double MINOTAUR_FEET = 16.0 * (MINOTAUR_HEIGHT / 80.0);
   private static final double CENTAUR_HEIGHT = 4.0 * 53.0 / 66.0;
-  private static final double CERBERUS_HEIGHT = 1.5 * 96.0 / 150.0;
+  private static final double CERBERUS_HEIGHT = 1.75 * 69.0 / 124.0;
 
   private static final Map<String, Body> BODIES = new HashMap<>();
 
@@ -94,7 +94,8 @@ class AllMapsEnemyPlacementTest {
     BODIES.put("cyclops", new Body(2.0, 1.5, 2.0 * 0.4, 1.5 * 0.5, 0.0));
     BODIES.put("medusa", new Body(2.0, 1.5, 2.0 * 0.4, 1.5 * 0.5, 0.0));
     BODIES.put("zeus", new Body(2.0, 1.5, 2.0 * 0.4, 1.5 * 0.5, 0.0));
-    BODIES.put("cerberus", new Body(1.5, CERBERUS_HEIGHT, 1.5 * 0.45, CERBERUS_HEIGHT * 0.6, 0.0));
+    BODIES.put(
+        "cerberus", new Body(1.75, CERBERUS_HEIGHT, 1.75 * 0.45, CERBERUS_HEIGHT * 0.6, 0.0));
   }
 
   private final JsonMapLoader loader = new JsonMapLoader();
