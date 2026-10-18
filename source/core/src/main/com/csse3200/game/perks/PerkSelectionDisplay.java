@@ -300,7 +300,6 @@ public class PerkSelectionDisplay extends UIComponent {
     refreshCard(selectedIndex);
   }
 
-
   private void refreshCard(int index) {
     if (cardFrames == null || perks == null || index < 0 || index >= cardFrames.length) {
       return;
@@ -326,13 +325,12 @@ public class PerkSelectionDisplay extends UIComponent {
 
     Table accent = (Table) card.getChild(0);
     accent.setBackground(
-            skin.newDrawable(
-                    WHITE,
-                    perk.isActive()
-                            ? new Color(0.95f, 0.69f, 0.28f, 1f)
-                            : new Color(0.18f, 0.58f, 0.54f, 1f)));
+        skin.newDrawable(
+            WHITE,
+            perk.isActive()
+                ? new Color(0.95f, 0.69f, 0.28f, 1f)
+                : new Color(0.18f, 0.58f, 0.54f, 1f)));
   }
-
 
   private void updateFocus() {
     if (cardFrames != null) {
