@@ -13,6 +13,7 @@ public class SkeletonAnimationController extends Component {
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
   private AnimationState currentAnimState = null;
+  private static final String IDLE_RIGHT_START_EVENT = "idleRightStart";
 
   private enum AnimationState {
     IDLE_LEFT,
@@ -27,12 +28,12 @@ public class SkeletonAnimationController extends Component {
     animator = this.entity.getComponent(AnimationRenderComponent.class);
     physicsComponent = this.entity.getComponent(PhysicsComponent.class);
     entity.getEvents().addListener("idleLeftStart", this::animateIdleL);
-    entity.getEvents().addListener("idleRightStart", this::animateIdleR);
+    entity.getEvents().addListener(IDLE_RIGHT_START_EVENT, this::animateIdleR);
     entity.getEvents().addListener("walkLeftStart", this::animateWalkL);
     entity.getEvents().addListener("walkRightStart", this::animateWalkR);
 
     // Trigger a default starting state
-    entity.getEvents().trigger("idleRightStart");
+    entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
     currentAnimState = AnimationState.IDLE_RIGHT;
   }
 
@@ -76,7 +77,7 @@ public class SkeletonAnimationController extends Component {
         entity.getEvents().trigger("idleLeftStart");
         break;
       case IDLE_RIGHT:
-        entity.getEvents().trigger("idleRightStart");
+        entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
         break;
     }
   }

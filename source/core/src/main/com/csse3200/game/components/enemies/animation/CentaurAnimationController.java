@@ -58,9 +58,9 @@ public class CentaurAnimationController extends Component {
     entity.getEvents().addListener(SWING_RIGHT_START, this::animateSwingR);
     entity.getEvents().addListener(DEATH_LEFT_START, this::animateDeathL);
     entity.getEvents().addListener(DEATH_RIGHT_START, this::animateDeathR);
-    entity.getEvents().addListener(MELEE_ATTACK, (Entity target) -> onAttack(target));
-    entity.getEvents().addListener(MELEE_ATTACK_WINDUP, (Entity target) -> onAttack(target));
-    entity.getEvents().addListener(RANGED_ATTACK_FIRED, (Entity target) -> onAttack(target));
+    entity.getEvents().addListener(MELEE_ATTACK, this::onAttack);
+    entity.getEvents().addListener(MELEE_ATTACK_WINDUP, this::onAttack);
+    entity.getEvents().addListener(RANGED_ATTACK_FIRED, this::onAttack);
     entity.getEvents().addListener(CHARGE_START, this::onChargeStart);
 
     // Trigger a default starting state
@@ -112,36 +112,50 @@ public class CentaurAnimationController extends Component {
     triggerStateEvent(currentAnimState);
   }
 
+  /** Starts the run animation facing the target, the velocity, or the current facing. */
   private void onChargeStart() {
     isSwinging = false;
     Vector2 targetPos = chargeComponent != null ? chargeComponent.getTargetPosition() : null;
     if (targetPos != null && entity != null) {
-      currentAnimState =
-          (targetPos.x < entity.getPosition().x)
-              ? AnimationState.RUN_LEFT
-              : AnimationState.RUN_RIGHT;
+      currentAnimState = chargeStateTowards(targetPos.x);
     } else {
-      Vector2 velocity =
-          (physicsComponent != null && physicsComponent.getBody() != null)
-              ? physicsComponent.getBody().getLinearVelocity()
-              : null;
-
-      if (velocity != null && velocity.x < -0.05f) {
-        currentAnimState = AnimationState.RUN_LEFT;
-      } else if (velocity != null && velocity.x > 0.05f) {
-        currentAnimState = AnimationState.RUN_RIGHT;
-      } else {
-        if (currentAnimState == AnimationState.RUN_LEFT
-            || currentAnimState == AnimationState.IDLE_LEFT
-            || currentAnimState == AnimationState.SWING_LEFT
-            || currentAnimState == AnimationState.DEATH_LEFT) {
-          currentAnimState = AnimationState.RUN_LEFT;
-        } else {
-          currentAnimState = AnimationState.RUN_RIGHT;
-        }
-      }
+      currentAnimState = chargeStateFromVelocityOrFacing();
     }
     triggerStateEvent(currentAnimState);
+  }
+
+  /** Returns the run state that faces the given x position. */
+  private AnimationState chargeStateTowards(float targetX) {
+    return targetX < entity.getPosition().x ? AnimationState.RUN_LEFT : AnimationState.RUN_RIGHT;
+  }
+
+  /** Returns the run state from the velocity, or from the current facing when still. */
+  private AnimationState chargeStateFromVelocityOrFacing() {
+    final float runThreshold = 0.05f;
+    Vector2 velocity = currentVelocityOrNull();
+    if (velocity != null && velocity.x < -runThreshold) {
+      return AnimationState.RUN_LEFT;
+    }
+    if (velocity != null && velocity.x > runThreshold) {
+      return AnimationState.RUN_RIGHT;
+    }
+    return isFacingLeftState() ? AnimationState.RUN_LEFT : AnimationState.RUN_RIGHT;
+  }
+
+  /** Returns the current linear velocity, or null when there is no physics body. */
+  private Vector2 currentVelocityOrNull() {
+    if (physicsComponent != null && physicsComponent.getBody() != null) {
+      return physicsComponent.getBody().getLinearVelocity();
+    }
+    return null;
+  }
+
+  /** Returns true when the current state faces left. */
+  private boolean isFacingLeftState() {
+    return currentAnimState == AnimationState.RUN_LEFT
+        || currentAnimState == AnimationState.IDLE_LEFT
+        || currentAnimState == AnimationState.SWING_LEFT
+        || currentAnimState == AnimationState.DEATH_LEFT;
   }
 
   private AnimationState getTargetState(Vector2 velocity) {

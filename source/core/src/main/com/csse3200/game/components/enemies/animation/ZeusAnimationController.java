@@ -18,6 +18,7 @@ public class ZeusAnimationController extends Component {
   private AnimationState currentAnimState = null;
   private boolean isAttacking = false;
   private boolean isDead = false;
+  private static final String IDLE_RIGHT_START_EVENT = "idleRightStart";
 
   public enum AnimationState {
     IDLE_LEFT,
@@ -40,7 +41,7 @@ public class ZeusAnimationController extends Component {
 
     // Directional movement & idle listeners
     entity.getEvents().addListener("idleLeftStart", this::animateIdleL);
-    entity.getEvents().addListener("idleRightStart", this::animateIdleR);
+    entity.getEvents().addListener(IDLE_RIGHT_START_EVENT, this::animateIdleR);
     entity.getEvents().addListener("walkLeftStart", this::animateWalkL);
     entity.getEvents().addListener("walkRightStart", this::animateWalkR);
 
@@ -76,41 +77,68 @@ public class ZeusAnimationController extends Component {
     entity.getEvents().addListener("death", this::onDeath);
 
     // Trigger a default starting state
-    entity.getEvents().trigger("idleRightStart");
+    entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
     currentAnimState = AnimationState.IDLE_RIGHT;
   }
 
+  /** Advances the animation state for this frame. Dead and mid-attack controllers do nothing. */
   @Override
   public void update() {
-    if (isDead) {
+    if (isDead || isAttackStillPlaying()) {
       return;
     }
-    if (isAttacking) {
-      if (animator != null && animator.isFinished()) {
-        isAttacking = false;
-      } else {
-        return;
-      }
-    }
-    if (physicsComponent != null && physicsComponent.getBody() != null) {
-      Vector2 velocity = physicsComponent.getBody().getLinearVelocity();
-      if (velocity != null) {
-        AnimationState targetState = getTargetState(velocity);
-        if (targetState != currentAnimState) {
-          currentAnimState = targetState;
-          triggerStateEvent(currentAnimState);
-        }
-      }
+    if (hasPhysicsBody()) {
+      updateFromVelocity();
     } else {
-      if (!isAttacking
-          && (currentAnimState == AnimationState.STRIKE_LEFT
-              || currentAnimState == AnimationState.STRIKE_RIGHT
-              || currentAnimState == AnimationState.SLAM_LEFT
-              || currentAnimState == AnimationState.SLAM_RIGHT)) {
-        currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
-        triggerStateEvent(currentAnimState);
-      }
+      returnToIdleAfterAttack();
     }
+  }
+
+  /** Returns true while an attack animation is still playing, and clears the flag once it ends. */
+  private boolean isAttackStillPlaying() {
+    if (!isAttacking) {
+      return false;
+    }
+    if (animator != null && animator.isFinished()) {
+      isAttacking = false;
+      return false;
+    }
+    return true;
+  }
+
+  /** Returns true when the entity has a physics component with a body. */
+  private boolean hasPhysicsBody() {
+    return physicsComponent != null && physicsComponent.getBody() != null;
+  }
+
+  /** Switches to the walk or idle state that matches the current velocity. */
+  private void updateFromVelocity() {
+    Vector2 velocity = physicsComponent.getBody().getLinearVelocity();
+    if (velocity == null) {
+      return;
+    }
+    AnimationState targetState = getTargetState(velocity);
+    if (targetState != currentAnimState) {
+      currentAnimState = targetState;
+      triggerStateEvent(currentAnimState);
+    }
+  }
+
+  /** Returns to the matching idle state when an attack ends and there is no physics body. */
+  private void returnToIdleAfterAttack() {
+    if (!isAttackState(currentAnimState)) {
+      return;
+    }
+    currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
+    triggerStateEvent(currentAnimState);
+  }
+
+  /** Returns true for the states that count as an attack. */
+  private boolean isAttackState(AnimationState state) {
+    return state == AnimationState.STRIKE_LEFT
+        || state == AnimationState.STRIKE_RIGHT
+        || state == AnimationState.SLAM_LEFT
+        || state == AnimationState.SLAM_RIGHT;
   }
 
   private AnimationState getTargetState(Vector2 velocity) {
@@ -133,7 +161,7 @@ public class ZeusAnimationController extends Component {
         entity.getEvents().trigger("idleLeftStart");
         break;
       case IDLE_RIGHT:
-        entity.getEvents().trigger("idleRightStart");
+        entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
         break;
       case WALK_LEFT:
         entity.getEvents().trigger("walkLeftStart");

@@ -46,8 +46,8 @@ public class MinotaurAnimationController extends Component {
     entity.getEvents().addListener("chargeStart", this::onChargeStart);
     entity.getEvents().addListener("swingLeftStart", this::animateSwingL);
     entity.getEvents().addListener("swingRightStart", this::animateSwingR);
-    entity.getEvents().addListener("meleeAttack", (Entity target) -> onMeleeAttack(target));
-    entity.getEvents().addListener("meleeAttackWindup", (Entity target) -> onMeleeAttack(target));
+    entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
+    entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
 
     // Trigger a default starting state
     entity.getEvents().trigger("idleRightStart");
@@ -98,75 +98,86 @@ public class MinotaurAnimationController extends Component {
     triggerStateEvent(currentAnimState);
   }
 
+  /** Starts the charge animation facing the target, the velocity, or the current facing. */
   private void onChargeStart() {
     isSwinging = false;
     Vector2 targetPos = chargeComponent != null ? chargeComponent.getTargetPosition() : null;
     if (targetPos != null && entity != null) {
-      currentAnimState =
-          (targetPos.x < entity.getPosition().x)
-              ? AnimationState.CHARGE_LEFT
-              : AnimationState.CHARGE_RIGHT;
+      currentAnimState = chargeStateTowards(targetPos.x);
     } else {
-      Vector2 velocity =
-          (physicsComponent != null && physicsComponent.getBody() != null)
-              ? physicsComponent.getBody().getLinearVelocity()
-              : null;
-
-      if (velocity != null && velocity.x < -0.05f) {
-        currentAnimState = AnimationState.CHARGE_LEFT;
-      } else if (velocity != null && velocity.x > 0.05f) {
-        currentAnimState = AnimationState.CHARGE_RIGHT;
-      } else {
-        if (currentAnimState == AnimationState.WALK_LEFT
-            || currentAnimState == AnimationState.IDLE_LEFT
-            || currentAnimState == AnimationState.CHARGE_LEFT
-            || currentAnimState == AnimationState.SWING_LEFT) {
-          currentAnimState = AnimationState.CHARGE_LEFT;
-        } else {
-          currentAnimState = AnimationState.CHARGE_RIGHT;
-        }
-      }
+      currentAnimState = chargeStateFromVelocityOrFacing();
     }
     triggerStateEvent(currentAnimState);
   }
 
-  private AnimationState getTargetState(Vector2 velocity) {
-    final float walkThreshold = 0.05f;
-    boolean isCharging = chargeComponent != null && chargeComponent.isCharging();
-    boolean isRushing = chargeComponent != null && chargeComponent.isRushing();
+  /** Returns the charge state that faces the given x position. */
+  private AnimationState chargeStateTowards(float targetX) {
+    return targetX < entity.getPosition().x
+        ? AnimationState.CHARGE_LEFT
+        : AnimationState.CHARGE_RIGHT;
+  }
 
-    // While in the stationary charging (windup) phase, display charge animation facing target
-    if (isCharging && !isRushing) {
-      Vector2 targetPos = chargeComponent.getTargetPosition();
-      if (targetPos != null && entity != null) {
-        return (targetPos.x < entity.getPosition().x)
-            ? AnimationState.CHARGE_LEFT
-            : AnimationState.CHARGE_RIGHT;
-      }
-      if (currentAnimState == AnimationState.WALK_LEFT
-          || currentAnimState == AnimationState.IDLE_LEFT
-          || currentAnimState == AnimationState.CHARGE_LEFT
-          || currentAnimState == AnimationState.SWING_LEFT) {
-        return AnimationState.CHARGE_LEFT;
-      } else {
-        return AnimationState.CHARGE_RIGHT;
-      }
+  /** Returns the charge state from the velocity, or from the current facing when still. */
+  private AnimationState chargeStateFromVelocityOrFacing() {
+    final float chargeThreshold = 0.05f;
+    Vector2 velocity = currentVelocityOrNull();
+    if (velocity != null && velocity.x < -chargeThreshold) {
+      return AnimationState.CHARGE_LEFT;
     }
+    if (velocity != null && velocity.x > chargeThreshold) {
+      return AnimationState.CHARGE_RIGHT;
+    }
+    return isFacingLeftState() ? AnimationState.CHARGE_LEFT : AnimationState.CHARGE_RIGHT;
+  }
 
+  /** Returns the current linear velocity, or null when there is no physics body. */
+  private Vector2 currentVelocityOrNull() {
+    if (physicsComponent != null && physicsComponent.getBody() != null) {
+      return physicsComponent.getBody().getLinearVelocity();
+    }
+    return null;
+  }
+
+  /** Returns true when the current state faces left. */
+  private boolean isFacingLeftState() {
+    return currentAnimState == AnimationState.WALK_LEFT
+        || currentAnimState == AnimationState.IDLE_LEFT
+        || currentAnimState == AnimationState.CHARGE_LEFT
+        || currentAnimState == AnimationState.SWING_LEFT;
+  }
+
+  /** Returns the state to show for this frame given the velocity. */
+  private AnimationState getTargetState(Vector2 velocity) {
+    if (isChargeWindup()) {
+      return chargeStateDuringWindup();
+    }
+    return stateFromVelocity(velocity);
+  }
+
+  /** Returns true during the stationary windup phase of a charge. */
+  private boolean isChargeWindup() {
+    return chargeComponent != null && chargeComponent.isCharging() && !chargeComponent.isRushing();
+  }
+
+  /** Returns the charge state to show during the windup. */
+  private AnimationState chargeStateDuringWindup() {
+    Vector2 targetPos = chargeComponent.getTargetPosition();
+    if (targetPos != null && entity != null) {
+      return chargeStateTowards(targetPos.x);
+    }
+    return isFacingLeftState() ? AnimationState.CHARGE_LEFT : AnimationState.CHARGE_RIGHT;
+  }
+
+  /** Returns the walk or idle state that matches the velocity. */
+  private AnimationState stateFromVelocity(Vector2 velocity) {
+    final float walkThreshold = 0.05f;
     if (velocity.x < -walkThreshold) {
       return AnimationState.WALK_LEFT;
-    } else if (velocity.x > walkThreshold) {
-      return AnimationState.WALK_RIGHT;
-    } else {
-      if (currentAnimState == AnimationState.WALK_LEFT
-          || currentAnimState == AnimationState.IDLE_LEFT
-          || currentAnimState == AnimationState.CHARGE_LEFT
-          || currentAnimState == AnimationState.SWING_LEFT) {
-        return AnimationState.IDLE_LEFT;
-      } else {
-        return AnimationState.IDLE_RIGHT;
-      }
     }
+    if (velocity.x > walkThreshold) {
+      return AnimationState.WALK_RIGHT;
+    }
+    return isFacingLeftState() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
   }
 
   private void triggerStateEvent(AnimationState state) {
