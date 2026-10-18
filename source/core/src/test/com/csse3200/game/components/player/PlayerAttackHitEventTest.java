@@ -10,6 +10,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.WeaponItem;
+import com.csse3200.game.components.loot.WeaponTier;
+import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.events.listeners.EventListener1;
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(GameExtension.class)
 class PlayerAttackHitEventTest {
   private Entity player;
+  private InventoryComponent inventory;
   private Fixture playerFixture;
   private StaminaComponent stamina;
   private final List<Entity> hitTargets = new ArrayList<>();
@@ -55,9 +59,11 @@ class PlayerAttackHitEventTest {
     KeyboardPlayerInputComponent keyboardInput = mock(KeyboardPlayerInputComponent.class);
     when(keyboardInput.getDirection()).thenReturn("Right");
     stamina = new StaminaComponent();
+    inventory = new InventoryComponent(0);
     player =
         new Entity()
             .addComponent(new CombatStatsComponent(100, 10))
+            .addComponent(inventory)
             .addComponent(stamina)
             .addComponent(hitbox)
             .addComponent(physics)
@@ -140,6 +146,56 @@ class PlayerAttackHitEventTest {
 
     assertEquals(List.of(enemy), hitTargets);
     assertTrue(enemy.getComponent(CombatStatsComponent.class).isDead());
+  }
+
+  @Test
+  void shouldUseTier1SwordDamage() {
+    assertWeaponTierDamage(WeaponType.SWORD, 1, 10);
+  }
+
+  @Test
+  void shouldUseTier2SwordDamage() {
+    assertWeaponTierDamage(WeaponType.SWORD, 2, 20);
+  }
+
+  @Test
+  void shouldUseTier3SwordDamage() {
+    assertWeaponTierDamage(WeaponType.SWORD, 3, 30);
+  }
+
+  @Test
+  void shouldUseTier1AxeDamage() {
+    assertWeaponTierDamage(WeaponType.AXE, 1, 12);
+  }
+
+  @Test
+  void shouldUseTier2AxeDamage() {
+    assertWeaponTierDamage(WeaponType.AXE, 2, 23);
+  }
+
+  @Test
+  void shouldUseTier3AxeDamage() {
+    assertWeaponTierDamage(WeaponType.AXE, 3, 34);
+  }
+
+  private void assertWeaponTierDamage(WeaponType weaponType, int tierNumber, int expectedDamage) {
+    WeaponItem weapon =
+        new WeaponItem(
+            "Test " + weaponType + " Tier " + tierNumber,
+            weaponType,
+            WeaponTier.fromTierNumber(tierNumber),
+            1,
+            1,
+            0f);
+
+    // The inventory's active slot defaults to slot 1.
+    assertEquals(0, inventory.addItem(weapon));
+
+    Entity enemy = enemyInRange(100);
+
+    player.getEvents().trigger("attack");
+
+    assertEquals(100 - expectedDamage, enemy.getComponent(CombatStatsComponent.class).getHealth());
   }
 
   private Entity enemyInRange(int health) {

@@ -35,4 +35,24 @@ class WeaponAttackComponentTest {
         IllegalArgumentException.class,
         () -> WeaponAttackComponent.getBowProjectileDirection(direction, 1, 1));
   }
+
+  @Test
+  void shouldUseBaseDamageWhenNoStrengthBuffIsActive() {
+    assertEquals(20, WeaponAttackComponent.calculateBuffedWeaponDamage(20, 1f));
+  }
+
+  @Test
+  void shouldIncreaseWeaponDamageWithStrengthBuff() {
+    assertEquals(40, WeaponAttackComponent.calculateBuffedWeaponDamage(20, 2f));
+  }
+
+  @Test
+  void shouldRoundBuffedWeaponDamageConsistently() {
+    assertEquals(31, WeaponAttackComponent.calculateBuffedWeaponDamage(20, 1.55f));
+  }
+
+  @Test
+  void shouldNeverReturnNegativeWeaponDamage() {
+    assertEquals(0, WeaponAttackComponent.calculateBuffedWeaponDamage(20, -1f));
+  }
 }

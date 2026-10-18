@@ -13,12 +13,25 @@ import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.pausemenu.KeybindSettings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class KeyboardPlayerInputComponentTest {
+
+  /**
+   * Every test here presses a hardcoded default key (G for areaAttack, F for specialAttack, etc.),
+   * so the actions must actually be bound to those defaults - not whatever a previous test's rebind
+   * left behind, or a stale real {@code ~/.prefs/keybind_settings} file loaded by {@link
+   * KeybindSettings} when {@code Gdx.app} happens to be set.
+   */
+  @BeforeEach
+  void resetKeybindsToDefaults() {
+    KeybindSettings.resetToDefaults();
+  }
 
   @Test
   void shouldTriggerDropEventWhenQIsPressed() {

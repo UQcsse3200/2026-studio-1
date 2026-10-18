@@ -9,7 +9,11 @@ import com.csse3200.game.entities.Entity;
  * <p>A consumable has the common properties of an {@link Item}, plus a {@link ConsumableType} and
  * the {@link ConsumableEffect} it applies when used. Following {@code WeaponItem}, this stays a
  * plain data class: the use handler lives in {@code ConsumableUseComponent} on the player entity.
+ *
+ * <p>{@link Item#equals} is inherited on purpose. Every item gets a unique id, and two items are
+ * only the same if their ids match, so comparing the type and effect as well would add nothing.
  */
+@SuppressWarnings("java:S2160")
 public class ConsumableItem extends Item {
   private final ConsumableType consumableType;
   private final ConsumableEffect effect;
@@ -60,6 +64,14 @@ public class ConsumableItem extends Item {
    */
   public ConsumableEffect getEffect() {
     return effect;
+  }
+
+  @Override
+  public ConsumableItem copy() {
+    ConsumableItem copy =
+        new ConsumableItem(getName(), consumableType, effect, getQuantity(), getMaxQuantity());
+    copy.setSellPrice(getSellPrice());
+    return copy;
   }
 
   /**

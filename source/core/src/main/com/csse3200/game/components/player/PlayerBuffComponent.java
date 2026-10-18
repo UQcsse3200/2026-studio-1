@@ -88,12 +88,14 @@ public class PlayerBuffComponent extends Component {
   }
 
   /** Removes any buffs whose duration has passed and puts the affected stats back. */
+  @SuppressWarnings("java:S9391")
   @Override
   public void update() {
     if (activeBuffs.isEmpty()) {
       return;
     }
 
+    // A plain loop instead of a stream, so the expiry check is easy to read and debug.
     long currentTime = timeSource.getTime();
     List<ActiveBuff> expired = new ArrayList<>();
     for (ActiveBuff buff : activeBuffs.values()) {

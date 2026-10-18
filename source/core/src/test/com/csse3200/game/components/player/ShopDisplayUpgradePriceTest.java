@@ -9,7 +9,13 @@ import static org.mockito.Mockito.when;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.WeaponGenerator;
+import com.csse3200.game.difficulty.Difficulty;
+import com.csse3200.game.difficulty.DifficultyService;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.services.ResourceService;
@@ -19,6 +25,7 @@ import com.csse3200.game.upgrades.UpgradesDisplay;
 import com.csse3200.game.upgrades.UpgradesMenuComponent;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +57,8 @@ class ShopDisplayUpgradePriceTest {
   private ShopDisplay shopDisplay;
   private ShopComponent shopComponent;
   private InventoryComponent inventory;
+  private UpgradesDisplay upgradesDisplay;
+  private CombatStatsComponent combatStats;
 
   @BeforeEach
   void beforeEach() {
@@ -66,13 +75,15 @@ class ShopDisplayUpgradePriceTest {
     ServiceLocator.registerResourceService(mock(ResourceService.class));
 
     shopDisplay = new ShopDisplay();
-    shopComponent = new ShopComponent().seedDefaultCatalog();
+    shopComponent =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     inventory = new InventoryComponent(1000);
     playerEntity =
         new Entity().addComponent(shopComponent).addComponent(inventory).addComponent(shopDisplay);
     playerEntity.create();
 
-    UpgradesDisplay upgradesDisplay = new UpgradesDisplay();
+    upgradesDisplay = new UpgradesDisplay();
     new Entity().addComponent(new UpgradesMenuComponent()).addComponent(upgradesDisplay).create();
 
     shopDisplay.setUpgradesDisplay(upgradesDisplay);
@@ -298,5 +309,92 @@ class ShopDisplayUpgradePriceTest {
     method.invoke(shopDisplay, shopComponent, 1, node); // same name/price already stored - no-op
 
     assertEquals(0, shopChangedCount.get());
+  }
+
+  /**
+   * Premium slot 4 is Regen on Kill. A roll of 75 lands there. The player must gain that upgrade,
+   * not only a stored name. 10 gold is below the 60 spin price, so the rejected spin never rolls.
+   */
+  @Test
+  void premiumUpgradeSpinLevelsRegenOnKill() throws Exception {
+    preparePremiumSpin(100);
+
+    spinGamblingWheel();
+
+    UpgradeNode regen = regenOnKill();
+    assertEquals(1, regen.getCurrentTier());
+    assertEquals(15f, regen.getRemainingSeconds());
+    assertEquals(40, inventory.getGold());
+
+    playerEntity.getEvents().trigger("enemyKilled");
+    assertEquals(55, combatStats.getHealth());
+  }
+
+  @Test
+  void rejectedPremiumSpinLeavesRegenUnchanged() throws Exception {
+    preparePremiumSpin(10);
+
+    spinGamblingWheel();
+
+    assertEquals(0, regenOnKill().getCurrentTier());
+    assertEquals(10, inventory.getGold());
+    assertEquals(50, combatStats.getHealth());
+  }
+
+  /**
+   * Replaces the shop from {@code beforeEach()} with one whose roll is fixed at 75 and whose gold
+   * is {@code gold}. Opens the Gambling tab on Premium so {@code spinGamblingWheel()} has a wheel.
+   */
+  private void preparePremiumSpin(int gold) throws Exception {
+    DifficultyService.setCurrent(Difficulty.NORMAL);
+
+    shopComponent =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(
+                new Random() {
+                  @Override
+                  public int nextInt(int bound) {
+                    return 75;
+                  }
+                }),
+            new WeaponGenerator(),
+            new ConsumableGenerator());
+    inventory = new InventoryComponent(gold);
+    combatStats = new CombatStatsComponent(50, 10);
+    shopDisplay = new ShopDisplay();
+    playerEntity =
+        new Entity()
+            .addComponent(shopComponent)
+            .addComponent(inventory)
+            .addComponent(combatStats)
+            .addComponent(new PlayerActions())
+            .addComponent(new ConsumableUseComponent(100))
+            .addComponent(shopDisplay);
+    playerEntity.create();
+
+    upgradesDisplay = new UpgradesDisplay();
+    new Entity().addComponent(new UpgradesMenuComponent()).addComponent(upgradesDisplay).create();
+    upgradesDisplay.setPlayer(playerEntity);
+    shopDisplay.setUpgradesDisplay(upgradesDisplay);
+
+    Field catalogField = ShopDisplay.class.getDeclaredField("currentGamblingCatalog");
+    catalogField.setAccessible(true);
+    catalogField.set(shopDisplay, GamblingCatalogs.CatalogId.PREMIUM);
+    clickTab("GAMBLING");
+  }
+
+  private UpgradeNode regenOnKill() {
+    for (UpgradeNode node : upgradesDisplay.getAllUpgrades()) {
+      if (node.getName().equals("Regen on Kill")) {
+        return node;
+      }
+    }
+    throw new IllegalStateException("Regen on Kill was not built");
+  }
+
+  private void spinGamblingWheel() throws Exception {
+    Method method = ShopDisplay.class.getDeclaredMethod("spinGamblingWheel");
+    method.setAccessible(true);
+    method.invoke(shopDisplay);
   }
 }
