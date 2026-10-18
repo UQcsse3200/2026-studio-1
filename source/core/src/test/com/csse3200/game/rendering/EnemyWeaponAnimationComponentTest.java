@@ -1,6 +1,5 @@
 package com.csse3200.game.rendering;
 
-import static com.csse3200.game.rendering.AnimationRenderComponentTest.createMockAtlas;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 

@@ -31,6 +31,26 @@ class WinResultTest {
 
   // ---------- storing ----------
 
+  /** Every value passed to the constructor comes back unchanged from its getter. */
+  @Test
+  void shouldReturnEveryValueItWasBuiltWith() {
+    List<String> missing = List.of("Medusa", "Zeus");
+
+    // Today this is the 9-argument constructor. After you group the values, only this
+    // line changes; the assertions below stay exactly as they are.
+    WinResult r = new WinResult(WinTier.VICTORY, true, 6, 8, missing, 2, 3, 4, 5);
+
+    assertEquals(WinTier.VICTORY, r.getTier(), "tier");
+    assertTrue(r.isFinalBossDefeated(), "final boss defeated");
+    assertEquals(6, r.getMiniBossesDefeated(), "mini bosses defeated");
+    assertEquals(8, r.getMiniBossesRequired(), "mini bosses required");
+    assertEquals(missing, r.getMissingMiniBosses(), "missing mini bosses");
+    assertEquals(2, r.getQuestsCompleted(), "quests completed");
+    assertEquals(3, r.getQuestsRequired(), "quests required");
+    assertEquals(4, r.getTortoisesFound(), "tortoises found");
+    assertEquals(5, r.getTortoisesTotal(), "tortoises total");
+  }
+
   @Test
   void shouldStoreEveryValueItWasGiven() {
     WinResult r = result(WinTier.GLORY, true, 6, 8, List.of("A", "B"), 2, 3);
@@ -86,8 +106,9 @@ class WinResultTest {
   void shouldHandBackAListThatCannotBeChanged() {
     WinResult r = result(WinTier.VICTORY, true, 6, 8, List.of("A", "B"), 0, 3);
 
-    assertThrows(UnsupportedOperationException.class, () -> r.getMissingMiniBosses().add("C"));
-    assertThrows(UnsupportedOperationException.class, () -> r.getMissingMiniBosses().clear());
+    List<String> missing = r.getMissingMiniBosses();
+    assertThrows(UnsupportedOperationException.class, () -> missing.add("C"));
+    assertThrows(UnsupportedOperationException.class, missing::clear);
   }
 
   // ---------- validation ----------

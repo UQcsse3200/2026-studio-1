@@ -27,6 +27,7 @@ public class CyclopsAnimationController extends Component {
   private static final String TAUNT_R = "cyclops_taunt_r";
   private static final String STOMP_L = "cyclops_stomp_l";
   private static final String STOMP_R = "cyclops_stomp_r";
+  private static final String IDLE_RIGHT_START_EVENT = "idleRightStart";
 
   private AnimationRenderComponent animator;
   private EnemyWeaponAnimationComponent weaponAnimator;
@@ -56,7 +57,7 @@ public class CyclopsAnimationController extends Component {
 
     // Directional movement & idle listeners
     entity.getEvents().addListener("idleLeftStart", this::animateIdleL);
-    entity.getEvents().addListener("idleRightStart", this::animateIdleR);
+    entity.getEvents().addListener(IDLE_RIGHT_START_EVENT, this::animateIdleR);
     entity.getEvents().addListener("walkLeftStart", this::animateWalkL);
     entity.getEvents().addListener("walkRightStart", this::animateWalkR);
 
@@ -83,38 +84,19 @@ public class CyclopsAnimationController extends Component {
     entity.getEvents().addListener("rangedAttackStart", this::onRockStart);
 
     // Trigger a default starting state
-    entity.getEvents().trigger("idleRightStart");
+    entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
     currentAnimState = AnimationState.IDLE_RIGHT;
   }
 
+  /** Returns true while an attack is still playing, so update() can skip movement. */
   private boolean attackingHandler() {
-    if (isAttacking) {
-      boolean finished;
-      if (currentAnimState == AnimationState.LASER_LEFT
-          || currentAnimState == AnimationState.LASER_RIGHT) {
-        if (weaponAnimator != null && weaponAnimator.getCurrentAnimation() != null) {
-          finished = weaponAnimator.isFinished();
-        } else {
-          finished = (animator == null || animator.isFinished());
-        }
-      } else {
-        finished = (animator == null || animator.isFinished());
-      }
-
-      if (finished) {
-        isAttacking = false;
-        if (weaponAnimator != null && weaponAnimator.getCurrentAnimation() != null) {
-          weaponAnimator.stopAnimation();
-        }
-        if (physicsComponent == null || physicsComponent.getBody() == null) {
-          currentAnimState =
-              isFacingLeft(currentAnimState) ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
-          triggerStateEvent(currentAnimState);
-        }
-      } else {
-        return true;
-      }
+    if (!isAttacking) {
+      return false;
     }
+    if (!hasAttackFinished()) {
+      return true;
+    }
+    finishAttack();
     return false;
   }
 
@@ -185,7 +167,7 @@ public class CyclopsAnimationController extends Component {
         entity.getEvents().trigger("idleLeftStart");
         break;
       case IDLE_RIGHT:
-        entity.getEvents().trigger("idleRightStart");
+        entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
         break;
       case ROCK_LEFT:
         entity.getEvents().trigger("rockThrowLeftStart");
@@ -359,5 +341,41 @@ public class CyclopsAnimationController extends Component {
 
   public boolean isFacingRight() {
     return !isFacingLeft(currentAnimState);
+  }
+
+  /** Returns true when the animation that matters for the current attack has finished. */
+  private boolean hasAttackFinished() {
+    if (isLaserState(currentAnimState) && hasActiveWeaponAnimation()) {
+      return weaponAnimator.isFinished();
+    }
+    return animator == null || animator.isFinished();
+  }
+
+  /** Returns true for the two laser states. */
+  private boolean isLaserState(AnimationState state) {
+    return state == AnimationState.LASER_LEFT || state == AnimationState.LASER_RIGHT;
+  }
+
+  /** Returns true when the weapon animator has an animation loaded. */
+  private boolean hasActiveWeaponAnimation() {
+    return weaponAnimator != null && weaponAnimator.getCurrentAnimation() != null;
+  }
+
+  /** Returns true when the entity has a physics component with a body. */
+  private boolean hasPhysicsBody() {
+    return physicsComponent != null && physicsComponent.getBody() != null;
+  }
+
+  /** Clears the attack flag, stops the weapon animation and returns to idle if there is no body. */
+  private void finishAttack() {
+    isAttacking = false;
+    if (hasActiveWeaponAnimation()) {
+      weaponAnimator.stopAnimation();
+    }
+    if (!hasPhysicsBody()) {
+      currentAnimState =
+          isFacingLeft(currentAnimState) ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
+      triggerStateEvent(currentAnimState);
+    }
   }
 }

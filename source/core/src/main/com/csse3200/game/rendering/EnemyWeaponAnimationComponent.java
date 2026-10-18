@@ -38,7 +38,7 @@ public class EnemyWeaponAnimationComponent extends RenderComponent {
    */
   public EnemyWeaponAnimationComponent(TextureAtlas atlas) {
     this.atlas = atlas;
-    this.animations = new HashMap<>(4);
+    this.animations = HashMap.newHashMap(4);
     this.timeSource = ServiceLocator.getTimeSource();
   }
 

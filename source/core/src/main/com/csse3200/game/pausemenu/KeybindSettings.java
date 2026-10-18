@@ -40,7 +40,6 @@ public final class KeybindSettings {
     defaultKeys.put("dropItem", Input.Keys.Q);
     defaultKeys.put("equipShield", Input.Keys.B);
     defaultKeys.put("interact", Input.Keys.E);
-    defaultKeys.put("shop", Input.Keys.H);
     defaultKeys.put("toggleQuestMenu", Input.Keys.J);
     defaultKeys.put("toggleTutorial", Input.Keys.T);
     defaultKeys.put("crouch", Input.Keys.CONTROL_LEFT);

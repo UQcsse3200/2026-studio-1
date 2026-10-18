@@ -9,7 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.csse3200.game.components.loot.ConsumableGenerator;
+import com.csse3200.game.components.loot.WeaponGenerator;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.services.ResourceService;
@@ -55,7 +58,9 @@ class ShopDisplayUpgradePopupSafetyTest {
     ServiceLocator.registerResourceService(mock(ResourceService.class));
 
     shopDisplay = new ShopDisplay();
-    shopComponent = new ShopComponent().seedDefaultCatalog();
+    shopComponent =
+        PlayerFactory.installDefaultCatalog(
+            new ShopComponent(), new WeaponGenerator(), new ConsumableGenerator());
     new Entity()
         .addComponent(shopComponent)
         .addComponent(new InventoryComponent(1000))
@@ -70,7 +75,7 @@ class ShopDisplayUpgradePopupSafetyTest {
 
   /**
    * Regression test for the actual reported bug: the Upgrades tab showed only
-   * ShopComponent.seedDefaultCatalog()'s hardcoded "Health Upgrade" placeholder in slot 1, with
+   * PlayerFactory.installDefaultCatalog()'s hardcoded "Health Upgrade" placeholder in slot 1, with
    * slots 2+ empty, because ShopDisplay.setUpgradesDisplay()/syncUpgradeCatalog() didn't exist on
    * this branch at all (confirmed via git history - never a lifecycle timing race). Now that
    * setUpgradesDisplay() is called (see beforeEach()), the catalog must be fully replaced with the
