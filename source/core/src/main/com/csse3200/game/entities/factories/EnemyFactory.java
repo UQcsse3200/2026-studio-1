@@ -732,7 +732,15 @@ public final class EnemyFactory {
         "gorgon_walk_l",
         "gorgon_walk_r");
     addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "gorgon_attack_l", "gorgon_attack_r");
-    addAnimations(animator, DEATH_FRAME_TIME, NORMAL, "gorgon_dead_l", "gorgon_dead_r");
+    addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "gorgon_petrify_l", "gorgon_petrify_r");
+    addAnimations(
+        animator,
+        DEATH_FRAME_TIME,
+        NORMAL,
+        "gorgon_death_l",
+        "gorgon_death_r",
+        "gorgon_dead_l",
+        "gorgon_dead_r");
     WeaponItem bite = WeaponItem.natural(MEDUSA_BITE_NAME, config.baseAttack, config.melee.windup);
     WeaponItem gaze = WeaponItem.natural(MEDUSA_GAZE_NAME, config.baseAttack, config.ranged.windup);
     addCommonParts(medusa, config, EnemyType.MEDUSA, inventory, animator);
