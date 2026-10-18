@@ -83,9 +83,7 @@ public class PerkSelectionDisplay extends UIComponent {
 
     Table popup = new Table(skin);
     popup.setBackground(
-            skin.newDrawable(
-                    WHITE,
-                    new Color(0.025f, 0.045f, 0.035f, mainMenuStyle ? 0.67f : 0.88f)));
+        skin.newDrawable(WHITE, new Color(0.025f, 0.045f, 0.035f, mainMenuStyle ? 0.67f : 0.88f)));
     popup.pad(30f);
     popup.defaults().space(10f);
 
