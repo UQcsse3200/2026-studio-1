@@ -106,7 +106,8 @@ class ShippedMapsTest {
           continue;
         }
 
-        LevelView destination = new MapDataLevelView(loader.load(destinationPath));
+        LevelMapData destinationMap = loader.load(destinationPath);
+        LevelView destination = new MapDataLevelView(destinationMap);
         String label = mapPath + " transition '" + doorway.getId() + "' arrives at " + arrival;
         if (!destination.inBounds(arrival.x, arrival.y)) {
           failures.add(label + " outside " + destinationPath);
@@ -117,10 +118,28 @@ class ShippedMapsTest {
         } else if (destination.isHazard(arrival.x, arrival.y - 1)) {
           failures.add(label + " above a hazard in " + destinationPath);
         }
+
+        for (RoomTransition destinationDoorway : destinationMap.getTransitions()) {
+          if (contains(destinationDoorway, arrival)) {
+            failures.add(
+                label
+                    + " inside destination transition '"
+                    + destinationDoorway.getId()
+                    + "', causing an immediate transition loop");
+          }
+        }
       }
     }
 
     assertTrue(failures.isEmpty(), () -> String.join("\n", failures));
+  }
+
+  private static boolean contains(RoomTransition doorway, GridPoint2 tile) {
+    GridPoint2 position = doorway.getPosition();
+    return tile.x >= position.x
+        && tile.x < position.x + doorway.getWidth()
+        && tile.y >= position.y
+        && tile.y < position.y + doorway.getHeight();
   }
 
   private static Set<Character> declaredSymbols(JsonValue legend) {
