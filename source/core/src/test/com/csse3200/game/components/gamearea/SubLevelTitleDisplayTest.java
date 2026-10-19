@@ -80,16 +80,18 @@ class SubLevelTitleDisplayTest {
 
   @Test
   void theTitleFadesInHoldsAndFadesOut() {
-    advance(0.1f);
+    player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, "DUNGEON");
+
+    advance(0.06f);
     assertTrue(title.isVisible());
     assertEquals(0.5f, title.getColor().a, TOLERANCE);
 
-    advance(0.5f);
+    advance(0.2f);
     assertEquals(1f, title.getColor().a, TOLERANCE);
-    assertEquals(0.68f, veil.getColor().a, TOLERANCE);
+    assertEquals(0.24f, veil.getColor().a, TOLERANCE);
     assertFalse(blurredBackground.isVisible(), "nothing captured yet");
 
-    advance(1.0f);
+    advance(0.45f);
     assertTrue(title.getColor().a > 0f && title.getColor().a < 1f, "fading out");
 
     advance(5f);
@@ -112,6 +114,7 @@ class SubLevelTitleDisplayTest {
   @Test
   void drawCapturesTheBackdropOnceAndLaysOutTheTitle() {
     SpriteBatch batch = mock(SpriteBatch.class);
+    player.getEvents().trigger(SubLevelEvents.SUB_LEVEL_ENTERED, "DUNGEON");
 
     display.draw(batch);
     display.draw(batch);
