@@ -220,11 +220,8 @@ public final class MapValidator {
       LevelMapData map, String name, Predicate<String> assetExists, List<Problem> problems) {
     for (RoomTransition transition : map.getTransitions()) {
       String doorway = aboutTransition(name, transition.getId());
-      GridPoint2 position = transition.getPosition();
 
-      if (outOfBounds(map, position.x, position.y)) {
-        problems.add(new Problem(Severity.ERROR, doorway + " at " + position + OUTSIDE_THE_MAP));
-      }
+      checkTransitionFootprint(map, transition, doorway, problems);
 
       String destination = transition.getDestinationMap();
       if (destination == null || destination.isBlank()) {
@@ -242,6 +239,43 @@ public final class MapValidator {
                 doorway
                     + " names no arrival tile, so the player lands on the destination's own"
                     + " player spawn"));
+      }
+    }
+  }
+
+  /** A doorway sensor must fit in the map and remain free of solid terrain across its whole area. */
+  private static void checkTransitionFootprint(
+      LevelMapData map,
+      RoomTransition transition,
+      String doorway,
+      List<Problem> problems) {
+    GridPoint2 position = transition.getPosition();
+    int maxX = position.x + transition.getWidth() - 1;
+    int maxY = position.y + transition.getHeight() - 1;
+    if (outOfBounds(map, position.x, position.y) || outOfBounds(map, maxX, maxY)) {
+      problems.add(
+          new Problem(
+              Severity.ERROR,
+              doorway
+                  + " footprint from "
+                  + position
+                  + " to ("
+                  + maxX
+                  + ","
+                  + maxY
+                  + ")"
+                  + OUTSIDE_THE_MAP));
+      return;
+    }
+
+    for (int y = position.y; y <= maxY; y++) {
+      for (int x = position.x; x <= maxX; x++) {
+        if (isSolid(map, x, y)) {
+          problems.add(
+              new Problem(
+                  Severity.ERROR,
+                  doorway + " overlaps solid terrain at (" + x + "," + y + ")"));
+        }
       }
     }
   }
