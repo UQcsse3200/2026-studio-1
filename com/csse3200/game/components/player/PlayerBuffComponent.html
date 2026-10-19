@@ -297,9 +297,8 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getSpeedMultiplier</span>()</div>
 <div class="block">Returns the movement speed multiplier from the active speed buff.
 
- <p>Movement speed belongs to PlayerActions, which this component does not modify. A movement
- component should multiply its target speed by this value for speed buffs to take effect in
- game.</div>
+ <p>The same value is handed to PlayerActions as a speed modifier whenever the buff starts or
+ expires, which is what actually changes how fast the player moves.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>speed multiplier, where 1.0 is unbuffed</dd>
@@ -327,9 +326,9 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getIncomingDamageMultiplier</span>()</div>
 <div class="block">Returns the multiplier applied to incoming damage.
 
- <p>This is where Resistance meets the damage pipeline: whatever applies damage to the player
- should multiply it by this value. Karan's shield cancels damage at the same point, so a blocked
- hit stays blocked and an unblocked hit is still reduced.</div>
+ <p><code>CombatStatsComponent.hit()</code> multiplies every hit by this value, after both shields
+ have had their chance to block it, so a blocked hit stays blocked and an unblocked hit is
+ reduced.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>incoming damage multiplier, where 1.0 is unreduced</dd>
