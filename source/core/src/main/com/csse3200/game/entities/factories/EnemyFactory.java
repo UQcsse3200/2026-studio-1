@@ -200,7 +200,7 @@ public final class EnemyFactory {
   private static final float CERBERUS_HEIGHT_RATIO = 96f / 150f;
 
   /** Zeus. */
-  private static final float ZEUS_HEIGHT_RATIO = 68f / 37f;
+  private static final float ZEUS_HEIGHT_RATIO = 256f / 192f;
 
   /** Harpy, Ranged Harpy. */
   private static final float HARPY_HEIGHT_RATIO = 25f / 38f;
@@ -821,8 +821,8 @@ public final class EnemyFactory {
     AnimationRenderComponent animator = newAnimator(ZEUS_ATLAS_PATH, true);
     addAnimations(animator, DEFAULT_FRAME_TIME, LOOP, "zeus_idle_l", "zeus_idle_r");
     addAnimations(animator, FAST_FRAME_TIME, LOOP, "zeus_walk_l", "zeus_walk_r");
-    addAnimations(animator, FAST_FRAME_TIME, NORMAL, "zeus_p_strike_l", "zeus_p_strike_r");
-    addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "zeus_slam_l", "zeus_slam_r");
+    addAnimations(animator, FAST_FRAME_TIME, NORMAL, "zeus_sword_l", "zeus_sword_r");
+    addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "zeus_lightning_l", "zeus_lightning_r");
     addAnimations(animator, DEATH_FRAME_TIME, NORMAL, "zeus_death_l", "zeus_death_r");
     WeaponItem sword = WeaponItem.natural(ZEUS_SWORD_NAME, config.baseAttack, config.melee.windup);
     WeaponItem lightning =

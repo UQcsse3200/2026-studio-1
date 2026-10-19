@@ -9,8 +9,8 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
 
 /**
  * This class listens to events relevant to a Zeus entity's state and plays the corresponding
- * animations (idle, walk, physical strike, slam/lightning cast, death) from the zeus atlas. It uses
- * the slam animation for the ranged lightning cast and the strike animation for melee attacks.
+ * animations (idle, walk, sword melee, lightning cast, death) from the zeus atlas. It uses the
+ * lightning animation for the ranged lightning cast and the sword animation for melee attacks.
  */
 public class ZeusAnimationController extends Component {
   private AnimationRenderComponent animator;
@@ -48,11 +48,14 @@ public class ZeusAnimationController extends Component {
     // Physical / sword melee strike listeners
     entity.getEvents().addListener("strikeLeftStart", this::animateStrikeL);
     entity.getEvents().addListener("strikeRightStart", this::animateStrikeR);
+    entity.getEvents().addListener("swordLeftStart", this::animateStrikeL);
+    entity.getEvents().addListener("swordRightStart", this::animateStrikeR);
     entity.getEvents().addListener("meleeLeftStart", this::animateStrikeL);
     entity.getEvents().addListener("meleeRightStart", this::animateStrikeR);
     entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
     entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
     entity.getEvents().addListener("strike", this::onMeleeAttack);
+    entity.getEvents().addListener("sword", this::onMeleeAttack);
 
     // Slam / lightning cast (ranged attack) listeners
     entity.getEvents().addListener("slamLeftStart", this::animateSlamL);
@@ -271,7 +274,7 @@ public class ZeusAnimationController extends Component {
     currentAnimState = AnimationState.STRIKE_LEFT;
     isAttacking = true;
     if (animator != null) {
-      animator.startAnimation("zeus_p_strike_l");
+      animator.startAnimation("zeus_sword_l");
     }
   }
 
@@ -279,7 +282,7 @@ public class ZeusAnimationController extends Component {
     currentAnimState = AnimationState.STRIKE_RIGHT;
     isAttacking = true;
     if (animator != null) {
-      animator.startAnimation("zeus_p_strike_r");
+      animator.startAnimation("zeus_sword_r");
     }
   }
 
@@ -287,7 +290,7 @@ public class ZeusAnimationController extends Component {
     currentAnimState = AnimationState.SLAM_LEFT;
     isAttacking = true;
     if (animator != null) {
-      animator.startAnimation("zeus_slam_l");
+      animator.startAnimation("zeus_lightning_l");
     }
   }
 
@@ -295,7 +298,7 @@ public class ZeusAnimationController extends Component {
     currentAnimState = AnimationState.SLAM_RIGHT;
     isAttacking = true;
     if (animator != null) {
-      animator.startAnimation("zeus_slam_r");
+      animator.startAnimation("zeus_lightning_r");
     }
   }
 
