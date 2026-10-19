@@ -243,12 +243,11 @@ public final class MapValidator {
     }
   }
 
-  /** A doorway sensor must fit in the map and remain free of solid terrain across its whole area. */
+  /**
+   * A doorway sensor must fit in the map and remain free of solid terrain across its whole area.
+   */
   private static void checkTransitionFootprint(
-      LevelMapData map,
-      RoomTransition transition,
-      String doorway,
-      List<Problem> problems) {
+      LevelMapData map, RoomTransition transition, String doorway, List<Problem> problems) {
     GridPoint2 position = transition.getPosition();
     int maxX = position.x + transition.getWidth() - 1;
     int maxY = position.y + transition.getHeight() - 1;
@@ -273,8 +272,7 @@ public final class MapValidator {
         if (isSolid(map, x, y)) {
           problems.add(
               new Problem(
-                  Severity.ERROR,
-                  doorway + " overlaps solid terrain at (" + x + "," + y + ")"));
+                  Severity.ERROR, doorway + " overlaps solid terrain at (" + x + "," + y + ")"));
         }
       }
     }
