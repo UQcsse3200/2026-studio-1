@@ -17,6 +17,8 @@ public class LadderComponent extends Component {
   private float direction;
   private boolean climbing;
   private boolean autoClimbing;
+  private boolean climbAnimationStarted = false;
+  private boolean idleAnimationStarted = false;
   private float autoElapsed;
   private float alignDuration;
   private float riseDuration;
@@ -140,10 +142,24 @@ public class LadderComponent extends Component {
     float routeEnd = ascentEnd + landingDuration;
     Vector2 next;
     if (autoElapsed < alignDuration) {
+      if (!idleAnimationStarted) {
+        entity.getEvents().trigger("idle", "Right");
+        idleAnimationStarted = true;
+      }
       next = autoStart.cpy().lerp(shaftEntry, autoElapsed / alignDuration);
     } else if (autoElapsed < ascentEnd) {
+      idleAnimationStarted = false;
+      if (!climbAnimationStarted) {
+        entity.getEvents().trigger("climb");
+        climbAnimationStarted = true;
+      }
       next = shaftEntry.cpy().lerp(shaftExit, (autoElapsed - alignDuration) / riseDuration);
     } else if (autoElapsed < routeEnd) {
+      climbAnimationStarted = false;
+      if (!idleAnimationStarted) {
+        entity.getEvents().trigger("idle", "Right");
+        idleAnimationStarted = true;
+      }
       next = shaftExit.cpy().lerp(landing, (autoElapsed - ascentEnd) / landingDuration);
     } else {
       next = landing;

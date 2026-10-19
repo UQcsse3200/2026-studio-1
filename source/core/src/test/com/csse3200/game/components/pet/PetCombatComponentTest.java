@@ -1,6 +1,7 @@
 package com.csse3200.game.components.pet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -332,6 +333,63 @@ class PetCombatComponentTest {
     when(timeSource.getDeltaTime()).thenReturn(0.1f);
     pet.update();
     assertEquals(List.of(target), attacks);
+  }
+
+  @Test
+  void shouldReportActiveTargetFromQueuedAttackThroughCooldown() {
+    Entity target = createCombatEntity(2f, 0f);
+    assertFalse(combat.hasActiveTarget());
+
+    combat.requestAttack(target);
+    assertTrue(combat.hasActiveTarget());
+    pet.update();
+    pet.update(); // Still waiting for the next shot, but combat is ongoing.
+
+    assertEquals(List.of(target), attacks);
+    assertTrue(combat.hasActiveTarget());
+  }
+
+  @Test
+  void shouldReportLatestTargetStateBeforeTheCombatUpdate() {
+    Entity first = createCombatEntity(2f, 0f);
+    combat.requestAttack(first);
+    pet.update();
+    Entity second = createCombatEntity(3f, 0f);
+    second.getComponent(CombatStatsComponent.class).setHealth(0);
+
+    combat.requestAttack(second);
+    assertFalse(combat.hasActiveTarget(), "A lethal new hit replaces the previous target.");
+    Entity third = createCombatEntity(4f, 0f);
+    combat.requestAttack(third);
+    assertTrue(combat.hasActiveTarget());
+    pet.update();
+    third.dispose();
+    assertFalse(combat.hasActiveTarget());
+  }
+
+  @Test
+  void shouldStopReportingCombatAsSoonAsOwnerDies() {
+    combat.requestAttack(createCombatEntity(2f, 0f));
+    pet.update();
+    assertTrue(combat.hasActiveTarget());
+
+    owner.getComponent(CombatStatsComponent.class).setHealth(0);
+
+    assertFalse(combat.hasActiveTarget());
+  }
+
+  @Test
+  void shouldClearCombatStateWhenDisabledAndWaitForANewRequest() {
+    Entity target = createCombatEntity(2f, 0f);
+    combat.requestAttack(target);
+    pet.update();
+    combat.setEnabled(false);
+    assertFalse(combat.hasActiveTarget());
+    combat.setEnabled(true);
+    assertFalse(combat.hasActiveTarget());
+
+    combat.requestAttack(target);
+    assertTrue(combat.hasActiveTarget());
   }
 
   private Entity createCombatEntity(float x, float y) {

@@ -12,13 +12,15 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.EnemyType;
 import com.csse3200.game.components.enemies.*;
+import com.csse3200.game.components.enemies.EnemyType;
 import com.csse3200.game.components.enemies.animation.*;
 import com.csse3200.game.components.enemies.attacks.*;
 import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.enemies.tasks.*;
 import com.csse3200.game.components.loot.*;
+import com.csse3200.game.components.npc.NameComponent;
+import com.csse3200.game.components.npc.NameGenerator;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.ItemDropComponent;
 import com.csse3200.game.components.projectile.ProjectileType;
@@ -152,7 +154,7 @@ public final class EnemyFactory {
   private static final float MEDIUM_COLLISION_Y = 0.5f;
 
   /** Minotaur. */
-  private static final float MINOTAUR_COLLISION_X = 0.8f;
+  private static final float MINOTAUR_COLLISION_X = 0.5f;
 
   /** Minotaur. */
   private static final float MINOTAUR_COLLISION_Y = 0.7f;
@@ -161,14 +163,17 @@ public final class EnemyFactory {
   private static final float MINOTAUR_FRAME_HEIGHT_PIXELS = 80f;
 
   /** Empty pixels under the Minotaur's feet. */
-  private static final float MINOTAUR_FOOT_PADDING_PIXELS = 16f;
+  private static final float MINOTAUR_FOOT_PADDING_PIXELS = 8f;
 
   // ---------- Size of each enemy ----------
   /** Skeleton, Ranged Skeleton, Harpy, Ranged Harpy. */
   private static final float SMALL_ENEMY_SCALE = 1f;
 
-  /** Minotaur, Centaur. */
+  /** Centaur. */
   private static final float LARGE_ENEMY_SCALE = 4f;
+
+  /** Minotaur. */
+  private static final float MINOTAUR_SCALE = 2.5f;
 
   /** Cyclops, Medusa, Zeus. */
   private static final float BOSS_SCALE = 2f;
@@ -504,7 +509,7 @@ public final class EnemyFactory {
     String enemyLabel = new EnemyTypeComponent(EnemyType.MINOTAUR).getEnemyLabel();
     requireTarget(target, enemyLabel);
     MinotaurConfig config = configs.minotaur;
-    float scale = LARGE_ENEMY_SCALE;
+    float scale = MINOTAUR_SCALE;
 
     Entity minotaur =
         createBasePlatformerEnemy(target, scale * MINOTAUR_COLLISION_X * FLOOR_PROBE_FRACTION);
@@ -614,6 +619,7 @@ public final class EnemyFactory {
     float scale = BOSS_SCALE;
     Entity cyclops =
         createBasePlatformerEnemy(target, scale * MEDIUM_COLLISION_X * FLOOR_PROBE_FRACTION);
+    cyclops.getComponent(NameComponent.class).setName("Cyclops");
     InventoryComponent inventory = new InventoryComponent(MINI_BOSS_GOLD); // gold only
     AnimationRenderComponent animator = newAnimator(CYCLOPS_ATLAS_PATH, true);
     addAnimations(
@@ -678,14 +684,14 @@ public final class EnemyFactory {
         target,
         LASER_TASK_PRIORITY,
         config.laser.range,
-        ProjectileType.ARROW,
+        ProjectileType.LASER,
         LASER_ATTACK_EVENT);
     addRangedTask(
         cyclops,
         target,
         RANGED_TASK_PRIORITY,
         config.rock.range,
-        ProjectileType.ARROW,
+        ProjectileType.ROCK,
         ROCK_ATTACK_EVENT);
     return finishEnemy(
         cyclops, animator, scale, CYCLOPS_HEIGHT_RATIO, MEDIUM_COLLISION_X, MEDIUM_COLLISION_Y);
@@ -714,6 +720,7 @@ public final class EnemyFactory {
         PetrifyEffectComponent.forShooter(config.petrify, config.ranged.cooldown);
     float scale = BOSS_SCALE;
     Entity medusa = createBaseStationaryEnemy();
+    medusa.getComponent(NameComponent.class).setName("Medusa");
     InventoryComponent inventory = new InventoryComponent(MINI_BOSS_GOLD);
     AnimationRenderComponent animator = newAnimator(MEDUSA_ATLAS_PATH, true);
     addAnimations(
@@ -808,6 +815,7 @@ public final class EnemyFactory {
     float scale = BOSS_SCALE;
     Entity zeus =
         createBasePlatformerEnemy(target, scale * MEDIUM_COLLISION_X * FLOOR_PROBE_FRACTION);
+    zeus.getComponent(NameComponent.class).setName("Zeus");
     // NO SWORD FOR ZEUS
     InventoryComponent inventory = new InventoryComponent(FINAL_BOSS_GOLD);
     AnimationRenderComponent animator = newAnimator(ZEUS_ATLAS_PATH, true);
@@ -823,8 +831,7 @@ public final class EnemyFactory {
     zeus.addComponent(meleeAttack(config.melee, sword));
     zeus.addComponent(rangedAttack(config.ranged, lightning));
     zeus.addComponent(new ZeusAnimationController());
-    // Zeus's tortoise drop goes here once TortoiseDropComponent is on the branch (see the
-    // commented addTortoiseDrop helper below).
+    // Zeus's tortoise drop
     addTortoiseDrop(zeus, ZEUS_TORTOISE_ID);
     addMeleeTask(zeus, target, config.melee.range);
     addRangedTask(
@@ -876,8 +883,11 @@ public final class EnemyFactory {
    *     flies
    * @return a new entity that is not yet created
    */
+  private static final NameGenerator NAME_GENERATOR = new NameGenerator();
+
   private static Entity newEnemyBody(AITaskComponent aiComponent, boolean grounded) {
     Entity enemyBody = new Entity();
+    enemyBody.addComponent(new NameComponent(NAME_GENERATOR.generateName()));
     enemyBody
         .addComponent(new PhysicsComponent())
         .addComponent(new PhysicsMovementComponent())
@@ -1205,7 +1215,7 @@ public final class EnemyFactory {
   }
 
   /**
-   * Replaces the Minotaur's collider with a box whose bottom is 16 of the sprite's 80 pixels above
+   * Replaces the Minotaur's collider with a box whose bottom is 8 of the sprite's 80 pixels above
    * the entity's bottom edge, so his feet touch the floor.
    *
    * @param minotaur the Minotaur after its scale has been set
@@ -1233,8 +1243,13 @@ public final class EnemyFactory {
    * @throws IllegalArgumentException if meleeRange is not strictly less than rangedRange
    */
   private static void validateMeleeRangeBelowRangedRange(float meleeRange, float rangedRange) {
-    // negated form so Nan is rejected too.
-    if (!(meleeRange < rangedRange)) {
+    if (Float.isNaN(meleeRange)) {
+      throw new IllegalArgumentException("melee range must be a number.");
+    }
+    if (Float.isNaN(rangedRange)) {
+      throw new IllegalArgumentException("ranged range must be a number.");
+    }
+    if (meleeRange >= rangedRange) {
       throw new IllegalArgumentException(
           "melee range " + meleeRange + " must be below ranged attack range " + rangedRange);
     }

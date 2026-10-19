@@ -27,7 +27,7 @@ public class SpecialAttackCooldownDisplay extends UIComponent {
     table = new Table();
     table.top().left();
     table.setFillParent(true);
-    table.padTop(275f).padLeft(8f);
+    table.padTop(200f).padLeft(8f);
 
     specialAttackLabel = new Label("", skin, "default");
     areaAttackLabel = new Label("", skin, "default");
@@ -62,7 +62,9 @@ public class SpecialAttackCooldownDisplay extends UIComponent {
   }
 
   @Override
-  public void draw(SpriteBatch batch) {}
+  public void draw(SpriteBatch batch) {
+    // Rendering is handled by the Stage actors created by this UI component.
+  }
 
   @Override
   public void dispose() {

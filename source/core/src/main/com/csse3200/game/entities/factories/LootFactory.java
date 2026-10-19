@@ -21,6 +21,7 @@ import com.csse3200.game.services.ServiceLocator;
 /** Factory for creating loot entities that can be picked up by the player. */
 public class LootFactory {
   private static final long DROPPER_PICKUP_DELAY_MILLIS = 450L;
+  private static final float GOLD_COIN_SCALE = 0.5f;
 
   /**
    * Creates a loot entity containing the given item.
@@ -90,6 +91,7 @@ public class LootFactory {
       animator.startAnimation("gold_coin");
 
       loot.addComponent(animator);
+      loot.setScale(GOLD_COIN_SCALE, GOLD_COIN_SCALE);
     }
 
     loot.addComponent(new PhysicsComponent())

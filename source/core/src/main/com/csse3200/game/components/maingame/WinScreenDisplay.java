@@ -253,7 +253,7 @@ public class WinScreenDisplay extends UIComponent {
     }
     int questsShort = result.getQuestsRequired() - result.getQuestsCompleted();
     if (questsShort > 0) {
-      if (text.length() > 0) {
+      if (!text.isEmpty()) {
         text.append("\n");
       }
       text.append(questsShort).append(questsShort == 1 ? " more quest" : " more quests");

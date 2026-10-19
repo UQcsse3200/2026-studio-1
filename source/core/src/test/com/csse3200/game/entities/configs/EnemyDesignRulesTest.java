@@ -49,17 +49,17 @@ class EnemyDesignRulesTest {
 
   @Test
   void medusaHealthShouldBeNearBossLevel() {
-    assertNear(150f, configs.medusa.health, BOSS_HEALTH_TOLERANCE, "Medusa health");
+    assertNear(150f, (float) configs.medusa.health, BOSS_HEALTH_TOLERANCE, "Medusa health");
   }
 
   @Test
   void cerberusHealthShouldBeNearBossLevel() {
-    assertNear(250f, configs.cerberus.health, BOSS_HEALTH_TOLERANCE, "Cerberus health");
+    assertNear(250f, (float) configs.cerberus.health, BOSS_HEALTH_TOLERANCE, "Cerberus health");
   }
 
   @Test
   void zeusHealthShouldBeNearBossLevel() {
-    assertNear(300f, configs.zeus.health, BOSS_HEALTH_TOLERANCE, "Zeus health");
+    assertNear(300f, (float) configs.zeus.health, BOSS_HEALTH_TOLERANCE, "Zeus health");
   }
 
   @Test

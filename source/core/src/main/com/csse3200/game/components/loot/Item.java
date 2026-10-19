@@ -71,7 +71,7 @@ public class Item {
   }
 
   public void setQuantity(int quantity) {
-    this.quantity = Math.max(0, Math.min(quantity, maxQuantity));
+    this.quantity = Math.clamp(quantity, 0, maxQuantity);
   }
 
   public void addQuantity(int delta) {
@@ -84,6 +84,17 @@ public class Item {
 
   public boolean isEmpty() {
     return quantity == 0;
+  }
+
+  /**
+   * Returns a new item with the same name, type, quantity, max stack, and sell price.
+   *
+   * @return a distinct item; subclasses preserve their own fields
+   */
+  public Item copy() {
+    Item copy = new Item(name, itemType, quantity, maxQuantity);
+    copy.setSellPrice(sellPrice);
+    return copy;
   }
 
   @Override

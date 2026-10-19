@@ -17,6 +17,7 @@ import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.WeaponAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -198,12 +199,12 @@ class WeaponAxeTest {
     Entity player = new Entity().addComponent(new WeaponAttackComponent(axe));
     player.create();
     List<Integer> swings = new ArrayList<>();
-    player.getEvents().addListener("axeAttack", (Integer damage) -> swings.add(damage));
+    player.getEvents().addListener("axeAttack", (EventListener1<Integer>) swings::add);
 
     assertDoesNotThrow(() -> player.getEvents().trigger("weaponAttack"));
 
     assertEquals(1, swings.size(), "one swing per attack");
-    assertEquals(12, swings.get(0));
+    assertEquals(12, swings.getFirst());
   }
 
   @Test
@@ -212,11 +213,11 @@ class WeaponAxeTest {
     Entity player = new Entity().addComponent(new WeaponAttackComponent(axe));
     player.create();
     List<Integer> swings = new ArrayList<>();
-    player.getEvents().addListener("axeAttack", (Integer damage) -> swings.add(damage));
+    player.getEvents().addListener("axeAttack", (EventListener1<Integer>) swings::add);
 
     player.getEvents().trigger("weaponAttack");
 
-    assertEquals(34, swings.get(0));
+    assertEquals(34, swings.getFirst());
   }
 
   @Test
@@ -225,7 +226,7 @@ class WeaponAxeTest {
     Entity player = new Entity().addComponent(new WeaponAttackComponent(axe));
     player.create();
     List<Integer> swordSwings = new ArrayList<>();
-    player.getEvents().addListener("swordAttack", (Integer damage) -> swordSwings.add(damage));
+    player.getEvents().addListener("swordAttack", (EventListener1<Integer>) swordSwings::add);
 
     player.getEvents().trigger("weaponAttack");
 
@@ -256,13 +257,13 @@ class WeaponAxeTest {
     inventory.addItem(axe); // slot 1 is the active slot
     List<Integer> axeSwings = new ArrayList<>();
     List<Integer> swordSwings = new ArrayList<>();
-    player.getEvents().addListener("axeAttack", (Integer damage) -> axeSwings.add(damage));
-    player.getEvents().addListener("swordAttack", (Integer damage) -> swordSwings.add(damage));
+    player.getEvents().addListener("axeAttack", (EventListener1<Integer>) axeSwings::add);
+    player.getEvents().addListener("swordAttack", (EventListener1<Integer>) swordSwings::add);
 
     player.getEvents().trigger("weaponAttack");
 
     assertEquals(1, axeSwings.size());
-    assertEquals(23, axeSwings.get(0));
+    assertEquals(23, axeSwings.getFirst());
     assertTrue(swordSwings.isEmpty());
   }
 

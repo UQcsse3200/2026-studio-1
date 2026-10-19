@@ -133,7 +133,7 @@ class ConsumableUseComponentTest {
     player.getComponent(InventoryComponent.class).addItem(healthPotion(1));
 
     List<ConsumableItem> consumed = new ArrayList<>();
-    player.getEvents().addListener("itemConsumed", (ConsumableItem item) -> consumed.add(item));
+    player.getEvents().<ConsumableItem>addListener("itemConsumed", consumed::add);
 
     player.getEvents().trigger("useItem", 1);
 
