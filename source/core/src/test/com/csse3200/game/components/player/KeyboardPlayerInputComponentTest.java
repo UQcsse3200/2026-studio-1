@@ -4,16 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.csse3200.game.components.PlatformerComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.KeybindSettings;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -207,5 +209,16 @@ class KeyboardPlayerInputComponentTest {
     assertEquals(1, inventory.getActiveSlot());
     assertSame(sword, inventory.getActiveItem());
     verify(petManager).switchActivePet(bird);
+  }
+
+  @Test
+  void ShouldnotSlideInMidair() {
+    Vector2 PlayerVector = new Vector2(1f, 1f);
+    PhysicsComponent physics = mock(PhysicsComponent.class);
+    PlatformerComponent platformerComponent = mock(PlatformerComponent.class);
+    Body body = mock(Body.class);
+    when(physics.getBody()).thenReturn(body);
+    when(body.getLinearVelocity()).thenReturn(PlayerVector);
+    assertEquals(false, platformerComponent.isGrounded());
   }
 }
