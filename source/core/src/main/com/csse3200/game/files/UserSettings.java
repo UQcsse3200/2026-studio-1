@@ -49,36 +49,13 @@ public class UserSettings {
     Gdx.graphics.setForegroundFPS(settings.fps);
     Gdx.graphics.setVSync(settings.vsync);
 
-    if (settings.fullscreen) {
-      // On macOS, switching the display resolution can crash the JVM natively,
-      // so use the screen's current resolution there instead.
-      DisplayMode displayMode = isMac() ? null : findMatching(settings.displayMode);
-      if (displayMode == null) {
-        displayMode = Gdx.graphics.getDisplayMode();
+      if (settings.fullscreen) {
+        // Switching the monitor's resolution crashes the game on some systems,
+        // so go fullscreen at the monitor's current resolution instead.
+        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+      } else {
+        Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
       }
-      Gdx.graphics.setFullscreenMode(displayMode);
-    } else {
-      Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
-    }
-  }
-
-  private static boolean isMac() {
-    return System.getProperty("os.name", "").toLowerCase().contains("mac");
-  }
-
-  private static DisplayMode findMatching(DisplaySettings desiredSettings) {
-    if (desiredSettings == null) {
-      return null;
-    }
-    for (DisplayMode displayMode : Gdx.graphics.getDisplayModes()) {
-      if (displayMode.refreshRate == desiredSettings.refreshRate
-          && displayMode.height == desiredSettings.height
-          && displayMode.width == desiredSettings.width) {
-        return displayMode;
-      }
-    }
-
-    return null;
   }
 
   /** Stores game settings, can be serialised/deserialised. */

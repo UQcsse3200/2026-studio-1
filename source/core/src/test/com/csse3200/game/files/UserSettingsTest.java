@@ -1,6 +1,5 @@
 package com.csse3200.game.files;
 
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,25 +34,20 @@ class UserSettingsTest {
   }
 
   @Test
-  void shouldFindMatchingDisplay() {
-    assumeFalse(System.getProperty("os.name", "").toLowerCase().contains("mac"));
+  void shouldUseCurrentDisplayModeEvenWhenResolutionSaved() {
     Gdx.graphics = mock(Graphics.class);
-    Gdx.graphics = mock(Graphics.class);
-    DisplayMode correctMode = new CustomDisplayMode(200, 100, 60, 0);
-    DisplayMode[] displayModes = {
-      new CustomDisplayMode(100, 200, 30, 0), new CustomDisplayMode(100, 200, 60, 0), correctMode
-    };
-    when(Gdx.graphics.getDisplayModes()).thenReturn(displayModes);
+    DisplayMode currentMode = mock(DisplayMode.class);
+    when(Gdx.graphics.getDisplayMode()).thenReturn(currentMode);
 
     Settings settings = new Settings();
     settings.displayMode = new DisplaySettings();
-    settings.displayMode.height = 100;
     settings.displayMode.width = 200;
+    settings.displayMode.height = 100;
     settings.displayMode.refreshRate = 60;
     settings.fullscreen = true;
     UserSettings.applySettings(settings);
 
-    verify(Gdx.graphics).setFullscreenMode(correctMode);
+    verify(Gdx.graphics).setFullscreenMode(currentMode);
   }
 
   /** This exists to make the constructor public */
