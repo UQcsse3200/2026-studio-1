@@ -27,6 +27,8 @@ public class CyclopsAnimationController extends Component {
   private static final String TAUNT_R = "cyclops_taunt_r";
   private static final String STOMP_L = "cyclops_stomp_l";
   private static final String STOMP_R = "cyclops_stomp_r";
+  private static final String DEATH_L = "cyclops_death_l";
+  private static final String DEATH_R = "cyclops_death_r";
   private static final String IDLE_RIGHT_START_EVENT = "idleRightStart";
 
   private AnimationRenderComponent animator;
@@ -34,6 +36,7 @@ public class CyclopsAnimationController extends Component {
   private PhysicsComponent physicsComponent;
   private AnimationState currentAnimState = null;
   private boolean isAttacking = false;
+  private boolean isDead = false;
 
   private enum AnimationState {
     IDLE_LEFT,
@@ -45,7 +48,9 @@ public class CyclopsAnimationController extends Component {
     LASER_LEFT,
     LASER_RIGHT,
     STOMP_LEFT,
-    STOMP_RIGHT
+    STOMP_RIGHT,
+    DEATH_LEFT,
+    DEATH_RIGHT
   }
 
   @Override
@@ -83,6 +88,11 @@ public class CyclopsAnimationController extends Component {
     entity.getEvents().addListener("rangedAttack", this::onRangedAttack);
     entity.getEvents().addListener("rangedAttackStart", this::onRockStart);
 
+    // Death listeners
+    entity.getEvents().addListener("deathLeftStart", this::animateDeathL);
+    entity.getEvents().addListener("deathRightStart", this::animateDeathR);
+    entity.getEvents().addListener("death", this::onDeath);
+
     // Trigger a default starting state
     entity.getEvents().trigger(IDLE_RIGHT_START_EVENT);
     currentAnimState = AnimationState.IDLE_RIGHT;
@@ -102,6 +112,10 @@ public class CyclopsAnimationController extends Component {
 
   @Override
   public void update() {
+    if (isDead) {
+      return;
+    }
+
     if (weaponAnimator == null && entity != null) {
       weaponAnimator = entity.getComponent(EnemyWeaponAnimationComponent.class);
     }
@@ -127,7 +141,8 @@ public class CyclopsAnimationController extends Component {
         || state == AnimationState.IDLE_LEFT
         || state == AnimationState.ROCK_LEFT
         || state == AnimationState.LASER_LEFT
-        || state == AnimationState.STOMP_LEFT;
+        || state == AnimationState.STOMP_LEFT
+        || state == AnimationState.DEATH_LEFT;
   }
 
   private boolean isTargetToLeft(Entity target) {
@@ -187,11 +202,17 @@ public class CyclopsAnimationController extends Component {
       case STOMP_RIGHT:
         entity.getEvents().trigger("stompRightStart");
         break;
+      case DEATH_LEFT:
+        entity.getEvents().trigger("deathLeftStart");
+        break;
+      case DEATH_RIGHT:
+        entity.getEvents().trigger("deathRightStart");
+        break;
     }
   }
 
   private void onRockThrow(Entity target) {
-    if (isAttacking) {
+    if (isDead || isAttacking) {
       return;
     }
     currentAnimState =
@@ -200,7 +221,7 @@ public class CyclopsAnimationController extends Component {
   }
 
   private void onLaserAttack(Entity target) {
-    if (isAttacking) {
+    if (isDead || isAttacking) {
       return;
     }
     currentAnimState =
@@ -213,7 +234,7 @@ public class CyclopsAnimationController extends Component {
   }
 
   private void onMeleeAttack(Entity target) {
-    if (isAttacking) {
+    if (isDead || isAttacking) {
       return;
     }
     currentAnimState =
@@ -329,6 +350,39 @@ public class CyclopsAnimationController extends Component {
     if (animator != null) {
       animator.startAnimation(STOMP_R);
     }
+  }
+
+  private void onDeath() {
+    isDead = true;
+    isAttacking = false;
+    if (weaponAnimator != null && weaponAnimator.getCurrentAnimation() != null) {
+      weaponAnimator.stopAnimation();
+    }
+    currentAnimState =
+        isFacingLeft(currentAnimState) ? AnimationState.DEATH_LEFT : AnimationState.DEATH_RIGHT;
+    triggerStateEvent(currentAnimState);
+  }
+
+  void animateDeathL() {
+    isDead = true;
+    isAttacking = false;
+    currentAnimState = AnimationState.DEATH_LEFT;
+    if (animator != null) {
+      animator.startAnimation(DEATH_L);
+    }
+  }
+
+  void animateDeathR() {
+    isDead = true;
+    isAttacking = false;
+    currentAnimState = AnimationState.DEATH_RIGHT;
+    if (animator != null) {
+      animator.startAnimation(DEATH_R);
+    }
+  }
+
+  public boolean isDead() {
+    return isDead;
   }
 
   public boolean isAttacking() {
