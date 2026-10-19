@@ -1,7 +1,10 @@
 package com.csse3200.game.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
@@ -15,6 +18,8 @@ import com.csse3200.game.rendering.RenderService;
 import com.csse3200.game.rendering.Renderer;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +38,8 @@ public class PerksScreen extends ScreenAdapter {
 
   private final GdxGame game;
   private final Renderer renderer;
+  private final List<Texture> perkTextures = new ArrayList<>();
+  private Texture backgroundTexture;
 
   public PerksScreen(GdxGame game) {
     this.game = game;
@@ -45,6 +52,9 @@ public class PerksScreen extends ScreenAdapter {
     PerkDefinitions.registerAll();
 
     renderer = RenderFactory.createRenderer();
+
+    loadPerkTextures();
+    backgroundTexture = new Texture(Gdx.files.internal("images/ui/main-menu-bg.png"));
 
     createUI();
   }
@@ -68,6 +78,10 @@ public class PerksScreen extends ScreenAdapter {
     renderer.dispose();
     ServiceLocator.getRenderService().dispose();
     ServiceLocator.getEntityService().dispose();
+    for (Texture texture : perkTextures) {
+      texture.dispose();
+    }
+    perkTextures.clear();
 
     ServiceLocator.clear();
   }
@@ -76,12 +90,32 @@ public class PerksScreen extends ScreenAdapter {
    * Creates the perks screen's ui: the perk-selection display and its input handling, shown
    * immediately since this screen has nothing else on it.
    */
+  private void loadPerkTextures() {
+    String[] paths = {
+      "images/ui/perks/shield-enhancement.png",
+      "images/ui/perks/max-health.png",
+      "images/ui/perks/time-freeze.png",
+      "images/ui/perks/loot-drop.png"
+    };
+
+    for (String path : paths) {
+      perkTextures.add(new Texture(Gdx.files.internal(path)));
+    }
+  }
+
   private void createUI() {
     logger.debug("Creating ui");
+    logger.debug("Background texture: {}", backgroundTexture);
+    logger.debug("Perk textures loaded: {}", perkTextures.size());
     Stage stage = ServiceLocator.getRenderService().getStage();
+    Image background = new Image(backgroundTexture);
+    background.setFillParent(true);
+    stage.addActor(background);
+    background.toBack();
 
     PerkSelectionDisplay perkSelectionDisplay =
-        new PerkSelectionDisplay(() -> game.setScreen(GdxGame.ScreenType.MAIN_MENU));
+        new PerkSelectionDisplay(
+            () -> game.setScreen(GdxGame.ScreenType.MAIN_MENU), true, perkTextures);
 
     Entity ui = new Entity();
     ui.addComponent(perkSelectionDisplay)
