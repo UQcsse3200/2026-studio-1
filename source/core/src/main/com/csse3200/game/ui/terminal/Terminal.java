@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ public class Terminal extends Component {
   private static final Logger logger = LoggerFactory.getLogger(Terminal.class);
   private static final long OUTPUT_DURATION_NANOS = TimeUnit.SECONDS.toNanos(10);
   private final Map<String, Command> commands;
+  private final LongSupplier nanoTime;
   private String enteredMessage = "";
   private String outputMessage = "";
   private long outputStartedAt;
@@ -29,7 +31,12 @@ public class Terminal extends Component {
   }
 
   public Terminal(Map<String, Command> commands) {
+    this(commands, System::nanoTime);
+  }
+
+  Terminal(Map<String, Command> commands, LongSupplier nanoTime) {
     this.commands = commands;
+    this.nanoTime = nanoTime;
 
     addCommand("debug", new DebugCommand());
   }
@@ -141,11 +148,11 @@ public class Terminal extends Component {
   /** Shows a command result briefly, even after a successful command closes the terminal. */
   public void showOutputMessage(String message) {
     outputMessage = message;
-    outputStartedAt = System.nanoTime();
+    outputStartedAt = nanoTime.getAsLong();
   }
 
   public String getOutputMessage() {
-    if (System.nanoTime() - outputStartedAt >= OUTPUT_DURATION_NANOS) {
+    if (nanoTime.getAsLong() - outputStartedAt >= OUTPUT_DURATION_NANOS) {
       return "";
     }
     return outputMessage;

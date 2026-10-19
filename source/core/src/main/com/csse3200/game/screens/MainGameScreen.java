@@ -78,6 +78,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -742,8 +743,7 @@ public class MainGameScreen extends ScreenAdapter {
     logger.info("God mode {}", enabled ? "enabled" : "disabled");
   }
 
-  private void setUnlimitedStamina(boolean enabled) {
-    Entity player = getPlayerEntity();
+  static void applyUnlimitedStamina(Entity player, boolean enabled) {
     StaminaComponent stamina = player == null ? null : player.getComponent(StaminaComponent.class);
     if (stamina == null) {
       logger.warn("Cannot change unlimited stamina: the current player has no stamina component");
@@ -754,13 +754,17 @@ public class MainGameScreen extends ScreenAdapter {
     logger.info("Unlimited stamina {}", enabled ? "enabled" : "disabled");
   }
 
-  private WhereCommand.Location getWhereLocation() {
-    Entity player = getPlayerEntity();
+  static WhereCommand.Location whereLocation(LevelGameArea area, String mapPath) {
+    if (area == null) {
+      return null;
+    }
+
+    Entity player = area.getPlayer();
     if (player == null) {
       return null;
     }
 
-    LevelView level = levelGameArea.getLevel();
+    LevelView level = area.getLevel();
     if (level == null) {
       return null;
     }
@@ -771,7 +775,7 @@ public class MainGameScreen extends ScreenAdapter {
     SubLevel section = level.subLevelAt(tileY);
 
     return new WhereCommand.Location(
-        level.name(), currentRoomMapPath, section == null ? "none" : section.id(), tileX, tileY);
+        level.name(), mapPath, section == null ? "none" : section.id(), tileX, tileY);
   }
 
   private void createSubLevelTravelPrompt(Entity player) {
@@ -837,7 +841,7 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /** Creates the main game's UI. */
-  private void createUI() {
+  void createUI() {
     logger.debug("Creating ui");
 
     Stage stage = ServiceLocator.getRenderService().getStage();
@@ -869,9 +873,6 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
-    terminal.addCommand("stamina", new StaminaCommand(this::setUnlimitedStamina));
-    terminal.addCommand(
-        "where", new WhereCommand(this::getWhereLocation, terminal::showOutputMessage));
     terminal.addCommand("perk", new PerkCommand());
     terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
@@ -922,11 +923,26 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
     terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
-    terminal.addCommand(
-        "horde", new HordeCommand(() -> levelGameArea, terminal::showOutputMessage));
     terminal.addCommand("hide", new InventoryCommand(this::getPlayerEntity));
+    registerDeveloperCommands(
+        terminal, this::getPlayerEntity, () -> levelGameArea, () -> currentRoomMapPath);
 
     ServiceLocator.getEntityService().register(ui);
+  }
+
+  /** Keeps debug commands connected to the current player and room after transitions. */
+  static void registerDeveloperCommands(
+      Terminal terminal,
+      Supplier<Entity> player,
+      Supplier<LevelGameArea> area,
+      Supplier<String> mapPath) {
+    terminal.addCommand(
+        "stamina", new StaminaCommand(enabled -> applyUnlimitedStamina(player.get(), enabled)));
+    terminal.addCommand(
+        "where",
+        new WhereCommand(
+            () -> whereLocation(area.get(), mapPath.get()), terminal::showOutputMessage));
+    terminal.addCommand("horde", new HordeCommand(area, terminal::showOutputMessage));
   }
 
   public HashMap<String, Runnable> createLocationMap() {
