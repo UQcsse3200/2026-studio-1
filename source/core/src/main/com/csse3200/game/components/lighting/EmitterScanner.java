@@ -83,8 +83,7 @@ public final class EmitterScanner {
         if (def == null) continue;
 
         // add the spec for the tile
-        if (!specs.containsKey(def)) specs.put(def, specFor(def));
-        if (specs.get(def) == null) continue;
+        if (specs.computeIfAbsent(def, EmitterScanner::specFor) == null) continue;
         // puts true if the tile is a light source
         masks.computeIfAbsent(def, d -> new boolean[layer.getWidth()][layer.getHeight()])[x][y] =
             true;

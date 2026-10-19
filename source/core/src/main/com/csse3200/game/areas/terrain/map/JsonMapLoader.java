@@ -228,9 +228,9 @@ public class JsonMapLoader implements MapLoader {
   private record SplitLayers(List<MapLayerData> layers, String[] entityRows) {
     @Override
     public boolean equals(Object o) {
-      return o instanceof SplitLayers other
-          && layers.equals(other.layers)
-          && Arrays.equals(entityRows, other.entityRows);
+      return o instanceof SplitLayers(List<MapLayerData> otherLayers, String[] otherEntityRows)
+          && layers.equals(otherLayers)
+          && Arrays.equals(entityRows, otherEntityRows);
     }
 
     @Override
