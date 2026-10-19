@@ -35,6 +35,8 @@ public class PauseMenuDisplay extends UIComponent {
   private static final Color PANEL_COLOR = new Color(0.03f, 0.06f, 0.04f, 0.95f);
   private static final Color SELECTED_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
   private static final Color SELECTED_TEXT = Color.CYAN;
+  private static final String BUTTON_STYLE = "button";
+  private static final String BUTTON_PRESSED_STYLE = "button-pressed";
   private static final Color UNSELECTED_TEXT = Color.WHITE;
   private static final float INACTIVE_PANEL_ALPHA = 0.55f;
   private static final float PANEL_GAP = 25f;
@@ -282,11 +284,11 @@ public class PauseMenuDisplay extends UIComponent {
     confirmContent.add(restartConfirmMessageLabel).width(620f).center().padBottom(22f).row();
 
     Table yesRow = new Table();
-    yesRow.setBackground(skin.getDrawable("button"));
+    yesRow.setBackground(skin.getDrawable(BUTTON_STYLE));
     yesRow.add(restartYesLabel).center().expandX().pad(10f, 20f, 10f, 20f);
 
     Table noRow = new Table();
-    noRow.setBackground(skin.getDrawable("button"));
+    noRow.setBackground(skin.getDrawable(BUTTON_STYLE));
     noRow.add(restartNoLabel).center().expandX().pad(10f, 20f, 10f, 20f);
 
     confirmContent.add(yesRow).width(220f).padBottom(10f).row();
@@ -358,7 +360,7 @@ public class PauseMenuDisplay extends UIComponent {
       labelsOut[i] = label;
 
       Table row = new Table();
-      row.setBackground(skin.getDrawable("button"));
+      row.setBackground(skin.getDrawable(BUTTON_STYLE));
       row.add(label).pad(10f, 25f, 10f, 25f).center();
       addRowInteraction(row, ownerState, i, true);
       panel.add(row).left().padBottom(4f).fillX();
@@ -875,17 +877,14 @@ public class PauseMenuDisplay extends UIComponent {
     restartNoLabel.setText(noSelected ? ">  NO  <" : "NO");
 
     restartYesLabel.getStyle().fontColor = yesSelected ? SELECTED_TEXT : UNSELECTED_TEXT;
-
     restartNoLabel.getStyle().fontColor = noSelected ? SELECTED_TEXT : UNSELECTED_TEXT;
 
-    if (restartYesLabel.getParent() instanceof Table) {
-      ((Table) restartYesLabel.getParent())
-          .setBackground(skin.getDrawable(yesSelected ? "button-pressed" : "button"));
+    if (restartYesLabel.getParent() instanceof Table table) {
+      table.setBackground(skin.getDrawable(yesSelected ? BUTTON_PRESSED_STYLE : BUTTON_STYLE));
     }
 
-    if (restartNoLabel.getParent() instanceof Table) {
-      ((Table) restartNoLabel.getParent())
-          .setBackground(skin.getDrawable(noSelected ? "button-pressed" : "button"));
+    if (restartNoLabel.getParent() instanceof Table table) {
+      table.setBackground(skin.getDrawable(noSelected ? BUTTON_PRESSED_STYLE : BUTTON_STYLE));
     }
   }
 
@@ -896,7 +895,7 @@ public class PauseMenuDisplay extends UIComponent {
       labels[i].getStyle().fontColor = Color.WHITE;
 
       Table row = (Table) labels[i].getParent();
-      row.setBackground(skin.getDrawable(selected ? "button-pressed" : "button"));
+      row.setBackground(skin.getDrawable(selected ? BUTTON_PRESSED_STYLE : BUTTON_STYLE));
     }
   }
 
