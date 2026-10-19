@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 public class PlayerRenderComponent extends AnimationRenderComponent {
-  private final TextureAtlas playerAtlas;
 
   /**
    * Create the component for a given texture atlas.
@@ -15,7 +14,6 @@ public class PlayerRenderComponent extends AnimationRenderComponent {
    */
   public PlayerRenderComponent(TextureAtlas playerAtlas) {
     super(playerAtlas);
-    this.playerAtlas = playerAtlas;
   }
 
   @Override

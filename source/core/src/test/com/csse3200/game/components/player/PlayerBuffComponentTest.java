@@ -4,10 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.csse3200.game.components.CombatStatsComponent;
+import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.services.GameTime;
@@ -256,5 +261,86 @@ class PlayerBuffComponentTest {
     assertEquals(2, buffs.getActiveBuffs().size(), "speed and damage buffs should both be active");
     assertEquals(2f, buffs.getSpeedMultiplier(), "the speed buff should apply");
     assertEquals(2f, buffs.getDamageMultiplier(), "the damage buff should apply");
+  }
+
+  /** A speed buff only changes movement once PlayerActions, which owns movement, receives it. */
+  @Test
+  void shouldPassTheSpeedBuffToPlayerActionsAndRemoveItOnExpiry() {
+    PlayerActions actions = mock(PlayerActions.class);
+    when(actions.getPrio()).thenReturn(ComponentPriority.LOW);
+    Entity mover = new Entity().addComponent(actions).addComponent(new PlayerBuffComponent());
+    mover.create();
+    PlayerBuffComponent moverBuffs = mover.getComponent(PlayerBuffComponent.class);
+
+    moverBuffs.applyBuff(BuffStat.SPEED, 1.5f, 10f);
+    verify(actions).addSpeedModifier(moverBuffs, 1.5f);
+
+    when(time.getTime()).thenReturn(10000L);
+    mover.update();
+    verify(actions).removeSpeedModifier(moverBuffs);
+  }
+
+  /** Drinking a stronger speed potion should update the modifier rather than add a second one. */
+  @Test
+  void shouldUpdateTheSpeedModifierWhenAStrongerPotionReplacesIt() {
+    PlayerActions actions = mock(PlayerActions.class);
+    when(actions.getPrio()).thenReturn(ComponentPriority.LOW);
+    Entity mover = new Entity().addComponent(actions).addComponent(new PlayerBuffComponent());
+    mover.create();
+    PlayerBuffComponent moverBuffs = mover.getComponent(PlayerBuffComponent.class);
+
+    moverBuffs.applyBuff(BuffStat.SPEED, 1.5f, 10f);
+    moverBuffs.applyBuff(BuffStat.SPEED, 2f, 10f);
+
+    verify(actions).addSpeedModifier(moverBuffs, 2f);
+  }
+
+  /** Buffs on other stats must not add a speed modifier to PlayerActions. */
+  @Test
+  void shouldNotAddASpeedModifierForOtherBuffs() {
+    PlayerActions actions = mock(PlayerActions.class);
+    when(actions.getPrio()).thenReturn(ComponentPriority.LOW);
+    Entity mover = new Entity().addComponent(actions).addComponent(new PlayerBuffComponent());
+    mover.create();
+
+    mover.getComponent(PlayerBuffComponent.class).applyBuff(BuffStat.DAMAGE, 2f, 10f);
+
+    verify(actions, never()).addSpeedModifier(any(), anyFloat());
+  }
+
+  /** Acceptance criterion: Resistance lowers the damage a hit actually deals. */
+  @Test
+  void shouldReduceDamageTakenWhileResistanceIsActive() {
+    CombatStatsComponent attacker = new CombatStatsComponent(100, 10);
+    buffs.applyBuff(BuffStat.RESISTANCE, 0.7f, 10f);
+
+    stats.hit(attacker, 10);
+    assertEquals(93, stats.getHealth(), "0.7 resistance should cut a 10 damage hit to 7");
+
+    when(time.getTime()).thenReturn(10000L);
+    player.update();
+    stats.hit(attacker, 10);
+    assertEquals(83, stats.getHealth(), "full damage should return once resistance expires");
+  }
+
+  /** Resistance softens hits but never makes the player immune. */
+  @Test
+  void shouldStillDealAtLeastOneDamageThroughResistance() {
+    buffs.applyBuff(BuffStat.RESISTANCE, 0.2f, 10f);
+
+    stats.hit(new CombatStatsComponent(100, 1), 1);
+
+    assertEquals(99, stats.getHealth(), "a 1 damage hit should not be reduced to 0");
+  }
+
+  /** A shield blocks the hit before Resistance is applied, so the hit stays fully blocked. */
+  @Test
+  void shouldKeepAShieldBlockedHitFullyBlocked() {
+    stats.setShieldHits(1);
+    buffs.applyBuff(BuffStat.RESISTANCE, 0.5f, 10f);
+
+    stats.hit(new CombatStatsComponent(100, 10), 10);
+
+    assertEquals(100, stats.getHealth(), "the shield should block the whole hit");
   }
 }

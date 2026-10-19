@@ -146,6 +146,7 @@ public class InventoryDisplay extends UIComponent {
 
   // --- State ---------------------------------------------------------------------------------
   private Table hudTable;
+  private Table goldTable;
   private Table tooltipTable;
   private Label.LabelStyle labelStyle;
   private boolean hidden = false;
@@ -200,18 +201,21 @@ public class InventoryDisplay extends UIComponent {
   private void createInventory() {
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
 
+    // Hotbar only (items + pets). Its size is what other HUD parts anchor to.
     hudTable = new Table();
-
-    hudTable.add(createGoldPill(inventory.getGold())).left().padBottom(8f);
-    hudTable.row();
     hudTable.add(createHotbarRow(inventory));
-
     hudTable.pack();
-
     positionHud();
-
     hudTable.setVisible(!hidden);
     stage.addActor(hudTable);
+
+    // Gold counter is a separate actor, placed to the right of the hotbar.
+    goldTable = new Table();
+    goldTable.add(createGoldPill(inventory.getGold()));
+    goldTable.pack();
+    positionGold();
+    goldTable.setVisible(!hidden);
+    stage.addActor(goldTable);
 
     popHotkey = null;
   }
@@ -570,6 +574,17 @@ public class InventoryDisplay extends UIComponent {
     float y = BOTTOM_MARGIN;
 
     hudTable.setPosition(x, y);
+  }
+
+  /** Places the gold counter just right of the hotbar, vertically centred on it. */
+  private void positionGold() {
+    float screenWidth = stage.getViewport().getWorldWidth();
+
+    float x = hudTable.getX() + hudTable.getWidth() + GROUP_GAP;
+    x = Math.min(x, screenWidth - goldTable.getWidth()); // never run off-screen
+    float y = hudTable.getY() + (hudTable.getHeight() - goldTable.getHeight()) / 2f;
+
+    goldTable.setPosition(x, y);
   }
 
   // ===========================================================================================
@@ -1044,6 +1059,10 @@ public class InventoryDisplay extends UIComponent {
       hudTable.remove();
       hudTable = null;
     }
+    if (goldTable != null) {
+      goldTable.remove();
+      goldTable = null;
+    }
 
     createInventory();
   }
@@ -1094,6 +1113,11 @@ public class InventoryDisplay extends UIComponent {
     if (hudTable != null) {
       hudTable.remove();
       hudTable = null;
+    }
+
+    if (goldTable != null) {
+      goldTable.remove();
+      goldTable = null;
     }
 
     if (tooltipTable != null) {
@@ -1231,6 +1255,9 @@ public class InventoryDisplay extends UIComponent {
     if (hudTable != null) {
       hudTable.setVisible(!hidden);
       System.out.println("InventoryTable is hidden: " + hudTable.isVisible());
+    }
+    if (goldTable != null) {
+      goldTable.setVisible(!hidden);
     }
   }
 }

@@ -1,6 +1,7 @@
 package com.csse3200.game.components;
 
 import com.csse3200.game.components.player.BallisticShieldComponent;
+import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.entities.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +126,15 @@ public class CombatStatsComponent extends Component {
       return;
     }
 
+    // A Resistance potion scales the hit after both shields, so a blocked hit stays blocked. A
+    // reduced hit still deals at least 1 damage, so the potion softens hits rather than making the
+    // player immune.
     int actualDamage = damage;
+    PlayerBuffComponent buffs =
+        entity == null ? null : entity.getComponent(PlayerBuffComponent.class);
+    if (buffs != null && damage > 0) {
+      actualDamage = Math.max(1, Math.round(damage * buffs.getIncomingDamageMultiplier()));
+    }
 
     boolean wasAlive = !isDead();
 

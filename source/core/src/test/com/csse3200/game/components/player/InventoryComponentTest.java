@@ -1020,4 +1020,38 @@ class InventoryComponentTest {
     assertEquals("Bird", inventory.getPet(1).getName());
     assertEquals("Bat", inventory.getPet(2).getName());
   }
+
+  @Test
+  void shouldFireInventoryChangedOnSuccessfulPetReplacement() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 5, events);
+
+    inventory.addPet(new ShopComponent.Pet("Bird"));
+    inventory.addPet(new ShopComponent.Pet("Bat"));
+    events.set(0);
+
+    assertTrue(inventory.replacePet(2, new ShopComponent.Pet("Spirit")));
+
+    assertEquals(1, events.get());
+    assertEquals("Spirit", inventory.getPet(2).getName());
+  }
+
+  @Test
+  void shouldNotFireInventoryChangedOnFailedPetReplacement() {
+    AtomicInteger events = new AtomicInteger();
+    InventoryComponent inventory = attachedInventory(0, 5, events);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    inventory.addPet(bird);
+    inventory.addPet(bat);
+    events.set(0);
+
+    assertFalse(inventory.replacePet(1, bat));
+
+    assertEquals(0, events.get());
+    assertSame(bird, inventory.getPet(1));
+    assertSame(bat, inventory.getPet(2));
+  }
 }

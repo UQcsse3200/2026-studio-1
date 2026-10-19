@@ -65,7 +65,7 @@ public class StaminaComponent extends Component {
   }
 
   public void setStamina(float stamina) {
-    this.stamina = unlimitedStamina ? MAX_STAMINA : Math.max(0f, Math.min(stamina, MAX_STAMINA));
+    this.stamina = unlimitedStamina ? MAX_STAMINA : Math.clamp(stamina, 0f, MAX_STAMINA);
     entity.getEvents().trigger("updateStamina", this.stamina);
   }
 

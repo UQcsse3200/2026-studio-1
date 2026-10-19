@@ -21,6 +21,8 @@ import com.csse3200.game.components.player.BallisticShieldRenderComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
 import com.csse3200.game.components.player.DeathLootDropComponent;
 import com.csse3200.game.components.player.DeathStateComponent;
+import com.csse3200.game.components.player.FrozenIndicatorDisplay;
+import com.csse3200.game.components.player.FrozenTintComponent;
 import com.csse3200.game.components.player.GamblingCatalogs;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.InventoryDisplay;
@@ -143,6 +145,8 @@ public class PlayerFactory {
             .addComponent(new ShopDisplay())
             .addComponent(new WeaponRenderComponent())
             .addComponent(new SpeedEffectComponent())
+            .addComponent(new FrozenIndicatorDisplay())
+            .addComponent(new FrozenTintComponent())
             .addComponent(new HealthEffectComponent());
 
     PlayerRenderComponent animator = new PlayerRenderComponent(playerAtlas);

@@ -761,6 +761,10 @@ public class MainGameScreen extends ScreenAdapter {
     }
 
     LevelView level = levelGameArea.getLevel();
+    if (level == null) {
+      return null;
+    }
+
     Vector2 center = player.getCenterPosition();
     int tileX = (int) Math.floor(center.x / level.tileSize());
     int tileY = (int) Math.floor(center.y / level.tileSize());
