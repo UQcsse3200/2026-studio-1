@@ -199,6 +199,8 @@ public final class MapValidator {
             new Problem(
                 Severity.ERROR,
                 about(name) + "loot spawn " + spawn.getPosition() + OUTSIDE_THE_MAP));
+      } else {
+        describeFooting(map, spawn.getPosition(), "loot spawn", name, problems);
       }
     }
     for (Marker marker : spawns.getAllMarkers()) {
@@ -212,6 +214,8 @@ public final class MapValidator {
                     + "' at "
                     + marker.position()
                     + OUTSIDE_THE_MAP));
+      } else if ("npc".equals(marker.kind())) {
+        describeFooting(map, marker.position(), "NPC marker", name, problems);
       }
     }
   }
