@@ -6,11 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -33,8 +37,11 @@ import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,10 +66,21 @@ class AimedArrowTest {
   private static final float SPEED = 8f;
   private static final float TOLERANCE = 1e-3f;
   private final List<Entity> world = new ArrayList<>();
+  private final Queue<Runnable> postedRunnables = new ArrayDeque<>();
+  private Application originalApp;
 
   @BeforeEach
   void beforeEach() {
     world.clear();
+    originalApp = Gdx.app;
+    Gdx.app = mock(Application.class);
+    doAnswer(
+            invocation -> {
+              postedRunnables.add(invocation.getArgument(0));
+              return null;
+            })
+        .when(Gdx.app)
+        .postRunnable(any(Runnable.class));
     Texture texture = mock(Texture.class);
     when(texture.getWidth()).thenReturn(16);
     when(texture.getHeight()).thenReturn(16);
@@ -75,6 +93,12 @@ class AimedArrowTest {
     ServiceLocator.registerRenderService(mock(RenderService.class));
     ServiceLocator.registerPhysicsService(new PhysicsService());
     ServiceLocator.registerEntityService(new EntityService());
+  }
+
+  @AfterEach
+  void afterEach() {
+    Gdx.app = originalApp;
+    postedRunnables.clear();
   }
 
   // ---------- strategy: velocity ----------
@@ -512,6 +536,11 @@ class AimedArrowTest {
   private void stepWorld(int steps) {
     for (int i = 0; i < steps; i++) {
       ServiceLocator.getPhysicsService().getPhysics().update();
+      // Collision callbacks queue projectile despawns. Run them only after Box2D unlocks.
+      while (!postedRunnables.isEmpty()) {
+        assertFalse(ServiceLocator.getPhysicsService().getPhysics().getWorld().isLocked());
+        postedRunnables.remove().run();
+      }
       for (Entity entity : new ArrayList<>(world)) {
         entity.earlyUpdate();
         entity.update();

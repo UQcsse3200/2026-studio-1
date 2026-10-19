@@ -33,98 +33,98 @@ public class Quest {
   }
 
   // Jump quest functions start
-  public static boolean logJumpQuest(int NPCId, int jumpsToDo) {
-    if (questActiveForNPCID.get(NPCId)) {
+  public static boolean logJumpQuest(int npcID, int jumpsToDo) {
+    if (questActiveForNPCID.get(npcID)) {
       return false;
     } else {
-      jumpQuestTracker.set(NPCId, new JumpQuest(jumpsToDo));
-      questActiveForNPCID.set(NPCId, true);
+      jumpQuestTracker.set(npcID, new JumpQuest(jumpsToDo));
+      questActiveForNPCID.set(npcID, true);
       return true;
     }
   }
 
-  public static int checkJumpQuestComplete(int NPCId) {
-    if (jumpQuestTracker.get(NPCId) != null) {
-      return jumpQuestTracker.get(NPCId).checkQuestProgress();
+  public static int checkJumpQuestComplete(int npcID) {
+    if (jumpQuestTracker.get(npcID) != null) {
+      return jumpQuestTracker.get(npcID).checkQuestProgress();
     } else {
       // There is no jumpQuest to check because it wasn't set up
       return -1;
     }
   }
 
-  public static void clearJumpQuest(int NPCId) {
+  public static void clearJumpQuest(int npcID) {
     // Only clear the quest if a quest has been set.
-    if (jumpQuestTracker.get(NPCId) != null) {
-      jumpQuestTracker.set(NPCId, null);
-      questActiveForNPCID.set(NPCId, false);
+    if (jumpQuestTracker.get(npcID) != null) {
+      jumpQuestTracker.set(npcID, null);
+      questActiveForNPCID.set(npcID, false);
     }
   }
 
   // Jump Quest functions end
   // EnemiesKilledQuest functions start
-  public static boolean logEnemiesKilledQuest(int NPCId, int enemiesToKill) {
-    if (questActiveForNPCID.get(NPCId)) {
+  public static boolean logEnemiesKilledQuest(int npcID, int enemiesToKill) {
+    if (questActiveForNPCID.get(npcID)) {
       return false;
     } else {
-      enemiesKilledQuestTracker.set(NPCId, new EnemiesKilledQuest(enemiesToKill));
-      questActiveForNPCID.set(NPCId, true);
+      enemiesKilledQuestTracker.set(npcID, new EnemiesKilledQuest(enemiesToKill));
+      questActiveForNPCID.set(npcID, true);
       return true;
     }
   }
 
-  public static int checkEnemiesKilledQuest(int NPCId) {
-    if (enemiesKilledQuestTracker.get(NPCId) != null) {
-      return enemiesKilledQuestTracker.get(NPCId).checkQuestProgress();
+  public static int checkEnemiesKilledQuest(int npcID) {
+    if (enemiesKilledQuestTracker.get(npcID) != null) {
+      return enemiesKilledQuestTracker.get(npcID).checkQuestProgress();
     } else {
       // No EnemiesKilledQuest was set for the NPC in the enemiesKilledQuestTracker
       return -1;
     }
   }
 
-  public static void clearEnemiesKilledQuest(int NPCId) {
+  public static void clearEnemiesKilledQuest(int npcID) {
     // Only clear the quest if there's a quest to clear
-    if (enemiesKilledQuestTracker.get(NPCId) != null) {
-      enemiesKilledQuestTracker.set(NPCId, null);
-      questActiveForNPCID.set(NPCId, false);
+    if (enemiesKilledQuestTracker.get(npcID) != null) {
+      enemiesKilledQuestTracker.set(npcID, null);
+      questActiveForNPCID.set(npcID, false);
     }
   }
 
   // EnemiesKilledQuest functions end
   // GoldSpentQuest function start
-  public static boolean logGoldSpentQuest(int NPCId, int amountOfGoldToSpend) {
-    if (questActiveForNPCID.get(NPCId)) {
+  public static boolean logGoldSpentQuest(int npcID, int amountOfGoldToSpend) {
+    if (questActiveForNPCID.get(npcID)) {
       return false;
     } else {
-      goldSpentQuestTracker.set(NPCId, new GoldSpentQuest(amountOfGoldToSpend));
-      questActiveForNPCID.set(NPCId, true);
+      goldSpentQuestTracker.set(npcID, new GoldSpentQuest(amountOfGoldToSpend));
+      questActiveForNPCID.set(npcID, true);
       return true;
     }
   }
 
-  public static int checkGoldSpentQuest(int NPCId) {
-    if (goldSpentQuestTracker.get(NPCId) != null) {
-      return goldSpentQuestTracker.get(NPCId).checkQuestProgress();
+  public static int checkGoldSpentQuest(int npcID) {
+    if (goldSpentQuestTracker.get(npcID) != null) {
+      return goldSpentQuestTracker.get(npcID).checkQuestProgress();
     } else {
       // There is no quest created for that NPCId
       return -1;
     }
   }
 
-  public static void clearGoldSpentQuest(int NPCId) {
-    if (goldSpentQuestTracker.get(NPCId) != null) {
-      goldSpentQuestTracker.set(NPCId, null);
-      questActiveForNPCID.set(NPCId, false);
+  public static void clearGoldSpentQuest(int npcID) {
+    if (goldSpentQuestTracker.get(npcID) != null) {
+      goldSpentQuestTracker.set(npcID, null);
+      questActiveForNPCID.set(npcID, false);
     }
   }
 
   // GoldSpentQuest functions end
   // ShieldsCollectedQuest functions start
-  public static boolean logShieldsCollectedQuest(int NPCId, int amountOfShieldsToCollect) {
-    if (questActiveForNPCID.get(NPCId)) {
+  public static boolean logShieldsCollectedQuest(int npcID, int amountOfShieldsToCollect) {
+    if (questActiveForNPCID.get(npcID)) {
       return false;
     } else {
-      shieldsCollectedQuestTracker.set(NPCId, new ShieldsCollectedQuest(amountOfShieldsToCollect));
-      questActiveForNPCID.set(NPCId, true);
+      shieldsCollectedQuestTracker.set(npcID, new ShieldsCollectedQuest(amountOfShieldsToCollect));
+      questActiveForNPCID.set(npcID, true);
       return true;
     }
   }
@@ -138,10 +138,10 @@ public class Quest {
     }
   }
 
-  public static void clearShieldsCollectedQuest(int NPCId) {
-    if (shieldsCollectedQuestTracker.get(NPCId) != null) {
-      shieldsCollectedQuestTracker.set(NPCId, null);
-      questActiveForNPCID.set(NPCId, false);
+  public static void clearShieldsCollectedQuest(int npcID) {
+    if (shieldsCollectedQuestTracker.get(npcID) != null) {
+      shieldsCollectedQuestTracker.set(npcID, null);
+      questActiveForNPCID.set(npcID, false);
     }
   }
 
@@ -178,19 +178,19 @@ public class Quest {
     globalShieldsCollected++;
   }
 
-  public static float getGlobalJumps() {
+  public static int getGlobalJumps() {
     return globalJumps;
   }
 
-  public static float getGlobalEnemiesKilled() {
+  public static int getGlobalEnemiesKilled() {
     return globalEnemiesKilled;
   }
 
-  public static float getGlobalGoldSpent() {
+  public static int getGlobalGoldSpent() {
     return globalGoldSpent;
   }
 
-  public static float getGlobalShieldsCollected() {
+  public static int getGlobalShieldsCollected() {
     return globalShieldsCollected;
   }
 

@@ -12,14 +12,14 @@ import com.csse3200.game.entities.Entity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class GoldSpentQuestTest {
+class GoldSpentQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
   static Entity player;
   static Item weapon;
 
   @BeforeEach
-  public void createAQuestEntity() {
+  void createAQuestEntity() {
     entity = new Entity();
     player = new Entity();
     weapon = (new WeaponGenerator()).generateWeapon(WeaponType.SWORD, 1);
@@ -28,7 +28,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testIfCompletingAGoldSpentQuestWorks() {
+  void testIfCompletingAGoldSpentQuestWorks() {
     if (Quest.getQuestActiveForNPCID().get(questGiverComponent.uniqueNPCID)) {
       fail(
           "The test testIfCompletingAGoldSpentQuestWorks failed because Quest.getQuestActiveForNPCID()"
@@ -62,7 +62,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testMultipleSettingOfGoldSpentQuest() {
+  void testMultipleSettingOfGoldSpentQuest() {
     Entity entity1 = new Entity();
     Entity entity2 = new Entity();
     Entity entity3 = new Entity();
@@ -135,7 +135,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testCheckGoldSpentCompleteWhenNoQuestWasMade() {
+  void testCheckGoldSpentCompleteWhenNoQuestWasMade() {
     if (questGiverComponent.clearGoldSpentQuest()) {
       fail(
           "The function clearGoldSpentQuest() should have returned false when there's no quest to clear but didn't");
@@ -149,7 +149,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testIfGoldSpentChangesProgressOfQuest() {
+  void testIfGoldSpentChangesProgressOfQuest() {
     player = new Entity();
     questGiverComponent.logGoldSpentQuest(100);
     InventoryComponent inventory = new InventoryComponent(100);
@@ -163,7 +163,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testIfGoldSpentGivesAProgressValueOver100() {
+  void testIfGoldSpentGivesAProgressValueOver100() {
     player = new Entity();
     questGiverComponent.logGoldSpentQuest(5);
     InventoryComponent inventory = new InventoryComponent(100);
@@ -176,7 +176,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testIfGivingGoldToSpendAsZeroThrows() {
+  void testIfGivingGoldToSpendAsZeroThrows() {
     int number = 0;
     assertThrows(
         IllegalArgumentException.class,
@@ -188,7 +188,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testIfGoldRewardIsGivenIfGoldSpentQuestCompletedAndCleared() {
+  void testIfGoldRewardIsGivenIfGoldSpentQuestCompletedAndCleared() {
     int goldToSpend = 10;
     ShopComponent shopComponent = new ShopComponent();
     InventoryComponent inventoryComponent = new InventoryComponent(goldToSpend);
@@ -203,7 +203,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testIfItemRewardIsGivenIfGoldSpentQuestCompletedAndCleared() {
+  void testIfItemRewardIsGivenIfGoldSpentQuestCompletedAndCleared() {
     int goldToSpend = 10;
     ShopComponent shopComponent = new ShopComponent();
     InventoryComponent inventoryComponent = new InventoryComponent(goldToSpend);
@@ -219,7 +219,7 @@ public class GoldSpentQuestTest {
   }
 
   @Test
-  public void testIfRewardIsGivenIfGoldSpentQuestIsNotCompletedButCleared() {
+  void testIfRewardIsGivenIfGoldSpentQuestIsNotCompletedButCleared() {
     int goldToSpend = 0;
     ShopComponent shopComponent = new ShopComponent();
     InventoryComponent inventoryComponent = new InventoryComponent(goldToSpend);

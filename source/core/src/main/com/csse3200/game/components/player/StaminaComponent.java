@@ -14,6 +14,7 @@ public class StaminaComponent extends Component {
   private float stamina = MAX_STAMINA;
   private float regenDelayRemaining = 0f;
   private float regenMultiplier = 1f;
+  private boolean unlimitedStamina;
 
   public float getRegenMultiplier() {
     return regenMultiplier;
@@ -41,10 +42,13 @@ public class StaminaComponent extends Component {
   }
 
   public boolean hasEnoughStamina(float amount) {
-    return stamina >= amount;
+    return unlimitedStamina || stamina >= amount;
   }
 
   public void useStamina(float amount) {
+    if (unlimitedStamina) {
+      return;
+    }
     stamina = Math.max(0f, stamina - amount);
     regenDelayRemaining = REGEN_DELAY;
     entity.getEvents().trigger("updateStamina", stamina);
@@ -61,8 +65,17 @@ public class StaminaComponent extends Component {
   }
 
   public void setStamina(float stamina) {
-    this.stamina = Math.max(0f, Math.min(stamina, MAX_STAMINA));
+    this.stamina = unlimitedStamina ? MAX_STAMINA : Math.clamp(stamina, 0f, MAX_STAMINA);
     entity.getEvents().trigger("updateStamina", this.stamina);
+  }
+
+  /** Enables or disables the developer-only unlimited stamina mode. */
+  public void setUnlimitedStamina(boolean enabled) {
+    unlimitedStamina = enabled;
+    if (enabled) {
+      regenDelayRemaining = 0f;
+      setStamina(MAX_STAMINA);
+    }
   }
 
   public float getDashCost() {

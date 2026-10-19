@@ -29,6 +29,8 @@ public class QuestDisplay extends UIComponent {
   private final Set<GoldSpentQuest> completedGoldSpentQuest = new HashSet<>();
   private final Set<ShieldsCollectedQuest> completedShieldsCollectedQuest = new HashSet<>();
 
+  private static final String TIME_LORD = "timeLord";
+
   @Override
   public void create() {
     super.create();
@@ -117,7 +119,7 @@ public class QuestDisplay extends UIComponent {
         addQuestLabel("✓ Shields Collected Quest");
       }
     }
-    if (!PerkService.getPerk("timeLord").isUnlocked()
+    if (!PerkService.getPerk(TIME_LORD).isUnlocked()
         && completedEnemiesKilledQuest.isEmpty()
         && completedJumpQuests.isEmpty()
         && completedGoldSpentQuest.isEmpty()

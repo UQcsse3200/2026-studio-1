@@ -3,11 +3,13 @@ package com.csse3200.game.areas.terrain.map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.GridPoint2;
+import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.entities.factories.EnemyFactory;
 import com.csse3200.game.entities.factories.NPCFactory;
 import com.csse3200.game.entities.spawn.EntitySpawnRegistry;
@@ -111,7 +113,7 @@ class SideRoomsTest {
                 44,
                 22,
                 "maps/level1-greek.json",
-                new GridPoint2(53, 40),
+                new GridPoint2(4, 40),
                 "gorgon-gallery-door",
                 counts("medusa", 1, "skeleton", 4, "ranged-skeleton", 3, "harpy", 2),
                 3)),
@@ -122,7 +124,7 @@ class SideRoomsTest {
                 40,
                 40,
                 "maps/level1-greek.json",
-                new GridPoint2(53, 48),
+                new GridPoint2(53, 46),
                 "minotaur-labyrinth-door",
                 counts("minotaur", 1, "centaur", 1, "skeleton", 3, "ranged-skeleton", 2),
                 2)),
@@ -133,7 +135,7 @@ class SideRoomsTest {
                 60,
                 22,
                 "maps/level1-greek.json",
-                new GridPoint2(53, 54),
+                new GridPoint2(4, 52),
                 "shades-barracks-door",
                 counts("minotaur", 1, "skeleton", 8, "ranged-skeleton", 4),
                 3)),
@@ -233,9 +235,155 @@ class SideRoomsTest {
       assertEquals(3, door.getHeight());
       assertEquals(1, door.getWidth());
       assertEquals(room.parent(), door.getDestinationMap());
-      assertEquals(room.parentArrival(), door.getDestinationSpawn());
       assertNotNull(door.getTexture(), "a visible door");
     }
+    assertEquals(room.parentArrival(), entry.getDestinationSpawn());
+    GridPoint2 expectedExitArrival =
+        switch (room.path()) {
+          case "maps/nether-hounds-den.json" -> new GridPoint2(50, 40);
+          case "maps/nether-gorgon-gallery.json" -> new GridPoint2(4, 46);
+          case "maps/nether-minotaur-labyrinth.json" -> new GridPoint2(53, 52);
+          case "maps/nether-shades-barracks.json" -> new GridPoint2(4, 61);
+          default -> room.parentArrival();
+        };
+    assertEquals(expectedExitArrival, exit.getDestinationSpawn());
+  }
+
+  @Test
+  void firstNetherRoomMustBeCompletedToReachTheSecondLayer() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+    LevelMapData houndsDen = loader.load("maps/nether-hounds-den.json");
+
+    for (int x = 0; x < nether.getWidth(); x++) {
+      assertTrue(view.isSolid(x, 39), "the first layer has a solid ceiling at x=" + x);
+    }
+    assertEquals(new GridPoint2(50, 34), houndsDen.getTransitions().get(0).getDestinationSpawn());
+    assertEquals(new GridPoint2(50, 40), houndsDen.getTransitions().get(1).getDestinationSpawn());
+    assertFalse(view.isSolid(50, 40), "the room exit lands above the ceiling");
+    assertTrue(view.isSupporting(50, 39), "the room exit has a floor beneath it");
+  }
+
+  @Test
+  void rightSideNetherLadderIsRemovedWithoutOpeningTheDividerFloors() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+
+    for (int y = 34; y <= 50; y++) {
+      assertNotSame(TileType.LADDER, view.tileTypeAt(52, y), "old ladder tile at y=" + y);
+    }
+    for (int y : new int[] {39, 45, 51}) {
+      assertTrue(view.isSolid(52, y), "the divider floor remains sealed at y=" + y);
+    }
+  }
+
+  @Test
+  void secondNetherRoomMustBeCompletedToReachTheThirdLayer() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+    LevelMapData gallery = loader.load("maps/nether-gorgon-gallery.json");
+
+    RoomTransition entrance =
+        nether.getTransitions().stream()
+            .filter(door -> door.getId().equals("gorgon-gallery-door"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(new GridPoint2(2, 40), entrance.getPosition());
+    for (int x = 0; x < nether.getWidth(); x++) {
+      assertTrue(view.isSolid(x, 45), "the second layer has a solid ceiling at x=" + x);
+    }
+    for (int x = 2; x <= 7; x++) {
+      assertFalse(view.isSolid(x, 40), "the left-hand entrance is accessible at x=" + x);
+      assertFalse(view.isHazard(x, 40), "the entrance path avoids lava at x=" + x);
+      assertFalse(view.isSolid(x, 46), "the third-layer exit is accessible at x=" + x);
+      assertFalse(view.isHazard(x, 46), "the third-layer exit avoids lava at x=" + x);
+    }
+    assertEquals(new GridPoint2(4, 40), gallery.getTransitions().get(0).getDestinationSpawn());
+    assertEquals(new GridPoint2(4, 46), gallery.getTransitions().get(1).getDestinationSpawn());
+    assertTrue(view.isSupporting(4, 39), "the back door lands on the second-layer floor");
+    assertTrue(view.isSupporting(4, 45), "the completion exit lands on the third-layer floor");
+    RoomTransition nextEntrance =
+        nether.getTransitions().stream()
+            .filter(door -> door.getId().equals("minotaur-labyrinth-door"))
+            .findFirst()
+            .orElseThrow();
+    RoomTransition firstEntrance =
+        nether.getTransitions().stream()
+            .filter(door -> door.getId().equals("hounds-den-door"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(new GridPoint2(55, 46), nextEntrance.getPosition());
+    assertEquals(
+        entrance.getPosition().y - firstEntrance.getPosition().y,
+        nextEntrance.getPosition().y - entrance.getPosition().y,
+        "the first and second layers have matching heights");
+  }
+
+  @Test
+  void netherRightWallHasNoGapsOutsideRoomDoors() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+
+    for (int y = 37; y <= 44; y++) {
+      assertTrue(view.isSolid(54, y), "the inner right wall is closed at y=" + y);
+      assertTrue(view.isSolid(55, y), "the outer right wall is closed at y=" + y);
+    }
+    for (int y = 49; y <= 50; y++) {
+      assertTrue(view.isSolid(54, y), "the inner right wall is closed at y=" + y);
+      assertTrue(view.isSolid(55, y), "the outer right wall is closed at y=" + y);
+    }
+    assertTrue(view.isWalkable(55, 34), "the first-room door remains accessible");
+    for (int y = 46; y <= 48; y++) {
+      assertTrue(view.isWalkable(55, y), "the third-room door remains accessible at y=" + y);
+    }
+  }
+
+  @Test
+  void thirdNetherRoomLeadsToTheFourthAndFourthRoomUnlocksTheTopLayer() {
+    LevelMapData nether = loader.load("maps/level1-greek.json");
+    LevelView view = new MapDataLevelView(nether);
+    LevelMapData labyrinth = loader.load("maps/nether-minotaur-labyrinth.json");
+    LevelMapData barracks = loader.load("maps/nether-shades-barracks.json");
+
+    for (int x = 0; x < nether.getWidth(); x++) {
+      assertTrue(view.isSolid(x, 51), "the third layer has a solid ceiling at x=" + x);
+    }
+    RoomTransition entrance =
+        nether.getTransitions().stream()
+            .filter(door -> door.getId().equals("shades-barracks-door"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(new GridPoint2(2, 52), entrance.getPosition());
+    assertEquals(new GridPoint2(53, 46), labyrinth.getTransitions().get(0).getDestinationSpawn());
+    assertEquals(new GridPoint2(53, 52), labyrinth.getTransitions().get(1).getDestinationSpawn());
+    assertEquals(new GridPoint2(4, 52), barracks.getTransitions().get(0).getDestinationSpawn());
+    assertEquals(new GridPoint2(4, 61), barracks.getTransitions().get(1).getDestinationSpawn());
+    assertTrue(view.isSupporting(53, 51), "the third-room exit lands above its entrance");
+    assertTrue(view.isSupporting(4, 51), "the fourth-room entrance has a floor");
+    assertTrue(view.isSupporting(4, 60), "the fourth-room exit lands above its entrance");
+    for (int x = 2; x <= 54; x++) {
+      assertTrue(view.isWalkable(x, 52), "the route across the fourth layer is open at x=" + x);
+    }
+    for (int y = 52; y <= 56; y++) {
+      assertFalse(view.isSolid(4, y), "the fourth-layer route is open on the left");
+      assertTrue(view.isWalkable(52, y), "the old ladder is no longer a shortcut");
+    }
+    for (int x = 0; x < nether.getWidth(); x++) {
+      assertTrue(view.isSolid(x, 57), "the fourth layer is sealed from the top at x=" + x);
+    }
+    assertTrue(view.isSolid(52, 58), "the old ladder shaft is filled with blocks");
+    assertTrue(view.isSolid(52, 59), "the old ladder shaft is filled with blocks");
+    for (int x = 4; x <= 52; x++) {
+      assertTrue(view.isSupporting(x, 60), "the top layer has a continuous floor at x=" + x);
+      assertTrue(view.isWalkable(x, 61), "the top layer has a clear path at x=" + x);
+      assertTrue(view.isWalkable(x, 62), "the player has headroom at x=" + x);
+    }
+    RoomTransition levelTwoGate =
+        nether.getTransitions().stream()
+            .filter(door -> door.getId().equals("nether-gate-to-room2"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(new GridPoint2(52, 61), levelTwoGate.getPosition());
   }
 
   @ParameterizedTest(name = "{0}")

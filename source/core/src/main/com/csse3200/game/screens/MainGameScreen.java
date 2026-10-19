@@ -30,6 +30,7 @@ import com.csse3200.game.components.maingame.WinScreenInputComponent;
 import com.csse3200.game.components.player.NoclipInputComponent;
 import com.csse3200.game.components.player.ProgressionMiniMapDisplay;
 import com.csse3200.game.components.player.ShopDisplay;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.components.player.SubLevelTravelComponent;
 import com.csse3200.game.components.story.StoryCutscene;
 import com.csse3200.game.difficulty.Difficulty;
@@ -741,6 +742,38 @@ public class MainGameScreen extends ScreenAdapter {
     logger.info("God mode {}", enabled ? "enabled" : "disabled");
   }
 
+  private void setUnlimitedStamina(boolean enabled) {
+    Entity player = getPlayerEntity();
+    StaminaComponent stamina = player == null ? null : player.getComponent(StaminaComponent.class);
+    if (stamina == null) {
+      logger.warn("Cannot change unlimited stamina: the current player has no stamina component");
+      return;
+    }
+
+    stamina.setUnlimitedStamina(enabled);
+    logger.info("Unlimited stamina {}", enabled ? "enabled" : "disabled");
+  }
+
+  private WhereCommand.Location getWhereLocation() {
+    Entity player = getPlayerEntity();
+    if (player == null) {
+      return null;
+    }
+
+    LevelView level = levelGameArea.getLevel();
+    if (level == null) {
+      return null;
+    }
+
+    Vector2 center = player.getCenterPosition();
+    int tileX = (int) Math.floor(center.x / level.tileSize());
+    int tileY = (int) Math.floor(center.y / level.tileSize());
+    SubLevel section = level.subLevelAt(tileY);
+
+    return new WhereCommand.Location(
+        level.name(), currentRoomMapPath, section == null ? "none" : section.id(), tileX, tileY);
+  }
+
   private void createSubLevelTravelPrompt(Entity player) {
 
     subLevelTravelPromptEntity =
@@ -836,10 +869,16 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
+    terminal.addCommand("stamina", new StaminaCommand(this::setUnlimitedStamina));
+    terminal.addCommand(
+        "where", new WhereCommand(this::getWhereLocation, terminal::showOutputMessage));
     terminal.addCommand("perk", new PerkCommand());
     terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
     PauseMenuComponent pauseMenuComponent = new PauseMenuComponent();
+    KeyboardPauseInput keyboardPauseInput = new KeyboardPauseInput();
+    keyboardPauseInput.setPauseBlocked(
+        () -> deathScreenDisplay.isVisible() || winScreenDisplay.isVisible());
 
     UpgradesMenuComponent upgradesMenuComponent = new UpgradesMenuComponent();
 
@@ -863,7 +902,7 @@ public class MainGameScreen extends ScreenAdapter {
         .addComponent(noclipInputComponent)
         .addComponent(new TerminalDisplay())
         .addComponent(pauseMenuComponent)
-        .addComponent(new KeyboardPauseInput())
+        .addComponent(keyboardPauseInput)
         .addComponent(new PauseMenuDisplay())
         .addComponent(pauseMenuActions)
         .addComponent(new PauseMenuInputComponent())
@@ -883,6 +922,8 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
     terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
+    terminal.addCommand(
+        "horde", new HordeCommand(() -> levelGameArea, terminal::showOutputMessage));
     terminal.addCommand("hide", new InventoryCommand(this::getPlayerEntity));
 
     ServiceLocator.getEntityService().register(ui);

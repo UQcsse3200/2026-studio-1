@@ -128,4 +128,33 @@ class KeyboardPauseInputTest {
 
     assertTrue(input.keyUp(Input.Keys.K));
   }
+
+  @Test
+  void pauseKeyDoesNothingWhileTheDeathOrWinScreenIsShowing() {
+    input.setPauseBlocked(() -> true);
+
+    assertFalse(input.keyDown(pauseKey));
+
+    assertFalse(pauseMenu.isPaused());
+  }
+
+  @Test
+  void pauseWorksAgainOnceTheScreenCloses() {
+    boolean[] blocked = {true};
+    input.setPauseBlocked(() -> blocked[0]);
+    input.keyDown(pauseKey);
+
+    blocked[0] = false;
+
+    assertTrue(input.keyDown(pauseKey));
+    assertTrue(pauseMenu.isPaused());
+  }
+
+  @Test
+  void nullCheckNeverBlocksPause() {
+    input.setPauseBlocked(null);
+
+    assertTrue(input.keyDown(pauseKey));
+    assertTrue(pauseMenu.isPaused());
+  }
 }

@@ -7,7 +7,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.player.ConsumableUseComponent;
+import com.csse3200.game.components.player.FrozenIndicatorDisplay;
+import com.csse3200.game.components.player.FrozenTintComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
 import com.csse3200.game.entities.Entity;
@@ -67,5 +70,22 @@ class PlayerFactoryTest {
     assertNotNull(
         player.getComponent(PlayerRegenComponent.class),
         "player should be able to receive regeneration potions");
+  }
+
+  /**
+   * The frozen indicator reads the player's speed effect, so the player needs all three: the effect
+   * that reports the freeze, the countdown label and the tint.
+   */
+  @Test
+  void shouldGiveThePlayerTheFrozenIndicator() {
+    Entity player = PlayerFactory.createPlayer();
+
+    assertNotNull(
+        player.getComponent(SpeedEffectComponent.class), "player should report speed effects");
+    assertNotNull(
+        player.getComponent(FrozenIndicatorDisplay.class),
+        "player should show a frozen countdown label");
+    assertNotNull(
+        player.getComponent(FrozenTintComponent.class), "player should be tinted while frozen");
   }
 }

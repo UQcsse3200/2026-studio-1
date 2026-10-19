@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +17,11 @@ import org.slf4j.LoggerFactory;
  */
 public class Terminal extends Component {
   private static final Logger logger = LoggerFactory.getLogger(Terminal.class);
+  private static final long OUTPUT_DURATION_NANOS = TimeUnit.SECONDS.toNanos(10);
   private final Map<String, Command> commands;
   private String enteredMessage = "";
+  private String outputMessage = "";
+  private long outputStartedAt;
   private boolean isOpen = false;
 
   public Terminal() {
@@ -56,6 +60,7 @@ public class Terminal extends Component {
   /** Opens the terminal. */
   public void setOpen() {
     logger.debug("Opening terminal");
+    outputMessage = "";
     isOpen = true;
   }
 
@@ -98,6 +103,7 @@ public class Terminal extends Component {
     ArrayList<String> args = new ArrayList<>(Arrays.asList(sections).subList(1, sections.length));
 
     if (commands.containsKey(command)) {
+      outputMessage = "";
       setEnteredMessage("");
       return commands.get(command).action(args);
     }
@@ -130,5 +136,18 @@ public class Terminal extends Component {
    */
   public void setEnteredMessage(String text) {
     enteredMessage = text;
+  }
+
+  /** Shows a command result briefly, even after a successful command closes the terminal. */
+  public void showOutputMessage(String message) {
+    outputMessage = message;
+    outputStartedAt = System.nanoTime();
+  }
+
+  public String getOutputMessage() {
+    if (System.nanoTime() - outputStartedAt >= OUTPUT_DURATION_NANOS) {
+      return "";
+    }
+    return outputMessage;
   }
 }

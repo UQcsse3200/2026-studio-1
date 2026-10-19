@@ -48,4 +48,45 @@ class MarkerTest {
     Marker marker = new Marker("npc", "a", new GridPoint2(0, 0), Map.of("a", "b"));
     assertThrows(UnsupportedOperationException.class, () -> marker.properties().put("c", "d"));
   }
+
+  @Test
+  void nullKindAndPropertiesBecomeEmpty() {
+    Marker marker = new Marker(null, null, new GridPoint2(0, 0), null);
+
+    assertEquals("", marker.kind());
+    assertTrue(marker.properties().isEmpty());
+    assertNull(marker.get("anything"));
+  }
+
+  @Test
+  void returnsRawValueOrFallback() {
+    Marker marker = new Marker("npc", "a", new GridPoint2(0, 0), Map.of("name", "Bob"));
+
+    assertEquals("Bob", marker.get("name"));
+    assertEquals("Bob", marker.get("name", "fallback"));
+  }
+
+  @Test
+  void flagIsFalseForNonTrueValues() {
+    Marker marker =
+        new Marker("npc", "a", new GridPoint2(0, 0), Map.of("on", " TRUE ", "off", "yes"));
+
+    assertTrue(marker.flag("on"));
+    assertFalse(marker.flag("off"));
+  }
+
+  @Test
+  void numbersParseOrFallBack() {
+    Marker marker =
+        new Marker(
+            "light",
+            null,
+            new GridPoint2(0, 0),
+            Map.of("count", " 7 ", "badCount", "seven", "badRadius", "wide"));
+
+    assertEquals(7, marker.getInt("count", 0));
+    assertEquals(-1, marker.getInt("badCount", -1));
+    assertEquals(2.5f, marker.getFloat("missing", 2.5f));
+    assertEquals(1f, marker.getFloat("badRadius", 1f));
+  }
 }
