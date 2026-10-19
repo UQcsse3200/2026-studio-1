@@ -1,8 +1,10 @@
 package com.csse3200.game.screens;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.math.Vector2;
@@ -11,6 +13,7 @@ import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelView;
 import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.SubLevel;
+import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.ui.terminal.commands.WhereCommand;
@@ -100,5 +103,27 @@ class MainGameScreenTest {
     assertEquals(
         new WhereCommand.Location("Level 2 - Mount Olympus", "maps/level2.json", "none", -1, 2),
         MainGameScreen.whereLocation(area, "maps/level2.json"));
+  }
+
+  @Test
+  void staminaToggleIsSafeWithoutAPlayerOrStaminaComponent() {
+    assertDoesNotThrow(() -> MainGameScreen.applyUnlimitedStamina(null, true));
+
+    Entity player = mock(Entity.class);
+    assertDoesNotThrow(() -> MainGameScreen.applyUnlimitedStamina(player, true));
+    verify(player).getComponent(StaminaComponent.class);
+  }
+
+  @Test
+  void staminaToggleForwardsBothModesToTheCurrentPlayer() {
+    Entity player = mock(Entity.class);
+    StaminaComponent stamina = mock(StaminaComponent.class);
+    when(player.getComponent(StaminaComponent.class)).thenReturn(stamina);
+
+    MainGameScreen.applyUnlimitedStamina(player, true);
+    MainGameScreen.applyUnlimitedStamina(player, false);
+
+    verify(stamina).setUnlimitedStamina(true);
+    verify(stamina).setUnlimitedStamina(false);
   }
 }

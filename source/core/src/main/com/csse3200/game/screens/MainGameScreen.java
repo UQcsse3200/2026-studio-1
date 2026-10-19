@@ -743,7 +743,10 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   private void setUnlimitedStamina(boolean enabled) {
-    Entity player = getPlayerEntity();
+    applyUnlimitedStamina(getPlayerEntity(), enabled);
+  }
+
+  static void applyUnlimitedStamina(Entity player, boolean enabled) {
     StaminaComponent stamina = player == null ? null : player.getComponent(StaminaComponent.class);
     if (stamina == null) {
       logger.warn("Cannot change unlimited stamina: the current player has no stamina component");
