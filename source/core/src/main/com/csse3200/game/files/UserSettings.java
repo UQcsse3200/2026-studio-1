@@ -50,7 +50,9 @@ public class UserSettings {
     Gdx.graphics.setVSync(settings.vsync);
 
     if (settings.fullscreen) {
-      DisplayMode displayMode = findMatching(settings.displayMode);
+      // On macOS, switching the display resolution can crash the JVM natively,
+      // so use the screen's current resolution there instead.
+      DisplayMode displayMode = isMac() ? null : findMatching(settings.displayMode);
       if (displayMode == null) {
         displayMode = Gdx.graphics.getDisplayMode();
       }
@@ -58,6 +60,10 @@ public class UserSettings {
     } else {
       Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
     }
+  }
+
+  private static boolean isMac() {
+    return System.getProperty("os.name", "").toLowerCase().contains("mac");
   }
 
   private static DisplayMode findMatching(DisplaySettings desiredSettings) {

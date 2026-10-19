@@ -2,6 +2,7 @@ package com.csse3200.game.screens;
 
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.csse3200.game.GdxGame;
 import com.csse3200.game.components.settingsmenu.SettingsInputComponent;
 import com.csse3200.game.components.settingsmenu.SettingsMenuDisplay;
@@ -49,6 +50,16 @@ public class SettingsScreen extends ScreenAdapter {
 
   @Override
   public void resize(int width, int height) {
+    // Window minimised to the dock reports 0x0; don't divide by zero
+    if (width == 0 || height == 0) {
+      return;
+    }
+    Stage stage = ServiceLocator.getRenderService().getStage();
+    if (stage.getViewport() instanceof ScreenViewport screenViewport) {
+      // Shrink the UI when the window is smaller than the layout needs
+      float unitsPerPixel = Math.max(1f, Math.max(1280f / width, 900f / height));
+      screenViewport.setUnitsPerPixel(unitsPerPixel);
+    }
     renderer.resize(width, height);
   }
 
