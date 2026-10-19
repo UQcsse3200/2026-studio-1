@@ -29,6 +29,8 @@ public class PlayerStatsDisplay extends UIComponent {
   private static final int HALF_HEART_VALUE = 5;
   private static final int MAX_HEARTS = 10;
   private static final float HEART_SIZE = 30f;
+  private static final float STAMINA_BAR_WIDTH = 545f;
+  private static final float STAMINA_BAR_HEIGHT = 10f;
 
   private static final float BRIBE_MESSAGE_DURATION = 3f;
 
@@ -75,8 +77,7 @@ public class PlayerStatsDisplay extends UIComponent {
   private void addActors() {
     table = new Table();
     table.top().left();
-    table.setFillParent(true);
-    table.padTop(45f).padLeft(5f);
+    table.setFillParent(false);
 
     // Full heart textures
     greenHeartTexture =
@@ -103,22 +104,17 @@ public class PlayerStatsDisplay extends UIComponent {
     redHalfHeartTexture =
         ServiceLocator.getResourceService().getAsset("images/ui/heart-red-half.png", Texture.class);
 
-    // Create 10 heart slots
-    for (int i = 0; i < MAX_HEARTS; i++) {
-      Image heart = new HealthHeartImage(greenHeartTexture);
-
-      heartImages.add(heart);
-
-      table.add(heart).size(HEART_SIZE).pad(2f);
-    }
-
-    // Move to the next row so the health number appears under the hearts
-    table.row();
-
     healthLabel = new Label("Health = 100", skin, "title");
     healthLabel.setFontScale(0.35f);
 
-    table.add(healthLabel).colspan(MAX_HEARTS).padTop(0f).padBottom(4f).left();
+    for (int i = 0; i < MAX_HEARTS; i++) {
+      Image heart = new HealthHeartImage(greenHeartTexture);
+      heartImages.add(heart);
+      table.add(heart).size(HEART_SIZE).pad(2f);
+    }
+
+    table.add(healthLabel).padLeft(8f).center();
+    table.pack();
 
     /*
      * Bribe notification.
@@ -150,9 +146,7 @@ public class PlayerStatsDisplay extends UIComponent {
 
     // Stamina bar
     staminaTable = new Table();
-    staminaTable.top().left();
-    staminaTable.setFillParent(true);
-    staminaTable.padTop(240f).padLeft(5f);
+    staminaTable.setFillParent(false);
 
     ProgressBar.ProgressBarStyle staminaStyle =
         new ProgressBar.ProgressBarStyle(
@@ -167,7 +161,8 @@ public class PlayerStatsDisplay extends UIComponent {
     staminaBar = new ProgressBar(0f, 100f, 1f, false, staminaStyle);
     staminaBar.setValue(100f);
 
-    staminaTable.add(staminaBar).width(250f).height(10f).left();
+    staminaTable.add(staminaBar).width(STAMINA_BAR_WIDTH).height(STAMINA_BAR_HEIGHT).left();
+    staminaTable.pack();
 
     stage.addActor(staminaTable);
     stage.addActor(table);
@@ -207,9 +202,41 @@ public class PlayerStatsDisplay extends UIComponent {
     return new TextureRegionDrawable(new TextureRegion(texture));
   }
 
+  private void positionHud() {
+    InventoryDisplay inventoryDisplay = entity.getComponent(InventoryDisplay.class);
+
+    if (inventoryDisplay == null || staminaTable == null || table == null) {
+      return;
+    }
+
+    float hudX = inventoryDisplay.getHudX();
+    float hudY = inventoryDisplay.getHudY();
+    float hudWidth = inventoryDisplay.getHudWidth();
+    float hudHeight = inventoryDisplay.getHudHeight();
+
+    if (hudWidth <= 0f || hudHeight <= 0f) {
+      return;
+    }
+
+    float gap = 6f;
+    float centerX = hudX + hudWidth / 2f;
+
+    // Stamina bar: centred directly above the hotbar.
+    float staminaY = hudY + hudHeight + gap;
+    staminaTable.setPosition(centerX - staminaTable.getWidth() / 2f, staminaY);
+
+    // Health row: above the stamina bar.
+    float healthY = staminaY + staminaTable.getHeight() + gap;
+    float healthRowWidth = table.getWidth();
+    float healthRowX = centerX - healthRowWidth / 2f;
+
+    table.setPosition(healthRowX, healthY);
+  }
+
   @Override
   public void update() {
     super.update();
+    positionHud();
 
     if (bribeMessageTimer > 0f) {
       bribeMessageTimer -= ServiceLocator.getTimeSource().getDeltaTime();

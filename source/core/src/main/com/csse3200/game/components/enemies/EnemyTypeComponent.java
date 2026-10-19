@@ -1,7 +1,6 @@
 package com.csse3200.game.components.enemies;
 
 import com.csse3200.game.components.Component;
-import com.csse3200.game.components.EnemyType;
 import java.util.Locale;
 
 public class EnemyTypeComponent extends Component {

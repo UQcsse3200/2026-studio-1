@@ -103,6 +103,7 @@ public class NPCFactory {
   public static Entity createShopNPC(Entity player) {
     Entity npc = createAnimatedNPC(player, "Hermes", SHOP_NPC_ATLAS_PATH);
     npc.addComponent(new ShopkeeperComponent(player));
+    npc.getComponent(DisplayDialogue.class).enableShopHint();
     npc.getComponent(DialogueComponent.class).changeQuestType("shieldscollectedquest");
     npc.getComponent(QuestGiverComponent.class)
         .setItemToGive(new WeaponGenerator().generateWeapon(WeaponType.BOW, 2));

@@ -1,0 +1,395 @@
+Knight.png
+size: 1968, 704
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+pma: false
+climb
+  bounds: 0, 0, 164, 64
+  index: 1
+climb
+  bounds: 164, 0, 164, 64
+  index: 2
+climb
+  bounds: 328, 0, 164, 64
+  index: 3
+climb
+  bounds: 492, 0, 164, 64
+  index: 4
+climb
+  bounds: 656, 0, 164, 64
+  index: 5
+climb
+  bounds: 820, 0, 164, 64
+  index: 6
+crouchidle
+  bounds: 984, 0, 164, 64
+  index: 1
+crouchidle
+  bounds: 1148, 0, 164, 64
+  index: 2
+crouchidle
+  bounds: 1312, 0, 164, 64
+  index: 3
+crouchidle
+  bounds: 1476, 0, 164, 64
+  index: 4
+crouchidle
+  bounds: 1640, 0, 164, 64
+  index: 5
+crouchidle
+  bounds: 1804, 0, 164, 64
+  index: 6
+crouchidle
+  bounds: 0, 64, 164, 64
+  index: 7
+crouchidle
+  bounds: 164, 64, 164, 64
+  index: 8
+death
+  bounds: 328, 64, 164, 64
+  index: 1
+death
+  bounds: 492, 64, 164, 64
+  index: 2
+death
+  bounds: 656, 64, 164, 64
+  index: 3
+death
+  bounds: 820, 64, 164, 64
+  index: 4
+default
+  bounds: 984, 64, 164, 64
+health
+  bounds: 1148, 64, 164, 64
+  index: 1
+health
+  bounds: 1312, 64, 164, 64
+  index: 2
+health
+  bounds: 1476, 64, 164, 64
+  index: 3
+health
+  bounds: 1640, 64, 164, 64
+  index: 4
+health
+  bounds: 1804, 64, 164, 64
+  index: 5
+health
+  bounds: 0, 128, 164, 64
+  index: 6
+health
+  bounds: 164, 128, 164, 64
+  index: 7
+health
+  bounds: 328, 128, 164, 64
+  index: 8
+hurt
+  bounds: 492, 128, 164, 64
+  index: 1
+hurt
+  bounds: 656, 128, 164, 64
+  index: 2
+hurt
+  bounds: 820, 128, 164, 64
+  index: 3
+Idle
+  bounds: 984, 128, 164, 64
+  index: 1
+Idle
+  bounds: 1148, 128, 164, 64
+  index: 2
+Idle
+  bounds: 1312, 128, 164, 64
+  index: 3
+Idle
+  bounds: 1476, 128, 164, 64
+  index: 4
+Idle
+  bounds: 1640, 128, 164, 64
+  index: 5
+Idle
+  bounds: 1804, 128, 164, 64
+  index: 6
+Idle
+  bounds: 0, 192, 164, 64
+  index: 7
+Idle
+  bounds: 164, 192, 164, 64
+  index: 8
+Jump
+  bounds: 328, 192, 164, 64
+  index: 1
+Jump
+  bounds: 492, 192, 164, 64
+  index: 2
+Jump
+  bounds: 656, 192, 164, 64
+  index: 3
+Jump
+  bounds: 820, 192, 164, 64
+  index: 4
+Jump
+  bounds: 984, 192, 164, 64
+  index: 5
+Jump
+  bounds: 1148, 192, 164, 64
+  index: 6
+Jump
+  bounds: 1312, 192, 164, 64
+  index: 7
+Jump
+  bounds: 1476, 192, 164, 64
+  index: 8
+Leftcrouchidle
+  bounds: 1640, 192, 164, 64
+  index: 1
+Leftcrouchidle
+  bounds: 1804, 192, 164, 64
+  index: 2
+Leftcrouchidle
+  bounds: 0, 256, 164, 64
+  index: 3
+Leftcrouchidle
+  bounds: 164, 256, 164, 64
+  index: 4
+Leftcrouchidle
+  bounds: 328, 256, 164, 64
+  index: 5
+Leftcrouchidle
+  bounds: 492, 256, 164, 64
+  index: 6
+Leftcrouchidle
+  bounds: 656, 256, 164, 64
+  index: 7
+Leftcrouchidle
+  bounds: 820, 256, 164, 64
+  index: 8
+leftdeath
+  bounds: 984, 256, 164, 64
+  index: 1
+leftdeath
+  bounds: 1148, 256, 164, 64
+  index: 2
+leftdeath
+  bounds: 1312, 256, 164, 64
+  index: 3
+leftdeath
+  bounds: 1476, 256, 164, 64
+  index: 4
+lefthealth
+  bounds: 1640, 256, 164, 64
+  index: 1
+lefthealth
+  bounds: 1804, 256, 164, 64
+  index: 2
+lefthealth
+  bounds: 0, 320, 164, 64
+  index: 3
+lefthealth
+  bounds: 164, 320, 164, 64
+  index: 4
+lefthealth
+  bounds: 328, 320, 164, 64
+  index: 5
+lefthealth
+  bounds: 492, 320, 164, 64
+  index: 6
+lefthealth
+  bounds: 656, 320, 164, 64
+  index: 7
+lefthealth
+  bounds: 820, 320, 164, 64
+  index: 8
+lefthurt
+  bounds: 984, 320, 164, 64
+  index: 1
+lefthurt
+  bounds: 1148, 320, 164, 64
+  index: 2
+lefthurt
+  bounds: 1312, 320, 164, 64
+  index: 3
+LeftIdle
+  bounds: 1476, 320, 164, 64
+  index: 1
+LeftIdle
+  bounds: 1640, 320, 164, 64
+  index: 2
+LeftIdle
+  bounds: 1804, 320, 164, 64
+  index: 3
+LeftIdle
+  bounds: 0, 384, 164, 64
+  index: 4
+LeftIdle
+  bounds: 164, 384, 164, 64
+  index: 5
+LeftIdle
+  bounds: 328, 384, 164, 64
+  index: 6
+LeftIdle
+  bounds: 492, 384, 164, 64
+  index: 7
+LeftIdle
+  bounds: 656, 384, 164, 64
+  index: 8
+LeftIdle
+  bounds: 820, 384, 164, 64
+  index: 9
+LeftJump
+  bounds: 984, 384, 164, 64
+  index: 1
+LeftJump
+  bounds: 1148, 384, 164, 64
+  index: 2
+LeftJump
+  bounds: 1312, 384, 164, 64
+  index: 3
+LeftJump
+  bounds: 1476, 384, 164, 64
+  index: 4
+LeftJump
+  bounds: 1640, 384, 164, 64
+  index: 5
+LeftJump
+  bounds: 1804, 384, 164, 64
+  index: 6
+LeftJump
+  bounds: 0, 448, 164, 64
+  index: 7
+LeftJump
+  bounds: 164, 448, 164, 64
+  index: 8
+LeftRoll
+  bounds: 328, 448, 164, 64
+  index: 1
+LeftRoll
+  bounds: 492, 448, 164, 64
+  index: 2
+LeftRoll
+  bounds: 656, 448, 164, 64
+  index: 3
+LeftRoll
+  bounds: 820, 448, 164, 64
+  index: 4
+LeftRun
+  bounds: 984, 448, 164, 64
+  index: 1
+LeftRun
+  bounds: 1148, 448, 164, 64
+  index: 2
+LeftRun
+  bounds: 1312, 448, 164, 64
+  index: 3
+LeftRun
+  bounds: 1476, 448, 164, 64
+  index: 4
+LeftRun
+  bounds: 1640, 448, 164, 64
+  index: 5
+LeftRun
+  bounds: 1804, 448, 164, 64
+  index: 6
+LeftRun
+  bounds: 0, 512, 164, 64
+  index: 7
+LeftRun
+  bounds: 164, 512, 164, 64
+  index: 8
+LeftSlide
+  bounds: 328, 512, 164, 64
+  index: 1
+LeftSlide
+  bounds: 492, 512, 164, 64
+  index: 2
+LeftSlide
+  bounds: 656, 512, 164, 64
+  index: 3
+LeftSlide
+  bounds: 820, 512, 164, 64
+  index: 4
+LeftSlide
+  bounds: 984, 512, 164, 64
+  index: 5
+LeftSlide
+  bounds: 1148, 512, 164, 64
+  index: 6
+LeftSlide
+  bounds: 1312, 512, 164, 64
+  index: 7
+LeftSlide
+  bounds: 1476, 512, 164, 64
+  index: 8
+LeftSlide
+  bounds: 1640, 512, 164, 64
+  index: 9
+LeftSlide
+  bounds: 1804, 512, 164, 64
+  index: 10
+Roll
+  bounds: 0, 576, 164, 64
+  index: 1
+Roll
+  bounds: 164, 576, 164, 64
+  index: 2
+Roll
+  bounds: 328, 576, 164, 64
+  index: 3
+Roll
+  bounds: 492, 576, 164, 64
+  index: 4
+Run
+  bounds: 656, 576, 164, 64
+  index: 1
+Run
+  bounds: 820, 576, 164, 64
+  index: 2
+Run
+  bounds: 984, 576, 164, 64
+  index: 3
+Run
+  bounds: 1148, 576, 164, 64
+  index: 4
+Run
+  bounds: 1312, 576, 164, 64
+  index: 5
+Run
+  bounds: 1476, 576, 164, 64
+  index: 6
+Run
+  bounds: 1640, 576, 164, 64
+  index: 7
+Run
+  bounds: 1804, 576, 164, 64
+  index: 8
+Slide
+  bounds: 0, 640, 164, 64
+  index: 1
+Slide
+  bounds: 164, 640, 164, 64
+  index: 2
+Slide
+  bounds: 328, 640, 164, 64
+  index: 3
+Slide
+  bounds: 492, 640, 164, 64
+  index: 4
+Slide
+  bounds: 656, 640, 164, 64
+  index: 5
+Slide
+  bounds: 820, 640, 164, 64
+  index: 6
+Slide
+  bounds: 984, 640, 164, 64
+  index: 7
+Slide
+  bounds: 1148, 640, 164, 64
+  index: 8
+Slide
+  bounds: 1312, 640, 164, 64
+  index: 9
+Slide
+  bounds: 1476, 640, 164, 64
+  index: 10

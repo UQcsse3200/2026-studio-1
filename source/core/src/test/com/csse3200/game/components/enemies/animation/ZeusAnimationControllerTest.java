@@ -1,11 +1,10 @@
-package com.csse3200.game.components.npc;
+package com.csse3200.game.components.enemies.animation;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.csse3200.game.components.enemies.animation.ZeusAnimationController;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener0;
@@ -346,5 +345,133 @@ class ZeusAnimationControllerTest {
     entity.getEvents().trigger("deathRightStart");
     verify(animationRenderComponent).startAnimation("zeus_death_r");
     assertTrue(controller.isDead());
+  }
+
+  /** With no physics body, a finished left attack returns to idle facing left. */
+  @Test
+  void shouldReturnToIdleLeftAfterStrikeLeftWhenNoPhysicsBody() {
+    // beforeEach stubs getBody() with the mock body, so override it to simulate no body
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(-5f, 0f);
+
+    EventListener0 idleLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleLeftStart", idleLCallback);
+
+    entity.create(); // fires idleRightStart once
+
+    // start an attack to the left, which sets isAttacking to true
+    entity.getEvents().trigger("meleeAttack", target);
+    assertTrue(controller.isAttacking());
+    assertEquals(ZeusAnimationController.AnimationState.STRIKE_LEFT, controller.getCurrentState());
+
+    // isFinished() returns false on a mock by default. It must be true here, otherwise
+    // update() returns early and never reaches the else branch.
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+
+    assertFalse(controller.isAttacking());
+    assertEquals(ZeusAnimationController.AnimationState.IDLE_LEFT, controller.getCurrentState());
+    verify(idleLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("zeus_idle_l");
+  }
+
+  /** With no physics body, a finished right attack returns to idle facing right. */
+  @Test
+  void shouldReturnToIdleRightAfterStrikeRightWhenNoPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    EventListener0 idleRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleRightStart", idleRCallback);
+    // fires idleRightStart once
+    entity.create();
+
+    entity.getEvents().trigger("meleeAttack", target);
+    assertTrue(controller.isAttacking());
+    assertEquals(ZeusAnimationController.AnimationState.STRIKE_RIGHT, controller.getCurrentState());
+
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+
+    assertFalse(controller.isAttacking());
+    assertEquals(ZeusAnimationController.AnimationState.IDLE_RIGHT, controller.getCurrentState());
+    // idleRightStart fired once from create() and once more now
+    verify(idleRCallback, times(2)).handle();
+    verify(animationRenderComponent, times(2)).startAnimation("zeus_idle_r");
+  }
+
+  /** With no physics body and no attack, update() changes nothing. */
+  @Test
+  void shouldKeepStateWhenNoPhysicsBodyAndNotAttacking() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    EventListener0 idleLCallback = mock(EventListener0.class);
+    EventListener0 idleRCallback = mock(EventListener0.class);
+    EventListener0 walkLCallback = mock(EventListener0.class);
+    EventListener0 walkRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleLeftStart", idleLCallback);
+    entity.getEvents().addListener("idleRightStart", idleRCallback);
+    entity.getEvents().addListener("walkLeftStart", walkLCallback);
+    entity.getEvents().addListener("walkRightStart", walkRCallback);
+
+    entity.create(); // starts at IDLE_RIGHT and fires idleRightStart once
+
+    // forget the calls made by create() so only update() is measured
+    clearInvocations(
+        idleLCallback, idleRCallback, walkLCallback, walkRCallback, animationRenderComponent);
+
+    controller.update();
+
+    assertEquals(ZeusAnimationController.AnimationState.IDLE_RIGHT, controller.getCurrentState());
+    verify(idleLCallback, never()).handle();
+    verify(idleRCallback, never()).handle();
+    verify(walkLCallback, never()).handle();
+    verify(walkRCallback, never()).handle();
+    verify(animationRenderComponent, never()).startAnimation(anyString());
+  }
+
+  /** A controller with no PhysicsComponent at all must not throw in update(). */
+  @Test
+  void shouldNotThrowWhenPhysicsComponentIsMissing() {
+    Entity bare = new Entity();
+    ZeusAnimationController bareController = new ZeusAnimationController();
+    bare.addComponent(mock(AnimationRenderComponent.class)).addComponent(bareController);
+
+    bare.create();
+
+    assertDoesNotThrow(bareController::update);
+  }
+
+  /** A finished slam returns to idle, not only a finished strike. */
+  @Test
+  void shouldReturnToIdleAfterSlamWhenNoPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    entity.setPosition(0f, 0f);
+    Entity leftTarget = new Entity();
+    leftTarget.setPosition(-5f, 0f);
+    Entity rightTarget = new Entity();
+    rightTarget.setPosition(5f, 0f);
+
+    entity.create();
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+
+    // slam left, then finish
+    entity.getEvents().trigger("rangedAttack", leftTarget, ProjectileType.LIGHTNING);
+    assertEquals(ZeusAnimationController.AnimationState.SLAM_LEFT, controller.getCurrentState());
+    controller.update();
+    assertEquals(ZeusAnimationController.AnimationState.IDLE_LEFT, controller.getCurrentState());
+
+    // slam right, then finish
+    entity.getEvents().trigger("rangedAttack", rightTarget, ProjectileType.LIGHTNING);
+    assertEquals(ZeusAnimationController.AnimationState.SLAM_RIGHT, controller.getCurrentState());
+    controller.update();
+    assertEquals(ZeusAnimationController.AnimationState.IDLE_RIGHT, controller.getCurrentState());
   }
 }

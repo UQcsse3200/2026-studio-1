@@ -16,6 +16,7 @@ public class HarpyAnimationController extends Component {
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
   private AnimationState currentAnimState = null;
+  private static final String MOVE_RIGHT_START_EVENT = "moveRightStart";
 
   public enum AnimationState {
     MOVE_LEFT,
@@ -31,7 +32,7 @@ public class HarpyAnimationController extends Component {
     entity.getEvents().addListener("walkLeftStart", this::animateMoveL);
     entity.getEvents().addListener("walkRightStart", this::animateMoveR);
     entity.getEvents().addListener("moveLeftStart", this::animateMoveL);
-    entity.getEvents().addListener("moveRightStart", this::animateMoveR);
+    entity.getEvents().addListener(MOVE_RIGHT_START_EVENT, this::animateMoveR);
     entity.getEvents().addListener("flyLeftStart", this::animateMoveL);
     entity.getEvents().addListener("flyRightStart", this::animateMoveR);
     entity.getEvents().addListener("idleLeftStart", this::animateMoveL);
@@ -50,7 +51,7 @@ public class HarpyAnimationController extends Component {
             "rangedAttack", (Entity target, ProjectileType projectile) -> onAttack(target));
 
     // Trigger a default starting state
-    entity.getEvents().trigger("moveRightStart");
+    entity.getEvents().trigger(MOVE_RIGHT_START_EVENT);
     currentAnimState = AnimationState.MOVE_RIGHT;
   }
 
@@ -85,7 +86,7 @@ public class HarpyAnimationController extends Component {
         entity.getEvents().trigger("moveLeftStart");
         break;
       case MOVE_RIGHT:
-        entity.getEvents().trigger("moveRightStart");
+        entity.getEvents().trigger(MOVE_RIGHT_START_EVENT);
         break;
     }
   }
