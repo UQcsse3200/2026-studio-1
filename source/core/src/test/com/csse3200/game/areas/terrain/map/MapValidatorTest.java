@@ -144,6 +144,30 @@ class MapValidatorTest {
   }
 
   @Test
+  void warnsAboutUnsupportedLootAndNpcMarkers() {
+    String json =
+        """
+        {
+          "name": "Falling Spawns",
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "L": { "type": "LOOT" },
+            "N": { "type": "MARKER", "kind": "npc", "id": "npc:shop" }
+          },
+          "layers": {
+            "terrain":  ["    ", "    ", "####"],
+            "entities": [" LN ", "    ", "    "]
+          }
+        }
+        """;
+    List<MapValidator.Problem> problems = validate(json);
+
+    assertTrue(mentions(problems, "loot spawn (1, 2) has no ground beneath it"));
+    assertTrue(mentions(problems, "NPC marker (2, 2) has no ground beneath it"));
+    assertTrue(errors(problems).isEmpty());
+  }
+
+  @Test
   void reportsABackdropForASubLevelTheMapDoesNotDefine() {
     String json =
         """
