@@ -49,13 +49,13 @@ public class UserSettings {
     Gdx.graphics.setForegroundFPS(settings.fps);
     Gdx.graphics.setVSync(settings.vsync);
 
-      if (settings.fullscreen) {
-        // Switching the monitor's resolution crashes the game on some systems,
-        // so go fullscreen at the monitor's current resolution instead.
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-      } else {
-        Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
-      }
+    if (settings.fullscreen) {
+      // Switching the monitor's resolution crashes the game on some systems,
+      // so go fullscreen at the monitor's current resolution instead.
+      Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+    } else {
+      Gdx.graphics.setWindowedMode(WINDOW_WIDTH, WINDOW_HEIGHT);
+    }
   }
 
   /** Stores game settings, can be serialised/deserialised. */
