@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.components.lighting.LightingConfigParser;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -140,9 +141,11 @@ public class JsonMapLoader implements MapLoader {
     int width = collected.width();
     int height = collected.height();
 
-    validateEntityLayer(split.entityRows(), width, height, name);
+    String[] entityRows =
+        split.entityRows() == null ? null : split.entityRows().toArray(String[]::new);
+    validateEntityLayer(entityRows, width, height, name);
 
-    MapSpawns spawns = parseSpawns(root.get("spawns"), split.entityRows(), entityLegend, height);
+    MapSpawns spawns = parseSpawns(root.get("spawns"), entityRows, entityLegend, height);
 
     List<RoomTransition> transitions = parseTransitions(root.get("transitions"), name);
 
@@ -206,14 +209,14 @@ public class JsonMapLoader implements MapLoader {
    */
   private SplitLayers splitLayers(LayerRows collected, Map<String, TileDefinition> legend) {
     List<MapLayerData> layers = new ArrayList<>();
-    String[] entityRows = null;
+    List<String> entityRows = null;
 
     for (int i = 0; i < collected.names().size(); i++) {
       String layerName = collected.names().get(i);
       String[] rows = collected.rows().get(i);
 
       if (layerName.equals("entities")) {
-        entityRows = rows;
+        entityRows = Arrays.asList(rows);
       } else {
         layers.add(buildLayer(layerName, rows, legend, collected.width(), collected.height()));
       }
@@ -225,26 +228,10 @@ public class JsonMapLoader implements MapLoader {
   private record LayerRows(List<String> names, List<String[]> rows, int width, int height) {}
 
   /**
-   * The tile layers and the raw entities rows split out of a map. A class rather than a record,
-   * since a record would compare the array by identity rather than by its contents.
+   * The tile layers, and the raw entities-layer rows (null when the map has none), split out of a
+   * map.
    */
-  private static final class SplitLayers {
-    private final List<MapLayerData> layers;
-    private final String[] entityRows;
-
-    private SplitLayers(List<MapLayerData> layers, String[] entityRows) {
-      this.layers = layers;
-      this.entityRows = entityRows;
-    }
-
-    private List<MapLayerData> layers() {
-      return layers;
-    }
-
-    private String[] entityRows() {
-      return entityRows;
-    }
-  }
+  private record SplitLayers(List<MapLayerData> layers, List<String> entityRows) {}
 
   /**
    * Reads the optional {@code subLevels} block: named sections of one map that the game treats as

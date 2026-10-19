@@ -586,23 +586,23 @@ class JsonMapLoaderTest {
 
   @Test
   void rejectsABackdropLayerWithABlankTexture() {
-    assertThrows(
-        MapLoadException.class,
-        () -> loader.parse(mapWithBackdrops("{ \"cave\": [ { \"texture\": \"  \" } ] }")));
+    String json = mapWithBackdrops("{ \"cave\": [ { \"texture\": \"  \" } ] }");
+
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
   @Test
   void rejectsBackdropsThatAreNotAnObject() {
-    assertThrows(
-        MapLoadException.class,
-        () -> loader.parse(mapWithBackdrops("[ { \"texture\": \"far.png\" } ]")));
+    String json = mapWithBackdrops("[ { \"texture\": \"far.png\" } ]");
+
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
   @Test
   void rejectsABackdropThatIsNotAListOfLayers() {
-    assertThrows(
-        MapLoadException.class,
-        () -> loader.parse(mapWithBackdrops("{ \"cave\": { \"texture\": \"far.png\" } }")));
+    String json = mapWithBackdrops("{ \"cave\": { \"texture\": \"far.png\" } }");
+
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
   private static String mapWithBackdrops(String backdrops) {
