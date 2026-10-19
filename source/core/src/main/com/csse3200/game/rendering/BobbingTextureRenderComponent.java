@@ -81,7 +81,7 @@ public class BobbingTextureRenderComponent extends RenderComponent {
    * @param scale the desired maximum visual scale
    */
   public void scaleEntity(float scale) {
-    float maxDimension = Math.max(texture.getWidth(), texture.getHeight());
+    float maxDimension = (float) Math.max(texture.getWidth(), texture.getHeight());
 
     entity.setScale(
         scale * texture.getWidth() / maxDimension, scale * texture.getHeight() / maxDimension);
