@@ -36,8 +36,9 @@ public class Tutorial extends UIComponent {
   private Drawable panel;
   private Drawable keycap;
   private Drawable solid;
-
+  private static final float SCREEN_FIT = 0.9f;
   private Table rootTable;
+  private Table card;
   private boolean tutorialVisible = true;
 
   @Override
@@ -71,15 +72,41 @@ public class Tutorial extends UIComponent {
     entity.getEvents().addListener("toggleTutorial", this::toggleTutorial);
   }
 
+  /** Scales the card down (never up) so it always fits on screen, staying centred. */
+  private void fitCardToScreen() {
+    if (card == null || stage == null) {
+      return;
+    }
+
+    float cardWidth = card.getPrefWidth();
+    float cardHeight = card.getPrefHeight();
+    float screenWidth = stage.getViewport().getWorldWidth();
+    float screenHeight = stage.getViewport().getWorldHeight();
+
+    float scale =
+        Math.min(
+            1f,
+            Math.min(screenWidth * SCREEN_FIT / cardWidth, screenHeight * SCREEN_FIT / cardHeight));
+
+    card.setTransform(true);
+    card.setOrigin(card.getWidth() / 2f, card.getHeight() / 2f);
+    card.setScale(scale);
+  }
+
   /** Builds and centres the guide. */
   private void addActors() {
 
-    rootTable = new Table();
+    rootTable =
+        new Table() {
+          @Override
+          public void layout() {
+            super.layout();
+            fitCardToScreen();
+          }
+        };
     rootTable.setFillParent(true);
     rootTable.align(Align.center);
-    rootTable.padBottom(80f);
-
-    Table card = new Table();
+    card = new Table();
     card.setBackground(panel);
     card.pad(28f);
 
