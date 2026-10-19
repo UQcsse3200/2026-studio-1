@@ -283,7 +283,7 @@ public class KeyboardPlayerInputComponent extends InputComponent {
       return true;
     }
     if (keycode == KeybindSettings.getKey(SLIDE_STRING)) {
-      if(PlayerActions.platformerComponent.isGrounded()) {
+      if (PlayerActions.platformerComponent.isGrounded()) {
         entity.getEvents().trigger(SLIDE_STRING, true);
       }
       return true;

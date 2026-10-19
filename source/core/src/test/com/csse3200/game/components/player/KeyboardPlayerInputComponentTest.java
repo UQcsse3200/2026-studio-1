@@ -15,14 +15,12 @@ import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.pet.PetManagerComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.pausemenu.KeybindSettings;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.csse3200.game.physics.components.PhysicsComponent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 class KeyboardPlayerInputComponentTest {
 
@@ -208,13 +206,13 @@ class KeyboardPlayerInputComponentTest {
   }
 
   @Test
-  void ShouldnotSlideInMidair(){
-    Vector2 PlayerVector= new Vector2(1f,1f);
+  void ShouldnotSlideInMidair() {
+    Vector2 PlayerVector = new Vector2(1f, 1f);
     PhysicsComponent physics = mock(PhysicsComponent.class);
-    PlatformerComponent platformerComponent=mock(PlatformerComponent.class);
-    Body body =mock(Body.class);
+    PlatformerComponent platformerComponent = mock(PlatformerComponent.class);
+    Body body = mock(Body.class);
     when(physics.getBody()).thenReturn(body);
     when(body.getLinearVelocity()).thenReturn(PlayerVector);
-    assertEquals(false,platformerComponent.isGrounded());
+    assertEquals(false, platformerComponent.isGrounded());
   }
 }
