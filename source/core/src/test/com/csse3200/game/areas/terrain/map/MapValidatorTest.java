@@ -192,7 +192,7 @@ class MapValidatorTest {
         {
           "name": "Nowhere",
           "legend": { "#": { "type": "WALL" } },
-          "layers": { "terrain": ["##"] },
+          "layers": { "terrain": [" ##"] },
           "transitions": [ { "id": "door", "x": 0, "y": 0, "destinationMap": "maps/gone.json" } ]
         }
         """;
