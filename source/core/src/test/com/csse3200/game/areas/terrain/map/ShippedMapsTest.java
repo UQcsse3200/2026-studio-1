@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.extensions.GameExtension;
@@ -83,6 +84,38 @@ class ShippedMapsTest {
                       + column);
             }
           }
+        }
+      }
+    }
+
+    assertTrue(failures.isEmpty(), () -> String.join("\n", failures));
+  }
+
+  @Test
+  void everyDoorwayArrivesAtASafeTileInItsDestination() {
+    List<String> failures = new ArrayList<>();
+
+    for (String mapPath : shippedMaps()) {
+      LevelMapData source = loader.load(mapPath);
+      for (RoomTransition doorway : source.getTransitions()) {
+        GridPoint2 arrival = doorway.getDestinationSpawn();
+        String destinationPath = doorway.getDestinationMap();
+        if (arrival == null
+            || destinationPath == null
+            || !Gdx.files.internal(destinationPath).exists()) {
+          continue;
+        }
+
+        LevelView destination = new MapDataLevelView(loader.load(destinationPath));
+        String label = mapPath + " transition '" + doorway.getId() + "' arrives at " + arrival;
+        if (!destination.inBounds(arrival.x, arrival.y)) {
+          failures.add(label + " outside " + destinationPath);
+        } else if (!destination.isWalkable(arrival.x, arrival.y)) {
+          failures.add(label + " inside blocked terrain in " + destinationPath);
+        } else if (!destination.isSupporting(arrival.x, arrival.y - 1)) {
+          failures.add(label + " without safe footing in " + destinationPath);
+        } else if (destination.isHazard(arrival.x, arrival.y - 1)) {
+          failures.add(label + " above a hazard in " + destinationPath);
         }
       }
     }
