@@ -83,7 +83,8 @@ class MainGameScreenTest {
     assertNull(MainGameScreen.whereLocation(null, mapPath));
     assertNull(MainGameScreen.whereLocation(area, mapPath));
 
-    when(area.getPlayer()).thenReturn(mock(Entity.class));
+    Entity player = mock(Entity.class);
+    when(area.getPlayer()).thenReturn(player);
     assertNull(MainGameScreen.whereLocation(area, mapPath));
   }
 
@@ -224,20 +225,22 @@ class MainGameScreenTest {
 
     terminal.setEnteredMessage("horde 1");
     assertTrue(terminal.processMessage());
-    verify(area).spawnEnemy(eq("skeleton"), eq(new Vector2(8f, 5f)));
+    verify(area).spawnEnemy("skeleton", new Vector2(8f, 5f));
     assertEquals("Spawned 1 of 1 skeletons.", terminal.getOutputMessage());
   }
 
   @Test
   void gameUiRegistersTheDeveloperCommands() {
     RenderService renderService = mock(RenderService.class);
-    when(renderService.getStage()).thenReturn(mock(Stage.class));
+    Stage stage = mock(Stage.class);
+    when(renderService.getStage()).thenReturn(stage);
     ServiceLocator.registerRenderService(renderService);
 
     InputService inputService = mock(InputService.class);
     InputFactory inputFactory = mock(InputFactory.class);
     when(inputService.getInputFactory()).thenReturn(inputFactory);
-    when(inputFactory.createForTerminal()).thenReturn(mock(InputComponent.class));
+    InputComponent terminalInput = mock(InputComponent.class);
+    when(inputFactory.createForTerminal()).thenReturn(terminalInput);
     ServiceLocator.registerInputService(inputService);
 
     EntityService entityService = mock(EntityService.class);
