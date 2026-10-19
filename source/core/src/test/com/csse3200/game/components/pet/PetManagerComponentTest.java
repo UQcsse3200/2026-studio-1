@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -359,8 +359,7 @@ class PetManagerComponentTest {
 
   @Test
   void shouldNotReportDisposedPetAsActive() {
-    PetManagerComponent manager =
-            new PetManagerComponent((petOwner, petData) -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);
 
@@ -381,22 +380,20 @@ class PetManagerComponentTest {
     ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
 
     PetManagerComponent manager =
-            new PetManagerComponent(
-                    (petOwner, petData) -> {
-                      if ("Bat".equals(petData.getName())) {
-                        throw new IllegalStateException("Failed to create pet");
-                      }
-                      return new Entity();
-                    });
+        new PetManagerComponent(
+            (petOwner, petData) -> {
+              if ("Bat".equals(petData.getName())) {
+                throw new IllegalStateException("Failed to create pet");
+              }
+              return new Entity();
+            });
 
     owner.addComponent(manager);
     manager.activatePet(bird);
 
     Entity originalPet = manager.getActivePet();
 
-    assertThrows(
-            IllegalStateException.class,
-            () -> manager.activatePet(bat));
+    assertThrows(IllegalStateException.class, () -> manager.activatePet(bat));
 
     assertFalse(originalPet.isDisposed());
     assertSame(originalPet, manager.getActivePet());
@@ -406,8 +403,7 @@ class PetManagerComponentTest {
 
   @Test
   void shouldDisposePreviousPetsAfterRepeatedActivation() {
-    PetManagerComponent manager =
-            new PetManagerComponent((petOwner, petData) -> new Entity());
+    PetManagerComponent manager = new PetManagerComponent((petOwner, petData) -> new Entity());
 
     owner.addComponent(manager);
 
@@ -439,18 +435,15 @@ class PetManagerComponentTest {
     ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
 
     PetManagerComponent manager =
-            new PetManagerComponent(
-                    (petOwner, petData) ->
-                            "Bat".equals(petData.getName()) ? null : new Entity());
+        new PetManagerComponent(
+            (petOwner, petData) -> "Bat".equals(petData.getName()) ? null : new Entity());
 
     owner.addComponent(manager);
     manager.activatePet(bird);
 
     Entity originalPet = manager.getActivePet();
 
-    assertThrows(
-            IllegalStateException.class,
-            () -> manager.activatePet(bat));
+    assertThrows(IllegalStateException.class, () -> manager.activatePet(bat));
 
     assertFalse(originalPet.isDisposed());
     assertSame(originalPet, manager.getActivePet());
