@@ -17,11 +17,11 @@ public class QuestTest {
     boolean foundID = false;
     QuestGiverComponent questGiverComponent = new QuestGiverComponent(null, 0);
     entity.addComponent(questGiverComponent);
-    int NPCID = questGiverComponent.uniqueNPCID;
+    int npcID = questGiverComponent.uniqueNPCID;
     ArrayList<Integer> arrayList = Quest.getUniqueNPCIDArrayList();
     for (int i = 0; i < arrayList.size(); i++) {
-      if (arrayList.get(i) == NPCID) {
-        // We found our NPCID in the arrayList.
+      if (arrayList.get(i) == npcID) {
+        // We found our npcID in the arrayList.
         foundID = true;
       }
     }

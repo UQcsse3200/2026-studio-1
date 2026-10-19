@@ -42,6 +42,8 @@ public class UpgradesDisplay extends UIComponent {
   // Fired on the player whenever any upgrade activates (purchase or tier-up), so
   // UpgradeActivationFlashComponent can flash the player sprite without a direct reference here.
   private static final String UPGRADE_ACTIVATED_EVENT = "upgradeActivated";
+  private static final String ACTION_CATEGORY = "Action";
+  private static final String DEFENCE_CATEGORY = "Defence";
 
   private Table root;
   private Table nodeRow;
@@ -433,15 +435,15 @@ public class UpgradesDisplay extends UIComponent {
 
     // --- Category tabs, centered ---
     Table tabs = new Table();
-    TextButton actionTab = new TextButton("Action", skin);
-    TextButton defenceTab = new TextButton("Defence", skin);
+    TextButton actionTab = new TextButton(ACTION_CATEGORY, skin);
+    TextButton defenceTab = new TextButton(DEFENCE_CATEGORY, skin);
     TextButton movementTab = new TextButton("Movement", skin);
 
     actionTab.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            activeCategory = "Action";
+            activeCategory = ACTION_CATEGORY;
             refreshNodeRow();
           }
         });
@@ -449,7 +451,7 @@ public class UpgradesDisplay extends UIComponent {
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            activeCategory = "Defence";
+            activeCategory = DEFENCE_CATEGORY;
             refreshNodeRow();
           }
         });
@@ -509,10 +511,10 @@ public class UpgradesDisplay extends UIComponent {
     categoryHeaderLabel.setText("Select an upgrade");
     List<UpgradeNode> upgrades;
     switch (activeCategory) {
-      case "Action":
+      case ACTION_CATEGORY:
         upgrades = actionUpgrades;
         break;
-      case "Defence":
+      case DEFENCE_CATEGORY:
         upgrades = defenceUpgrades;
         break;
       default:

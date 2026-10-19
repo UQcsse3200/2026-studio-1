@@ -14,6 +14,7 @@ import com.csse3200.game.components.player.BuffStat;
 import com.csse3200.game.components.player.InventoryComponent;
 import com.csse3200.game.components.player.PlayerBuffComponent;
 import com.csse3200.game.components.player.PlayerRegenComponent;
+import com.csse3200.game.components.player.RestorableShield;
 import com.csse3200.game.components.player.ShieldComponent;
 import com.csse3200.game.components.player.ShopComponent;
 import com.csse3200.game.components.player.StaminaComponent;
@@ -30,9 +31,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Applies saved game data to a newly created player. */
-public class LoadService {
+public final class LoadService {
+  private static final Logger logger = LoggerFactory.getLogger(LoadService.class);
+
+  /** Matches the " (Tier N)" suffix ConsumableGenerator adds to items above tier 1. */
+  private static final Pattern TIER_SUFFIX = Pattern.compile("\\(Tier (\\d+)\\)$");
 
   /**
    * Loads saved player data and applies it to the given player.
@@ -78,7 +87,6 @@ public class LoadService {
 
     loadHealth(player, data);
     loadShields(player, data);
-    loadStamina(player, data);
     loadStamina(player, data);
     loadInventory(player, data);
     loadPosition(player, data, mapWidth, mapHeight);
@@ -126,16 +134,19 @@ public class LoadService {
   }
 
   private static void loadShields(Entity player, GameSaveData data) {
-    ShieldComponent shield = player.getComponent(ShieldComponent.class);
-    if (shield != null) {
-      shield.restoreHeldShield(data.shieldHeld);
-      shield.restoreActive(data.shieldRemainingMillis);
-    }
+    restoreShield(
+        player.getComponent(ShieldComponent.class), data.shieldHeld, data.shieldRemainingMillis);
+    restoreShield(
+        player.getComponent(BallisticShieldComponent.class),
+        data.ballisticShieldHeld,
+        data.ballisticShieldRemainingMillis);
+  }
 
-    BallisticShieldComponent ballisticShield = player.getComponent(BallisticShieldComponent.class);
-    if (ballisticShield != null) {
-      ballisticShield.restoreHeldShield(data.ballisticShieldHeld);
-      ballisticShield.restoreActive(data.ballisticShieldRemainingMillis);
+  /** Puts back a held shield and an active shield's time left. Skipped if the player has none. */
+  private static void restoreShield(RestorableShield shield, boolean held, long remainingMillis) {
+    if (shield != null) {
+      shield.restoreHeldShield(held);
+      shield.restoreActive(remainingMillis);
     }
   }
 
@@ -190,7 +201,7 @@ public class LoadService {
     // Clear out any default starting items (e.g. the starting weapon/bow/dagger
     // PlayerFactory gives every new player) so loaded items replace them,
     // rather than competing with them for the same limited slots.
-    for (Integer slot : new java.util.ArrayList<>(inventory.getInventorySlots().keySet())) {
+    for (Integer slot : new ArrayList<>(inventory.getInventorySlots().keySet())) {
       inventory.removeItem(slot);
     }
 
@@ -211,11 +222,10 @@ public class LoadService {
 
       int notAdded = inventory.addItem(item);
       if (notAdded > 0) {
-        org.slf4j.LoggerFactory.getLogger(LoadService.class)
-            .warn(
-                "Inventory full - could not fully restore saved item: {} ({} not added)",
-                savedItem.name,
-                notAdded);
+        logger.warn(
+            "Inventory full - could not fully restore saved item: {} ({} not added)",
+            savedItem.name,
+            notAdded);
       }
     }
 
@@ -329,7 +339,33 @@ public class LoadService {
     return item;
   }
 
+  /**
+   * Rebuilds one saved item as the right kind of item: a weapon, a consumable, or a plain item.
+   *
+   * @param savedItem the saved item
+   * @return the rebuilt item, or null if the saved data is incomplete or not recognised
+   */
   private static Item createItem(SavedItem savedItem) {
+    ItemType itemType = parseItemType(savedItem);
+    if (itemType == null) {
+      return null;
+    }
+
+    if (itemType == ItemType.WEAPON && savedItem.weaponType != null && savedItem.damage != null) {
+      return createWeapon(savedItem);
+    }
+
+    if (itemType == ItemType.CONSUMABLE && savedItem.consumableType != null) {
+      return createConsumable(savedItem);
+    }
+
+    return new Item(savedItem.name, itemType, savedItem.quantity, savedItem.maxQuantity);
+  }
+
+  /**
+   * @return the saved item's type, or null if the entry is incomplete or the type is unknown
+   */
+  private static ItemType parseItemType(SavedItem savedItem) {
     if (savedItem == null
         || savedItem.name == null
         || savedItem.itemType == null
@@ -337,55 +373,61 @@ public class LoadService {
       return null;
     }
 
-    ItemType itemType;
-
     try {
-      itemType = ItemType.valueOf(savedItem.itemType);
+      return ItemType.valueOf(savedItem.itemType);
     } catch (IllegalArgumentException e) {
       return null;
     }
+  }
 
-    if (itemType == ItemType.WEAPON && savedItem.weaponType != null && savedItem.damage != null) {
-      try {
-        WeaponType weaponType = WeaponType.valueOf(savedItem.weaponType);
-
-        if (savedItem.weaponTier != null) {
-          try {
-            WeaponTier weaponTier = WeaponTier.fromTierNumber(savedItem.weaponTier);
-            return new WeaponItem(
-                savedItem.name,
-                weaponType,
-                weaponTier,
-                savedItem.quantity,
-                savedItem.maxQuantity,
-                0f);
-          } catch (IllegalArgumentException e) {
-            // Unrecognised tier number - fall back to the flat-damage constructor below.
-          }
-        }
-
+  /**
+   * Rebuilds a weapon with its tier, or with its saved damage if the tier is missing or unknown.
+   *
+   * @return the weapon, or null if the weapon type is unknown
+   */
+  private static Item createWeapon(SavedItem savedItem) {
+    try {
+      WeaponType weaponType = WeaponType.valueOf(savedItem.weaponType);
+      WeaponTier weaponTier = parseWeaponTier(savedItem.weaponTier);
+      if (weaponTier != null) {
         return new WeaponItem(
-            savedItem.name,
-            weaponType,
-            savedItem.damage,
-            savedItem.quantity,
-            savedItem.maxQuantity);
-      } catch (IllegalArgumentException e) {
-        return null;
+            savedItem.name, weaponType, weaponTier, savedItem.quantity, savedItem.maxQuantity, 0f);
       }
+      return new WeaponItem(
+          savedItem.name, weaponType, savedItem.damage, savedItem.quantity, savedItem.maxQuantity);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  /**
+   * @return the weapon tier for the saved tier number, or null if it is missing or unknown
+   */
+  private static WeaponTier parseWeaponTier(Integer tierNumber) {
+    if (tierNumber == null) {
+      return null;
     }
 
-    if (itemType == ItemType.CONSUMABLE && savedItem.consumableType != null) {
-      try {
-        ConsumableType consumableType = ConsumableType.valueOf(savedItem.consumableType);
-        int tier = parseConsumableTier(savedItem.name);
-        return new ConsumableGenerator().generateConsumable(consumableType, tier);
-      } catch (IllegalArgumentException e) {
-        return null;
-      }
+    try {
+      return WeaponTier.fromTierNumber(tierNumber);
+    } catch (IllegalArgumentException e) {
+      return null;
     }
+  }
 
-    return new Item(savedItem.name, itemType, savedItem.quantity, savedItem.maxQuantity);
+  /**
+   * Rebuilds a consumable through ConsumableGenerator, so its effect works again.
+   *
+   * @return the consumable, or null if the consumable type is unknown
+   */
+  private static Item createConsumable(SavedItem savedItem) {
+    try {
+      ConsumableType consumableType = ConsumableType.valueOf(savedItem.consumableType);
+      int tier = parseConsumableTier(savedItem.name);
+      return new ConsumableGenerator().generateConsumable(consumableType, tier);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
   }
 
   /**
@@ -402,18 +444,16 @@ public class LoadService {
       return 1;
     }
 
-    java.util.regex.Matcher matcher =
-        java.util.regex.Pattern.compile("\\(Tier (\\d+)\\)$").matcher(name.trim());
-
-    if (matcher.find()) {
-      try {
-        return Integer.parseInt(matcher.group(1));
-      } catch (NumberFormatException e) {
-        return 1;
-      }
+    Matcher matcher = TIER_SUFFIX.matcher(name.trim());
+    if (!matcher.find()) {
+      return 1;
     }
 
-    return 1;
+    try {
+      return Integer.parseInt(matcher.group(1));
+    } catch (NumberFormatException e) {
+      return 1;
+    }
   }
 
   private LoadService() {

@@ -143,9 +143,8 @@ public class PlayerBuffComponent extends Component {
   /**
    * Returns the movement speed multiplier from the active speed buff.
    *
-   * <p>Movement speed belongs to PlayerActions, which this component does not modify. A movement
-   * component should multiply its target speed by this value for speed buffs to take effect in
-   * game.
+   * <p>The same value is handed to PlayerActions as a speed modifier whenever the buff starts or
+   * expires, which is what actually changes how fast the player moves.
    *
    * @return speed multiplier, where 1.0 is unbuffed
    */
@@ -169,9 +168,9 @@ public class PlayerBuffComponent extends Component {
   /**
    * Returns the multiplier applied to incoming damage.
    *
-   * <p>This is where Resistance meets the damage pipeline: whatever applies damage to the player
-   * should multiply it by this value. Karan's shield cancels damage at the same point, so a blocked
-   * hit stays blocked and an unblocked hit is still reduced.
+   * <p>{@code CombatStatsComponent.hit()} multiplies every hit by this value, after both shields
+   * have had their chance to block it, so a blocked hit stays blocked and an unblocked hit is
+   * reduced.
    *
    * @return incoming damage multiplier, where 1.0 is unreduced
    */
@@ -224,6 +223,27 @@ public class PlayerBuffComponent extends Component {
     CombatStatsComponent stats = getCombatStats();
     if (stats != null) {
       stats.setBaseAttack(Math.round(unbuffedBaseAttack * getDamageMultiplier()));
+    }
+    updateSpeedModifier();
+  }
+
+  /**
+   * Passes the speed buff on to PlayerActions, which owns movement speed.
+   *
+   * <p>PlayerActions multiplies together every speed modifier it holds, each stored under the key
+   * of whoever added it. This component uses itself as the key, so it only ever has one entry and
+   * can remove that entry without touching slows from enemies or the Speed+ upgrade.
+   */
+  private void updateSpeedModifier() {
+    PlayerActions actions = entity == null ? null : entity.getComponent(PlayerActions.class);
+    if (actions == null) {
+      return;
+    }
+
+    if (hasBuff(BuffStat.SPEED)) {
+      actions.addSpeedModifier(this, getSpeedMultiplier());
+    } else {
+      actions.removeSpeedModifier(this);
     }
   }
 

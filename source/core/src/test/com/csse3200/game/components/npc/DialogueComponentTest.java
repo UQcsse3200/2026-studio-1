@@ -13,10 +13,14 @@ import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @ExtendWith(GameExtension.class)
 class DialogueComponentTest {
@@ -160,12 +164,153 @@ class DialogueComponentTest {
     assertEquals("LOGGING", dialogue.getQuestState());
   }
 
+  @Test
+  void shouldIgnorePressesWithNoDialogue() {
+    createNpc(playerWithInventory(), new String[0], Quest.JUMP_QUEST, JUMPS_TO_DO);
+
+    press();
+
+    assertTrue(shown.isEmpty());
+    assertFalse(dialogue.isTalking());
+  }
+
+  @Test
+  void shouldEndConversationWhenStepHasNoLine() {
+    createNpc(playerWithInventory(), new String[] {LINES[0]}, Quest.JUMP_QUEST, JUMPS_TO_DO);
+
+    press();
+    press();
+
+    assertEquals(List.of(LINES[0]), shown);
+    assertEquals(1, hides);
+    assertFalse(dialogue.isTalking());
+    assertEquals("CHECKING", dialogue.getQuestState(), "the quest should still be handed out");
+  }
+
+  @Test
+  void shouldTrackCurrentLineAndLineCount() {
+    createNpc(playerWithInventory());
+    assertEquals(LINES.length, dialogue.getLineCount());
+
+    press();
+    assertEquals(0, dialogue.getCurrentLine());
+    press();
+    assertEquals(1, dialogue.getCurrentLine());
+    press();
+    assertEquals(0, dialogue.getCurrentLine(), "closing should reset the line");
+  }
+
+  /** Each non-jump quest type with one step of progress towards it. */
+  static Stream<Arguments> otherQuestTypes() {
+    return Stream.of(
+        Arguments.of(Quest.ENEMIES_QUEST, (Runnable) Quest::incrementGlobalEnemiesKilled),
+        Arguments.of(Quest.GOLD_SPENT_QUEST, (Runnable) () -> Quest.addGlobalGoldSpent(1)),
+        Arguments.of(
+            Quest.SHIELDS_COLLECTED_QUEST, (Runnable) Quest::incrementGlobalShieldsCollected));
+  }
+
+  @ParameterizedTest
+  @MethodSource("otherQuestTypes")
+  void shouldGiveAndClearEachQuestType(String questType, Runnable progress) {
+    createNpc(playerWithInventory(), LINES, questType, JUMPS_TO_DO);
+
+    press();
+    press();
+    assertEquals(LINES[1] + "0%", lastShown());
+    press();
+
+    for (int i = 0; i < JUMPS_TO_DO; i++) {
+      progress.run();
+    }
+    press();
+
+    assertEquals(LINES[2], lastShown());
+    assertEquals("DONE", dialogue.getQuestState());
+  }
+
+  @Test
+  void shouldRetryClearingFromErrorState() {
+    createNpc(playerWithInventory());
+    acceptQuest();
+    finishQuest();
+    dialogue.restoreQuestState("ERROR");
+
+    press();
+
+    assertEquals(LINES[2], lastShown());
+    assertEquals("DONE", dialogue.getQuestState());
+  }
+
+  @Test
+  void shouldShowErrorForUnknownQuestType() {
+    createNpc(playerWithInventory(), LINES, "unknownquest", JUMPS_TO_DO);
+    dialogue.restoreQuestState("CLEARING");
+
+    press();
+
+    assertEquals(LINES[4], lastShown());
+    assertEquals("ERROR", dialogue.getQuestState());
+  }
+
+  @Test
+  void shouldUseChangedQuestType() {
+    createNpc(playerWithInventory());
+    dialogue.changeQuestType(Quest.ENEMIES_QUEST);
+    acceptQuest();
+
+    Quest.incrementGlobalJumps();
+    Quest.incrementGlobalEnemiesKilled();
+    press();
+
+    assertEquals(Quest.ENEMIES_QUEST, dialogue.getQuestType());
+    assertEquals(LINES[1] + "50%", lastShown(), "only the kill should count");
+  }
+
+  @Test
+  void shouldUseChangedAmount() {
+    createNpc(playerWithInventory());
+    dialogue.changeAmountXToDo(4);
+    acceptQuest();
+
+    finishQuest();
+    press();
+
+    assertEquals(LINES[1] + "50%", lastShown());
+  }
+
+  @Test
+  void shouldIgnoreNonPositiveAmount() {
+    createNpc(playerWithInventory());
+    dialogue.changeAmountXToDo(0);
+    acceptQuest();
+
+    finishQuest();
+    press();
+
+    assertEquals(LINES[2], lastShown(), "the original amount should still finish the quest");
+  }
+
+  @Test
+  void shouldIgnoreNullRestoredState() {
+    createNpc(playerWithInventory());
+    dialogue.restoreQuestState("DONE");
+
+    dialogue.restoreQuestState(null);
+
+    assertEquals("DONE", dialogue.getQuestState());
+  }
+
   /** Builds an NPC with a jump quest and records what its dialogue box shows. */
   private void createNpc(Entity player) {
+    createNpc(player, LINES, Quest.JUMP_QUEST, JUMPS_TO_DO);
+  }
+
+  /** Builds an NPC with the given lines and quest, recording what its dialogue box shows. */
+  private void createNpc(Entity player, String[] lines, String questType, int amount) {
     npc =
         new Entity()
             .addComponent(new QuestGiverComponent(player))
-            .addComponent(new DialogueComponent(LINES, Quest.JUMP_QUEST, JUMPS_TO_DO));
+            .addComponent(new DialogueComponent(lines, questType, amount));
     npc.create();
     dialogue = npc.getComponent(DialogueComponent.class);
     npc.getEvents().addListener("showDialogue", (EventListener1<String>) shown::add);

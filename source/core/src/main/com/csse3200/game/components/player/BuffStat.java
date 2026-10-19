@@ -10,7 +10,7 @@ package com.csse3200.game.components.player;
 public enum BuffStat {
   /** Scales the entity's base attack damage via {@code CombatStatsComponent}. */
   DAMAGE(false),
-  /** Scales the player's movement speed, read back via {@code getSpeedMultiplier()}. */
+  /** Scales the player's movement speed via a speed modifier on {@code PlayerActions}. */
   SPEED(false),
   /** Multiplies incoming damage, so a value below 1.0 reduces the damage taken. */
   RESISTANCE(true);
