@@ -102,10 +102,12 @@ loadScripts(document, 'script');</script>
  recordEvent(...) call at the point that milestone happens (e.g. inside the wall-jump code, once
  it exists), plus a new PerkDefinitions entry - nothing about this class changes either way.
 
- <p>Unlocked/progress/active state persists via Preferences, the same pattern PauseMenuDisplay
- already uses for audio settings - but only within one playthrough: it survives death/revive (that
- never touches this class at all), but <a href="#resetAll()"><code>resetAll()</code></a> is called on every fresh game start
- (Start or Restart, not Load) - see <code>MainGameScreen</code>'s constructor.
+ <p>Unlocked/progress/active state is kept in memory for the current playthrough: it survives
+ death/revive (that never touches this class at all) and the menu screens re-registering the
+ perks, but <a href="#resetAll()"><code>resetAll()</code></a> is called on every fresh game start (Start or Restart, not Load) -
+ see <code>MainGameScreen</code>'s constructor - and a relaunch always starts with every perk locked.
+ Changes are still written to Preferences, but nothing reads them back; saved games carry their
+ own perk state (see <a href="#restorePerk(java.lang.String,int,boolean,boolean)"><code>restorePerk(java.lang.String, int, boolean, boolean)</code></a>).
 
  <p>Unlocking a perk (permanent, once earned) is separate from making it active (up to <a href="#MAX_ACTIVE_PERKS">2</a> at a time, freely toggled via <a href="#activate(java.lang.String)"><code>activate(java.lang.String)</code></a>/<a href="#deactivate(java.lang.String)"><code>deactivate(java.lang.String)</code></a> - see the
  perk-selection screen shown after death). Only active perks' rewards actually apply - see e.g.
@@ -169,7 +171,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register(com.csse3200.game.perks.Perk)" class="member-name-link">register</a><wbr>(<a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a>&nbsp;perk)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Registers a perk definition and loads any previously-saved progress for it.</div>
+<div class="block">Registers a perk definition.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resetAll()" class="member-name-link">resetAll</a>()</code></div>
@@ -234,10 +236,14 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="register(com.csse3200.game.perks.Perk)">
 <h3>register</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(<a href="Perk.html" title="class in com.csse3200.game.perks">Perk</a>&nbsp;perk)</span></div>
-<div class="block">Registers a perk definition and loads any previously-saved progress for it. Call once per perk
- (see <a href="PerkDefinitions.html#registerAll()"><code>PerkDefinitions.registerAll()</code></a>) before any recordEvent(...) calls for it will have
- any effect. Safe to call again for the same id - re-registering just reloads saved state, it
- doesn't duplicate the perk.</div>
+<div class="block">Registers a perk definition. Call once per perk (see <a href="PerkDefinitions.html#registerAll()"><code>PerkDefinitions.registerAll()</code></a>)
+ before any recordEvent(...) calls for it will have any effect.
+
+ <p>Re-registering an id that is already registered does nothing, so the live <a href="Perk.html" title="class in com.csse3200.game.perks"><code>Perk</code></a> (and
+ its unlocked/active state and callbacks) survives the main menu and Perks screens calling
+ registerAll() again. The first registration in a process ignores whatever a previous session
+ left in Preferences and clears it, so a relaunch always starts with every perk locked. Saved
+ games restore their own perk state through <a href="#restorePerk(java.lang.String,int,boolean,boolean)"><code>restorePerk(java.lang.String, int, boolean, boolean)</code></a>.</div>
 </section>
 </li>
 <li>

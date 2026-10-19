@@ -102,17 +102,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PerkSelectionDisplay</span>
 <span class="extends-implements">extends <a href="../ui/UIComponent.html" title="class in com.csse3200.game.ui">UIComponent</a></span></div>
-<div class="block">Perk-selection screen shown after death, between the player clicking "Try Again" on the death
- screen and the new player entity actually being created (see <code>MainGameScreen</code>). Lets the
- player choose up to <a href="PerkService.html#MAX_ACTIVE_PERKS">2</a> perks to have active for their next
- life - each reward component (e.g. <code>ShieldComponent</code>) only applies its bonus if its perk is
- active.
-
- <p>Card colours: grey = locked, white = unlocked but not active, gold = active. A cyan border
- shows which card currently has keyboard focus (see <a href="PerkSelectionInputComponent.html" title="class in com.csse3200.game.perks"><code>PerkSelectionInputComponent</code></a>); it's
- independent of the fill colour, so focus and activation state are always both visible at once.
- Selecting (click, or Enter/Space on a focused card) toggles: locked cards ignore it, white
- activates (if there's room, per <a href="PerkService.html#activate(java.lang.String)"><code>PerkService.activate(java.lang.String)</code></a>), gold deactivates.</div>
+<div class="block">Perk-selection UI shared by the main-menu perks screen and the in-game death overlay. Both
+ variants use the same dark fantasy cards. The main-menu variant uses a lighter scrim, while the
+ death overlay darkens the game view to keep the player's attention on the selection.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -137,6 +129,13 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.Runnable)" class="member-name-link">PerkSelectionDisplay</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onContinue)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.Runnable,boolean)" class="member-name-link">PerkSelectionDisplay</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onContinue,
+ boolean&nbsp;mainMenuStyle)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.Runnable,boolean,java.util.List)" class="member-name-link">PerkSelectionDisplay</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onContinue,
+ boolean&nbsp;mainMenuStyle,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;com.badlogic.gdx.graphics.Texture&gt;&nbsp;perkTextures)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -209,11 +208,21 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(java.lang.Runnable)">
 <h3>PerkSelectionDisplay</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PerkSelectionDisplay</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onContinue)</span></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>onContinue</code> - called once the player confirms their selection and the screen closes - this
-     is where reviving the player actually happens (see <code>MainGameScreen</code>)</dd>
-</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(java.lang.Runnable,boolean)">
+<h3>PerkSelectionDisplay</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PerkSelectionDisplay</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onContinue,
+ boolean&nbsp;mainMenuStyle)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(java.lang.Runnable,boolean,java.util.List)">
+<h3>PerkSelectionDisplay</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PerkSelectionDisplay</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;onContinue,
+ boolean&nbsp;mainMenuStyle,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;com.badlogic.gdx.graphics.Texture&gt;&nbsp;perkTextures)</span></div>
 </section>
 </li>
 </ul>
@@ -247,11 +256,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="isVisible()">
 <h3>isVisible</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isVisible</span>()</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>whether this screen is currently visible - used by <a href="PerkSelectionInputComponent.html" title="class in com.csse3200.game.perks"><code>PerkSelectionInputComponent</code></a>
-     to gate keyboard input</dd>
-</dl>
 </section>
 </li>
 <li>
