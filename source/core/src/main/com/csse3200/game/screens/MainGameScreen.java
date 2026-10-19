@@ -755,12 +755,20 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   private WhereCommand.Location getWhereLocation() {
-    Entity player = getPlayerEntity();
+    return whereLocation(levelGameArea, currentRoomMapPath);
+  }
+
+  static WhereCommand.Location whereLocation(LevelGameArea area, String mapPath) {
+    if (area == null) {
+      return null;
+    }
+
+    Entity player = area.getPlayer();
     if (player == null) {
       return null;
     }
 
-    LevelView level = levelGameArea.getLevel();
+    LevelView level = area.getLevel();
     if (level == null) {
       return null;
     }
@@ -771,7 +779,7 @@ public class MainGameScreen extends ScreenAdapter {
     SubLevel section = level.subLevelAt(tileY);
 
     return new WhereCommand.Location(
-        level.name(), currentRoomMapPath, section == null ? "none" : section.id(), tileX, tileY);
+        level.name(), mapPath, section == null ? "none" : section.id(), tileX, tileY);
   }
 
   private void createSubLevelTravelPrompt(Entity player) {
