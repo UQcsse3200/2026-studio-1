@@ -69,26 +69,16 @@ public class LevelMapData {
   }
 
   private LevelMapData(Builder builder) {
-    String name = builder.name;
-    float tileSize = builder.tileSize;
-    int width = builder.width;
-    int height = builder.height;
-    Map<String, TileDefinition> legend = builder.legend;
-    List<MapLayerData> layers = builder.layers;
-    MapSpawns spawns = builder.spawns;
-    List<RoomTransition> transitions = builder.transitions;
-    String backgroundTexture = builder.backgroundTexture;
-    List<SubLevel> subLevels = builder.subLevels;
-    this.subLevels = subLevels == null ? Collections.emptyList() : subLevels;
-    this.name = name;
-    this.tileSize = tileSize;
-    this.width = width;
-    this.height = height;
-    this.legend = legend;
-    this.layers = layers;
-    this.spawns = spawns;
-    this.transitions = transitions;
-    this.backgroundTexture = backgroundTexture;
+    this.name = builder.name;
+    this.tileSize = builder.tileSize;
+    this.width = builder.width;
+    this.height = builder.height;
+    this.legend = builder.legend;
+    this.layers = builder.layers;
+    this.spawns = builder.spawns;
+    this.transitions = builder.transitions;
+    this.backgroundTexture = builder.backgroundTexture;
+    this.subLevels = builder.subLevels == null ? Collections.emptyList() : builder.subLevels;
     this.backdrops = builder.backdrops;
     this.overlays = builder.overlays;
     this.lighting = builder.lighting;
@@ -274,35 +264,32 @@ public class LevelMapData {
   public Set<String> getTexturePaths() {
     Set<String> paths = new LinkedHashSet<>();
     for (TileDefinition def : legend.values()) {
-      if (def.texture() != null) {
-        paths.add(def.texture());
-      }
-      if (def.properties().containsKey(GLOW_PROPERTY)) {
-        paths.add(def.properties().get(GLOW_PROPERTY));
-      }
-      if (def.properties().containsKey(ANIMATION_PROPERTY)) {
-        paths.add(def.properties().get(ANIMATION_PROPERTY));
-      }
+      addIfPresent(paths, def.texture());
+      addIfPresent(paths, def.properties().get(GLOW_PROPERTY));
+      addIfPresent(paths, def.properties().get(ANIMATION_PROPERTY));
     }
     for (RoomTransition transition : transitions) {
-      if (transition.getTexture() != null) {
-        paths.add(transition.getTexture());
-      }
+      addIfPresent(paths, transition.getTexture());
     }
-    if (backgroundTexture != null) {
-      paths.add(backgroundTexture);
-    }
-    for (List<BackdropLayer> backdrop : backdrops.values()) {
-      for (BackdropLayer layer : backdrop) {
-        paths.add(layer.texture());
-      }
-    }
-    for (List<BackdropLayer> overlay : overlays.values()) {
-      for (BackdropLayer layer : overlay) {
-        paths.add(layer.texture());
-      }
-    }
+    addIfPresent(paths, backgroundTexture);
+    addLayerTextures(paths, backdrops);
+    addLayerTextures(paths, overlays);
     return paths;
+  }
+
+  private static void addIfPresent(Set<String> paths, String path) {
+    if (path != null) {
+      paths.add(path);
+    }
+  }
+
+  private static void addLayerTextures(
+      Set<String> paths, Map<String, List<BackdropLayer>> layersById) {
+    for (List<BackdropLayer> layers : layersById.values()) {
+      for (BackdropLayer layer : layers) {
+        paths.add(layer.texture());
+      }
+    }
   }
 
   /**

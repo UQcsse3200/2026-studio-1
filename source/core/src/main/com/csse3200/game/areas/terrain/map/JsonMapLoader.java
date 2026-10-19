@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.components.lighting.LightingConfigParser;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,6 +67,8 @@ import org.slf4j.LoggerFactory;
 public class JsonMapLoader implements MapLoader {
   private static final String TYPE_KEY = "type";
   private static final String TEXTURE_KEY = "texture";
+  private static final String WIDTH_KEY = "width";
+  private static final String HEIGHT_KEY = "height";
   private static final Logger logger = LoggerFactory.getLogger(JsonMapLoader.class);
   private static final float DEFAULT_TILE_SIZE = 0.5f;
   private static final char EMPTY_CELL = ' ';
@@ -222,7 +225,24 @@ public class JsonMapLoader implements MapLoader {
 
   private record LayerRows(List<String> names, List<String[]> rows, int width, int height) {}
 
-  private record SplitLayers(List<MapLayerData> layers, String[] entityRows) {}
+  private record SplitLayers(List<MapLayerData> layers, String[] entityRows) {
+    @Override
+    public boolean equals(Object o) {
+      return o instanceof SplitLayers other
+          && layers.equals(other.layers)
+          && Arrays.equals(entityRows, other.entityRows);
+    }
+
+    @Override
+    public int hashCode() {
+      return 31 * layers.hashCode() + Arrays.hashCode(entityRows);
+    }
+
+    @Override
+    public String toString() {
+      return "SplitLayers[layers=" + layers + ", entityRows=" + Arrays.toString(entityRows) + "]";
+    }
+  }
 
   /**
    * Reads the optional {@code subLevels} block: named sections of one map that the game treats as
@@ -260,8 +280,8 @@ public class JsonMapLoader implements MapLoader {
               new SubLevel.Bounds(
                   boundsJson.getInt("x", 0),
                   boundsJson.getInt("y", 0),
-                  boundsJson.getInt("width", 0),
-                  boundsJson.getInt("height", 0)),
+                  boundsJson.getInt(WIDTH_KEY, 0),
+                  boundsJson.getInt(HEIGHT_KEY, 0)),
               readTile(entry.get("door")),
               entry.getString("destination", null),
               readTile(entry.get("destinationSpawn"))));
@@ -298,30 +318,38 @@ public class JsonMapLoader implements MapLoader {
 
       List<BackdropLayer> layers = new ArrayList<>();
       for (JsonValue layer = backdrop.child; layer != null; layer = layer.next) {
-        String texture = layer.getString(TEXTURE_KEY, null);
-        if (texture == null || texture.isBlank()) {
-          throw new MapLoadException(
-              "Backdrop '"
-                  + backdrop.name
-                  + "' in map '"
-                  + mapName
-                  + "' has a layer with no texture");
-        }
-        JsonValue drift = layer.get("drift");
-        layers.add(
-            new BackdropLayer(
-                texture,
-                layer.getFloat("scroll", 0f),
-                drift == null ? 0f : drift.getFloat("x", 0f),
-                drift == null ? 0f : drift.getFloat("y", 0f),
-                layer.getBoolean("spansMap", false),
-                readRows(layer.get("rows")),
-                layer.getFloat("alpha", 1f),
-                readFlicker(layer.get("flicker"))));
+        layers.add(parseBackdropLayer(layer, backdrop.name, mapName));
       }
       backdrops.put(backdrop.name, layers);
     }
     return backdrops;
+  }
+
+  /**
+   * Reads one entry of a backdrop or overlay list.
+   *
+   * @param layer the layer's JSON object
+   * @param backdropName the sub-level id the layer belongs to, for error messages
+   * @param mapName the map's name, for error messages
+   * @return the parsed layer
+   */
+  private static BackdropLayer parseBackdropLayer(
+      JsonValue layer, String backdropName, String mapName) {
+    String texture = layer.getString(TEXTURE_KEY, null);
+    if (texture == null || texture.isBlank()) {
+      throw new MapLoadException(
+          "Backdrop '" + backdropName + "' in map '" + mapName + "' has a layer with no texture");
+    }
+    JsonValue drift = layer.get("drift");
+    return new BackdropLayer(
+        texture,
+        layer.getFloat("scroll", 0f),
+        drift == null ? 0f : drift.getFloat("x", 0f),
+        drift == null ? 0f : drift.getFloat("y", 0f),
+        layer.getBoolean("spansMap", false),
+        readRows(layer.get("rows")),
+        layer.getFloat("alpha", 1f),
+        readFlicker(layer.get("flicker")));
   }
 
   /** Reads an optional {from, to} object as a band of tile rows. */
@@ -340,7 +368,7 @@ public class JsonMapLoader implements MapLoader {
             json.getFloat("fps", 12f),
             json.getFloat("minGap", 3f),
             json.getFloat("maxGap", 8f),
-            json.getFloat("height", 0.35f));
+            json.getFloat(HEIGHT_KEY, 0.35f));
   }
 
   /** Reads an optional {x, y} object as a tile position. */
@@ -640,8 +668,8 @@ public class JsonMapLoader implements MapLoader {
           new RoomTransition(
               doorway.getString("id", "transition-" + index),
               new GridPoint2(doorway.getInt("x", 0), doorway.getInt("y", 0)),
-              Math.max(1, doorway.getInt("width", 1)),
-              Math.max(1, doorway.getInt("height", 1)),
+              Math.max(1, doorway.getInt(WIDTH_KEY, 1)),
+              Math.max(1, doorway.getInt(HEIGHT_KEY, 1)),
               doorway.getString(TEXTURE_KEY, null),
               destinationMap,
               destinationSpawn));
