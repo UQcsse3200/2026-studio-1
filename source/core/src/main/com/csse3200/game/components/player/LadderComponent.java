@@ -191,31 +191,42 @@ public class LadderComponent extends Component {
         continue;
       }
       for (int row = firstRow; row <= lastRow; row++) {
-        if (!isLadder(x, row)) {
-          continue;
-        }
-        int bottom = row;
-        while (isLadder(x, bottom - 1)) {
-          bottom--;
-        }
-        int top = row;
-        while (isLadder(x, top + 1)) {
-          top++;
-        }
-        if (mapData.getSubLevelAt(bottom) != mapData.getSubLevelAt(top)) {
-          continue;
-        }
-        float landingY = top * tileSize + scale.y / 2f + 0.02f;
-        if (centre.y < (bottom - 1) * tileSize || centre.y >= landingY - 0.1f) {
-          continue;
-        }
-        int landingX = findLandingColumn(x, top);
-        if (landingX >= 0) {
-          return new AutoClimbTarget(x, landingX, landingY);
+        AutoClimbTarget target = isLadder(x, row) ? targetForLadder(x, row, centre.y) : null;
+        if (target != null) {
+          return target;
         }
       }
     }
     return null;
+  }
+
+  /**
+   * Works out where an automatic climb up the ladder through a tile would end.
+   *
+   * @param x the ladder's column
+   * @param row any row of the ladder
+   * @param centreY the player's centre height
+   * @return the climb target, or null if the player can't auto-climb this ladder from here
+   */
+  private AutoClimbTarget targetForLadder(int x, int row, float centreY) {
+    float tileSize = mapData.getTileSize();
+    int bottom = row;
+    while (isLadder(x, bottom - 1)) {
+      bottom--;
+    }
+    int top = row;
+    while (isLadder(x, top + 1)) {
+      top++;
+    }
+    if (mapData.getSubLevelAt(bottom) != mapData.getSubLevelAt(top)) {
+      return null;
+    }
+    float landingY = top * tileSize + entity.getScale().y / 2f + 0.02f;
+    if (centreY < (bottom - 1) * tileSize || centreY >= landingY - 0.1f) {
+      return null;
+    }
+    int landingX = findLandingColumn(x, top);
+    return landingX >= 0 ? new AutoClimbTarget(x, landingX, landingY) : null;
   }
 
   private boolean isLevelOne() {
