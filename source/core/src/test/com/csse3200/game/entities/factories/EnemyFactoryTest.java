@@ -458,8 +458,9 @@ class EnemyFactoryTest {
     @ParameterizedTest(name = "{0} rejects a null target by name")
     @MethodSource(EVERY_ENEMY)
     void shouldRejectANullTargetNamingTheEnemy(Spec spec) {
+      var factory = spec.factory();
       IllegalArgumentException thrown =
-          assertThrows(IllegalArgumentException.class, () -> spec.factory().apply(null));
+          assertThrows(IllegalArgumentException.class, () -> factory.apply(null));
 
       assertEquals(spec.label() + " needs a target", thrown.getMessage());
     }
@@ -593,7 +594,7 @@ class EnemyFactoryTest {
   @DisplayName("createSkeleton")
   class Skeleton {
     @Test
-    void shouldMeleeWithItsSwordFromTheConfig() throws ReflectiveOperationException {
+    void shouldMeleeWithItsSwordFromTheConfig() {
       Entity skeleton = EnemyFactory.createSkeleton(player);
       MeleeAttackComponent melee = skeleton.getComponent(MeleeAttackComponent.class);
 
@@ -871,6 +872,34 @@ class EnemyFactoryTest {
       configs.medusa.melee.range = configs.medusa.ranged.range;
 
       assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+    }
+
+    /** A NaN melee range is still rejected after the operator change. */
+    @Test
+    void shouldRejectANaNMeleeRange() {
+      configs.medusa.melee.range = Float.NaN; // tearDown restores it
+
+      assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+    }
+
+    /** A NaN ranged range is still rejected after the operator change. */
+    @Test
+    void shouldRejectANaNRangedRange() {
+      float savedRangedRange = configs.medusa.ranged.range;
+      configs.medusa.ranged.range = Float.NaN;
+      try {
+        assertThrows(IllegalArgumentException.class, () -> EnemyFactory.createMedusa(player));
+      } finally {
+        configs.medusa.ranged.range = savedRangedRange;
+      }
+    }
+
+    /** A melee range just below the ranged range is accepted. */
+    @Test
+    void shouldAcceptAMeleeRangeJustBelowTheRangedRange() {
+      configs.medusa.melee.range = Math.nextDown(configs.medusa.ranged.range);
+
+      assertDoesNotThrow(() -> EnemyFactory.createMedusa(player));
     }
 
     @Test

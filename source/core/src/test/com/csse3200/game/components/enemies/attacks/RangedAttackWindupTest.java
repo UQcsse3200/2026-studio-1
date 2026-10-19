@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,13 +12,13 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.rendering.RenderService;
@@ -370,9 +370,13 @@ class RangedAttackWindupTest {
 
   private Events listenToAll(Entity attacker) {
     Events ev = new Events();
-    attacker.getEvents().addListener("rangedAttackWindup", (Entity e) -> ev.windups.add(e));
-    attacker.getEvents().addListener("rangedAttackFired", (Entity e) -> ev.fired.add(e));
-    attacker.getEvents().addListener("rangedAttackCancelled", (Entity e) -> ev.cancels.add(e));
+    attacker
+        .getEvents()
+        .addListener("rangedAttackWindup", (EventListener1<Entity>) ev.windups::add);
+    attacker.getEvents().addListener("rangedAttackFired", (EventListener1<Entity>) ev.fired::add);
+    attacker
+        .getEvents()
+        .addListener("rangedAttackCancelled", (EventListener1<Entity>) ev.cancels::add);
     return ev;
   }
 }

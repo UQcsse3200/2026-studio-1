@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import com.badlogic.gdx.audio.Sound;
 import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.effects.SpeedEffectComponent;
-import com.csse3200.game.components.enemies.attacks.LightningFreezeComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;

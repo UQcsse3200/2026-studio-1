@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.ComponentPriority;
 import com.csse3200.game.components.effects.SpeedEffectComponent;
-import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponTier;
 import com.csse3200.game.components.loot.WeaponType;
@@ -25,6 +24,7 @@ import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.physics.PhysicsService;
 import com.csse3200.game.physics.components.PhysicsComponent;
@@ -443,7 +443,7 @@ class RangedAttackComponentTest {
 
   private List<Entity> listenForFired(Entity attacker) {
     List<Entity> fired = new ArrayList<>();
-    attacker.getEvents().addListener("rangedAttackFired", (Entity t) -> fired.add(t));
+    attacker.getEvents().addListener("rangedAttackFired", (EventListener1<Entity>) fired::add);
     return fired;
   }
 

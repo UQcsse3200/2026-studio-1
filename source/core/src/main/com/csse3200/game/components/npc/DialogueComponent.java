@@ -48,50 +48,64 @@ public class DialogueComponent extends Component {
     if (dialogue.length == 0) {
       return;
     }
-    if (talking == false) {
+    if (!talking) {
       talking = true;
-      currentLine = currentState.ordinal();
-    }
-    if (currentLine < dialogue.length) {
-      switch (currentState) {
-        case LOGGING:
-          logCorrespondingQuest();
-          currentState = state.CHECKING;
-          currentLine = currentState.ordinal();
-          break;
-        case CHECKING: // CHECKING quest
-          if (checkCorrespondingQuest() >= 100) {
-            currentState = state.CLEARING;
-            currentLine = currentState.ordinal();
-          }
-          break;
-        case CLEARING: // CLEARING quest (if error, go to ERROR (4) state)
-          if (clearCorrospondingQuest()) {
-            currentState = state.DONE;
-            currentLine = currentState.ordinal();
-          } else {
-            currentState = state.ERROR;
-            currentLine = currentState.ordinal();
-          }
-          break;
-        case DONE: // DONE
-          break;
-        case ERROR: // ERROR (trouble clearing quest)
-          currentState = state.CLEARING;
-          currentLine = currentState.ordinal();
-          break;
-      }
-      String text;
-      if (currentState != state.CHECKING) {
-        text = dialogue[currentLine];
-      } else {
-        // Give out the progress of the quest
-        text = dialogue[currentLine] + checkCorrespondingQuest() + "%";
-      }
-      entity.getEvents().trigger("showDialogue", text);
+      showOpeningLine();
+    } else if (currentState == state.LOGGING) {
+      // The greeting was just shown, so this press hands out the quest.
+      logCorrespondingQuest();
+      currentState = state.CHECKING;
+      showLine(state.CHECKING);
     } else {
       endDialogue();
     }
+  }
+
+  /** Shows the first line of a conversation, clearing a finished quest on this same press. */
+  private void showOpeningLine() {
+    switch (currentState) {
+      case LOGGING:
+        showLine(state.LOGGING);
+        break;
+      case CHECKING:
+        if (checkCorrespondingQuest() >= 100) {
+          clearAndShowResult();
+        } else {
+          showLine(state.CHECKING);
+        }
+        break;
+      case CLEARING, ERROR:
+        clearAndShowResult();
+        break;
+      case DONE:
+        showLine(state.DONE);
+        break;
+    }
+  }
+
+  /** Clears the quest now and shows the cleared line, or the error line if clearing failed. */
+  private void clearAndShowResult() {
+    if (clearCorrospondingQuest()) {
+      currentState = state.DONE;
+      showLine(state.CLEARING);
+    } else {
+      currentState = state.ERROR;
+      showLine(state.ERROR);
+    }
+  }
+
+  /** Shows the line for a quest step, adding the quest's progress to the checking line. */
+  private void showLine(state line) {
+    currentLine = line.ordinal();
+    if (currentLine >= dialogue.length) {
+      endDialogue();
+      return;
+    }
+    String text = dialogue[currentLine];
+    if (line == state.CHECKING) {
+      text = text + checkCorrespondingQuest() + "%";
+    }
+    entity.getEvents().trigger("showDialogue", text);
   }
 
   public void endDialogue() {

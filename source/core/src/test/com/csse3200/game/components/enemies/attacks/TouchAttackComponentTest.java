@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.enemies.attacks.TouchAttackComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.extensions.GameExtension;
@@ -196,12 +195,30 @@ class TouchAttackComponentTest {
     assertEquals(expectedHits, touchOf(attacker).getHitsThisActivation());
   }
 
+  /** Activating over several touching targets obeys the hit limit and skips the wrong layer. */
+  @Test
+  void shouldHitOnlyOneValidTargetAndSkipTheWrongLayerWhenActivated() {
+    Entity attacker = createPhysicalAttacker(0f, 0f);
+    Entity wrongLayer = createPhysicalTarget(0f, 0f, 100, (short) (1 << 6));
+    Entity first = createPhysicalTarget(0f, 0f, 100);
+    Entity second = createPhysicalTarget(0f, 0f, 100);
+    touchOf(attacker).setMaxHitsPerActivation(1);
+    touchOf(attacker).setActive(false);
+    stepWorld(3); // contacts exist, but touch damage is off
+
+    touchOf(attacker).activate();
+
+    assertEquals(100, healthOf(wrongLayer), "the wrong layer is never hurt");
+    int hurt = (100 - healthOf(first) > 0 ? 1 : 0) + (100 - healthOf(second) > 0 ? 1 : 0);
+    assertEquals(1, hurt, "the limit of one hit holds across both valid targets");
+  }
+
   @Test
   void shouldRejectANegativeLimit() {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
-    assertThrows(
-        IllegalArgumentException.class, () -> touchOf(attacker).setMaxHitsPerActivation(-1));
+    TouchAttackComponent touch = touchOf(attacker);
+    assertThrows(IllegalArgumentException.class, () -> touch.setMaxHitsPerActivation(-1));
   }
 
   @Test
@@ -293,19 +310,18 @@ class TouchAttackComponentTest {
   void shouldRejectAZeroOrNegativeMultiplier(float multiplier) {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
-    assertThrows(
-        IllegalArgumentException.class, () -> touchOf(attacker).setDamageMultiplier(multiplier));
+    TouchAttackComponent touch = touchOf(attacker);
+    assertThrows(IllegalArgumentException.class, () -> touch.setDamageMultiplier(multiplier));
   }
 
   @Test
   void shouldRejectANotANumberOrInfiniteMultiplier() {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
 
+    TouchAttackComponent touch = touchOf(attacker);
+    assertThrows(IllegalArgumentException.class, () -> touch.setDamageMultiplier(Float.NaN));
     assertThrows(
-        IllegalArgumentException.class, () -> touchOf(attacker).setDamageMultiplier(Float.NaN));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> touchOf(attacker).setDamageMultiplier(Float.POSITIVE_INFINITY));
+        IllegalArgumentException.class, () -> touch.setDamageMultiplier(Float.POSITIVE_INFINITY));
   }
 
   @Test
@@ -313,7 +329,8 @@ class TouchAttackComponentTest {
     Entity attacker = createAttacker(TARGET_LAYER, 0, BASE_ATTACK);
     touchOf(attacker).setDamageMultiplier(2f);
 
-    assertThrows(IllegalArgumentException.class, () -> touchOf(attacker).setDamageMultiplier(-1f));
+    TouchAttackComponent touch = touchOf(attacker);
+    assertThrows(IllegalArgumentException.class, () -> touch.setDamageMultiplier(-1f));
 
     assertEquals(2f, touchOf(attacker).getDamageMultiplier(), 1e-6f);
   }

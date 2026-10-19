@@ -1,7 +1,6 @@
 package com.csse3200.game.win;
 
 import com.csse3200.game.entities.spawn.enemies.EnemyRegistry;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -79,12 +78,11 @@ public final class WinEvaluator {
     if (killedEnemyIds != null) {
       killed.addAll(killedEnemyIds);
     }
-    List<String> missing = new ArrayList<>();
-    for (BossRoster.MiniBoss boss : BossRoster.getMiniBosses()) {
-      if (boss.isRequired() && !killed.contains(boss.getId())) {
-        missing.add(boss.getLabel());
-      }
-    }
+    List<String> missing =
+        BossRoster.getMiniBosses().stream()
+            .filter(boss -> boss.isRequired() && !killed.contains(boss.getId()))
+            .map(BossRoster.MiniBoss::getLabel)
+            .toList();
     int required = BossRoster.getRequiredCount();
 
     WinTier tier = WinTier.NONE;

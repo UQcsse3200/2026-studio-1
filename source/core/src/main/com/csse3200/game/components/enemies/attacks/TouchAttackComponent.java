@@ -141,23 +141,37 @@ public class TouchAttackComponent extends Component {
     // asks for contacts during a hit must not disturb this loop.
     Array<Contact> contacts = new Array<>(world.getContactList());
     for (Contact contact : contacts) {
-      if (!contact.isTouching()) {
-        continue;
+      Entity target = touchedTarget(contact, myFixture);
+      if (target != null) {
+        tryHit(target);
       }
-      Fixture other;
-      if (contact.getFixtureA() == myFixture) {
-        other = contact.getFixtureB();
-      } else if (contact.getFixtureB() == myFixture) {
-        other = contact.getFixtureA();
-      } else {
-        continue;
-      }
-      if (!PhysicsLayer.contains(targetLayer, other.getFilterData().categoryBits)) {
-        continue;
-      }
-      Entity target = ((BodyUserData) other.getBody().getUserData()).entity;
-      tryHit(target);
     }
+  }
+
+  /**
+   * Finds the target entity that a contact joins to this entity's hitbox.
+   *
+   * @param contact a contact from the physics world
+   * @param myFixture this entity's hitbox fixture
+   * @return the entity on the other side, or null if the shapes are not touching, the contact does
+   *     not involve this hitbox, or the other fixture is not on a target layer
+   */
+  private Entity touchedTarget(Contact contact, Fixture myFixture) {
+    if (!contact.isTouching()) {
+      return null;
+    }
+    Fixture other;
+    if (contact.getFixtureA() == myFixture) {
+      other = contact.getFixtureB();
+    } else if (contact.getFixtureB() == myFixture) {
+      other = contact.getFixtureA();
+    } else {
+      return null;
+    }
+    if (!PhysicsLayer.contains(targetLayer, other.getFilterData().categoryBits)) {
+      return null;
+    }
+    return ((BodyUserData) other.getBody().getUserData()).entity;
   }
 
   /** Turns touch damage off. Safe to call when already off. */

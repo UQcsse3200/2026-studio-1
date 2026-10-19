@@ -1,4 +1,4 @@
-package com.csse3200.game.components.attacks;
+package com.csse3200.game.components.enemies.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,9 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.AttackTestWorld;
 import com.csse3200.game.components.CombatStatsComponent;
-import com.csse3200.game.components.enemies.attacks.LaserAttackComponent;
-import com.csse3200.game.components.enemies.attacks.RangedAttackComponent;
-import com.csse3200.game.components.enemies.attacks.RockAttackComponent;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.projectile.ProjectileType;
 import com.csse3200.game.entities.Entity;
@@ -93,17 +90,18 @@ class LaserAttackComponentTest {
   @ParameterizedTest(name = "spawnHeightFraction {0} is rejected")
   @ValueSource(floats = {-0.01f, 1.01f, 2f, -5f})
   void shouldRejectASpawnHeightOutsideZeroToOne(float fraction) {
+    var weapon = weapon();
     assertThrows(
         IllegalArgumentException.class,
-        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), fraction, MULTIPLIER));
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, fraction, MULTIPLIER));
   }
 
   @Test
   void shouldRejectANotANumberSpawnHeight() {
+    var weapon = weapon();
     assertThrows(
         IllegalArgumentException.class,
-        () ->
-            new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon(), Float.NaN, MULTIPLIER));
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, Float.NaN, MULTIPLIER));
   }
 
   @ParameterizedTest(name = "spawnHeightFraction {0} is accepted")
@@ -116,20 +114,20 @@ class LaserAttackComponentTest {
   @ParameterizedTest(name = "damageMultiplier {0} is rejected")
   @ValueSource(floats = {0f, -1f, -0.0001f})
   void shouldRejectAZeroOrNegativeMultiplier(float multiplier) {
+    var weapon = weapon();
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new LaserAttackComponent(
-                RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, multiplier));
+            new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, multiplier));
   }
 
   @Test
   void shouldRejectANotANumberMultiplier() {
+    var weapon = weapon();
     assertThrows(
         IllegalArgumentException.class,
         () ->
-            new LaserAttackComponent(
-                RANGE, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, Float.NaN));
+            new LaserAttackComponent(RANGE, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, Float.NaN));
   }
 
   @Test
@@ -140,25 +138,21 @@ class LaserAttackComponentTest {
 
   @Test
   void shouldInheritTheRulesOfTheRangedConstructor() {
+    var weapon = weapon();
     // A negative range, a negative knockback and a windup as long as the cooldown are all refused
     // by the parent constructor before the laser's own checks run.
     assertThrows(
         IllegalArgumentException.class,
-        () ->
-            new LaserAttackComponent(-1f, COOLDOWN, KNOCKBACK, weapon(), SPAWN_HEIGHT, MULTIPLIER));
+        () -> new LaserAttackComponent(-1f, COOLDOWN, KNOCKBACK, weapon, SPAWN_HEIGHT, MULTIPLIER));
     assertThrows(
         IllegalArgumentException.class,
-        () -> new LaserAttackComponent(RANGE, COOLDOWN, -1f, weapon(), SPAWN_HEIGHT, MULTIPLIER));
+        () -> new LaserAttackComponent(RANGE, COOLDOWN, -1f, weapon, SPAWN_HEIGHT, MULTIPLIER));
+    WeaponItem invalidWeapon = AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN);
     assertThrows(
         IllegalArgumentException.class,
         () ->
             new LaserAttackComponent(
-                RANGE,
-                COOLDOWN,
-                KNOCKBACK,
-                AttackTestWorld.naturalWeapon(WEAPON_DAMAGE, COOLDOWN),
-                SPAWN_HEIGHT,
-                MULTIPLIER));
+                RANGE, COOLDOWN, KNOCKBACK, invalidWeapon, SPAWN_HEIGHT, MULTIPLIER));
   }
 
   @Test
@@ -188,7 +182,7 @@ class LaserAttackComponentTest {
   void shouldAnnounceTheWindupUnderTheLaserPrefix() {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> windups = AttackTestWorld.record(owner, "laserAttackWindup");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "laserAttackWindup");
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
 
@@ -200,7 +194,7 @@ class LaserAttackComponentTest {
   void shouldAnnounceTheShotUnderTheLaserPrefixWhenTheWindupEnds() {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> fired = AttackTestWorld.record(owner, "laserAttackFired");
+    List<Entity> fired = AttackTestWorld.recordEvents(owner, "laserAttackFired");
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
@@ -213,7 +207,7 @@ class LaserAttackComponentTest {
   void shouldAnnounceTheHitUnderTheLaserPrefixWhenTheLaserLands() {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0.5f, 50);
-    List<Entity> hits = AttackTestWorld.record(owner, "laserAttackHit");
+    List<Entity> hits = AttackTestWorld.recordEvents(owner, "laserAttackHit");
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
@@ -227,10 +221,10 @@ class LaserAttackComponentTest {
   void shouldNeverUseTheDefaultRangedPrefixOrTheRockPrefix() {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> rangedWindups = AttackTestWorld.record(owner, "rangedAttackWindup");
-    List<Entity> rangedFired = AttackTestWorld.record(owner, "rangedAttackFired");
-    List<Entity> rockWindups = AttackTestWorld.record(owner, "rockAttackWindup");
-    List<Entity> rockFired = AttackTestWorld.record(owner, "rockAttackFired");
+    List<Entity> rangedWindups = AttackTestWorld.recordEvents(owner, "rangedAttackWindup");
+    List<Entity> rangedFired = AttackTestWorld.recordEvents(owner, "rangedAttackFired");
+    List<Entity> rockWindups = AttackTestWorld.recordEvents(owner, "rockAttackWindup");
+    List<Entity> rockFired = AttackTestWorld.recordEvents(owner, "rockAttackFired");
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
@@ -248,7 +242,7 @@ class LaserAttackComponentTest {
     // a laser must answer to neither, or one trigger would fire two attacks.
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> windups = AttackTestWorld.record(owner, "laserAttackWindup");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "laserAttackWindup");
 
     if ("meleeAttack".equals(otherTrigger)) {
       owner.getEvents().trigger(otherTrigger, target);
@@ -293,7 +287,7 @@ class LaserAttackComponentTest {
     // The task triggers every frame the target is in range, so repeats are the normal case.
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> windups = AttackTestWorld.record(owner, "laserAttackWindup");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "laserAttackWindup");
     int before = world.mark();
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
@@ -468,7 +462,7 @@ class LaserAttackComponentTest {
   void shouldHurtTheTargetOnlyOncePerShot() {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0.5f, 50);
-    List<Entity> hits = AttackTestWorld.record(owner, "laserAttackHit");
+    List<Entity> hits = AttackTestWorld.recordEvents(owner, "laserAttackHit");
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
@@ -505,7 +499,7 @@ class LaserAttackComponentTest {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(RANGE + 5f, 0f, 50);
     int before = world.mark();
-    List<Entity> windups = AttackTestWorld.record(owner, "laserAttackWindup");
+    List<Entity> windups = AttackTestWorld.recordEvents(owner, "laserAttackWindup");
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);
@@ -518,7 +512,7 @@ class LaserAttackComponentTest {
   void shouldCancelWhenTheTargetDiesDuringTheWindup() {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0f, 50);
-    List<Entity> cancelled = AttackTestWorld.record(owner, "laserAttackCancelled");
+    List<Entity> cancelled = AttackTestWorld.recordEvents(owner, "laserAttackCancelled");
     int before = world.mark();
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
@@ -536,7 +530,7 @@ class LaserAttackComponentTest {
     Entity owner = world.newAttacker(newLaser());
     Entity target = world.newTarget(4f, 0f, 50);
     target.getComponent(CombatStatsComponent.class).setHealth(0);
-    List<Entity> fired = AttackTestWorld.record(owner, "laserAttackFired");
+    List<Entity> fired = AttackTestWorld.recordEvents(owner, "laserAttackFired");
     int before = world.mark();
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
@@ -668,7 +662,7 @@ class LaserAttackComponentTest {
     laser.setProjectileSpeed(SPEED);
     Entity owner = world.newAttacker(laser);
     Entity target = world.newTarget(4f, 0.5f, targetHealth);
-    List<Entity> hits = AttackTestWorld.record(owner, "laserAttackHit");
+    List<Entity> hits = AttackTestWorld.recordEvents(owner, "laserAttackHit");
 
     owner.getEvents().trigger("laserAttack", target, ProjectileType.ARROW);
     world.step(AttackTestWorld.framesFor(WINDUP) + 1, owner);

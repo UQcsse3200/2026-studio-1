@@ -214,33 +214,52 @@ public class ChargeComponent extends Component {
   public void update() {
     finishedThisTick = false;
     float dt = ServiceLocator.getTimeSource().getDeltaTime();
-    if (isCharging()) {
-      chargeTimeRemaining -= dt;
-      if (windupTimeRemaining > 0) {
-        windupTimeRemaining -= dt;
-        if (windupTimeRemaining <= 0.0001f) {
-          windupTimeRemaining = 0;
-          PhysicsMovementComponent movement =
-              this.getEntity().getComponent(PhysicsMovementComponent.class);
-          if (movement != null && targetPosition != null) {
-            movement.setTarget(targetPosition);
-            movement.setSpeedMultiplier(this.speedMultiplier);
-            movement.setMoving(true);
-          }
-          this.getEntity().getEvents().trigger("chargeRushStart");
-          beginTouchDamage();
-        }
-      }
-      if (finishedThisTick) {
-        // A hit that landed on the first frame of the rush already ended the charge.
-        return;
-      }
-      if (chargeTimeRemaining <= 0.0001f) {
-        finishCharge();
-      }
-    } else {
+    if (!isCharging()) {
       timeSinceLastCharge += dt;
+      return;
     }
+    chargeTimeRemaining -= dt;
+    advanceWindup(dt);
+    if (finishedThisTick) {
+      // A hit that landed on the first frame of the rush already ended the charge.
+      return;
+    }
+    if (chargeTimeRemaining <= 0.0001f) {
+      finishCharge();
+    }
+  }
+
+  /**
+   * Counts the stationary windup down and starts the rush when it runs out. Does nothing when no
+   * windup is in progress.
+   *
+   * @param dt seconds elapsed this tick
+   */
+  private void advanceWindup(float dt) {
+    if (windupTimeRemaining <= 0) {
+      return;
+    }
+    windupTimeRemaining -= dt;
+    if (windupTimeRemaining <= 0.0001f) {
+      windupTimeRemaining = 0;
+      startRush();
+    }
+  }
+
+  /**
+   * Moves the entity toward the snapshot target at charge speed, announces the rush and switches
+   * the touch attack on.
+   */
+  private void startRush() {
+    PhysicsMovementComponent movement =
+        this.getEntity().getComponent(PhysicsMovementComponent.class);
+    if (movement != null && targetPosition != null) {
+      movement.setTarget(targetPosition);
+      movement.setSpeedMultiplier(this.speedMultiplier);
+      movement.setMoving(true);
+    }
+    this.getEntity().getEvents().trigger("chargeRushStart");
+    beginTouchDamage();
   }
 
   /**

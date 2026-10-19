@@ -1,4 +1,4 @@
-package com.csse3200.game.components.tasks;
+package com.csse3200.game.components.enemies.tasks;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import com.csse3200.game.ai.tasks.AITaskComponent;
 import com.csse3200.game.components.CombatStatsComponent;
 import com.csse3200.game.components.enemies.attacks.MeleeAttackComponent;
-import com.csse3200.game.components.enemies.tasks.MeleeAttackTask;
 import com.csse3200.game.components.loot.WeaponItem;
 import com.csse3200.game.components.loot.WeaponType;
 import com.csse3200.game.entities.Entity;
@@ -200,10 +199,10 @@ class MeleeAttackTaskTest {
     MeleeAttackTask task = attachTask(attacker, target);
     task.start();
 
-    float targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
+    int targetHealthBeforeAttack = target.getComponent(CombatStatsComponent.class).getHealth();
     task.update();
     attacker.update(); // let MeleeAttackComponent resolve the zero-length windup the task started
-    float targetHealthAfterAttack = target.getComponent(CombatStatsComponent.class).getHealth();
+    int targetHealthAfterAttack = target.getComponent(CombatStatsComponent.class).getHealth();
 
     assertTrue(
         targetHealthAfterAttack < targetHealthBeforeAttack,
@@ -224,11 +223,11 @@ class MeleeAttackTaskTest {
     MeleeAttackTask taskForRangeCheck = attachTask(attackerForRangeCheck, targetOutOfRange);
     taskForRangeCheck.start();
 
-    float healthBeforeRangeCheck =
+    int healthBeforeRangeCheck =
         targetOutOfRange.getComponent(CombatStatsComponent.class).getHealth();
     taskForRangeCheck.update();
     attackerForRangeCheck.update();
-    float healthAfterRangeCheck =
+    int healthAfterRangeCheck =
         targetOutOfRange.getComponent(CombatStatsComponent.class).getHealth();
     assertEquals(
         healthBeforeRangeCheck,
@@ -271,12 +270,11 @@ class MeleeAttackTaskTest {
 
     task.update();
     attacker.update(); // resolve first attack's windup
-    float targetHealthAfterFirstAttack =
-        target.getComponent(CombatStatsComponent.class).getHealth();
+    int targetHealthAfterFirstAttack = target.getComponent(CombatStatsComponent.class).getHealth();
 
     task.update(); // still within cooldown - canAttack() is false, no event is triggered
     attacker.update();
-    float targetHealthDuringCooldown = target.getComponent(CombatStatsComponent.class).getHealth();
+    int targetHealthDuringCooldown = target.getComponent(CombatStatsComponent.class).getHealth();
     assertEquals(
         targetHealthAfterFirstAttack,
         targetHealthDuringCooldown,
@@ -291,7 +289,7 @@ class MeleeAttackTaskTest {
 
     task.update(); // cooldown has elapsed - triggers a new windup
     attacker.update(); // resolve it
-    float targetHealthAfterCooldown = target.getComponent(CombatStatsComponent.class).getHealth();
+    int targetHealthAfterCooldown = target.getComponent(CombatStatsComponent.class).getHealth();
     assertTrue(
         targetHealthAfterCooldown < targetHealthDuringCooldown,
         "Expected a second attack to land once cooldown elapsed, reducing health from "

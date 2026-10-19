@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(GameExtension.class)
 class JsonMapLoaderTest {
@@ -582,6 +583,33 @@ class JsonMapLoaderTest {
         """;
 
     assertThrows(MapLoadException.class, () -> loader.parse(json));
+  }
+
+  @ParameterizedTest(name = "rejects backdrops {0}")
+  @ValueSource(
+      strings = {
+        // A layer with a blank texture.
+        "{ \"cave\": [ { \"texture\": \"  \" } ] }",
+        // Backdrops that are not an object keyed by sub-level.
+        "[ { \"texture\": \"far.png\" } ]",
+        // A backdrop that is not a list of layers.
+        "{ \"cave\": { \"texture\": \"far.png\" } }"
+      })
+  void rejectsMalformedBackdrops(String backdrops) {
+    String json = mapWithBackdrops(backdrops);
+
+    assertThrows(MapLoadException.class, () -> loader.parse(json));
+  }
+
+  private static String mapWithBackdrops(String backdrops) {
+    return """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["#"] },
+          "backdrops": %s
+        }
+        """
+        .formatted(backdrops);
   }
 
   @Test

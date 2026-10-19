@@ -39,17 +39,53 @@ class WinEvaluatorTest {
 
   @BeforeEach
   void setUp() {
-    QuestLedger.reset();
-    EnemyRegistry.loadFrom(new ArrayList<>());
+    resetStatics();
   }
 
   @AfterEach
   void tearDown() {
+    resetStatics();
+  }
+
+  private static void resetStatics() {
     QuestLedger.reset();
     EnemyRegistry.loadFrom(new ArrayList<>());
   }
 
   // ---------- no win ----------
+
+  /** With nothing killed, none count and every required boss is missing. */
+  @Test
+  void shouldCountNoMiniBossesWhenNoneAreKilled() {
+    WinResult r = WinEvaluator.evaluate(true, List.of(), 0);
+
+    assertEquals(0, r.getMiniBossesDefeated());
+    assertEquals(BossRoster.getRequiredCount(), r.getMissingMiniBosses().size());
+  }
+
+  /** Killing every required boss counts them all and leaves none missing. */
+  @Test
+  void shouldCountEveryMiniBossWhenAllAreKilled() {
+    WinResult r = WinEvaluator.evaluate(true, allRequired(), 0);
+
+    assertEquals(BossRoster.getRequiredCount(), r.getMiniBossesDefeated());
+    assertTrue(r.getMissingMiniBosses().isEmpty());
+  }
+
+  /** Missing bosses are listed in roster order. */
+  @Test
+  void shouldListMissingMiniBossesInRosterOrder() {
+    List<String> expected = new ArrayList<>();
+    for (BossRoster.MiniBoss boss : BossRoster.getMiniBosses()) {
+      if (boss.isRequired()) {
+        expected.add(boss.getLabel());
+      }
+    }
+
+    WinResult r = WinEvaluator.evaluate(true, List.of(), 0);
+
+    assertEquals(expected, r.getMissingMiniBosses());
+  }
 
   @Test
   void shouldNotWinWhenTheFinalBossIsAlive() {
@@ -285,8 +321,8 @@ class WinEvaluatorTest {
   @ParameterizedTest(name = "{0} quests is rejected")
   @ValueSource(ints = {-1, -5, Integer.MIN_VALUE})
   void shouldRejectANegativeQuestCount(int quests) {
-    assertThrows(
-        IllegalArgumentException.class, () -> WinEvaluator.evaluate(true, allRequired(), quests));
+    List<String> kills = allRequired();
+    assertThrows(IllegalArgumentException.class, () -> WinEvaluator.evaluate(true, kills, quests));
   }
 
   @Test

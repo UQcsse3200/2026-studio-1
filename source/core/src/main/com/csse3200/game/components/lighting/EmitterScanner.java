@@ -39,36 +39,57 @@ public final class EmitterScanner {
    */
   public static List<LightPlacement> scan(List<MapLayerData> layers, float tileSize) {
     List<LightPlacement> out = new ArrayList<>(); // output list
-
-    // for each layer
     for (MapLayerData layer : layers) {
-      Map<TileDefinition, boolean[][]> masks = new IdentityHashMap<>();
-      Map<TileDefinition, LightSpec> specs = new IdentityHashMap<>();
-
-      // for each tile in each layer
-      for (int x = 0; x < layer.getWidth(); x++) {
-        for (int y = 0; y < layer.getHeight(); y++) {
-          // get the tile definition
-          TileDefinition def = layer.get(x, y);
-          if (def == null) continue;
-
-          // add the spec for the tile
-          if (!specs.containsKey(def)) specs.put(def, specFor(def));
-          if (specs.get(def) == null) continue;
-          // puts true if the tile is a light source
-          masks.computeIfAbsent(def, d -> new boolean[layer.getWidth()][layer.getHeight()])[x][y] =
-              true;
-        }
-      }
-
-      // for each light source
-      for (Map.Entry<TileDefinition, boolean[][]> e : masks.entrySet()) {
-        LightSpec spec = specs.get(e.getKey());
-        // place light according to spec
-        for (TileRect r : findRects(e.getValue())) place(r, spec, tileSize, out);
-      }
+      scanLayer(layer, tileSize, out);
     }
     return out;
+  }
+
+  /**
+   * Finds the light source tiles in one layer and places lights over them
+   *
+   * @param layer the map layer to search
+   * @param tileSize the size of tiles in the map
+   * @param out the output list of light placements
+   */
+  private static void scanLayer(MapLayerData layer, float tileSize, List<LightPlacement> out) {
+    Map<TileDefinition, LightSpec> specs = new IdentityHashMap<>();
+    Map<TileDefinition, boolean[][]> masks = maskLightTiles(layer, specs);
+
+    // for each light source
+    for (Map.Entry<TileDefinition, boolean[][]> e : masks.entrySet()) {
+      LightSpec spec = specs.get(e.getKey());
+      // place light according to spec
+      for (TileRect r : findRects(e.getValue())) place(r, spec, tileSize, out);
+    }
+  }
+
+  /**
+   * Marks which tiles in a layer are light sources, one mask per tile definition
+   *
+   * @param layer the map layer to search
+   * @param specs filled with the light spec of each tile definition seen (null if not a light)
+   * @return a mask of light source tiles for each light tile definition
+   */
+  private static Map<TileDefinition, boolean[][]> maskLightTiles(
+      MapLayerData layer, Map<TileDefinition, LightSpec> specs) {
+    Map<TileDefinition, boolean[][]> masks = new IdentityHashMap<>();
+
+    // for each tile in the layer
+    for (int x = 0; x < layer.getWidth(); x++) {
+      for (int y = 0; y < layer.getHeight(); y++) {
+        // get the tile definition
+        TileDefinition def = layer.get(x, y);
+        if (def == null) continue;
+
+        // add the spec for the tile
+        if (specs.computeIfAbsent(def, EmitterScanner::specFor) == null) continue;
+        // puts true if the tile is a light source
+        masks.computeIfAbsent(def, d -> new boolean[layer.getWidth()][layer.getHeight()])[x][y] =
+            true;
+      }
+    }
+    return masks;
   }
 
   /**
@@ -90,25 +111,44 @@ public final class EmitterScanner {
 
         // if its a light source
         // extend width if adjacent tiles are light sources
-        int rw = 1;
-        while (x + rw < w && mask[x + rw][y]) rw++;
+        int rw = rectWidth(mask, x, y);
         // extend height the same way
-        int rh = 1;
-        outer:
-        while (y + rh < h) {
-          for (int i = 0; i < rw; i++) {
-            if (!mask[x + i][y + rh]) break outer;
-          }
-          rh++;
-        }
+        int rh = rectHeight(mask, x, y, rw);
         // make sure no additional single lights around
-        for (int i = 0; i < rw; i++) {
-          for (int j = 0; j < rh; j++) mask[x + i][y + j] = false;
-        }
+        clearRect(mask, x, y, rw, rh);
         rects.add(new TileRect(x, y, rw, rh));
       }
     }
     return rects;
+  }
+
+  /** How many light tiles run rightwards from (x, y), including it. */
+  private static int rectWidth(boolean[][] mask, int x, int y) {
+    int rw = 1;
+    while (x + rw < mask.length && mask[x + rw][y]) rw++;
+    return rw;
+  }
+
+  /** How many full rows of width rw run upwards from (x, y), including its own row. */
+  private static int rectHeight(boolean[][] mask, int x, int y, int rw) {
+    int rh = 1;
+    while (y + rh < mask[0].length && isRowLit(mask, x, y + rh, rw)) rh++;
+    return rh;
+  }
+
+  /** Whether every tile from x to x + rw - 1 in row y is a light source. */
+  private static boolean isRowLit(boolean[][] mask, int x, int y, int rw) {
+    for (int i = 0; i < rw; i++) {
+      if (!mask[x + i][y]) return false;
+    }
+    return true;
+  }
+
+  /** Marks a rectangle of the mask as covered. */
+  private static void clearRect(boolean[][] mask, int x, int y, int rw, int rh) {
+    for (int i = 0; i < rw; i++) {
+      for (int j = 0; j < rh; j++) mask[x + i][y + j] = false;
+    }
   }
 
   /**
