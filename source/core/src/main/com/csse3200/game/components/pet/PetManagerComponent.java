@@ -64,9 +64,18 @@ public class PetManagerComponent extends Component {
    * <p>If a pet is already active, it is removed before the new pet is created.
    */
   public void activatePet(ShopComponent.Pet pet) {
+    // Create the replacement before removing the current pet.
+    Entity newPet = petFactory.apply(entity, pet);
+
+    // Preserve the current pet if creation fails.
+    if (newPet == null) {
+      throw new IllegalStateException("Pet factory returned null");
+    }
+
+    // Only replace the active pet after successful creation.
     removePet();
 
-    activePet = petFactory.apply(entity, pet);
+    activePet = newPet;
     activePetType = pet;
 
     ServiceLocator.getEntityService().register(activePet);
@@ -86,7 +95,7 @@ public class PetManagerComponent extends Component {
 
   /** Returns whether this player currently has an active pet. */
   public boolean hasActivePet() {
-    return activePet != null;
+    return activePet != null && !activePet.isDisposed();
   }
 
   /**
