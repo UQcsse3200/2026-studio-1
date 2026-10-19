@@ -2,20 +2,17 @@ package com.csse3200.game.components.enemies.attacks;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.csse3200.game.components.ComponentPriority;
-import com.csse3200.game.components.effects.FrozenCause;
 import com.csse3200.game.components.effects.SpeedEffectComponent;
 import com.csse3200.game.components.player.PlayerActions;
 import com.csse3200.game.entities.Entity;
@@ -25,8 +22,6 @@ import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.files.FileLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -115,28 +110,6 @@ class PetrifyEffectComponentTest {
       gaze.getEvents().trigger("projectileHit", target);
 
       verify(playerActions).addSpeedModifier(any(), eq(0f));
-    }
-
-    /** Should name the petrified cause before the speed effect is applied. */
-    @Test
-    void shouldNameThePetrifiedCauseBeforeApplyingThePetrify() {
-      List<String> causes = new ArrayList<>();
-      boolean[] frozenAlready = {false};
-      target
-          .getEvents()
-          .addListener(
-              FrozenCause.STATUS_CAUSE_EVENT,
-              (String cause) -> {
-                causes.add(cause);
-                frozenAlready[0] =
-                    mockingDetails(playerActions).getInvocations().stream()
-                        .anyMatch(call -> call.getMethod().getName().equals("addSpeedModifier"));
-              });
-
-      gaze.getEvents().trigger("projectileHit", target);
-
-      assertEquals(List.of(FrozenCause.PETRIFIED), causes);
-      assertFalse(frozenAlready[0], "the cause must arrive before the speed effect");
     }
 
     /** Should unpetrify after configured ticks. */

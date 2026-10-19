@@ -3,9 +3,6 @@ package com.csse3200.game.components.enemies.tasks;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.csse3200.game.ai.tasks.Task;
-import com.csse3200.game.components.tasks.MovementTask;
-import com.csse3200.game.components.tasks.WaitTask;
 import com.csse3200.game.components.tasks.WanderTask;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.PhysicsLayer;
@@ -139,22 +136,5 @@ public class PlatformWanderTask extends WanderTask {
     } else {
       this.startPos = owner.getEntity().getPosition();
     }
-  }
-
-  /** Getters used for test cases, it's advised not to use them to outside of tests */
-  public Vector2 getStartPos() {
-    return this.startPos;
-  }
-
-  public MovementTask getMovementTask() {
-    return movementTask;
-  }
-
-  public WaitTask getWaitTask() {
-    return waitTask;
-  }
-
-  public Task getCurrentTask() {
-    return currentTask;
   }
 }
