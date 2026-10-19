@@ -56,11 +56,12 @@ public class QuestDisplay extends UIComponent {
     rootTable = new Table();
     rootTable.setFillParent(true);
     rootTable.top().right();
-    rootTable.padTop(75f).padRight(20f);
+    rootTable.padTop(100f).padRight(20f);
 
     questTable = new Table();
     questTable.setBackground(skin.getDrawable("window"));
     questTable.pad(10f);
+    questTable.defaults().left().top().expandX().fillX();
 
     Label title = new Label("QUEST", skin);
     title.setAlignment(Align.center);
@@ -94,34 +95,28 @@ public class QuestDisplay extends UIComponent {
     Label completedTitle = new Label("COMPLETED", skin);
     questTable.add(completedTitle).expandX().fillX().left().padBottom(5f).row();
 
-    if (PerkService.getPerk(TIME_LORD).isUnlocked()) {
-      Label questToDisplay = new Label("• Find the tortoise!", skin);
-
-      questTable.add(questToDisplay).expandX().fillX().left().row();
+    if (PerkService.getPerk("timeLord").isUnlocked()) {
+      addQuestLabel("• Find the tortoise!");
     }
 
     if (!completedJumpQuests.isEmpty()) {
       for (JumpQuest quest : completedJumpQuests) {
-        Label completedQuest = new Label("✓ Jump Quest", skin);
-        questTable.add(completedQuest).expandX().fillX().left().row();
+        addQuestLabel("✓ Jump Quest");
       }
     }
     if (!completedEnemiesKilledQuest.isEmpty()) {
       for (EnemiesKilledQuest quest : completedEnemiesKilledQuest) {
-        Label completedQuest = new Label("✓ Enemies Killed Quest", skin);
-        questTable.add(completedQuest).left().row();
+        addQuestLabel("✓ Enemies Killed Quest");
       }
     }
     if (!completedGoldSpentQuest.isEmpty()) {
       for (GoldSpentQuest quest : completedGoldSpentQuest) {
-        Label completedQuest = new Label("✓ Gold Spent Quest", skin);
-        questTable.add(completedQuest).left().row();
+        addQuestLabel("✓ Gold Spent Quest");
       }
     }
     if (!completedShieldsCollectedQuest.isEmpty()) {
       for (ShieldsCollectedQuest quest : completedShieldsCollectedQuest) {
-        Label completedQuest = new Label("✓ Shields Collected Quest", skin);
-        questTable.add(completedQuest).left().row();
+        addQuestLabel("✓ Shields Collected Quest");
       }
     }
     if (!PerkService.getPerk(TIME_LORD).isUnlocked()
@@ -129,8 +124,7 @@ public class QuestDisplay extends UIComponent {
         && completedJumpQuests.isEmpty()
         && completedGoldSpentQuest.isEmpty()
         && completedShieldsCollectedQuest.isEmpty()) {
-      Label noCompleted = new Label("No completed quests", skin);
-      questTable.add(noCompleted).expandX().fillX().left().row();
+      addQuestLabel("No completed quests");
     }
 
     // Remaining quests section
@@ -139,10 +133,8 @@ public class QuestDisplay extends UIComponent {
 
     boolean hasRemainingQuests = false;
 
-    if (!PerkService.getPerk(TIME_LORD).isUnlocked()) {
-      Label questToDisplay = new Label("• Find the tortoise!", skin);
-
-      questTable.add(questToDisplay).expandX().fillX().left().row();
+    if (!PerkService.getPerk("timeLord").isUnlocked()) {
+      addQuestLabel("• Find the tortoise!");
     }
 
     if (jumpQuestsToDisplay != null) {
@@ -156,9 +148,7 @@ public class QuestDisplay extends UIComponent {
           } else {
             hasRemainingQuests = true;
 
-            Label questToDisplay = new Label("• Jump Quest - " + progress + "%", skin);
-
-            questTable.add(questToDisplay).expandX().fillX().left().row();
+            addQuestLabel("• Jump Quest - " + progress + "%");
           }
         }
       }
@@ -173,9 +163,7 @@ public class QuestDisplay extends UIComponent {
             completedEnemiesKilledQuest.add(quest);
           } else {
             hasRemainingQuests = true;
-            Label questToDisplay = new Label("• Enemies Killed Quest - " + progress + "%", skin);
-
-            questTable.add(questToDisplay).left().row();
+            addQuestLabel("• Enemies Killed Quest - " + progress + "%");
           }
         }
       }
@@ -190,9 +178,7 @@ public class QuestDisplay extends UIComponent {
             completedGoldSpentQuest.add(quest);
           } else {
             hasRemainingQuests = true;
-            Label questToDisplay = new Label("• Gold Spent Quest - " + progress + "%", skin);
-
-            questTable.add(questToDisplay).left().row();
+            addQuestLabel("• Gold Spent Quest - " + progress + "%");
           }
         }
       }
@@ -207,18 +193,22 @@ public class QuestDisplay extends UIComponent {
             completedShieldsCollectedQuest.add(quest);
           } else {
             hasRemainingQuests = true;
-            Label questToDisplay = new Label("• Shields Collected Quest - " + progress + "%", skin);
-
-            questTable.add(questToDisplay).left().row();
+            addQuestLabel("• Shields Collected Quest - " + progress + "%");
           }
         }
       }
     }
 
-    if (!hasRemainingQuests && PerkService.getPerk(TIME_LORD).isUnlocked()) {
-      Label noRemaining = new Label("No remaining quests", skin);
-      questTable.add(noRemaining).expandX().fillX().left().row();
+    if (!hasRemainingQuests && PerkService.getPerk("timeLord").isUnlocked()) {
+      addQuestLabel("No remaining quests");
     }
+  }
+
+  /** Adds a quest label that wraps within the quest panel. */
+  private void addQuestLabel(String text) {
+    Label label = new Label(text, skin);
+    label.setWrap(true);
+    questTable.add(label).left().expandX().fillX().row();
   }
 
   @Override
