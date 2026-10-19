@@ -94,6 +94,11 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PauseMenuActions</span>
 <span class="extends-implements">extends <a href="../components/Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
+<div class="block">Handles the pause menu's buttons (resume, restart, main menu, save) and builds the save data.
+
+ <p><a href="#createSaveData(com.csse3200.game.entities.Entity)"><code>createSaveData(Entity)</code></a> reads the current game state into a <a href="../files/GameSaveData.html" title="class in com.csse3200.game.files"><code>GameSaveData</code></a>. Each
+ part of the game is saved by its own small helper, in the same way <code>LoadService</code> restores
+ each part with its own <code>loadXxx</code> method.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -144,10 +149,14 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../files/GameSaveData.html" title="class in com.csse3200.game.files">GameSaveData</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createSaveData(com.csse3200.game.entities.Entity)" class="member-name-link">createSaveData</a><wbr>(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Reads the current game state into a new <a href="../files/GameSaveData.html" title="class in com.csse3200.game.files"><code>GameSaveData</code></a>.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#saveCheckpoint()" class="member-name-link">saveCheckpoint</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Saves without leaving the game.</div>
+</div>
 </div>
 </div>
 </div>
@@ -210,12 +219,20 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="saveCheckpoint()">
 <h3>saveCheckpoint</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">saveCheckpoint</span>()</div>
+<div class="block">Saves without leaving the game. Called each time the player enters a new level.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="createSaveData(com.csse3200.game.entities.Entity)">
 <h3>createSaveData</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../files/GameSaveData.html" title="class in com.csse3200.game.files">GameSaveData</a></span>&nbsp;<span class="element-name">createSaveData</span><wbr><span class="parameters">(<a href="../entities/Entity.html" title="class in com.csse3200.game.entities">Entity</a>&nbsp;player)</span></div>
+<div class="block">Reads the current game state into a new <a href="../files/GameSaveData.html" title="class in com.csse3200.game.files"><code>GameSaveData</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>player</code> - the player entity to save</dd>
+<dt>Returns:</dt>
+<dd>the data to write to the save file</dd>
+</dl>
 </section>
 </li>
 </ul>

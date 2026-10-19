@@ -91,9 +91,14 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <section class="class-description" id="class-description">
+<dl class="notes">
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">ShieldComponent</span>
-<span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
+<span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a>
+implements <a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></span></div>
 <div class="block">Allows the player to activate a picked-up Shield to temporarily block incoming damage.
 
  <p>The shield does not use an inventory slot. Picking it up (see <code>LootPickupComponent</code>,
@@ -308,6 +313,8 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasShield</span>()</div>
 <div class="block">Returns whether the player currently holds an unactivated shield.</div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#hasShield()">hasShield</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
 <dt>Returns:</dt>
 <dd><code>true</code> if a shield is held</dd>
 </dl>
@@ -353,6 +360,12 @@ loadScripts(document, 'script');</script>
 <h3>getRemainingMillis</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getRemainingMillis</span>()</div>
 <div class="block">Save/load: returns the time left on the active shield in milliseconds, or 0 if none.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#getRemainingMillis()">getRemainingMillis</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+<dt>Returns:</dt>
+<dd>the time left on the active shield in milliseconds, or 0 if none is active</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -361,6 +374,12 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restoreHeldShield</span><wbr><span class="parameters">(boolean&nbsp;held)</span></div>
 <div class="block">Save/load: puts back a shield that was held when the game was saved. Unlike grantShield, this
  is not counted as a new pickup for quests.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#restoreHeldShield(boolean)">restoreHeldShield</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>held</code> - whether a shield was held</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -368,6 +387,12 @@ loadScripts(document, 'script');</script>
 <h3>restoreActive</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restoreActive</span><wbr><span class="parameters">(long&nbsp;remainingMillis)</span></div>
 <div class="block">Save/load: puts back an active shield with the time it had left. Zero or less is ignored.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#restoreActive(long)">restoreActive</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>remainingMillis</code> - the time the shield had left, in milliseconds</dd>
+</dl>
 </section>
 </li>
 </ul>

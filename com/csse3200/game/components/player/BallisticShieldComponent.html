@@ -91,9 +91,14 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <section class="class-description" id="class-description">
+<dl class="notes">
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">BallisticShieldComponent</span>
-<span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a></span></div>
+<span class="extends-implements">extends <a href="../Component.html" title="class in com.csse3200.game.components">Component</a>
+implements <a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></span></div>
 <div class="block">Tier 2 defensive shield.
 
  <p>The Ballistic Shield blocks all incoming damage while active and retaliates by dealing 25% of
@@ -283,6 +288,12 @@ loadScripts(document, 'script');</script>
 <h3>hasShield</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasShield</span>()</div>
 <div class="block">Returns whether the player currently has an unused Ballistic Shield.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#hasShield()">hasShield</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+<dt>Returns:</dt>
+<dd>true if a shield is held but has not been used yet</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -324,6 +335,12 @@ loadScripts(document, 'script');</script>
 <h3>getRemainingMillis</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getRemainingMillis</span>()</div>
 <div class="block">Save/load: returns the time left on the active shield in milliseconds, or 0 if none.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#getRemainingMillis()">getRemainingMillis</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+<dt>Returns:</dt>
+<dd>the time left on the active shield in milliseconds, or 0 if none is active</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -331,6 +348,12 @@ loadScripts(document, 'script');</script>
 <h3>restoreHeldShield</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restoreHeldShield</span><wbr><span class="parameters">(boolean&nbsp;held)</span></div>
 <div class="block">Save/load: puts back a Ballistic Shield that was held when the game was saved.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#restoreHeldShield(boolean)">restoreHeldShield</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>held</code> - whether a shield was held</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -338,6 +361,12 @@ loadScripts(document, 'script');</script>
 <h3>restoreActive</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">restoreActive</span><wbr><span class="parameters">(long&nbsp;remainingMillis)</span></div>
 <div class="block">Save/load: puts back an active Ballistic Shield with the time it had left.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="RestorableShield.html#restoreActive(long)">restoreActive</a></code>&nbsp;in interface&nbsp;<code><a href="RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>remainingMillis</code> - the time the shield had left, in milliseconds</dd>
+</dl>
 </section>
 </li>
 </ul>

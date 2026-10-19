@@ -1602,7 +1602,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a satyr NPC that headbutts the player after being hit.</div>
 </dd>
 <dt><a href="com/csse3200/game/pausemenu/PauseMenuActions.html#createSaveData(com.csse3200.game.entities.Entity)" class="member-name-link">createSaveData(Entity)</a> - Method in class com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/PauseMenuActions.html" title="class in com.csse3200.game.pausemenu">PauseMenuActions</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Reads the current game state into a new <a href="com/csse3200/game/files/GameSaveData.html" title="class in com.csse3200.game.files"><code>GameSaveData</code></a>.</div>
+</dd>
 <dt><a href="com/csse3200/game/entities/factories/NPCFactory.html#createShopNPC(com.csse3200.game.entities.Entity)" class="member-name-link">createShopNPC(Entity)</a> - Static method in class com.csse3200.game.entities.factories.<a href="com/csse3200/game/entities/factories/NPCFactory.html" title="class in com.csse3200.game.entities.factories">NPCFactory</a></dt>
 <dd>
 <div class="block">Creates a shopkeeper NPC that opens the shop and cannot be hurt.</div>
@@ -3653,6 +3655,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Save/load: returns the time left on the active shield in milliseconds, or 0 if none.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/RestorableShield.html#getRemainingMillis()" class="member-name-link">getRemainingMillis()</a> - Method in interface com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ShieldComponent.html#getRemainingMillis()" class="member-name-link">getRemainingMillis()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShieldComponent.html" title="class in com.csse3200.game.components.player">ShieldComponent</a></dt>
 <dd>
 <div class="block">Save/load: returns the time left on the active shield in milliseconds, or 0 if none.</div>
@@ -4179,6 +4183,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns whether the player currently has an unused Ballistic Shield.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/player/RestorableShield.html#hasShield()" class="member-name-link">hasShield()</a> - Method in interface com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/ShieldComponent.html#hasShield()" class="member-name-link">hasShield()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShieldComponent.html" title="class in com.csse3200.game.components.player">ShieldComponent</a></dt>
 <dd>
 <div class="block">Returns whether the player currently holds an unactivated shield.</div>
@@ -5100,7 +5106,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates an instance of a <code>LightSpec</code> record class.</div>
 </dd>
 <dt><a href="com/csse3200/game/files/SaveService.html#load()" class="member-name-link">load()</a> - Static method in class com.csse3200.game.files.<a href="com/csse3200/game/files/SaveService.html" title="class in com.csse3200.game.files">SaveService</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Reads the save file.</div>
+</dd>
 <dt><a href="com/csse3200/game/files/LoadService.html#load(com.csse3200.game.entities.Entity,float,float,java.util.List)" class="member-name-link">load(Entity, float, float, List&lt;UpgradeNode&gt;)</a> - Static method in class com.csse3200.game.files.<a href="com/csse3200/game/files/LoadService.html" title="class in com.csse3200.game.files">LoadService</a></dt>
 <dd>
 <div class="block">Loads saved player data and applies it to the given player.</div>
@@ -5754,7 +5762,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/screens/MainMenuScreen.html#pause()" class="member-name-link">pause()</a> - Method in class com.csse3200.game.screens.<a href="com/csse3200/game/screens/MainMenuScreen.html" title="class in com.csse3200.game.screens">MainMenuScreen</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/pausemenu/PauseMenuActions.html" class="type-name-link" title="class in com.csse3200.game.pausemenu">PauseMenuActions</a> - Class in <a href="com/csse3200/game/pausemenu/package-summary.html">com.csse3200.game.pausemenu</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Handles the pause menu's buttons (resume, restart, main menu, save) and builds the save data.</div>
+</dd>
 <dt><a href="com/csse3200/game/pausemenu/PauseMenuActions.html#%3Cinit%3E(java.util.function.Supplier,java.util.function.Supplier,java.util.function.Supplier)" class="member-name-link">PauseMenuActions(Supplier&lt;Entity&gt;, Supplier&lt;Map&lt;String, Long&gt;&gt;, Supplier&lt;String&gt;)</a> - Constructor for class com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/PauseMenuActions.html" title="class in com.csse3200.game.pausemenu">PauseMenuActions</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/pausemenu/PauseMenuActions.html#%3Cinit%3E(java.util.function.Supplier,java.util.function.Supplier,java.util.function.Supplier,java.util.function.Supplier)" class="member-name-link">PauseMenuActions(Supplier&lt;Entity&gt;, Supplier&lt;Map&lt;String, Long&gt;&gt;, Supplier&lt;String&gt;, Supplier&lt;List&lt;UpgradeNode&gt;&gt;)</a> - Constructor for class com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/PauseMenuActions.html" title="class in com.csse3200.game.pausemenu">PauseMenuActions</a></dt>
@@ -6540,6 +6550,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/files/SavedUpgrade.html#remainingKills" class="member-name-link">remainingKills</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/SavedUpgrade.html" title="class in com.csse3200.game.files">SavedUpgrade</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/RestorableShield.html#remainingMillis(boolean,com.csse3200.game.services.GameTime,long)" class="member-name-link">remainingMillis(boolean, GameTime, long)</a> - Static method in interface com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></dt>
+<dd>
+<div class="block">Shared time left calculation for every shield.</div>
+</dd>
 <dt><a href="com/csse3200/game/files/SavedBuff.html#remainingSeconds" class="member-name-link">remainingSeconds</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/SavedBuff.html" title="class in com.csse3200.game.files">SavedBuff</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/files/SavedUpgrade.html#remainingSeconds" class="member-name-link">remainingSeconds</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/SavedUpgrade.html" title="class in com.csse3200.game.files">SavedUpgrade</a></dt>
@@ -6763,6 +6777,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/GdxGame.ScreenType.html#RESTART_GAME" class="member-name-link">RESTART_GAME</a> - Enum constant in enum class com.csse3200.game.<a href="com/csse3200/game/GdxGame.ScreenType.html" title="enum class in com.csse3200.game">GdxGame.ScreenType</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/RestorableShield.html" class="type-name-link" title="interface in com.csse3200.game.components.player">RestorableShield</a> - Interface in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
+<dd>
+<div class="block">A shield whose state can be saved and restored by save/load: whether one is held but not used
+ yet, and how long an active one has left.</div>
+</dd>
 <dt><a href="com/csse3200/game/upgrades/UpgradeNode.html#restore(int,float,int)" class="member-name-link">restore(int, float, int)</a> - Method in class com.csse3200.game.upgrades.<a href="com/csse3200/game/upgrades/UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a></dt>
 <dd>
 <div class="block">Restores this upgrade to a previously saved state and re-applies its effect by firing the
@@ -6771,6 +6790,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/BallisticShieldComponent.html#restoreActive(long)" class="member-name-link">restoreActive(long)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/BallisticShieldComponent.html" title="class in com.csse3200.game.components.player">BallisticShieldComponent</a></dt>
 <dd>
 <div class="block">Save/load: puts back an active Ballistic Shield with the time it had left.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/RestorableShield.html#restoreActive(long)" class="member-name-link">restoreActive(long)</a> - Method in interface com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></dt>
+<dd>
+<div class="block">Puts back an active shield with the time it had left.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ShieldComponent.html#restoreActive(long)" class="member-name-link">restoreActive(long)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShieldComponent.html" title="class in com.csse3200.game.components.player">ShieldComponent</a></dt>
 <dd>
@@ -6791,6 +6814,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/player/BallisticShieldComponent.html#restoreHeldShield(boolean)" class="member-name-link">restoreHeldShield(boolean)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/BallisticShieldComponent.html" title="class in com.csse3200.game.components.player">BallisticShieldComponent</a></dt>
 <dd>
 <div class="block">Save/load: puts back a Ballistic Shield that was held when the game was saved.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/RestorableShield.html#restoreHeldShield(boolean)" class="member-name-link">restoreHeldShield(boolean)</a> - Method in interface com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/RestorableShield.html" title="interface in com.csse3200.game.components.player">RestorableShield</a></dt>
+<dd>
+<div class="block">Puts back a shield that was held when the game was saved.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/player/ShieldComponent.html#restoreHeldShield(boolean)" class="member-name-link">restoreHeldShield(boolean)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShieldComponent.html" title="class in com.csse3200.game.components.player">ShieldComponent</a></dt>
 <dd>
@@ -6901,9 +6928,13 @@ loadScripts(document, 'script');</script>
 <h2 class="title" id="I:S">S</h2>
 <dl class="index">
 <dt><a href="com/csse3200/game/files/SaveService.html#save(com.csse3200.game.files.GameSaveData)" class="member-name-link">save(GameSaveData)</a> - Static method in class com.csse3200.game.files.<a href="com/csse3200/game/files/SaveService.html" title="class in com.csse3200.game.files">SaveService</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Writes the given data to the save file as JSON, replacing any previous save.</div>
+</dd>
 <dt><a href="com/csse3200/game/pausemenu/PauseMenuActions.html#saveCheckpoint()" class="member-name-link">saveCheckpoint()</a> - Method in class com.csse3200.game.pausemenu.<a href="com/csse3200/game/pausemenu/PauseMenuActions.html" title="class in com.csse3200.game.pausemenu">PauseMenuActions</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Saves without leaving the game.</div>
+</dd>
 <dt><a href="com/csse3200/game/files/SavedBuff.html" class="type-name-link" title="class in com.csse3200.game.files">SavedBuff</a> - Class in <a href="com/csse3200/game/files/package-summary.html">com.csse3200.game.files</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/files/SavedBuff.html#%3Cinit%3E()" class="member-name-link">SavedBuff()</a> - Constructor for class com.csse3200.game.files.<a href="com/csse3200/game/files/SavedBuff.html" title="class in com.csse3200.game.files">SavedBuff</a></dt>
@@ -6933,9 +6964,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/files/SavedUpgrade.html#%3Cinit%3E()" class="member-name-link">SavedUpgrade()</a> - Constructor for class com.csse3200.game.files.<a href="com/csse3200/game/files/SavedUpgrade.html" title="class in com.csse3200.game.files">SavedUpgrade</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/files/SaveService.html" class="type-name-link" title="class in com.csse3200.game.files">SaveService</a> - Class in <a href="com/csse3200/game/files/package-summary.html">com.csse3200.game.files</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/csse3200/game/files/SaveService.html#%3Cinit%3E()" class="member-name-link">SaveService()</a> - Constructor for class com.csse3200.game.files.<a href="com/csse3200/game/files/SaveService.html" title="class in com.csse3200.game.files">SaveService</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Reads and writes the single save file, <code>AscentOfTheMortal/save.json</code> in the user's home
+ directory.</div>
+</dd>
 <dt><a href="com/csse3200/game/rendering/AnimationRenderComponent.html#scaleEntity()" class="member-name-link">scaleEntity()</a> - Method in class com.csse3200.game.rendering.<a href="com/csse3200/game/rendering/AnimationRenderComponent.html" title="class in com.csse3200.game.rendering">AnimationRenderComponent</a></dt>
 <dd>
 <div class="block">Scale the entity to a width of 1 and a height matching the texture's ratio</div>
