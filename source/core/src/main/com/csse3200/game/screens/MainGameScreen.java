@@ -78,6 +78,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -742,10 +743,6 @@ public class MainGameScreen extends ScreenAdapter {
     logger.info("God mode {}", enabled ? "enabled" : "disabled");
   }
 
-  private void setUnlimitedStamina(boolean enabled) {
-    applyUnlimitedStamina(getPlayerEntity(), enabled);
-  }
-
   static void applyUnlimitedStamina(Entity player, boolean enabled) {
     StaminaComponent stamina = player == null ? null : player.getComponent(StaminaComponent.class);
     if (stamina == null) {
@@ -755,10 +752,6 @@ public class MainGameScreen extends ScreenAdapter {
 
     stamina.setUnlimitedStamina(enabled);
     logger.info("Unlimited stamina {}", enabled ? "enabled" : "disabled");
-  }
-
-  private WhereCommand.Location getWhereLocation() {
-    return whereLocation(levelGameArea, currentRoomMapPath);
   }
 
   static WhereCommand.Location whereLocation(LevelGameArea area, String mapPath) {
@@ -880,9 +873,6 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("noclip", new NoclipCommand(this::setNoclipEnabled));
     terminal.addCommand("godmode", new GodModeCommand(this::setGodModeEnabled));
-    terminal.addCommand("stamina", new StaminaCommand(this::setUnlimitedStamina));
-    terminal.addCommand(
-        "where", new WhereCommand(this::getWhereLocation, terminal::showOutputMessage));
     terminal.addCommand("perk", new PerkCommand());
     terminal.addCommand("killzeus", new KillZeusCommand(() -> levelGameArea.killFinalBoss()));
 
@@ -933,11 +923,26 @@ public class MainGameScreen extends ScreenAdapter {
 
     terminal.addCommand("upgrades", new UpgradesCommand(upgradesMenuComponent));
     terminal.addCommand("spawn", new SpawnCommand(levelGameArea));
-    terminal.addCommand(
-        "horde", new HordeCommand(() -> levelGameArea, terminal::showOutputMessage));
     terminal.addCommand("hide", new InventoryCommand(this::getPlayerEntity));
+    registerDeveloperCommands(
+        terminal, this::getPlayerEntity, () -> levelGameArea, () -> currentRoomMapPath);
 
     ServiceLocator.getEntityService().register(ui);
+  }
+
+  /** Keeps debug commands connected to the current player and room after transitions. */
+  static void registerDeveloperCommands(
+      Terminal terminal,
+      Supplier<Entity> player,
+      Supplier<LevelGameArea> area,
+      Supplier<String> mapPath) {
+    terminal.addCommand(
+        "stamina", new StaminaCommand(enabled -> applyUnlimitedStamina(player.get(), enabled)));
+    terminal.addCommand(
+        "where",
+        new WhereCommand(
+            () -> whereLocation(area.get(), mapPath.get()), terminal::showOutputMessage));
+    terminal.addCommand("horde", new HordeCommand(area, terminal::showOutputMessage));
   }
 
   public HashMap<String, Runnable> createLocationMap() {
