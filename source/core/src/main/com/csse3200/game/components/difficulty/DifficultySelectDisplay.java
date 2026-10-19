@@ -50,8 +50,8 @@ public class DifficultySelectDisplay extends UIComponent {
   }
 
   private void addActors() {
-    float screenWidth = Gdx.graphics.getWidth();
-    float screenHeight = Gdx.graphics.getHeight();
+    float screenWidth = stage.getWidth();
+    float screenHeight = stage.getHeight();
     float panelWidth = screenWidth * LEFT_PANEL_WIDTH_FRACTION;
 
     backgroundTexture = new Texture(Gdx.files.internal("images/ui/main-menu-bg.png"));

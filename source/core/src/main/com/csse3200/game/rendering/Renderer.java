@@ -34,6 +34,12 @@ public class Renderer implements Disposable {
    *
    * @param camera camera to render to
    */
+
+  /** The UI is laid out for this size; smaller windows scale the whole UI down to fit. */
+  private static final float UI_REFERENCE_WIDTH = 1920f;
+
+  private static final float UI_REFERENCE_HEIGHT = 1080f;
+
   public Renderer(CameraComponent camera) {
     SpriteBatch spriteBatch = new SpriteBatch();
     DebugRenderer debugRenderer = new DebugRenderer();
@@ -87,6 +93,8 @@ public class Renderer implements Disposable {
     renderService.setStage(stage);
     renderService.setDebug(debugRenderer);
     resizeCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    resizeCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+    resizeStage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
   }
 
   public CameraComponent getCamera() {
@@ -138,6 +146,15 @@ public class Renderer implements Disposable {
   }
 
   private void resizeStage(int screenWidth, int screenHeight) {
+    if (screenWidth <= 0 || screenHeight <= 0) {
+      return; // window minimized to the dock
+    }
+    if (stage.getViewport() instanceof ScreenViewport screenViewport) {
+      float unitsPerPixel =
+          Math.max(
+              1f, Math.max(UI_REFERENCE_WIDTH / screenWidth, UI_REFERENCE_HEIGHT / screenHeight));
+      screenViewport.setUnitsPerPixel(unitsPerPixel);
+    }
     stage.getViewport().update(screenWidth, screenHeight, true);
   }
 
