@@ -212,7 +212,7 @@ public class PlayerActions extends Component {
     }
   }
 
-  public Vector2 getWalkDirection(){
+  public Vector2 getWalkDirection() {
     return walkDirection;
   }
 
