@@ -176,7 +176,7 @@ public final class MapValidator {
           new Problem(
               Severity.WARNING, about(name) + what + " " + tile + " is inside a solid tile"));
     }
-    if (tile.y > 0 && !isSupporting(map, tile.x, tile.y - 1)) {
+    if (tile.y == 0 || !isSupporting(map, tile.x, tile.y - 1)) {
       problems.add(
           new Problem(
               Severity.WARNING, about(name) + what + " " + tile + " has no ground beneath it"));
