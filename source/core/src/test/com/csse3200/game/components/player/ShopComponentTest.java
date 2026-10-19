@@ -1752,4 +1752,69 @@ class ShopComponentTest {
     // Cancel does not refund the consumed spin.
     assertEquals(80, inventory.getGold());
   }
+
+  @Test
+  void shouldRejectSpinWhilePetReplacementIsPending() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    inventory.addPet(new ShopComponent.Pet("Bat"));
+    inventory.addPet(new ShopComponent.Pet("Spirit"));
+
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 99; // Standard slot 5: Bird
+              }
+            });
+
+    attach(inventory, shop);
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
+
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+
+    ShopComponent.Pet pending = shop.getPendingPetReplacement();
+    assertNotNull(pending);
+    assertEquals(80, inventory.getGold());
+
+    // A second spin must not overwrite the unresolved pet prize.
+    assertNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+
+    assertSame(pending, shop.getPendingPetReplacement());
+    assertEquals(80, inventory.getGold());
+    assertEquals("Bat", inventory.getPet(1).getName());
+    assertEquals("Spirit", inventory.getPet(2).getName());
+  }
+
+  @Test
+  void shouldAllowSpinAfterCancellingPendingPetReplacement() {
+    InventoryComponent inventory = new InventoryComponent(100);
+    inventory.addPet(new ShopComponent.Pet("Bat"));
+    inventory.addPet(new ShopComponent.Pet("Spirit"));
+
+    ShopComponent shop =
+        new ShopComponent(
+            new java.util.Random() {
+              @Override
+              public int nextInt(int bound) {
+                return 99;
+              }
+            });
+
+    attach(inventory, shop);
+    PlayerFactory.installDefaultCatalog(shop, new WeaponGenerator(), new ConsumableGenerator());
+
+    // First spin creates a pending replacement.
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertNotNull(shop.getPendingPetReplacement());
+
+    // Cancel the pending replacement.
+    shop.cancelPendingPetReplacement();
+    assertNull(shop.getPendingPetReplacement());
+
+    // Another spin should now be allowed.
+    assertNotNull(shop.buySpin(GamblingCatalogs.CatalogId.STANDARD));
+    assertNotNull(shop.getPendingPetReplacement());
+    assertEquals(60, inventory.getGold());
+  }
 }
