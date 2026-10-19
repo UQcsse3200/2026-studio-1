@@ -3,16 +3,19 @@ package com.csse3200.game.screens;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.csse3200.game.areas.LevelGameArea;
 import com.csse3200.game.areas.terrain.map.JsonMapLoader;
 import com.csse3200.game.areas.terrain.map.LevelView;
@@ -20,13 +23,20 @@ import com.csse3200.game.areas.terrain.map.MapDataLevelView;
 import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.components.player.StaminaComponent;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
+import com.csse3200.game.input.InputComponent;
+import com.csse3200.game.input.InputFactory;
+import com.csse3200.game.input.InputService;
+import com.csse3200.game.rendering.RenderService;
+import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.terminal.Terminal;
 import com.csse3200.game.ui.terminal.commands.WhereCommand;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(GameExtension.class)
 class MainGameScreenTest {
@@ -216,5 +226,38 @@ class MainGameScreenTest {
     assertTrue(terminal.processMessage());
     verify(area).spawnEnemy(eq("skeleton"), eq(new Vector2(8f, 5f)));
     assertEquals("Spawned 1 of 1 skeletons.", terminal.getOutputMessage());
+  }
+
+  @Test
+  void gameUiRegistersTheDeveloperCommands() {
+    RenderService renderService = mock(RenderService.class);
+    when(renderService.getStage()).thenReturn(mock(Stage.class));
+    ServiceLocator.registerRenderService(renderService);
+
+    InputService inputService = mock(InputService.class);
+    InputFactory inputFactory = mock(InputFactory.class);
+    when(inputService.getInputFactory()).thenReturn(inputFactory);
+    when(inputFactory.createForTerminal()).thenReturn(mock(InputComponent.class));
+    ServiceLocator.registerInputService(inputService);
+
+    EntityService entityService = mock(EntityService.class);
+    ServiceLocator.registerEntityService(entityService);
+
+    MainGameScreen screen = mock(MainGameScreen.class, CALLS_REAL_METHODS);
+    screen.createUI();
+
+    ArgumentCaptor<Entity> ui = ArgumentCaptor.forClass(Entity.class);
+    verify(entityService).register(ui.capture());
+    Terminal terminal = ui.getValue().getComponent(Terminal.class);
+    assertNotNull(terminal);
+
+    terminal.setEnteredMessage("stamina on");
+    assertTrue(terminal.processMessage());
+    terminal.setEnteredMessage("where");
+    assertFalse(terminal.processMessage());
+    assertEquals("", terminal.getEnteredMessage());
+    terminal.setEnteredMessage("horde 1");
+    assertFalse(terminal.processMessage());
+    assertEquals("", terminal.getEnteredMessage());
   }
 }

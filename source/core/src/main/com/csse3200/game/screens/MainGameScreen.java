@@ -841,7 +841,7 @@ public class MainGameScreen extends ScreenAdapter {
   }
 
   /** Creates the main game's UI. */
-  private void createUI() {
+  void createUI() {
     logger.debug("Creating ui");
 
     Stage stage = ServiceLocator.getRenderService().getStage();
