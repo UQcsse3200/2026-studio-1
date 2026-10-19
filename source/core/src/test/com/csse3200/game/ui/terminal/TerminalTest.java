@@ -7,6 +7,8 @@ import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.ui.terminal.commands.Command;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -96,6 +98,17 @@ class TerminalTest {
   }
 
   @Test
+  void unknownCommandIsNotProcessed() {
+    Terminal terminal = new Terminal();
+    terminal.addCommand("known", command);
+    terminal.setEnteredMessage("unknown");
+
+    assertFalse(terminal.processMessage());
+    assertEquals("unknown", terminal.getEnteredMessage());
+    verifyNoInteractions(command);
+  }
+
+  @Test
   void shouldModifyEnteredMessage() {
     Terminal terminal = new Terminal();
 
@@ -108,6 +121,15 @@ class TerminalTest {
   }
 
   @Test
+  void backspaceOnEmptyMessageDoesNothing() {
+    Terminal terminal = new Terminal();
+
+    terminal.handleBackspace();
+
+    assertEquals("", terminal.getEnteredMessage());
+  }
+
+  @Test
   void commandOutputRemainsVisibleAfterClosingUntilTerminalReopens() {
     Terminal terminal = new Terminal();
     terminal.showOutputMessage("Current room: Nether");
@@ -116,6 +138,19 @@ class TerminalTest {
     assertEquals("Current room: Nether", terminal.getOutputMessage());
 
     terminal.setOpen();
+    assertEquals("", terminal.getOutputMessage());
+  }
+
+  @Test
+  void commandOutputExpiresAfterTenSeconds() {
+    AtomicLong now = new AtomicLong();
+    Terminal terminal = new Terminal(new HashMap<>(), now::get);
+    terminal.showOutputMessage("Current room: Nether");
+
+    now.set(TimeUnit.SECONDS.toNanos(10) - 1);
+    assertEquals("Current room: Nether", terminal.getOutputMessage());
+
+    now.incrementAndGet();
     assertEquals("", terminal.getOutputMessage());
   }
 }
