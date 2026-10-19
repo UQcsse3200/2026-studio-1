@@ -17,6 +17,7 @@ import com.csse3200.game.areas.terrain.map.LevelMapData;
 import com.csse3200.game.areas.terrain.map.SubLevel;
 import com.csse3200.game.components.gamearea.SubLevelEvents;
 import com.csse3200.game.entities.Entity;
+import com.csse3200.game.events.listeners.EventListener1;
 import com.csse3200.game.physics.PhysicsEngine;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import java.util.ArrayList;
@@ -53,9 +54,7 @@ class SubLevelTravelComponentTest {
     Entity player = playerWith(travel, ladder);
     positionCentre(player, DUNGEON_DOOR_X, DUNGEON_DOOR_Y);
     List<String> entered = new ArrayList<>();
-    player
-        .getEvents()
-        .addListener(SubLevelEvents.SUB_LEVEL_ENTERED, (String title) -> entered.add(title));
+    player.getEvents().addListener(SubLevelEvents.SUB_LEVEL_ENTERED, recordInto(entered));
 
     assertTrue(travel.beginTravel());
     assertTrue(travel.isControlLocked());
@@ -83,9 +82,7 @@ class SubLevelTravelComponentTest {
     Entity player = playerWith(travel);
     positionCentre(player, NETHER_DOOR_X, NETHER_DOOR_Y);
     List<String> entered = new ArrayList<>();
-    player
-        .getEvents()
-        .addListener(SubLevelEvents.SUB_LEVEL_ENTERED, (String title) -> entered.add(title));
+    player.getEvents().addListener(SubLevelEvents.SUB_LEVEL_ENTERED, recordInto(entered));
 
     assertFalse(travel.canTravelToNether());
     assertTrue(travel.beginTravel());
@@ -136,6 +133,11 @@ class SubLevelTravelComponentTest {
     positionCentre(player, DUNGEON_DOOR_X, DUNGEON_DOOR_Y);
 
     assertFalse(travel.canTravelToNether());
+  }
+
+  /** Collects each sub-level title announced, in order. */
+  private static EventListener1<String> recordInto(List<String> titles) {
+    return titles::add;
   }
 
   private Entity playerWith(SubLevelTravelComponent travel) {

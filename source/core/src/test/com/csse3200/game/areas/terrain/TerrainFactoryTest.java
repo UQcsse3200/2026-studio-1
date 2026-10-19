@@ -46,7 +46,8 @@ class TerrainFactoryTest {
     resources = mock(ResourceService.class);
     ServiceLocator.registerResourceService(resources);
     cameraComponent = mock(CameraComponent.class);
-    when(cameraComponent.getCamera()).thenReturn(mock(OrthographicCamera.class));
+    OrthographicCamera camera = mock(OrthographicCamera.class);
+    when(cameraComponent.getCamera()).thenReturn(camera);
   }
 
   @Test

@@ -337,7 +337,7 @@ class LadderComponentTest {
   void updateDoesNothingWhenNotClimbing() {
     when(engine.createBody(any())).thenReturn(body);
     LadderComponent ladder = new LadderComponent(createMap());
-    Entity player = new Entity().addComponent(new PhysicsComponent(engine)).addComponent(ladder);
+    new Entity().addComponent(new PhysicsComponent(engine)).addComponent(ladder);
     ladder.create();
 
     ladder.update();

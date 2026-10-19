@@ -3,7 +3,6 @@ package com.csse3200.game.rendering;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -115,6 +114,6 @@ class MapRenderComponentsTest {
     ResourceService resources = ServiceLocator.getResourceService();
     new Entity().addComponent(new GlowRenderComponent("light.png", 1f, 0f)).create();
 
-    verify(resources).getAsset(eq("light.png"), eq(Texture.class));
+    verify(resources).getAsset("light.png", Texture.class);
   }
 }
