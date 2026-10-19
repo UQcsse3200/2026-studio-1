@@ -30,17 +30,8 @@ public class HordeCommand implements Command {
 
   @Override
   public boolean action(ArrayList<String> args) {
-    if (args.size() != 1) {
-      return false;
-    }
-
-    int count;
-    try {
-      count = Integer.parseInt(args.getFirst());
-    } catch (NumberFormatException e) {
-      return false;
-    }
-    if (count < 1 || count > MAX_ENEMIES) {
+    Integer count = parseCount(args);
+    if (count == null) {
       return false;
     }
 
@@ -59,6 +50,34 @@ public class HordeCommand implements Command {
     if (playerCenter == null) {
       return false;
     }
+
+    List<GridPoint2> spawnTiles = findSpawnTiles(level, playerCenter, tileSize, count);
+    // Choose all positions first so a crowded area does not produce a partial horde.
+    if (spawnTiles.size() < count) {
+      showOutput.accept("Not enough nearby ground to spawn " + count + " enemies.");
+      return false;
+    }
+
+    int spawned = spawnEnemies(area, spawnTiles, tileSize);
+    showOutput.accept("Spawned " + spawned + " of " + count + " skeletons.");
+    return spawned == count;
+  }
+
+  private static Integer parseCount(ArrayList<String> args) {
+    if (args.size() != 1) {
+      return null;
+    }
+
+    try {
+      int count = Integer.parseInt(args.getFirst());
+      return count >= 1 && count <= MAX_ENEMIES ? count : null;
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  private static List<GridPoint2> findSpawnTiles(
+      LevelView level, Vector2 playerCenter, float tileSize, int count) {
     int playerX = (int) Math.floor(playerCenter.x / tileSize);
     int playerY = (int) Math.floor(playerCenter.y / tileSize);
 
@@ -86,19 +105,16 @@ public class HordeCommand implements Command {
         break;
       }
     }
-    // Choose all positions first so a crowded area does not produce a partial horde.
-    if (spawnTiles.size() < count) {
-      showOutput.accept("Not enough nearby ground to spawn " + count + " enemies.");
-      return false;
-    }
+    return spawnTiles;
+  }
 
+  private static int spawnEnemies(LevelGameArea area, List<GridPoint2> spawnTiles, float tileSize) {
     int spawned = 0;
     for (GridPoint2 tile : spawnTiles) {
       if (area.spawnEnemy(ENEMY_TYPE, new Vector2(tile.x * tileSize, tile.y * tileSize))) {
         spawned++;
       }
     }
-    showOutput.accept("Spawned " + spawned + " of " + count + " skeletons.");
-    return spawned == count;
+    return spawned;
   }
 }

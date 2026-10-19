@@ -3,6 +3,7 @@ package com.csse3200.game.areas.terrain.map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.Gdx;
@@ -269,7 +270,7 @@ class SideRoomsTest {
     LevelView view = new MapDataLevelView(nether);
 
     for (int y = 34; y <= 50; y++) {
-      assertFalse(view.tileTypeAt(52, y) == TileType.LADDER, "old ladder tile at y=" + y);
+      assertNotSame(TileType.LADDER, view.tileTypeAt(52, y), "old ladder tile at y=" + y);
     }
     for (int y : new int[] {39, 45, 51}) {
       assertTrue(view.isSolid(52, y), "the divider floor remains sealed at y=" + y);
