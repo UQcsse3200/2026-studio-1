@@ -106,4 +106,16 @@ class TerminalTest {
     terminal.handleBackspace();
     assertEquals("a", terminal.getEnteredMessage());
   }
+
+  @Test
+  void commandOutputRemainsVisibleAfterClosingUntilTerminalReopens() {
+    Terminal terminal = new Terminal();
+    terminal.showOutputMessage("Current room: Nether");
+
+    terminal.setClosed();
+    assertEquals("Current room: Nether", terminal.getOutputMessage());
+
+    terminal.setOpen();
+    assertEquals("", terminal.getOutputMessage());
+  }
 }

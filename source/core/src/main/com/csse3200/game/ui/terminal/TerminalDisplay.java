@@ -12,6 +12,7 @@ public class TerminalDisplay extends UIComponent {
   private static final float Z_INDEX = 10f;
   private Terminal terminal;
   private Label label;
+  private Label outputLabel;
 
   @Override
   public void create() {
@@ -25,6 +26,10 @@ public class TerminalDisplay extends UIComponent {
     label = new Label("> " + message, skin);
     label.setPosition(5f, 0);
     stage.addActor(label);
+
+    outputLabel = new Label("", skin);
+    outputLabel.setPosition(5f, 30f);
+    stage.addActor(outputLabel);
   }
 
   @Override
@@ -35,6 +40,13 @@ public class TerminalDisplay extends UIComponent {
       label.setText("> " + message);
     } else {
       label.setVisible(false);
+    }
+
+    String output = terminal.getOutputMessage();
+    outputLabel.setVisible(!output.isEmpty());
+    if (!output.isEmpty()) {
+      outputLabel.setText(output);
+      outputLabel.pack();
     }
   }
 
@@ -47,5 +59,6 @@ public class TerminalDisplay extends UIComponent {
   public void dispose() {
     super.dispose();
     label.remove();
+    outputLabel.remove();
   }
 }

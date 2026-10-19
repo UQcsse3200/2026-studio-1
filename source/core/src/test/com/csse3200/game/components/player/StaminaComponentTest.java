@@ -48,6 +48,42 @@ class StaminaComponentTest {
   }
 
   @Test
+  void unlimitedStaminaRefillsAndCoversDashSlideAndDoubleJump() {
+    staminaComponent.useStamina(90f);
+    staminaComponent.setUnlimitedStamina(true);
+
+    assertEquals(100f, staminaComponent.getStamina());
+    assertTrue(staminaComponent.hasEnoughStamina(150f));
+
+    staminaComponent.useStamina(staminaComponent.getDashCost());
+    staminaComponent.useStamina(staminaComponent.getSlideCost());
+    staminaComponent.useStamina(staminaComponent.getJumpCost());
+
+    assertEquals(100f, staminaComponent.getStamina());
+  }
+
+  @Test
+  void disablingUnlimitedStaminaRestoresNormalCostsAndRegeneration() {
+    staminaComponent.useStamina(40f);
+    staminaComponent.setUnlimitedStamina(true);
+    staminaComponent.setUnlimitedStamina(false);
+
+    staminaComponent.useStamina(staminaComponent.getDashCost());
+    assertEquals(80f, staminaComponent.getStamina());
+    staminaComponent.regenerate(3f);
+    staminaComponent.regenerate(1f);
+    assertEquals(85f, staminaComponent.getStamina());
+  }
+
+  @Test
+  void settingStaminaCannotDrainItWhileUnlimited() {
+    staminaComponent.setUnlimitedStamina(true);
+    staminaComponent.setStamina(20f);
+
+    assertEquals(100f, staminaComponent.getStamina());
+  }
+
+  @Test
   void testRegenerateStamina() {
     staminaComponent.useStamina(40f);
     staminaComponent.regenerate(3f);
