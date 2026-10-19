@@ -585,6 +585,38 @@ class JsonMapLoaderTest {
   }
 
   @Test
+  void rejectsABackdropLayerWithABlankTexture() {
+    assertThrows(
+        MapLoadException.class,
+        () -> loader.parse(mapWithBackdrops("{ \"cave\": [ { \"texture\": \"  \" } ] }")));
+  }
+
+  @Test
+  void rejectsBackdropsThatAreNotAnObject() {
+    assertThrows(
+        MapLoadException.class,
+        () -> loader.parse(mapWithBackdrops("[ { \"texture\": \"far.png\" } ]")));
+  }
+
+  @Test
+  void rejectsABackdropThatIsNotAListOfLayers() {
+    assertThrows(
+        MapLoadException.class,
+        () -> loader.parse(mapWithBackdrops("{ \"cave\": { \"texture\": \"far.png\" } }")));
+  }
+
+  private static String mapWithBackdrops(String backdrops) {
+    return """
+        {
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": ["#"] },
+          "backdrops": %s
+        }
+        """
+        .formatted(backdrops);
+  }
+
+  @Test
   void loadsLevelTwoMountainAndItsSummitExit() {
     LevelMapData levelTwo = loader.load("maps/level2.json");
 

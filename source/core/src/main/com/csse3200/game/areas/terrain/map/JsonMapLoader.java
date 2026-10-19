@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.areas.terrain.TileType;
 import com.csse3200.game.components.lighting.LightingConfigParser;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -225,22 +224,25 @@ public class JsonMapLoader implements MapLoader {
 
   private record LayerRows(List<String> names, List<String[]> rows, int width, int height) {}
 
-  private record SplitLayers(List<MapLayerData> layers, String[] entityRows) {
-    @Override
-    public boolean equals(Object o) {
-      return o instanceof SplitLayers(List<MapLayerData> otherLayers, String[] otherEntityRows)
-          && layers.equals(otherLayers)
-          && Arrays.equals(entityRows, otherEntityRows);
+  /**
+   * The tile layers and the raw entities rows split out of a map. A class rather than a record,
+   * since a record would compare the array by identity rather than by its contents.
+   */
+  private static final class SplitLayers {
+    private final List<MapLayerData> layers;
+    private final String[] entityRows;
+
+    private SplitLayers(List<MapLayerData> layers, String[] entityRows) {
+      this.layers = layers;
+      this.entityRows = entityRows;
     }
 
-    @Override
-    public int hashCode() {
-      return 31 * layers.hashCode() + Arrays.hashCode(entityRows);
+    private List<MapLayerData> layers() {
+      return layers;
     }
 
-    @Override
-    public String toString() {
-      return "SplitLayers[layers=" + layers + ", entityRows=" + Arrays.toString(entityRows) + "]";
+    private String[] entityRows() {
+      return entityRows;
     }
   }
 

@@ -359,7 +359,7 @@ class LevelGameAreaCreateTest {
               TextureRenderComponent.class,
               LightComponent.class,
               NameDisplay.class)) {
-        constructions.add(record(type));
+        constructions.add(recordConstructions(type));
       }
       area.create();
     } finally {
@@ -367,7 +367,7 @@ class LevelGameAreaCreateTest {
     }
   }
 
-  private <T> MockedConstruction<T> record(Class<T> type) {
+  private <T> MockedConstruction<T> recordConstructions(Class<T> type) {
     return mockConstruction(
         type,
         withSettings().defaultAnswer(RETURNS_SELF),
