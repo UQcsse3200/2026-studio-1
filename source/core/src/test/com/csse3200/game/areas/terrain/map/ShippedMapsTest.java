@@ -5,9 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.csse3200.game.extensions.GameExtension;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -43,6 +47,60 @@ class ShippedMapsTest {
     assertTrue(
         failures.isEmpty(),
         () -> "Shipped maps are not playable:\n  " + String.join("\n  ", failures));
+  }
+
+  @Test
+  void everySymbolUsedByAShippedMapIsDeclared() {
+    List<String> failures = new ArrayList<>();
+    JsonReader reader = new JsonReader();
+
+    for (String mapPath : shippedMaps()) {
+      JsonValue root = reader.parse(Gdx.files.internal(mapPath));
+      JsonValue layers = root.get("layers");
+      if (layers == null) {
+        continue;
+      }
+
+      Set<Character> tileSymbols = declaredSymbols(root.get("legend"));
+      Set<Character> entitySymbols = declaredSymbols(root.get("entityLegend"));
+      for (JsonValue layer = layers.child; layer != null; layer = layer.next) {
+        Set<Character> declared = "entities".equals(layer.name) ? entitySymbols : tileSymbols;
+        int rowNumber = 0;
+        for (JsonValue row = layer.child; row != null; row = row.next, rowNumber++) {
+          String cells = row.asString();
+          for (int column = 0; column < cells.length(); column++) {
+            char symbol = cells.charAt(column);
+            if (symbol != ' ' && !declared.contains(symbol)) {
+              failures.add(
+                  mapPath
+                      + " layer '"
+                      + layer.name
+                      + "' uses undeclared symbol '"
+                      + symbol
+                      + "' at row "
+                      + rowNumber
+                      + ", column "
+                      + column);
+            }
+          }
+        }
+      }
+    }
+
+    assertTrue(failures.isEmpty(), () -> String.join("\n", failures));
+  }
+
+  private static Set<Character> declaredSymbols(JsonValue legend) {
+    Set<Character> symbols = new HashSet<>();
+    if (legend == null) {
+      return symbols;
+    }
+    for (JsonValue entry = legend.child; entry != null; entry = entry.next) {
+      if (entry.name != null && entry.name.length() == 1) {
+        symbols.add(entry.name.charAt(0));
+      }
+    }
+    return symbols;
   }
 
   /** Collects the blocking problems in one map, logging anything that is only worth a look. */
