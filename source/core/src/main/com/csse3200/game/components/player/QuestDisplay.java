@@ -54,7 +54,7 @@ public class QuestDisplay extends UIComponent {
     rootTable = new Table();
     rootTable.setFillParent(true);
     rootTable.top().right();
-    rootTable.padTop(75f).padRight(20f);
+    rootTable.padTop(100f).padRight(20f);
 
     questTable = new Table();
     questTable.setBackground(skin.getDrawable("window"));
