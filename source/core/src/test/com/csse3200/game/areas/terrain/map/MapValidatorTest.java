@@ -92,6 +92,23 @@ class MapValidatorTest {
   }
 
   @Test
+  void warnsAboutAPlayerSpawnOnTheBottomRow() {
+    String json =
+        """
+        {
+          "name": "Bottomless",
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": [" "] },
+          "spawns": { "player": { "x": 0, "y": 0 } }
+        }
+        """;
+    List<MapValidator.Problem> problems = validate(json);
+
+    assertTrue(mentions(problems, "player spawn (0, 0) has no ground beneath it"));
+    assertTrue(errors(problems).isEmpty());
+  }
+
+  @Test
   void warnsAboutAPlayerSpawnInsideAWall() {
     String json =
         """
