@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @ExtendWith(GameExtension.class)
 class JsonMapLoaderTest {
@@ -584,23 +585,18 @@ class JsonMapLoaderTest {
     assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
 
-  @Test
-  void rejectsABackdropLayerWithABlankTexture() {
-    String json = mapWithBackdrops("{ \"cave\": [ { \"texture\": \"  \" } ] }");
-
-    assertThrows(MapLoadException.class, () -> loader.parse(json));
-  }
-
-  @Test
-  void rejectsBackdropsThatAreNotAnObject() {
-    String json = mapWithBackdrops("[ { \"texture\": \"far.png\" } ]");
-
-    assertThrows(MapLoadException.class, () -> loader.parse(json));
-  }
-
-  @Test
-  void rejectsABackdropThatIsNotAListOfLayers() {
-    String json = mapWithBackdrops("{ \"cave\": { \"texture\": \"far.png\" } }");
+  @ParameterizedTest(name = "rejects backdrops {0}")
+  @ValueSource(
+      strings = {
+        // A layer with a blank texture.
+        "{ \"cave\": [ { \"texture\": \"  \" } ] }",
+        // Backdrops that are not an object keyed by sub-level.
+        "[ { \"texture\": \"far.png\" } ]",
+        // A backdrop that is not a list of layers.
+        "{ \"cave\": { \"texture\": \"far.png\" } }"
+      })
+  void rejectsMalformedBackdrops(String backdrops) {
+    String json = mapWithBackdrops(backdrops);
 
     assertThrows(MapLoadException.class, () -> loader.parse(json));
   }
