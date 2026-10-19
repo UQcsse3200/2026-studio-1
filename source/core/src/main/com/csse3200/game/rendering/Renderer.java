@@ -37,7 +37,6 @@ public class Renderer implements Disposable {
 
   /** The UI is laid out for this size; smaller windows scale the whole UI down to fit. */
   private static final float UI_REFERENCE_WIDTH = 1920f;
-
   private static final float UI_REFERENCE_HEIGHT = 1080f;
 
   public Renderer(CameraComponent camera) {
@@ -101,7 +100,7 @@ public class Renderer implements Disposable {
     return camera;
   }
 
-  /** Render everything to the render service. */
+  /* Render everything to the render service. */
   public void render() {
     Matrix4 projMatrix = camera.getProjectionMatrix();
     batch.setProjectionMatrix(projMatrix);
