@@ -97,8 +97,8 @@ class PlatformWanderTaskTest {
 
     wanderTask.update();
 
-    assertEquals(0f, wanderTask.startPos.x, 1e-5f, "the wander range should shift back left");
-    assertSame(wanderTask.movementTask, wanderTask.currentTask);
+    assertEquals(0f, wanderTask.getStartPos().x, 1e-5f, "the wander range should shift back left");
+    assertSame(wanderTask.getMovementTask(), wanderTask.getCurrentTask());
   }
 
   @Test
@@ -111,8 +111,8 @@ class PlatformWanderTaskTest {
 
     wanderTask.update();
 
-    assertEquals(2f, wanderTask.startPos.x, 1e-5f, "the wander range should shift back right");
-    assertSame(wanderTask.movementTask, wanderTask.currentTask);
+    assertEquals(2f, wanderTask.getStartPos().x, 1e-5f, "the wander range should shift back right");
+    assertSame(wanderTask.getMovementTask(), wanderTask.getCurrentTask());
   }
 
   @Test
@@ -125,8 +125,8 @@ class PlatformWanderTaskTest {
 
     wanderTask.update();
 
-    assertEquals(9f, wanderTask.startPos.x, 1e-5f);
-    assertEquals(4f, wanderTask.startPos.y, 1e-5f);
+    assertEquals(9f, wanderTask.getStartPos().x, 1e-5f);
+    assertEquals(4f, wanderTask.getStartPos().y, 1e-5f);
   }
 
   @Test
@@ -138,13 +138,14 @@ class PlatformWanderTaskTest {
     Entity walker = createEntity(wanderTask);
     walker.setPosition(1f, 0f);
     wanderTask.start();
-    assertSame(wanderTask.waitTask, wanderTask.currentTask, "it waits first so it can land");
+    assertSame(
+        wanderTask.getWaitTask(), wanderTask.getCurrentTask(), "it waits first so it can land");
 
     now.set(1000L);
     wanderTask.update(); // the wait finishes
     wanderTask.update(); // so it moves
 
-    assertSame(wanderTask.movementTask, wanderTask.currentTask);
+    assertSame(wanderTask.getMovementTask(), wanderTask.getCurrentTask());
   }
 
   /** A static platform whose top surface is just below y = 0, where the walker's feet are. */
