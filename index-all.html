@@ -1255,6 +1255,12 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/player/DeathStateComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DeathStateComponent.html" title="class in com.csse3200.game.components.player">DeathStateComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html" title="class in com.csse3200.game.components.player">FrozenIndicatorDisplay</a></dt>
+<dd>
+<div class="block">Builds the label table and starts listening for the cause, start, end and death events.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenTintComponent.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenTintComponent.html" title="class in com.csse3200.game.components.player">FrozenTintComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/GamblingCatalogs.ItemPrize.html#create()" class="member-name-link">create()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/GamblingCatalogs.ItemPrize.html" title="class in com.csse3200.game.components.player">GamblingCatalogs.ItemPrize</a></dt>
 <dd>
 <div class="block">Creates a new item for one win.</div>
@@ -1902,6 +1908,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/pet/PetProjectileComponent.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetProjectileComponent.html" title="class in com.csse3200.game.components.pet">PetProjectileComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html" title="class in com.csse3200.game.components.player">FrozenIndicatorDisplay</a></dt>
+<dd>
+<div class="block">Removes the table from the stage so no label is left behind.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/GamblingWheel.html#dispose()" class="member-name-link">dispose()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/GamblingWheel.html" title="class in com.csse3200.game.components.player">GamblingWheel</a></dt>
 <dd>
 <div class="block">Releases textures created by this widget.</div>
@@ -2027,6 +2037,12 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/BallisticShieldRenderComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/BallisticShieldRenderComponent.html" title="class in com.csse3200.game.components.player">BallisticShieldRenderComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html" title="class in com.csse3200.game.components.player">FrozenIndicatorDisplay</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenTintComponent.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenTintComponent.html" title="class in com.csse3200.game.components.player">FrozenTintComponent</a></dt>
+<dd>
+<div class="block">Draws the overlay when active, then resets the batch colour to white.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/InventoryDisplay.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/InventoryDisplay.html" title="class in com.csse3200.game.components.player">InventoryDisplay</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/PlayerStatsDisplay.html#draw(com.badlogic.gdx.graphics.g2d.SpriteBatch)" class="member-name-link">draw(SpriteBatch)</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/PlayerStatsDisplay.html" title="class in com.csse3200.game.components.player">PlayerStatsDisplay</a></dt>
@@ -2533,6 +2549,35 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/lighting/LightSpec.html#fromTile(com.csse3200.game.areas.terrain.map.TileDefinition)" class="member-name-link">fromTile(TileDefinition)</a> - Static method in record class com.csse3200.game.components.lighting.<a href="com/csse3200/game/components/lighting/LightSpec.html" title="class in com.csse3200.game.components.lighting">LightSpec</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/FrozenCause.html#FROZEN" class="member-name-link">FROZEN</a> - Static variable in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/FrozenCause.html" title="class in com.csse3200.game.components.effects">FrozenCause</a></dt>
+<dd>
+<div class="block">Cause text for lightning.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html#FROZEN_END_EVENT" class="member-name-link">FROZEN_END_EVENT</a> - Static variable in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a></dt>
+<dd>
+<div class="block">Event fired on the player when the last timed stopping effect ends or is disposed.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html#FROZEN_START_EVENT" class="member-name-link">FROZEN_START_EVENT</a> - Static variable in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a></dt>
+<dd>
+<div class="block">Event fired on the player when a timed effect first stops them.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/effects/FrozenCause.html" class="type-name-link" title="class in com.csse3200.game.components.effects">FrozenCause</a> - Class in <a href="com/csse3200/game/components/effects/package-summary.html">com.csse3200.game.components.effects</a></dt>
+<dd>
+<div class="block">The names used to tell the screen why the player was just stopped.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html" class="type-name-link" title="class in com.csse3200.game.components.player">FrozenIndicatorDisplay</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
+<dd>
+<div class="block">Shows a countdown label ("Frozen 1.8s" or "Petrified 1.8s") while the player cannot move.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html#%3Cinit%3E()" class="member-name-link">FrozenIndicatorDisplay()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html" title="class in com.csse3200.game.components.player">FrozenIndicatorDisplay</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenTintComponent.html" class="type-name-link" title="class in com.csse3200.game.components.player">FrozenTintComponent</a> - Class in <a href="com/csse3200/game/components/player/package-summary.html">com.csse3200.game.components.player</a></dt>
+<dd>
+<div class="block">Draws a coloured overlay over the player while they are stopped: blue-grey when frozen, stone
+ grey when petrified.</div>
+</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenTintComponent.html#%3Cinit%3E()" class="member-name-link">FrozenTintComponent()</a> - Constructor for class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenTintComponent.html" title="class in com.csse3200.game.components.player">FrozenTintComponent</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/files/UserSettings.Settings.html#fullscreen" class="member-name-link">fullscreen</a> - Variable in class com.csse3200.game.files.<a href="com/csse3200/game/files/UserSettings.Settings.html" title="class in com.csse3200.game.files">UserSettings.Settings</a></dt>
 <dd>&nbsp;</dd>
 </dl>
@@ -2830,6 +2875,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/enemies/animation/ZeusAnimationController.html#getCurrentState()" class="member-name-link">getCurrentState()</a> - Method in class com.csse3200.game.components.enemies.animation.<a href="com/csse3200/game/components/enemies/animation/ZeusAnimationController.html" title="class in com.csse3200.game.components.enemies.animation">ZeusAnimationController</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html#getCurrentTask()" class="member-name-link">getCurrentTask()</a> - Method in class com.csse3200.game.components.enemies.tasks.<a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html" title="class in com.csse3200.game.components.enemies.tasks">PlatformWanderTask</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/upgrades/UpgradeNode.html#getCurrentTier()" class="member-name-link">getCurrentTier()</a> - Method in class com.csse3200.game.upgrades.<a href="com/csse3200/game/upgrades/UpgradeNode.html" title="class in com.csse3200.game.upgrades">UpgradeNode</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponRenderComponent.html#getCurrentWeaponTier()" class="member-name-link">getCurrentWeaponTier()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponRenderComponent.html" title="class in com.csse3200.game.components.player">WeaponRenderComponent</a></dt>
@@ -2996,6 +3043,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/ComponentType.html#getFrom(java.lang.Class)" class="member-name-link">getFrom(Class&lt;? extends Component&gt;)</a> - Static method in class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentType.html" title="class in com.csse3200.game.components">ComponentType</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/SpeedEffectComponent.html#getFrozenTicksRemaining()" class="member-name-link">getFrozenTicksRemaining()</a> - Method in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/SpeedEffectComponent.html" title="class in com.csse3200.game.components.effects">SpeedEffectComponent</a></dt>
+<dd>
+<div class="block">Gets how many ticks the player stays fully stopped, counting every timed effect whose speed
+ multiplier is exactly zero.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/ShopComponent.html#getGamblingCatalogs()" class="member-name-link">getGamblingCatalogs()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/ShopComponent.html" title="class in com.csse3200.game.components.player">ShopComponent</a></dt>
 <dd>
 <div class="block">Returns the Standard and Premium spin catalogs.</div>
@@ -3323,6 +3375,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Retrieves predetermined movement strategy for the projectile</div>
 </dd>
+<dt><a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html#getMovementTask()" class="member-name-link">getMovementTask()</a> - Method in class com.csse3200.game.components.enemies.tasks.<a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html" title="class in com.csse3200.game.components.enemies.tasks">PlatformWanderTask</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ai/movement/MovementController.html#getMoving()" class="member-name-link">getMoving()</a> - Method in interface com.csse3200.game.ai.movement.<a href="com/csse3200/game/ai/movement/MovementController.html" title="interface in com.csse3200.game.ai.movement">MovementController</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/physics/components/PhysicsMovementComponent.html#getMoving()" class="member-name-link">getMoving()</a> - Method in class com.csse3200.game.physics.components.<a href="com/csse3200/game/physics/components/PhysicsMovementComponent.html" title="class in com.csse3200.game.physics.components">PhysicsMovementComponent</a></dt>
@@ -3689,6 +3743,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the Standard spin catalog.</div>
 </dd>
+<dt><a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html#getStartPos()" class="member-name-link">getStartPos()</a> - Method in class com.csse3200.game.components.enemies.tasks.<a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html" title="class in com.csse3200.game.components.enemies.tasks">PlatformWanderTask</a></dt>
+<dd>
+<div class="block">Getters used for test cases, it's advised not to use them to outside of tests</div>
+</dd>
 <dt><a href="com/csse3200/game/components/loot/BuffEffect.html#getStat()" class="member-name-link">getStat()</a> - Method in class com.csse3200.game.components.loot.<a href="com/csse3200/game/components/loot/BuffEffect.html" title="class in com.csse3200.game.components.loot">BuffEffect</a></dt>
 <dd>
 <div class="block">Returns the stat this effect modifies.</div>
@@ -3829,6 +3887,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the Upgrade listing in a catalog slot.</div>
 </dd>
 <dt><a href="com/csse3200/game/components/ComponentPriority.html#getValue()" class="member-name-link">getValue()</a> - Method in enum class com.csse3200.game.components.<a href="com/csse3200/game/components/ComponentPriority.html" title="enum class in com.csse3200.game.components">ComponentPriority</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html#getWaitTask()" class="member-name-link">getWaitTask()</a> - Method in class com.csse3200.game.components.enemies.tasks.<a href="com/csse3200/game/components/enemies/tasks/PlatformWanderTask.html" title="class in com.csse3200.game.components.enemies.tasks">PlatformWanderTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/WeaponAttackComponent.html#getWeapon()" class="member-name-link">getWeapon()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/WeaponAttackComponent.html" title="class in com.csse3200.game.components.player">WeaponAttackComponent</a></dt>
 <dd>&nbsp;</dd>
@@ -4997,7 +5057,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/csse3200/game/components/lighting/LightColour.html#LIGHTNING_STORM" class="member-name-link">LIGHTNING_STORM</a> - Enum constant in enum class com.csse3200.game.components.lighting.<a href="com/csse3200/game/components/lighting/LightColour.html" title="enum class in com.csse3200.game.components.lighting">LightColour</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/enemies/attacks/LightningFreezeComponent.html" class="type-name-link" title="class in com.csse3200.game.components.enemies.attacks">LightningFreezeComponent</a> - Class in <a href="com/csse3200/game/components/enemies/attacks/package-summary.html">com.csse3200.game.components.enemies.attacks</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">Freezes whatever a lightning bolt hits, for a set time, by triggering the target's own <code>
+ "applySpeedEffect"</code> event with a <code>0f</code> speed multiplier.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/enemies/attacks/LightningFreezeComponent.html#%3Cinit%3E(int)" class="member-name-link">LightningFreezeComponent(int)</a> - Constructor for class com.csse3200.game.components.enemies.attacks.<a href="com/csse3200/game/components/enemies/attacks/LightningFreezeComponent.html" title="class in com.csse3200.game.components.enemies.attacks">LightningFreezeComponent</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/lighting/EmitterScanner.LightPlacement.html#%3Cinit%3E(float,float,com.csse3200.game.components.lighting.LightSpec)" class="member-name-link">LightPlacement(float, float, LightSpec)</a> - Constructor for record class com.csse3200.game.components.lighting.<a href="com/csse3200/game/components/lighting/EmitterScanner.LightPlacement.html" title="class in com.csse3200.game.components.lighting">EmitterScanner.LightPlacement</a></dt>
@@ -5820,6 +5883,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/csse3200/game/components/pet/PetProjectileSpawnerComponent.html#%3Cinit%3E()" class="member-name-link">PetProjectileSpawnerComponent()</a> - Constructor for class com.csse3200.game.components.pet.<a href="com/csse3200/game/components/pet/PetProjectileSpawnerComponent.html" title="class in com.csse3200.game.components.pet">PetProjectileSpawnerComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/FrozenCause.html#PETRIFIED" class="member-name-link">PETRIFIED</a> - Static variable in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/FrozenCause.html" title="class in com.csse3200.game.components.effects">FrozenCause</a></dt>
+<dd>
+<div class="block">Cause text for Medusa's gaze.</div>
+</dd>
 <dt><a href="com/csse3200/game/entities/configs/enemies/MedusaConfig.html#petrify" class="member-name-link">petrify</a> - Variable in class com.csse3200.game.entities.configs.enemies.<a href="com/csse3200/game/entities/configs/enemies/MedusaConfig.html" title="class in com.csse3200.game.entities.configs.enemies">MedusaConfig</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/enemies/attacks/PetrifyEffectComponent.html#PETRIFY_SPEED_MULTIPLIER" class="member-name-link">PETRIFY_SPEED_MULTIPLIER</a> - Static variable in class com.csse3200.game.components.enemies.attacks.<a href="com/csse3200/game/components/enemies/attacks/PetrifyEffectComponent.html" title="class in com.csse3200.game.components.enemies.attacks">PetrifyEffectComponent</a></dt>
@@ -7701,6 +7768,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ai/tasks/DefaultTask.html#status" class="member-name-link">status</a> - Variable in class com.csse3200.game.ai.tasks.<a href="com/csse3200/game/ai/tasks/DefaultTask.html" title="class in com.csse3200.game.ai.tasks">DefaultTask</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/effects/FrozenCause.html#STATUS_CAUSE_EVENT" class="member-name-link">STATUS_CAUSE_EVENT</a> - Static variable in class com.csse3200.game.components.effects.<a href="com/csse3200/game/components/effects/FrozenCause.html" title="class in com.csse3200.game.components.effects">FrozenCause</a></dt>
+<dd>
+<div class="block">Event sent to the player just before <code>"applySpeedEffect"</code>, naming why the player is about
+ to be stopped.</div>
+</dd>
 <dt><a href="com/csse3200/game/ai/tasks/DefaultTask.html#stop()" class="member-name-link">stop()</a> - Method in class com.csse3200.game.ai.tasks.<a href="com/csse3200/game/ai/tasks/DefaultTask.html" title="class in com.csse3200.game.ai.tasks">DefaultTask</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/ai/tasks/Task.html#stop()" class="member-name-link">stop()</a> - Method in interface com.csse3200.game.ai.tasks.<a href="com/csse3200/game/ai/tasks/Task.html" title="interface in com.csse3200.game.ai.tasks">Task</a></dt>
@@ -8440,6 +8512,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/csse3200/game/components/player/DaggerMovementComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/DaggerMovementComponent.html" title="class in com.csse3200.game.components.player">DaggerMovementComponent</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/FrozenIndicatorDisplay.html" title="class in com.csse3200.game.components.player">FrozenIndicatorDisplay</a></dt>
+<dd>
+<div class="block">Refreshes the label text and colour from the remaining time; does nothing while hidden.</div>
+</dd>
 <dt><a href="com/csse3200/game/components/player/KeyboardPlayerInputComponent.html#update()" class="member-name-link">update()</a> - Method in class com.csse3200.game.components.player.<a href="com/csse3200/game/components/player/KeyboardPlayerInputComponent.html" title="class in com.csse3200.game.components.player">KeyboardPlayerInputComponent</a></dt>
 <dd>
 <div class="block">Per-frame upkeep: stops walking if the game was just paused, and lets go of any held direction

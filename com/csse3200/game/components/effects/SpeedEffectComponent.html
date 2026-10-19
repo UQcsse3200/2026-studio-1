@@ -47,7 +47,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Detail:</p>
 <ul>
-<li>Field</li>
+<li><a href="#field-detail">Field</a></li>
 <li><a href="#constructor-detail">Constr</a></li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -65,7 +65,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -97,7 +97,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Component which temporarily changes a player's movement speed over time, then reverts it. Can be
  used to pause (multiplier 0), slow (multiplier &lt; 1), or speed up (multiplier &gt; 1) the
  player's movement. Multiple instances can be active on the same player at once; their effects
- stack multiplicatively and each reverts independently when its own timer expires.</div>
+ stack multiplicatively and each reverts independently when its own timer expires.
+
+ <p>It also reports when the player is fully stopped, so the screen can show it: <a href="#FROZEN_START_EVENT"><code>FROZEN_START_EVENT</code></a> fires when the first timed stopping effect begins and <a href="#FROZEN_END_EVENT"><code>FROZEN_END_EVENT</code></a> fires when the last one ends, and <a href="#getFrozenTicksRemaining()"><code>getFrozenTicksRemaining()</code></a> gives the
+ time left.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -105,6 +108,22 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#FROZEN_END_EVENT" class="member-name-link">FROZEN_END_EVENT</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Event fired on the player when the last timed stopping effect ends or is disposed.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#FROZEN_START_EVENT" class="member-name-link">FROZEN_START_EVENT</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Event fired on the player when a timed effect first stops them.</div>
+</div>
+</div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.csse3200.game.components.Component">Fields inherited from class&nbsp;com.csse3200.game.components.<a href="../Component.html" title="class in com.csse3200.game.components">Component</a></h3>
 <code><a href="../Component.html#enabled">enabled</a>, <a href="../Component.html#entity">entity</a>, <a href="../Component.html#prio">prio</a></code></div>
@@ -150,9 +169,15 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called when the component is disposed.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFrozenTicksRemaining()" class="member-name-link">getFrozenTicksRemaining</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets how many ticks the player stays fully stopped, counting every timed effect whose speed
+ multiplier is exactly zero.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Called once per frame of the game, and should be used for most component logic.</div>
 </div>
 </div>
@@ -170,6 +195,44 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="FROZEN_START_EVENT">
+<h3>FROZEN_START_EVENT</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">FROZEN_START_EVENT</span></div>
+<div class="block">Event fired on the player when a timed effect first stops them.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.csse3200.game.components.effects.SpeedEffectComponent.FROZEN_START_EVENT">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="FROZEN_END_EVENT">
+<h3>FROZEN_END_EVENT</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">FROZEN_END_EVENT</span></div>
+<div class="block">Event fired on the player when the last timed stopping effect ends or is disposed.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.csse3200.game.components.effects.SpeedEffectComponent.FROZEN_END_EVENT">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -207,13 +270,31 @@ loadScripts(document, 'script');</script>
 <h3>applyEffect</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">applyEffect</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;time,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Float.html" title="class or interface in java.lang" class="external-link">Float</a>&nbsp;speedMultiplier)</span></div>
-<div class="block">Applies the given speed effect to the player.</div>
+<div class="block">Applies the given speed effect to the player. Also fires <a href="#FROZEN_START_EVENT"><code>FROZEN_START_EVENT</code></a> when this
+ is the first timed stopping effect to become active.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>time</code> - number of ticks the effect lasts. A duration of 0 applies the effect instantly and
-     never reverts it (matches HealthEffectComponent's "instant" convention).</dd>
+     never reverts it (matches HealthEffectComponent's "instant" convention), and is never shown
+     as frozen.</dd>
 <dd><code>speedMultiplier</code> - multiplier applied to the player's max speed while active (0 = pause,
      0.5 = half speed, 2 = double speed).</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if time or speedMultiplier is negative</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getFrozenTicksRemaining()">
+<h3>getFrozenTicksRemaining</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getFrozenTicksRemaining</span>()</div>
+<div class="block">Gets how many ticks the player stays fully stopped, counting every timed effect whose speed
+ multiplier is exactly zero. Effects that only slow the player, and effects with no end (a
+ duration of zero), are not counted.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the largest number of ticks remaining among the stopping effects, or 0 if the player is
+     not being stopped by a timed effect</dd>
 </dl>
 </section>
 </li>
