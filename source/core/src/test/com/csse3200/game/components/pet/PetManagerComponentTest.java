@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -354,5 +355,106 @@ class PetManagerComponentTest {
 
     assertSame(birdEntity, manager.getActivePet());
     assertSame(bird, manager.getActivePetType());
+  }
+
+  @Test
+  void shouldNotReportDisposedPetAsActive() {
+    PetManagerComponent manager =
+            new PetManagerComponent((petOwner, petData) -> new Entity());
+
+    owner.addComponent(manager);
+
+    manager.activatePet(new ShopComponent.Pet("Bird"));
+    Entity pet = manager.getActivePet();
+
+    assertTrue(manager.hasActivePet());
+
+    pet.dispose();
+
+    assertTrue(pet.isDisposed());
+    assertFalse(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldPreserveActivePetWhenFactoryFails() {
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    PetManagerComponent manager =
+            new PetManagerComponent(
+                    (petOwner, petData) -> {
+                      if ("Bat".equals(petData.getName())) {
+                        throw new IllegalStateException("Failed to create pet");
+                      }
+                      return new Entity();
+                    });
+
+    owner.addComponent(manager);
+    manager.activatePet(bird);
+
+    Entity originalPet = manager.getActivePet();
+
+    assertThrows(
+            IllegalStateException.class,
+            () -> manager.activatePet(bat));
+
+    assertFalse(originalPet.isDisposed());
+    assertSame(originalPet, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
+    assertTrue(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldDisposePreviousPetsAfterRepeatedActivation() {
+    PetManagerComponent manager =
+            new PetManagerComponent((petOwner, petData) -> new Entity());
+
+    owner.addComponent(manager);
+
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+    ShopComponent.Pet spirit = new ShopComponent.Pet("Spirit");
+
+    manager.activatePet(bird);
+    Entity firstPet = manager.getActivePet();
+
+    manager.activatePet(bat);
+    Entity secondPet = manager.getActivePet();
+
+    manager.activatePet(spirit);
+    Entity thirdPet = manager.getActivePet();
+
+    assertTrue(firstPet.isDisposed());
+    assertTrue(secondPet.isDisposed());
+    assertFalse(thirdPet.isDisposed());
+
+    assertSame(thirdPet, manager.getActivePet());
+    assertSame(spirit, manager.getActivePetType());
+    assertTrue(manager.hasActivePet());
+  }
+
+  @Test
+  void shouldPreserveActivePetWhenFactoryReturnsNull() {
+    ShopComponent.Pet bird = new ShopComponent.Pet("Bird");
+    ShopComponent.Pet bat = new ShopComponent.Pet("Bat");
+
+    PetManagerComponent manager =
+            new PetManagerComponent(
+                    (petOwner, petData) ->
+                            "Bat".equals(petData.getName()) ? null : new Entity());
+
+    owner.addComponent(manager);
+    manager.activatePet(bird);
+
+    Entity originalPet = manager.getActivePet();
+
+    assertThrows(
+            IllegalStateException.class,
+            () -> manager.activatePet(bat));
+
+    assertFalse(originalPet.isDisposed());
+    assertSame(originalPet, manager.getActivePet());
+    assertSame(bird, manager.getActivePetType());
+    assertTrue(manager.hasActivePet());
   }
 }
