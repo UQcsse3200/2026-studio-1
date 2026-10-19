@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -262,6 +264,194 @@ class LadderComponentTest {
     ladder.setMapData(createMap());
 
     assertFalse(ladder.canAutoClimb());
+  }
+
+  @Test
+  void autoClimbAlignsRisesThenStepsOntoTheLanding() {
+    when(engine.createBody(any())).thenReturn(body);
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    Entity player = new Entity().addComponent(new PhysicsComponent(engine)).addComponent(ladder);
+    player.setScale(0.75f, 0.75f);
+    positionCentreAtTile(player, 1, 2);
+    ladder.create();
+    AtomicInteger idleEvents = new AtomicInteger();
+    AtomicInteger climbEvents = new AtomicInteger();
+    player.getEvents().addListener("idle", direction -> idleEvents.incrementAndGet());
+    player.getEvents().addListener("climb", climbEvents::incrementAndGet);
+
+    assertTrue(ladder.beginAutoClimb());
+    for (int i = 0; i < 200 && ladder.isAutoClimbing(); i++) {
+      ladder.advanceAutoClimb(0.02f);
+    }
+
+    assertFalse(ladder.isAutoClimbing());
+    assertEquals(1, climbEvents.get(), "the climb animation starts once, on the rise");
+    assertEquals(2, idleEvents.get(), "idle before the rise and again on the landing");
+    assertEquals(0.75f, player.getCenterPosition().x, 0.001f);
+    assertEquals(2.895f, player.getCenterPosition().y, 0.001f);
+  }
+
+  @Test
+  void manualClimbingIsIgnoredDuringAnAutoClimb() {
+    when(engine.createBody(any())).thenReturn(body);
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    Entity player = new Entity().addComponent(new PhysicsComponent(engine)).addComponent(ladder);
+    player.setScale(0.75f, 0.75f);
+    positionCentreAtTile(player, 2, 3);
+    ladder.create();
+
+    assertTrue(ladder.beginAutoClimb());
+    clearInvocations(body);
+
+    assertFalse(ladder.beginClimb(1f));
+    ladder.stopClimbing();
+    verify(body, never()).setGravityScale(1f);
+    assertFalse(ladder.canAutoClimb());
+    assertTrue(ladder.isAutoClimbing());
+  }
+
+  @Test
+  void beginAutoClimbFailsWithNoLadderToClimb() {
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    Entity player = new Entity().addComponent(ladder);
+    player.setScale(0.75f, 0.75f);
+    positionCentreAtTile(player, 7, 1);
+
+    assertFalse(ladder.beginAutoClimb());
+    assertFalse(ladder.isAutoClimbing());
+  }
+
+  @Test
+  void advancingWithoutAnAutoClimbDoesNothing() {
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    Entity player = new Entity().addComponent(ladder);
+    positionCentreAtTile(player, 1, 2);
+    Vector2 before = player.getPosition().cpy();
+
+    ladder.advanceAutoClimb(1f);
+
+    assertEquals(before, player.getPosition());
+  }
+
+  @Test
+  void updateDoesNothingWhenNotClimbing() {
+    when(engine.createBody(any())).thenReturn(body);
+    LadderComponent ladder = new LadderComponent(createMap());
+    new Entity().addComponent(new PhysicsComponent(engine)).addComponent(ladder);
+    ladder.create();
+
+    ladder.update();
+
+    verify(body, never()).setGravityScale(anyFloat());
+  }
+
+  @Test
+  void zeroDirectionDoesNotStartClimbing() {
+    LadderComponent ladder = new LadderComponent(createMap());
+    Entity player = new Entity().addComponent(ladder);
+    positionCentreAtTile(player, LADDER_X, LADDER_Y);
+
+    assertFalse(ladder.beginClimb(0f));
+  }
+
+  @Test
+  void changingMapRestoresGravityOnceCreated() {
+    when(engine.createBody(any())).thenReturn(body);
+    LadderComponent ladder = new LadderComponent(createMap());
+    new Entity().addComponent(new PhysicsComponent(engine)).addComponent(ladder);
+    ladder.create();
+
+    ladder.setMapData(createLevelOneMap());
+
+    verify(body).setGravityScale(1f);
+    verify(body).setLinearVelocity(0f, 0f);
+  }
+
+  @Test
+  void autoClimbIsBlockedWhileTheLiftHasControl() {
+    when(engine.createBody(any())).thenReturn(body);
+    LadderComponent ladder = new LadderComponent(createLevelOneMap());
+    SubLevelTravelComponent travel = new SubLevelTravelComponent();
+    Entity player =
+        new Entity()
+            .addComponent(new PhysicsComponent(engine))
+            .addComponent(ladder)
+            .addComponent(travel);
+    ladder.create();
+    travel.create();
+    // Stand at the real level's dungeon lift door, so the lift can take over.
+    player.setPosition(13.25f - player.getScale().x / 2f, 11.9f - player.getScale().y / 2f);
+
+    assertTrue(travel.beginTravel());
+
+    assertFalse(ladder.canAutoClimb());
+  }
+
+  @Test
+  void autoClimbSkipsLaddersWithNoWayOff() {
+    LadderComponent ladder = new LadderComponent(createAwkwardLaddersMap());
+    Entity player = new Entity().addComponent(ladder);
+    player.setScale(0.75f, 0.75f);
+
+    // Ladder at x = 8 has no floor beside its top.
+    positionCentreAtTile(player, 8, 3);
+    assertFalse(ladder.canAutoClimb());
+
+    // Ladder at x = 5 runs from the dungeon into the Nether.
+    positionCentreAtTile(player, 5, 7);
+    assertFalse(ladder.canAutoClimb());
+
+    // Already above the top of the climbable ladder at x = 2.
+    positionCentreAtTile(player, 2, 6);
+    assertFalse(ladder.canAutoClimb());
+
+    // Too far below the bottom of it.
+    positionCentreAtTile(player, 2, 0);
+    assertFalse(ladder.canAutoClimb());
+
+    // Standing on it, it can be climbed.
+    positionCentreAtTile(player, 2, 3);
+    assertTrue(ladder.canAutoClimb());
+  }
+
+  /**
+   * A level-one map with one good ladder at x = 2 (landing on the floor at (1, 4)), one at x = 8
+   * with nothing to step onto, and one at x = 5 crossing from the dungeon into the Nether. The lift
+   * door is out of the way at (11, 6).
+   */
+  private static LevelMapData createAwkwardLaddersMap() {
+    MapLayerData collision = new MapLayerData("collision", 12, 16);
+    for (int row = 2; row <= 5; row++) {
+      collision.set(2, row, new TileDefinition(TileType.LADDER, null));
+      collision.set(8, row, new TileDefinition(TileType.LADDER, null));
+    }
+    collision.set(1, 4, new TileDefinition(TileType.FLOOR, null));
+    for (int row = 6; row <= 9; row++) {
+      collision.set(5, row, new TileDefinition(TileType.LADDER, null));
+    }
+    collision.set(4, 8, new TileDefinition(TileType.FLOOR, null));
+    collision.set(6, 8, new TileDefinition(TileType.FLOOR, null));
+    return LevelMapData.builder("awkward-ladders")
+        .tileSize(TILE_SIZE)
+        .size(12, 16)
+        .layers(List.of(collision))
+        .subLevels(
+            List.of(
+                new SubLevel(
+                    "dungeon",
+                    "DUNGEON",
+                    new SubLevel.Bounds(0, 0, 12, 8),
+                    new GridPoint2(11, 6),
+                    "nether",
+                    new GridPoint2(11, 9)),
+                new SubLevel(
+                    "nether",
+                    "NETHER",
+                    new SubLevel.Bounds(0, 8, 12, 8),
+                    new GridPoint2(11, 9),
+                    "dungeon",
+                    new GridPoint2(11, 6))))
+        .build();
   }
 
   private static LevelMapData createMap() {
