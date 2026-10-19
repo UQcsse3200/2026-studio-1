@@ -65,7 +65,7 @@ public class MedusaAnimationController extends Component {
     entity.getEvents().addListener("petrifyAttack", this::onPetrify);
     entity.getEvents().addListener("gaze", this::onPetrify);
     entity.getEvents().addListener("rangedAttackWindup", this::onPetrify);
-    entity.getEvents().addListener("rangedAttackFired", this::onRangedFired);
+    entity.getEvents().addListener("rangedAttackFired", this::onRangedAttack);
     entity.getEvents().addListener("rangedAttackStart", () -> onRangedAttack(null));
     entity
         .getEvents()
@@ -199,13 +199,6 @@ public class MedusaAnimationController extends Component {
   }
 
   private void onRangedAttack(Entity target) {
-    if (entity != null && entity.getComponent(RangedAttackComponent.class) != null) {
-      return;
-    }
-    onPetrify(target);
-  }
-
-  private void onRangedFired(Entity target) {
     if (entity != null && entity.getComponent(RangedAttackComponent.class) != null) {
       return;
     }
