@@ -133,6 +133,12 @@ class KeyboardPlayerInputComponentTest {
   }
 
   @Test
+  void shouldReturnDirection() {
+    KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
+    assertEquals(input.getDirection(), "Right");
+  }
+
+  @Test
   void shouldSelectFirstPetSlotWhenSixIsPressed() {
     KeyboardPlayerInputComponent input = new KeyboardPlayerInputComponent();
     InventoryComponent inventory = new InventoryComponent(0);
