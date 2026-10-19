@@ -1,6 +1,5 @@
 package com.csse3200.game.components.gamearea;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.csse3200.game.ui.UIComponent;
@@ -27,7 +26,7 @@ public class GameAreaDisplay extends UIComponent {
 
   @Override
   public void draw(SpriteBatch batch) {
-    int screenHeight = Gdx.graphics.getHeight();
+    float screenHeight = stage.getHeight();
     float offsetX = 10f;
     float offsetY = 50f;
 
