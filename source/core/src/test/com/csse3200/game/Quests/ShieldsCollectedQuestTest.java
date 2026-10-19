@@ -12,7 +12,7 @@ import com.csse3200.game.entities.Entity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ShieldsCollectedQuestTest {
+class ShieldsCollectedQuestTest {
   static Entity entity;
   static QuestGiverComponent questGiverComponent;
   static Entity player;
@@ -20,7 +20,7 @@ public class ShieldsCollectedQuestTest {
   static InventoryComponent inventoryComponent;
 
   @BeforeEach
-  public void createAQuestEntity() {
+  void createAQuestEntity() {
     entity = new Entity();
     player = new Entity();
     shieldComponent = new ShieldComponent();
@@ -32,7 +32,7 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void testIfCompletingAShieldsCollectedQuestWorks() {
+  void testIfCompletingAShieldsCollectedQuestWorks() {
     if (Quest.getQuestActiveForNPCID().get(questGiverComponent.uniqueNPCID)) {
       fail(
           "The test testIfCompletingAShieldsCollectedQuestWorks failed because Quest.getQuestActiveForNPCID()"
@@ -66,7 +66,7 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void testMultipleSettingOfShieldsCollectedQuest() {
+  void testMultipleSettingOfShieldsCollectedQuest() {
     Entity entity1 = new Entity();
     Entity entity2 = new Entity();
     Entity entity3 = new Entity();
@@ -139,7 +139,7 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void testCheckShieldsCollectedCompleteWhenNoQuestWasMade() {
+  void testCheckShieldsCollectedCompleteWhenNoQuestWasMade() {
     if (questGiverComponent.clearShieldsCollectedQuest()) {
       fail(
           "The function clearShieldsCollectedQuest() should have returned false when there was no quest to clear but didn't");
@@ -153,14 +153,14 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void testIfShieldsCollectedChangesQuestProgress() {
+  void testIfShieldsCollectedChangesQuestProgress() {
     questGiverComponent.logShieldsCollectedQuest(2);
     shieldComponent.grantShield();
     assertEquals(50, questGiverComponent.checkShieldsCollectedQuestComplete());
   }
 
   @Test
-  public void testIfShieldsCollectedGiveProgressOver100() {
+  void testIfShieldsCollectedGiveProgressOver100() {
     questGiverComponent.logShieldsCollectedQuest(1);
     shieldComponent.grantShield();
     shieldComponent.grantShield();
@@ -168,7 +168,7 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void checkIfGivingShieldsToCollectAsZeroThrows() {
+  void checkIfGivingShieldsToCollectAsZeroThrows() {
     int number = 0;
     assertThrows(
         IllegalArgumentException.class,
@@ -180,7 +180,7 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void testIfGoldRewardIsGivenIfShieldQuestCompletedAndCleared() {
+  void testIfGoldRewardIsGivenIfShieldQuestCompletedAndCleared() {
     int goldToGive = 10;
     questGiverComponent.setGoldToGive(goldToGive);
     questGiverComponent.logShieldsCollectedQuest(1);
@@ -190,7 +190,7 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void testIfItemRewardIsGivenIfShieldQuestCompletedAndCleared() {
+  void testIfItemRewardIsGivenIfShieldQuestCompletedAndCleared() {
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);
     questGiverComponent.setItemToGive(weapon);
@@ -201,7 +201,7 @@ public class ShieldsCollectedQuestTest {
   }
 
   @Test
-  public void testIfRewardIsNotGivenIfShieldQuestIsNotCompletedAndCleared() {
+  void testIfRewardIsNotGivenIfShieldQuestIsNotCompletedAndCleared() {
     int goldToGive = 10;
     WeaponGenerator weaponGenerator = new WeaponGenerator();
     Item weapon = weaponGenerator.generateWeapon(WeaponType.SWORD, 1);

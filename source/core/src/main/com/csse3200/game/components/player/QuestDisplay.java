@@ -29,6 +29,8 @@ public class QuestDisplay extends UIComponent {
   private final Set<GoldSpentQuest> completedGoldSpentQuest = new HashSet<>();
   private final Set<ShieldsCollectedQuest> completedShieldsCollectedQuest = new HashSet<>();
 
+  private static final String TIME_LORD = "timeLord";
+
   @Override
   public void create() {
     super.create();
@@ -92,7 +94,7 @@ public class QuestDisplay extends UIComponent {
     Label completedTitle = new Label("COMPLETED", skin);
     questTable.add(completedTitle).expandX().fillX().left().padBottom(5f).row();
 
-    if (PerkService.getPerk("timeLord").isUnlocked()) {
+    if (PerkService.getPerk(TIME_LORD).isUnlocked()) {
       Label questToDisplay = new Label("• Find the tortoise!", skin);
 
       questTable.add(questToDisplay).expandX().fillX().left().row();
@@ -122,7 +124,7 @@ public class QuestDisplay extends UIComponent {
         questTable.add(completedQuest).left().row();
       }
     }
-    if (!PerkService.getPerk("timeLord").isUnlocked()
+    if (!PerkService.getPerk(TIME_LORD).isUnlocked()
         && completedEnemiesKilledQuest.isEmpty()
         && completedJumpQuests.isEmpty()
         && completedGoldSpentQuest.isEmpty()
@@ -137,7 +139,7 @@ public class QuestDisplay extends UIComponent {
 
     boolean hasRemainingQuests = false;
 
-    if (!PerkService.getPerk("timeLord").isUnlocked()) {
+    if (!PerkService.getPerk(TIME_LORD).isUnlocked()) {
       Label questToDisplay = new Label("• Find the tortoise!", skin);
 
       questTable.add(questToDisplay).expandX().fillX().left().row();
@@ -213,7 +215,7 @@ public class QuestDisplay extends UIComponent {
       }
     }
 
-    if (!hasRemainingQuests && PerkService.getPerk("timeLord").isUnlocked()) {
+    if (!hasRemainingQuests && PerkService.getPerk(TIME_LORD).isUnlocked()) {
       Label noRemaining = new Label("No remaining quests", skin);
       questTable.add(noRemaining).expandX().fillX().left().row();
     }
