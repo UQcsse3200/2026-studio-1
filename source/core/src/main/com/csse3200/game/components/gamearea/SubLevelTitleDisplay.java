@@ -16,12 +16,12 @@ import com.csse3200.game.ui.UIComponent;
 
 /** Large arrival title over a dimmed, soft-focus-style view of the current sub-level. */
 public class SubLevelTitleDisplay extends UIComponent {
-  private static final float FADE_IN_SECONDS = 0.2f;
-  private static final float HOLD_SECONDS = 1.15f;
-  private static final float FADE_OUT_SECONDS = 0.45f;
+  private static final float FADE_IN_SECONDS = 0.12f;
+  private static final float HOLD_SECONDS = 0.45f;
+  private static final float FADE_OUT_SECONDS = 0.28f;
   private static final float DISPLAY_SECONDS = FADE_IN_SECONDS + HOLD_SECONDS + FADE_OUT_SECONDS;
-  private static final float BACKGROUND_ALPHA = 0.68f;
-  private static final float BLUR_ALPHA = 0.8f;
+  private static final float BACKGROUND_ALPHA = 0.24f;
+  private static final float BLUR_ALPHA = 0.28f;
   private static final int BLUR_DOWNSCALE = 10;
   private static final float MAX_TITLE_WIDTH = 0.8f;
   private static final float MAX_TITLE_SCALE = 3.2f;
@@ -32,8 +32,10 @@ public class SubLevelTitleDisplay extends UIComponent {
   private Label title;
   private float unscaledTitleWidth;
   private Texture blurredTexture;
-  private float elapsed;
-  private boolean captureRequested = true;
+  // Start hidden. A title should only appear after SUB_LEVEL_ENTERED is actually triggered; the
+  // display is also recreated after a respawn, which must not flash the old placeholder title.
+  private float elapsed = DISPLAY_SECONDS;
+  private boolean captureRequested;
 
   public SubLevelTitleDisplay(Entity player) {
     this.player = player;
@@ -155,12 +157,38 @@ public class SubLevelTitleDisplay extends UIComponent {
   }
 
   private float getOpacity() {
-    if (elapsed < FADE_IN_SECONDS) {
-      return elapsed / FADE_IN_SECONDS;
+    return currentOpacity();
+  }
+
+  /** Current opacity, exposed at package scope for a no-OpenGL regression test. */
+  float currentOpacity() {
+    return transitionOpacity(elapsed);
+  }
+
+  /**
+   * Returns the title animation opacity at a given elapsed time. Kept separate from rendering so
+   * the transition timing can be regression tested without creating an OpenGL context.
+   */
+  static float transitionOpacity(float elapsedSeconds) {
+    float safeElapsed = Math.max(0f, elapsedSeconds);
+    if (safeElapsed < FADE_IN_SECONDS) {
+      return safeElapsed / FADE_IN_SECONDS;
     }
-    if (elapsed < FADE_IN_SECONDS + HOLD_SECONDS) {
+    if (safeElapsed < FADE_IN_SECONDS + HOLD_SECONDS) {
       return 1f;
     }
-    return Math.max(0f, (DISPLAY_SECONDS - elapsed) / FADE_OUT_SECONDS);
+    return Math.max(0f, (DISPLAY_SECONDS - safeElapsed) / FADE_OUT_SECONDS);
+  }
+
+  static float displaySeconds() {
+    return DISPLAY_SECONDS;
+  }
+
+  static float maximumBackgroundAlpha() {
+    return BACKGROUND_ALPHA;
+  }
+
+  static float maximumBlurAlpha() {
+    return BLUR_ALPHA;
   }
 }

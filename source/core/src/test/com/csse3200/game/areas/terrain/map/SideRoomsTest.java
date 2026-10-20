@@ -423,6 +423,32 @@ class SideRoomsTest {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("rooms")
+  void shouldNotAmbushThePlayerWhenReturningToTheParent(Room room) {
+    LevelMapData parent = loader.load(room.parent());
+    List<String> problems = new ArrayList<>();
+
+    for (RoomTransition doorway : loader.load(room.path()).getTransitions()) {
+      GridPoint2 arrival = doorway.getDestinationSpawn();
+      for (SpawnPoint enemy : parent.getSpawns().getEnemies()) {
+        double distance = Math.hypot(enemy.getX() - arrival.x, enemy.getY() - arrival.y);
+        if (distance < AMBUSH_RADIUS) {
+          problems.add(
+              enemy.getType()
+                  + " at "
+                  + enemy.getPosition()
+                  + " is "
+                  + String.format("%.1f", distance)
+                  + " tiles from return point "
+                  + arrival);
+        }
+      }
+    }
+
+    assertTrue(problems.isEmpty(), () -> String.join("\n", problems));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("rooms")
   void shouldBeEnteredByExactlyOneDoorwayInItsParentThatArrivesAtTheRoomsSpawn(Room room) {
     LevelMapData parent = loader.load(room.parent());
 
