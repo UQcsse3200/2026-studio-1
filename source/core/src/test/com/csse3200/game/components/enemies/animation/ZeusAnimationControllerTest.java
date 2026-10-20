@@ -167,7 +167,7 @@ class ZeusAnimationControllerTest {
     entity.getEvents().trigger("meleeAttack", target);
 
     verify(strikeRCallback, times(1)).handle();
-    verify(animationRenderComponent).startAnimation("zeus_p_strike_r");
+    verify(animationRenderComponent).startAnimation("zeus_sword_r");
     assertTrue(controller.isAttacking());
     assertTrue(controller.isFacingRight());
   }
@@ -186,7 +186,7 @@ class ZeusAnimationControllerTest {
     entity.getEvents().trigger("meleeAttack", target);
 
     verify(strikeLCallback, times(1)).handle();
-    verify(animationRenderComponent).startAnimation("zeus_p_strike_l");
+    verify(animationRenderComponent).startAnimation("zeus_sword_l");
     assertTrue(controller.isAttacking());
     assertTrue(controller.isFacingLeft());
   }
@@ -205,7 +205,7 @@ class ZeusAnimationControllerTest {
     entity.getEvents().trigger("rangedAttack", target, ProjectileType.LIGHTNING);
 
     verify(slamRCallback, times(1)).handle();
-    verify(animationRenderComponent).startAnimation("zeus_slam_r");
+    verify(animationRenderComponent).startAnimation("zeus_lightning_r");
     assertTrue(controller.isAttacking());
     assertTrue(controller.isFacingRight());
   }
@@ -224,7 +224,7 @@ class ZeusAnimationControllerTest {
     entity.getEvents().trigger("rangedAttack", target, ProjectileType.LIGHTNING);
 
     verify(slamLCallback, times(1)).handle();
-    verify(animationRenderComponent).startAnimation("zeus_slam_l");
+    verify(animationRenderComponent).startAnimation("zeus_lightning_l");
     assertTrue(controller.isAttacking());
     assertTrue(controller.isFacingLeft());
 
@@ -233,7 +233,7 @@ class ZeusAnimationControllerTest {
     entity.getEvents().trigger("rangedAttackFired", target);
 
     verify(slamLCallback, times(3)).handle();
-    verify(animationRenderComponent, times(3)).startAnimation("zeus_slam_l");
+    verify(animationRenderComponent, times(3)).startAnimation("zeus_lightning_l");
   }
 
   @Test
@@ -246,7 +246,7 @@ class ZeusAnimationControllerTest {
     entity.getEvents().trigger("meleeAttack", null);
 
     verify(strikeRCallback, times(1)).handle();
-    verify(animationRenderComponent).startAnimation("zeus_p_strike_r");
+    verify(animationRenderComponent).startAnimation("zeus_sword_r");
     assertTrue(controller.isAttacking());
   }
 
@@ -301,7 +301,7 @@ class ZeusAnimationControllerTest {
     Entity target = new Entity();
     target.setPosition(-5f, 0f);
     entity.getEvents().trigger("meleeAttack", target);
-    verify(animationRenderComponent, never()).startAnimation("zeus_p_strike_l");
+    verify(animationRenderComponent, never()).startAnimation("zeus_sword_l");
   }
 
   @Test
@@ -323,19 +323,19 @@ class ZeusAnimationControllerTest {
     entity.create();
 
     entity.getEvents().trigger("strikeLeftStart");
-    verify(animationRenderComponent).startAnimation("zeus_p_strike_l");
+    verify(animationRenderComponent).startAnimation("zeus_sword_l");
     assertTrue(controller.isAttacking());
 
     entity.getEvents().trigger("strikeRightStart");
-    verify(animationRenderComponent).startAnimation("zeus_p_strike_r");
+    verify(animationRenderComponent).startAnimation("zeus_sword_r");
     assertTrue(controller.isAttacking());
 
     entity.getEvents().trigger("slamLeftStart");
-    verify(animationRenderComponent).startAnimation("zeus_slam_l");
+    verify(animationRenderComponent).startAnimation("zeus_lightning_l");
     assertTrue(controller.isAttacking());
 
     entity.getEvents().trigger("slamRightStart");
-    verify(animationRenderComponent).startAnimation("zeus_slam_r");
+    verify(animationRenderComponent).startAnimation("zeus_lightning_r");
     assertTrue(controller.isAttacking());
 
     entity.getEvents().trigger("deathLeftStart");
