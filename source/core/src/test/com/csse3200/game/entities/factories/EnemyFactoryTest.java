@@ -188,7 +188,7 @@ class EnemyFactoryTest {
             12,
             WeaponType.BOW,
             1,
-            4f,
+            2f,
             53f / 66f,
             0.4f,
             0.5f,

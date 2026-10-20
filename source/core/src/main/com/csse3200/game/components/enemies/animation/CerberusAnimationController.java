@@ -72,35 +72,61 @@ public class CerberusAnimationController extends Component {
     currentAnimState = AnimationState.IDLE_RIGHT;
   }
 
+  /** Advances the animation state for this frame. Dead and mid-attack controllers do nothing. */
   @Override
   public void update() {
-    if (isDead) {
+    if (isDead || isAttackStillPlaying()) {
       return;
     }
-    if (isAttacking) {
-      if (animator != null && animator.isFinished()) {
-        isAttacking = false;
-      } else {
-        return;
-      }
-    }
-    if (physicsComponent != null && physicsComponent.getBody() != null) {
-      Vector2 velocity = physicsComponent.getBody().getLinearVelocity();
-      if (velocity != null) {
-        AnimationState targetState = getTargetState(velocity);
-        if (targetState != currentAnimState) {
-          currentAnimState = targetState;
-          triggerStateEvent(currentAnimState);
-        }
-      }
+    if (hasPhysicsBody()) {
+      updateFromVelocity();
     } else {
-      if (!isAttacking
-          && (currentAnimState == AnimationState.ATTACK_LEFT
-              || currentAnimState == AnimationState.ATTACK_RIGHT)) {
-        currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
-        triggerStateEvent(currentAnimState);
-      }
+      returnToIdleAfterAttack();
     }
+  }
+
+  /** Returns true while an attack animation is still playing, and clears the flag once it ends. */
+  private boolean isAttackStillPlaying() {
+    if (!isAttacking) {
+      return false;
+    }
+    if (animator != null && animator.isFinished()) {
+      isAttacking = false;
+      return false;
+    }
+    return true;
+  }
+
+  /** Returns true when the entity has a physics component with a body. */
+  private boolean hasPhysicsBody() {
+    return physicsComponent != null && physicsComponent.getBody() != null;
+  }
+
+  /** Switches to the walk or idle state that matches the current velocity. */
+  private void updateFromVelocity() {
+    Vector2 velocity = physicsComponent.getBody().getLinearVelocity();
+    if (velocity == null) {
+      return;
+    }
+    AnimationState targetState = getTargetState(velocity);
+    if (targetState != currentAnimState) {
+      currentAnimState = targetState;
+      triggerStateEvent(currentAnimState);
+    }
+  }
+
+  /** Returns to the matching idle state when an attack ends and there is no physics body. */
+  private void returnToIdleAfterAttack() {
+    if (!isAttackState(currentAnimState)) {
+      return;
+    }
+    currentAnimState = isFacingLeft() ? AnimationState.IDLE_LEFT : AnimationState.IDLE_RIGHT;
+    triggerStateEvent(currentAnimState);
+  }
+
+  /** Returns true for the states that count as an attack. */
+  private boolean isAttackState(AnimationState state) {
+    return state == AnimationState.ATTACK_LEFT || state == AnimationState.ATTACK_RIGHT;
   }
 
   private AnimationState getTargetState(Vector2 velocity) {

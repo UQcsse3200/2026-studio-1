@@ -371,4 +371,116 @@ class CerberusAnimationControllerTest {
     verify(animationRenderComponent).startAnimation("cerberus_death_r");
     assertTrue(controller.isDead());
   }
+
+  @Test
+  void shouldReturnToIdleLeftAfterAttackLeftWhenNoPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    entity.setPosition(5f, 0f);
+    Entity target = new Entity();
+    target.setPosition(2f, 0f);
+
+    EventListener0 idleLCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleLeftStart", idleLCallback);
+    entity.create();
+
+    entity.getEvents().trigger("meleeAttack", target);
+    assertTrue(controller.isAttacking());
+    assertEquals(
+        CerberusAnimationController.AnimationState.ATTACK_LEFT, controller.getCurrentState());
+
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+
+    assertFalse(controller.isAttacking());
+    assertEquals(
+        CerberusAnimationController.AnimationState.IDLE_LEFT, controller.getCurrentState());
+    verify(idleLCallback, times(1)).handle();
+    verify(animationRenderComponent).startAnimation("cerberus_idle_l");
+  }
+
+  @Test
+  void shouldReturnToIdleRightAfterAttackRightWhenNoPhysicsBody() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    entity.setPosition(0f, 0f);
+    Entity target = new Entity();
+    target.setPosition(5f, 0f);
+
+    EventListener0 idleRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("idleRightStart", idleRCallback);
+    entity.create();
+
+    entity.getEvents().trigger("meleeAttack", target);
+    assertTrue(controller.isAttacking());
+    assertEquals(
+        CerberusAnimationController.AnimationState.ATTACK_RIGHT, controller.getCurrentState());
+
+    when(animationRenderComponent.isFinished()).thenReturn(true);
+    controller.update();
+
+    assertFalse(controller.isAttacking());
+    assertEquals(
+        CerberusAnimationController.AnimationState.IDLE_RIGHT, controller.getCurrentState());
+    verify(idleRCallback, times(2)).handle();
+    verify(animationRenderComponent, times(2)).startAnimation("cerberus_idle_r");
+  }
+
+  @Test
+  void noBodyAndNoAttackingKeepsState() {
+    lenient().when(physicsComponent.getBody()).thenReturn(null);
+
+    EventListener0 idleLCallback = mock(EventListener0.class);
+    EventListener0 idleRCallback = mock(EventListener0.class);
+    EventListener0 walkLCallback = mock(EventListener0.class);
+    EventListener0 walkRCallback = mock(EventListener0.class);
+
+    entity.getEvents().addListener("idleLeftStart", idleLCallback);
+    entity.getEvents().addListener("idleRightStart", idleRCallback);
+    entity.getEvents().addListener("walkLeftStart", walkLCallback);
+    entity.getEvents().addListener("walkRightStart", walkRCallback);
+
+    entity.create();
+    clearInvocations(
+        idleLCallback, idleRCallback, walkLCallback, walkRCallback, animationRenderComponent);
+
+    controller.update();
+
+    assertEquals(
+        CerberusAnimationController.AnimationState.IDLE_RIGHT, controller.getCurrentState());
+    verify(idleLCallback, never()).handle();
+    verify(idleRCallback, never()).handle();
+    verify(walkLCallback, never()).handle();
+    verify(walkRCallback, never()).handle();
+    verify(animationRenderComponent, never()).startAnimation(anyString());
+  }
+
+  @Test
+  void missingPhysicsComponentDoesNotThrow() {
+    Entity bare = new Entity();
+    CerberusAnimationController bareController = new CerberusAnimationController();
+    bare.addComponent(mock(AnimationRenderComponent.class)).addComponent(bareController);
+
+    bare.create();
+
+    assertDoesNotThrow(bareController::update);
+  }
+
+  @Test
+  void shouldSwitchToWalkRightOnceWhenVelocityChanges() {
+    EventListener0 walkRCallback = mock(EventListener0.class);
+    entity.getEvents().addListener("walkRightStart", walkRCallback);
+
+    entity.create();
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(1f, 0f));
+    controller.update();
+
+    assertEquals(
+        CerberusAnimationController.AnimationState.WALK_RIGHT, controller.getCurrentState());
+    verify(walkRCallback, times(1)).handle();
+
+    controller.update();
+    verify(walkRCallback, times(1)).handle();
+  }
 }
