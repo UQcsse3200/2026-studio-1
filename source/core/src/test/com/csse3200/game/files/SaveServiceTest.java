@@ -182,4 +182,16 @@ class SaveServiceTest {
     assertEquals(0, loaded.gold);
     assertTrue(loaded.items.isEmpty());
   }
+
+  @Test
+  void cannotBeInstantiated() throws NoSuchMethodException {
+    java.lang.reflect.Constructor<SaveService> constructor =
+        SaveService.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+
+    java.lang.reflect.InvocationTargetException thrown =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            java.lang.reflect.InvocationTargetException.class, constructor::newInstance);
+    assertTrue(thrown.getCause() instanceof IllegalStateException);
+  }
 }

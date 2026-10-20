@@ -333,6 +333,12 @@ public class ShopComponent extends Component {
    */
   public GamblingCatalogs.PrizeEntry<GamblingCatalogs.Prize> buySpin(
       GamblingCatalogs.CatalogId catalogId) {
+
+    // Resolve the previous pet prize before starting another spin.
+    if (pendingPetReplacement != null) {
+      return null;
+    }
+
     InventoryComponent inventory = getInventory();
     GamblingCatalogs.SpinCatalog catalog = spinCatalog(catalogId);
     if (inventory == null || catalog == null || !hasOnlySupportedPrizes(catalog)) {

@@ -135,4 +135,19 @@ class BobbingTextureRenderComponentTest {
 
     verify(entity).setScale(1f, 2f);
   }
+
+  /**
+   * The largest side is scaled to the requested size and the other side keeps the ratio. A 16x64
+   * texture gives a width of 0.25, which checks the division is done in float, not int (int
+   * division would give 0).
+   */
+  @Test
+  void shouldScaleLargestSideToRequestedScale() {
+    when(texture.getWidth()).thenReturn(16);
+    when(texture.getHeight()).thenReturn(64);
+
+    makeComponent().scaleEntity(1f);
+
+    verify(entity).setScale(0.25f, 1f);
+  }
 }

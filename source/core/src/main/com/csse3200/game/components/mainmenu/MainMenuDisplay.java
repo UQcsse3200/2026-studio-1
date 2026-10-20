@@ -59,8 +59,8 @@ public class MainMenuDisplay extends UIComponent {
       optionsPanel.add(row).center().padBottom(8f).fillX();
       optionsPanel.row();
     }
-    float screenWidth = Gdx.graphics.getWidth();
-    float screenHeight = Gdx.graphics.getHeight();
+    float screenWidth = stage.getWidth();
+    float screenHeight = stage.getHeight();
     Table root = new Table();
     root.setFillParent(true);
     root.center();

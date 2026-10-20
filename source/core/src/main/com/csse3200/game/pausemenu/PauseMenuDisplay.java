@@ -35,6 +35,8 @@ public class PauseMenuDisplay extends UIComponent {
   private static final Color PANEL_COLOR = new Color(0.03f, 0.06f, 0.04f, 0.95f);
   private static final Color SELECTED_BG = new Color(0.15f, 0.35f, 0.55f, 0.9f);
   private static final Color SELECTED_TEXT = Color.CYAN;
+  private static final String BUTTON_STYLE = "button";
+  private static final String BUTTON_PRESSED_STYLE = "button-pressed";
   private static final Color UNSELECTED_TEXT = Color.WHITE;
   private static final float INACTIVE_PANEL_ALPHA = 0.55f;
   private static final float PANEL_GAP = 25f;
@@ -263,14 +265,37 @@ public class PauseMenuDisplay extends UIComponent {
 
     restartConfirmPanel = new Table();
 
-    restartConfirmPanel.setBackground(skin.newDrawable(WHITE_COLOR, Color.BLACK));
+    restartConfirmPanel.setBackground(
+        skin.newDrawable(WHITE_COLOR, new Color(0.62f, 0.43f, 0.19f, 1f)));
+    restartConfirmPanel.pad(3f);
 
-    restartConfirmPanel.pad(30f);
+    Table confirmContent = new Table();
+    confirmContent.setBackground(
+        skin.newDrawable(WHITE_COLOR, new Color(0.035f, 0.025f, 0.025f, 0.98f)));
+    confirmContent.pad(28f, 42f, 26f, 42f);
 
-    restartConfirmPanel.add(restartConfirmLabel).center().row();
-    restartConfirmPanel.add(restartConfirmMessageLabel).center().row();
-    restartConfirmPanel.add(restartYesLabel).center().row();
-    restartConfirmPanel.add(restartNoLabel).center().row();
+    restartConfirmLabel.setFontScale(1.2f);
+    restartConfirmLabel.getStyle().fontColor = new Color(0.86f, 0.70f, 0.42f, 1f);
+
+    restartConfirmMessageLabel.setWrap(true);
+
+    confirmContent.add(restartConfirmLabel).center().padBottom(18f).row();
+
+    confirmContent.add(restartConfirmMessageLabel).width(620f).center().padBottom(22f).row();
+
+    Table yesRow = new Table();
+    yesRow.setBackground(skin.getDrawable(BUTTON_STYLE));
+    yesRow.add(restartYesLabel).center().expandX().pad(10f, 20f, 10f, 20f);
+
+    Table noRow = new Table();
+    noRow.setBackground(skin.getDrawable(BUTTON_STYLE));
+    noRow.add(restartNoLabel).center().expandX().pad(10f, 20f, 10f, 20f);
+
+    confirmContent.add(yesRow).width(220f).padBottom(10f).row();
+
+    confirmContent.add(noRow).width(220f).row();
+
+    restartConfirmPanel.add(confirmContent).center();
 
     root = new Table();
     root.setFillParent(true);
@@ -335,7 +360,7 @@ public class PauseMenuDisplay extends UIComponent {
       labelsOut[i] = label;
 
       Table row = new Table();
-      row.setBackground(skin.getDrawable("button"));
+      row.setBackground(skin.getDrawable(BUTTON_STYLE));
       row.add(label).pad(10f, 25f, 10f, 25f).center();
       addRowInteraction(row, ownerState, i, true);
       panel.add(row).left().padBottom(4f).fillX();
@@ -817,8 +842,6 @@ public class PauseMenuDisplay extends UIComponent {
     restartConfirmPanel.setVisible(state == MenuState.RESTART_CONFIRM);
     settingsPanel.setVisible(state != MenuState.MAIN && state != MenuState.RESTART_CONFIRM);
 
-    settingsPanel.setVisible(state != MenuState.MAIN && state != MenuState.RESTART_CONFIRM);
-
     detailSlot.clearChildren();
     detailSlot.setVisible(state != MenuState.RESTART_CONFIRM);
     if (state == MenuState.AUDIO) {
@@ -847,15 +870,22 @@ public class PauseMenuDisplay extends UIComponent {
   }
 
   private void highlightRestartOptions() {
-    restartYesLabel.getStyle().fontColor =
-        restartConfirmIndex == 0 && state == MenuState.RESTART_CONFIRM
-            ? SELECTED_TEXT
-            : UNSELECTED_TEXT;
+    boolean yesSelected = restartConfirmIndex == 0 && state == MenuState.RESTART_CONFIRM;
+    boolean noSelected = restartConfirmIndex == 1 && state == MenuState.RESTART_CONFIRM;
 
-    restartNoLabel.getStyle().fontColor =
-        restartConfirmIndex == 1 && state == MenuState.RESTART_CONFIRM
-            ? SELECTED_TEXT
-            : UNSELECTED_TEXT;
+    restartYesLabel.setText(yesSelected ? ">  YES  <" : "YES");
+    restartNoLabel.setText(noSelected ? ">  NO  <" : "NO");
+
+    restartYesLabel.getStyle().fontColor = yesSelected ? SELECTED_TEXT : UNSELECTED_TEXT;
+    restartNoLabel.getStyle().fontColor = noSelected ? SELECTED_TEXT : UNSELECTED_TEXT;
+
+    if (restartYesLabel.getParent() instanceof Table table) {
+      table.setBackground(skin.getDrawable(yesSelected ? BUTTON_PRESSED_STYLE : BUTTON_STYLE));
+    }
+
+    if (restartNoLabel.getParent() instanceof Table table) {
+      table.setBackground(skin.getDrawable(noSelected ? BUTTON_PRESSED_STYLE : BUTTON_STYLE));
+    }
   }
 
   private void highlightPanel(Label[] labels, int selectedIndex, boolean isActivePanel) {
@@ -865,7 +895,7 @@ public class PauseMenuDisplay extends UIComponent {
       labels[i].getStyle().fontColor = Color.WHITE;
 
       Table row = (Table) labels[i].getParent();
-      row.setBackground(skin.getDrawable(selected ? "button-pressed" : "button"));
+      row.setBackground(skin.getDrawable(selected ? BUTTON_PRESSED_STYLE : BUTTON_STYLE));
     }
   }
 
@@ -916,6 +946,10 @@ public class PauseMenuDisplay extends UIComponent {
       pauseOverlay.setVisible(true);
       pauseOverlay.toFront();
       root.toFront();
+
+      if (state == MenuState.RESTART_CONFIRM) {
+        restartOverlay.toFront();
+      }
       restartOverlay.toFront();
     }
 

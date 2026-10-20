@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * implemented by observing and reverting health changes rather than modifying {@code
  * CombatStatsComponent} or the attack components, since those are shared with other teams.
  */
-public class ShieldComponent extends Component {
+public class ShieldComponent extends Component implements RestorableShield {
   private static final Logger logger = LoggerFactory.getLogger(ShieldComponent.class);
   private static final long DEFAULT_DURATION_MILLIS = 30000L;
   private static final String SHIELD_PERK_ID = "shieldMaster";
@@ -143,6 +143,7 @@ public class ShieldComponent extends Component {
    *
    * @return {@code true} if a shield is held
    */
+  @Override
   public boolean hasShield() {
     return hasShield;
   }
@@ -213,22 +214,22 @@ public class ShieldComponent extends Component {
   }
 
   /** Save/load: returns the time left on the active shield in milliseconds, or 0 if none. */
+  @Override
   public long getRemainingMillis() {
-    if (!active || timeSource == null) {
-      return 0L;
-    }
-    return Math.max(0L, activeUntil - timeSource.getTime());
+    return RestorableShield.remainingMillis(active, timeSource, activeUntil);
   }
 
   /**
    * Save/load: puts back a shield that was held when the game was saved. Unlike grantShield, this
    * is not counted as a new pickup for quests.
    */
+  @Override
   public void restoreHeldShield(boolean held) {
     hasShield = held;
   }
 
   /** Save/load: puts back an active shield with the time it had left. Zero or less is ignored. */
+  @Override
   public void restoreActive(long remainingMillis) {
     if (remainingMillis <= 0 || timeSource == null) {
       return;

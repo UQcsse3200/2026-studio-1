@@ -161,7 +161,6 @@ public class JsonMapLoader implements MapLoader {
         .transitions(transitions)
         .backgroundTexture(resolveBackgroundTexture(root, name))
         .subLevels(parseSubLevels(root.get("subLevels"), name))
-        .subLevels(parseSubLevels(root.get("subLevels"), name))
         .lighting(LightingConfigParser.parse(root.get("lighting"), name))
         .backdrops(parseBackdrops(root.get("backdrops"), "backdrops", name))
         .overlays(parseBackdrops(root.get("overlays"), "overlays", name))

@@ -170,7 +170,7 @@ public final class EnemyFactory {
   private static final float SMALL_ENEMY_SCALE = 1f;
 
   /** Centaur. */
-  private static final float LARGE_ENEMY_SCALE = 4f;
+  private static final float LARGE_ENEMY_SCALE = 2f;
 
   /** Minotaur. */
   private static final float MINOTAUR_SCALE = 2.5f;
@@ -179,7 +179,7 @@ public final class EnemyFactory {
   private static final float BOSS_SCALE = 2f;
 
   /** Cerberus. */
-  private static final float CERBERUS_SCALE = 1.5f;
+  private static final float CERBERUS_SCALE = 1.75f;
 
   /** Skeleton, Ranged Skeleton (height equals width). */
   private static final float SQUARE_HEIGHT_RATIO = 1f;
@@ -197,10 +197,10 @@ public final class EnemyFactory {
   private static final float MEDUSA_HEIGHT_RATIO = 91f / 128f;
 
   /** Cerberus. */
-  private static final float CERBERUS_HEIGHT_RATIO = 96f / 150f;
+  private static final float CERBERUS_HEIGHT_RATIO = 69f / 124f;
 
   /** Zeus. */
-  private static final float ZEUS_HEIGHT_RATIO = 68f / 37f;
+  private static final float ZEUS_HEIGHT_RATIO = 256f / 192f;
 
   /** Harpy, Ranged Harpy. */
   private static final float HARPY_HEIGHT_RATIO = 25f / 38f;
@@ -733,7 +733,15 @@ public final class EnemyFactory {
         "gorgon_walk_l",
         "gorgon_walk_r");
     addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "gorgon_attack_l", "gorgon_attack_r");
-    addAnimations(animator, DEATH_FRAME_TIME, NORMAL, "gorgon_dead_l", "gorgon_dead_r");
+    addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "gorgon_petrify_l", "gorgon_petrify_r");
+    addAnimations(
+        animator,
+        DEATH_FRAME_TIME,
+        NORMAL,
+        "gorgon_death_l",
+        "gorgon_death_r",
+        "gorgon_dead_l",
+        "gorgon_dead_r");
     WeaponItem bite = WeaponItem.natural(MEDUSA_BITE_NAME, config.baseAttack, config.melee.windup);
     WeaponItem gaze = WeaponItem.natural(MEDUSA_GAZE_NAME, config.baseAttack, config.ranged.windup);
     addCommonParts(medusa, config, EnemyType.MEDUSA, inventory, animator);
@@ -775,7 +783,22 @@ public final class EnemyFactory {
     Entity cerberus = createBaseStationaryEnemy();
     InventoryComponent inventory = new InventoryComponent(MINI_BOSS_GOLD);
     AnimationRenderComponent animator = newAnimator(CERBERUS_ATLAS_PATH, true);
-    addAnimations(animator, DEFAULT_FRAME_TIME, LOOP, "cerberus_l", "cerberus_r");
+    addAnimations(
+        animator,
+        DEFAULT_FRAME_TIME,
+        LOOP,
+        "cerberus_idle_l",
+        "cerberus_idle_r",
+        "cerberus_walk_l",
+        "cerberus_walk_r");
+    addAnimations(
+        animator,
+        DEFAULT_FRAME_TIME,
+        NORMAL,
+        "cerberus_attack_l",
+        "cerberus_attack_r",
+        "cerberus_death_l",
+        "cerberus_death_r");
     WeaponItem bite =
         WeaponItem.natural(CERBERUS_BITE_NAME, config.baseAttack, config.melee.windup);
     addCommonParts(cerberus, config, EnemyType.CERBERUS, inventory, animator);
@@ -822,8 +845,8 @@ public final class EnemyFactory {
     AnimationRenderComponent animator = newAnimator(ZEUS_ATLAS_PATH, true);
     addAnimations(animator, DEFAULT_FRAME_TIME, LOOP, "zeus_idle_l", "zeus_idle_r");
     addAnimations(animator, FAST_FRAME_TIME, LOOP, "zeus_walk_l", "zeus_walk_r");
-    addAnimations(animator, FAST_FRAME_TIME, NORMAL, "zeus_p_strike_l", "zeus_p_strike_r");
-    addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "zeus_slam_l", "zeus_slam_r");
+    addAnimations(animator, FAST_FRAME_TIME, NORMAL, "zeus_sword_l", "zeus_sword_r");
+    addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "zeus_lightning_l", "zeus_lightning_r");
     addAnimations(animator, DEATH_FRAME_TIME, NORMAL, "zeus_death_l", "zeus_death_r");
     WeaponItem sword = WeaponItem.natural(ZEUS_SWORD_NAME, config.baseAttack, config.melee.windup);
     WeaponItem lightning =

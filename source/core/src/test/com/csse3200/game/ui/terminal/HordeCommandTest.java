@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 class HordeCommandTest {
   private final LevelGameArea area = mock(LevelGameArea.class);
@@ -72,6 +73,70 @@ class HordeCommandTest {
     assertFalse(command.action(new ArrayList<>(List.of("5"))));
     verify(area, never()).spawnEnemy(anyString(), any(Vector2.class));
     assertEquals("Not enough nearby ground to spawn 5 enemies.", output.get());
+  }
+
+  @Test
+  void rejectsMissingAreaPlayerOrLevel() {
+    ArrayList<String> args = new ArrayList<>(List.of("1"));
+    assertFalse(new HordeCommand(() -> null, output::set).action(args));
+
+    when(area.getPlayer()).thenReturn(null);
+    assertFalse(command.action(args));
+
+    when(area.getPlayer()).thenReturn(player);
+    when(area.getLevel()).thenReturn(null);
+    assertFalse(command.action(args));
+    verify(area, never()).spawnEnemy(anyString(), any(Vector2.class));
+  }
+
+  @Test
+  void rejectsInvalidTileSizeOrMissingPlayerPosition() {
+    ArrayList<String> args = new ArrayList<>(List.of("1"));
+    when(level.tileSize()).thenReturn(0f);
+    assertFalse(command.action(args));
+
+    when(level.tileSize()).thenReturn(1f);
+    when(player.getCenterPosition()).thenReturn(null);
+    assertFalse(command.action(args));
+    verify(area, never()).spawnEnemy(anyString(), any(Vector2.class));
+  }
+
+  @Test
+  void usesNearbyWalkableTilesWithoutStackingEnemiesInOneColumn() {
+    when(level.groundTiles())
+        .thenReturn(
+            List.of(
+                new GridPoint2(23, 5),
+                new GridPoint2(10, 5),
+                new GridPoint2(7, 8),
+                new GridPoint2(14, 5),
+                new GridPoint2(15, 5),
+                new GridPoint2(16, 5),
+                new GridPoint2(12, 5),
+                new GridPoint2(8, 6),
+                new GridPoint2(13, 5),
+                new GridPoint2(8, 5)));
+    when(level.isWalkable(14, 5)).thenReturn(false);
+    when(level.inBounds(15, 6)).thenReturn(false);
+    when(level.isWalkable(16, 6)).thenReturn(false);
+
+    assertTrue(command.action(new ArrayList<>(List.of("3"))));
+
+    ArgumentCaptor<Vector2> positions = ArgumentCaptor.forClass(Vector2.class);
+    verify(area, times(3)).spawnEnemy(eq("skeleton"), positions.capture());
+    assertEquals(
+        List.of(new Vector2(12, 5), new Vector2(8, 5), new Vector2(13, 5)),
+        positions.getAllValues());
+    assertEquals("Spawned 3 of 3 skeletons.", output.get());
+  }
+
+  @Test
+  void reportsWhenAnEnemyCannotBeSpawned() {
+    when(area.spawnEnemy(eq("skeleton"), any(Vector2.class))).thenReturn(true, false);
+
+    assertFalse(command.action(new ArrayList<>(List.of("2"))));
+    verify(area, times(2)).spawnEnemy(eq("skeleton"), any(Vector2.class));
+    assertEquals("Spawned 1 of 2 skeletons.", output.get());
   }
 
   @Test

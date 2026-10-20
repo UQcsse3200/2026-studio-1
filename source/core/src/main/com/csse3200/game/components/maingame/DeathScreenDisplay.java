@@ -39,10 +39,9 @@ public class DeathScreenDisplay extends UIComponent {
 
     popup.add(title).padBottom(30f);
     popup.row();
-    popup.add(retryButton).width(180f).padBottom(15f);
+    popup.add(retryButton).width(380f).height(95f).padBottom(15f);
     popup.row();
-    popup.add(menuButton).width(180f);
-
+    popup.add(menuButton).width(380f).height(95f);
     rootTable.add(popup);
 
     stage.addActor(rootTable);

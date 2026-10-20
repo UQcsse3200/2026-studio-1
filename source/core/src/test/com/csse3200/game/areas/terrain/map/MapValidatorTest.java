@@ -92,6 +92,23 @@ class MapValidatorTest {
   }
 
   @Test
+  void warnsAboutAPlayerSpawnOnTheBottomRow() {
+    String json =
+        """
+        {
+          "name": "Bottomless",
+          "legend": { "#": { "type": "WALL" } },
+          "layers": { "terrain": [" "] },
+          "spawns": { "player": { "x": 0, "y": 0 } }
+        }
+        """;
+    List<MapValidator.Problem> problems = validate(json);
+
+    assertTrue(mentions(problems, "player spawn (0, 0) has no ground beneath it"));
+    assertTrue(errors(problems).isEmpty());
+  }
+
+  @Test
   void warnsAboutAPlayerSpawnInsideAWall() {
     String json =
         """
@@ -144,6 +161,30 @@ class MapValidatorTest {
   }
 
   @Test
+  void warnsAboutUnsupportedLootAndNpcMarkers() {
+    String json =
+        """
+        {
+          "name": "Falling Spawns",
+          "legend": { "#": { "type": "WALL" } },
+          "entityLegend": {
+            "L": { "type": "LOOT" },
+            "N": { "type": "MARKER", "kind": "npc", "id": "npc:shop" }
+          },
+          "layers": {
+            "terrain":  ["    ", "    ", "####"],
+            "entities": [" LN ", "    ", "    "]
+          }
+        }
+        """;
+    List<MapValidator.Problem> problems = validate(json);
+
+    assertTrue(mentions(problems, "loot spawn (1, 2) has no ground beneath it"));
+    assertTrue(mentions(problems, "NPC marker (2, 2) has no ground beneath it"));
+    assertTrue(errors(problems).isEmpty());
+  }
+
+  @Test
   void reportsABackdropForASubLevelTheMapDoesNotDefine() {
     String json =
         """
@@ -192,7 +233,7 @@ class MapValidatorTest {
         {
           "name": "Nowhere",
           "legend": { "#": { "type": "WALL" } },
-          "layers": { "terrain": ["##"] },
+          "layers": { "terrain": [" ##"] },
           "transitions": [ { "id": "door", "x": 0, "y": 0, "destinationMap": "maps/gone.json" } ]
         }
         """;

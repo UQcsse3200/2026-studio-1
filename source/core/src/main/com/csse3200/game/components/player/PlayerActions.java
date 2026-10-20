@@ -60,7 +60,7 @@ public class PlayerActions extends Component {
   private PhysicsComponent physicsComponent;
   private CombatStatsComponent combatStats;
   private HitboxComponent hitboxComponent;
-  private PlatformerComponent platformerComponent;
+  public static PlatformerComponent platformerComponent;
   private PlayerAnimationController playerAnimationControllerComponent;
   private StaminaComponent staminaComponent;
 
@@ -184,7 +184,7 @@ public class PlayerActions extends Component {
     }
   }
 
-  private void animationtimer(String direction) {
+  public void animationtimer(String direction) {
     PlayerRenderComponent animator = entity.getComponent(PlayerRenderComponent.class);
     boolean hurtPlaying = playerAnimationControllerComponent.hurtPlaying;
     if (hurtPlaying && animator.isFinished()) {
@@ -210,6 +210,14 @@ public class PlayerActions extends Component {
         entity.getEvents().trigger("idle", direction);
       }
     }
+  }
+
+  public Vector2 getWalkDirection() {
+    return walkDirection;
+  }
+
+  public void setWalkDirection(float x, float y) {
+    walkDirection.set(x, y);
   }
 
   public void playMovementSound() {
