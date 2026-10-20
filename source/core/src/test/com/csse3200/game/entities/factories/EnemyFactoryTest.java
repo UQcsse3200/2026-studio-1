@@ -248,8 +248,10 @@ class EnemyFactoryTest {
                 "gorgon_walk_r",
                 "gorgon_attack_l",
                 "gorgon_attack_r",
-                "gorgon_dead_l",
-                "gorgon_dead_r")),
+                "gorgon_petrify_l",
+                "gorgon_petrify_r",
+                "gorgon_death_l",
+                "gorgon_death_r")),
         new Spec(
             "cerberus",
             EnemyFactory::createCerberus,
