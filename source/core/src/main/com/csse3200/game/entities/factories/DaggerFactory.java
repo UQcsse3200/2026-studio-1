@@ -49,6 +49,7 @@ public class DaggerFactory {
             .addComponent(new DaggerMovementComponent(direction))
             .addComponent(new PlayerProjectileHitComponent(damage, owner));
 
+    dagger.getComponent(PhysicsComponent.class).getBody().setGravityScale(0f);
     dagger.setPosition(position);
     dagger.setScale(0.35f, 0.2f);
 
