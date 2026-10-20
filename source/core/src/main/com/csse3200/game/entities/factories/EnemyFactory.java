@@ -170,7 +170,7 @@ public final class EnemyFactory {
   private static final float SMALL_ENEMY_SCALE = 1f;
 
   /** Centaur. */
-  private static final float LARGE_ENEMY_SCALE = 4f;
+  private static final float LARGE_ENEMY_SCALE = 2f;
 
   /** Minotaur. */
   private static final float MINOTAUR_SCALE = 2.5f;
