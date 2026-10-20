@@ -13,11 +13,15 @@ import com.csse3200.game.rendering.AnimationRenderComponent;
  * and melee attacks.
  */
 public class MinotaurAnimationController extends Component {
+  private static final String DEATH_LEFT_START = "deathLeftStart";
+  private static final String DEATH_RIGHT_START = "deathRightStart";
+
   private AnimationRenderComponent animator;
   private PhysicsComponent physicsComponent;
   private ChargeComponent chargeComponent;
   private AnimationState currentAnimState = null;
   private boolean isSwinging = false;
+  private boolean isDead = false;
 
   private enum AnimationState {
     IDLE_LEFT,
@@ -27,7 +31,9 @@ public class MinotaurAnimationController extends Component {
     CHARGE_LEFT,
     CHARGE_RIGHT,
     SWING_LEFT,
-    SWING_RIGHT
+    SWING_RIGHT,
+    DEATH_LEFT,
+    DEATH_RIGHT
   }
 
   @Override
@@ -46,6 +52,9 @@ public class MinotaurAnimationController extends Component {
     entity.getEvents().addListener("chargeStart", this::onChargeStart);
     entity.getEvents().addListener("swingLeftStart", this::animateSwingL);
     entity.getEvents().addListener("swingRightStart", this::animateSwingR);
+    entity.getEvents().addListener(DEATH_LEFT_START, this::animateDeathL);
+    entity.getEvents().addListener(DEATH_RIGHT_START, this::animateDeathR);
+    entity.getEvents().addListener("death", this::onDeath);
     entity.getEvents().addListener("meleeAttack", this::onMeleeAttack);
     entity.getEvents().addListener("meleeAttackWindup", this::onMeleeAttack);
 
@@ -56,6 +65,9 @@ public class MinotaurAnimationController extends Component {
 
   @Override
   public void update() {
+    if (isDead) {
+      return;
+    }
     if (chargeComponent == null && entity != null) {
       chargeComponent = entity.getComponent(ChargeComponent.class);
     }
@@ -79,6 +91,9 @@ public class MinotaurAnimationController extends Component {
   }
 
   private void onMeleeAttack(Entity target) {
+    if (isDead) {
+      return;
+    }
     if (target != null && target.getPosition() != null && entity != null) {
       currentAnimState =
           (target.getPosition().x < entity.getPosition().x)
@@ -88,7 +103,8 @@ public class MinotaurAnimationController extends Component {
       if (currentAnimState == AnimationState.WALK_LEFT
           || currentAnimState == AnimationState.IDLE_LEFT
           || currentAnimState == AnimationState.CHARGE_LEFT
-          || currentAnimState == AnimationState.SWING_LEFT) {
+          || currentAnimState == AnimationState.SWING_LEFT
+          || currentAnimState == AnimationState.DEATH_LEFT) {
         currentAnimState = AnimationState.SWING_LEFT;
       } else {
         currentAnimState = AnimationState.SWING_RIGHT;
@@ -100,6 +116,9 @@ public class MinotaurAnimationController extends Component {
 
   /** Starts the charge animation facing the target, the velocity, or the current facing. */
   private void onChargeStart() {
+    if (isDead) {
+      return;
+    }
     isSwinging = false;
     Vector2 targetPos = chargeComponent != null ? chargeComponent.getTargetPosition() : null;
     if (targetPos != null && entity != null) {
@@ -143,7 +162,8 @@ public class MinotaurAnimationController extends Component {
     return currentAnimState == AnimationState.WALK_LEFT
         || currentAnimState == AnimationState.IDLE_LEFT
         || currentAnimState == AnimationState.CHARGE_LEFT
-        || currentAnimState == AnimationState.SWING_LEFT;
+        || currentAnimState == AnimationState.SWING_LEFT
+        || currentAnimState == AnimationState.DEATH_LEFT;
   }
 
   /** Returns the state to show for this frame given the velocity. */
@@ -206,7 +226,20 @@ public class MinotaurAnimationController extends Component {
       case IDLE_RIGHT:
         entity.getEvents().trigger("idleRightStart");
         break;
+      case DEATH_LEFT:
+        entity.getEvents().trigger(DEATH_LEFT_START);
+        break;
+      case DEATH_RIGHT:
+        entity.getEvents().trigger(DEATH_RIGHT_START);
+        break;
     }
+  }
+
+  private void onDeath() {
+    isDead = true;
+    isSwinging = false;
+    currentAnimState = isFacingLeftState() ? AnimationState.DEATH_LEFT : AnimationState.DEATH_RIGHT;
+    triggerStateEvent(currentAnimState);
   }
 
   void animateIdleL() {
@@ -247,7 +280,33 @@ public class MinotaurAnimationController extends Component {
     }
   }
 
+  void animateDeathL() {
+    isDead = true;
+    isSwinging = false;
+    currentAnimState = AnimationState.DEATH_LEFT;
+    if (animator != null) {
+      animator.startAnimation("minotaur_death_l");
+    }
+  }
+
+  void animateDeathR() {
+    isDead = true;
+    isSwinging = false;
+    currentAnimState = AnimationState.DEATH_RIGHT;
+    if (animator != null) {
+      animator.startAnimation("minotaur_death_r");
+    }
+  }
+
   public boolean isSwinging() {
     return isSwinging;
+  }
+
+  public boolean isDead() {
+    return isDead;
+  }
+
+  public boolean isFacingRight() {
+    return !isFacingLeftState();
   }
 }

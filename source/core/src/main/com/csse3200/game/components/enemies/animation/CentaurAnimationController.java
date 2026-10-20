@@ -31,6 +31,7 @@ public class CentaurAnimationController extends Component {
   private ChargeComponent chargeComponent;
   private AnimationState currentAnimState = null;
   private boolean isSwinging = false;
+  private boolean isDead = false;
 
   private enum AnimationState {
     IDLE_LEFT,
@@ -58,6 +59,7 @@ public class CentaurAnimationController extends Component {
     entity.getEvents().addListener(SWING_RIGHT_START, this::animateSwingR);
     entity.getEvents().addListener(DEATH_LEFT_START, this::animateDeathL);
     entity.getEvents().addListener(DEATH_RIGHT_START, this::animateDeathR);
+    entity.getEvents().addListener("death", this::onDeath);
     entity.getEvents().addListener(MELEE_ATTACK, this::onAttack);
     entity.getEvents().addListener(MELEE_ATTACK_WINDUP, this::onAttack);
     entity.getEvents().addListener(RANGED_ATTACK_FIRED, this::onAttack);
@@ -70,6 +72,9 @@ public class CentaurAnimationController extends Component {
 
   @Override
   public void update() {
+    if (isDead) {
+      return;
+    }
     if (chargeComponent == null && entity != null) {
       chargeComponent = entity.getComponent(ChargeComponent.class);
     }
@@ -93,6 +98,9 @@ public class CentaurAnimationController extends Component {
   }
 
   private void onAttack(Entity target) {
+    if (isDead) {
+      return;
+    }
     if (target != null && target.getPosition() != null && entity != null) {
       currentAnimState =
           (target.getPosition().x < entity.getPosition().x)
@@ -114,6 +122,9 @@ public class CentaurAnimationController extends Component {
 
   /** Starts the run animation facing the target, the velocity, or the current facing. */
   private void onChargeStart() {
+    if (isDead) {
+      return;
+    }
     isSwinging = false;
     Vector2 targetPos = chargeComponent != null ? chargeComponent.getTargetPosition() : null;
     if (targetPos != null && entity != null) {
@@ -235,13 +246,26 @@ public class CentaurAnimationController extends Component {
     }
   }
 
+  private void onDeath() {
+    isDead = true;
+    isSwinging = false;
+    currentAnimState = isFacingRight() ? AnimationState.DEATH_RIGHT : AnimationState.DEATH_LEFT;
+    triggerStateEvent(currentAnimState);
+  }
+
   void animateDeathL() {
+    isDead = true;
+    isSwinging = false;
+    currentAnimState = AnimationState.DEATH_LEFT;
     if (animator != null) {
       animator.startAnimation("centaur_death_l");
     }
   }
 
   void animateDeathR() {
+    isDead = true;
+    isSwinging = false;
+    currentAnimState = AnimationState.DEATH_RIGHT;
     if (animator != null) {
       animator.startAnimation("centaur_death_r");
     }
@@ -249,6 +273,10 @@ public class CentaurAnimationController extends Component {
 
   public boolean isSwinging() {
     return isSwinging;
+  }
+
+  public boolean isDead() {
+    return isDead;
   }
 
   public boolean isFacingRight() {

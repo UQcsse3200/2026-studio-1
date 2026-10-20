@@ -180,7 +180,9 @@ class EnemyFactoryTest {
                 "minotaur_charge_l",
                 "minotaur_charge_r",
                 "minotaur_swing_l",
-                "minotaur_swing_r")),
+                "minotaur_swing_r",
+                "minotaur_death_l",
+                "minotaur_death_r")),
         new Spec(
             "centaur",
             EnemyFactory::createCentaur,

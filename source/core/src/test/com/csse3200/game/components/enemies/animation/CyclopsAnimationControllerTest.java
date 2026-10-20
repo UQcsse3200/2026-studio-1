@@ -523,4 +523,52 @@ class CyclopsAnimationControllerTest {
 
     assertFalse(bareController.isAttacking());
   }
+
+  @Test
+  void shouldPlayDeathAnimationsOnDeathEvent() {
+    entity.create();
+
+    entity.getEvents().trigger("death");
+
+    verify(animationRenderComponent).startAnimation("cyclops_death_r");
+    assertTrue(controller.isDead());
+    assertFalse(controller.isAttacking());
+
+    // Movement after death should not trigger animations
+    lenient().when(body.getLinearVelocity()).thenReturn(new Vector2(-1f, 0f));
+    controller.update();
+    verify(animationRenderComponent, never()).startAnimation("cyclops_walk_l");
+
+    // Attack after death should not trigger animations
+    Entity target = new Entity();
+    target.setPosition(-5f, 0f);
+    entity.getEvents().trigger("meleeAttack", target);
+    verify(animationRenderComponent, never()).startAnimation("cyclops_stomp_l");
+  }
+
+  @Test
+  void shouldPlayDeathLeftWhenFacingLeftOnDeath() {
+    entity.create();
+
+    when(body.getLinearVelocity()).thenReturn(new Vector2(-1f, 0f));
+    controller.update();
+    assertTrue(controller.isFacingLeft());
+
+    entity.getEvents().trigger("death");
+
+    verify(animationRenderComponent).startAnimation("cyclops_death_l");
+    assertTrue(controller.isDead());
+  }
+
+  @Test
+  void shouldRespondToDirectDeathEvents() {
+    entity.create();
+
+    entity.getEvents().trigger("deathLeftStart");
+    verify(animationRenderComponent).startAnimation("cyclops_death_l");
+    assertTrue(controller.isDead());
+
+    entity.getEvents().trigger("deathRightStart");
+    verify(animationRenderComponent).startAnimation("cyclops_death_r");
+  }
 }

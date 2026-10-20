@@ -530,6 +530,7 @@ public final class EnemyFactory {
         "minotaur_charge_l",
         "minotaur_charge_r");
     addAnimations(animator, DEFAULT_FRAME_TIME, NORMAL, "minotaur_swing_l", "minotaur_swing_r");
+    addAnimations(animator, DEATH_FRAME_TIME, NORMAL, "minotaur_death_l", "minotaur_death_r");
     addCommonParts(minotaur, config, EnemyType.MINOTAUR, inventory, animator);
     minotaur.addComponent(meleeAttack(config.melee, weapon));
     minotaur.addComponent(new MinotaurAnimationController());
